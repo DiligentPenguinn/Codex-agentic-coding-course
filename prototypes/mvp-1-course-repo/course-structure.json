@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "Codex Content Builder Academy - MVP 1",
+  "languagePriority": ["vi", "en"],
+  "sourceBrief": "../../codex_content_creator_course_plan_v8.html",
+  "pedagogyKernel": "../mvp-0.5-pedagogy-kernel/README.vi.md",
+  "modules": [
+    {
+      "id": "intro",
+      "titleVi": "Mở đầu: ca trực trước ngày ra mắt",
+      "titleEn": "Prologue: the shift before launch day",
+      "level": "Beginner",
+      "estimatedMinutes": 20,
+      "lessonPath": "lessons/intro-opening-scene.vi.md",
+      "scriptPath": "lesson-scripts/intro.script.vi.md",
+      "quizPath": "quizzes/intro.quiz.json",
+      "promptPath": "codex-prompts/start-intro.vi.md",
+      "artifact": "Quest card học tập cho workflow nội dung thật"
+    },
+    {
+      "id": "module-0",
+      "titleVi": "Định hướng: dùng Codex như cộng sự làm việc",
+      "titleEn": "Orientation: use Codex as a work partner",
+      "level": "Beginner",
+      "estimatedMinutes": 45,
+      "lessonPath": "lessons/module-0-orientation.vi.md",
+      "scriptPath": "lesson-scripts/module-0.script.vi.md",
+      "quizPath": "quizzes/module-0.quiz.json",
+      "promptPath": "codex-prompts/start-module-0.vi.md",
+      "artifact": "Prompt inspect repo đầu tiên"
+    },
+    {
+      "id": "module-1",
+      "titleVi": "Brief Codex như một collaborator",
+      "titleEn": "Brief Codex like a collaborator",
+      "level": "Beginner",
+      "estimatedMinutes": 60,
+      "lessonPath": "lessons/module-1-brief-codex.vi.md",
+      "scriptPath": "lesson-scripts/module-1.script.vi.md",
+      "quizPath": "quizzes/module-1.quiz.json",
+      "promptPath": "codex-prompts/start-module-1.vi.md",
+      "artifact": "Codex task brief có goal, context, constraints, done-when"
+    },
+    {
+      "id": "module-2",
+      "titleVi": "Project memory: AGENTS.md và Brand Brain",
+      "titleEn": "Project memory: AGENTS.md and Brand Brain",
+      "level": "Beginner-Intermediate",
+      "estimatedMinutes": 75,
+      "lessonPath": "lessons/module-2-project-memory-brand-brain.vi.md",
+      "scriptPath": "lesson-scripts/module-2.script.vi.md",
+      "quizPath": "quizzes/module-2.quiz.json",
+      "promptPath": "codex-prompts/start-module-2.vi.md",
+      "artifact": "Brand Brain schema và AGENTS.md draft"
+    },
+    {
+      "id": "module-3",
+      "titleVi": "Spec trước khi code",
+      "titleEn": "Spec before code",
+      "level": "Beginner-Intermediate",
+      "estimatedMinutes": 65,
+      "lessonPath": "lessons/module-3-spec-before-code.vi.md",
+      "scriptPath": "lesson-scripts/module-3.script.vi.md",
+      "quizPath": "quizzes/module-3.quiz.json",
+      "promptPath": "codex-prompts/start-module-3.vi.md",
+      "artifact": "Mini PRD và implementation slices cho ContentPilot Lite"
+    }
+  ]
+}

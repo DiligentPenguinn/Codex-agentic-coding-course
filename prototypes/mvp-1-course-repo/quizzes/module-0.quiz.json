@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.1.0",
+  "moduleId": "module-0",
+  "title": "Quiz Module 0 - Định hướng",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "mcqPresentation": "Dùng danh sách lựa chọn của giao diện nếu có; nếu không, hiển thị A/B/C/D gọn.",
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Không chấp nhận câu tự luận chỉ lặp lại nguyên văn lời Teacher hoặc lựa chọn vừa thấy; yêu cầu learner viết lại với ví dụ riêng."
+  },
+  "questions": [
+    {
+      "id": "m0-q1",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Bạn mở một repo lạ và muốn thêm tính năng newsletter sau này. Request đầu tiên nào an toàn nhất cho Executor?",
+      "choices": [
+        "Hãy thêm newsletter form và sửa mọi file cần thiết.",
+        "Hãy inspect repo ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
+        "Hãy cài package email phổ biến rồi tạo form.",
+        "Hãy xóa phần app chưa dùng để repo gọn hơn."
+      ],
+      "answer": "Hãy inspect repo ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
+      "requiresRationale": true,
+      "rationalePrompt": "Nói một câu: request đó giảm rủi ro nào?",
+      "expectedSignals": [
+        "Đọc trước khi sửa",
+        "Ràng buộc chỉ đọc",
+        "Có bằng chứng trước bước tiếp theo"
+      ]
+    },
+    {
+      "id": "m0-q2",
+      "type": "multiple-select",
+      "presentation": "choice-list",
+      "prompt": "Trong một repo mới, hành động nào cần dừng lại hỏi phê duyệt trước? Chọn tất cả đáp án đúng.",
+      "choices": [
+        "Đọc `README.md`",
+        "Liệt kê cây thư mục",
+        "Sửa `app.js`",
+        "Cài package từ internet",
+        "Xóa một thư mục cũ",
+        "Đọc file cấu hình để tóm tắt"
+      ],
+      "answers": [
+        "Sửa `app.js`",
+        "Cài package từ internet",
+        "Xóa một thư mục cũ"
+      ],
+      "expectedSignals": [
+        "Phân biệt read-only với edit",
+        "Nhận diện network/install",
+        "Nhận diện destructive action"
+      ]
+    },
+    {
+      "id": "m0-q3",
+      "type": "short-answer",
+      "prompt": "Rewrite request này thành prompt inspect an toàn: `Fix this repo and make it better.` Prompt mới phải có mục tiêu, ràng buộc chỉ đọc và điều kiện xong.",
+      "antiCopy": {
+        "rejectVerbatimTemplate": true,
+        "repairPrompt": "Bạn đang đi đúng hướng, nhưng câu này còn giống mẫu. Hãy viết lại cho một repo hoặc mục tiêu cụ thể của bạn."
+      },
+      "expectedSignals": [
+        "Có mục tiêu inspect",
+        "Có ràng buộc không sửa file",
+        "Có done-when quan sát được",
+        "Có bằng chứng cần Codex trả về"
+      ]
+    },
+    {
+      "id": "m0-q4",
+      "type": "short-answer",
+      "prompt": "Sau khi Executor inspect xong và muốn sửa file, bạn cần xem 3 thông tin nào trước khi phê duyệt?",
+      "antiCopy": {
+        "requiresOwnWording": true,
+        "repairPrompt": "Hãy trả lời bằng lời của bạn và gắn với một thay đổi cụ thể, ví dụ sửa copy, sửa UI hoặc thêm trạng thái."
+      },
+      "expectedSignals": [
+        "File sẽ sửa",
+        "Rủi ro hoặc tác động",
+        "Cách kiểm tra hoặc rollback",
+        "Lý do thay đổi cần thiết"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ca trực trước ngày ra mắt - Codex Content Builder Academy</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="vn-shell">
+      <section class="vn-stage title-active scene-meeting" id="stage" aria-label="Visual novel mở đầu khóa học">
+        <header class="vn-topbar sr-only" aria-live="polite">
+          <div>
+            <p class="series">Codex Content Builder Academy</p>
+            <h1>Ca trực trước ngày ra mắt</h1>
+          </div>
+          <div class="chapter-chip">
+            <span id="sceneKicker">Cảnh 01</span>
+            <strong id="sceneTitle">Phòng họp sáng thứ Hai</strong>
+          </div>
+        </header>
+
+        <section class="title-screen" id="titleScreen" aria-label="Màn tiêu đề">
+          <p>Codex Content Builder Academy</p>
+          <h1>Ca trực trước ngày ra mắt</h1>
+          <button id="startStory" type="button">Bắt đầu</button>
+        </section>
+
+        <div class="sprite-row" aria-label="Nhân vật trong cảnh">
+          <article class="sprite player" data-character="player">
+            <div class="portrait" aria-hidden="true">
+              <img class="avatar-art" src="images/avatar-player.png" alt="">
+              <span class="hair"></span>
+              <span class="face"></span>
+              <span class="body"></span>
+              <span class="laptop"></span>
+            </div>
+            <p>Bạn</p>
+          </article>
+          <article class="sprite huong" data-character="huong">
+            <div class="portrait" aria-hidden="true">
+              <img class="avatar-art" src="images/avatar-huong.png" alt="">
+              <span class="hair"></span>
+              <span class="face"></span>
+              <span class="body"></span>
+              <span class="notebook"></span>
+            </div>
+            <p>Hương</p>
+          </article>
+          <article class="sprite codex" data-character="codex">
+            <div class="portrait terminal" aria-hidden="true">
+              <img class="avatar-art" src="images/avatar-codex.png" alt="">
+              <span class="terminal-top"></span>
+              <span class="terminal-line"></span>
+              <span class="terminal-line short"></span>
+              <span class="terminal-cursor"></span>
+            </div>
+            <p>Codex</p>
+          </article>
+        </div>
+
+        <button
+          class="cast-toggle"
+          id="castToggle"
+          type="button"
+          aria-controls="castDossier"
+          aria-expanded="true"
+        >
+          Ẩn nhân vật
+        </button>
+
+        <aside class="cast-dossier" id="castDossier" aria-label="Hồ sơ nhân vật">
+          <button class="cast-card" type="button" data-focus="player">
+            <span>Bạn</span>
+            <small>Nhân vật chính, người giữ mục tiêu và quyền quyết định.</small>
+          </button>
+          <button class="cast-card" type="button" data-focus="huong">
+            <span>Hương</span>
+            <small>Teacher hướng dẫn, mentor về quy trình AI cho team marketing.</small>
+          </button>
+          <button class="cast-card" type="button" data-focus="codex">
+            <span>Codex</span>
+            <small>Executor thao tác repo, cộng sự kỹ thuật khi nhiệm vụ đủ rõ.</small>
+          </button>
+        </aside>
+
+        <section class="dialogue-panel" aria-live="polite">
+          <div class="speaker-line">
+            <div>
+              <p id="speakerRole">Mở đầu</p>
+              <h2 id="speakerName">Người dẫn chuyện</h2>
+            </div>
+            <div class="progress-wrap" aria-label="Tiến độ cảnh">
+              <span id="progressText">01 / 48</span>
+              <span class="progress-track"><span id="progressBar"></span></span>
+            </div>
+          </div>
+          <p id="dialogueText"></p>
+          <div class="choice-row" id="choiceRow" hidden></div>
+          <div class="dialogue-actions">
+            <button id="prevScene" type="button" aria-label="Cảnh trước">&lt;</button>
+            <button id="logToggle" type="button">Nhật ký</button>
+            <button id="nextScene" type="button" aria-label="Cảnh tiếp theo">&gt;</button>
+          </div>
+        </section>
+
+        <aside class="backlog" id="backlog" aria-label="Nhật ký thoại" hidden>
+          <div class="backlog-head">
+            <h2>Nhật ký</h2>
+            <button id="closeLog" type="button" aria-label="Đóng nhật ký">×</button>
+          </div>
+          <ol id="backlogList"></ol>
+        </aside>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

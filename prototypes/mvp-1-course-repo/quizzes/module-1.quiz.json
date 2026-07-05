@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.1.0",
+  "moduleId": "module-1",
+  "title": "Quiz Module 1 - Brief Codex",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "mcqPresentation": "Dùng danh sách lựa chọn của giao diện nếu có; nếu không, hiển thị A/B/C/D gọn.",
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Không chấp nhận câu tự luận chỉ lặp lại nguyên văn lời Teacher hoặc lựa chọn vừa thấy; yêu cầu learner viết lại với ví dụ riêng."
+  },
+  "questions": [
+    {
+      "id": "m1-q1",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Bạn muốn cải thiện Idea Lab nhưng chưa chắc nên sửa gì. Brief nào reviewable nhất?",
+      "choices": [
+        "Làm Idea Lab hay hơn và hiện đại hơn.",
+        "Inspect `index.html`, `app.js`, `styles.css` và data sample ở chế độ chỉ đọc; đề xuất 3 cải tiến nhỏ cho Idea Lab, mỗi cải tiến có file liên quan, rủi ro và cách kiểm tra thủ công.",
+        "Redesign toàn bộ ContentPilot Lite để giống một SaaS thật.",
+        "Tạo mọi tính năng mà marketer có thể cần."
+      ],
+      "answer": "Inspect `index.html`, `app.js`, `styles.css` và data sample ở chế độ chỉ đọc; đề xuất 3 cải tiến nhỏ cho Idea Lab, mỗi cải tiến có file liên quan, rủi ro và cách kiểm tra thủ công.",
+      "requiresRationale": true,
+      "rationalePrompt": "Nói một câu: brief đó có bằng chứng review nào mà các lựa chọn khác thiếu?",
+      "expectedSignals": [
+        "Có context path",
+        "Có ràng buộc chỉ đọc",
+        "Có output reviewable",
+        "Có rủi ro và kiểm tra"
+      ]
+    },
+    {
+      "id": "m1-q2",
+      "type": "short-answer",
+      "prompt": "Viết lại request này thành task brief 5 dòng: `Tạo nhiều ý tưởng content hơn.` Hãy tự chọn platform, audience và một non-goal.",
+      "antiCopy": {
+        "requiresOriginalContext": true,
+        "repairPrompt": "Câu này cần context riêng của bạn. Hãy thêm platform, audience hoặc non-goal không có trong lời Teacher ngay trước đó."
+      },
+      "expectedSignals": [
+        "Goal cụ thể",
+        "Có context hoặc file cần đọc",
+        "Có constraints",
+        "Có done-when",
+        "Có evidence cần trả về"
+      ]
+    },
+    {
+      "id": "m1-q3",
+      "type": "short-answer",
+      "prompt": "Viết 2 acceptance criteria cho một cải tiến nhỏ của Idea Lab. Mỗi tiêu chí phải kiểm tra được trong browser hoặc bằng file.",
+      "antiCopy": {
+        "requiresObservableDetail": true,
+        "repairPrompt": "Tiêu chí còn mơ hồ. Hãy thêm nơi kiểm tra và dấu hiệu nhìn thấy khi pass."
+      },
+      "expectedSignals": [
+        "Có dấu hiệu quan sát được",
+        "Không dùng từ mơ hồ như đẹp hơn hoặc tốt hơn",
+        "Có nơi kiểm tra",
+        "Gắn với cải tiến nhỏ"
+      ]
+    },
+    {
+      "id": "m1-q4",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Brief nào có scope creep rõ nhất?",
+      "choices": [
+        "Đề xuất 3 cải tiến nhỏ cho empty state của Idea Lab, chưa sửa file.",
+        "Sửa một câu hướng dẫn trong Idea Lab và nêu cách kiểm tra.",
+        "Thêm lịch đăng bài, auth, backend, billing và redesign dashboard trong một task.",
+        "Đọc data sample và đề xuất field còn thiếu."
+      ],
+      "answer": "Thêm lịch đăng bài, auth, backend, billing và redesign dashboard trong một task.",
+      "requiresRationale": true,
+      "rationalePrompt": "Nêu một cách cắt brief đó thành task nhỏ hơn.",
+      "expectedSignals": [
+        "Nhận diện scope quá rộng",
+        "Biết cắt thành task nhỏ",
+        "Không approve làm tất cả cùng lúc"
+      ]
+    }
+  ]
+}

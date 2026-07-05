@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1.1.0",
+  "moduleId": "intro",
+  "title": "Quiz Mở đầu - Ca trực trước ngày ra mắt",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "mcqPresentation": "Dùng danh sách lựa chọn của giao diện nếu có; nếu không, hiển thị A/B/C/D gọn.",
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Không chấp nhận câu tự luận chỉ lặp lại nguyên văn lời Teacher hoặc lựa chọn vừa thấy; yêu cầu learner viết lại với ví dụ riêng."
+  },
+  "questions": [
+    {
+      "id": "intro-q1",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Một creator đang có 3 kênh nội dung, nhiều bản nháp rời rạc và hay quên giọng thương hiệu. Quest card nào tốt nhất để bắt đầu khóa học?",
+      "choices": [
+        "Tôi muốn Codex làm mọi thứ nhanh hơn.",
+        "Tôi muốn dùng Codex để gom ý tưởng, giữ giọng thương hiệu và tạo lịch nháp cho LinkedIn; tôi sẽ duyệt claim trước khi đăng.",
+        "Tôi muốn học hết các lệnh của Codex.",
+        "Tôi muốn Executor tự sửa repo cho đến khi app hoàn hảo."
+      ],
+      "answer": "Tôi muốn dùng Codex để gom ý tưởng, giữ giọng thương hiệu và tạo lịch nháp cho LinkedIn; tôi sẽ duyệt claim trước khi đăng.",
+      "requiresRationale": true,
+      "rationalePrompt": "Chọn một lý do bằng lời của bạn: vì sao quest card đó tốt hơn các lựa chọn còn lại?",
+      "expectedSignals": [
+        "Có mục tiêu nội dung cụ thể",
+        "Có cách Codex hỗ trợ",
+        "Learner vẫn giữ quyền duyệt hoặc quyết định"
+      ]
+    },
+    {
+      "id": "intro-q2",
+      "type": "short-answer",
+      "prompt": "Viết quest card của bạn trong 4-6 dòng cho một vấn đề nội dung thật. Không dùng lại ví dụ LinkedIn ở câu trước.",
+      "antiCopy": {
+        "requiresOriginalExample": true,
+        "repairPrompt": "Câu này đúng hướng, nhưng mình cần thấy tình huống của bạn. Hãy viết lại với kênh nội dung, loại bài hoặc tiêu chí duyệt riêng."
+      },
+      "expectedSignals": [
+        "Có vấn đề nội dung cụ thể",
+        "Có vai trò Codex như cộng sự",
+        "Có cách learner giữ quyền quyết định",
+        "Có tín hiệu học tốt quan sát được"
+      ]
+    },
+    {
+      "id": "intro-q3",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Trong khóa học này, nếu learner chưa biết repo có gì nhưng muốn bắt đầu làm việc, vai nào nên quyết định mục tiêu và phê duyệt bước tiếp theo?",
+      "choices": [
+        "Learner",
+        "Teacher",
+        "Executor",
+        "Project Memory"
+      ],
+      "answer": "Learner",
+      "requiresRationale": true,
+      "rationalePrompt": "Nói thêm một câu: Teacher và Executor hỗ trợ Learner như thế nào trong tình huống đó?",
+      "expectedSignals": [
+        "Learner giữ quyết định",
+        "Teacher hướng dẫn hoặc kiểm tra",
+        "Executor thao tác khi nhiệm vụ rõ"
+      ]
+    },
+    {
+      "id": "intro-q4",
+      "type": "short-answer",
+      "prompt": "Dùng một việc nội dung của bạn để giải thích khác nhau giữa Teacher và Executor trong 2 câu.",
+      "antiCopy": {
+        "requiresOwnScenario": true,
+        "repairPrompt": "Đừng định nghĩa lại bằng câu chung. Hãy dùng một việc của bạn, ví dụ: lên lịch bài, sửa draft, kiểm tra claim hoặc gom ý tưởng."
+      },
+      "expectedSignals": [
+        "Teacher giúp hiểu, đặt câu hỏi hoặc kiểm tra",
+        "Executor đọc/sửa/chạy khi nhiệm vụ rõ",
+        "Ví dụ gắn với tình huống nội dung riêng"
+      ]
+    }
+  ]
+}

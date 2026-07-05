@@ -1,0 +1,29 @@
+{
+  "ideas": [
+    {
+      "id": "idea-001",
+      "platform": "LinkedIn",
+      "pillar": "Học Codex qua task thật",
+      "hook": "Đừng bắt đầu bằng 'hãy làm app cho tôi'. Hãy bắt đầu bằng inspect.",
+      "format": "short post",
+      "status": "draft"
+    },
+    {
+      "id": "idea-002",
+      "platform": "Facebook",
+      "pillar": "Brand memory trước khi generate",
+      "hook": "AI viết tốt hơn khi nó biết brand không được nói gì.",
+      "format": "carousel outline",
+      "status": "draft"
+    },
+    {
+      "id": "idea-003",
+      "platform": "TikTok",
+      "pillar": "Review evidence thay vì tin cảm giác",
+      "hook": "Nếu Codex nói 'xong rồi', hãy hỏi: bằng chứng đâu?",
+      "format": "short video script",
+      "status": "planned"
+    }
+  ]
+}
+

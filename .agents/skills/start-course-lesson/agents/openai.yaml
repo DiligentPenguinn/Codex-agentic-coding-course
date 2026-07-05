@@ -1,0 +1,3 @@
+display_name: Start Course Lesson
+short_description: Resolve and start scripted course lessons.
+default_prompt: Use $start-course-lesson intro to begin the course.

@@ -1,0 +1,3 @@
+display_name: Course Teacher
+short_description: Teach lessons using static scripts and one-question quizzes.
+default_prompt: Use $course-teacher to teach the current scripted lesson.

@@ -1,0 +1,40 @@
+{
+  "brandName": "Linh & Co. Studio",
+  "brandVoice": {
+    "tone": "Ấm áp, rõ ràng, thực tế",
+    "styleNotes": [
+      "Viết như một người cố vấn thân thiện",
+      "Tránh hứa hẹn quá đà",
+      "Ưu tiên ví dụ cụ thể cho marketer bận rộn"
+    ]
+  },
+  "audiencePersonas": [
+    {
+      "name": "Chủ shop nhỏ",
+      "pain": "Muốn đăng đều nhưng không có team content",
+      "desiredOutcome": "Có lịch đăng bài dễ làm theo"
+    },
+    {
+      "name": "Content creator độc lập",
+      "pain": "Có nhiều ý tưởng nhưng khó biến thành campaign",
+      "desiredOutcome": "Có hệ thống giữ voice và tái sử dụng ý tưởng"
+    }
+  ],
+  "productFacts": [
+    "ContentPilot Lite là scaffold học tập",
+    "Không tự động publish lên mạng xã hội",
+    "Dữ liệu mẫu nằm trong repo để Codex có thể inspect"
+  ],
+  "forbiddenClaims": [
+    "Không hứa tăng doanh thu chắc chắn",
+    "Không nói công cụ thay thế hoàn toàn marketer",
+    "Không bịa số liệu performance"
+  ],
+  "contentPillars": [
+    "Học Codex qua task thật",
+    "Brand memory trước khi generate",
+    "Lập plan trước khi sửa code",
+    "Review evidence thay vì tin cảm giác"
+  ]
+}
+

@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex-content-builder.local/schemas/xapi-event.schema.json",
+  "title": "Codex Content Builder Learning Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "actor",
+    "verb",
+    "object",
+    "context",
+    "timestamp"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.5.0"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["learnerId", "displayName"],
+      "properties": {
+        "learnerId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "verb": {
+      "type": "string",
+      "enum": [
+        "lesson_started",
+        "course_resumed",
+        "hint_requested",
+        "practice_completed",
+        "quiz_answered",
+        "mastery_gate_passed",
+        "mastery_gate_failed",
+        "artifact_created",
+        "reflection_submitted"
+      ]
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["course", "module", "submodule", "quiz", "artifact", "mastery_gate"]
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "masteryScore": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "response": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["moduleId", "submoduleId", "language", "sessionId"],
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "submoduleId": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string",
+          "enum": ["vi", "en"]
+        },
+        "sessionId": {
+          "type": "string"
+        },
+        "availableMinutes": {
+          "type": "integer",
+          "enum": [10, 20, 30, 45, 60]
+        },
+        "teacherPromptVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
+

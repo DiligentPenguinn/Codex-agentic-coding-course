@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.1.0",
+  "moduleId": "module-2",
+  "title": "Quiz Module 2 - Project Memory và Brand Brain",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "mcqPresentation": "Dùng danh sách lựa chọn của giao diện nếu có; nếu không, hiển thị A/B/C/D gọn.",
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Không chấp nhận câu tự luận chỉ lặp lại nguyên văn lời Teacher hoặc lựa chọn vừa thấy; yêu cầu learner viết lại với ví dụ riêng."
+  },
+  "questions": [
+    {
+      "id": "m2-q1",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Thông tin nào nên đưa vào `AGENTS.md` thay vì chỉ nhắc trong một prompt hôm nay?",
+      "choices": [
+        "Tên một bài post thử nghiệm chỉ dùng hôm nay.",
+        "Quy tắc repo luôn dùng tiếng Việt có dấu, đọc trước khi sửa và báo file đã thay đổi.",
+        "Một ý tưởng campaign chưa được duyệt.",
+        "Một câu hỏi ngẫu nhiên về tone cho task hiện tại."
+      ],
+      "answer": "Quy tắc repo luôn dùng tiếng Việt có dấu, đọc trước khi sửa và báo file đã thay đổi.",
+      "requiresRationale": true,
+      "rationalePrompt": "Nói một câu: vì sao thông tin đó bền vững hơn các lựa chọn còn lại?",
+      "expectedSignals": [
+        "Áp dụng qua nhiều task",
+        "Thuộc quy tắc repo",
+        "Giúp Codex làm việc nhất quán"
+      ]
+    },
+    {
+      "id": "m2-q2",
+      "type": "short-answer",
+      "prompt": "Cho một brand bạn tự chọn. Viết 2 rule cho `AGENTS.md` và 2 field cho Brand Brain. Đừng dùng lại nguyên văn các field trong bài; hãy thêm chi tiết riêng.",
+      "antiCopy": {
+        "requiresOriginalBrandDetail": true,
+        "repairPrompt": "Câu này cần chi tiết riêng của brand. Hãy thêm audience, claim bị cấm, giọng viết hoặc kênh nội dung cụ thể."
+      },
+      "expectedSignals": [
+        "Rule AGENTS.md là hướng dẫn bền vững",
+        "Brand Brain có thông tin thương hiệu cụ thể",
+        "Không trộn instruction một lần với memory dài hạn",
+        "Có chi tiết không xuất hiện nguyên văn trong script"
+      ]
+    },
+    {
+      "id": "m2-q3",
+      "type": "multiple-select",
+      "presentation": "choice-list",
+      "prompt": "Một brand sức khỏe không muốn Codex viết claim quá đà như `chữa khỏi bệnh`. Những phần nào của Brand Brain giúp giảm rủi ro đó?",
+      "choices": [
+        "Forbidden claims",
+        "Product facts",
+        "Audience personas",
+        "Random hashtags",
+        "Content pillars"
+      ],
+      "answers": [
+        "Forbidden claims",
+        "Product facts",
+        "Content pillars"
+      ],
+      "requiresRationale": true,
+      "rationalePrompt": "Chọn một field trong đáp án của bạn và giải thích cách nó chặn claim sai.",
+      "expectedSignals": [
+        "Nhận diện claim bị cấm",
+        "Dùng product facts để giữ đúng sự thật",
+        "Dùng content pillars để định hướng nội dung"
+      ]
+    },
+    {
+      "id": "m2-q4",
+      "type": "short-answer",
+      "prompt": "Viết một câu yêu cầu Codex nêu bằng chứng context trước khi draft content cho brand của bạn.",
+      "antiCopy": {
+        "requiresOwnBrandContext": true,
+        "repairPrompt": "Hãy viết lại với brand hoặc kênh nội dung cụ thể của bạn, không chỉ nói chung là `liệt kê memory card`."
+      },
+      "expectedSignals": [
+        "Yêu cầu Codex liệt kê memory/context đã dùng",
+        "Gắn với brand hoặc kênh cụ thể",
+        "Có mục đích review output",
+        "Không yêu cầu draft ngay khi chưa nêu context"
+      ]
+    }
+  ]
+}

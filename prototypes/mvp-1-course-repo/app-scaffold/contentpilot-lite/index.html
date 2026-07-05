@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ContentPilot Lite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ContentPilot Lite</p>
+        <h1>Brand memory trước, content sau.</h1>
+      </div>
+      <div class="status-strip" aria-label="Course scaffold status">
+        <span>Brand Brain</span>
+        <span>Idea Lab</span>
+        <span>Draft Studio</span>
+        <span>Calendar</span>
+      </div>
+    </header>
+
+    <section class="workspace" aria-label="ContentPilot Lite workspace">
+      <aside class="brand-panel" aria-labelledby="brand-title">
+        <div class="panel-head">
+          <p class="eyebrow">Brand Brain</p>
+          <h2 id="brand-title">Linh & Co. Studio</h2>
+        </div>
+
+        <label>
+          Voice
+          <textarea id="voiceInput" rows="4"></textarea>
+        </label>
+
+        <label>
+          Audience
+          <textarea id="audienceInput" rows="5"></textarea>
+        </label>
+
+        <label>
+          Forbidden claims
+          <textarea id="claimsInput" rows="4"></textarea>
+        </label>
+
+        <button class="primary-action" id="saveBrandButton" type="button">Save memory</button>
+      </aside>
+
+      <section class="idea-panel" aria-labelledby="idea-title">
+        <div class="panel-head">
+          <p class="eyebrow">Idea Lab</p>
+          <h2 id="idea-title">Chọn một hướng nội dung</h2>
+        </div>
+        <div class="idea-list" id="ideaList"></div>
+      </section>
+
+      <section class="draft-panel" aria-labelledby="draft-title">
+        <div class="panel-head">
+          <p class="eyebrow">Draft Studio</p>
+          <h2 id="draft-title">Draft preview</h2>
+        </div>
+        <article class="draft-preview">
+          <p class="platform" id="draftPlatform"></p>
+          <h3 id="draftHook"></h3>
+          <p id="draftBody"></p>
+        </article>
+        <div class="pill-row" id="pillarRow"></div>
+      </section>
+
+      <section class="calendar-panel" aria-labelledby="calendar-title">
+        <div class="panel-head">
+          <p class="eyebrow">Calendar Board</p>
+          <h2 id="calendar-title">Tuần này</h2>
+        </div>
+        <ol class="calendar-list" id="calendarList"></ol>
+      </section>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

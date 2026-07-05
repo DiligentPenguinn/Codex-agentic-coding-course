@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codex-content-builder.local/schemas/learner-state.schema.json",
+  "title": "Codex Content Builder Learner State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "learner",
+    "course",
+    "session",
+    "mastery",
+    "artifacts",
+    "hintHistory",
+    "nextRecommendedAction",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.5.0"
+    },
+    "learner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "primaryLanguage", "role", "technicalConfidence"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primaryLanguage": {
+          "type": "string",
+          "enum": ["vi", "en"]
+        },
+        "role": {
+          "type": "string",
+          "examples": ["marketer", "content creator", "small business owner"]
+        },
+        "technicalConfidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        }
+      }
+    },
+    "course": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentModuleId", "currentSubmoduleId", "status"],
+      "properties": {
+        "currentModuleId": {
+          "type": "string",
+          "examples": ["module-0"]
+        },
+        "currentSubmoduleId": {
+          "type": "string",
+          "examples": ["module-0.first-thread"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["not_started", "in_progress", "paused", "completed"]
+        }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["availableMinutes", "startedAt", "lastActivityAt"],
+      "properties": {
+        "availableMinutes": {
+          "type": "integer",
+          "enum": [10, 20, 30, 45, 60]
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastActivityAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "mastery": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["score", "evidence", "lastAssessedAt"],
+        "properties": {
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "lastAssessedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "examples": [
+        {
+          "repo_inspection_before_edits": {
+            "score": 2,
+            "evidence": "Learner wrote a read-only repo inspection prompt with a done-when clause.",
+            "lastAssessedAt": "2026-07-04T10:00:00+08:00"
+          }
+        }
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "title", "moduleId", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["prompt", "answer", "checklist", "quiz", "reflection", "file"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "moduleId": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "hintHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["moduleId", "submoduleId", "rung", "reason", "createdAt"],
+        "properties": {
+          "moduleId": {
+            "type": "string"
+          },
+          "submoduleId": {
+            "type": "string"
+          },
+          "rung": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4
+          },
+          "reason": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "nextRecommendedAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["moduleId", "submoduleId", "title", "estimatedMinutes", "reason"],
+      "properties": {
+        "moduleId": {
+          "type": "string"
+        },
+        "submoduleId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "estimatedMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}
+

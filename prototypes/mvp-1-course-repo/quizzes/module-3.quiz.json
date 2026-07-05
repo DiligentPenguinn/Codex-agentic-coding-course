@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.1.0",
+  "moduleId": "module-3",
+  "title": "Quiz Module 3 - Spec trước khi code",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "mcqPresentation": "Dùng danh sách lựa chọn của giao diện nếu có; nếu không, hiển thị A/B/C/D gọn.",
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Không chấp nhận câu tự luận chỉ lặp lại nguyên văn lời Teacher hoặc lựa chọn vừa thấy; yêu cầu learner viết lại với ví dụ riêng."
+  },
+  "questions": [
+    {
+      "id": "m3-q1",
+      "type": "multiple-choice",
+      "presentation": "choice-list",
+      "prompt": "Bạn muốn thêm trạng thái `Approved` cho content ideas. Trước khi Executor sửa code, yêu cầu nào đúng nhất?",
+      "choices": [
+        "Sửa ngay cho nhanh, rồi xem diff sau.",
+        "Lập mini PRD, non-goals, file list dự kiến, lát cắt triển khai, rủi ro và manual test; chưa sửa file.",
+        "Cài một package quản lý trạng thái để dễ làm hơn.",
+        "Redesign toàn bộ Idea Lab trước rồi tính sau."
+      ],
+      "answer": "Lập mini PRD, non-goals, file list dự kiến, lát cắt triển khai, rủi ro và manual test; chưa sửa file.",
+      "requiresRationale": true,
+      "rationalePrompt": "Nói một câu: yêu cầu đó giúp bạn phê duyệt an toàn hơn ở điểm nào?",
+      "expectedSignals": [
+        "Plan trước code",
+        "Có non-goals",
+        "Có file/risk/test",
+        "Chưa sửa file khi chưa approve"
+      ]
+    },
+    {
+      "id": "m3-q2",
+      "type": "short-answer",
+      "prompt": "Chọn một cải tiến nhỏ khác cho ContentPilot Lite. Viết mini PRD 5 dòng: goal, non-goal, user story, acceptance criteria, manual test.",
+      "antiCopy": {
+        "requiresOriginalFeature": true,
+        "repairPrompt": "Hãy chọn một cải tiến khác ví dụ trong bài. Cần có non-goal và test cụ thể để thấy bạn tự áp dụng."
+      },
+      "expectedSignals": [
+        "Feature nhỏ và rõ",
+        "Có non-goal",
+        "Có user story",
+        "Có acceptance criteria quan sát được",
+        "Có manual test"
+      ]
+    },
+    {
+      "id": "m3-q3",
+      "type": "multiple-select",
+      "presentation": "choice-list",
+      "prompt": "Acceptance criteria nào còn mơ hồ hoặc khó kiểm tra? Chọn tất cả đáp án đúng.",
+      "choices": [
+        "Idea card hiển thị nhãn `Approved` sau khi user chọn trạng thái.",
+        "App nhìn chuyên nghiệp hơn.",
+        "Không thay đổi dữ liệu sample ngoài field trạng thái.",
+        "Workflow mượt hơn cho marketer.",
+        "Manual test: mở `index.html`, đổi trạng thái một idea và thấy nhãn cập nhật."
+      ],
+      "answers": [
+        "App nhìn chuyên nghiệp hơn.",
+        "Workflow mượt hơn cho marketer."
+      ],
+      "requiresRationale": true,
+      "rationalePrompt": "Chọn một tiêu chí mơ hồ và viết lại thành tiêu chí kiểm tra được.",
+      "expectedSignals": [
+        "Nhận diện ngôn ngữ mơ hồ",
+        "Biết chuyển thành dấu hiệu quan sát được",
+        "Gắn với UI, dữ liệu hoặc manual test"
+      ]
+    },
+    {
+      "id": "m3-q4",
+      "type": "short-answer",
+      "prompt": "Executor đề xuất sửa `app.js` và `styles.css` nhưng chưa nói cách kiểm tra. Bạn sẽ phê duyệt, yêu cầu bổ sung, hay từ chối? Trả lời bằng quyết định và một lý do.",
+      "antiCopy": {
+        "requiresDecision": true,
+        "repairPrompt": "Câu trả lời cần có quyết định rõ: phê duyệt, yêu cầu bổ sung, hoặc từ chối; kèm lý do cụ thể."
+      },
+      "expectedSignals": [
+        "Không phê duyệt khi thiếu test",
+        "Yêu cầu manual test hoặc evidence",
+        "Nhắc phạm vi file hoặc rủi ro",
+        "Giữ quyền quyết định của learner"
+      ]
+    }
+  ]
+}
