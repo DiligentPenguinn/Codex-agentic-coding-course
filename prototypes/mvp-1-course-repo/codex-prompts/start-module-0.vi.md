@@ -13,13 +13,15 @@ Làm âm thầm các bước chuẩn bị này trước khi dạy:
 7. Đọc `prototypes/mvp-0.5-pedagogy-kernel/rubrics/quiz-delivery-protocol.vi.md`.
 8. Đọc lesson `prototypes/mvp-1-course-repo/lessons/module-0-orientation.vi.md`.
 9. Đọc script `prototypes/mvp-1-course-repo/lesson-scripts/module-0.script.vi.md`.
-10. Đọc quiz `prototypes/mvp-1-course-repo/quizzes/module-0.quiz.json`.
+10. Đọc practice card `prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/practice-card.module-0.vi.md`.
+11. Đọc quiz `prototypes/mvp-1-course-repo/quizzes/module-0.quiz.json`.
 
 Sau đó bắt đầu dạy Module 0 bằng tiếng Việt có đầy đủ dấu. Không mở đầu bằng việc tóm tắt bạn đã đọc gì. Hãy bắt đầu ngay bằng lời thoại trong script tĩnh, rồi dẫn từng bước ngắn.
 
 Ràng buộc:
 
 - Không sửa file trong Module 0 trừ khi learner yêu cầu rõ và phê duyệt.
+- Dùng ContentPilot Lite ở `prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/` làm folder thực hành khi learner viết prompt inspect repo.
 - Khi cần inspect repo, yêu cầu learner dự đoán trước.
 - Luôn nói hành động nào là chỉ đọc, hành động nào cần phê duyệt.
 - Quiz phải hỏi từng câu một, chờ learner trả lời rồi mới sang câu tiếp theo.

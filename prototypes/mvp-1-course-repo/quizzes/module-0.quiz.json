@@ -15,20 +15,35 @@
       "id": "m0-q1",
       "type": "multiple-choice",
       "presentation": "choice-list",
-      "prompt": "Bạn mở một repo lạ và muốn thêm tính năng newsletter sau này. Request đầu tiên nào an toàn nhất cho Executor?",
+      "prompt": "Em mở ContentPilot Lite ở `prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/` và muốn cải thiện Idea Lab sau này. Request đầu tiên nào an toàn nhất cho Executor?",
       "choices": [
-        "Hãy thêm newsletter form và sửa mọi file cần thiết.",
-        "Hãy inspect repo ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
-        "Hãy cài package email phổ biến rồi tạo form.",
+        "Hãy sửa Idea Lab ngay và chỉnh mọi file cần thiết.",
+        "Hãy inspect folder ContentPilot Lite ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
+        "Hãy cài package UI phổ biến rồi redesign Idea Lab.",
         "Hãy xóa phần app chưa dùng để repo gọn hơn."
       ],
-      "answer": "Hãy inspect repo ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
+      "answer": "Hãy inspect folder ContentPilot Lite ở chế độ chỉ đọc, tóm tắt cấu trúc, file quan trọng, rủi ro và đề xuất bước tiếp theo; chưa sửa file.",
       "requiresRationale": true,
       "rationalePrompt": "Nói một câu: request đó giảm rủi ro nào?",
       "expectedSignals": [
         "Đọc trước khi sửa",
         "Ràng buộc chỉ đọc",
         "Có bằng chứng trước bước tiếp theo"
+      ]
+    },
+    {
+      "id": "m0-q1b",
+      "type": "short-answer",
+      "prompt": "Sau report inspect, hãy nói lại bằng lời của em: ContentPilot Lite hiện có 2 phần/file quan trọng nào, inspect repo tương ứng với bước nào trong SDLC, và bước SDLC tiếp theo nên là gì?",
+      "antiCopy": {
+        "requiresOwnWording": true,
+        "repairPrompt": "Câu này cần cho thấy em đã đọc report và hiểu SDLC. Hãy nêu ít nhất một file hoặc phần cụ thể, rồi nói inspect là analysis hay implementation, và bước tiếp theo nên là gì."
+      },
+      "expectedSignals": [
+        "Nêu được phần hoặc file cụ thể như index.html, app.js, styles.css, data, specs, Brand Brain, Idea Lab, Draft Studio hoặc Calendar Board",
+        "Nhận ra inspect repo là analysis trong SDLC",
+        "Nêu được bước tiếp theo hợp lý như requirements hoặc design cho một slice nhỏ trước implementation",
+        "Liên hệ bước tiếp theo với mục tiêu team content hoặc content creator tool"
       ]
     },
     {
@@ -58,25 +73,27 @@
     {
       "id": "m0-q3",
       "type": "short-answer",
-      "prompt": "Rewrite request này thành prompt inspect an toàn: `Fix this repo and make it better.` Prompt mới phải có mục tiêu, ràng buộc chỉ đọc và điều kiện xong.",
+      "prompt": "Rewrite request này thành prompt inspect an toàn cho ContentPilot Lite: `Fix this repo and make it better.` Prompt mới phải có mục tiêu, đường dẫn folder thực hành, ràng buộc chỉ đọc, điều kiện xong, và nói rõ report này giúp em làm bước analysis trước khi chọn design/implementation tiếp theo.",
       "antiCopy": {
         "rejectVerbatimTemplate": true,
-        "repairPrompt": "Bạn đang đi đúng hướng, nhưng câu này còn giống mẫu. Hãy viết lại cho một repo hoặc mục tiêu cụ thể của bạn."
+        "repairPrompt": "Em đang đi đúng hướng, nhưng câu này còn giống mẫu. Hãy viết lại cho một repo hoặc mục tiêu cụ thể của em."
       },
       "expectedSignals": [
         "Có mục tiêu inspect",
+        "Có path ContentPilot Lite cụ thể",
         "Có ràng buộc không sửa file",
         "Có done-when quan sát được",
-        "Có bằng chứng cần Codex trả về"
+        "Có bằng chứng cần Codex trả về",
+        "Có liên hệ với bước analysis trong SDLC và bước design/implementation tiếp theo"
       ]
     },
     {
       "id": "m0-q4",
       "type": "short-answer",
-      "prompt": "Sau khi Executor inspect xong và muốn sửa file, bạn cần xem 3 thông tin nào trước khi phê duyệt?",
+      "prompt": "Sau khi Executor inspect xong và muốn sửa file, em cần xem 3 thông tin nào trước khi phê duyệt?",
       "antiCopy": {
         "requiresOwnWording": true,
-        "repairPrompt": "Hãy trả lời bằng lời của bạn và gắn với một thay đổi cụ thể, ví dụ sửa copy, sửa UI hoặc thêm trạng thái."
+        "repairPrompt": "Hãy trả lời bằng lời của em và gắn với một thay đổi cụ thể, ví dụ sửa copy, sửa UI hoặc thêm trạng thái."
       },
       "expectedSignals": [
         "File sẽ sửa",

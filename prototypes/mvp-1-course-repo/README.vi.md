@@ -13,7 +13,7 @@ Ngôn ngữ chính là tiếng Việt có đầy đủ dấu. Tiếng Anh chỉ 
 - `quizzes/`: quiz JSON theo tình huống, hỏi từng câu một, có rule chống câu trả lời chỉ chép lại lời Teacher.
 - `visuals/opening-scene/`: cảnh mở đầu kiểu RPG để giới thiệu bối cảnh, nhân vật và động lực học Codex.
 - `templates/`: AGENTS.md template cho course repo và app scaffold.
-- `app-scaffold/contentpilot-lite/`: scaffold app tĩnh, không cần dependency, để learner inspect và mở rộng.
+- `app-scaffold/contentpilot-lite/`: practice repo/folder chính cho Module 0-3; scaffold app tĩnh, không cần dependency, để learner inspect và mở rộng.
 
 ## Cách bắt đầu khóa học
 
@@ -94,13 +94,25 @@ prototypes/mvp-1-course-repo/visuals/opening-scene/images/
 
 ## Cách thử app scaffold
 
+ContentPilot Lite là practice repo/folder chính của MVP 1:
+
+```text
+prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/
+```
+
 Mở file này trực tiếp trong browser:
 
 ```text
 prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/index.html
 ```
 
-Scaffold này chỉ là môi trường thực hành cho lesson. Nó có Brand Brain, Idea Lab, Draft Studio và Calendar Board phiên bản nhẹ. Learner sẽ dùng Codex để inspect, lập plan, rồi mở rộng từng phần trong các module sau.
+Scaffold này là môi trường thực hành cho Module 0-3. Module 0 dùng nó để viết prompt inspect chỉ đọc; Module 1 dùng nó để brief một cải tiến nhỏ; Module 2 dùng nó để thực hành `AGENTS.md` và Brand Brain; Module 3 dùng nó để viết mini PRD trước khi sửa. Nó có Brand Brain, Idea Lab, Draft Studio và Calendar Board phiên bản nhẹ.
+
+Practice card cho Module 0 nằm tại:
+
+```text
+prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite/practice-card.module-0.vi.md
+```
 
 ## Tiêu chí thành công của MVP 1
 

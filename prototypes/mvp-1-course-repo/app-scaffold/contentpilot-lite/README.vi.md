@@ -12,6 +12,14 @@ index.html
 
 Không cần `npm install`, không cần dev server.
 
+## Practice card cho Module 0
+
+Trước khi sửa app, learner dùng practice card này để viết prompt inspect chỉ đọc:
+
+```text
+practice-card.module-0.vi.md
+```
+
 ## Bề mặt hiện có
 
 - Brand Brain: voice, audience, product facts, forbidden claims, content pillars.
@@ -24,4 +32,3 @@ Không cần `npm install`, không cần dev server.
 - Module 1: yêu cầu Codex inspect scaffold và đề xuất cải tiến, chưa sửa file.
 - Module 2: tạo hoặc chỉnh Brand Brain sample.
 - Module 3: viết mini PRD trước khi thêm trạng thái Approved cho idea.
-
