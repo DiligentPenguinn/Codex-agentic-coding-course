@@ -1,0 +1,30 @@
+# Bằng chứng hoàn thành Module 1
+
+## Repo và baseline
+
+- Lệnh đã dùng để chạy ứng dụng:
+- Lệnh kiểm tra baseline:
+- Kết quả baseline:
+
+## Task brief đã được duyệt
+
+- Goal:
+- Phạm vi được phép:
+- Ràng buộc:
+- Không làm:
+- Done when:
+
+## Thay đổi và kiểm chứng
+
+- File đã thay đổi:
+- Kết quả `npm run check`:
+- Kết quả desktop:
+- Kết quả mobile:
+- Kiểm tra horizontal overflow:
+- Điều còn chưa chắc chắn:
+
+## Quyết định của tôi
+
+- Tôi chấp nhận hoặc yêu cầu sửa:
+- Vì sao thay đổi này an toàn để phê duyệt:
+

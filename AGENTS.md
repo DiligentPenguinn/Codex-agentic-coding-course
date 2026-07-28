@@ -1,5 +1,21 @@
 # Repository Guidance
 
+## Decision Scope
+
+- Do not ask the user to decide small, isolated details that can be resolved from
+  repository evidence, established constraints, or a safe and reversible
+  default.
+- Group tightly connected, consequential choices into one decision packet so
+  the user can evaluate the direction rather than approve implementation
+  details one by one.
+- For each decision packet, provide the recommended direction, meaningful
+  alternatives, tradeoffs, and the downstream decisions it would settle.
+- Ask one decision-packet question at a time. A packet may contain multiple
+  linked choices when they share the same product or curriculum consequence.
+- Escalate a choice separately only when it changes product scope, learner
+  outcomes, cost exposure, safety, external side effects, or a decision that is
+  difficult to reverse.
+
 ## Vietnamese Language
 
 - When writing Vietnamese for this project, always use correct Vietnamese diacritics and tone marks.

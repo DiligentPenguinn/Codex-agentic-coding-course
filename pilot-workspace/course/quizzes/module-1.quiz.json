@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "moduleId": "module-1",
+  "title": "Mastery gate — Làm việc an toàn với Codex",
+  "passingScore": 0.8,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
+    "antiCopyPolicy": "Câu tự luận phải dùng tình huống mới hoặc chi tiết riêng."
+  },
+  "questions": [
+    {
+      "id": "m1-q1",
+      "type": "multiple-choice",
+      "prompt": "Bạn chưa biết vì sao trang setup không lưu dữ liệu. Bước đầu nào dễ review nhất?",
+      "choices": [
+        "Yêu cầu Codex sửa mọi file liên quan cho đến khi hoạt động.",
+        "Yêu cầu Codex inspect read-only route setup, storage và test liên quan; báo giả thuyết, bằng chứng và đề xuất bước tiếp theo.",
+        "Cài thêm database để tránh lỗi.",
+        "Deploy app rồi thử trên production."
+      ],
+      "answerIndex": 1,
+      "requiresRationale": true,
+      "rationalePrompt": "Nêu một loại bằng chứng mà lựa chọn này phải trả về."
+    },
+    {
+      "id": "m1-q2",
+      "type": "classification",
+      "prompt": "Phân loại từng hành động: đọc file local; sửa CSS; npm install; xóa thư mục data; deploy app. Hành động nào cần Learner phê duyệt trước?",
+      "expectedSignals": [
+        "Đọc file local là read-only",
+        "Sửa CSS cần phê duyệt edit",
+        "npm install cần phê duyệt network hoặc dependency change",
+        "Xóa data là destructive",
+        "Deploy là external side effect"
+      ]
+    },
+    {
+      "id": "m1-q3",
+      "type": "short-answer",
+      "prompt": "Viết hai tiêu chí done-when kiểm chứng được cho một cải tiến nhỏ khác trong ContentPilot. Không dùng lại task nút mobile.",
+      "expectedSignals": [
+        "Mỗi tiêu chí có nơi hoặc cách kiểm tra",
+        "Mỗi tiêu chí có dấu hiệu pass quan sát được",
+        "Có bối cảnh mới do Learner chọn"
+      ]
+    },
+    {
+      "id": "m1-q4",
+      "type": "short-answer",
+      "prompt": "Khi automated check pass nhưng UI mobile vẫn sai brief, bạn nên chấp nhận hay yêu cầu sửa? Giải thích bằng một câu.",
+      "expectedSignals": [
+        "Không chấp nhận chỉ vì automated check pass",
+        "Dùng manual UI evidence",
+        "Yêu cầu sửa hoặc điều tra trước khi chấp nhận"
+      ]
+    },
+    {
+      "id": "m1-q5",
+      "type": "short-answer",
+      "prompt": "Nêu một điều thuộc AGENTS.md và một điều chỉ nên nằm trong task brief một lần.",
+      "expectedSignals": [
+        "AGENTS.md chứa hướng dẫn bền vững",
+        "Task brief chứa mục tiêu hoặc phạm vi cụ thể của một thay đổi",
+        "Giải thích bằng ví dụ"
+      ]
+    }
+  ]
+}
+

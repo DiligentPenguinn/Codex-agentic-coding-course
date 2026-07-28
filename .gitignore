@@ -12,3 +12,7 @@
 
 # Opening scene local OpenAI secret.
 prototypes/mvp-1-course-repo/visuals/opening-scene/scripts/.env.openai
+
+# Local OS and generated distribution artifacts.
+.DS_Store
+dist/

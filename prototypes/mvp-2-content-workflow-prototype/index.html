@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Prototype giao diện tối giản cho quy trình tạo nội dung bằng AI."
+    />
+    <title>ContentPilot — Workflow Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="wordmark" type="button" data-view-target="today" aria-label="Về trang hôm nay">
+          <span class="wordmark-mark" aria-hidden="true">C</span>
+          <span>ContentPilot</span>
+        </button>
+
+        <nav class="primary-nav" aria-label="Điều hướng chính">
+          <button class="nav-item is-active" type="button" data-view-target="today">
+            Hôm nay
+          </button>
+          <button class="nav-item" type="button" data-view-target="setup">
+            Thiết lập
+          </button>
+          <button class="nav-item" type="button" data-view-target="review">
+            Duyệt bài
+            <span class="nav-count" id="reviewCount">5</span>
+          </button>
+        </nav>
+
+        <button class="profile-button" type="button" aria-label="Mở tài khoản">
+          MT
+        </button>
+      </header>
+
+      <main>
+        <section class="view is-active" id="todayView" data-view="today">
+          <div class="page-frame today-layout">
+            <div class="today-intro">
+              <p class="eyebrow">Thứ Năm, 24 tháng 7</p>
+              <h1>Batch tuần này<br />đang chờ bạn.</h1>
+              <p class="lede">
+                Từ tín hiệu mới trong ngách AI giáo dục đến 5 bài hoàn chỉnh,
+                sẵn sàng để bạn duyệt.
+              </p>
+            </div>
+
+            <div class="run-panel" id="runPanel">
+              <div class="run-panel-head">
+                <div>
+                  <p class="micro-label">Lịch nội dung</p>
+                  <h2>Batch hằng tuần</h2>
+                </div>
+                <span class="due-chip" id="dueChip">Đến hạn hôm nay</span>
+              </div>
+
+              <dl class="run-context">
+                <div>
+                  <dt>Nền tảng</dt>
+                  <dd>Facebook</dd>
+                </div>
+                <div>
+                  <dt>Chủ đề</dt>
+                  <dd>AI giúp học tốt hơn</dd>
+                </div>
+                <div>
+                  <dt>Đầu ra</dt>
+                  <dd>10 ý tưởng · 5 bài hoàn chỉnh</dd>
+                </div>
+              </dl>
+
+              <div class="workflow-progress" id="workflowProgress" aria-live="polite">
+                <ol class="stage-list">
+                  <li class="stage is-current" data-stage="0">
+                    <span class="stage-dot"></span>
+                    <span>Nghiên cứu</span>
+                  </li>
+                  <li class="stage" data-stage="1">
+                    <span class="stage-dot"></span>
+                    <span>Ý tưởng</span>
+                  </li>
+                  <li class="stage" data-stage="2">
+                    <span class="stage-dot"></span>
+                    <span>Bản thảo</span>
+                  </li>
+                  <li class="stage" data-stage="3">
+                    <span class="stage-dot"></span>
+                    <span>Hình ảnh</span>
+                  </li>
+                  <li class="stage" data-stage="4">
+                    <span class="stage-dot"></span>
+                    <span>Sẵn sàng duyệt</span>
+                  </li>
+                </ol>
+                <p class="progress-copy" id="progressCopy">
+                  AI sẽ mở rộng từ từ khóa ngách và các đối thủ bạn đã biết.
+                </p>
+              </div>
+
+              <button class="primary-button" id="runButton" type="button">
+                <span class="button-label">Chạy workflow nội dung</span>
+                <span class="button-arrow" aria-hidden="true">↗</span>
+              </button>
+              <p class="button-note">Dùng GPT-5.6 Terra · Dừng trước khi xuất bản</p>
+            </div>
+
+            <aside class="signal-note">
+              <span class="signal-line" aria-hidden="true"></span>
+              <p class="micro-label">Tín hiệu mới</p>
+              <p>
+                “AI tutor” đang xuất hiện trong nhiều nội dung có tương tác cao.
+              </p>
+              <button class="text-button" type="button" data-view-target="review">
+                Xem nguồn nghiên cứu
+              </button>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="setupView" data-view="setup">
+          <div class="page-frame setup-layout">
+            <header class="section-heading">
+              <p class="eyebrow">Thiết lập một lần</p>
+              <h1>Dạy app hiểu doanh nghiệp của bạn.</h1>
+              <p class="lede">
+                Những thông tin này được dùng lại cho mọi batch. Bạn có thể cập
+                nhật chúng bất cứ lúc nào.
+              </p>
+            </header>
+
+            <form class="setup-form" id="setupForm">
+              <div class="form-section">
+                <span class="section-number">01</span>
+                <div class="form-content">
+                  <label for="niche">Ngách của bạn</label>
+                  <input
+                    id="niche"
+                    name="niche"
+                    type="text"
+                    value="AI giáo dục và phương pháp tự học"
+                  />
+                  <p class="field-help">
+                    AI sẽ dùng từ khóa này để tìm thêm creator và tín hiệu liên quan.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <span class="section-number">02</span>
+                <div class="form-content">
+                  <label for="competitors">Creator bạn đã biết <em>Không bắt buộc</em></label>
+                  <input
+                    id="competitors"
+                    name="competitors"
+                    type="text"
+                    value="Ali Abdaal, Justin Sung"
+                  />
+                  <p class="field-help">
+                    Đây chỉ là điểm bắt đầu. AI sẽ tiếp tục mở rộng nghiên cứu.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <span class="section-number">03</span>
+                <div class="form-content">
+                  <fieldset>
+                    <legend>Phong cách hình ảnh</legend>
+                    <div class="choice-row" role="group" aria-label="Phong cách hình ảnh">
+                      <button class="choice is-selected" type="button" aria-pressed="true">
+                        Ảnh cá nhân
+                      </button>
+                      <button class="choice is-selected" type="button" aria-pressed="true">
+                        Hình sản phẩm
+                      </button>
+                      <button class="choice" type="button" aria-pressed="false">
+                        Minh họa
+                      </button>
+                    </div>
+                  </fieldset>
+                  <p class="field-help">
+                    Có thể kết hợp. App chỉ dùng những ảnh bạn đã phê duyệt.
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <span class="section-number">04</span>
+                <div class="form-content">
+                  <label for="cadence">Nhịp nội dung</label>
+                  <select id="cadence" name="cadence">
+                    <option selected>Hằng tuần · 5 bài</option>
+                    <option>Hằng ngày · 1 bài</option>
+                    <option>Khi tôi yêu cầu</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <p id="saveStatus">Đã lưu lần cuối hôm nay, 09:42</p>
+                <button class="primary-button compact" type="submit">
+                  <span class="button-label">Lưu thiết lập</span>
+                  <span class="button-arrow" aria-hidden="true">✓</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="view" id="reviewView" data-view="review">
+          <div class="review-shell">
+            <aside class="review-index" aria-label="Danh sách bài cần duyệt">
+              <div class="review-index-head">
+                <p class="eyebrow">Batch 24/07</p>
+                <h2><span id="remainingCount">5</span> bài cần duyệt</h2>
+              </div>
+              <div class="post-list" id="postList"></div>
+              <button class="text-button evidence-toggle" id="evidenceToggle" type="button">
+                Xem 12 nguồn đã dùng
+              </button>
+            </aside>
+
+            <article class="review-canvas">
+              <header class="review-toolbar">
+                <div>
+                  <p class="micro-label" id="reviewPlatform">Facebook · Bài viết</p>
+                  <p class="source-summary" id="sourceSummary">Dựa trên 3 pattern · Khớp voice 92%</p>
+                </div>
+                <button class="overflow-button" type="button" aria-label="Tùy chọn khác">•••</button>
+              </header>
+
+              <div class="review-content">
+                <section class="draft-column">
+                  <p class="micro-label">Bản thảo đã tinh chỉnh voice</p>
+                  <h1 id="draftTitle">Đừng hỏi ChatGPT đáp án. Hãy bắt nó hỏi ngược lại bạn.</h1>
+                  <div
+                    class="editable-draft"
+                    id="draftBody"
+                    contenteditable="true"
+                    role="textbox"
+                    aria-label="Nội dung bài viết có thể chỉnh sửa"
+                    aria-multiline="true"
+                  ></div>
+                  <p class="edit-hint">Nhấp vào nội dung để chỉnh sửa trực tiếp.</p>
+                </section>
+
+                <section class="visual-column">
+                  <div class="visual-heading">
+                    <p class="micro-label">Chọn một hình</p>
+                    <span id="visualSelection">Đã chọn A</span>
+                  </div>
+                  <div class="visual-grid">
+                    <button class="visual-option is-selected" type="button" data-visual="A" aria-pressed="true">
+                      <span class="visual-label">A</span>
+                      <span class="generated-visual visual-a">
+                        <span class="portrait-shape" aria-hidden="true"></span>
+                        <strong>Đừng hỏi AI<br />đáp án.</strong>
+                        <small>Hãy bắt nó hỏi ngược lại bạn.</small>
+                      </span>
+                    </button>
+                    <button class="visual-option" type="button" data-visual="B" aria-pressed="false">
+                      <span class="visual-label">B</span>
+                      <span class="generated-visual visual-b">
+                        <span class="question-mark" aria-hidden="true">?</span>
+                        <strong>AI không phải<br />máy phát đáp án.</strong>
+                        <small>Một cách học chủ động hơn.</small>
+                      </span>
+                    </button>
+                  </div>
+                </section>
+              </div>
+
+              <footer class="review-actions">
+                <button class="secondary-button" id="reviseButton" type="button">
+                  Yêu cầu chỉnh sửa
+                </button>
+                <button class="primary-button approve-button" id="approveButton" type="button">
+                  <span class="button-label">Duyệt bài này</span>
+                  <span class="button-arrow" aria-hidden="true">✓</span>
+                </button>
+              </footer>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="evidence-dialog" id="evidenceDialog">
+      <button class="dialog-close" id="closeEvidence" type="button" aria-label="Đóng">×</button>
+      <p class="eyebrow">Bằng chứng nghiên cứu</p>
+      <h2>Vì sao app đề xuất hướng này?</h2>
+      <div class="evidence-list">
+        <article>
+          <span>01 · YouTube</span>
+          <h3>Hook đặt người học vào một mâu thuẫn quen thuộc</h3>
+          <p>1,8 triệu lượt xem · Nguồn đã xác minh</p>
+        </article>
+        <article>
+          <span>02 · Facebook</span>
+          <h3>Cấu trúc “đừng làm X, hãy thử Y” tạo hành động rõ ràng</h3>
+          <p>53 nghìn lượt tương tác · Nguồn đã xác minh</p>
+        </article>
+        <article>
+          <span>03 · Voice profile</span>
+          <h3>Khớp với lối viết trực tiếp, thực tế và hơi hài hước</h3>
+          <p>Được tổng hợp từ 6 bài viết đã phê duyệt</p>
+        </article>
+      </div>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
