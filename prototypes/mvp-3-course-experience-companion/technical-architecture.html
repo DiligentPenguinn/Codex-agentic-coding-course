@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Interactive technical architecture for the Codex Content Builder Academy course companion."
+    />
+    <title>Course Companion — Technical Workflow Map</title>
+    <link rel="stylesheet" href="technical-architecture.css" />
+    <script src="technical-architecture.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#systemMap">Skip to system map</a>
+
+    <header class="topbar">
+      <div class="brand-lockup" aria-label="Course Companion system architecture">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <div>
+          <p class="eyebrow">COURSE COMPANION / SYSTEM MAP 01</p>
+          <h1>Teacher × Executor workflow</h1>
+        </div>
+      </div>
+
+      <nav class="header-links" aria-label="Related artifacts">
+        <a href="index.html">← Experience mock</a>
+        <a
+          href="../../docs/architecture/course-companion-technical-workflow.md"
+        >Technical spec ↗</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <p class="section-kicker">PROPOSED MVP ARCHITECTURE</p>
+          <h2>One mission. One bound Codex thread.</h2>
+          <p>
+            Select a workflow to trace what moves between the companion,
+            Codex, the learner workspace, and the Teacher. The active path,
+            context packet, privacy scope, and recovery behavior update
+            together.
+          </p>
+        </div>
+
+        <aside class="architecture-callout" aria-label="Architecture decision">
+          <span class="callout-index">DECISION / 01</span>
+          <strong>Keep Codex as the work surface.</strong>
+          <p>
+            The companion orchestrates learning and coaching; it does not
+            rebuild the Executor interface.
+          </p>
+        </aside>
+      </section>
+
+      <section class="flow-console" aria-labelledby="flowHeading">
+        <div class="flow-console__label">
+          <span id="flowHeading">TRACE A WORKFLOW</span>
+          <span class="flow-hint">1–7 keys also work</span>
+        </div>
+        <div class="flow-tabs" role="tablist" aria-label="Technical workflows">
+          <button
+            class="flow-tab is-selected"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-flow="overview"
+          ><span>00</span>System overview</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="launch"
+          ><span>01</span>Start / resume</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="executor"
+          ><span>02</span>Executor work</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="teacher"
+          ><span>03</span>Ask Teacher</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="evidence"
+          ><span>04</span>Evidence gate</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="share"
+          ><span>05</span>Share view</button>
+          <button
+            class="flow-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-flow="recovery"
+          ><span>06</span>Recovery</button>
+        </div>
+      </section>
+
+      <section class="architecture-layout">
+        <div class="map-shell" id="systemMap">
+          <div class="map-toolbar">
+            <div class="map-title">
+              <span class="status-light" aria-hidden="true"></span>
+              <span>LIVE ARCHITECTURE TRACE</span>
+            </div>
+            <div class="map-legend" aria-label="Diagram legend">
+              <span><i class="legend-dot is-local"></i>Local</span>
+              <span><i class="legend-dot is-service"></i>Service</span>
+              <span><i class="legend-line"></i>Active data path</span>
+            </div>
+          </div>
+
+          <div
+            class="map-viewport"
+            role="img"
+            aria-label="Layered system architecture showing the learner device, Teacher service, and OpenAI Codex trust boundaries"
+          >
+            <div class="map-canvas">
+              <div class="trust-zone zone-device">
+                <span>LEARNER DEVICE</span>
+                <small>local trust boundary</small>
+              </div>
+              <div class="trust-zone zone-teacher">
+                <span>TEACHER SERVICE</span>
+                <small>scoped context only</small>
+              </div>
+              <div class="trust-zone zone-openai">
+                <span>OPENAI / CODEX</span>
+                <small>Executor model service</small>
+              </div>
+
+              <svg
+                class="edge-layer"
+                viewBox="0 0 1600 920"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <marker
+                    id="arrow-default"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="7"
+                    refY="4"
+                    orient="auto"
+                  >
+                    <path d="M0,0 L8,4 L0,8 Z"></path>
+                  </marker>
+                  <marker
+                    id="arrow-active"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="7"
+                    refY="4"
+                    orient="auto"
+                  >
+                    <path d="M0,0 L8,4 L0,8 Z"></path>
+                  </marker>
+                </defs>
+
+                <path data-edge="learner-ui" d="M130 310 L245 310" />
+                <path data-edge="ui-orchestrator" d="M420 310 L520 310" />
+                <path data-edge="orchestrator-state" d="M615 365 L615 465" />
+                <path data-edge="orchestrator-binder" d="M700 310 L810 310" />
+                <path data-edge="binder-adapter" d="M990 310 L1085 310" />
+                <path data-edge="adapter-executor" d="M1260 310 L1355 310" />
+                <path data-edge="executor-workspace" d="M1440 365 C1440 560 1150 570 1015 665" />
+                <path data-edge="workspace-evidence" d="M910 665 L805 665" />
+                <path data-edge="evidence-broker" d="M630 665 L630 555 C630 510 710 510 710 455" />
+                <path data-edge="adapter-broker" d="M1170 365 C1170 505 935 505 795 410" />
+                <path data-edge="broker-teacher" d="M790 365 C930 405 1010 485 1125 515" />
+                <path data-edge="teacher-ui" d="M1125 585 C900 610 600 565 420 365" />
+                <path data-edge="capture-consent" d="M280 760 L440 760" />
+                <path data-edge="consent-broker" d="M615 760 L700 420" />
+                <path data-edge="executor-openai" d="M1440 365 L1440 665" />
+                <path data-edge="teacher-assessment" d="M1300 545 L1400 545" />
+              </svg>
+
+              <article class="system-node node-learner" data-node="learner">
+                <span class="node-code">A0</span>
+                <div class="node-icon" aria-hidden="true">◉</div>
+                <h3>Learner</h3>
+                <p>Decides · prompts · approves</p>
+              </article>
+
+              <article class="system-node node-ui" data-node="companion-ui">
+                <span class="node-code">UI</span>
+                <span class="node-badge is-local">LOCAL</span>
+                <h3>Companion UI</h3>
+                <p>Home Base · scenes · Teacher bubble</p>
+              </article>
+
+              <article class="system-node node-orchestrator" data-node="orchestrator">
+                <span class="node-code">CO</span>
+                <span class="node-badge is-local">LOCAL</span>
+                <h3>Course orchestrator</h3>
+                <p>Mission state · narrative triggers</p>
+              </article>
+
+              <article class="system-node node-binder" data-node="thread-binder">
+                <span class="node-code">TB</span>
+                <span class="node-badge is-key">KEY</span>
+                <h3>Thread binder</h3>
+                <p><code>missionId ↔ threadId</code></p>
+              </article>
+
+              <article class="system-node node-adapter" data-node="codex-adapter">
+                <span class="node-code">CA</span>
+                <span class="node-badge is-spike">TECHNICAL SPIKE</span>
+                <h3>Codex adapter</h3>
+                <p>App Server and/or trusted Hooks</p>
+              </article>
+
+              <article class="system-node node-executor" data-node="codex-executor">
+                <span class="node-code">EX</span>
+                <span class="node-badge is-codex">CODEX</span>
+                <h3>Bound Executor thread</h3>
+                <p>Reads · edits · runs · verifies</p>
+              </article>
+
+              <article class="system-node node-state" data-node="state-store">
+                <span class="node-code">ST</span>
+                <span class="node-badge is-local">LOCAL</span>
+                <h3>Course state store</h3>
+                <p>Checkpoint · binding · mastery</p>
+              </article>
+
+              <article class="system-node node-broker" data-node="context-broker">
+                <span class="node-code">CB</span>
+                <span class="node-badge is-guard">PRIVACY GATE</span>
+                <h3>Context broker</h3>
+                <p>Scope · redact · provenance · freshness</p>
+              </article>
+
+              <article class="system-node node-teacher" data-node="teacher-service">
+                <span class="node-code">TA</span>
+                <span class="node-badge is-service">SERVICE</span>
+                <h3>Teacher agent</h3>
+                <p>Coach · diagnose · hint · assess</p>
+              </article>
+
+              <article class="system-node node-assessment" data-node="assessment">
+                <span class="node-code">MS</span>
+                <span class="node-badge is-service">SERVICE</span>
+                <h3>Mastery state</h3>
+                <p>Rubric · hint ladder · retry</p>
+              </article>
+
+              <article class="system-node node-evidence" data-node="evidence-collector">
+                <span class="node-code">EV</span>
+                <span class="node-badge is-local">LOCAL</span>
+                <h3>Evidence collector</h3>
+                <p>Diff · tests · artifact presence</p>
+              </article>
+
+              <article class="system-node node-workspace" data-node="workspace">
+                <span class="node-code">WS</span>
+                <span class="node-badge is-local">LOCAL</span>
+                <h3>Mission workspace</h3>
+                <p>Repository · files · command output</p>
+              </article>
+
+              <article class="system-node node-capture" data-node="capture-adapter">
+                <span class="node-code">CP</span>
+                <span class="node-badge is-optional">OPTIONAL</span>
+                <h3>Capture adapter</h3>
+                <p>One window · region · screenshot</p>
+              </article>
+
+              <article class="system-node node-consent" data-node="consent-gate">
+                <span class="node-code">CG</span>
+                <span class="node-badge is-guard">EXPLICIT CONSENT</span>
+                <h3>Consent + redaction</h3>
+                <p>Preview · expiry · stop sharing</p>
+              </article>
+
+              <article class="system-node node-openai" data-node="codex-service">
+                <span class="node-code">OA</span>
+                <span class="node-badge is-codex">REMOTE</span>
+                <h3>Codex model service</h3>
+                <p>Executor inference within permissions</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="map-footer">
+            <span>
+              ACTIVE:
+              <strong id="activeNodeCount">13</strong>
+              nodes /
+              <strong id="activeEdgeCount">15</strong>
+              paths
+            </span>
+            <span>Scroll horizontally on narrow screens →</span>
+          </div>
+        </div>
+
+        <aside class="trace-panel" aria-live="polite">
+          <div class="trace-header">
+            <span id="traceCode">FLOW / 00</span>
+            <span class="trace-status">TRACE READY</span>
+          </div>
+          <h2 id="traceTitle">System overview</h2>
+          <p id="traceSummary">
+            The companion coordinates learning while Codex remains the real
+            work surface. Context crosses boundaries only through named,
+            inspectable adapters.
+          </p>
+
+          <ol class="sequence-list" id="traceSteps">
+            <li>
+              <span>01</span>
+              <div><strong>Learner controls the loop</strong><p>Prompts, approvals, and decisions stay learner-owned.</p></div>
+            </li>
+            <li>
+              <span>02</span>
+              <div><strong>One mission binds to one thread</strong><p>No window-title guessing or unrelated conversation access.</p></div>
+            </li>
+            <li>
+              <span>03</span>
+              <div><strong>Context is assembled, not copied wholesale</strong><p>Every dynamic field has scope, source, and freshness.</p></div>
+            </li>
+          </ol>
+
+          <div class="implementation-note">
+            <span>INTEGRATION STATUS</span>
+            <strong id="traceStatus">PROPOSED — adapter spike required</strong>
+            <p id="traceCaveat">
+              App Server capabilities and Hooks lifecycle events are
+              documented; native-surface thread correlation still needs
+              validation.
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="context-section" aria-labelledby="contextHeading">
+        <div class="context-receipt">
+          <div class="receipt-heading">
+            <div>
+              <p class="section-kicker">TEACHER CONTEXT RECEIPT</p>
+              <h2 id="contextHeading">What crosses the boundary?</h2>
+            </div>
+            <div class="receipt-state">
+              <i></i>
+              <span id="packetState">SCOPED SNAPSHOT</span>
+            </div>
+          </div>
+
+          <div class="packet-grid" id="packetGrid">
+            <article data-packet="course">
+              <span class="packet-key">course</span>
+              <strong>mission + checkpoint</strong>
+              <p>Active objective, learner decisions, narrative state</p>
+              <small>source: course orchestrator</small>
+            </article>
+            <article data-packet="executor">
+              <span class="packet-key">executor</span>
+              <strong>explicitly bound threadId</strong>
+              <p>Status, recent-turn summary, pending approval</p>
+              <small>source: Codex adapter</small>
+            </article>
+            <article data-packet="workspace">
+              <span class="packet-key">workspace</span>
+              <strong>mission evidence only</strong>
+              <p>Changed filenames, diff summary, tests, artifacts</p>
+              <small>source: evidence collector</small>
+            </article>
+            <article data-packet="assessment">
+              <span class="packet-key">assessment</span>
+              <strong>mastery + hint level</strong>
+              <p>Rubric criteria met, unmet, and prior hints</p>
+              <small>source: Teacher state</small>
+            </article>
+            <article data-packet="sharedView">
+              <span class="packet-key">sharedView</span>
+              <strong>disabled by default</strong>
+              <p>Only one learner-selected source with expiry</p>
+              <small>source: consent gate</small>
+            </article>
+            <article data-packet="provenance">
+              <span class="packet-key">freshness + provenance</span>
+              <strong>timestamp every source</strong>
+              <p>Stale context stays visible instead of pretending</p>
+              <small>source: context broker</small>
+            </article>
+          </div>
+        </div>
+
+        <aside class="never-panel">
+          <p class="section-kicker">TEACHER NEVER GETS</p>
+          <h2>Course-aware, not surveillance.</h2>
+          <ul>
+            <li><span>×</span> Secrets, tokens, or raw environment variables</li>
+            <li><span>×</span> Unbound Codex threads or other repositories</li>
+            <li><span>×</span> Unrelated applications or browser tabs</li>
+            <li><span>×</span> Silent continuous screen capture</li>
+            <li><span>×</span> Authority to approve Executor actions</li>
+          </ul>
+          <p class="never-footnote">
+            Screen capture is always learner-triggered, source-specific,
+            visible while active, and revocable.
+          </p>
+        </aside>
+      </section>
+
+      <section class="contracts">
+        <article>
+          <span class="contract-number">01</span>
+          <p class="section-kicker">ROLE CONTRACT</p>
+          <h3>Teacher coaches. Executor operates.</h3>
+          <p>
+            Teacher Chat may recommend a prompt, but only the learner sends or
+            approves work in Codex.
+          </p>
+        </article>
+        <article>
+          <span class="contract-number">02</span>
+          <p class="section-kicker">IDENTITY CONTRACT</p>
+          <h3>Explicit thread binding beats focus detection.</h3>
+          <p>
+            Every event and context read must match the active course run's
+            persisted <code>threadId</code>.
+          </p>
+        </article>
+        <article>
+          <span class="contract-number">03</span>
+          <p class="section-kicker">EVIDENCE CONTRACT</p>
+          <h3>“Done” is not completion.</h3>
+          <p>
+            Checkpoints use observable artifacts, diffs, tests, and
+            learner-owned answers.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <span>COURSE COMPANION / ARCHITECTURE PROPOSAL / 2026-07-29</span>
+      <span>Built for collaborator review · no live Codex connection</span>
+    </footer>
+  </body>
+</html>

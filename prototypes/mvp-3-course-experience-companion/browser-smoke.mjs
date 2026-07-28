@@ -7,6 +7,9 @@ const cdpBase = process.env.CDP_BASE ?? "http://127.0.0.1:9222";
 const mockUrl =
   process.env.MOCK_URL ??
   "http://127.0.0.1:4173/prototypes/mvp-3-course-experience-companion/";
+const architectureUrl =
+  process.env.ARCHITECTURE_URL ??
+  "http://127.0.0.1:4173/prototypes/mvp-3-course-experience-companion/technical-architecture.html";
 const screenshotDir = join(tmpdir(), "course-companion-qa");
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -57,8 +60,8 @@ class CdpClient {
   }
 }
 
-async function createTarget() {
-  const response = await fetch(`${cdpBase}/json/new?${encodeURIComponent(mockUrl)}`, {
+async function createTarget(url = mockUrl) {
+  const response = await fetch(`${cdpBase}/json/new?${encodeURIComponent(url)}`, {
     method: "PUT",
   });
   assert.equal(response.ok, true, `Unable to create browser target: ${response.status}`);
@@ -277,4 +280,125 @@ try {
   console.log(`Narrow screenshot: ${narrowScreenshot}`);
 } finally {
   client.close();
+}
+
+const architectureTarget = await createTarget(architectureUrl);
+const architectureClient = new CdpClient(architectureTarget.webSocketDebuggerUrl);
+await architectureClient.connect();
+
+try {
+  await architectureClient.send("Page.enable");
+  await architectureClient.send("Runtime.enable");
+  await architectureClient.send("Log.enable");
+  await architectureClient.send("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
+    height: 1000,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await waitForPage(architectureClient);
+
+  const architectureScreenshot = await screenshot(
+    architectureClient,
+    "technical-architecture.png",
+  );
+  const initialTitle = await evaluate(
+    architectureClient,
+    "document.querySelector('#traceTitle').textContent",
+  );
+  assert.equal(initialTitle, "System overview");
+  await evaluate(
+    architectureClient,
+    "document.querySelector('#systemMap').scrollIntoView({ block: 'start' })",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const architectureMapScreenshot = await screenshot(
+    architectureClient,
+    "technical-architecture-map.png",
+  );
+
+  for (const flowId of [
+    "launch",
+    "executor",
+    "teacher",
+    "evidence",
+    "share",
+    "recovery",
+  ]) {
+    await evaluate(
+      architectureClient,
+      `document.querySelector('[data-flow="${flowId}"]').click()`,
+    );
+    assert.equal(
+      await evaluate(
+        architectureClient,
+        `document.querySelector('[data-flow="${flowId}"]').getAttribute('aria-selected')`,
+      ),
+      "true",
+    );
+    assert.equal(
+      await evaluate(
+        architectureClient,
+        "Number(document.querySelector('#activeNodeCount').textContent) > 0",
+      ),
+      true,
+    );
+    assert.equal(
+      await evaluate(
+        architectureClient,
+        "Number(document.querySelector('#activeEdgeCount').textContent) > 0",
+      ),
+      true,
+    );
+  }
+
+  assert.notEqual(
+    await evaluate(
+      architectureClient,
+      "document.querySelector('#traceTitle').textContent",
+    ),
+    initialTitle,
+  );
+  assert.equal(
+    await evaluate(
+      architectureClient,
+      "document.querySelector('#packetState').textContent",
+    ),
+    "STALE / DEGRADED",
+  );
+
+  await architectureClient.send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  assert.equal(
+    await evaluate(
+      architectureClient,
+      "document.querySelector('.flow-tabs').scrollWidth > 0 && document.querySelector('.trace-panel').getBoundingClientRect().width > 300",
+    ),
+    true,
+  );
+  const architectureNarrowScreenshot = await screenshot(
+    architectureClient,
+    "technical-architecture-narrow.png",
+  );
+
+  const architectureErrors = architectureClient.events.filter((event) => {
+    return event.method === "Runtime.exceptionThrown" || event.method === "Log.entryAdded";
+  });
+  assert.deepEqual(
+    architectureErrors,
+    [],
+    `Architecture browser errors: ${JSON.stringify(architectureErrors)}`,
+  );
+
+  console.log("Architecture interaction smoke test passed.");
+  console.log(`Architecture screenshot: ${architectureScreenshot}`);
+  console.log(`Architecture map screenshot: ${architectureMapScreenshot}`);
+  console.log(`Architecture narrow screenshot: ${architectureNarrowScreenshot}`);
+} finally {
+  architectureClient.close();
 }

@@ -28,6 +28,20 @@ http://localhost:4173/prototypes/mvp-3-course-experience-companion/
 
 No package installation or build step is required.
 
+## Technical architecture map
+
+The companion's proposed production workflow is available as a separate
+interactive diagram:
+
+```text
+http://localhost:4173/prototypes/mvp-3-course-experience-companion/technical-architecture.html
+```
+
+Use the seven workflow controls to trace start/resume, Executor activity,
+Teacher questions, evidence completion, explicit view sharing, and degraded
+recovery. The diagram also shows the Teacher context receipt and the
+information that never crosses the privacy boundary.
+
 ## What to click
 
 From the Home Base:
@@ -96,5 +110,7 @@ Teacher, Executor, and Learner remain distinct:
 ## Related documentation
 
 - [`docs/planning/course-experience-ui-progress.md`](../../docs/planning/course-experience-ui-progress.md)
+- [`docs/architecture/course-companion-technical-workflow.md`](../../docs/architecture/course-companion-technical-workflow.md)
 - [`docs/superpowers/specs/2026-07-29-course-experience-companion-design.md`](../../docs/superpowers/specs/2026-07-29-course-experience-companion-design.md)
 - [`docs/superpowers/plans/2026-07-29-course-experience-companion-mock.md`](../../docs/superpowers/plans/2026-07-29-course-experience-companion-mock.md)
+- [`docs/superpowers/plans/2026-07-29-course-companion-technical-diagram.md`](../../docs/superpowers/plans/2026-07-29-course-companion-technical-diagram.md)

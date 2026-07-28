@@ -1,7 +1,7 @@
 # Course Experience UI — Collaborator Update
 
 **Snapshot date:** 29 July 2026  
-**Status:** Direction aligned; interactive mock available; production scope not yet selected.
+**Status:** Direction aligned; interactive mock and technical workflow map available; production scope not yet selected.
 
 ## Interactive mock
 
@@ -10,6 +10,14 @@ The collaborator-facing mock is located at:
 - [`prototypes/mvp-3-course-experience-companion/`](../../prototypes/mvp-3-course-experience-companion/)
 
 It demonstrates the approved interaction direction with visible simulation labels. It is not a production Codex integration.
+
+The collaborator-facing technical map is:
+
+- [`prototypes/mvp-3-course-experience-companion/technical-architecture.html`](../../prototypes/mvp-3-course-experience-companion/technical-architecture.html)
+
+The canonical architecture and context contract are:
+
+- [`docs/architecture/course-companion-technical-workflow.md`](../architecture/course-companion-technical-workflow.md)
 
 ## Executive summary
 
@@ -121,6 +129,30 @@ The design principle is **Teacher-aware, not learner surveillance**. The compani
 
 The correct Executor conversation cannot be inferred reliably merely by watching the Codex window. Each course mission should create or explicitly bind one Codex thread. A context broker can then combine course state, the bound thread, workspace evidence, and optional learner-shared screen context.
 
+### Proposed technical architecture
+
+The first implementation should use a replaceable Codex integration adapter:
+
+- **Codex App Server** is the primary documented reference for conversation history, approvals, and streamed rich-client events.
+- **Trusted Codex Hooks** are a candidate lifecycle-event bridge when the learner remains in a native Codex surface.
+- The concrete payloads, session identity, restart behavior, and thread correlation on the chosen surface remain a **technical spike**, not a confirmed production capability.
+
+Each active course run persists:
+
+```text
+courseRunId + missionId + threadId + workspaceRoot
+```
+
+The Teacher receives a bounded context envelope with:
+
+- active course state and learner decisions;
+- the explicitly bound Executor thread's status and scoped recent history;
+- changed-file metadata, diff summary, tests, and expected artifacts;
+- mastery state, hint level, timestamps, and provenance;
+- an optional learner-approved shared view with visible expiry.
+
+The Teacher never automatically receives secrets, unbound threads, unrestricted workspace content, unrelated applications, or silent screen capture.
+
 ## Persistence and recovery
 
 Persistent learning state and transient window state remain separate.
@@ -163,6 +195,11 @@ It does not implement:
 - continuous screen or tab awareness;
 - OS-level always-on-top behavior;
 - production persistence or authentication.
+
+The technical map is also a proposal rather than a live integration. Its
+`TECHNICAL SPIKE` labels identify assumptions that must be validated on the
+selected Codex desktop surface before implementation estimates are treated as
+reliable.
 
 ## Deferred decisions
 
