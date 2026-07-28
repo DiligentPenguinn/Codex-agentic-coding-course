@@ -1,0 +1,13 @@
+.course/learner-state.json
+contentpilot/node_modules/
+contentpilot/.next/
+contentpilot/out/
+contentpilot/coverage/
+contentpilot/*.tsbuildinfo
+contentpilot/.env*
+!contentpilot/.env.example
+contentpilot/data/*
+!contentpilot/data/.gitkeep
+.DS_Store
+*.log
+

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "pilotVersion": "0.1.0",
+  "currentLessonId": "intro",
+  "currentBeatId": "intro-time-budget",
+  "completedLessonIds": [],
+  "timeBudgetMinutes": null,
+  "artifacts": {
+    "questCardPath": "artifacts/quest-card.md",
+    "module1EvidencePath": "artifacts/module-1-evidence.md"
+  },
+  "updatedAt": null
+}

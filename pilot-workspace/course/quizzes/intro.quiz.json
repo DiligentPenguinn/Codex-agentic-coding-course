@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1.0.0",
+  "moduleId": "intro",
+  "title": "Readiness gate — Phần mở đầu",
+  "passingScore": 1,
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "feedbackTiming": "Phản hồi ngắn sau từng câu.",
+    "antiCopyPolicy": "Câu tự luận phải có chi tiết riêng của Learner."
+  },
+  "questions": [
+    {
+      "id": "intro-q1",
+      "type": "short-answer",
+      "prompt": "Với workflow của bạn, điều gì làm một batch 5 gói nội dung đủ sẵn sàng để bạn duyệt?",
+      "expectedSignals": [
+        "Có ít nhất một tiêu chí quan sát được",
+        "Gắn với audience hoặc platform của Learner",
+        "Không chỉ dùng từ mơ hồ như tốt hoặc chất lượng"
+      ]
+    },
+    {
+      "id": "intro-q2",
+      "type": "short-answer",
+      "prompt": "Vì sao chỉ chạy dữ liệu mô phỏng chưa đủ để chứng minh ContentPilot tốt nghiệp?",
+      "expectedSignals": [
+        "Nhận ra graduation cần một lần chạy API thật",
+        "Phân biệt học hoặc troubleshooting với bằng chứng end-to-end",
+        "Giải thích bằng lời riêng"
+      ]
+    }
+  ]
+}
+

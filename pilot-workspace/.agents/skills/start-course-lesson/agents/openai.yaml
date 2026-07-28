@@ -1,0 +1,8 @@
+interface:
+  display_name: "Start Course Lesson"
+  short_description: "Start or resume Pilot 0.1 lessons"
+  default_prompt: "Use $start-course-lesson to start or resume my Pilot 0.1 lesson."
+
+policy:
+  allow_implicit_invocation: true
+
