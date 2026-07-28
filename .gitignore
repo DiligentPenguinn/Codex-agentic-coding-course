@@ -16,3 +16,6 @@ prototypes/mvp-1-course-repo/visuals/opening-scene/scripts/.env.openai
 # Local OS and generated distribution artifacts.
 .DS_Store
 dist/
+
+# Local visual-brainstorming sessions.
+.superpowers/
