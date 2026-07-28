@@ -1,0 +1,1307 @@
+@font-face {
+  font-family: "Pixel UI";
+  src: local("Menlo");
+}
+
+:root {
+  color-scheme: dark;
+  --ink: #061b4a;
+  --night: #031b4c;
+  --night-soft: #07377d;
+  --blue: #087df0;
+  --cyan: #56dcff;
+  --sky: #c8f4ff;
+  --white: #f8fdff;
+  --yellow: #ffe56b;
+  --purple: #8f78ff;
+  --green: #76f3b1;
+  --line: rgba(160, 232, 255, 0.34);
+  --shadow: rgba(0, 12, 47, 0.58);
+  font-family: "Pixel UI", "SFMono-Regular", Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--night);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--night);
+  color: var(--white);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 4px;
+}
+
+h1,
+h2,
+h3,
+p {
+  text-wrap: pretty;
+}
+
+.game-shell,
+main {
+  min-height: 100dvh;
+}
+
+.game-hud {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 100;
+  display: grid;
+  min-height: 72px;
+  grid-template-columns: 1fr minmax(240px, 420px) 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 10px clamp(16px, 3vw, 42px);
+  border-bottom: 4px solid rgba(67, 193, 255, 0.42);
+  background: rgba(3, 22, 66, 0.91);
+  box-shadow: 0 4px 0 rgba(0, 9, 41, 0.34);
+  backdrop-filter: blur(12px);
+}
+
+.game-brand {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.game-brand strong,
+.game-brand small {
+  display: block;
+}
+
+.game-brand strong {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.game-brand small {
+  margin-top: 4px;
+  color: var(--cyan);
+  font-size: 9px;
+}
+
+.brand-gem {
+  width: 23px;
+  height: 23px;
+  border: 4px solid #baf5ff;
+  background: var(--blue);
+  box-shadow:
+    inset -5px -5px 0 #1359ca,
+    0 0 16px rgba(86, 220, 255, 0.65);
+  transform: rotate(45deg);
+}
+
+.quest-progress {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 12px;
+  align-items: center;
+}
+
+.quest-progress > span {
+  color: #baf3ff;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.quest-progress b {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  color: var(--yellow);
+  font-size: 10px;
+}
+
+.pixel-track {
+  height: 8px;
+  padding: 2px;
+  border: 1px solid rgba(180, 242, 255, 0.5);
+  background: #00183e;
+}
+
+.pixel-track span {
+  display: block;
+  width: 20%;
+  height: 100%;
+  background: linear-gradient(90deg, #13a8ff, var(--cyan));
+  box-shadow: 0 0 10px rgba(86, 220, 255, 0.8);
+  transition: width 280ms steps(5);
+}
+
+.hud-button {
+  justify-self: end;
+  padding: 8px 10px;
+  border: 1px solid rgba(142, 218, 255, 0.35);
+  background: rgba(0, 30, 84, 0.55);
+  color: #a9e9ff;
+  cursor: pointer;
+  font-size: 9px;
+}
+
+.screen {
+  position: relative;
+  display: none;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: 104px clamp(20px, 5vw, 76px) 38px;
+}
+
+.screen.is-active {
+  display: flex;
+}
+
+.sky-scene,
+.room-scene,
+.sky-vignette,
+.room-vignette,
+.cockpit-shade,
+.complete-vignette,
+.map-clouds {
+  position: absolute;
+  inset: 0;
+}
+
+.sky-scene,
+.room-scene {
+  background-position: center;
+  background-size: cover;
+  image-rendering: pixelated;
+}
+
+.sky-scene {
+  background-image: url("images/skybound-quest.webp");
+}
+
+.room-scene {
+  background-image: url("images/mission-room.webp");
+}
+
+.pixel-label {
+  margin: 0 0 16px;
+  color: var(--yellow);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.pixel-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 0 18px;
+  border: 3px solid;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 5px 5px 0 rgba(0, 10, 49, 0.5);
+  transition:
+    transform 100ms steps(2),
+    filter 100ms linear;
+}
+
+.pixel-button:hover {
+  filter: brightness(1.12);
+  transform: translate(-2px, -2px);
+}
+
+.pixel-button:active {
+  box-shadow: 2px 2px 0 rgba(0, 10, 49, 0.55);
+  transform: translate(2px, 2px);
+}
+
+.pixel-button-primary {
+  border-color: #aaf2ff #0863c8 #064fa7 #8ae9ff;
+  background: var(--blue);
+  color: white;
+}
+
+.pixel-button-primary b {
+  color: var(--yellow);
+}
+
+.pixel-button-quiet {
+  border-color: rgba(165, 230, 255, 0.5);
+  background: rgba(1, 28, 80, 0.82);
+  color: #bfeeff;
+}
+
+.pixel-button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+/* Start */
+
+.screen-start {
+  align-items: center;
+}
+
+.sky-vignette {
+  background:
+    linear-gradient(90deg, rgba(2, 24, 72, 0.88), rgba(2, 24, 72, 0.2) 58%, transparent),
+    linear-gradient(0deg, rgba(1, 19, 59, 0.72), transparent 60%);
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  width: min(690px, 62%);
+}
+
+.hero-copy h1 {
+  margin: 0;
+  color: var(--white);
+  font-size: clamp(42px, 6.1vw, 94px);
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+  text-shadow:
+    5px 5px 0 #0756bd,
+    9px 9px 0 rgba(0, 19, 68, 0.45);
+}
+
+.hero-copy h1 span {
+  color: var(--yellow);
+  font-size: 0.76em;
+  letter-spacing: -0.05em;
+  text-shadow:
+    4px 4px 0 #b16b1b,
+    8px 8px 0 rgba(0, 19, 68, 0.45);
+}
+
+.hero-lede {
+  max-width: 600px;
+  margin: 26px 0 30px;
+  color: #e3f9ff;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(17px, 1.8vw, 21px);
+  line-height: 1.55;
+  text-shadow: 0 2px 12px rgba(0, 25, 83, 0.8);
+}
+
+.quest-card {
+  position: absolute;
+  right: clamp(24px, 5vw, 76px);
+  bottom: 54px;
+  z-index: 3;
+  width: min(360px, 32vw);
+  padding: 20px;
+  border: 3px solid #9deaff;
+  background: rgba(3, 31, 87, 0.9);
+  box-shadow:
+    7px 7px 0 rgba(0, 19, 64, 0.52),
+    inset 0 0 0 3px rgba(21, 115, 218, 0.64);
+}
+
+.card-kicker {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 5px 8px;
+  background: var(--yellow);
+  color: #163774;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.quest-card > strong {
+  display: block;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.quest-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 2px dashed rgba(141, 226, 255, 0.35);
+}
+
+.quest-stats small,
+.quest-stats b {
+  display: block;
+}
+
+.quest-stats small {
+  color: #80dfff;
+  font-size: 8px;
+}
+
+.quest-stats b {
+  margin-top: 5px;
+  font-size: 9px;
+}
+
+.key-hint {
+  position: absolute;
+  bottom: 26px;
+  left: clamp(20px, 5vw, 76px);
+  z-index: 3;
+  margin: 0;
+  color: #b9f1ff;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+kbd {
+  padding: 3px 6px;
+  border: 1px solid #8edfff;
+  background: #073a88;
+  box-shadow: 2px 2px 0 #001a50;
+  color: white;
+  font: inherit;
+}
+
+/* Dialogue */
+
+.screen-dialogue {
+  align-items: flex-end;
+}
+
+.room-vignette {
+  background:
+    linear-gradient(90deg, rgba(1, 16, 56, 0.75), transparent 55%),
+    linear-gradient(0deg, rgba(1, 12, 46, 0.94), transparent 70%);
+}
+
+.mission-badge {
+  position: absolute;
+  top: 110px;
+  left: clamp(20px, 5vw, 76px);
+  z-index: 2;
+  display: grid;
+  gap: 8px;
+}
+
+.mission-badge span {
+  width: max-content;
+  padding: 6px 9px;
+  background: var(--yellow);
+  color: #143570;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.mission-badge strong {
+  font-size: clamp(18px, 2.8vw, 34px);
+  text-shadow: 3px 3px 0 #06388c;
+}
+
+.dialogue-box {
+  position: relative;
+  z-index: 3;
+  width: min(900px, 82%);
+  min-height: 250px;
+  padding: clamp(18px, 2.4vw, 30px);
+  border: 4px solid #94e9ff;
+  background: rgba(2, 25, 74, 0.94);
+  box-shadow:
+    10px 10px 0 rgba(0, 8, 39, 0.52),
+    inset 0 0 0 4px rgba(8, 93, 188, 0.72);
+}
+
+.dialogue-box header,
+.dialogue-box footer {
+  display: flex;
+  align-items: center;
+}
+
+.dialogue-box header {
+  gap: 14px;
+  padding-bottom: 16px;
+  border-bottom: 2px dashed rgba(138, 226, 255, 0.36);
+}
+
+.dialogue-box header > b {
+  margin-left: auto;
+  color: var(--cyan);
+  font-size: 10px;
+}
+
+.speaker-avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 3px solid #baf2ff;
+  background: var(--purple);
+  box-shadow: 4px 4px 0 #001c58;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.dialogue-box small {
+  color: #81dcff;
+  font-size: 8px;
+}
+
+.dialogue-box h2 {
+  margin: 4px 0 0;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+}
+
+.dialogue-box > p {
+  min-height: 66px;
+  margin: 20px 0;
+  color: #eefcff;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.55;
+}
+
+.dialogue-box footer {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Map */
+
+.screen-map {
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(150deg, #137ce8, #55c7f4 58%, #d7fbff);
+  color: var(--ink);
+}
+
+.map-clouds {
+  background:
+    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.72) 0 8%, transparent 8.4%),
+    radial-gradient(circle at 88% 25%, rgba(255, 255, 255, 0.72) 0 10%, transparent 10.4%),
+    radial-gradient(circle at 8% 84%, rgba(255, 255, 255, 0.5) 0 12%, transparent 12.5%);
+  image-rendering: pixelated;
+}
+
+.map-layout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(300px, 0.75fr) minmax(520px, 1.25fr);
+  gap: clamp(34px, 6vw, 90px);
+  align-items: center;
+}
+
+.map-intro .pixel-label {
+  color: #ffe963;
+  text-shadow: 2px 2px 0 #255fb2;
+}
+
+.map-intro h2 {
+  margin: 0;
+  color: white;
+  font-size: clamp(34px, 4.2vw, 66px);
+  line-height: 1.03;
+  letter-spacing: -0.06em;
+  text-shadow: 5px 5px 0 #1760bd;
+}
+
+.map-intro > p:last-child {
+  max-width: 560px;
+  margin: 24px 0 0;
+  color: #062b68;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.world-map {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 42px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.world-map::before {
+  position: absolute;
+  inset: 30px 50% 30px auto;
+  width: 3px;
+  border-left: 3px dashed rgba(13, 85, 163, 0.35);
+  content: "";
+}
+
+.world-map li {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 82px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 3px solid rgba(27, 105, 184, 0.44);
+  background: rgba(239, 253, 255, 0.79);
+  box-shadow: 6px 6px 0 rgba(7, 80, 158, 0.24);
+}
+
+.world-map li:nth-child(even) {
+  transform: translateY(26px);
+}
+
+.map-node {
+  display: grid;
+  width: 46px;
+  min-width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 3px solid #1367bd;
+  background: #6edaff;
+  box-shadow: 3px 3px 0 rgba(8, 73, 146, 0.36);
+  color: #063875;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.world-map small,
+.world-map strong {
+  display: block;
+}
+
+.world-map small {
+  margin-bottom: 6px;
+  color: #2468a8;
+  font-size: 8px;
+}
+
+.world-map strong {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.world-map .is-live {
+  border-color: #ffe36a;
+  background: #fffbd5;
+  box-shadow:
+    6px 6px 0 rgba(7, 80, 158, 0.24),
+    0 0 24px rgba(255, 236, 100, 0.72);
+}
+
+.world-map .is-live .map-node {
+  border-color: #bb7515;
+  background: var(--yellow);
+  color: #76440b;
+}
+
+.world-map .is-future {
+  opacity: 0.78;
+}
+
+.map-footer {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 52px;
+}
+
+.map-footer p {
+  display: flex;
+  max-width: 650px;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(4, 50, 112, 0.78);
+  color: white;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+}
+
+.map-footer p span {
+  display: grid;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  background: var(--yellow);
+  color: #61400b;
+  font-family: "Pixel UI", monospace;
+  font-weight: 900;
+}
+
+/* Cockpit */
+
+.screen-cockpit {
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cockpit-shade {
+  background: rgba(0, 12, 46, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.cockpit-title,
+.codex-console {
+  position: relative;
+  z-index: 2;
+}
+
+.cockpit-title {
+  margin-bottom: 20px;
+}
+
+.cockpit-title .pixel-label {
+  margin-bottom: 9px;
+}
+
+.cockpit-title h2 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 42px);
+  text-shadow: 4px 4px 0 #063987;
+}
+
+.codex-console {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  width: min(1180px, 100%);
+  min-height: 530px;
+  border: 4px solid #8de7ff;
+  background: rgba(2, 21, 66, 0.95);
+  box-shadow:
+    10px 10px 0 rgba(0, 7, 33, 0.58),
+    inset 0 0 0 4px #0b58b4;
+}
+
+.codex-console > nav {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 18px 12px;
+  border-right: 3px solid #1765bb;
+  background: rgba(0, 25, 78, 0.92);
+}
+
+.codex-console > nav button {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: #7fcdec;
+  cursor: pointer;
+  text-align: left;
+}
+
+.codex-console > nav button span {
+  color: #4f91c7;
+  font-size: 9px;
+}
+
+.codex-console > nav button strong {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+
+.codex-console > nav button.is-active {
+  border-color: #7be0ff;
+  background: #0a62c8;
+  color: white;
+  box-shadow: 4px 4px 0 #001842;
+}
+
+.codex-console > nav button.is-active span {
+  color: var(--yellow);
+}
+
+.console-screen {
+  display: grid;
+  grid-template-rows: 42px 1fr auto;
+  min-width: 0;
+}
+
+.console-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 2px solid #1459aa;
+  color: #8ddfff;
+  font-size: 9px;
+}
+
+.console-bar b {
+  color: var(--yellow);
+}
+
+.codex-mockup {
+  display: grid;
+  grid-template-columns: 145px minmax(250px, 1fr) 145px;
+  min-height: 270px;
+  margin: 16px 18px 0;
+  overflow: hidden;
+  border: 2px solid #2a74be;
+  background: #071631;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.codex-mockup aside {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 14px 12px;
+  border-right: 1px solid #233958;
+  color: #8ca9c6;
+  font-size: 10px;
+}
+
+.codex-mockup aside small {
+  color: #5f8bb6;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.codex-mockup aside b {
+  color: #d5efff;
+  font-size: 10px;
+}
+
+.mock-thread {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 14px;
+}
+
+.mock-message {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+}
+
+.mock-message i {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 3px;
+  background: #7b60e9;
+  color: white;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.mock-message.is-executor i {
+  background: #077bd5;
+}
+
+.mock-message p,
+.mock-approval p {
+  margin: 0;
+  color: #c7d9e9;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.mock-approval {
+  padding: 10px;
+  border: 1px solid #e0a84b;
+  background: rgba(113, 71, 6, 0.25);
+}
+
+.mock-approval b {
+  display: block;
+  margin-bottom: 5px;
+  color: #ffcf66;
+  font-size: 8px;
+}
+
+.mock-composer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+  padding: 10px;
+  border: 1px solid #385574;
+  color: #6686a5;
+  font-size: 10px;
+}
+
+.mock-composer b {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: #197be1;
+  color: white;
+}
+
+.codex-mockup .mock-changes {
+  border-right: 0;
+  border-left: 1px solid #233958;
+}
+
+.mock-changes .minus {
+  padding: 5px;
+  background: rgba(170, 69, 84, 0.22);
+  color: #ff9ead;
+}
+
+.mock-changes .plus {
+  padding: 5px;
+  background: rgba(52, 156, 111, 0.22);
+  color: #8deab7;
+}
+
+.codex-mockup[data-view="workspace"] aside:first-child,
+.codex-mockup[data-view="approval"] .mock-approval,
+.codex-mockup[data-view="changes"] .mock-changes {
+  outline: 3px solid var(--yellow);
+  outline-offset: -4px;
+  background-color: rgba(12, 90, 169, 0.34);
+}
+
+.codex-mockup[data-view="chat"] .mock-composer {
+  border: 3px solid var(--yellow);
+}
+
+.console-copy {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 6px 28px;
+  padding: 18px;
+  border-top: 2px solid #1459aa;
+  background: #062255;
+}
+
+.console-copy > span,
+.console-copy h3,
+.console-copy p {
+  grid-column: 1;
+}
+
+.console-copy > span {
+  color: var(--cyan);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.console-copy h3 {
+  margin: 4px 0;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 18px;
+}
+
+.console-copy p {
+  max-width: 700px;
+  margin: 0;
+  color: #b8dbed;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.console-copy .pixel-button {
+  grid-row: 1 / 4;
+  grid-column: 2;
+}
+
+/* Complete */
+
+.screen-complete {
+  align-items: center;
+  justify-content: center;
+}
+
+.complete-vignette {
+  background:
+    linear-gradient(rgba(4, 41, 103, 0.22), rgba(3, 25, 78, 0.68)),
+    radial-gradient(circle, transparent 10%, rgba(2, 19, 61, 0.62) 85%);
+}
+
+.complete-panel {
+  position: relative;
+  z-index: 2;
+  width: min(760px, 100%);
+  padding: clamp(26px, 4vw, 48px);
+  border: 4px solid #a5efff;
+  background: rgba(3, 30, 86, 0.93);
+  box-shadow:
+    11px 11px 0 rgba(0, 13, 51, 0.54),
+    inset 0 0 0 4px #1267c8;
+  text-align: center;
+}
+
+.victory-icon {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  margin: -82px auto 22px;
+  place-items: center;
+  border: 4px solid #fff5a8;
+  background: var(--yellow);
+  box-shadow:
+    6px 6px 0 #6b4b13,
+    0 0 28px rgba(255, 236, 105, 0.75);
+  color: #29547b;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.complete-panel h2 {
+  max-width: 670px;
+  margin: 0 auto;
+  font-size: clamp(28px, 4vw, 50px);
+  line-height: 1.08;
+  text-shadow: 4px 4px 0 #06459f;
+}
+
+.complete-panel > p {
+  max-width: 620px;
+  margin: 22px auto;
+  color: #d5f5ff;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.return-code {
+  display: grid;
+  gap: 12px;
+  margin: 26px 0 16px;
+  padding: 16px;
+  border: 2px dashed rgba(148, 231, 255, 0.54);
+  background: rgba(0, 16, 55, 0.66);
+  text-align: left;
+}
+
+.return-code small {
+  color: var(--cyan);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.return-code code {
+  padding: 12px;
+  border-left: 4px solid var(--yellow);
+  background: #07183d;
+  color: white;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  user-select: all;
+}
+
+.return-code .pixel-button {
+  justify-self: end;
+}
+
+.text-button {
+  padding: 7px;
+  border: 0;
+  background: transparent;
+  color: #95dff5;
+  cursor: pointer;
+  font: 11px ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.noscript {
+  position: fixed;
+  inset: auto 16px 16px;
+  z-index: 200;
+  padding: 14px;
+  border: 2px solid var(--yellow);
+  background: #031b4c;
+  color: white;
+  font-family: ui-sans-serif, sans-serif;
+}
+
+@media (max-width: 920px) {
+  .game-hud {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quest-progress {
+    grid-column: 1 / 3;
+    grid-row: 2;
+  }
+
+  .hud-button {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .screen {
+    padding-top: 126px;
+  }
+
+  .hero-copy {
+    width: min(680px, 88%);
+  }
+
+  .quest-card {
+    display: none;
+  }
+
+  .dialogue-box {
+    width: 100%;
+  }
+
+  .map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-intro > p:last-child {
+    font-size: 16px;
+  }
+
+  .world-map {
+    gap: 12px 20px;
+  }
+
+  .map-footer {
+    align-items: flex-start;
+  }
+
+  .codex-console {
+    grid-template-columns: 1fr;
+  }
+
+  .codex-console > nav {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 10px;
+    border-right: 0;
+    border-bottom: 3px solid #1765bb;
+  }
+
+  .codex-console > nav button {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .codex-mockup {
+    grid-template-columns: 120px minmax(250px, 1fr);
+  }
+
+  .codex-mockup .mock-changes {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .game-hud {
+    min-height: 96px;
+    gap: 8px;
+    padding: 8px 14px;
+  }
+
+  .game-brand strong {
+    font-size: 9px;
+  }
+
+  .game-brand small,
+  .hud-button {
+    font-size: 7px;
+  }
+
+  .screen {
+    min-height: 100svh;
+    padding: 116px 16px 24px;
+  }
+
+  .screen-start {
+    align-items: flex-start;
+    padding-top: 154px;
+  }
+
+  .sky-scene {
+    background-position: 63% center;
+  }
+
+  .sky-vignette {
+    background:
+      linear-gradient(90deg, rgba(2, 24, 72, 0.86), rgba(2, 24, 72, 0.34)),
+      linear-gradient(0deg, rgba(1, 19, 59, 0.7), transparent);
+  }
+
+  .hero-copy {
+    width: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(38px, 13vw, 62px);
+  }
+
+  .hero-lede {
+    margin-block: 20px;
+    font-size: 16px;
+  }
+
+  .key-hint {
+    display: none;
+  }
+
+  .mission-badge {
+    top: 116px;
+    left: 16px;
+  }
+
+  .dialogue-box {
+    min-height: 315px;
+    padding: 16px;
+  }
+
+  .dialogue-box > p {
+    min-height: 100px;
+    font-size: 16px;
+  }
+
+  .dialogue-box footer {
+    align-items: stretch;
+  }
+
+  .dialogue-box .pixel-button {
+    padding-inline: 12px;
+    font-size: 9px;
+  }
+
+  .screen-map {
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .map-intro h2 {
+    font-size: 35px;
+  }
+
+  .map-layout {
+    gap: 28px;
+  }
+
+  .world-map {
+    grid-template-columns: 1fr;
+  }
+
+  .world-map::before {
+    inset: 24px auto 24px 34px;
+  }
+
+  .world-map li:nth-child(even) {
+    transform: none;
+  }
+
+  .world-map li {
+    min-height: 70px;
+  }
+
+  .map-footer {
+    flex-direction: column;
+    margin-top: 24px;
+  }
+
+  .map-footer .pixel-button {
+    width: 100%;
+  }
+
+  .screen-cockpit {
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .cockpit-title h2 {
+    font-size: 25px;
+  }
+
+  .codex-console {
+    min-height: 0;
+  }
+
+  .codex-console > nav {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .codex-mockup {
+    grid-template-columns: 1fr;
+    min-height: 255px;
+    margin-inline: 10px;
+  }
+
+  .codex-mockup aside {
+    display: none;
+  }
+
+  .console-copy {
+    grid-template-columns: 1fr;
+    padding: 15px;
+  }
+
+  .console-copy .pixel-button {
+    grid-row: auto;
+    grid-column: 1;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .screen-complete {
+    overflow-y: auto;
+    padding-top: 148px;
+  }
+
+  .complete-panel {
+    padding: 26px 18px;
+  }
+
+  .complete-panel h2 {
+    font-size: 28px;
+  }
+
+  .complete-panel > p {
+    font-size: 15px;
+  }
+
+  .return-code .pixel-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

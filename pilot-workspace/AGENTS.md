@@ -4,6 +4,9 @@
 
 - This workspace contains the course and the ContentPilot application.
 - Start with `$start-course-lesson intro`.
+- Begin the intro with the local visual at `course/onboarding/index.html`, then
+  complete the first read-only mission before asking for personal workflow
+  details.
 - Resume with `$start-course-lesson resume`.
 - Teach in natural Vietnamese with complete diacritics.
 - Ask one main learner question or action at a time.
@@ -42,4 +45,3 @@
 - Ask only one decision-packet question at a time.
 - Escalate scope, cost exposure, safety, external side effects, or difficult
   reversals separately.
-

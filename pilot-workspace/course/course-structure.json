@@ -8,15 +8,17 @@
   "modules": [
     {
       "id": "intro",
-      "titleVi": "Xác định quy trình nội dung hằng tuần",
-      "titleEn": "Define your weekly content workflow",
-      "estimatedMinutes": 20,
+      "titleVi": "Lời gọi xây ContentPilot",
+      "titleEn": "The call to build ContentPilot",
+      "estimatedMinutes": 25,
       "lessonPath": "course/lessons/intro.vi.md",
       "scriptPath": "course/lesson-scripts/intro.script.vi.md",
       "quizPath": "course/quizzes/intro.quiz.json",
       "promptPath": "course/prompts/start-intro.vi.md",
       "artifactPath": "artifacts/quest-card.md",
       "checkpoints": [
+        "intro-visual-onboarding",
+        "intro-first-safe-win",
         "intro-time-budget",
         "intro-graduation",
         "intro-problem",

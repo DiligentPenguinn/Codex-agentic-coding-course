@@ -14,8 +14,13 @@ lập trình trước.
    $start-course-lesson intro
    ```
 
-4. Teacher sẽ hỏi từng câu một, lưu checkpoint cục bộ và dẫn bạn vào Module 1.
-5. Khi quay lại sau, nhập:
+4. Teacher sẽ gửi bạn vào một chuyến mở đầu trực quan khoảng 3 phút. Chuyến đi
+   giải thích khóa học, ba vai trò và những nơi quan trọng trong Codex.
+5. Quay lại cuộc trò chuyện, bạn sẽ thử ngay một nhiệm vụ chỉ đọc: Codex quan
+   sát workspace thật nhưng không sửa file.
+6. Sau đó Teacher mới hỏi từng câu về workflow của bạn, lưu checkpoint cục bộ
+   và dẫn bạn vào Module 1.
+7. Khi quay lại sau, nhập:
 
    ```text
    $start-course-lesson resume
@@ -52,4 +57,3 @@ Khi đến đó, khóa học sẽ ước tính chi phí và cảnh báo trước
 
 Pilot 0.1 chưa đại diện cho toàn bộ khóa học sáu module. Nó kiểm tra format và
 trải nghiệm cốt lõi trước khi mở rộng nội dung.
-

@@ -2,8 +2,9 @@
   "schemaVersion": "1.0.0",
   "pilotVersion": "0.1.0",
   "currentLessonId": "intro",
-  "currentBeatId": "intro-time-budget",
+  "currentBeatId": "intro-visual-onboarding",
   "completedLessonIds": [],
+  "completedCheckpoints": [],
   "timeBudgetMinutes": null,
   "artifacts": {
     "questCardPath": "artifacts/quest-card.md",
