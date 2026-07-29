@@ -13,7 +13,7 @@ The existing architecture page is visually polished but presents too many compon
 
 A reviewer should understand these five ideas without opening technical details:
 
-1. The learner uses the course companion to talk with the Teacher.
+1. The learner uses the Course App to talk with the Teacher.
 2. The learner uses Codex to work with the Executor.
 3. The course connects to one specific Codex conversation.
 4. The Teacher receives only course-relevant context and evidence.
@@ -35,13 +35,17 @@ The first viewport shows one simple visual with five large actors:
 
 ```text
 Learner
-   ├── asks → Teacher through the Course Companion
+   ├── asks → Teacher through the Course App
    └── builds → Executor through Codex → Project Files
 ```
 
-A visible connection between the Course Companion and Codex says:
+A visible connection between the Course App and Codex says:
 
 > Follows one specific Codex conversation
+
+**Naming rule:** Course Companion remains the product name. The simple diagram
+uses **Course App** for the interface layer so collaborators do not mistake it
+for another agent or role.
 
 No infrastructure terms appear in this first visual. Do not show `threadId`, App Server, Hooks, context broker, trust boundaries, or lifecycle events here.
 
@@ -119,7 +123,7 @@ The appendix is collapsed by default. It is a reference for engineering discussi
 ### I start a lesson
 
 ```text
-1. Course Companion loads my progress.
+1. Course App loads my progress.
 2. I see the mission briefing.
 3. I connect one Codex conversation.
 4. Codex becomes the main workspace.

@@ -64,6 +64,12 @@ const overview =
     /<section[^>]*class="[^"]*simple-overview[^"]*"[\s\S]*?<\/section>/,
   )?.[0] ?? "";
 assert.notEqual(overview, "", "Missing simple overview section.");
+assert.match(overview, /Course App/);
+assert.doesNotMatch(
+  overview,
+  /Course Companion/,
+  "Plain-language overview should use Course App.",
+);
 assert.doesNotMatch(
   overview,
   /threadId|App Server|Hooks|Context Broker|lifecycle|trust boundary/i,

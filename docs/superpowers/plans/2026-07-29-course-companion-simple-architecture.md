@@ -11,6 +11,8 @@
 ## Global Constraints
 
 - Keep the course companion separate from ContentPilot.
+- Keep **Course Companion** as the product name, but label its interface layer
+  **Course App** in the plain-language diagram.
 - Preserve Teacher–Executor role separation.
 - Default view contains no `threadId`, App Server, Hooks, Context Broker, lifecycle-event, or trust-boundary terminology.
 - Use “connected Codex conversation” in the default view.
@@ -93,7 +95,7 @@ Render:
 
 ```text
 Learner
-├── Ask and learn → Course Companion → Teacher
+├── Ask and learn → Course App → Teacher
 └── Build and verify → Codex → Project Files
 ```
 

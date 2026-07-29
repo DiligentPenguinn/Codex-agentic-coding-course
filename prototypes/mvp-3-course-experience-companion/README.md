@@ -42,6 +42,8 @@ visual style. Its five-actor overview explains the Teacher–Executor split in
 one glance. Six “What happens when…” scenarios cover starting, working in
 Codex, asking the Teacher, finishing, explicit view sharing, and recovery.
 Engineering terminology remains available in a collapsed technical appendix.
+The diagram calls the product-facing layer **Course App** for clarity;
+**Course Companion** remains the product name.
 
 ## What to click
 

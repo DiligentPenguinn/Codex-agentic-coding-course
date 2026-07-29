@@ -13,9 +13,13 @@ Build the course experience as a local always-on-top companion that explicitly b
 The learner has two helpers:
 
 ```text
-Ask and learn:   Learner → Course Companion → Teacher
+Ask and learn:   Learner → Course App → Teacher
 Build and verify: Learner → Codex + Executor → Project Files
 ```
+
+Here, **Course Companion** is the product name. **Course App** is the simpler
+label used in collaborator-facing diagrams for its lesson, chat, progress, and
+coordination interface.
 
 - The **Teacher** explains, asks questions, gives hints, and checks understanding.
 - The **Executor in Codex** edits, runs commands, tests, and reports results.
