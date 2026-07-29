@@ -8,6 +8,25 @@
 
 Build the course experience as a local always-on-top companion that explicitly binds each active mission to one Codex Executor `threadId`, assembles a scoped and inspectable Teacher context packet from course state plus Codex/workspace evidence, and treats any tab, window, or screen capture as a separate learner-approved input.
 
+## Plain-language summary
+
+The learner has two helpers:
+
+```text
+Ask and learn:   Learner → Course Companion → Teacher
+Build and verify: Learner → Codex + Executor → Project Files
+```
+
+- The **Teacher** explains, asks questions, gives hints, and checks understanding.
+- The **Executor in Codex** edits, runs commands, tests, and reports results.
+- The **Learner** decides what to ask, what to approve, and what to do next.
+- The course follows one specific Codex conversation so the Teacher receives the correct mission context.
+- The Teacher automatically receives mission-relevant progress, not the learner's whole computer.
+- Windows, screenshots, unsaved text, and voice require an explicit share action.
+- Files, tests, required artifacts, and learner understanding—not the word “done”—complete a mission.
+
+The [interactive collaborator brief](../../prototypes/mvp-3-course-experience-companion/technical-architecture.html) presents this model first and keeps the infrastructure terminology collapsed until requested.
+
 ## Why this shape
 
 The learner needs two distinct relationships:

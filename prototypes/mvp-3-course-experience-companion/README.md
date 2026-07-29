@@ -31,16 +31,17 @@ No package installation or build step is required.
 ## Technical architecture map
 
 The companion's proposed production workflow is available as a separate
-interactive diagram:
+collaborator-facing visual brief:
 
 ```text
 http://localhost:4173/prototypes/mvp-3-course-experience-companion/technical-architecture.html
 ```
 
-Use the seven workflow controls to trace start/resume, Executor activity,
-Teacher questions, evidence completion, explicit view sharing, and degraded
-recovery. The diagram also shows the Teacher context receipt and the
-information that never crosses the privacy boundary.
+The brief intentionally uses plain language rather than the gamified course
+visual style. Its five-actor overview explains the Teacher–Executor split in
+one glance. Six “What happens when…” scenarios cover starting, working in
+Codex, asking the Teacher, finishing, explicit view sharing, and recovery.
+Engineering terminology remains available in a collapsed technical appendix.
 
 ## What to click
 

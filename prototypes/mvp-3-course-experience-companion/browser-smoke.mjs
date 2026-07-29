@@ -100,7 +100,10 @@ async function evaluate(client, expression) {
   });
 
   if (response.exceptionDetails) {
-    throw new Error(response.exceptionDetails.text);
+    const detail =
+      response.exceptionDetails.exception?.description ??
+      response.exceptionDetails.text;
+    throw new Error(detail);
   }
 
   return response.result.value;
@@ -304,49 +307,70 @@ try {
   );
   const initialTitle = await evaluate(
     architectureClient,
-    "document.querySelector('#traceTitle').textContent",
+    "document.querySelector('#flowTitle').textContent",
   );
-  assert.equal(initialTitle, "System overview");
+  assert.equal(initialTitle, "I start a lesson");
+  assert.equal(
+    await evaluate(
+      architectureClient,
+      "document.querySelector('.technical-details').open",
+    ),
+    false,
+  );
   await evaluate(
     architectureClient,
-    "document.querySelector('#systemMap').scrollIntoView({ block: 'start' })",
+    "document.querySelector('#scenarioSection').scrollIntoView({ block: 'start' })",
   );
   await new Promise((resolve) => setTimeout(resolve, 200));
   const architectureMapScreenshot = await screenshot(
     architectureClient,
-    "technical-architecture-map.png",
+    "technical-architecture-scenarios.png",
   );
 
-  for (const flowId of [
-    "launch",
-    "executor",
-    "teacher",
-    "evidence",
+  for (const scenarioId of [
+    "start",
+    "work",
+    "ask",
+    "finish",
     "share",
-    "recovery",
+    "disconnect",
   ]) {
     await evaluate(
       architectureClient,
-      `document.querySelector('[data-flow="${flowId}"]').click()`,
+      `document.querySelector('[data-scenario="${scenarioId}"]').click()`,
     );
     assert.equal(
       await evaluate(
         architectureClient,
-        `document.querySelector('[data-flow="${flowId}"]').getAttribute('aria-selected')`,
+        `document.querySelector('[data-scenario="${scenarioId}"]').getAttribute('aria-selected')`,
       ),
       "true",
     );
     assert.equal(
       await evaluate(
         architectureClient,
-        "Number(document.querySelector('#activeNodeCount').textContent) > 0",
+        "document.querySelectorAll('.actor.is-active').length >= 2 && document.querySelectorAll('.actor.is-active').length <= 5",
       ),
       true,
     );
     assert.equal(
       await evaluate(
         architectureClient,
-        "Number(document.querySelector('#activeEdgeCount').textContent) > 0",
+        "document.querySelectorAll('[data-connection].is-active').length >= 1",
+      ),
+      true,
+    );
+    assert.equal(
+      await evaluate(
+        architectureClient,
+        "document.querySelectorAll('#flowSteps > li').length >= 3 && document.querySelectorAll('#flowSteps > li').length <= 4",
+      ),
+      true,
+    );
+    assert.equal(
+      await evaluate(
+        architectureClient,
+        "document.querySelector('#flowOutcome').textContent.trim().length > 20",
       ),
       true,
     );
@@ -355,16 +379,28 @@ try {
   assert.notEqual(
     await evaluate(
       architectureClient,
-      "document.querySelector('#traceTitle').textContent",
+      "document.querySelector('#flowTitle').textContent",
     ),
     initialTitle,
   );
   assert.equal(
     await evaluate(
       architectureClient,
-      "document.querySelector('#packetState').textContent",
+      "document.querySelector('#flowStatus').textContent",
     ),
-    "STALE / DEGRADED",
+    "CONTEXT MAY BE OLD",
+  );
+
+  await evaluate(
+    architectureClient,
+    "document.querySelector('.technical-details summary').click()",
+  );
+  assert.equal(
+    await evaluate(
+      architectureClient,
+      "document.querySelector('.technical-details').open",
+    ),
+    true,
   );
 
   await architectureClient.send("Emulation.setDeviceMetricsOverride", {
@@ -374,12 +410,28 @@ try {
     mobile: true,
   });
   await new Promise((resolve) => setTimeout(resolve, 300));
-  assert.equal(
-    await evaluate(
-      architectureClient,
-      "document.querySelector('.flow-tabs').scrollWidth > 0 && document.querySelector('.trace-panel').getBoundingClientRect().width > 300",
-    ),
-    true,
+  await evaluate(
+    architectureClient,
+    "document.querySelector('[data-scenario=\"share\"]').click(); document.querySelector('#scenarioSection').scrollIntoView({ block: 'start' })",
+  );
+  const narrowMetrics = await evaluate(
+    architectureClient,
+    `(() => ({
+      activeActors: document.querySelectorAll(".actor.is-active").length,
+      minActorWidth: Math.min(
+        ...[...document.querySelectorAll(".actor.is-active")].map(
+          (actor) => actor.getBoundingClientRect().width
+        )
+      ),
+      scrollWidth: document.documentElement.scrollWidth,
+      viewportWidth: window.innerWidth
+    }))()`,
+  );
+  assert.equal(narrowMetrics.activeActors, 3, JSON.stringify(narrowMetrics));
+  assert.ok(narrowMetrics.minActorWidth > 300, JSON.stringify(narrowMetrics));
+  assert.ok(
+    narrowMetrics.scrollWidth <= narrowMetrics.viewportWidth,
+    JSON.stringify(narrowMetrics),
   );
   const architectureNarrowScreenshot = await screenshot(
     architectureClient,
@@ -397,7 +449,7 @@ try {
 
   console.log("Architecture interaction smoke test passed.");
   console.log(`Architecture screenshot: ${architectureScreenshot}`);
-  console.log(`Architecture map screenshot: ${architectureMapScreenshot}`);
+  console.log(`Architecture scenario screenshot: ${architectureMapScreenshot}`);
   console.log(`Architecture narrow screenshot: ${architectureNarrowScreenshot}`);
 } finally {
   architectureClient.close();

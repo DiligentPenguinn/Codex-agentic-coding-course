@@ -195,7 +195,9 @@ Outcome: connection failures do not erase course progress.
 
 ## Visual direction
 
-Keep the existing retro systems-console connection to the pixel-art course, but reduce density:
+This artifact is a collaborator-facing architecture brief, not part of the
+learner's gamified course interface. Use a clean, neutral presentation style
+that can be shown in a planning meeting or exported as a document:
 
 - larger actors and arrows;
 - more empty space;
@@ -205,6 +207,7 @@ Keep the existing retro systems-console connection to the pixel-art course, but 
 - direct labels on arrows;
 - minimal looping animation;
 - no decorative metric counts.
+- no pixel-art framing, scanlines, game-console labels, or gamified decoration.
 
 The memorable visual should be the learner standing between two clear paths:
 
