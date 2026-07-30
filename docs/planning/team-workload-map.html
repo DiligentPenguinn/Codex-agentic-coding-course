@@ -205,7 +205,8 @@
       color: var(--joint);
     }
 
-    .expand {
+    .expand,
+    .explain {
       position: absolute;
       top: 10px;
       right: 10px;
@@ -222,12 +223,21 @@
       font: 800 1.2rem/1 Bahnschrift, sans-serif;
     }
 
-    .expand:hover {
+    .explain {
+      border-radius: 50%;
+      font-family: Georgia, serif;
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+
+    .expand:hover,
+    .explain:hover {
       border-color: var(--focus);
       color: var(--focus);
     }
 
     .expand:focus-visible,
+    .explain:focus-visible,
     a:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 3px;
@@ -273,8 +283,18 @@
 
     .detail-row .leaf {
       min-height: 76px;
-      padding-right: 14px;
+      padding-right: 42px;
       box-shadow: none;
+    }
+
+    .leaf-description {
+      margin: 12px -28px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--line-soft);
+      color: var(--muted);
+      font-family: "Segoe UI", sans-serif;
+      font-size: 0.78rem;
+      line-height: 1.38;
     }
 
     .legend {
@@ -358,6 +378,7 @@
     @media (forced-colors: active) {
       .node,
       .expand,
+      .explain,
       .layer-label {
         border-color: CanvasText;
       }
@@ -373,7 +394,7 @@
       </div>
       <p class="instruction">
         Follow the learner journey. Press <strong>+</strong> to see one deeper
-        layer. Press <strong>−</strong> to hide it.
+        layer. Press <strong>i</strong> on a final task for a short description.
       </p>
     </header>
 
@@ -417,8 +438,8 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Copy clone command", "owner": "Duy", "tone": "duy" },
-          { "title": "Open the repo", "owner": "Duy", "tone": "duy" }
+          { "id": "copy-clone", "title": "Copy clone command", "owner": "Duy", "tone": "duy", "description": "Use the README command to download the repository." },
+          { "id": "open-repo", "title": "Open the repo", "owner": "Duy", "tone": "duy", "description": "Move into the downloaded project folder." }
         ]
       }
     ]
@@ -435,9 +456,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Check Node", "owner": "Duy", "tone": "duy" },
-          { "title": "Check Codex", "owner": "Duy", "tone": "duy" },
-          { "title": "Check app files", "owner": "Duy", "tone": "duy" }
+          { "id": "check-node", "title": "Check Node", "owner": "Duy", "tone": "duy", "description": "Confirm a supported Node.js version is installed." },
+          { "id": "check-codex", "title": "Check Codex", "owner": "Duy", "tone": "duy", "description": "Confirm the Codex CLI is installed and available." },
+          { "id": "check-files", "title": "Check app files", "owner": "Duy", "tone": "duy", "description": "Make sure every required project file was downloaded." }
         ]
       },
       {
@@ -446,8 +467,8 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Show exact commands", "owner": "Duy", "tone": "duy" },
-          { "title": "Wait for Yes", "owner": "Duy", "tone": "duy" }
+          { "id": "show-commands", "title": "Show exact commands", "owner": "Duy", "tone": "duy", "description": "Let the user review each planned installation action." },
+          { "id": "wait-yes", "title": "Wait for Yes", "owner": "Duy", "tone": "duy", "description": "Install nothing until the user approves." }
         ]
       },
       {
@@ -456,8 +477,8 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Launch Electron", "owner": "Duy", "tone": "duy" },
-          { "title": "Resume saved state", "owner": "Duy", "tone": "duy" }
+          { "id": "launch-electron", "title": "Launch Electron", "owner": "Duy", "tone": "duy", "description": "Open the local desktop course app." },
+          { "id": "resume-setup", "title": "Resume saved state", "owner": "Duy", "tone": "duy", "description": "Continue from the last completed setup step." }
         ]
       }
     ]
@@ -474,9 +495,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Read login status", "owner": "Duy", "tone": "duy" },
-          { "title": "Open official login", "owner": "Duy", "tone": "duy" },
-          { "title": "Never store tokens", "owner": "Duy", "tone": "duy" }
+          { "id": "read-login", "title": "Read login status", "owner": "Duy", "tone": "duy", "description": "Check whether Codex already has a signed-in account." },
+          { "id": "open-login", "title": "Open official login", "owner": "Duy", "tone": "duy", "description": "Send the user through Codex's protected sign-in page." },
+          { "id": "protect-tokens", "title": "Never store tokens", "owner": "Duy", "tone": "duy", "description": "Leave all authentication secrets with Codex." }
         ]
       },
       {
@@ -485,9 +506,9 @@
         "owner": "Split",
         "tone": "split",
         "children": [
-          { "title": "Build the form", "owner": "Duy", "tone": "duy" },
-          { "title": "Write the words", "owner": "Triết", "tone": "triet" },
-          { "title": "Choose the order", "owner": "Triết", "tone": "triet" }
+          { "id": "build-form", "title": "Build the form", "owner": "Duy", "tone": "duy", "description": "Create the interface that asks setup questions." },
+          { "id": "write-words", "title": "Write the words", "owner": "Triết", "tone": "triet", "description": "Provide the learner-facing text shown for each question." },
+          { "id": "choose-order", "title": "Choose the order", "owner": "Triết", "tone": "triet", "description": "Set a question sequence that makes onboarding easy to follow." }
         ]
       },
       {
@@ -496,8 +517,8 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Check answers", "owner": "Duy", "tone": "duy" },
-          { "title": "Save non-secret data", "owner": "Duy", "tone": "duy" }
+          { "id": "check-answers", "title": "Check answers", "owner": "Duy", "tone": "duy", "description": "Reject missing or invalid setup answers." },
+          { "id": "save-safe-data", "title": "Save non-secret data", "owner": "Duy", "tone": "duy", "description": "Store safe answers for future Teacher sessions." }
         ]
       }
     ]
@@ -514,8 +535,8 @@
         "owner": "Triết",
         "tone": "triet",
         "children": [
-          { "title": "App navigation", "owner": "Triết", "tone": "triet" },
-          { "title": "Course UI/UX", "owner": "Triết", "tone": "triet" }
+          { "id": "app-navigation", "title": "App navigation", "owner": "Triết", "tone": "triet", "description": "Define how learners move between course screens." },
+          { "id": "course-ui", "title": "Course UI/UX", "owner": "Triết", "tone": "triet", "description": "Keep theory screens clear, consistent, and easy to navigate." }
         ]
       },
       {
@@ -524,9 +545,9 @@
         "owner": "Triết",
         "tone": "triet",
         "children": [
-          { "title": "Slides", "owner": "Triết", "tone": "triet" },
-          { "title": "Explanations", "owner": "Triết", "tone": "triet" },
-          { "title": "Examples", "owner": "Triết", "tone": "triet" }
+          { "id": "theory-slides", "title": "Slides", "owner": "Triết", "tone": "triet", "description": "Turn each lesson concept into a visual teaching sequence." },
+          { "id": "theory-explanations", "title": "Explanations", "owner": "Triết", "tone": "triet", "description": "Make difficult concepts understandable in learner-friendly language." },
+          { "id": "theory-examples", "title": "Examples", "owner": "Triết", "tone": "triet", "description": "Connect each concept to a concrete content-creation situation." }
         ]
       }
     ]
@@ -543,9 +564,9 @@
         "owner": "Triết",
         "tone": "triet",
         "children": [
-          { "title": "Lesson ID", "owner": "Triết", "tone": "triet" },
-          { "title": "Exercise brief", "owner": "Triết", "tone": "triet" },
-          { "title": "Success rules", "owner": "Triết", "tone": "triet" }
+          { "id": "lesson-id", "title": "Lesson ID", "owner": "Triết", "tone": "triet", "description": "Identify which lesson started the practice task." },
+          { "id": "exercise-brief", "title": "Exercise brief", "owner": "Triết", "tone": "triet", "description": "Describe the practical task the learner must complete." },
+          { "id": "handoff-rules", "title": "Success rules", "owner": "Triết", "tone": "triet", "description": "Define what counts as a successful exercise." }
         ]
       },
       {
@@ -554,9 +575,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Check the request", "owner": "Duy", "tone": "duy" },
-          { "title": "Bind the Executor", "owner": "Duy", "tone": "duy" },
-          { "title": "Open Practice Mode", "owner": "Duy", "tone": "duy" }
+          { "id": "check-request", "title": "Check the request", "owner": "Duy", "tone": "duy", "description": "Validate the lesson and exercise data from the Course App." },
+          { "id": "bind-executor", "title": "Bind the Executor", "owner": "Duy", "tone": "duy", "description": "Connect this mission to one Codex work thread." },
+          { "id": "open-practice", "title": "Open Practice Mode", "owner": "Duy", "tone": "duy", "description": "Show the separate hands-on practice workspace." }
         ]
       }
     ]
@@ -573,9 +594,9 @@
         "owner": "Triết",
         "tone": "triet",
         "children": [
-          { "title": "Instructions", "owner": "Triết", "tone": "triet" },
-          { "title": "Examples", "owner": "Triết", "tone": "triet" },
-          { "title": "Success rules", "owner": "Triết", "tone": "triet" }
+          { "id": "practice-instructions", "title": "Instructions", "owner": "Triết", "tone": "triet", "description": "Give the learner a clear sequence of actions." },
+          { "id": "practice-examples", "title": "Examples", "owner": "Triết", "tone": "triet", "description": "Show sample inputs, outputs, or finished work." },
+          { "id": "practice-rules", "title": "Success rules", "owner": "Triết", "tone": "triet", "description": "Define what counts as a successful exercise." }
         ]
       },
       {
@@ -584,9 +605,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Chat", "owner": "Duy", "tone": "duy" },
-          { "title": "Hints", "owner": "Duy", "tone": "duy" },
-          { "title": "Memory", "owner": "Duy", "tone": "duy" }
+          { "id": "teacher-chat", "title": "Chat", "owner": "Duy", "tone": "duy", "description": "Provide a place to ask questions during practice." },
+          { "id": "teacher-hints", "title": "Hints", "owner": "Duy", "tone": "duy", "description": "Give small clues without completing the work." },
+          { "id": "teacher-memory", "title": "Memory", "owner": "Duy", "tone": "duy", "description": "Remember progress, mistakes, and prior Teacher guidance." }
         ]
       },
       {
@@ -595,9 +616,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Bind one thread", "owner": "Duy", "tone": "duy" },
-          { "title": "Read activity", "owner": "Duy", "tone": "duy" },
-          { "title": "Keep scope narrow", "owner": "Duy", "tone": "duy" }
+          { "id": "bind-thread", "title": "Bind one thread", "owner": "Duy", "tone": "duy", "description": "Keep the mission tied to one Codex conversation." },
+          { "id": "read-activity", "title": "Read activity", "owner": "Duy", "tone": "duy", "description": "Observe relevant commands, files, and test results." },
+          { "id": "narrow-scope", "title": "Keep scope narrow", "owner": "Duy", "tone": "duy", "description": "Ignore unrelated Codex work and conversations." }
         ]
       },
       {
@@ -606,9 +627,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Track evidence", "owner": "Duy", "tone": "duy" },
-          { "title": "Check completion", "owner": "Duy", "tone": "duy" },
-          { "title": "Resume later", "owner": "Duy", "tone": "duy" }
+          { "id": "track-evidence", "title": "Track evidence", "owner": "Duy", "tone": "duy", "description": "Record proof that the learner completed the task." },
+          { "id": "check-completion", "title": "Check completion", "owner": "Duy", "tone": "duy", "description": "Compare evidence with Triết's success rules." },
+          { "id": "resume-practice", "title": "Resume later", "owner": "Duy", "tone": "duy", "description": "Restore the practice session after interruption." }
         ]
       }
     ]
@@ -625,9 +646,9 @@
         "owner": "Duy",
         "tone": "duy",
         "children": [
-          { "title": "Status", "owner": "Duy", "tone": "duy" },
-          { "title": "Evidence summary", "owner": "Duy", "tone": "duy" },
-          { "title": "Mastery summary", "owner": "Duy", "tone": "duy" }
+          { "id": "result-status", "title": "Status", "owner": "Duy", "tone": "duy", "description": "Report whether practice is active, paused, or complete." },
+          { "id": "evidence-summary", "title": "Evidence summary", "owner": "Duy", "tone": "duy", "description": "Give the Course App a compact record of verified work." },
+          { "id": "mastery-summary", "title": "Mastery summary", "owner": "Duy", "tone": "duy", "description": "Tell the course what the learner can do independently." }
         ]
       },
       {
@@ -636,8 +657,8 @@
         "owner": "Triết",
         "tone": "triet",
         "children": [
-          { "title": "Update course", "owner": "Triết", "tone": "triet" },
-          { "title": "Choose next lesson", "owner": "Triết", "tone": "triet" }
+          { "id": "update-course", "title": "Update course", "owner": "Triết", "tone": "triet", "description": "Reflect the returned practice result in lesson progress." },
+          { "id": "next-lesson", "title": "Choose next lesson", "owner": "Triết", "tone": "triet", "description": "Route the learner based on completed work and mastery." }
         ]
       }
     ]
@@ -649,14 +670,23 @@
     function nextGraphState(state, kind, id) {
       if (kind === "step") {
         return state.openStep === id
-          ? { openStep: null, openChild: null }
-          : { openStep: id, openChild: null };
+          ? { openStep: null, openChild: null, openLeaf: null }
+          : { openStep: id, openChild: null, openLeaf: null };
       }
 
       if (kind === "child" && state.openStep) {
         return {
           openStep: state.openStep,
           openChild: state.openChild === id ? null : id,
+          openLeaf: null,
+        };
+      }
+
+      if (kind === "leaf" && state.openChild) {
+        return {
+          openStep: state.openStep,
+          openChild: state.openChild,
+          openLeaf: state.openLeaf === id ? null : id,
         };
       }
 
@@ -671,7 +701,7 @@
       document.getElementById("workflow-data").textContent,
     );
     const graph = document.getElementById("graph");
-    let graphState = { openStep: null, openChild: null };
+    let graphState = { openStep: null, openChild: null, openLeaf: null };
 
     function escapeText(value) {
       const span = document.createElement("span");
@@ -684,10 +714,12 @@
       const isExpanded =
         kind === "step"
           ? graphState.openStep === node.id
-          : graphState.openChild === node.id;
+          : kind === "child"
+            ? graphState.openChild === node.id
+            : graphState.openLeaf === node.id;
       const current = isActive ? ' aria-current="true"' : "";
       const leafClass = kind === "leaf" ? " leaf" : "";
-      const button = hasChildren
+      const expandButton = hasChildren
         ? `
           <button
             class="expand"
@@ -699,12 +731,31 @@
           >${isExpanded ? "−" : "+"}</button>
         `
         : "";
+      const explainButton =
+        kind === "leaf" && node.description
+          ? `
+            <button
+              class="explain"
+              type="button"
+              data-kind="leaf"
+              data-id="${escapeText(node.id)}"
+              aria-label="${isExpanded ? "Hide" : "Show"} description for ${escapeText(node.title)}"
+              aria-expanded="${isExpanded}"
+            >i</button>
+          `
+          : "";
+      const description =
+        kind === "leaf" && isExpanded
+          ? `<p class="leaf-description">${escapeText(node.description)}</p>`
+          : "";
 
       return `
         <article class="node${leafClass}" data-tone="${node.tone}"${current}>
           <div class="owner">${escapeText(node.owner)}</div>
           <div class="node-title">${escapeText(node.title)}</div>
-          ${button}
+          ${expandButton}
+          ${explainButton}
+          ${description}
         </article>
       `;
     }
@@ -767,7 +818,7 @@
             (item) => item.id === graphState.openChild,
           );
           html += layerDivider(3, child.title);
-          html += detailRowHtml(child.children, "leaf");
+          html += detailRowHtml(child.children, "leaf", graphState.openLeaf);
         }
       }
 
@@ -777,14 +828,14 @@
       if (focusKind && focusId) {
         graph
           .querySelector(
-            `.expand[data-kind="${focusKind}"][data-id="${focusId}"]`,
+            `[data-kind="${focusKind}"][data-id="${focusId}"]`,
           )
           ?.focus();
       }
     }
 
     function bindButtons() {
-      graph.querySelectorAll(".expand").forEach((button) => {
+      graph.querySelectorAll(".expand, .explain").forEach((button) => {
         button.addEventListener("click", () => {
           const { kind, id } = button.dataset;
           graphState = WorkloadMap.nextGraphState(graphState, kind, id);

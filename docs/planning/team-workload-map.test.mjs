@@ -102,13 +102,13 @@ function createDomHarness(html) {
     }
 
     querySelectorAll(selector) {
-      assert.equal(selector, ".expand");
+      assert.equal(selector, ".expand, .explain");
       return this.buttons;
     }
 
     querySelector(selector) {
       const match = selector.match(
-        /\.expand\[data-kind="([^"]+)"\]\[data-id="([^"]+)"\]/,
+        /(?:\.(?:expand|explain))?\[data-kind="([^"]+)"\]\[data-id="([^"]+)"\]/,
       );
       if (!match) return null;
       return this.buttons.find(
@@ -406,6 +406,44 @@ test("keeps every graph node short and explicitly owned", async () => {
   }
 });
 
+test("gives every leaf a short plain-English description", async () => {
+  const html = await loadRequired(mapPath);
+  const workflow = JSON.parse(
+    extractScript(html, "workflow-data", "application/json"),
+  );
+  const leaves = flatten(workflow).filter(
+    ({ children = [] }) => children.length === 0,
+  );
+
+  assert.ok(leaves.length > 0);
+  assert.equal(
+    new Set(leaves.map(({ id }) => id)).size,
+    leaves.length,
+    "leaf IDs must be unique",
+  );
+  for (const leaf of leaves) {
+    assert.ok(leaf.id, `${leaf.title} must have an ID`);
+    assert.ok(leaf.description, `${leaf.title} must have a description`);
+    assert.ok(
+      leaf.description.trim().split(/\s+/).length <= 14,
+      `${leaf.title} description must use no more than 14 words`,
+    );
+    assert.match(leaf.description, /\.$/, `${leaf.title} must use a sentence`);
+    assert.doesNotMatch(
+      leaf.description,
+      /[.!?]\s+\p{Lu}/u,
+      `${leaf.title} must not start a second sentence`,
+    );
+    assert.equal(
+      leaf.description.toLocaleLowerCase().includes(
+        leaf.title.toLocaleLowerCase(),
+      ),
+      false,
+      `${leaf.title} description must explain rather than repeat its title`,
+    );
+  }
+});
+
 test("opens one branch per layer and clears deeper detail when needed", async () => {
   const html = await loadRequired(mapPath);
   const logic = extractScript(html, "graph-logic");
@@ -413,21 +451,42 @@ test("opens one branch per layer and clears deeper detail when needed", async ()
   vm.runInContext(logic, context);
   const { nextGraphState } = context.WorkloadMap;
 
-  let state = { openStep: null, openChild: null };
+  let state = { openStep: null, openChild: null, openLeaf: null };
   state = nextGraphState(state, "step", "setup");
-  assert.deepEqual({ ...state }, { openStep: "setup", openChild: null });
+  assert.deepEqual(
+    { ...state },
+    { openStep: "setup", openChild: null, openLeaf: null },
+  );
 
   state = nextGraphState(state, "child", "login");
-  assert.deepEqual({ ...state }, { openStep: "setup", openChild: "login" });
+  assert.deepEqual(
+    { ...state },
+    { openStep: "setup", openChild: "login", openLeaf: null },
+  );
+
+  state = nextGraphState(state, "leaf", "read-login");
+  assert.deepEqual(
+    { ...state },
+    { openStep: "setup", openChild: "login", openLeaf: "read-login" },
+  );
 
   state = nextGraphState(state, "child", "questions");
-  assert.deepEqual({ ...state }, { openStep: "setup", openChild: "questions" });
+  assert.deepEqual(
+    { ...state },
+    { openStep: "setup", openChild: "questions", openLeaf: null },
+  );
 
   state = nextGraphState(state, "step", "practice");
-  assert.deepEqual({ ...state }, { openStep: "practice", openChild: null });
+  assert.deepEqual(
+    { ...state },
+    { openStep: "practice", openChild: null, openLeaf: null },
+  );
 
   state = nextGraphState(state, "step", "practice");
-  assert.deepEqual({ ...state }, { openStep: null, openChild: null });
+  assert.deepEqual(
+    { ...state },
+    { openStep: null, openChild: null, openLeaf: null },
+  );
 });
 
 test("renders expanded state, closes siblings, clears deeper detail, and restores focus", async () => {
@@ -461,6 +520,54 @@ test("renders expanded state, closes siblings, clears deeper detail, and restore
   );
   assert.equal(document.activeElement.dataset.id, "questions");
 
+  const writeWords = graph.querySelector(
+    '.explain[data-kind="leaf"][data-id="write-words"]',
+  );
+  assert.equal(writeWords.getAttribute("aria-expanded"), "false");
+  writeWords.click();
+  assert.match(
+    graph.innerHTML,
+    /Provide the learner-facing text shown for each question\./,
+  );
+  assert.doesNotMatch(graph.innerHTML, /Layer 4/);
+  assert.equal(
+    graph
+      .querySelector('.explain[data-kind="leaf"][data-id="write-words"]')
+      .getAttribute("aria-expanded"),
+    "true",
+  );
+  assert.equal(document.activeElement.dataset.id, "write-words");
+  assert.match(
+    graph.innerHTML,
+    /<article class="node leaf"[^>]*>[\s\S]*?Provide the learner-facing text shown for each question\.[\s\S]*?<\/article>/,
+  );
+
+  graph
+    .querySelector('.explain[data-kind="leaf"][data-id="write-words"]')
+    .click();
+  assert.doesNotMatch(
+    graph.innerHTML,
+    /Provide the learner-facing text shown for each question\./,
+  );
+  assert.equal(
+    graph
+      .querySelector('.explain[data-kind="leaf"][data-id="write-words"]')
+      .getAttribute("aria-expanded"),
+    "false",
+  );
+
+  graph
+    .querySelector('.explain[data-kind="leaf"][data-id="build-form"]')
+    .click();
+  assert.doesNotMatch(
+    graph.innerHTML,
+    /Provide the learner-facing text shown for each question\./,
+  );
+  assert.match(
+    graph.innerHTML,
+    /Create the interface that asks setup questions\./,
+  );
+
   graph
     .querySelector('.expand[data-kind="child"][data-id="login"]')
     .click();
@@ -491,6 +598,7 @@ test("uses accessible controls and explicit complexity-layer labels", async () =
   assert.match(html, /<button/i);
   assert.match(html, /aria-label=/i);
   assert.match(html, /aria-expanded=/i);
+  assert.match(html, /class="explain"/);
   assert.match(html, /Layer 2 · Inside/);
   assert.match(html, /Layer 3 · Inside/);
   assert.doesNotMatch(html, /class="down"/);
