@@ -27,7 +27,8 @@ that installs, starts, and connects the system.
 | Course App | Triết | Learners can navigate and study the theory experience |
 | Course content and theory slides | Triết | Complete learner-facing explanations, examples, and slides |
 | Repository startup flow | Duy | Learners can clone the repository, run one setup command, and enter the app |
-| First-run onboarding | Duy | Learners connect Codex and provide the initial teaching profile |
+| First-run onboarding setup | Duy | The app connects Codex and reliably captures onboarding responses |
+| First-run onboarding script and content | Triết | Learners receive the intended questions, explanations, and teaching language |
 | Practice Mode | Duy | Learners apply theory through supervised, evidence-based work |
 | Teacher agent | Duy | The Teacher guides, questions, hints, assesses, and remembers progress |
 | Executor integration | Duy | Codex performs scoped practical work while remaining separate from the Teacher |
@@ -61,17 +62,21 @@ Deliverables include:
 The terminal performs installation, verification, and launch. Interactive
 onboarding belongs in the app interface.
 
-### 2. First-run onboarding and Codex connection
+### 2. First-run setup and Codex connection
 
-Duy owns the onboarding steps that prepare Practice Mode:
+Duy owns the technical setup flow that prepares Practice Mode:
 
 - check whether Codex is installed and available;
 - show Codex connection status inside the app;
 - start the official ChatGPT/Codex sign-in flow when required;
 - confirm the connected account or workspace without exposing credentials;
-- collect the initial teaching-profile answers;
+- load and display the onboarding script and questions supplied by Triết;
+- validate, capture, and store the learner's responses;
 - store non-secret onboarding state for later Teacher sessions;
 - provide retry, cancellation, and recovery states.
+
+Duy does not own the onboarding script, question wording, teaching
+explanations, or instructional content.
 
 Codex owns authentication credentials. The Course App must not copy, display,
 log, or independently store Codex access tokens or `~/.codex/auth.json`.
@@ -159,8 +164,8 @@ Triết owns the primary learner-facing theory application:
 - theory lesson screens;
 - presentation and interaction patterns used while learning;
 - the visual and content experience before Practice Mode;
-- app-level UI decisions outside Duy's startup, onboarding, and practice
-  surfaces.
+- app-level UI decisions outside Duy's startup mechanics, onboarding setup
+  mechanics, and Practice Mode runtime.
 
 ### 2. Course content
 
@@ -171,6 +176,7 @@ Triết owns the learner-facing curriculum presented in the app:
 - lesson sequencing;
 - slide content;
 - instructional copy;
+- the first-run onboarding script, questions, explanations, wording, and order;
 - content revisions required for clarity and correctness.
 
 ### 3. Theory-to-practice intent
@@ -210,16 +216,22 @@ half.
 
 - Codex connection status;
 - login initiation and completion states;
-- teaching-profile questions and stored answers;
+- the form or conversation mechanics used to present onboarding;
+- validation, response capture, and non-secret response storage;
+- a content interface through which Triết supplies the onboarding script and
+  questions;
 - an onboarding-complete signal.
 
 **Triết provides:**
 
 - the app shell and visual language in which onboarding appears;
+- the exact onboarding script, questions, explanations, labels, wording, and
+  sequence;
 - the navigation destination after onboarding completes.
 
-The onboarding interaction belongs to Duy even when it is rendered inside
-Triết's app shell.
+The onboarding setup mechanism belongs to Duy even when it is rendered inside
+Triết's app shell. The teaching script and all learner-facing onboarding
+content belong to Triết.
 
 ### Contract C: Enter Practice Mode
 
@@ -274,8 +286,9 @@ Neither person changes the shared contract unilaterally.
    navigation unless Triết requests the change.
 2. Triết does not implement a second startup system, Codex authentication
    flow, Teacher runtime, Executor adapter, or practice-state store.
-3. UI placement does not determine ownership. Onboarding remains Duy's
-   responsibility even when it appears inside the Course App.
+3. UI placement does not determine ownership. Duy owns the onboarding setup
+   mechanism even when it appears inside the Course App; Triết owns the script
+   and content presented through that mechanism.
 4. Content authorship does not determine runtime ownership. Triết specifies
    the learning intent; Duy implements how Practice Mode observes and assesses
    the practical work.
@@ -301,7 +314,9 @@ Until the production app structure is finalized, use these working boundaries:
 
 ### Triết may change independently
 
-- the Course App implementation outside onboarding and Practice Mode;
+- the Course App implementation outside Duy's onboarding setup mechanics and
+  Practice Mode;
+- onboarding scripts, questions, explanations, labels, and instructional copy;
 - theory lessons, slides, examples, and instructional copy;
 - course-content sequencing and presentation;
 - content-focused planning documents.
@@ -339,8 +354,11 @@ As of 30 July 2026:
 - Codex retains ownership of authentication credentials;
 - the Teacher and remaining course experience may be simulated in the first
   startup mock;
-- initial teaching setup uses a short fixed form;
-- conversational Teacher onboarding is deferred until the real Teacher exists.
+- initial teaching setup uses a short fixed form implemented by Duy;
+- Triết supplies the form's script, questions, explanations, wording, and
+  sequence;
+- conversational Teacher onboarding is deferred until the real Teacher exists,
+  without changing Triết's ownership of its script and content.
 
 ## Updating this agreement
 
