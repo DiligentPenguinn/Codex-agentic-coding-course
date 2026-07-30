@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Interactive mock of the Codex Content Builder Academy course companion."
+    >
+    <title>Course Companion — Pixel Home Base Mock</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2310172a'/%3E%3Cpath d='M6 5h20v4H10v14h16v4H6z' fill='%236cd7ff'/%3E%3C/svg%3E"
+    >
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#homeView">Skip to the course experience</a>
+
+    <main class="app-shell" id="courseCompanion">
+      <header class="course-hud">
+        <button class="brand-lockup" type="button" data-action="go-home" aria-label="Return to Home Base">
+          <span class="brand-mark" aria-hidden="true">C</span>
+          <span>
+            <strong>CONTENT BUILDER ACADEMY</strong>
+            <small>THE NIGHT-SHIFT STUDIO</small>
+          </span>
+        </button>
+
+        <div class="hud-mission" aria-label="Current course progress">
+          <span>CHAPTER 01</span>
+          <strong>Brief Codex like a collaborator</strong>
+          <div class="hud-progress" aria-hidden="true"><span></span></div>
+        </div>
+
+        <div class="hud-stats">
+          <button type="button" data-action="open-streak" aria-label="Open seven-day streak">
+            <span aria-hidden="true">☼</span>
+            <strong>7</strong>
+            <small>DAY STREAK</small>
+          </button>
+          <button type="button" data-action="open-progress" aria-label="Open learner progress">
+            <span aria-hidden="true">✦</span>
+            <strong>460</strong>
+            <small>EVIDENCE XP</small>
+          </button>
+        </div>
+      </header>
+
+      <section class="home-view" id="homeView" aria-label="Pixel-art Home Base">
+        <img
+          class="room-art"
+          src="assets/home-base.png"
+          alt="A cozy pixel-art studio with a workstation, window, mission board, bookshelf, and reward chest."
+        >
+        <div class="room-vignette" aria-hidden="true"></div>
+        <div class="floating-dust" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+
+        <button
+          class="hotspot hotspot-workstation"
+          type="button"
+          data-action="open-workshop"
+          aria-label="Open the Codex Workshop"
+        >
+          <span class="hotspot-pulse" aria-hidden="true"></span>
+          <span class="hotspot-label">
+            <small>WORKSTATION</small>
+            <strong>Enter Codex Workshop</strong>
+            <em>Executor is ready</em>
+          </span>
+        </button>
+
+        <button
+          class="hotspot hotspot-board is-primary"
+          type="button"
+          data-action="open-mission"
+          aria-label="Open the active mission briefing"
+        >
+          <span class="quest-marker" aria-hidden="true">!</span>
+          <span class="hotspot-label">
+            <small>MISSION BOARD</small>
+            <strong>Read your briefing</strong>
+            <em>Next recommended action</em>
+          </span>
+        </button>
+
+        <button
+          class="hotspot hotspot-books"
+          type="button"
+          data-action="open-progress"
+          aria-label="Open progress and artifact archive"
+        >
+          <span class="hotspot-label">
+            <small>ARCHIVE</small>
+            <strong>Review progress</strong>
+            <em>4 artifacts collected</em>
+          </span>
+        </button>
+
+        <button
+          class="hotspot hotspot-streak"
+          type="button"
+          data-action="open-streak"
+          aria-label="Open streak details"
+        >
+          <span class="hotspot-label">
+            <small>WINDOW</small>
+            <strong>Seven mornings</strong>
+            <em>Streak and rhythm</em>
+          </span>
+        </button>
+
+        <button
+          class="hotspot hotspot-reward"
+          type="button"
+          data-action="open-reward"
+          aria-label="Preview reward chest"
+        >
+          <span class="lock-icon" aria-hidden="true">◆</span>
+          <span class="hotspot-label">
+            <small>REWARD CHEST</small>
+            <strong id="rewardHotspotTitle">One lock remains</strong>
+            <em id="rewardHotspotCopy">Finish this mission</em>
+          </span>
+        </button>
+
+        <button
+          class="teacher-home"
+          type="button"
+          data-action="open-teacher"
+          aria-label="Talk with Hương, your Teacher"
+        >
+          <img src="assets/teacher.png" alt="">
+          <span class="teacher-nameplate">
+            <small>TEACHER</small>
+            <strong>Hương</strong>
+            <em>Ask or voice a question</em>
+          </span>
+          <span class="teacher-status" aria-label="Teacher is available"></span>
+        </button>
+
+        <article class="mission-card" aria-labelledby="missionCardTitle">
+          <div class="mission-card-kicker">
+            <span>ACTIVE MISSION</span>
+            <span class="difficulty">BEGINNER · 35 MIN</span>
+          </div>
+          <h1 id="missionCardTitle">Write a brief the Executor can verify.</h1>
+          <p>
+            Give Codex a goal, context, constraints, and observable
+            <em>done-when</em> evidence—then inspect the plan before approving work.
+          </p>
+          <div class="mission-card-footer">
+            <button class="pixel-button primary" type="button" data-action="open-mission">
+              Read briefing <span aria-hidden="true">→</span>
+            </button>
+            <span id="missionStatus">0 / 3 evidence signals</span>
+          </div>
+        </article>
+
+        <aside class="room-legend" aria-label="Home Base controls">
+          <span><kbd>T</kbd> Teacher</span>
+          <span><kbd>H</kbd> Home Base</span>
+          <span><kbd>Esc</kbd> Close</span>
+        </aside>
+      </section>
+
+      <section class="workshop-view" id="workshopView" aria-label="Simulated Codex Workshop" hidden>
+        <header class="workshop-topbar">
+          <div>
+            <span class="simulation-badge">SIMULATED INTEGRATION</span>
+            <strong>Codex Workshop · Mission thread #01</strong>
+          </div>
+          <div class="workshop-actions">
+            <span class="connection-pill"><i></i> Context updated just now</span>
+            <button class="pixel-button quiet" type="button" data-action="go-home">Home Base</button>
+          </div>
+        </header>
+
+        <div class="codex-shell">
+          <nav class="activity-rail" aria-label="Simulated Codex navigation">
+            <button type="button" aria-label="Files" class="is-active">▤</button>
+            <button type="button" aria-label="Search">⌕</button>
+            <button type="button" aria-label="Source control">⑂</button>
+            <button type="button" aria-label="Terminal">⌁</button>
+          </nav>
+
+          <aside class="file-tree">
+            <div class="panel-title">
+              <span>EXPLORER</span>
+              <button type="button" aria-label="More options">•••</button>
+            </div>
+            <p class="workspace-name">CONTENT-CREATOR-COURSE</p>
+            <ul>
+              <li class="folder">⌄ prototypes</li>
+              <li class="folder nested">⌄ mvp-1-course-repo</li>
+              <li class="file active">◇ AGENTS.md</li>
+              <li class="file">◇ course-structure.json</li>
+              <li class="folder">› lessons</li>
+              <li class="folder">› quizzes</li>
+              <li class="folder">› app-scaffold</li>
+            </ul>
+            <div class="changed-files">
+              <span>CHANGED FILES</span>
+              <p><b>M</b> AGENTS.md</p>
+              <p><b>A</b> artifacts/brief.md</p>
+            </div>
+          </aside>
+
+          <section class="executor-thread" aria-label="Simulated Executor conversation">
+            <header>
+              <div>
+                <small>EXECUTOR THREAD</small>
+                <h2>Make the implementation brief verifiable</h2>
+              </div>
+              <button type="button" data-action="open-context">What can Teacher see?</button>
+            </header>
+
+            <div class="thread-scroll">
+              <article class="thread-message learner-message">
+                <div class="message-avatar">YOU</div>
+                <div>
+                  <strong>Learner</strong>
+                  <p>
+                    Inspect the course scaffold and propose a plan for adding a safe,
+                    testable lesson-progress file. Do not edit anything yet.
+                  </p>
+                </div>
+              </article>
+
+              <article class="thread-message executor-message">
+                <div class="message-avatar">EX</div>
+                <div>
+                  <strong>Executor</strong>
+                  <p>I inspected the allowed workspace. Here is the proposed plan:</p>
+                  <ol class="executor-plan">
+                    <li><span>01</span> Confirm the existing learner-state schema.</li>
+                    <li><span>02</span> Add one progress artifact under the approved path.</li>
+                    <li><span>03</span> Run the structural check and report the diff.</li>
+                  </ol>
+                  <div class="approval-row">
+                    <span>Waiting for learner approval</span>
+                    <button type="button">Review plan</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="evidence-strip">
+                <div>
+                  <small>PLAN</small>
+                  <strong>3 scoped steps</strong>
+                </div>
+                <div>
+                  <small>FILES</small>
+                  <strong>2 proposed</strong>
+                </div>
+                <div>
+                  <small>TESTS</small>
+                  <strong>Not run yet</strong>
+                </div>
+                <div>
+                  <small>APPROVAL</small>
+                  <strong>Waiting</strong>
+                </div>
+              </article>
+            </div>
+
+            <footer class="codex-composer">
+              <span aria-hidden="true">›</span>
+              <label class="sr-only" for="executorInput">Message the simulated Executor</label>
+              <textarea
+                id="executorInput"
+                rows="2"
+                placeholder="Continue with the Executor… (simulated)"
+              ></textarea>
+              <button type="button" aria-label="Send simulated Executor message">↑</button>
+            </footer>
+          </section>
+
+          <aside class="workshop-brief">
+            <small>CURRENT OBJECTIVE</small>
+            <h3>Inspect before approving.</h3>
+            <p>
+              Check whether the plan names an allowed scope, a verification step,
+              and an observable result.
+            </p>
+            <div class="objective-checklist">
+              <label><input type="checkbox" checked> Goal is explicit</label>
+              <label><input type="checkbox" checked> Scope is bounded</label>
+              <label><input type="checkbox"> Done-when is testable</label>
+            </div>
+            <button class="pixel-button primary full" type="button" data-action="complete-mission">
+              Simulate evidence complete
+            </button>
+            <p class="simulation-note">Demonstrates a future evidence trigger.</p>
+          </aside>
+        </div>
+      </section>
+
+      <button
+        class="teacher-bubble"
+        id="teacherBubble"
+        type="button"
+        data-action="open-teacher"
+        aria-label="Open Teacher Chat"
+        hidden
+      >
+        <img src="assets/teacher.png" alt="">
+        <span class="bubble-pulse" aria-hidden="true"></span>
+        <span class="bubble-tooltip">
+          <strong>Ask Hương</strong>
+          <small>Teacher sees the mission + bound thread</small>
+        </span>
+      </button>
+
+      <section class="scene-overlay" id="sceneOverlay" aria-label="Visual novel scene" hidden>
+        <div class="scene-background" aria-hidden="true"></div>
+        <header class="scene-header">
+          <div>
+            <small id="sceneKicker">CHAPTER 01 · BRIEFING</small>
+            <strong id="sceneTitle">The first safe handoff</strong>
+          </div>
+          <button type="button" data-action="close-layer" aria-label="Close scene">×</button>
+        </header>
+
+        <img class="scene-teacher" src="assets/teacher.png" alt="Hương, the Teacher">
+
+        <article class="dialogue-box">
+          <div class="dialogue-speaker">
+            <span>TEACHER</span>
+            <strong id="sceneSpeaker">Hương</strong>
+          </div>
+          <p id="sceneDialogue">
+            Tonight, you are not asking Codex to “make it better.” You are giving
+            an Executor enough information to produce evidence you can inspect.
+          </p>
+          <div class="dialogue-footer">
+            <span id="sceneProgress">1 / 3</span>
+            <button class="pixel-button primary" type="button" data-action="advance-scene">
+              Continue <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <aside class="teacher-chat" id="teacherChat" aria-label="Teacher Chat" hidden>
+        <header class="chat-header">
+          <div class="chat-identity">
+            <span class="chat-avatar"><img src="assets/teacher.png" alt=""></span>
+            <div>
+              <small>TEACHER · AVAILABLE</small>
+              <strong>Hương</strong>
+              <span>Context-aware course coach</span>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button type="button" data-action="open-context">Context</button>
+            <button type="button" data-action="close-teacher" aria-label="Minimize Teacher Chat">—</button>
+          </div>
+        </header>
+
+        <div class="chat-context-strip">
+          <span><i></i> Mission 01</span>
+          <span>Executor: waiting for approval</span>
+          <button type="button" data-action="open-context">What Hương can see</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages" aria-live="polite">
+          <article class="teacher-message">
+            <img src="assets/teacher.png" alt="">
+            <div>
+              <strong>Hương</strong>
+              <p>
+                I can see the mission objective and the Executor’s proposed plan.
+                I cannot see unrelated tabs or applications.
+              </p>
+              <time>Just now</time>
+            </div>
+          </article>
+          <article class="teacher-message">
+            <img src="assets/teacher.png" alt="">
+            <div>
+              <strong>Hương</strong>
+              <p>
+                What would you like to evaluate first: the scope, the plan, or the
+                evidence?
+              </p>
+              <div class="suggested-prompts">
+                <button type="button" data-suggest="Is the scope safe?">Is the scope safe?</button>
+                <button type="button" data-suggest="What evidence should I ask for?">What evidence?</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <form class="chat-composer" id="teacherForm">
+          <label class="sr-only" for="teacherInput">Ask the Teacher</label>
+          <textarea id="teacherInput" rows="2" placeholder="Ask Hương about your current work…"></textarea>
+          <div class="composer-actions">
+            <div>
+              <button type="button" data-action="voice-placeholder" aria-label="Voice chat unavailable in mock">
+                ◉ <span>Voice</span>
+              </button>
+              <button type="button" data-action="screen-share" aria-label="Share current view">
+                ⧉ <span>Share view</span>
+              </button>
+            </div>
+            <button class="send-button" type="submit" aria-label="Send message">↑</button>
+          </div>
+        </form>
+      </aside>
+
+      <aside class="context-drawer" id="contextDrawer" aria-label="Teacher context details" hidden>
+        <header>
+          <div>
+            <small>CONTEXT RECEIPT</small>
+            <h2>What Hương can see</h2>
+          </div>
+          <button type="button" data-action="close-context" aria-label="Close context drawer">×</button>
+        </header>
+        <div class="context-list">
+          <article class="context-item is-shared">
+            <span>01</span>
+            <div>
+              <strong>Course state</strong>
+              <p>Chapter, mission, objective, and checkpoint.</p>
+            </div>
+            <em>AUTO</em>
+          </article>
+          <article class="context-item is-shared">
+            <span>02</span>
+            <div>
+              <strong>Bound Executor thread</strong>
+              <p>Messages, plan, approvals, commands, and reported evidence.</p>
+            </div>
+            <em>BOUND</em>
+          </article>
+          <article class="context-item">
+            <span>03</span>
+            <div>
+              <strong>Current screen or tab</strong>
+              <p>Only after the learner explicitly shares the current view.</p>
+            </div>
+            <em>OFF</em>
+          </article>
+          <article class="context-item is-private">
+            <span>04</span>
+            <div>
+              <strong>Unrelated apps and conversations</strong>
+              <p>Never shared by default.</p>
+            </div>
+            <em>PRIVATE</em>
+          </article>
+        </div>
+        <p class="context-footnote">
+          Simulated integration · Context provenance and freshness would be
+          supplied by the future Context Broker.
+        </p>
+      </aside>
+
+      <section class="side-panel" id="progressPanel" aria-labelledby="progressTitle" hidden>
+        <header>
+          <div>
+            <small>BOOKSHELF · EVIDENCE ARCHIVE</small>
+            <h2 id="progressTitle">Your work leaves a trail.</h2>
+          </div>
+          <button type="button" data-action="close-layer" aria-label="Close progress panel">×</button>
+        </header>
+        <div class="progress-map">
+          <article class="progress-node is-complete">
+            <span>PROLOGUE</span>
+            <strong>Choose the workflow worth improving</strong>
+            <small>Quest card collected</small>
+          </article>
+          <article class="progress-node is-active">
+            <span>CHAPTER 01</span>
+            <strong>Brief Codex like a collaborator</strong>
+            <small id="progressMissionCopy">Current · 0 / 3 evidence signals</small>
+          </article>
+          <article class="progress-node is-locked">
+            <span>CHAPTER 02</span>
+            <strong>Give the project durable memory</strong>
+            <small>Locked until Chapter 01 debrief</small>
+          </article>
+        </div>
+        <div class="artifact-shelf">
+          <small>COLLECTED ARTIFACTS</small>
+          <div>
+            <span>QUEST<br>CARD</span>
+            <span>SAFE<br>SCOPE</span>
+            <span>PLAN<br>REVIEW</span>
+            <span class="empty">?</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="side-panel compact-panel" id="streakPanel" aria-labelledby="streakTitle" hidden>
+        <header>
+          <div>
+            <small>WINDOW · LEARNING RHYTHM</small>
+            <h2 id="streakTitle">Seven mornings in the studio.</h2>
+          </div>
+          <button type="button" data-action="close-layer" aria-label="Close streak panel">×</button>
+        </header>
+        <div class="streak-week" aria-label="Seven-day streak">
+          <span class="done">M</span><span class="done">T</span><span class="done">W</span>
+          <span class="done">T</span><span class="done">F</span><span class="done">S</span>
+          <span class="today">S</span>
+        </div>
+        <p>
+          Streaks celebrate returning to deliberate practice. Missing a day never
+          erases evidence or blocks the story.
+        </p>
+      </section>
+
+      <section class="side-panel compact-panel" id="rewardPanel" aria-labelledby="rewardTitle" hidden>
+        <header>
+          <div>
+            <small>REWARD CHEST · ROOM EVOLUTION</small>
+            <h2 id="rewardTitle">The Verifier’s Lamp</h2>
+          </div>
+          <button type="button" data-action="close-layer" aria-label="Close reward panel">×</button>
+        </header>
+        <div class="reward-preview">
+          <span class="reward-lamp" aria-hidden="true">♢</span>
+          <div>
+            <strong id="rewardStateTitle">Locked</strong>
+            <p id="rewardStateCopy">
+              Complete the current evidence check to place this lamp on your
+              workstation.
+            </p>
+          </div>
+        </div>
+        <p class="simulation-note">
+          Reward economy and cosmetic inventory are intentionally not finalized.
+        </p>
+      </section>
+
+      <dialog class="screen-share-dialog" id="screenShareDialog">
+        <form method="dialog">
+          <span class="dialog-icon" aria-hidden="true">⧉</span>
+          <small>EXPLICIT CONTEXT SHARING</small>
+          <h2>Share the current view with Hương?</h2>
+          <p>
+            The production companion would capture only the view you explicitly
+            select. It would not continuously monitor unrelated tabs or apps.
+          </p>
+          <div class="share-scope">
+            <label><input type="radio" name="shareScope" checked> Current Codex window</label>
+            <label><input type="radio" name="shareScope"> Selected region</label>
+          </div>
+          <div class="dialog-actions">
+            <button class="pixel-button quiet" value="cancel">Cancel</button>
+            <button class="pixel-button primary" value="confirm" data-action="confirm-share">
+              Simulate sharing
+            </button>
+          </div>
+          <p class="simulation-note">Simulated integration · No screen is captured.</p>
+        </form>
+      </dialog>
+
+      <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+      <div class="sr-only" id="liveRegion" aria-live="polite"></div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A plain-language visual guide to the Codex Content Builder Academy course companion."
+    />
+    <title>Course Companion — How It Works</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23172033'/%3E%3Cpath d='M8 9h16v4H12v6h12v4H8z' fill='%23fff'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="technical-architecture.css" />
+    <script src="technical-architecture.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#scenarioSection">Skip to the walkthrough</a>
+
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Back to the experience mock">
+        <span class="brand-mark" aria-hidden="true">CC</span>
+        <span>
+          <small>COURSE COMPANION</small>
+          <strong>How it works</strong>
+        </span>
+      </a>
+      <nav aria-label="Related pages">
+        <a href="index.html">Experience mock</a>
+        <a href="../../docs/architecture/course-companion-technical-workflow.md">Full specification</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="simple-overview" aria-labelledby="overviewTitle">
+        <div class="overview-copy">
+          <p class="kicker">THE WHOLE IDEA</p>
+          <h1 id="overviewTitle">You have two helpers.</h1>
+          <p class="overview-lede">
+            Ask the <strong>Teacher</strong> when you need help. Work with the
+            <strong>Executor in Codex</strong> when you need to build.
+          </p>
+        </div>
+
+        <div
+          class="two-paths"
+          role="img"
+          aria-label="The learner asks and learns through the Course App and Teacher, and builds and verifies through Codex and project files."
+        >
+          <div class="overview-learner overview-character">
+            <span class="overview-avatar avatar-learner" aria-hidden="true">YOU</span>
+            <strong>Learner</strong>
+            <small>You stay in control</small>
+          </div>
+
+          <div class="path path-teacher">
+            <span class="path-label"><b>Ask and learn</b><small>Questions and coaching</small></span>
+            <span class="path-line" aria-hidden="true"><i></i></span>
+          </div>
+
+          <div class="overview-course overview-tool">
+            <span class="tool-icon" aria-hidden="true">▣</span>
+            <strong>Course App</strong>
+            <small>Chat bubble + lessons</small>
+          </div>
+
+          <div class="overview-teacher overview-character">
+            <span class="overview-avatar avatar-teacher" aria-hidden="true">?</span>
+            <strong>Teacher</strong>
+            <small>Explains and guides</small>
+          </div>
+
+          <div class="path path-executor">
+            <span class="path-label"><b>Build and verify</b><small>Real work in Codex</small></span>
+            <span class="path-line" aria-hidden="true"><i></i></span>
+          </div>
+
+          <div class="overview-codex overview-tool">
+            <span class="tool-icon" aria-hidden="true">&gt;_</span>
+            <strong>Codex + Executor</strong>
+            <small>Your work screen</small>
+          </div>
+
+          <div class="overview-files overview-tool">
+            <span class="tool-icon" aria-hidden="true">▤</span>
+            <strong>Project Files</strong>
+            <small>Edits, tests, results</small>
+          </div>
+
+          <div class="overview-link">
+            <span aria-hidden="true">↕</span>
+            <p>
+              <strong>Follows one specific Codex conversation</strong>
+              <small>So the Teacher knows which work belongs to this mission.</small>
+            </p>
+          </div>
+        </div>
+
+        <div class="role-strip" aria-label="Role responsibilities">
+          <p><strong>Teacher</strong> explains and checks understanding.</p>
+          <p><strong>Executor</strong> edits, runs, and verifies.</p>
+          <p><strong>Learner</strong> decides and approves.</p>
+        </div>
+      </section>
+
+      <section class="scenario-section" id="scenarioSection" aria-labelledby="scenarioHeading">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">CHOOSE ONE MOMENT</p>
+            <h2 id="scenarioHeading">What happens when…</h2>
+          </div>
+          <p>Pick the question you care about. Everything else gets quieter.</p>
+        </div>
+
+        <div class="scenario-tabs" role="tablist" aria-label="Course workflow scenarios">
+          <button
+            class="scenario-tab is-selected"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-scenario="start"
+          ><span aria-hidden="true">▶</span>I start a lesson</button>
+          <button
+            class="scenario-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-scenario="work"
+          ><span aria-hidden="true">&gt;_</span>I work in Codex</button>
+          <button
+            class="scenario-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-scenario="ask"
+          ><span aria-hidden="true">?</span>I ask the Teacher</button>
+          <button
+            class="scenario-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-scenario="finish"
+          ><span aria-hidden="true">✓</span>I finish a mission</button>
+          <button
+            class="scenario-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-scenario="share"
+          ><span aria-hidden="true">▣</span>I share my screen</button>
+          <button
+            class="scenario-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-scenario="disconnect"
+          ><span aria-hidden="true">!</span>Something disconnects</button>
+        </div>
+
+        <div class="scenario-workspace">
+          <div class="flow-panel">
+            <div class="flow-header">
+              <div>
+                <span id="flowStatus" class="status-chip">CONNECTED</span>
+                <h3 id="flowTitle">I start a lesson</h3>
+                <p id="flowSummary">
+                  The course loads your progress, explains the mission, and connects the right Codex conversation.
+                </p>
+              </div>
+              <span class="keyboard-hint">Keys 1–6</span>
+            </div>
+
+            <div
+              class="actor-stage"
+              role="img"
+              aria-label="The active actors and connections for the selected course scenario"
+            >
+              <svg class="connection-layer" viewBox="0 0 1000 430" aria-hidden="true">
+                <defs>
+                  <marker id="simple-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+                    <path d="M0 0L9 4.5L0 9Z"></path>
+                  </marker>
+                </defs>
+                <path data-connection="learner-course" d="M500 115 C430 145 365 165 300 205" />
+                <path data-connection="course-teacher" d="M250 270 C180 295 150 320 130 350" />
+                <path data-connection="learner-codex" d="M500 115 C570 145 635 165 700 205" />
+                <path data-connection="codex-files" d="M750 270 C820 295 850 320 870 350" />
+                <path data-connection="course-codex" d="M360 235 L640 235" />
+                <path data-connection="files-course" d="M805 365 C640 415 410 415 195 365" />
+                <path data-connection="learner-teacher" d="M455 110 C300 125 180 210 135 330" />
+              </svg>
+
+              <span class="connection-label label-course-codex" data-connection-label="course-codex">
+                Connected conversation
+              </span>
+              <span class="connection-label label-files-course" data-connection-label="files-course">
+                Evidence returns
+              </span>
+
+              <article class="actor actor-learner" data-actor="learner">
+                <span class="actor-icon icon-learner" aria-hidden="true">YOU</span>
+                <div><strong>Learner</strong><small>Decides and approves</small></div>
+              </article>
+              <article class="actor actor-course" data-actor="course">
+                <span class="actor-icon icon-course" aria-hidden="true">▣</span>
+                <div><strong>Course App</strong><small>Guides the mission</small></div>
+              </article>
+              <article class="actor actor-teacher" data-actor="teacher">
+                <span class="actor-icon icon-teacher" aria-hidden="true">?</span>
+                <div><strong>Teacher</strong><small>Explains and checks</small></div>
+              </article>
+              <article class="actor actor-codex" data-actor="codex">
+                <span class="actor-icon icon-codex" aria-hidden="true">&gt;_</span>
+                <div><strong>Codex + Executor</strong><small>Builds and verifies</small></div>
+              </article>
+              <article class="actor actor-files" data-actor="files">
+                <span class="actor-icon icon-files" aria-hidden="true">▤</span>
+                <div><strong>Project Files</strong><small>Hold the evidence</small></div>
+              </article>
+            </div>
+          </div>
+
+          <aside class="steps-panel" aria-live="polite">
+            <p class="steps-label">WHAT HAPPENS</p>
+            <ol id="flowSteps" class="flow-steps">
+              <li><span>1</span><div><strong>Open the course</strong><p>Your saved progress loads.</p></div></li>
+              <li><span>2</span><div><strong>See the mission</strong><p>A short briefing explains today's goal.</p></div></li>
+              <li><span>3</span><div><strong>Connect Codex</strong><p>Choose the conversation for this mission.</p></div></li>
+              <li><span>4</span><div><strong>Begin working</strong><p>Codex becomes your main screen.</p></div></li>
+            </ol>
+            <div class="outcome-box">
+              <span>RESULT</span>
+              <p id="flowOutcome">
+                The course and Teacher now follow the correct mission work.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="visibility-section" aria-labelledby="visibilityHeading">
+        <div class="section-heading visibility-heading">
+          <div>
+            <p class="kicker">PRIVACY, WITHOUT THE LEGAL-SPEAK</p>
+            <h2 id="visibilityHeading">What can the Teacher see?</h2>
+          </div>
+          <p>The short answer: mission context, not your whole computer.</p>
+        </div>
+
+        <div class="visibility-grid">
+          <article class="visibility-card visibility-auto">
+            <div class="visibility-icon" aria-hidden="true">✓</div>
+            <p class="visibility-rule">AUTOMATIC</p>
+            <h3>Teacher sees automatically</h3>
+            <ul>
+              <li>Current lesson and mission</li>
+              <li>Your answers and decisions</li>
+              <li>The connected Codex conversation</li>
+              <li>Relevant file changes and tests</li>
+            </ul>
+          </article>
+
+          <article class="visibility-card visibility-share">
+            <div class="visibility-icon" aria-hidden="true">ASK</div>
+            <p class="visibility-rule">ONLY WITH PERMISSION</p>
+            <h3>Teacher sees only when you share</h3>
+            <ul>
+              <li>One window or screenshot</li>
+              <li>Selected or unsaved text</li>
+              <li>Your voice during an active call</li>
+            </ul>
+          </article>
+
+          <article class="visibility-card visibility-never">
+            <div class="visibility-icon" aria-hidden="true">×</div>
+            <p class="visibility-rule">NEVER</p>
+            <h3>Teacher never sees</h3>
+            <ul>
+              <li>Passwords, tokens, or secret settings</li>
+              <li>Unrelated applications or browser tabs</li>
+              <li>Other Codex conversations or projects</li>
+              <li>Continuous hidden screen capture</li>
+              <li>Approvals made on your behalf</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <details class="technical-details">
+        <summary>
+          <span>
+            <small>FOR ENGINEERING DISCUSSION</small>
+            Show technical details
+          </span>
+          <i aria-hidden="true">+</i>
+        </summary>
+
+        <div class="technical-content">
+          <div class="technical-intro">
+            <div>
+              <p class="kicker">UNDER THE HOOD</p>
+              <h2>The same model, with its technical names.</h2>
+            </div>
+            <p>
+              These details matter for implementation, but a learner or reviewer
+              does not need them to understand the product.
+            </p>
+          </div>
+
+          <div class="binding-callout">
+            <span>THE KEY</span>
+            <code>missionId ↔ threadId</code>
+            <p>Every mission explicitly binds to one Codex conversation. The course never guesses from the frontmost window.</p>
+          </div>
+
+          <div class="technical-pipeline" aria-label="Detailed technical pipeline">
+            <article><span>01</span><strong>Course Orchestrator</strong><p>Loads mission, checkpoint, and story state.</p></article>
+            <b aria-hidden="true">→</b>
+            <article><span>02</span><strong>Codex Adapter</strong><p>Reads the bound conversation and its status.</p></article>
+            <b aria-hidden="true">→</b>
+            <article><span>03</span><strong>Evidence Collector</strong><p>Summarizes relevant diffs, tests, and artifacts.</p></article>
+            <b aria-hidden="true">→</b>
+            <article><span>04</span><strong>Context Broker</strong><p>Scopes, redacts, timestamps, and records sources.</p></article>
+            <b aria-hidden="true">→</b>
+            <article><span>05</span><strong>Teacher Service</strong><p>Receives only the context needed for this question.</p></article>
+          </div>
+
+          <div class="technical-notes">
+            <article>
+              <span>LEARNER DEVICE</span>
+              <p>Companion, course state, Codex surface, project files, evidence checks, and sharing controls.</p>
+            </article>
+            <article>
+              <span>TEACHER SERVICE</span>
+              <p>Teacher agent, mastery state, and the scoped context for the current question.</p>
+            </article>
+            <article>
+              <span>OPENAI / CODEX</span>
+              <p>Executor conversation and model work under normal Codex permissions.</p>
+            </article>
+          </div>
+
+          <div class="technical-check">
+            <strong>Technical check needed</strong>
+            <p>
+              App Server supports rich-client history, approvals, and events.
+              trusted Hooks expose lifecycle events. We still need to validate
+              exact conversation matching on the chosen Codex desktop surface.
+            </p>
+          </div>
+        </div>
+      </details>
+    </main>
+
+    <footer>
+      <span>Course Companion · Plain-language architecture</span>
+      <span>No live Codex connection in this prototype</span>
+    </footer>
+  </body>
+</html>
