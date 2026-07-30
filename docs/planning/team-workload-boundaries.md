@@ -32,6 +32,9 @@ and resume the practical experience.
 | First-run onboarding script and content | Triết | Learners receive the intended questions, explanations, and teaching language |
 | Practice Mode mechanism | Duy | Practice sessions run, connect, track progress, and recover reliably |
 | Practice exercise content | Triết | Learners receive the intended tasks, instructions, and success criteria |
+| UI/UX inside the Course App | Triết | Theory and course-navigation surfaces remain coherent |
+| UI/UX outside the Course App | Duy | Standalone setup, Practice Mode, Teacher, progress, and recovery surfaces remain coherent |
+| Cross-surface UI/UX alignment | Joint review | Both sides feel like one product without duplicating implementation ownership |
 | Teacher agent | Duy | The Teacher guides, questions, hints, assesses, and remembers progress |
 | Executor integration | Duy | Codex performs scoped practical work while remaining separate from the Teacher |
 | Practice activity and progress records | Duy | Practice actions, evidence, completion, and resumable state are recorded |
@@ -108,6 +111,9 @@ Deliverables include:
 
 - starting, pausing, resuming, and completing a practice session;
 - loading and presenting the practice exercise supplied by Triết;
+- designing and implementing the UI/UX of the Practice Mode surface;
+- designing Teacher interaction, progress, connection, error, and recovery
+  states outside the Course App;
 - binding one mission to one explicit Codex Executor thread;
 - keeping unrelated Codex conversations outside the Teacher context;
 - collecting mission-relevant activity and evidence;
@@ -172,6 +178,9 @@ Triết owns the primary learner-facing theory application:
 - theory lesson screens;
 - presentation and interaction patterns used while learning;
 - the visual and content experience before Practice Mode;
+- UI/UX decisions within the Course App;
+- the Course App's shell, navigation system, and theory-facing interaction
+  patterns;
 - app-level UI decisions outside Duy's startup mechanics, onboarding setup
   mechanics, and Practice Mode runtime.
 
@@ -299,6 +308,96 @@ the corresponding Course App integration.
 
 Neither person changes the shared contract unilaterally.
 
+## UI/UX ownership and alignment
+
+The team uses **surface ownership with shared design alignment**. Each person
+has implementation authority within their surface, while both review decisions
+that affect the product-wide system or the transition between surfaces.
+
+### Triết's UI/UX surface
+
+Triết is the primary UI/UX owner inside the Course App, including:
+
+- the app shell;
+- theory screens and content presentation;
+- course navigation;
+- lesson progress shown inside the Course App;
+- course-side entry points into onboarding and Practice Mode;
+- course-side completion and return destinations.
+
+Triết makes local Course App UI/UX decisions without requiring Duy's approval
+when they do not change a shared pattern or cross-surface handoff.
+
+### Duy's UI/UX surfaces
+
+Duy is the primary UI/UX owner outside the Course App, including:
+
+- repository startup and standalone setup states;
+- Codex connection, authentication status, and recovery surfaces that appear
+  outside the Course App;
+- Practice Mode;
+- Teacher interaction during practice;
+- practice progress and evidence displays;
+- Executor connection and context-freshness states;
+- practice completion, interruption, resume, error, and recovery experiences.
+
+Duy makes local UI/UX decisions within these surfaces without requiring
+Triết's approval when they do not change a shared pattern or cross-surface
+handoff.
+
+When Duy's setup or Codex-connection mechanism is presented inside the Course
+App, Duy owns the required states, behavior, validation, and technical
+integration, while Triết owns its UI/UX presentation within the Course App.
+
+### Jointly reviewed UI/UX decisions
+
+Both owners discuss and review:
+
+- product terminology and labels used on both sides;
+- color, typography, spacing, iconography, and motion conventions shared across
+  surfaces;
+- accessibility standards and interaction feedback;
+- shared loading, empty, offline, error, and recovery patterns;
+- navigation or state passed between the Course App and Practice Mode;
+- any new component or interaction pattern intended for reuse by both sides;
+- major visual changes that would make the two surfaces feel like different
+  products.
+
+Joint review does not transfer implementation ownership. After alignment, the
+owner of each surface implements the decision on that surface.
+
+### Cross-surface handoffs
+
+The following transitions require review from both owners:
+
+1. repository startup → Course App;
+2. first-run onboarding → course lesson;
+3. theory lesson → Practice Mode;
+4. Practice Mode → Teacher interaction;
+5. practice completion or interruption → Course App;
+6. connection failure or stale progress → recovery destination.
+
+Each handoff must agree on:
+
+- the action that initiates the transition;
+- the state and identifiers passed across;
+- the learner-facing wording;
+- loading, cancellation, error, and retry behavior;
+- the destination and expected next action.
+
+### Alignment cadence
+
+The team uses two lightweight alignment mechanisms:
+
+1. **Weekly or milestone review:** share current screenshots or prototypes,
+   review upcoming cross-surface changes, and record decisions.
+2. **Change-triggered review:** contact the other owner before implementing a
+   new shared pattern or changing a cross-surface handoff.
+
+Routine local adjustments do not require a meeting. Shared decisions are added
+to the UI/UX alignment notes or this agreement before both sides depend on
+them.
+
 ## Non-overlap rules
 
 1. Duy does not rewrite theory content, theory slides, or general Course App
@@ -317,6 +416,10 @@ Neither person changes the shared contract unilaterally.
    as a live integration.
 7. Work in the other owner's area starts only after an explicit handoff or
    request.
+8. Triết has final implementation authority for local UI/UX inside the Course
+   App; Duy has final implementation authority for local UI/UX outside it.
+9. Neither owner introduces a new shared UI/UX pattern or changes a
+   cross-surface transition without review from the other owner.
 
 ## Repository working boundaries
 
@@ -332,6 +435,9 @@ Until the production app structure is finalized, use these working boundaries:
 - the Duy-owned Teacher, Executor, context, evidence, progress, and persistence
   mechanisms;
 - architecture and integration documentation for those areas.
+- UI/UX implementation for standalone startup and setup, Practice Mode,
+  Teacher interaction, progress, evidence, connection, and recovery surfaces
+  outside the Course App.
 
 ### Triết may change independently
 
@@ -342,6 +448,7 @@ Until the production app structure is finalized, use these working boundaries:
 - practice exercise briefs, instructions, scenarios, examples, expected
   evidence, and evaluation criteria;
 - course-content sequencing and presentation;
+- UI/UX implementation inside the Course App;
 - content-focused planning documents.
 
 ### Joint review required
@@ -350,6 +457,8 @@ Until the production app structure is finalized, use these working boundaries:
 - shared package or dependency strategy;
 - shared schemas and identifiers;
 - routing between theory, onboarding, and Practice Mode;
+- shared visual standards and reusable interaction patterns;
+- cross-surface UI/UX transitions and their error or recovery behavior;
 - changes to privacy, data retention, or Teacher context scope;
 - renaming product concepts used by both experiences.
 
@@ -389,6 +498,15 @@ As of 30 July 2026:
 - Duy owns the surrounding Practice Mode mechanism, including session state,
   Teacher interaction, Executor binding, evidence capture, progress tracking,
   persistence, completion processing, and recovery.
+- Triết is the primary UI/UX owner inside the Course App;
+- Duy is the primary UI/UX owner outside the Course App, including Practice
+  Mode and its surrounding standalone setup, Teacher, progress, and recovery
+  surfaces;
+- setup or connection mechanisms displayed inside the Course App keep Duy's
+  technical ownership but use Triết's UI/UX ownership;
+- shared design standards and cross-surface transitions are reviewed
+  frequently by both owners, while implementation remains with the owner of
+  each surface.
 
 ## Updating this agreement
 
