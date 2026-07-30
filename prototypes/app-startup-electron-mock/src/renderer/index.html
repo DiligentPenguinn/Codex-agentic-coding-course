@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Content Builder Academy — Setup Mock</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page-frame">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Startup mechanism prototype</p>
+          <h1>Prepare your course workspace</h1>
+        </div>
+        <span class="prototype-stamp">Duy-side mock</span>
+      </header>
+
+      <nav class="progress" aria-label="Setup progress">
+        <ol>
+          <li data-step="checking"><span>01</span> Checking setup</li>
+          <li data-step="connect"><span>02</span> Connect Codex</li>
+          <li data-step="teachingSetup"><span>03</span> Teaching setup</li>
+          <li data-step="complete"><span>04</span> Setup complete</li>
+        </ol>
+      </nav>
+
+      <main id="app" aria-live="polite">
+        <section class="panel" data-screen="checking">
+          <p class="section-number">01 / System check</p>
+          <h2>Checking setup</h2>
+          <p>Confirming the local app and Codex connection.</p>
+          <div class="status-row">
+            <span class="status-mark is-working" aria-hidden="true"></span>
+            <span>Reading local setup state…</span>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="connect" hidden>
+          <p class="section-number">02 / Account connection</p>
+          <h2>Connect Codex</h2>
+          <p id="connection-copy">
+            Use Codex-managed ChatGPT authentication. This mock never handles
+            your tokens.
+          </p>
+          <div class="status-row" id="connection-status">
+            <span class="status-mark" aria-hidden="true"></span>
+            <span>Signed out</span>
+          </div>
+          <div class="device-card" id="device-card" hidden>
+            <span class="field-label">One-time code</span>
+            <strong id="device-code"></strong>
+            <a
+              id="device-link"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+            >Open verification page</a>
+          </div>
+          <p class="error-message" id="connection-error" role="alert"></p>
+          <div class="actions">
+            <button class="button primary" type="button" data-action="connect">
+              Connect Codex
+            </button>
+            <button class="button secondary" type="button" data-action="device">
+              Use device code
+            </button>
+            <button class="button secondary" type="button" data-action="cancel">
+              Cancel login
+            </button>
+            <button class="button secondary" type="button" data-action="retry">
+              Retry connection
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="teachingSetup" hidden>
+          <div class="panel-heading">
+            <div>
+              <p class="section-number">03 / Mechanism fixture</p>
+              <h2 id="fixture-title">Teaching setup</h2>
+            </div>
+            <span class="fixture-badge">Non-production fixture</span>
+          </div>
+          <p class="notice" id="fixture-notice"></p>
+          <form id="fixture-form" novalidate></form>
+          <p class="error-message" id="form-error" role="alert"></p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="back">
+              Back
+            </button>
+            <button class="button primary" type="button" data-action="continue">
+              Continue
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="complete" hidden>
+          <p class="section-number">04 / Ready</p>
+          <h2>Setup complete</h2>
+          <p>
+            The startup mechanism has saved this fixture setup locally. The
+            production course destination is not part of this mock.
+          </p>
+          <div class="completion-grid">
+            <span>Local progress</span><strong>Saved</strong>
+            <span>Codex connection</span><strong id="complete-connection">Rechecked</strong>
+            <span>Content</span><strong>Fixture only</strong>
+          </div>
+          <p id="mock-destination" class="notice" hidden>
+            Mock destination reached. No course content is implemented here.
+          </p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="reopen">
+              Reopen setup
+            </button>
+            <button class="button primary" type="button" data-action="mock-app">
+              Continue to mock app
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Technical prototype · onboarding wording and final Course App UI belong
+        to Triết.
+      </footer>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
