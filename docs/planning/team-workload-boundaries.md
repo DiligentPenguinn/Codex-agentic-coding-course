@@ -3,6 +3,10 @@
 **Owners:** Duy and Triết | **Status:** Active working agreement | **Established:** 30 July 2026
 **Source:** Collaborator workflow discussion and ownership diagram
 
+**Daily TL;DR:** after cloning the repository, open
+[`team-workload-map.html`](team-workload-map.html) in a browser. Use this full
+agreement only when the map does not answer the question.
+
 ## Purpose
 
 This document separates Duy's and Triết's work so both people can develop in
