@@ -1429,10 +1429,12 @@ From the mock directory:
 
 ```powershell
 npm ci
+npx --no-install install-electron --no
 npm run check
 ```
 
-Expected: install succeeds; every unit and Electron smoke test passes.
+Expected: package and pinned-runtime installation succeed; every unit and
+Electron smoke test passes.
 
 - [ ] **Step 4: Run repository formatting and secret scans**
 
