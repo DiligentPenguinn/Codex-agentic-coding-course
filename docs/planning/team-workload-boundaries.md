@@ -1,8 +1,6 @@
 # Team Workload Boundaries
 
-**Owners:** Duy and Triết  
-**Status:** Active working agreement  
-**Established:** 30 July 2026  
+**Owners:** Duy and Triết | **Status:** Active working agreement | **Established:** 30 July 2026
 **Source:** Collaborator workflow discussion and ownership diagram
 
 ## Purpose
