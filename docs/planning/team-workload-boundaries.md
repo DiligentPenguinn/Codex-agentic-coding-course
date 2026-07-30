@@ -475,9 +475,16 @@ Use this test before starting an unclear task:
   both owners review it and nominate one implementation owner before work
   begins.
 
-## Current agreed decisions
+## Current decisions and proposals by source
 
-As of 30 July 2026:
+This section records where each direction came from. A Duy workstream decision
+must not be represented as a joint team decision merely because it is written
+in this agreement.
+
+### Duy workstream decisions
+
+As of 30 July 2026, Duy has selected these directions for his prototype and
+implementation area:
 
 - the README will provide repository clone commands and one setup-and-start
   command;
@@ -488,25 +495,43 @@ As of 30 July 2026:
 - Codex retains ownership of authentication credentials;
 - the Teacher and remaining course experience may be simulated in the first
   startup mock;
-- initial teaching setup uses a short fixed form implemented by Duy;
-- Triết supplies the form's script, questions, explanations, wording, and
-  sequence;
-- conversational Teacher onboarding is deferred until the real Teacher exists,
-  without changing Triết's ownership of its script and content.
+- initial teaching setup uses a short fixed-form mechanism implemented by Duy;
+- conversational Teacher onboarding is deferred from Duy's first technical
+  prototype.
+
+These choices remain inside Duy's ownership unless they change a shared
+contract or require work in Triết's area. In that case, the affected handoff
+must be reviewed together before implementation depends on it.
+
+### Ownership boundaries recorded by Duy
+
+Duy has recorded the following responsibility boundaries for collaborator
+review:
+
+- Triết supplies the onboarding form's script, questions, explanations,
+  wording, and sequence;
 - Triết owns all practice exercise content and exercise-specific evaluation
   criteria;
 - Duy owns the surrounding Practice Mode mechanism, including session state,
   Teacher interaction, Executor binding, evidence capture, progress tracking,
-  persistence, completion processing, and recovery.
+  persistence, completion processing, and recovery;
 - Triết is the primary UI/UX owner inside the Course App;
 - Duy is the primary UI/UX owner outside the Course App, including Practice
   Mode and its surrounding standalone setup, Teacher, progress, and recovery
   surfaces;
 - setup or connection mechanisms displayed inside the Course App keep Duy's
   technical ownership but use Triết's UI/UX ownership;
-- shared design standards and cross-surface transitions are reviewed
-  frequently by both owners, while implementation remains with the owner of
-  each surface.
+- shared design standards and cross-surface transitions receive frequent
+  review from both owners, while implementation remains with the owner of each
+  surface.
+
+These boundaries become joint decisions only after both Duy and Triết
+explicitly confirm them.
+
+### Jointly confirmed decisions
+
+Do not place an item in this subsection until both Duy and Triết have
+explicitly confirmed it. No additional decision is currently recorded here.
 
 ## Updating this agreement
 
