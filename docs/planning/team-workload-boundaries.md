@@ -17,8 +17,9 @@ The product has two connected experiences:
 2. **Apply the theory in Practice Mode with Codex, the Teacher, and the
    Executor.**
 
-Triết owns the first experience. Duy owns the second experience and the path
-that installs, starts, and connects the system.
+Triết owns the learner-facing teaching and exercise content across both
+experiences. Duy owns the mechanisms that install, start, connect, run, track,
+and resume the practical experience.
 
 ## Ownership summary
 
@@ -29,7 +30,8 @@ that installs, starts, and connects the system.
 | Repository startup flow | Duy | Learners can clone the repository, run one setup command, and enter the app |
 | First-run onboarding setup | Duy | The app connects Codex and reliably captures onboarding responses |
 | First-run onboarding script and content | Triết | Learners receive the intended questions, explanations, and teaching language |
-| Practice Mode | Duy | Learners apply theory through supervised, evidence-based work |
+| Practice Mode mechanism | Duy | Practice sessions run, connect, track progress, and recover reliably |
+| Practice exercise content | Triết | Learners receive the intended tasks, instructions, and success criteria |
 | Teacher agent | Duy | The Teacher guides, questions, hints, assesses, and remembers progress |
 | Executor integration | Duy | Codex performs scoped practical work while remaining separate from the Teacher |
 | Practice activity and progress records | Duy | Practice actions, evidence, completion, and resumable state are recorded |
@@ -87,9 +89,10 @@ For the first mock:
 - Teacher responses and the rest of the course experience may remain simulated;
 - the implementation is Windows-first.
 
-### 3. Practice Mode
+### 3. Practice Mode mechanism
 
-Duy owns the transition from theory to supervised practical work:
+Duy owns the runtime surrounding the transition from theory to supervised
+practical work:
 
 ```text
 Finish relevant theory
@@ -104,11 +107,16 @@ Finish relevant theory
 Deliverables include:
 
 - starting, pausing, resuming, and completing a practice session;
+- loading and presenting the practice exercise supplied by Triết;
 - binding one mission to one explicit Codex Executor thread;
 - keeping unrelated Codex conversations outside the Teacher context;
 - collecting mission-relevant activity and evidence;
+- applying the exercise-specific completion criteria supplied by Triết;
 - displaying context freshness and connection failures;
 - returning practice completion and progress to the Course App.
+
+Duy does not own the practice exercise brief, learner instructions, scenario,
+example material, expected outcome, expected evidence, or evaluation criteria.
 
 ### 4. Teacher agent and persistent teaching state
 
@@ -179,17 +187,23 @@ Triết owns the learner-facing curriculum presented in the app:
 - the first-run onboarding script, questions, explanations, wording, and order;
 - content revisions required for clarity and correctness.
 
-### 3. Theory-to-practice intent
+### 3. Theory and practice content
 
-Triết defines what the learner should understand before each practical task:
+Triết defines what the learner should understand and do in each practical
+task:
 
 - the theory objective;
 - the concepts introduced;
 - the intended learner outcome;
-- the point at which the lesson sends the learner into Practice Mode.
+- the point at which the lesson sends the learner into Practice Mode;
+- the practice exercise brief and learner instructions;
+- the exercise scenario, task, examples, and starter material;
+- the expected outcome and expected evidence;
+- the exercise-specific completion and evaluation criteria.
 
-Triết does not implement the Practice Mode runtime, Teacher memory, Executor
-connection, or startup/authentication system.
+Triết does not implement the Practice Mode runtime, progress tracking, Teacher
+interaction mechanism, Teacher memory, Executor connection, evidence capture,
+persistence, recovery, or startup/authentication system.
 
 ## Shared integration contracts
 
@@ -246,10 +260,13 @@ practiceObjective
 expectedEvidence
 ```
 
-**Triết provides:** the correct theory and mission identifiers.
+**Triết provides:** the correct theory and mission identifiers, exercise
+brief, learner instructions, practice objective, expected evidence, and
+evaluation criteria.
 
 **Duy provides:** validation, session creation or resume, Executor binding, and
-the Practice Mode experience.
+the surrounding Practice Mode mechanism that presents, tracks, and evaluates
+the supplied exercise.
 
 ### Contract D: Return practice progress
 
@@ -265,15 +282,17 @@ evidenceSummary
 masterySummary
 ```
 
-**Duy provides:** accurate practice status and evidence summaries.
+**Duy provides:** accurate practice status, evidence summaries, and the
+mechanical evaluation result produced from Triết's exercise criteria.
 
 **Triết provides:** the course UI that reflects completion and determines the
 next theory destination.
 
 ### Contract E: Content changes that affect practice
 
-When Triết changes a lesson objective, mission identifier, expected evidence,
-or checkpoint meaning, Duy reviews the corresponding Practice Mode contract.
+When Triết changes an exercise brief, learner instruction, objective, mission
+identifier, expected evidence, evaluation criterion, or checkpoint meaning,
+Duy reviews the corresponding Practice Mode contract.
 
 When Duy changes the practice data contract or completion rules, Triết reviews
 the corresponding Course App integration.
@@ -290,8 +309,9 @@ Neither person changes the shared contract unilaterally.
    mechanism even when it appears inside the Course App; Triết owns the script
    and content presented through that mechanism.
 4. Content authorship does not determine runtime ownership. Triết specifies
-   the learning intent; Duy implements how Practice Mode observes and assesses
-   the practical work.
+   the practice exercise and its evaluation criteria; Duy implements how
+   Practice Mode presents it, observes activity, tracks progress, and applies
+   those criteria.
 5. Shared schemas and navigation handoffs require review from both owners.
 6. A prototype must label simulated behavior clearly and must not be presented
    as a live integration.
@@ -306,18 +326,21 @@ Until the production app structure is finalized, use these working boundaries:
 
 - repository startup and setup scripts;
 - README startup instructions;
-- the Course Companion and Practice Mode prototype;
+- the Course Companion and Practice Mode mechanism prototype, excluding
+  practice exercise content;
 - Codex App Server integration experiments;
-- Teacher, Executor, context, evidence, progress, and persistence
-  implementation owned by Practice Mode;
+- the Duy-owned Teacher, Executor, context, evidence, progress, and persistence
+  mechanisms;
 - architecture and integration documentation for those areas.
 
 ### Triết may change independently
 
-- the Course App implementation outside Duy's onboarding setup mechanics and
-  Practice Mode;
+- the Course App implementation outside Duy's onboarding setup and Practice
+  Mode mechanisms;
 - onboarding scripts, questions, explanations, labels, and instructional copy;
 - theory lessons, slides, examples, and instructional copy;
+- practice exercise briefs, instructions, scenarios, examples, expected
+  evidence, and evaluation criteria;
 - course-content sequencing and presentation;
 - content-focused planning documents.
 
@@ -334,9 +357,11 @@ Until the production app structure is finalized, use these working boundaries:
 
 Use this test before starting an unclear task:
 
-- If it changes **what the learner is taught**, Triết owns it.
-- If it changes **how the learner installs, connects, practises, is observed,
-  is assessed, or resumes**, Duy owns it.
+- If it changes **what the learner is taught or what exercise the learner is
+  asked to complete**, Triết owns it.
+- If it changes **how the learner installs, connects, enters a practice
+  session, interacts with the Teacher, has progress and evidence tracked, is
+  mechanically evaluated against supplied criteria, or resumes**, Duy owns it.
 - If it changes the data or navigation crossing between those two experiences,
   both owners review it and nominate one implementation owner before work
   begins.
@@ -359,6 +384,11 @@ As of 30 July 2026:
   sequence;
 - conversational Teacher onboarding is deferred until the real Teacher exists,
   without changing Triết's ownership of its script and content.
+- Triết owns all practice exercise content and exercise-specific evaluation
+  criteria;
+- Duy owns the surrounding Practice Mode mechanism, including session state,
+  Teacher interaction, Executor binding, evidence capture, progress tracking,
+  persistence, completion processing, and recovery.
 
 ## Updating this agreement
 
