@@ -165,16 +165,21 @@ The separator must state:
 Layer 3 · Inside “Ask questions”
 ```
 
-Leaf nodes do not expand.
+Leaf nodes do not create another graph layer. Each leaf has an `i` button that
+reveals one short description inside the same node. Only one leaf description
+is open at a time.
 
 ## Interaction Rules
 
 - The complete Layer 1 journey never disappears.
 - `+` expands the selected node.
 - `−` hides the selected node.
+- `i` shows or hides a leaf's inline description.
 - Opening a new node at the same layer closes the previous node.
 - Opening a different Layer 1 node also clears Layer 3.
+- Opening a different leaf closes the previous leaf description.
 - Expansion happens inside the graph, not in a separate prose panel.
+- Leaf descriptions stay inside their node and never create Layer 4.
 - Horizontal arrows are used only for chronological workflow.
 - Labeled full-width dividers separate complexity layers.
 - No animation is required for the first version.
@@ -209,6 +214,13 @@ Practice evidence persistence mechanism
 ```
 
 Detailed explanations belong in the full agreement, not inside graph nodes.
+
+Each leaf description must:
+
+- use one plain-English sentence;
+- use no more than 14 words;
+- explain the task without repeating its title;
+- avoid implementation jargon.
 
 ## Ownership Content
 
@@ -353,6 +365,9 @@ Automated checks should verify:
 - only one Layer 2 branch opens at a time;
 - opening a new Layer 1 branch clears Layer 3;
 - expand buttons update `aria-expanded`;
+- leaf description buttons update `aria-expanded`;
+- leaf descriptions open inline without creating Layer 4;
+- only one leaf description opens at a time;
 - all responsibility labels from this specification appear;
 - no external requests or dependencies exist;
 - links to the quick reference and full agreement resolve.
@@ -362,6 +377,7 @@ Manual checks should verify:
 - the whole journey is understandable while collapsed;
 - expanding `First-time setup` shows the Duy/Triết split;
 - expanding `Build with help` shows exercise content versus mechanism;
+- opening a leaf description explains the task without changing graph layers;
 - the layer dividers cannot be mistaken for workflow arrows;
 - light theme is readable;
 - dark theme is readable;
