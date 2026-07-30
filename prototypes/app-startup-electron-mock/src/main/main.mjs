@@ -27,6 +27,15 @@ const mockRoot = path.resolve(mainDirectory, "..", "..");
 const allowTestHooks = (
   process.env.NODE_ENV === "test" && !app.isPackaged
 );
+if (allowTestHooks && process.env.COURSE_MOCK_USER_DATA_DIR) {
+  app.setPath(
+    "userData",
+    path.resolve(process.env.COURSE_MOCK_USER_DATA_DIR),
+  );
+}
+const fixtureServerPath = allowTestHooks
+  ? process.env.COURSE_MOCK_APP_SERVER_FIXTURE
+  : null;
 const forceDisconnected = (
   process.env.COURSE_MOCK_START_DISCONNECTED === "1"
   || (
@@ -53,10 +62,28 @@ const logger = Object.freeze({
 });
 
 function createCodexClient() {
+  const spawnAppServer = fixtureServerPath
+    ? (_command, _args, options) => spawn(
+      process.execPath,
+      [path.resolve(fixtureServerPath)],
+      {
+        ...options,
+        env: {
+          ...process.env,
+          ELECTRON_RUN_AS_NODE: "1",
+        },
+      },
+    )
+    : spawn;
   return new CodexAppServerClient({
-    spawn,
+    spawn: spawnAppServer,
     logger,
   });
+}
+
+function openAuthUrl(url) {
+  if (fixtureServerPath) return Promise.resolve();
+  return shell.openExternal(url);
 }
 
 async function loadFixture() {
@@ -100,7 +127,7 @@ async function createMainWindow() {
   await connectAppServer();
   auth = createAuthService({
     client,
-    openExternal: (url) => shell.openExternal(url),
+    openExternal: openAuthUrl,
   });
 
   unregisterIpc = registerIpcHandlers({
@@ -119,7 +146,7 @@ async function createMainWindow() {
   );
   mainWindow = new BrowserWindow(createWindowOptions({ preloadPath }));
   installWindowPolicy(mainWindow, {
-    openExternal: (url) => shell.openExternal(url),
+    openExternal: openAuthUrl,
   });
   removeAuthForwarder = auth.onStatus((status) => {
     if (!mainWindow?.isDestroyed()) {
