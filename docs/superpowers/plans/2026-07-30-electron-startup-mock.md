@@ -61,7 +61,9 @@
 
 - `prototypes/app-startup-electron-mock/src/shared/content-schema.mjs` — parse and validate the versioned fixture contract.
 - `prototypes/app-startup-electron-mock/src/shared/setup-state-schema.mjs` — parse, sanitize, and create setup-state defaults.
-- `prototypes/app-startup-electron-mock/src/shared/channels.mjs` — frozen IPC channel names shared by main and preload.
+- `prototypes/app-startup-electron-mock/src/shared/channels.mjs` — frozen IPC
+  channel names for the main process; contract tests keep the sandbox preload's
+  inline copy synchronized.
 
 ### Main process
 
@@ -74,7 +76,8 @@
 
 ### Renderer boundary
 
-- `prototypes/app-startup-electron-mock/src/preload/preload.mjs` — exact `window.courseSetup` bridge.
+- `prototypes/app-startup-electron-mock/src/preload/preload.cjs` — exact
+  sandbox-compatible `window.courseSetup` bridge.
 - `prototypes/app-startup-electron-mock/src/renderer/onboarding-state.mjs` — pure screen/state reducer.
 - `prototypes/app-startup-electron-mock/src/renderer/index.html` — semantic first-run shell.
 - `prototypes/app-startup-electron-mock/src/renderer/app.js` — renderer orchestration through `window.courseSetup`.
@@ -805,7 +808,7 @@ git commit -m "feat: add managed Codex authentication"
 - Create: `prototypes/app-startup-electron-mock/src/shared/channels.mjs`
 - Create: `prototypes/app-startup-electron-mock/src/main/window-policy.mjs`
 - Create: `prototypes/app-startup-electron-mock/src/main/ipc-handlers.mjs`
-- Create: `prototypes/app-startup-electron-mock/src/preload/preload.mjs`
+- Create: `prototypes/app-startup-electron-mock/src/preload/preload.cjs`
 - Create: `prototypes/app-startup-electron-mock/tests/window-policy.test.mjs`
 - Create: `prototypes/app-startup-electron-mock/tests/ipc-contract.test.mjs`
 
@@ -890,6 +893,10 @@ Return an unregister function that removes exactly the registered handlers.
 
 - [ ] **Step 6: Implement preload**
 
+Use CommonJS because Electron 43 runs sandboxed preloads as plain JavaScript
+without ESM imports. Inline the fixed channel constants and verify them against
+`channels.mjs`; do not require local modules.
+
 Expose:
 
 ```js
@@ -923,7 +930,7 @@ Expected: all window-policy and IPC-contract tests PASS.
 - [ ] **Step 8: Commit**
 
 ```powershell
-git add prototypes/app-startup-electron-mock/src/shared/channels.mjs prototypes/app-startup-electron-mock/src/main/window-policy.mjs prototypes/app-startup-electron-mock/src/main/ipc-handlers.mjs prototypes/app-startup-electron-mock/src/preload/preload.mjs prototypes/app-startup-electron-mock/tests/window-policy.test.mjs prototypes/app-startup-electron-mock/tests/ipc-contract.test.mjs
+git add prototypes/app-startup-electron-mock/src/shared/channels.mjs prototypes/app-startup-electron-mock/src/main/window-policy.mjs prototypes/app-startup-electron-mock/src/main/ipc-handlers.mjs prototypes/app-startup-electron-mock/src/preload/preload.cjs prototypes/app-startup-electron-mock/tests/window-policy.test.mjs prototypes/app-startup-electron-mock/tests/ipc-contract.test.mjs
 git commit -m "feat: secure Electron startup boundary"
 ```
 

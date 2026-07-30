@@ -167,7 +167,7 @@ test("validates declared responses before completing and storing setup", async (
 
 test("preload exposes named methods without generic renderer transport", async () => {
   const source = await readFile(
-    new URL("../src/preload/preload.mjs", import.meta.url),
+    new URL("../src/preload/preload.cjs", import.meta.url),
     "utf8",
   );
 
@@ -185,9 +185,39 @@ test("preload exposes named methods without generic renderer transport", async (
     assert.match(source, new RegExp(`${name}\\s*:`));
   }
   assert.doesNotMatch(source, /ipcRenderer\.send/);
-  assert.doesNotMatch(source, /node:fs|child_process|process\.env/);
+  assert.match(source, /require\("electron"\)/);
+  assert.doesNotMatch(source, /require\(["']\.\.?[\\/]/);
+  assert.doesNotMatch(source, /node:fs|child_process|process\.env|^\s*import\s/m);
   assert.match(source, /CHANNELS\.AUTH_STATUS_CHANGED/);
   assert.match(source, /removeListener\(CHANNELS\.AUTH_STATUS_CHANGED, wrapped\)/);
   assert.match(source, /listener\(status\)/);
   assert.doesNotMatch(source, /listener\(_?event/);
+});
+
+test("main process composes secure services and guarded development hooks", async () => {
+  const source = await readFile(
+    new URL("../src/main/main.mjs", import.meta.url),
+    "utf8",
+  );
+
+  for (const moduleName of [
+    "window-policy.mjs",
+    "setup-store.mjs",
+    "codex-app-server-client.mjs",
+    "auth-service.mjs",
+    "content-schema.mjs",
+    "ipc-handlers.mjs",
+  ]) {
+    assert.match(source, new RegExp(moduleName.replaceAll(".", "\\.")));
+  }
+  assert.match(source, /app\.getPath\("userData"\)/);
+  assert.match(source, /client\.stop\(\)/);
+  assert.match(
+    source,
+    /process\.env\.NODE_ENV === "test"\s*&&\s*!app\.isPackaged/,
+  );
+  assert.match(source, /COURSE_MOCK_USER_DATA_DIR/);
+  assert.match(source, /COURSE_MOCK_FORCE_DISCONNECTED/);
+  assert.match(source, /requestSingleInstanceLock/);
+  assert.doesNotMatch(source, /\.codex[\\/]auth\.json|auth\.json/);
 });

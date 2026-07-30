@@ -180,7 +180,7 @@ prototypes/
     │   │   ├── codex-app-server-client.mjs
     │   │   └── setup-store.mjs
     │   ├── preload/
-    │   │   └── preload.mjs
+    │   │   └── preload.cjs
     │   └── renderer/
     │       ├── index.html
     │       ├── app.js

@@ -1,6 +1,18 @@
-import { contextBridge, ipcRenderer } from "electron";
+const { contextBridge, ipcRenderer } = require("electron");
 
-import { CHANNELS } from "../shared/channels.mjs";
+// Sandboxed preloads cannot import local modules. Keep these fixed values in
+// lockstep with src/shared/channels.mjs and verify them in the IPC contract.
+const CHANNELS = Object.freeze({
+  GET_STATUS: "setup:get-status",
+  START_BROWSER_LOGIN: "auth:start-browser-login",
+  START_DEVICE_LOGIN: "auth:start-device-login",
+  CANCEL_LOGIN: "auth:cancel-login",
+  RETRY_APP_SERVER: "auth:retry-app-server",
+  AUTH_STATUS_CHANGED: "auth:status-changed",
+  GET_CONTENT: "setup:get-content",
+  SAVE_RESPONSES: "setup:save-responses",
+  REOPEN_SETUP: "setup:reopen",
+});
 
 contextBridge.exposeInMainWorld("courseSetup", Object.freeze({
   getStatus: () => ipcRenderer.invoke(CHANNELS.GET_STATUS),
