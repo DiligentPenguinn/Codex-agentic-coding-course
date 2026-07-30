@@ -22,6 +22,8 @@
 - Use `winget install --id OpenJS.NodeJS.LTS` for missing Node.js LTS.
 - Use `npm install -g @openai/codex@latest` for a missing Codex CLI.
 - Use `npm ci` for locked project dependencies.
+- Use `npx --no-install install-electron --no` for Electron 43's pinned native
+  runtime, and display it as a separate approved action.
 - Do not silently upgrade a compatible Codex installation.
 - Keep ChatGPT login and first-run interaction in Electron, not the terminal.
 - Authenticate only through Codex App Server managed ChatGPT flows.
@@ -376,8 +378,10 @@ export async function detectSetup({
   nodeVersion,
   commandExists,
   commandSucceeds,
+  fileExists,
   lockPath,
   stampPath,
+  electronRuntimePath,
   readFile,
 }) { /* return booleans and exact paths; run no installer */ }
 
@@ -392,13 +396,21 @@ export function buildInstallPlan(report) {
       args: ["install", "-g", "@openai/codex@latest"],
     });
   }
-  if (!report.lockMatches) {
+  if (!report.lockMatches || !report.electronRuntimeAvailable) {
     actions.push({
       id: "project-packages",
       reason: "The Electron mock dependencies must match package-lock.json.",
       scope: "project-local node_modules",
       command: "npm",
       args: ["ci"],
+      cwd: report.mockRoot,
+    });
+    actions.push({
+      id: "electron-runtime",
+      reason: "The pinned native Electron runtime must be available.",
+      scope: "project-local Electron cache",
+      command: "npx",
+      args: ["--no-install", "install-electron", "--no"],
       cwd: report.mockRoot,
     });
   }
@@ -418,7 +430,8 @@ run until Node exists.
 3. throw an error with `code = "INSTALL_DECLINED"` on decline;
 4. call injected `run` sequentially only after approval;
 5. stop on the first failure and attach `actionId`;
-6. write the new lock fingerprint only after successful `npm ci`.
+6. write the new lock fingerprint only after both `npm ci` and the explicit
+   Electron runtime installation succeed.
 
 - [ ] **Step 5: Implement the terminal entry point**
 

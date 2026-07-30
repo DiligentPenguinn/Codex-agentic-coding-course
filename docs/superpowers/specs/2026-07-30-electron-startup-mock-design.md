@@ -209,7 +209,8 @@ The launcher checks:
 - `codex`;
 - `codex app-server`;
 - the mock package lock;
-- whether installed project dependencies match the package-lock fingerprint.
+- whether installed project dependencies match the package-lock fingerprint;
+- whether Electron 43's pinned native runtime is present.
 
 Git is not an install target because the learner already used Git to obtain
 the repository. The launcher may still report an unusual Git state as
@@ -230,7 +231,9 @@ Approved installation routes:
 
 - Node.js LTS: `winget install --id OpenJS.NodeJS.LTS`;
 - Codex CLI: `npm install -g @openai/codex@latest`;
-- mock dependencies: `npm ci` in the mock directory.
+- mock dependencies: `npm ci` in the mock directory;
+- pinned Electron runtime:
+  `npx --no-install install-electron --no` in the mock directory.
 
 Package and source agreement flags may be passed to `winget` only after the
 learner approves the displayed plan.
@@ -255,6 +258,7 @@ Later runs:
 - reuse compatible Node.js and Codex installations;
 - skip project installation when the lockfile fingerprint matches;
 - run `npm ci` when the lockfile fingerprint changes;
+- explicitly restore the pinned Electron runtime if its executable is absent;
 - preserve setup state;
 - launch Electron directly when all checks pass.
 

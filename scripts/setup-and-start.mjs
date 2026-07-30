@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { readFile, writeFile } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import readline from "node:readline/promises";
@@ -21,9 +21,34 @@ const mockRoot = path.join(
   "app-startup-electron-mock",
 );
 
+export function resolveNodeToolCommand(
+  command,
+  args,
+  nodeExecutable = process.execPath,
+) {
+  if (command !== "npm" && command !== "npx") {
+    return { command, args };
+  }
+  const cliName = command === "npm" ? "npm-cli.js" : "npx-cli.js";
+  return {
+    command: nodeExecutable,
+    args: [
+      path.join(
+        path.dirname(nodeExecutable),
+        "node_modules",
+        "npm",
+        "bin",
+        cliName,
+      ),
+      ...args,
+    ],
+  };
+}
+
 function runProcess(command, args, { cwd, stdio = "ignore", env } = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
+    const invocation = resolveNodeToolCommand(command, args);
+    const child = spawn(invocation.command, invocation.args, {
       cwd,
       env: env ?? process.env,
       shell: false,
@@ -44,6 +69,15 @@ async function commandSucceeds(command, args) {
   try {
     const result = await runProcess(command, args);
     return result.exitCode === 0;
+  } catch {
+    return false;
+  }
+}
+
+async function fileExists(targetPath) {
+  try {
+    await access(targetPath);
+    return true;
   } catch {
     return false;
   }
@@ -86,14 +120,23 @@ export async function main() {
     "node_modules",
     ".course-lock.sha256",
   );
+  const electronRuntimePath = path.join(
+    mockRoot,
+    "node_modules",
+    "electron",
+    "dist",
+    "electron.exe",
+  );
   const deps = {
     platform: process.platform,
     nodeVersion: process.versions.node,
     commandExists,
     commandSucceeds,
+    fileExists,
     mockRoot,
     lockPath,
     stampPath,
+    electronRuntimePath,
     readFile,
     confirm: confirmInstall,
     run: runProcess,
@@ -155,6 +198,17 @@ if (isDirect) {
     process.stderr.write(
       `Startup failed in ${failure.layer}.\nRecovery: ${failure.recovery}\n`,
     );
-    process.exitCode = error?.code === "INSTALL_DECLINED" ? 2 : 3;
+    if (error?.code === "INSTALL_DECLINED") {
+      process.exitCode = 2;
+    } else if (
+      error?.actionId === "project-packages"
+      || error?.actionId === "electron-runtime"
+    ) {
+      process.exitCode = 4;
+    } else if (error?.code === "ELECTRON_FAILED") {
+      process.exitCode = 5;
+    } else {
+      process.exitCode = 3;
+    }
   });
 }

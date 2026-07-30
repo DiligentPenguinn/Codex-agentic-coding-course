@@ -28,16 +28,24 @@ export async function detectSetup({
   nodeVersion,
   commandExists,
   commandSucceeds,
+  fileExists,
   mockRoot,
   lockPath,
   stampPath,
+  electronRuntimePath,
   readFile,
 }) {
   const nodeMajor = majorOf(nodeVersion);
-  const [npmAvailable, codexAvailable, lockFingerprint] = await Promise.all([
+  const [
+    npmAvailable,
+    codexAvailable,
+    lockFingerprint,
+    electronRuntimeAvailable,
+  ] = await Promise.all([
     commandExists("npm"),
     commandExists("codex"),
     packageLockFingerprint(lockPath, { readFile }),
+    fileExists(electronRuntimePath),
   ]);
   const appServerAvailable = codexAvailable
     ? await commandSucceeds("codex", ["app-server", "--help"])
@@ -51,6 +59,8 @@ export async function detectSetup({
     npmAvailable,
     codexAvailable,
     appServerAvailable,
+    electronRuntimeAvailable,
+    electronRuntimePath,
     lockFingerprint,
     installedFingerprint: installedFingerprint?.trim() ?? null,
     lockMatches: installedFingerprint?.trim() === lockFingerprint,
@@ -73,13 +83,21 @@ export function buildInstallPlan(report) {
     });
   }
 
-  if (!report.lockMatches) {
+  if (!report.lockMatches || !report.electronRuntimeAvailable) {
     actions.push({
       id: "project-packages",
       reason: "The Electron mock dependencies must match package-lock.json.",
       scope: "project-local node_modules",
       command: "npm",
       args: ["ci"],
+      cwd: report.mockRoot,
+    });
+    actions.push({
+      id: "electron-runtime",
+      reason: "The pinned native Electron runtime must be available.",
+      scope: "project-local Electron cache",
+      command: "npx",
+      args: ["--no-install", "install-electron", "--no"],
       cwd: report.mockRoot,
       fingerprint: report.lockFingerprint,
       stampPath: report.stampPath,
@@ -146,7 +164,7 @@ export async function executeInstallPlan(
     }
 
     if (
-      action.id === "project-packages"
+      action.id === "electron-runtime"
       && action.stampPath
       && action.fingerprint
     ) {

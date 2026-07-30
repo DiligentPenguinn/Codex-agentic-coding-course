@@ -21,6 +21,8 @@ function fakeDeps(overrides = {}) {
     commandSucceeds: async (command, args) => (
       command === "codex" && args.join(" ") === "app-server --help"
     ),
+    fileExists: async () => overrides.electronRuntimeAvailable ?? true,
+    electronRuntimePath: "C:\\repo\\mock\\node_modules\\electron\\dist\\electron.exe",
     readFile: async (path) => {
       if (path.endsWith("package-lock.json")) return "lock contents";
       if (path.endsWith(".course-lock.sha256")) {
@@ -43,10 +45,15 @@ test("plans Codex and project installs without executing them", async () => {
 
   assert.deepEqual(
     plan.map((item) => item.id),
-    ["codex-cli", "project-packages"],
+    ["codex-cli", "project-packages", "electron-runtime"],
   );
   assert.deepEqual(plan[0].args, ["install", "-g", "@openai/codex@latest"]);
   assert.equal(plan[1].cwd, "C:\\repo\\mock");
+  assert.deepEqual(plan[2].args, [
+    "--no-install",
+    "install-electron",
+    "--no",
+  ]);
 });
 
 test("detects compatible prerequisites and a matching lock stamp", async () => {
@@ -63,8 +70,25 @@ test("detects compatible prerequisites and a matching lock stamp", async () => {
   assert.equal(report.npmAvailable, true);
   assert.equal(report.codexAvailable, true);
   assert.equal(report.appServerAvailable, true);
+  assert.equal(report.electronRuntimeAvailable, true);
   assert.equal(report.lockMatches, true);
   assert.deepEqual(buildInstallPlan(report), []);
+});
+
+test("reinstalls project packages and runtime when the native binary is missing", async () => {
+  const fingerprint = await packageLockFingerprint(
+    "C:\\repo\\mock\\package-lock.json",
+    { readFile: async () => "lock contents" },
+  );
+  const report = await detectSetup(fakeDeps({
+    installedFingerprint: fingerprint,
+    electronRuntimeAvailable: false,
+  }));
+
+  assert.deepEqual(
+    buildInstallPlan(report).map((item) => item.id),
+    ["project-packages", "electron-runtime"],
+  );
 });
 
 test("reports incompatible Node, missing npm, and unavailable App Server", async () => {
@@ -100,6 +124,14 @@ test("formats the full plan before asking once for permission", async () => {
       command: "npm",
       args: ["ci"],
       cwd: "C:\\repo\\mock",
+    },
+    {
+      id: "electron-runtime",
+      reason: "The native Electron runtime is missing.",
+      scope: "project-local cache",
+      command: "npx",
+      args: ["--no-install", "install-electron", "--no"],
+      cwd: "C:\\repo\\mock",
       fingerprint: "abc123",
       stampPath: "C:\\repo\\mock\\node_modules\\.course-lock.sha256",
     },
@@ -110,7 +142,9 @@ test("formats the full plan before asking once for permission", async () => {
       prompts.push(prompt);
       assert.match(prompt, /codex-cli/);
       assert.match(prompt, /project-packages/);
+      assert.match(prompt, /electron-runtime/);
       assert.match(prompt, /npm install -g @openai\/codex@latest/);
+      assert.match(prompt, /npx --no-install install-electron --no/);
       return true;
     },
     run: async (command, args, options) => {
@@ -121,8 +155,11 @@ test("formats the full plan before asking once for permission", async () => {
   });
 
   assert.equal(prompts.length, 1);
-  assert.deepEqual(calls.map((call) => call.args[0]), ["install", "ci"]);
-  assert.deepEqual(writes, [[actions[1].stampPath, "abc123", "utf8"]]);
+  assert.deepEqual(
+    calls.map((call) => call.command),
+    ["npm", "npm", "npx"],
+  );
+  assert.deepEqual(writes, [[actions[2].stampPath, "abc123", "utf8"]]);
 });
 
 test("decline executes no installation command", async () => {
