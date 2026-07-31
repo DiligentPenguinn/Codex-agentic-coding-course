@@ -93,6 +93,19 @@ The learner sees no PowerShell execution-policy flags.
 
 ### Terminal responsibility
 
+The command begins with a compact ASCII-only **Creative Workshop** splash.
+It appears before the welcome, prerequisite checks, or installation commands.
+The splash uses no color, animation, Unicode, or terminal-width assumptions;
+it stays under 60 columns so it renders consistently in Windows Command
+Prompt and PowerShell. The order is:
+
+```text
+Creative Workshop splash
+  → friendly welcome and setup explanation
+  → read-only prerequisite checks
+  → permission-gated installation plan when needed
+```
+
 The terminal performs only:
 
 ```text
@@ -644,17 +657,23 @@ The smoke test must not require a real ChatGPT account.
 
 ### Manual real-authentication check
 
-On a Windows machine with a current Codex CLI:
+On a Windows machine with a current Codex CLI, use a fresh clone and a
+temporary isolated `CODEX_HOME`. The clone and profile live under one dedicated
+test directory outside the working repository. This prevents the test from
+reading, changing, or logging out the tester's normal Codex session.
 
-1. start from the root command;
-2. reach Connect Codex;
-3. complete official browser login;
-4. return to Electron;
-5. confirm display-safe account information;
-6. complete the fixture form;
-7. close and restart;
-8. confirm non-secret progress resumes;
-9. confirm authentication is rechecked without exposing credentials.
+Then:
+
+1. confirm `codex login status` reports signed out under the isolated profile;
+2. start from the root command;
+3. reach Connect Codex;
+4. complete official browser login;
+5. return to Electron;
+6. confirm display-safe account information;
+7. complete the fixture form;
+8. close and restart;
+9. confirm non-secret progress resumes;
+10. confirm authentication is rechecked without exposing credentials.
 
 ## Acceptance criteria
 
