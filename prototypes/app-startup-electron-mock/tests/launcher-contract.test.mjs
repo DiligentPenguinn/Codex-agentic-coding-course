@@ -49,7 +49,10 @@ test("root launcher is short, Windows-native, and contains no teaching or auth",
   assert.match(source, /%~dp0/);
   assert.match(source, /Welcome to Content Builder Academy!/);
   assert.match(source, /CONTENT BUILDER/);
-  assert.match(source, /Build something real\./);
+  assert.match(source, /\[ I D E A S \]/);
+  assert.match(source, /THE WORKSHOP IS YOURS\./);
+  assert.match(source, /Idea in\. Working product out\. Let's begin\./);
+  assert.match(source, /SETUP  \[\.\.\.\.\.\.\.\.\.\.\]/);
   assert.ok(
     source.indexOf("CONTENT BUILDER")
       < source.indexOf("Welcome to Content Builder Academy!"),
@@ -111,8 +114,11 @@ test("declining a simulated missing Node install exits without winget", async ()
   assert.equal(result.exitCode, 2, result.output);
   assert.match(result.output, /Welcome to Content Builder Academy!/);
   assert.match(result.output, /CONTENT BUILDER/);
-  assert.match(result.output, /\[ >_ \]  \+/);
-  assert.match(result.output, /Build something real\./);
+  assert.match(result.output, /\[ I D E A S \]/);
+  assert.match(result.output, /\\  BUILD  \/\s*\n/);
+  assert.match(result.output, /\.:  SHIP  :\./);
+  assert.match(result.output, /THE WORKSHOP IS YOURS\./);
+  assert.match(result.output, /SETUP  \[\.\.\.\.\.\.\.\.\.\.\]\s+TOOLS  pending\s+TEACHER  waiting/);
   assert.ok(
     result.output.indexOf("CONTENT BUILDER")
       < result.output.indexOf("Welcome to Content Builder Academy!"),

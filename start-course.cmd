@@ -5,15 +5,30 @@ set "COURSE_ROOT=%~dp0"
 set "COURSE_NODE=node"
 
 echo.
-echo        *       .       *
-echo    +-----------------------+
-echo    ^|   CONTENT BUILDER     ^|
-echo    ^|       ACADEMY         ^|
-echo    ^|                       ^|
-echo    ^|      [ ^>_ ]  +        ^|
-echo    +----------+------------+
-echo               ^|
-echo        Build something real.
+echo                          .        *
+echo                  *            .                 +
+echo                           ___/^|\___
+echo                     _____/   / \   \_____
+echo               _____/  [ I D E A S ]      \_____
+echo              /      o=================o         \
+echo             /_______^|  CONTENT BUILDER ^|_________\
+echo                     ^|      ACADEMY     ^|
+echo                _____^|__________________^|_____
+echo               /      \   \  \^|/  /   /      \
+echo              /  o  o  \   \  V  /   /  o  o  \
+echo             '==========\===\===/===/=========='
+echo                          \  BUILD  /
+echo                           \_______/
+echo                             \ ^| /
+echo                            .-\^|/-.
+echo                          .:  SHIP  :.
+echo.
+echo                  THE WORKSHOP IS YOURS.
+echo             Idea in. Working product out. Let's begin.
+echo.
+echo   ------------------------------------------------------------------
+echo    SETUP  [..........]   TOOLS  pending    TEACHER  waiting
+echo   ------------------------------------------------------------------
 
 echo.
 echo Welcome to Content Builder Academy!
