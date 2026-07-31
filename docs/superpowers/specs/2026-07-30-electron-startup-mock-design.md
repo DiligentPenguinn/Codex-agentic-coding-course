@@ -1,6 +1,6 @@
 # Electron Startup Mock Design
 
-**Status:** Approved design; implementation not started | **Date:** 30 July 2026 | **Primary implementation owner:** Duy | **Content owner:** Triết | **Target:** Windows-first local prototype
+**Status:** Startup prototype implemented; Creative Forge splash approved provisionally | **Date:** 1 August 2026 | **Primary implementation owner:** Duy | **Content owner:** Triết | **Target:** Windows-first local prototype
 
 ## Purpose
 
@@ -66,6 +66,8 @@ only to exercise Duy's technical form contract.
   and a Teacher chat window without changing application shells later.
 - Target Windows first.
 - Use a short root command: `.\start-course.cmd`.
+- Use the Creative Forge terminal splash for the current mock, pending the
+  next visual review with Triết.
 - Do not require `ExecutionPolicy Bypass`.
 - Detect missing prerequisites before installing anything.
 - Explain the exact proposed installations and ask permission.
@@ -93,14 +95,58 @@ The learner sees no PowerShell execution-policy flags.
 
 ### Terminal responsibility
 
-The command begins with a compact ASCII-only **Creative Workshop** splash.
-It appears before the welcome, prerequisite checks, or installation commands.
-The splash uses no color, animation, Unicode, or terminal-width assumptions;
-it stays under 60 columns so it renders consistently in Windows Command
-Prompt and PowerShell. The order is:
+The command begins with an ASCII-only **Creative Forge** splash. It appears
+before the welcome, prerequisite checks, or installation commands. Instead of
+a small framed logo, it uses a full terminal composition: a machine turns
+ideas into a build and then into something shipped. A status rail makes the
+transition into real setup checks feel like part of the same experience.
+
+The current mock uses this composition:
 
 ```text
-Creative Workshop splash
+                         .        *
+                 *            .                 +
+                          ___/|\___
+                    _____/   / \   \_____
+              _____/  [ I D E A S ]      \_____
+             /      o=================o         \
+            /_______|  CONTENT BUILDER |_________\
+                    |      ACADEMY     |
+               _____|__________________|_____
+              /      \   \  \|/  /   /      \
+             /  o  o  \   \  V  /   /  o  o  \
+            '==========\===\===/===/=========='
+                         \  BUILD  /
+                          \_______/
+                            \ | /
+                           .-\|/-.
+                         .:  SHIP  :.
+
+                 THE WORKSHOP IS YOURS.
+            Idea in. Working product out. Let's begin.
+
+  ------------------------------------------------------------------
+   SETUP  [..........]   TOOLS  pending    TEACHER  waiting
+  ------------------------------------------------------------------
+```
+
+Design constraints:
+
+- remain static so setup starts immediately;
+- use ASCII characters only so Windows Command Prompt renders the art
+  reliably;
+- fit within 72 columns, which preserves the richer composition without
+  requiring a maximized terminal;
+- use warm amber when ANSI color support is reliably available, with a clean
+  monochrome fallback;
+- show an honest not-yet-started status before the real checks begin;
+- treat the art and wording as a Duy-side mock pending alignment with Triết,
+  who owns final learner-facing wording and the Course App's visual system.
+
+The order is:
+
+```text
+Creative Forge splash
   → friendly welcome and setup explanation
   → read-only prerequisite checks
   → permission-gated installation plan when needed
