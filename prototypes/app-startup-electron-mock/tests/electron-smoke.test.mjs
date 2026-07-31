@@ -21,7 +21,7 @@ const userDataPath = path.join(
 
 async function launchMock() {
   return electron.launch({
-    args: [mockRoot],
+    args: ["--disable-gpu", "--disable-software-rasterizer", mockRoot],
     env: {
       ...process.env,
       NODE_ENV: "test",
@@ -46,22 +46,50 @@ test("completes and resumes the Electron startup flow", {
 
   let electronApp = await launchMock();
   let window = await electronApp.firstWindow();
+  await window.getByRole("heading", {
+    name: "Welcome to Content Builder Academy",
+  }).waitFor();
+  await window.getByRole("button", { name: "Start setup" }).click();
   await window.getByRole("heading", { name: "Connect Codex" }).waitFor();
   await window.getByRole("button", { name: "Connect Codex" }).click();
   await window.getByRole("heading", {
     name: "Sample teaching setup",
   }).waitFor();
-  await window.getByLabel("Sample goal").fill("Test the startup mechanism");
+  const goalInput = window.getByLabel("Sample goal");
+  await window.getByRole("button", { name: "Continue", exact: true }).click();
+  assert.equal(await goalInput.getAttribute("aria-invalid"), "true");
+  assert.equal(await goalInput.evaluate((input) => (
+    input === document.activeElement
+  )), true);
+  await goalInput.pressSequentially("Test the startup mechanism");
+  assert.equal(await goalInput.inputValue(), "Test the startup mechanism");
+  assert.equal(await goalInput.evaluate((input) => (
+    input === document.activeElement
+  )), true);
   await window.getByLabel("Sample short session").check();
   await window.getByLabel("Sample check-ins").check();
+  await window.getByRole("button", { name: "Back" }).click();
+  await window.getByRole("heading", { name: "Connect Codex" }).waitFor();
+  await window.getByRole("button", { name: "Continue setup" }).click();
+  await window.getByRole("heading", {
+    name: "Sample teaching setup",
+  }).waitFor();
+  assert.equal(
+    await window.getByLabel("Sample goal").inputValue(),
+    "Test the startup mechanism",
+  );
   await window.getByRole("button", { name: "Continue", exact: true }).click();
   await window.getByRole("heading", { name: "Setup complete" }).waitFor();
   await electronApp.close();
 
   electronApp = await launchMock();
   window = await electronApp.firstWindow();
-  await window.getByRole("heading", { name: "Setup complete" }).waitFor();
-  await window.getByRole("button", { name: "Reopen setup" }).click();
+  await window.getByRole("heading", {
+    name: "Welcome to Content Builder Academy",
+  }).waitFor();
+  await window.getByRole("button", { name: "Open course" }).click();
+  await window.getByRole("heading", { name: "Course mock" }).waitFor();
+  await window.getByRole("button", { name: "Review setup" }).click();
   await window.getByRole("heading", {
     name: "Sample teaching setup",
   }).waitFor();

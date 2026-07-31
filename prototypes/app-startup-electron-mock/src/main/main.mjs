@@ -27,6 +27,7 @@ const mockRoot = path.resolve(mainDirectory, "..", "..");
 const allowTestHooks = (
   process.env.NODE_ENV === "test" && !app.isPackaged
 );
+if (allowTestHooks) app.disableHardwareAcceleration();
 if (allowTestHooks && process.env.COURSE_MOCK_USER_DATA_DIR) {
   app.setPath(
     "userData",

@@ -47,6 +47,28 @@ test("root launcher is short, Windows-native, and contains no teaching or auth",
   assert.match(source, /process\.versions\.node/);
   assert.match(source, /set \/p/i);
   assert.match(source, /%~dp0/);
+  assert.match(source, /Welcome to Content Builder Academy!/);
+  assert.match(source, /CONTENT BUILDER/);
+  assert.match(source, /Build something real\./);
+  assert.ok(
+    source.indexOf("CONTENT BUILDER")
+      < source.indexOf("Welcome to Content Builder Academy!"),
+    "the workshop splash must appear before the welcome",
+  );
+  assert.match(source, /Nothing will be installed without your approval/);
+  const setupSource = await readFile(
+    path.join(repositoryRoot, "scripts", "setup-and-start.mjs"),
+    "utf8",
+  );
+  assert.match(
+    setupSource,
+    /Everything is ready\. Opening the course setup app/,
+  );
+  assert.ok(
+    source.indexOf("Welcome to Content Builder Academy!")
+      < source.indexOf("where node"),
+    "the learner welcome must appear before prerequisite checks",
+  );
   assert.doesNotMatch(
     source,
     /ChatGPT|access.?token|refresh.?token|api.?key|teaching question/i,
@@ -87,6 +109,19 @@ test("declining a simulated missing Node install exits without winget", async ()
   });
 
   assert.equal(result.exitCode, 2, result.output);
+  assert.match(result.output, /Welcome to Content Builder Academy!/);
+  assert.match(result.output, /CONTENT BUILDER/);
+  assert.match(result.output, /\[ >_ \]  \+/);
+  assert.match(result.output, /Build something real\./);
+  assert.ok(
+    result.output.indexOf("CONTENT BUILDER")
+      < result.output.indexOf("Welcome to Content Builder Academy!"),
+  );
+  assert.match(result.output, /Here's what we'll do:/);
+  assert.ok(
+    result.output.indexOf("Welcome to Content Builder Academy!")
+      < result.output.indexOf("Required: Node.js 22 or newer"),
+  );
   assert.match(result.output, /winget install --id OpenJS\.NodeJS\.LTS/);
   assert.match(result.output, /No installation was run/);
   assert.doesNotMatch(result.output, /Successfully installed/i);

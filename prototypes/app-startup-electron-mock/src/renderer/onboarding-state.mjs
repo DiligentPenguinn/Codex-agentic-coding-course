@@ -10,8 +10,12 @@ function frozenState(state) {
 
 export function createInitialOnboardingState() {
   return frozenState({
-    screen: "checking",
+    screen: "landing",
     connection: "checking",
+    statusReady: false,
+    setupCompleted: false,
+    entryTarget: "connect",
+    recovery: null,
     account: null,
     loginId: null,
     device: null,
@@ -43,22 +47,36 @@ export function reduceOnboarding(state, event) {
     case "STATUS_LOADED":
       return frozenState({
         ...state,
-        screen: event.setupCompleted
-          ? "complete"
+        screen: state.screen,
+        connection: event.connectionUnavailable
+          ? "disconnected"
+          : event.connected
+            ? "connected"
+            : "signedOut",
+        statusReady: true,
+        setupCompleted: event.setupCompleted ?? false,
+        entryTarget: event.setupCompleted
+          ? "destination"
           : event.connected
             ? "teachingSetup"
             : "connect",
-        connection: event.connected ? "connected" : "signedOut",
         account: event.account ?? null,
         responses: event.responses ?? state.responses,
+        recovery: event.recovery ?? null,
         error: null,
       });
     case "CONNECTION_UNAVAILABLE":
       return frozenState({
         ...state,
-        screen: "connect",
         connection: "disconnected",
+        statusReady: true,
+        entryTarget: "connect",
         error: null,
+      });
+    case "LANDING_CONTINUE":
+      return frozenState({
+        ...state,
+        screen: state.entryTarget,
       });
     case "RETRY_STARTED":
       return frozenState({
@@ -96,6 +114,7 @@ export function reduceOnboarding(state, event) {
         ...state,
         screen: "teachingSetup",
         connection: "connected",
+        entryTarget: "teachingSetup",
         account: event.account,
         loginId: null,
         device: null,
@@ -143,6 +162,8 @@ export function reduceOnboarding(state, event) {
       return frozenState({
         ...state,
         screen: "complete",
+        setupCompleted: true,
+        entryTarget: "destination",
         submitting: false,
         error: null,
       });
@@ -154,13 +175,25 @@ export function reduceOnboarding(state, event) {
       });
     case "BACK_TO_CONNECT":
       return frozenState({ ...state, screen: "connect" });
+    case "CONTINUE_SETUP":
+      return frozenState({ ...state, screen: "teachingSetup" });
     case "REOPEN_SETUP":
       return frozenState({
         ...state,
         screen: "teachingSetup",
+        setupCompleted: false,
+        entryTarget: "teachingSetup",
         validationErrors: {},
         error: null,
       });
+    case "DEVICE_LOGIN_OPENING":
+      return frozenState({
+        ...state,
+        connection: "openingDevice",
+        error: null,
+      });
+    case "OPEN_MOCK_APP":
+      return frozenState({ ...state, screen: "destination" });
     default:
       return state;
   }

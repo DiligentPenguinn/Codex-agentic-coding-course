@@ -76,8 +76,9 @@ export function buildInstallPlan(report) {
   if (!report.codexAvailable || !report.appServerAvailable) {
     actions.push({
       id: "codex-cli",
-      reason: "Codex App Server is required for managed ChatGPT login.",
-      scope: "user-level global npm package",
+      title: "Codex connection tool",
+      reason: "Connects the course app to your Codex account.",
+      scope: "Installed for your Windows user account",
       command: "npm",
       args: ["install", "-g", "@openai/codex@latest"],
     });
@@ -86,16 +87,18 @@ export function buildInstallPlan(report) {
   if (!report.lockMatches || !report.electronRuntimeAvailable) {
     actions.push({
       id: "project-packages",
-      reason: "The Electron mock dependencies must match package-lock.json.",
-      scope: "project-local node_modules",
+      title: "Course app files",
+      reason: "Adds the files this preview app needs to open.",
+      scope: "Stored only inside this course folder",
       command: "npm",
       args: ["ci"],
       cwd: report.mockRoot,
     });
     actions.push({
       id: "electron-runtime",
-      reason: "The pinned native Electron runtime must be available.",
-      scope: "project-local Electron cache",
+      title: "Desktop app runtime",
+      reason: "Adds the desktop runtime used by this preview.",
+      scope: "Stored only inside this course folder",
       command: "npx",
       args: ["--no-install", "install-electron", "--no"],
       cwd: report.mockRoot,
@@ -117,7 +120,7 @@ export function formatInstallPlan(actions) {
   for (const action of actions) {
     lines.push(
       "",
-      `[${action.id}]`,
+      `[${action.title ?? action.id}]`,
       `Why: ${action.reason}`,
       `Scope: ${action.scope}`,
       `Command: ${displayCommand(action)}`,

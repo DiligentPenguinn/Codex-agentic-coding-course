@@ -80,14 +80,20 @@ export function registerIpcHandlers({
   const content = parseOnboardingContent(sourceContent);
   const handlers = new Map([
     [CHANNELS.GET_STATUS, safeHandler(async () => {
-      const [state, account] = await Promise.all([
-        store.read(),
-        auth.readAccount(),
-      ]);
+      const state = await store.read();
+      let account;
+      let connectionUnavailable = false;
+      try {
+        account = await auth.readAccount();
+      } catch {
+        account = { connected: false };
+        connectionUnavailable = true;
+      }
       return {
         ...state,
         codexConnected: account.connected,
         account,
+        connectionUnavailable,
         recovery: store.lastRecovery,
       };
     }, {

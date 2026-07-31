@@ -17,34 +17,50 @@
     <div class="page-frame">
       <header class="masthead">
         <div>
-          <p class="eyebrow">Startup mechanism prototype</p>
+          <p class="eyebrow">Course setup preview</p>
           <h1>Prepare your course workspace</h1>
         </div>
-        <span class="prototype-stamp">Duy-side mock</span>
+        <span class="prototype-stamp">Early preview</span>
       </header>
 
-      <nav class="progress" aria-label="Setup progress">
+      <nav id="setup-progress" class="progress" aria-label="Setup progress" hidden>
         <ol>
-          <li data-step="checking"><span>01</span> Checking setup</li>
-          <li data-step="connect"><span>02</span> Connect Codex</li>
-          <li data-step="teachingSetup"><span>03</span> Teaching setup</li>
-          <li data-step="complete"><span>04</span> Setup complete</li>
+          <li data-step="connect"><span>01</span> Connect Codex</li>
+          <li data-step="teachingSetup"><span>02</span> Learning setup</li>
+          <li data-step="complete"><span>03</span> Ready</li>
         </ol>
       </nav>
 
       <main id="app" aria-live="polite">
-        <section class="panel" data-screen="checking">
-          <p class="section-number">01 / System check</p>
-          <h2>Checking setup</h2>
-          <p>Confirming the local app and Codex connection.</p>
-          <div class="status-row">
-            <span class="status-mark is-working" aria-hidden="true"></span>
-            <span>Reading local setup state…</span>
+        <section class="panel landing-panel" data-screen="landing">
+          <p class="section-number">Welcome</p>
+          <h2>Welcome to Content Builder Academy</h2>
+          <p>
+            Let’s prepare your course experience and connect your Codex
+            account. This should only take a few minutes.
+          </p>
+          <div class="landing-summary" aria-label="Setup overview">
+            <span>01</span><p>Connect Codex securely</p>
+            <span>02</span><p>Personalize your learning setup</p>
+            <span>03</span><p>Open your course</p>
+          </div>
+          <p id="landing-status" class="landing-status" role="status">
+            Checking your saved setup…
+          </p>
+          <p id="recovery-notice" class="notice" role="status" hidden></p>
+          <div class="actions">
+            <button
+              id="landing-primary"
+              class="button primary"
+              type="button"
+              data-action="enter"
+              disabled
+            >Checking setup…</button>
           </div>
         </section>
 
         <section class="panel" data-screen="connect" hidden>
-          <p class="section-number">02 / Account connection</p>
+          <p class="section-number">01 / Account connection</p>
           <h2>Connect Codex</h2>
           <p id="connection-copy">
             Use Codex-managed ChatGPT authentication. This mock never handles
@@ -65,18 +81,22 @@
             >Open verification page</a>
           </div>
           <p class="error-message" id="connection-error" role="alert"></p>
+          <p id="account-summary" class="notice" hidden></p>
           <div class="actions">
-            <button class="button primary" type="button" data-action="connect">
+            <button id="connect-button" class="button primary" type="button" data-action="connect">
               Connect Codex
             </button>
-            <button class="button secondary" type="button" data-action="device">
+            <button id="device-button" class="button secondary" type="button" data-action="device">
               Use device code
             </button>
-            <button class="button secondary" type="button" data-action="cancel">
+            <button id="cancel-button" class="button secondary" type="button" data-action="cancel" hidden>
               Cancel login
             </button>
-            <button class="button secondary" type="button" data-action="retry">
+            <button id="retry-button" class="button secondary" type="button" data-action="retry" hidden>
               Retry connection
+            </button>
+            <button id="connected-continue" class="button primary" type="button" data-action="forward" hidden>
+              Continue setup
             </button>
           </div>
         </section>
@@ -84,7 +104,7 @@
         <section class="panel" data-screen="teachingSetup" hidden>
           <div class="panel-heading">
             <div>
-              <p class="section-number">03 / Mechanism fixture</p>
+              <p class="section-number">02 / Setup questions</p>
               <h2 id="fixture-title">Teaching setup</h2>
             </div>
             <span class="fixture-badge">Non-production fixture</span>
@@ -96,14 +116,14 @@
             <button class="button secondary" type="button" data-action="back">
               Back
             </button>
-            <button class="button primary" type="button" data-action="continue">
+            <button id="form-continue" class="button primary" type="button" data-action="continue">
               Continue
             </button>
           </div>
         </section>
 
         <section class="panel" data-screen="complete" hidden>
-          <p class="section-number">04 / Ready</p>
+          <p class="section-number">03 / Ready</p>
           <h2>Setup complete</h2>
           <p>
             The startup mechanism has saved this fixture setup locally. The
@@ -126,11 +146,24 @@
             </button>
           </div>
         </section>
+
+        <section class="panel" data-screen="destination" hidden>
+          <p class="section-number">Course destination</p>
+          <h2>Course mock</h2>
+          <p>
+            You reached the mock course destination. Course content is not
+            implemented in this startup prototype.
+          </p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="reopen">
+              Review setup
+            </button>
+          </div>
+        </section>
       </main>
 
       <footer>
-        Technical prototype · onboarding wording and final Course App UI belong
-        to Triết.
+        Experimental setup preview · Your progress stays on this computer.
       </footer>
     </div>
     <script type="module" src="./app.js"></script>

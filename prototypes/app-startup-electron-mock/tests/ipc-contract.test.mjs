@@ -132,6 +132,28 @@ test("returns display-safe status without filesystem or raw auth data", async ()
   );
 });
 
+test("returns saved setup when the live account check is unavailable", async () => {
+  const ipcMain = createIpcMain();
+  const deps = createDependencies();
+  deps.auth.readAccount = async () => {
+    throw new Error("App Server unavailable");
+  };
+  registerIpcHandlers({
+    ipcMain,
+    ...deps,
+    content,
+    retryAppServer: async () => ({}),
+  });
+
+  const result = await ipcMain.handlers.get(CHANNELS.GET_STATUS)();
+
+  assert.equal(result.ok, true);
+  assert.equal(result.value.setupCompleted, false);
+  assert.deepEqual(result.value.onboardingResponses, {});
+  assert.deepEqual(result.value.account, { connected: false });
+  assert.equal(result.value.connectionUnavailable, true);
+});
+
 test("validates declared responses before completing and storing setup", async () => {
   const ipcMain = createIpcMain();
   const deps = createDependencies();

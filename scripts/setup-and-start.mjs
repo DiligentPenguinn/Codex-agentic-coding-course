@@ -161,6 +161,9 @@ export async function main() {
   if (plan.length > 0) await executeInstallPlan(plan, deps);
 
   const finalReport = await detectSetup(deps);
+  process.stdout.write(
+    "Everything is ready. Opening the course setup app...\n\n",
+  );
   const exitCode = await launchElectron({
     root: mockRoot,
     disconnected: (

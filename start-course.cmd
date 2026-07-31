@@ -4,6 +4,33 @@ setlocal EnableExtensions
 set "COURSE_ROOT=%~dp0"
 set "COURSE_NODE=node"
 
+echo.
+echo        *       .       *
+echo    +-----------------------+
+echo    ^|   CONTENT BUILDER     ^|
+echo    ^|       ACADEMY         ^|
+echo    ^|                       ^|
+echo    ^|      [ ^>_ ]  +        ^|
+echo    +----------+------------+
+echo               ^|
+echo        Build something real.
+
+echo.
+echo Welcome to Content Builder Academy!
+echo.
+echo Thanks for trying our course. We'll help you get everything ready.
+echo.
+echo Here's what we'll do:
+echo   1. Check that the required tools are available.
+echo   2. Show you anything that needs to be installed.
+echo   3. Ask for your permission before installing anything.
+echo   4. Open the course setup app.
+echo.
+echo Nothing will be installed without your approval.
+echo.
+echo Checking your computer now...
+echo.
+
 if "%COURSE_MOCK_BOOTSTRAP_TEST%"=="1" if "%COURSE_MOCK_FORCE_NODE_MISSING%"=="1" goto :node_missing
 
 where node >nul 2>&1

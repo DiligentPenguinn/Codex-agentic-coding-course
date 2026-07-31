@@ -90,7 +90,7 @@ h2 {
 
 .progress ol {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   margin: 22px 0;
   padding: 0;
   list-style: none;
@@ -143,6 +143,38 @@ h2 {
   line-height: 1.6;
 }
 
+.landing-panel {
+  border-top-color: var(--signal);
+}
+
+.landing-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  max-width: 620px;
+  margin: 28px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.landing-summary > * {
+  margin: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 12px 0;
+}
+
+.landing-summary span {
+  padding-right: 18px;
+  color: var(--signal-dark);
+  font-family: Bahnschrift, sans-serif;
+  font-weight: 700;
+}
+
+.landing-status {
+  color: var(--ink-soft);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.92rem;
+}
+
 .panel-heading {
   display: flex;
   align-items: flex-start;
@@ -170,6 +202,7 @@ h2 {
 .status-mark.is-working,
 .status-mark.is-checking,
 .status-mark.is-openingBrowser,
+.status-mark.is-openingDevice,
 .status-mark.is-waitingForCallback {
   border-top-color: var(--signal);
   animation: spin 0.9s linear infinite;
@@ -270,6 +303,13 @@ input[type="text"] {
 .button:hover {
   transform: translateY(-1px);
   box-shadow: 3px 3px 0 var(--signal);
+}
+
+.button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
 }
 
 :focus-visible {

@@ -15,8 +15,18 @@ function unwrap(result) {
 }
 
 function dispatch(event) {
+  const previousScreen = state.screen;
   state = reduceOnboarding(state, event);
   render();
+  if (state.screen !== previousScreen) {
+    queueMicrotask(() => {
+      const heading = document.querySelector(
+        `[data-screen="${CSS.escape(state.screen)}"] h2`,
+      );
+      heading?.setAttribute("tabindex", "-1");
+      heading?.focus();
+    });
+  }
 }
 
 function setScreenVisibility() {
@@ -26,6 +36,35 @@ function setScreenVisibility() {
   for (const step of document.querySelectorAll("[data-step]")) {
     step.toggleAttribute("aria-current", step.dataset.step === state.screen);
   }
+  document.querySelector("#setup-progress").hidden = [
+    "landing",
+    "destination",
+  ].includes(state.screen);
+}
+
+function renderLanding() {
+  const button = document.querySelector("#landing-primary");
+  const status = document.querySelector("#landing-status");
+  const recovery = document.querySelector("#recovery-notice");
+  recovery.hidden = !state.recovery;
+  recovery.textContent = state.recovery?.message ?? "";
+  button.disabled = !state.statusReady;
+  if (!state.statusReady) {
+    button.textContent = "Checking setup…";
+    status.textContent = "Checking your saved setup…";
+    return;
+  }
+
+  if (state.setupCompleted) {
+    button.textContent = "Open course";
+    status.textContent = "Your setup is complete.";
+  } else if (state.connection === "connected") {
+    button.textContent = "Continue setup";
+    status.textContent = "Your Codex account is connected.";
+  } else {
+    button.textContent = "Start setup";
+    status.textContent = "You’re ready to begin.";
+  }
 }
 
 function renderConnection() {
@@ -34,6 +73,7 @@ function renderConnection() {
     disconnected: "Codex App Server is unavailable",
     signedOut: "Ready to connect",
     openingBrowser: "Opening the official sign-in page…",
+    openingDevice: "Preparing a one-time device code…",
     waitingForCallback: "Waiting for browser sign-in to finish",
     deviceCode: "Use the one-time device code",
     cancelled: "Login cancelled",
@@ -45,6 +85,32 @@ function renderConnection() {
   const mark = document.querySelector("#connection-status .status-mark");
   mark.className = `status-mark is-${state.connection}`;
   document.querySelector("#connection-error").textContent = state.error ?? "";
+  const connectButton = document.querySelector("#connect-button");
+  const deviceButton = document.querySelector("#device-button");
+  const cancelButton = document.querySelector("#cancel-button");
+  const retryButton = document.querySelector("#retry-button");
+  const continueButton = document.querySelector("#connected-continue");
+  const canBeginLogin = ["signedOut", "cancelled", "failed"].includes(
+    state.connection,
+  );
+  const loginActive = [
+    "waitingForCallback",
+    "deviceCode",
+  ].includes(state.connection);
+  connectButton.hidden = !canBeginLogin;
+  deviceButton.hidden = !canBeginLogin;
+  cancelButton.hidden = !loginActive;
+  retryButton.hidden = state.connection !== "disconnected";
+  continueButton.hidden = state.connection !== "connected";
+  const accountSummary = document.querySelector("#account-summary");
+  accountSummary.hidden = state.connection !== "connected";
+  if (state.connection === "connected") {
+    const identity = state.account?.email
+      ?? (state.account?.accountType === "chatgpt"
+        ? "your ChatGPT account"
+        : "your Codex account");
+    accountSummary.textContent = `Connected as ${identity}.`;
+  }
   const deviceCard = document.querySelector("#device-card");
   deviceCard.hidden = !state.device;
   if (state.device) {
@@ -109,17 +175,26 @@ function renderFixture() {
 
     if (state.validationErrors[field.id]) {
       const error = document.createElement("p");
+      error.id = `${field.id}-error`;
       error.className = "field-error";
       error.textContent = state.validationErrors[field.id];
       group.append(error);
+      for (const input of group.querySelectorAll("input")) {
+        input.setAttribute("aria-invalid", "true");
+        input.setAttribute("aria-describedby", error.id);
+      }
     }
     form.append(group);
   }
   document.querySelector("#form-error").textContent = state.error ?? "";
+  const continueButton = document.querySelector("#form-continue");
+  continueButton.disabled = state.submitting;
+  continueButton.textContent = state.submitting ? "Saving…" : "Continue";
 }
 
 function render() {
   setScreenVisibility();
+  renderLanding();
   renderConnection();
   renderFixture();
   document.querySelector("#complete-connection").textContent =
@@ -138,9 +213,11 @@ async function refreshStatus() {
     dispatch({
       type: "STATUS_LOADED",
       connected: status.account?.connected ?? false,
+      connectionUnavailable: status.connectionUnavailable ?? false,
       setupCompleted: status.setupCompleted,
       account: status.account,
       responses: status.onboardingResponses,
+      recovery: status.recovery,
     });
     if (status.account?.connected || status.setupCompleted) await loadContent();
   } catch {
@@ -159,6 +236,7 @@ async function startBrowserLogin() {
 }
 
 async function startDeviceLogin() {
+  dispatch({ type: "DEVICE_LOGIN_OPENING" });
   try {
     const result = unwrap(await courseSetup.startDeviceLogin());
     dispatch({ type: "DEVICE_LOGIN_STARTED", ...result });
@@ -176,12 +254,24 @@ document.querySelector("#fixture-form").addEventListener("input", (event) => {
       `input[name="${CSS.escape(field.id)}"]:checked`,
     )].map((input) => input.value);
   }
-  dispatch({ type: "RESPONSE_CHANGED", fieldId: field.id, value });
+  state = reduceOnboarding(state, {
+    type: "RESPONSE_CHANGED",
+    fieldId: field.id,
+    value,
+  });
+  const group = event.target.closest("fieldset");
+  group?.querySelector(".field-error")?.remove();
+  for (const input of group?.querySelectorAll("input") ?? []) {
+    input.removeAttribute("aria-invalid");
+    input.removeAttribute("aria-describedby");
+  }
 });
 
 document.addEventListener("click", async (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
+  if (action === "enter") dispatch({ type: "LANDING_CONTINUE" });
+  if (action === "forward") dispatch({ type: "CONTINUE_SETUP" });
   if (action === "connect") await startBrowserLogin();
   if (action === "device") await startDeviceLogin();
   if (action === "cancel" && state.loginId) {
@@ -199,7 +289,12 @@ document.addEventListener("click", async (event) => {
   if (action === "back") dispatch({ type: "BACK_TO_CONNECT" });
   if (action === "continue") {
     dispatch({ type: "SUBMIT_REQUESTED" });
-    if (Object.keys(state.validationErrors).length === 0) {
+    const invalidFieldId = Object.keys(state.validationErrors)[0];
+    if (invalidFieldId) {
+      document.querySelector(
+        `[data-field-id="${CSS.escape(invalidFieldId)}"] input`,
+      )?.focus();
+    } else {
       try {
         unwrap(await courseSetup.saveResponses(state.responses));
         dispatch({ type: "SETUP_SAVED" });
@@ -218,7 +313,7 @@ document.addEventListener("click", async (event) => {
     }
   }
   if (action === "mock-app") {
-    document.querySelector("#mock-destination").hidden = false;
+    dispatch({ type: "OPEN_MOCK_APP" });
   }
 });
 
