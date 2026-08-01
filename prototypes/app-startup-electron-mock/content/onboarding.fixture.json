@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "contentKind": "fixture",
+  "contentOwner": "Duy mock fixture",
+  "title": "Sample teaching setup",
+  "notice": "Fixture content for testing Duy's setup mechanism. Triết owns the final onboarding content.",
+  "fields": [
+    {
+      "id": "sample-goal",
+      "type": "shortText",
+      "label": "Sample goal",
+      "required": true
+    },
+    {
+      "id": "sample-session-length",
+      "type": "singleChoice",
+      "label": "Sample session length",
+      "required": true,
+      "options": [
+        {
+          "value": "short",
+          "label": "Sample short session"
+        },
+        {
+          "value": "long",
+          "label": "Sample long session"
+        }
+      ]
+    },
+    {
+      "id": "sample-support",
+      "type": "multipleChoice",
+      "label": "Sample support preferences",
+      "required": false,
+      "options": [
+        {
+          "value": "check-ins",
+          "label": "Sample check-ins"
+        },
+        {
+          "value": "summaries",
+          "label": "Sample summaries"
+        }
+      ]
+    }
+  ]
+}

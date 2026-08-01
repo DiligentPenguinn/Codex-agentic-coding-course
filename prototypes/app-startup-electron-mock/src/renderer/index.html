@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Content Builder Academy — Setup Mock</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page-frame">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Course setup preview</p>
+          <h1>Prepare your course workspace</h1>
+        </div>
+        <span class="prototype-stamp">Early preview</span>
+      </header>
+
+      <nav id="setup-progress" class="progress" aria-label="Setup progress" hidden>
+        <ol>
+          <li data-step="connect"><span>01</span> Connect Codex</li>
+          <li data-step="teachingSetup"><span>02</span> Learning setup</li>
+          <li data-step="complete"><span>03</span> Ready</li>
+        </ol>
+      </nav>
+
+      <main id="app" aria-live="polite">
+        <section class="panel landing-panel" data-screen="landing">
+          <p class="section-number">Welcome</p>
+          <h2>Welcome to Content Builder Academy</h2>
+          <p>
+            Let’s prepare your course experience and connect your Codex
+            account. This should only take a few minutes.
+          </p>
+          <div class="landing-summary" aria-label="Setup overview">
+            <span>01</span><p>Connect Codex securely</p>
+            <span>02</span><p>Personalize your learning setup</p>
+            <span>03</span><p>Open your course</p>
+          </div>
+          <p id="landing-status" class="landing-status" role="status">
+            Checking your saved setup…
+          </p>
+          <p id="recovery-notice" class="notice" role="status" hidden></p>
+          <div class="actions">
+            <button
+              id="landing-primary"
+              class="button primary"
+              type="button"
+              data-action="enter"
+              disabled
+            >Checking setup…</button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="connect" hidden>
+          <p class="section-number">01 / Account connection</p>
+          <h2>Connect Codex</h2>
+          <p id="connection-copy">
+            Use Codex-managed ChatGPT authentication. This mock never handles
+            your tokens.
+          </p>
+          <div class="status-row" id="connection-status">
+            <span class="status-mark" aria-hidden="true"></span>
+            <span>Signed out</span>
+          </div>
+          <div class="device-card" id="device-card" hidden>
+            <span class="field-label">One-time code</span>
+            <strong id="device-code"></strong>
+            <a
+              id="device-link"
+              href="#"
+              target="_blank"
+              rel="noreferrer"
+            >Open verification page</a>
+          </div>
+          <p class="error-message" id="connection-error" role="alert"></p>
+          <p id="account-summary" class="notice" hidden></p>
+          <div class="actions">
+            <button id="connect-button" class="button primary" type="button" data-action="connect">
+              Connect Codex
+            </button>
+            <button id="device-button" class="button secondary" type="button" data-action="device">
+              Use device code
+            </button>
+            <button id="cancel-button" class="button secondary" type="button" data-action="cancel" hidden>
+              Cancel login
+            </button>
+            <button id="retry-button" class="button secondary" type="button" data-action="retry" hidden>
+              Retry connection
+            </button>
+            <button id="connected-continue" class="button primary" type="button" data-action="forward" hidden>
+              Continue setup
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="teachingSetup" hidden>
+          <div class="panel-heading">
+            <div>
+              <p class="section-number">02 / Setup questions</p>
+              <h2 id="fixture-title">Teaching setup</h2>
+            </div>
+            <span class="fixture-badge">Non-production fixture</span>
+          </div>
+          <p class="notice" id="fixture-notice"></p>
+          <form id="fixture-form" novalidate></form>
+          <p class="error-message" id="form-error" role="alert"></p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="back">
+              Back
+            </button>
+            <button id="form-continue" class="button primary" type="button" data-action="continue">
+              Continue
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="complete" hidden>
+          <p class="section-number">03 / Ready</p>
+          <h2>Setup complete</h2>
+          <p>
+            The startup mechanism has saved this fixture setup locally. The
+            production course destination is not part of this mock.
+          </p>
+          <div class="completion-grid">
+            <span>Local progress</span><strong>Saved</strong>
+            <span>Codex connection</span><strong id="complete-connection">Rechecked</strong>
+            <span>Content</span><strong>Fixture only</strong>
+          </div>
+          <p id="mock-destination" class="notice" hidden>
+            Mock destination reached. No course content is implemented here.
+          </p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="reopen">
+              Reopen setup
+            </button>
+            <button class="button primary" type="button" data-action="mock-app">
+              Continue to mock app
+            </button>
+          </div>
+        </section>
+
+        <section class="panel" data-screen="destination" hidden>
+          <p class="section-number">Course destination</p>
+          <h2>Course mock</h2>
+          <p>
+            You reached the mock course destination. Course content is not
+            implemented in this startup prototype.
+          </p>
+          <div class="actions">
+            <button class="button secondary" type="button" data-action="reopen">
+              Review setup
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        Experimental setup preview · Your progress stays on this computer.
+      </footer>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

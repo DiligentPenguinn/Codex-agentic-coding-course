@@ -2,6 +2,43 @@
 
 This repo contains the working materials for **Codex Content Builder Academy**, a Vietnamese-first course that teaches marketers and creators to use Codex by building practical AI content tools.
 
+## Quick start
+
+> **Duy-side prototype:** this Windows-first command and setup surface are a
+> proposal pending shared review before they become the production Course App
+> entry point.
+
+### Windows
+
+Open Command Prompt or PowerShell in the folder where you want to download the
+course. Run these commands one at a time:
+
+```bat
+git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
+cd codex-content-creator-course
+.\start-course.cmd
+```
+
+The launcher uses no PowerShell execution-policy bypass. It detects
+prerequisites, prints every proposed installation with its exact command and
+scope, and waits for one explicit approval before changing anything.
+
+The Electron app owns Codex connection and first-run interaction. Authentication
+uses Codex App Server's managed ChatGPT flow; the mock does not read or store
+Codex credentials. Its onboarding questions are visibly labeled fixture
+content for testing Duy's setup mechanism—not Triết's production onboarding
+script.
+
+See the
+[startup mock README](prototypes/app-startup-electron-mock/README.md) for
+installation details, stored data, recovery commands, tests, and deferred
+behavior.
+
+### macOS
+
+This prototype does not have a tested macOS startup command yet. macOS quick
+start instructions will be added when that workflow is ready.
+
 ## Current prototype
 
 - [MVP 0.5 Pedagogy Kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md): Vietnamese-first Teacher prompt, hint ladder, mastery rubric, learner-state schema, learning-event schema, sample dialogues, and a Module 0 Codex simulation script.
