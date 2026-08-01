@@ -85,6 +85,17 @@ only to exercise Duy's technical form contract.
 
 ### README path
 
+The root README uses one **Quick start** section with platform subsections:
+
+- **Windows:** show the supported clone, directory, and
+  `.\start-course.cmd` commands.
+- **macOS:** state briefly that startup instructions are not available yet.
+  Do not present an untested manual workflow as equivalent support.
+
+Duy owns the current Windows instructions. Triết will add the macOS startup
+instructions when that workflow is ready. Internal ownership names stay in
+planning documentation rather than learner-facing quick-start copy.
+
 ```powershell
 git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
 cd codex-content-creator-course
