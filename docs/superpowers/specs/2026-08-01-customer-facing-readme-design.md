@@ -1,7 +1,6 @@
 # Customer-Facing Root README Design
 
-**Status:** Approved design; copy not yet implemented  
-**Date:** 1 August 2026  
+**Status:** Approved design; copy implemented | **Date:** 1 August 2026 |
 **Audience:** Potential learners and customers
 
 ## Purpose
