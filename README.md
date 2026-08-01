@@ -2,13 +2,18 @@
 
 This repo contains the working materials for **Codex Content Builder Academy**, a Vietnamese-first course that teaches marketers and creators to use Codex by building practical AI content tools.
 
-## Experimental Electron startup mock
+## Quick start
 
 > **Duy-side prototype:** this Windows-first command and setup surface are a
 > proposal pending shared review before they become the production Course App
 > entry point.
 
-```powershell
+### Windows
+
+Open Command Prompt or PowerShell in the folder where you want to download the
+course. Run these commands one at a time:
+
+```bat
 git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
 cd codex-content-creator-course
 .\start-course.cmd
@@ -28,6 +33,11 @@ See the
 [startup mock README](prototypes/app-startup-electron-mock/README.md) for
 installation details, stored data, recovery commands, tests, and deferred
 behavior.
+
+### macOS
+
+This prototype does not have a tested macOS startup command yet. macOS quick
+start instructions will be added when that workflow is ready.
 
 ## Current prototype
 
