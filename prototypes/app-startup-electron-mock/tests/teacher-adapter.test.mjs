@@ -115,6 +115,16 @@ function completedNotification(overrides = {}) {
   };
 }
 
+async function outcomeByNextTurn(promise) {
+  return Promise.race([
+    promise.then(
+      (value) => ({ status: "resolved", value }),
+      (error) => ({ status: "rejected", message: error.message }),
+    ),
+    new Promise((resolve) => setImmediate(() => resolve({ status: "pending" }))),
+  ]);
+}
+
 test("starts one verified ephemeral no-tools Teacher thread and sends text-only turn input", async () => {
   const client = fakeClient();
   const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
@@ -142,6 +152,99 @@ test("starts one verified ephemeral no-tools Teacher thread and sends text-only 
   client.emit(completedNotification());
   assert.equal(await response, "Use read-only inspection.");
   await adapter.dispose();
+});
+
+test("replays a same-window final answer and completion only for the returned turn ID", async () => {
+  let client;
+  client = fakeClient((method) => {
+    if (method === "thread/start") {
+      return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+    }
+    if (method === "turn/start") {
+      client.emit(itemNotification("item/completed", { type: "commandExecution" }, { turnId: "turn-other" }));
+      client.emit(itemNotification("item/completed", {
+        type: "agentMessage", phase: "final_answer", text: "MISSING-ID DECOY",
+      }, { turnId: undefined }));
+      client.emit(completedNotification({ turn: { status: "completed" } }));
+      client.emit(itemNotification("item/completed", {
+        type: "agentMessage", phase: "final_answer", text: "Buffered exact answer",
+      }));
+      client.emit(completedNotification());
+      return { turn: { id: "turn-teacher-1" } };
+    }
+    return {};
+  });
+  const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
+
+  const response = adapter.respond(input);
+  const outcome = await outcomeByNextTurn(response);
+  await adapter.dispose();
+
+  assert.deepEqual(outcome, { status: "resolved", value: "Buffered exact answer" });
+  assert.equal(client.requests.some(([method]) => method === "turn/interrupt"), false);
+});
+
+test("intercepts a same-window forbidden item only when its explicit turn ID matches", async () => {
+  let client;
+  client = fakeClient((method) => {
+    if (method === "thread/start") {
+      return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+    }
+    if (method === "turn/start") {
+      client.emit(itemNotification("item/started", { type: "commandExecution" }, { turnId: "turn-other" }));
+      client.emit(itemNotification("item/completed", { type: "fileChange" }, { turnId: undefined }));
+      client.emit(itemNotification("item/started", {
+        type: "mcpToolCall", rawOutput: "RAW TOOL PAYLOAD MUST NOT LEAK",
+      }));
+      client.emit(completedNotification());
+      return { turn: { id: "turn-teacher-1" } };
+    }
+    return {};
+  });
+  const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
+
+  const response = adapter.respond(input);
+  const outcome = await outcomeByNextTurn(response);
+  await adapter.dispose();
+
+  assert.deepEqual(outcome, {
+    status: "rejected",
+    message: "Teacher inference violated the no-tools boundary.",
+  });
+  assert.deepEqual(client.requests.find(([method]) => method === "turn/interrupt"), [
+    "turn/interrupt", { threadId: "thr-teacher", turnId: "turn-teacher-1" },
+  ]);
+});
+
+test("fails safely and interrupts when the provisional notification buffer overflows", async () => {
+  let client;
+  client = fakeClient((method) => {
+    if (method === "thread/start") {
+      return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+    }
+    if (method === "turn/start") {
+      for (let index = 0; index < 65; index += 1) {
+        client.emit(itemNotification("item/completed", {
+          type: "agentMessage", phase: "final_answer", text: `Buffered answer ${index}`,
+        }));
+      }
+      return { turn: { id: "turn-teacher-1" } };
+    }
+    return {};
+  });
+  const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
+
+  const response = adapter.respond(input);
+  const outcome = await outcomeByNextTurn(response);
+  await adapter.dispose();
+
+  assert.deepEqual(outcome, {
+    status: "rejected",
+    message: "Teacher notification buffer overflowed.",
+  });
+  assert.deepEqual(client.requests.find(([method]) => method === "turn/interrupt"), [
+    "turn/interrupt", { threadId: "thr-teacher", turnId: "turn-teacher-1" },
+  ]);
 });
 
 test("ignores reasoning, commentary, unknown phases, and empty final answers", async () => {
@@ -327,6 +430,34 @@ test("dispose interrupts an active turn, rejects it safely, unsubscribes, and is
   await adapter.dispose();
 });
 
+test("dispose completes local cleanup when interrupt and unsubscribe never settle", async () => {
+  const never = new Promise(() => {});
+  const client = fakeClient((method) => {
+    if (method === "thread/start") {
+      return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+    }
+    if (method === "turn/start") return { turn: { id: "turn-teacher-1" } };
+    if (method === "turn/interrupt" || method === "thread/unsubscribe") return never;
+    return {};
+  });
+  const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
+  const { response } = await startResponse(adapter);
+  const rejected = assert.rejects(response, { message: "Teacher adapter stopped." });
+
+  const outcome = await Promise.race([
+    adapter.dispose().then(() => "disposed"),
+    new Promise((resolve) => setTimeout(() => resolve("hung"), 50)),
+  ]);
+
+  assert.equal(outcome, "disposed");
+  await rejected;
+  assert.equal(client.listenerCount, 0);
+  assert.deepEqual(client.requests.filter(([method]) => ["turn/interrupt", "thread/unsubscribe"].includes(method)), [
+    ["turn/interrupt", { threadId: "thr-teacher", turnId: "turn-teacher-1" }],
+    ["thread/unsubscribe", { threadId: "thr-teacher" }],
+  ]);
+});
+
 test("dispose races cannot leave setup responses pending or resurrect late server state", async () => {
   const threadStart = deferred();
   const client = fakeClient((method) => {
@@ -375,5 +506,29 @@ test("the fake adapter reports bounded prompt, constraints, response, changes, a
   assert.match(first, /Constraints:/);
   assert.match(first, /Executor report: Inspection complete\./);
   assert.match(first, /Changed files: 2\./);
+  await adapter.dispose();
+});
+
+test("the fake adapter bounds its complete labeled response to 4,000 code points", async () => {
+  const adapter = createFakeTeacherAdapter();
+  const longInput = {
+    ...input,
+    envelope: {
+      ...envelope,
+      executor: {
+        ...envelope.executor,
+        activity: {
+          ...activity,
+          learnerPromptSummary: "😀".repeat(2_000),
+          executorResponseSummary: "x".repeat(2_000),
+        },
+      },
+    },
+  };
+
+  const answer = await adapter.respond(longInput);
+
+  assert.equal([...answer].length <= 4_000, true);
+  assert.equal(answer.endsWith("…"), true);
   await adapter.dispose();
 });

@@ -23,6 +23,7 @@ const DEVELOPER_INSTRUCTIONS = [
 
 const SAFE_ID = /^[A-Za-z0-9_-]{1,500}$/;
 const STOPPED = Symbol("teacher-adapter-stopped");
+const MAX_STARTING_FACTS = 64;
 
 function safeId(value) {
   return typeof value === "string" && SAFE_ID.test(value);
@@ -38,6 +39,38 @@ function boundedAnswer(value) {
   return codePoints.length <= 4_000
     ? value
     : `${codePoints.slice(0, 3_999).join("")}…`;
+}
+
+function notificationFact(notification) {
+  const { method, params } = notification ?? {};
+  if (!params || typeof params !== "object" || Array.isArray(params)) return null;
+
+  if (method === "item/started" || method === "item/completed") {
+    if (!safeId(params.turnId)) return null;
+    const item = params.item;
+    if (FORBIDDEN_TOOL_ITEMS.has(item?.type)) {
+      return { kind: "forbidden", turnId: params.turnId };
+    }
+    if (
+      method === "item/completed"
+      && item?.type === "agentMessage"
+      && item.phase === "final_answer"
+      && typeof item.text === "string"
+      && item.text.trim() !== ""
+    ) {
+      return { kind: "answer", turnId: params.turnId, text: boundedAnswer(item.text) };
+    }
+    return null;
+  }
+
+  if (method === "turn/completed" && safeId(params.turn?.id)) {
+    return {
+      kind: "completed",
+      turnId: params.turn.id,
+      completed: params.turn.status === "completed",
+    };
+  }
+  return null;
 }
 
 function verifyThreadStart(result, teacherCwd) {
@@ -75,13 +108,13 @@ export function createFakeTeacherAdapter() {
       if (disposed) throw stoppedError();
       const parsed = parseTeacherContextEnvelope(envelope);
       const activity = parsed.executor.activity;
-      return [
+      return boundedAnswer([
         `Freshness: ${parsed.freshness.state}.`,
         `Learner prompt: ${activity.learnerPromptSummary || "not observed"}.`,
         "Constraints: bound task only; Teacher tools disabled.",
         `Executor report: ${activity.executorResponseSummary || "not observed"}.`,
         `Changed files: ${activity.changedFiles.length}.`,
-      ].join(" ");
+      ].join(" "));
     },
     async dispose() {
       disposed = true;
@@ -100,6 +133,7 @@ export function createAppServerTeacherAdapter({
 
   let teacherThreadId = null;
   let pending = null;
+  let starting = null;
   let busy = false;
   let disposed = false;
   let generation = 0;
@@ -132,6 +166,27 @@ export function createAppServerTeacherAdapter({
     }
     if (error) current.reject(error);
     else current.resolve(value);
+  }
+
+  function processFact(fact) {
+    if (!pending || fact.turnId !== pending.turnId) return;
+    if (fact.kind === "forbidden") {
+      const { threadId, turnId } = pending;
+      finish(new Error("Teacher inference violated the no-tools boundary."));
+      void interrupt(threadId, turnId);
+      return;
+    }
+    if (fact.kind === "answer") {
+      pending.answer = fact.text;
+      return;
+    }
+    if (fact.kind === "completed") {
+      if (fact.completed && pending.answer) {
+        finish(null, pending.answer);
+      } else {
+        finish(new Error("Teacher inference did not complete."));
+      }
+    }
   }
 
   async function setupRequest(request) {
@@ -169,38 +224,20 @@ export function createAppServerTeacherAdapter({
   }
 
   const removeNotification = client.onNotification((notification) => {
-    if (!pending || notification?.params?.threadId !== teacherThreadId) return;
-    const { method, params } = notification;
-
-    if (method === "item/started" || method === "item/completed") {
-      if (params.turnId !== pending.turnId) return;
-      const item = params.item;
-      if (FORBIDDEN_TOOL_ITEMS.has(item?.type)) {
-        const { threadId, turnId } = pending;
-        finish(new Error("Teacher inference violated the no-tools boundary."));
-        void interrupt(threadId, turnId);
-        return;
-      }
-      if (
-        method === "item/completed"
-        && item?.type === "agentMessage"
-        && item.phase === "final_answer"
-        && typeof item.text === "string"
-        && item.text.trim() !== ""
-      ) {
-        pending.answer = boundedAnswer(item.text);
-      }
+    if (notification?.params?.threadId !== teacherThreadId) return;
+    const fact = notificationFact(notification);
+    if (!fact) return;
+    if (pending) {
+      processFact(fact);
       return;
     }
-
-    if (method === "turn/completed") {
-      if (params.turn?.id !== pending.turnId) return;
-      if (params.turn.status === "completed" && pending.answer) {
-        finish(null, pending.answer);
-      } else {
-        finish(new Error("Teacher inference did not complete."));
-      }
+    if (!starting || starting.threadId !== teacherThreadId || starting.overflowed) return;
+    if (starting.facts.length === MAX_STARTING_FACTS) {
+      starting.facts.length = 0;
+      starting.overflowed = true;
+      return;
     }
+    starting.facts.push(fact);
   });
 
   async function respond({ envelope, chat, learnerMessage }) {
@@ -211,9 +248,16 @@ export function createAppServerTeacherAdapter({
 
     let activeThreadId;
     let turnId;
+    let provisional;
     try {
       activeThreadId = await ensureThread(activeGeneration);
       const text = buildTeacherTurnInput({ envelope, chat, learnerMessage });
+      provisional = {
+        threadId: activeThreadId,
+        facts: [],
+        overflowed: false,
+      };
+      starting = provisional;
       const request = Promise.resolve(client.request("turn/start", {
         threadId: activeThreadId,
         input: [{ type: "text", text }],
@@ -233,6 +277,7 @@ export function createAppServerTeacherAdapter({
       turnId = verifyTurnStart(started);
       if (disposed || activeGeneration !== generation) throw STOPPED;
     } catch (error) {
+      if (starting === provisional) starting = null;
       busy = false;
       if (error === STOPPED || disposed || activeGeneration !== generation) throw stoppedError();
       throw setupError();
@@ -252,12 +297,24 @@ export function createAppServerTeacherAdapter({
       reject: rejectCompletion,
       timeout: null,
     };
+    if (starting === provisional) starting = null;
+    if (provisional.overflowed) {
+      finish(new Error("Teacher notification buffer overflowed."));
+      void interrupt(activeThreadId, turnId);
+    } else {
+      for (const fact of provisional.facts) {
+        if (!pending) break;
+        processFact(fact);
+      }
+    }
     try {
-      pending.timeout = setTimeoutFn(() => {
-        if (!pending || pending.threadId !== activeThreadId || pending.turnId !== turnId) return;
-        finish(new Error("Teacher response timed out."));
-        void interrupt(activeThreadId, turnId);
-      }, timeoutMs);
+      if (pending) {
+        pending.timeout = setTimeoutFn(() => {
+          if (!pending || pending.threadId !== activeThreadId || pending.turnId !== turnId) return;
+          finish(new Error("Teacher response timed out."));
+          void interrupt(activeThreadId, turnId);
+        }, timeoutMs);
+      }
     } catch {
       finish(setupError());
       void interrupt(activeThreadId, turnId);
@@ -270,6 +327,7 @@ export function createAppServerTeacherAdapter({
     disposed = true;
     generation += 1;
     stop();
+    starting = null;
     try {
       removeNotification();
     } catch {
@@ -278,14 +336,12 @@ export function createAppServerTeacherAdapter({
 
     const active = pending;
     if (active) finish(stoppedError());
-    const operations = [];
-    if (active) operations.push(interrupt(active.threadId, active.turnId));
+    if (active) void interrupt(active.threadId, active.turnId);
     if (teacherThreadId) {
       const activeThreadId = teacherThreadId;
       teacherThreadId = null;
-      operations.push(safeRequest("thread/unsubscribe", { threadId: activeThreadId }));
+      void safeRequest("thread/unsubscribe", { threadId: activeThreadId });
     }
-    await Promise.all(operations);
   }
 
   return Object.freeze({ respond, dispose });
