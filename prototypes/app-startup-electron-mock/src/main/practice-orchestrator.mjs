@@ -83,12 +83,15 @@ export function createPracticeOrchestrator({
   let initializePromise = null;
   let startPromise = null;
   let bindingPromise = null;
+  let bindingOwner = null;
   let teacherSending = false;
   const activitySuppressions = new Set();
   let disposed = false;
   let bindingEpoch = 0;
   let committedBindingGeneration = 0;
   let bindingTransition = false;
+  let activeBindingTransition = null;
+  let observationEnabled = false;
   let teacherEpoch = 0;
   let stateQueue = Promise.resolve();
   const listeners = new Set();
@@ -120,6 +123,28 @@ export function createPracticeOrchestrator({
     }
     if (!session.binding) throw publicError(NO_BINDING_ERROR, "PRACTICE_BINDING_REQUIRED");
     return session;
+  }
+
+  async function bindReader(binding) {
+    const snapshot = await activityReader.bind(structuredClone(binding));
+    observationEnabled = true;
+    return snapshot;
+  }
+
+  function pauseReader() {
+    try {
+      activityReader.pause();
+    } finally {
+      observationEnabled = false;
+    }
+  }
+
+  function disposeReader() {
+    try {
+      activityReader.dispose();
+    } finally {
+      observationEnabled = false;
+    }
   }
 
   function captureCommittedBinding() {
@@ -291,20 +316,29 @@ export function createPracticeOrchestrator({
     return nextBinding;
   }
 
-  function beginBindingTransition() {
+  function beginBindingTransition({ replaceOwned = false } = {}) {
+    if (!replaceOwned && (bindingTransition || bindingPromise)) {
+      throw publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION");
+    }
     const session = requireSession();
+    const priorObservationEnabled = replaceOwned && activeBindingTransition
+      ? activeBindingTransition.priorObservationEnabled
+      : observationEnabled;
     bindingTransition = true;
     bindingEpoch += 1;
     committedBindingGeneration += 1;
     teacherEpoch += 1;
     handoff = null;
-    return Object.freeze({
+    const operation = Object.freeze({
       token: bindingEpoch,
       generation: committedBindingGeneration,
       sessionId: session.sessionId,
       priorBinding: session.binding ? structuredClone(session.binding) : null,
       priorActivity: session.activity ? structuredClone(session.activity) : null,
+      priorObservationEnabled,
     });
+    activeBindingTransition = operation;
+    return operation;
   }
 
   function transitionIsCurrent(operation) {
@@ -318,19 +352,25 @@ export function createPracticeOrchestrator({
   }
 
   function finishBindingTransition(operation) {
-    if (transitionIsCurrent(operation)) bindingTransition = false;
+    if (transitionIsCurrent(operation)) {
+      bindingTransition = false;
+      activeBindingTransition = null;
+    }
   }
 
   async function rollbackReader(operation) {
-    try { activityReader.pause(); } catch { /* Rollback remains best effort. */ }
+    try { pauseReader(); } catch { /* Rollback remains best effort. */ }
     if (!operation.priorBinding) return true;
     try {
-      const snapshot = await activityReader.bind(structuredClone(operation.priorBinding));
-      if (snapshot?.threadId === operation.priorBinding.threadId) return true;
+      const snapshot = await bindReader(operation.priorBinding);
+      if (snapshot?.threadId === operation.priorBinding.threadId) {
+        if (!operation.priorObservationEnabled) pauseReader();
+        return true;
+      }
     } catch {
       // A failed rollback is handled as a disconnected retained binding.
     }
-    try { activityReader.pause(); } catch { /* Rollback remains best effort. */ }
+    try { pauseReader(); } catch { /* Rollback remains best effort. */ }
     return false;
   }
 
@@ -345,6 +385,7 @@ export function createPracticeOrchestrator({
   const removeActivityListener = activityReader.onSnapshot((activity) => {
     if (
       disposed
+      || !initialized
       || bindingTransition
       || activitySuppressions.size > 0
       || !persisted?.activeSession?.binding
@@ -361,7 +402,7 @@ export function createPracticeOrchestrator({
         type: "ACTIVITY_OBSERVED", activity, at: at(),
       });
       return activeSession === session ? null : { activeSession };
-    }, { guard: () => bindingCaptureIsCurrent(capture) }).catch(() => {
+    }, { guard: () => initialized && bindingCaptureIsCurrent(capture) }).catch(() => {
       // Background observation failure retains the last committed state.
     });
   });
@@ -391,37 +432,56 @@ export function createPracticeOrchestrator({
       const suppression = Symbol("initialize");
       activitySuppressions.add(suppression);
       try {
-        const result = await conversationService.revalidateBinding(
-          savedSession.startRequest,
-          structuredClone(savedSession.binding),
-        );
-        if (disposed) throw publicError(DISPOSED_ERROR, "PRACTICE_DISPOSED");
-        const nextBinding = validRevalidatedBinding(result?.binding, savedSession);
-        const nextActivity = await activityReader.bind(nextBinding);
-        if (!nextActivity || nextActivity.threadId !== savedSession.binding.threadId) {
-          throw new TypeError("Activity identity does not match the saved binding.");
+        try {
+          const result = await conversationService.revalidateBinding(
+            savedSession.startRequest,
+            structuredClone(savedSession.binding),
+          );
+          if (disposed) throw publicError(DISPOSED_ERROR, "PRACTICE_DISPOSED");
+          const nextBinding = validRevalidatedBinding(result?.binding, savedSession);
+          const nextActivity = await bindReader(nextBinding);
+          if (!nextActivity || nextActivity.threadId !== savedSession.binding.threadId) {
+            throw new TypeError("Activity identity does not match the saved binding.");
+          }
+          await transact((current) => ({
+            activeSession: reducePracticeSession(current.activeSession, {
+              type: "BINDING_VERIFIED",
+              binding: nextBinding,
+              activity: nextActivity,
+              at: at(),
+            }),
+          }), {
+            afterCommit: () => {
+              bindingTransition = false;
+              initialized = true;
+            },
+          });
+        } catch (error) {
+          if (error?.code === "PRACTICE_SAVE_FAILED" || error?.code === "PRACTICE_DISPOSED") throw error;
+          try { pauseReader(); } catch { /* Failed restart remains disconnected. */ }
+          await transact((current) => ({
+            activeSession: reducePracticeSession(current.activeSession, {
+              type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
+            }),
+          }), {
+            afterCommit: () => {
+              bindingTransition = false;
+              initialized = true;
+            },
+          });
         }
-        await transact((current) => ({
-          activeSession: reducePracticeSession(current.activeSession, {
-            type: "BINDING_VERIFIED",
-            binding: nextBinding,
-            activity: nextActivity,
-            at: at(),
-          }),
-        }), { afterCommit: () => { bindingTransition = false; } });
       } catch (error) {
-        if (error?.code === "PRACTICE_SAVE_FAILED" || error?.code === "PRACTICE_DISPOSED") throw error;
-        try { activityReader.pause(); } catch { /* Failed restart remains disconnected. */ }
-        await transact((current) => ({
-          activeSession: reducePracticeSession(current.activeSession, {
-            type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
-          }),
-        }), { afterCommit: () => { bindingTransition = false; } });
+        if (!disposed) {
+          try { pauseReader(); } catch { /* Failed initialization stays non-observing. */ }
+          initialized = false;
+          bindingEpoch += 1;
+          committedBindingGeneration += 1;
+          bindingTransition = false;
+        }
+        throw error;
       } finally {
         activitySuppressions.delete(suppression);
-        if (!disposed && !initialized && bindingTransition) bindingTransition = false;
       }
-      initialized = true;
       return getViewModel();
     })().finally(() => {
       initializePromise = null;
@@ -457,7 +517,7 @@ export function createPracticeOrchestrator({
     try {
       let nextActivity;
       try {
-        nextActivity = await activityReader.bind(nextBinding);
+        nextActivity = await bindReader(nextBinding);
         if (!transitionIsCurrent(operation)) return getViewModel();
         if (!nextActivity || nextActivity.threadId !== nextBinding.threadId) {
           throw new TypeError("Activity identity does not match the Executor binding.");
@@ -488,11 +548,27 @@ export function createPracticeOrchestrator({
     }
   }
 
+  function claimBindingOperation(run, owner) {
+    const task = Promise.resolve().then(run);
+    let owned;
+    owned = task.finally(() => {
+      if (bindingPromise === owned) {
+        bindingPromise = null;
+        bindingOwner = null;
+      }
+    });
+    bindingPromise = owned;
+    bindingOwner = owner;
+    return owned;
+  }
+
   function runBindingOperation(work, failureMessage, { bindingLost = false } = {}) {
     requireSession();
-    if (bindingPromise) return bindingPromise;
+    if (bindingPromise || bindingTransition) {
+      return Promise.reject(publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION"));
+    }
     const operation = beginBindingTransition();
-    const promise = (async () => {
+    return claimBindingOperation(async () => {
       try {
         return await work(operation);
       } catch (error) {
@@ -517,12 +593,7 @@ export function createPracticeOrchestrator({
           throw saveError;
         }
       }
-    })();
-    bindingPromise = promise.finally(() => {
-      if (bindingPromise === wrapped) bindingPromise = null;
-    });
-    const wrapped = bindingPromise;
-    return bindingPromise;
+    }, "binding");
   }
 
   function createDedicatedTask() {
@@ -583,44 +654,50 @@ export function createPracticeOrchestrator({
 
   function requestRebind() {
     requireSession();
-    bindingPromise = null;
-    const operation = beginBindingTransition();
-    activityReader.pause();
-    return transact((current) => ({
-      activeSession: reducePracticeSession(current.activeSession, {
-        type: "REBIND_REQUESTED", at: at(),
-      }),
-    }), {
-      guard: () => transitionIsCurrent(operation),
-      afterCommit: () => finishBindingTransition(operation),
-    }).catch(async (error) => {
-      if (!transitionIsCurrent(operation)) return getViewModel();
-      const suppression = Symbol("rebind-rollback");
-      activitySuppressions.add(suppression);
+    if (bindingOwner === "rebind") {
+      return Promise.reject(publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION"));
+    }
+    const operation = beginBindingTransition({ replaceOwned: Boolean(bindingPromise || bindingTransition) });
+    return claimBindingOperation(async () => {
       try {
-        const restored = await rollbackReader(operation);
+        pauseReader();
+        return await transact((current) => ({
+          activeSession: reducePracticeSession(current.activeSession, {
+            type: "REBIND_REQUESTED", at: at(),
+          }),
+        }), {
+          guard: () => transitionIsCurrent(operation),
+          afterCommit: () => finishBindingTransition(operation),
+        });
+      } catch (error) {
         if (!transitionIsCurrent(operation)) return getViewModel();
-        if (restored) {
-          finishBindingTransition(operation);
-          throw error;
-        }
+        const suppression = Symbol("rebind-rollback");
+        activitySuppressions.add(suppression);
         try {
-          return await transact((current) => ({
-            activeSession: reducePracticeSession(current.activeSession, {
-              type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
-            }),
-          }), {
-            guard: () => transitionIsCurrent(operation),
-            afterCommit: () => finishBindingTransition(operation),
-          });
-        } catch (saveError) {
-          finishBindingTransition(operation);
-          throw saveError;
+          const restored = await rollbackReader(operation);
+          if (!transitionIsCurrent(operation)) return getViewModel();
+          if (restored) {
+            finishBindingTransition(operation);
+            throw error;
+          }
+          try {
+            return await transact((current) => ({
+              activeSession: reducePracticeSession(current.activeSession, {
+                type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
+              }),
+            }), {
+              guard: () => transitionIsCurrent(operation),
+              afterCommit: () => finishBindingTransition(operation),
+            });
+          } catch (saveError) {
+            finishBindingTransition(operation);
+            throw saveError;
+          }
+        } finally {
+          activitySuppressions.delete(suppression);
         }
-      } finally {
-        activitySuppressions.delete(suppression);
       }
-    });
+    }, "rebind");
   }
 
   function retryObservation() {
@@ -632,7 +709,7 @@ export function createPracticeOrchestrator({
       activitySuppressions.add(suppression);
       try {
         try {
-          const nextActivity = await activityReader.bind(structuredClone(operation.priorBinding));
+          const nextActivity = await bindReader(operation.priorBinding);
           if (!transitionIsCurrent(operation)) return getViewModel();
           if (!nextActivity || nextActivity.threadId !== savedThreadId) {
             throw new TypeError("Activity identity does not match the saved binding.");
@@ -757,8 +834,7 @@ export function createPracticeOrchestrator({
     }
     bindingEpoch += 1;
     teacherEpoch += 1;
-    bindingPromise = null;
-    activityReader.pause();
+    pauseReader();
     return transact((current) => ({
       activeSession: reducePracticeSession(current.activeSession, { type: "PAUSE", at: at() }),
     }));
@@ -777,12 +853,14 @@ export function createPracticeOrchestrator({
     bindingEpoch += 1;
     committedBindingGeneration += 1;
     bindingTransition = true;
+    activeBindingTransition = null;
     teacherEpoch += 1;
     bindingPromise = null;
+    bindingOwner = null;
     listeners.clear();
     try { removeActivityListener(); } catch { /* Cleanup is best effort. */ }
-    try { activityReader.pause(); } catch { /* Cleanup is best effort. */ }
-    try { activityReader.dispose(); } catch { /* Cleanup is best effort. */ }
+    try { pauseReader(); } catch { /* Cleanup is best effort. */ }
+    try { disposeReader(); } catch { /* Cleanup is best effort. */ }
     const queued = stateQueue.catch(() => undefined);
     let teacherCleanup;
     try {

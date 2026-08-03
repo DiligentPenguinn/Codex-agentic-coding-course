@@ -89,6 +89,7 @@ function createHarness(options = {}) {
   const teacherCalls = [];
   let disposedReader = false;
   let disposedTeacher = false;
+  let observing = false;
 
   const store = options.store ?? {
     async read() { return structuredClone(stored); },
@@ -138,6 +139,7 @@ function createHarness(options = {}) {
     },
     async bind(nextBinding) {
       bindCalls.push(structuredClone(nextBinding));
+      observing = true;
       if (options.activityBind) return options.activityBind(nextBinding, snapshotListener);
       return activity(nextBinding.threadId);
     },
@@ -145,8 +147,8 @@ function createHarness(options = {}) {
       if (options.activityRefresh) return options.activityRefresh();
       return stored.activeSession?.activity ?? null;
     },
-    pause() { pauseCalls.push(true); },
-    dispose() { disposedReader = true; },
+    pause() { pauseCalls.push(true); observing = false; },
+    dispose() { disposedReader = true; observing = false; },
   };
 
   const teacherAdapter = {
@@ -172,6 +174,7 @@ function createHarness(options = {}) {
     get removed() { return removed; },
     get disposedReader() { return disposedReader; },
     get disposedTeacher() { return disposedTeacher; },
+    get observing() { return observing; },
   };
 }
 
@@ -513,6 +516,58 @@ test("initialize revalidates only the saved binding and suppresses stale bind em
   assert.equal(harness.stored.activeSession.observationCursor, "verified");
 });
 
+test("the first bound initialization emission is already usable by public operations", async () => {
+  const harness = createHarness({ initialState: state({ activeSession: activeSession() }) });
+  let reaction = null;
+  harness.orchestrator.onChange((view) => {
+    if (!view.session || reaction) return;
+    try {
+      reaction = Promise.resolve(harness.orchestrator.selectTab("teacher"));
+    } catch (error) {
+      reaction = Promise.reject(error);
+      void reaction.catch(() => undefined);
+    }
+  });
+
+  await harness.orchestrator.initialize();
+
+  assert.ok(reaction);
+  await assert.doesNotReject(reaction);
+  assert.equal(harness.orchestrator.getViewModel().presentation.lastFullTab, "teacher");
+});
+
+test("a failed initialization write stays uninitialized, pauses observation, and ignores later snapshots", async () => {
+  const writeGate = deferred();
+  const writeStarted = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    writeImpl: async (value, writeNumber) => {
+      if (writeNumber === 1) {
+        writeStarted.resolve();
+        return writeGate.promise;
+      }
+      return value;
+    },
+  });
+  const observed = [];
+  harness.orchestrator.onChange((value) => observed.push(value));
+  const initializing = harness.orchestrator.initialize();
+  await writeStarted.promise;
+  harness.emitActivity(activity("thr-one", { cursor: "during-initialize" }));
+  writeGate.reject(new Error("initial state write failed"));
+
+  await assert.rejects(initializing, /Practice state could not be saved/);
+  const writesAfterFailure = harness.writes.length;
+  harness.emitActivity(activity("thr-one", { cursor: "after-failed-initialize" }));
+  await tick();
+
+  assert.equal(harness.writes.length, writesAfterFailure);
+  assert.equal(observed.length, 0);
+  assert.equal(harness.observing, false);
+  assert.ok(harness.pauseCalls.length >= 1);
+  assert.throws(() => harness.orchestrator.startPractice(), /initialized safely/i);
+});
+
 test("failed restart revalidation retains the exact binding, marks disconnected, and never lists or substitutes", async () => {
   const harness = createHarness({
     initialState: state({ activeSession: activeSession() }),
@@ -666,6 +721,120 @@ test("a failed durable rebind clear restores the exact prior reader before leavi
   await assert.doesNotReject(harness.orchestrator.openBoundTask());
 });
 
+test("requestRebind exclusively owns the binding lock until its gated clear commits", async () => {
+  const clearGate = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    writeImpl: async (value, writeNumber) => writeNumber === 2
+      ? clearGate.promise.then(() => value)
+      : value,
+  });
+  await harness.orchestrator.initialize();
+  const originalRebind = harness.orchestrator.requestRebind();
+  const outcomes = new Map();
+  const attempt = (name, operation) => {
+    let result;
+    try {
+      result = operation();
+    } catch (error) {
+      outcomes.set(name, error.message);
+      return Promise.resolve();
+    }
+    return Promise.resolve(result).then(
+      () => outcomes.set(name, "resolved"),
+      (error) => outcomes.set(name, error.message),
+    );
+  };
+  const attempts = [
+    attempt("create", () => harness.orchestrator.createDedicatedTask()),
+    attempt("bind", () => harness.orchestrator.bindExistingTask("thr-two")),
+    attempt("retry", () => harness.orchestrator.retryObservation()),
+    attempt("rebind", () => harness.orchestrator.requestRebind()),
+  ];
+  await tick();
+  const immediate = new Map(outcomes);
+
+  clearGate.resolve();
+  await Promise.allSettled([originalRebind, ...attempts]);
+
+  for (const name of ["create", "bind", "retry", "rebind"]) {
+    assert.match(immediate.get(name) ?? "pending", /binding.*(?:changing|progress)/i, name);
+  }
+  assert.deepEqual(harness.calls.filter(([kind]) => ["create", "bind"].includes(kind)), []);
+  assert.equal(harness.pauseCalls.length, 1);
+  assert.equal(harness.writes.length, 2);
+  assert.equal(harness.stored.activeSession.binding, null);
+});
+
+test("failed replacement from paused restores the exact reader identity but keeps observation paused", async () => {
+  let bindCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession({ lifecycle: "active" }) }),
+    activityBind: async (nextBinding) => {
+      bindCount += 1;
+      if (bindCount === 2) throw new Error("new reader switched then failed");
+      return activity(nextBinding.threadId);
+    },
+  });
+  await harness.orchestrator.initialize();
+  await harness.orchestrator.pause();
+
+  const view = await harness.orchestrator.bindExistingTask("thr-two");
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-two", "thr-one"]);
+  assert.equal(view.session.lifecycle, "paused");
+  assert.equal(harness.observing, false);
+  assert.ok(harness.pauseCalls.length >= 3);
+});
+
+test("failed rebind clear from paused restores the exact reader identity without resuming observation", async () => {
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession({ lifecycle: "active" }) }),
+    writeImpl: async (value) => {
+      if (value.activeSession?.binding === null) throw new Error("clear failed");
+      return value;
+    },
+  });
+  await harness.orchestrator.initialize();
+  await harness.orchestrator.pause();
+
+  await assert.rejects(harness.orchestrator.requestRebind(), /Practice state could not be saved/);
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-one"]);
+  assert.equal(harness.orchestrator.getViewModel().session.lifecycle, "paused");
+  assert.equal(harness.observing, false);
+  assert.ok(harness.pauseCalls.length >= 3);
+});
+
+test("rebind takeover inherits paused committed mode after an uncommitted reader switch", async () => {
+  const replacementWrite = deferred();
+  const replacementWriteStarted = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession({ lifecycle: "active" }) }),
+    writeImpl: async (value) => {
+      if (value.activeSession?.binding?.threadId === "thr-two") {
+        replacementWriteStarted.resolve();
+        return replacementWrite.promise.then(() => value);
+      }
+      if (value.activeSession?.binding === null) throw new Error("clear failed");
+      return value;
+    },
+  });
+  await harness.orchestrator.initialize();
+  await harness.orchestrator.pause();
+  const replacing = harness.orchestrator.bindExistingTask("thr-two");
+  await replacementWriteStarted.promise;
+
+  const rebinding = harness.orchestrator.requestRebind();
+  replacementWrite.resolve();
+  await replacing;
+  await assert.rejects(rebinding, /Practice state could not be saved/);
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-two", "thr-one"]);
+  assert.equal(harness.orchestrator.getViewModel().session.lifecycle, "paused");
+  assert.equal(harness.observing, false);
+});
+
 test("a pending open result is dropped when rebind invalidates its committed binding generation", async () => {
   const opened = deferred();
   const harness = createHarness({
@@ -803,7 +972,10 @@ test("double create, bind, and send operations cannot race", async () => {
     createDedicatedTask: async () => { createCount += 1; return createPending.promise; },
   });
   const creating = creatingHarness.orchestrator.createDedicatedTask();
-  const duplicateCreate = creatingHarness.orchestrator.createDedicatedTask();
+  const duplicateCreate = assert.rejects(
+    creatingHarness.orchestrator.createDedicatedTask(),
+    /binding.*(?:changing|progress)/i,
+  );
   await tick();
   assert.equal(createCount, 1);
   createPending.resolve({ binding: binding(), handoff: null });
@@ -813,7 +985,10 @@ test("double create, bind, and send operations cannot race", async () => {
   let bindCount = 0;
   const bindHarness = await startedHarness({ bindExistingTask: async () => { bindCount += 1; return bindPending.promise; } });
   const bindingOne = bindHarness.orchestrator.bindExistingTask("thr-two");
-  const bindingTwo = bindHarness.orchestrator.bindExistingTask("thr-three");
+  const bindingTwo = assert.rejects(
+    bindHarness.orchestrator.bindExistingTask("thr-three"),
+    /binding.*(?:changing|progress)/i,
+  );
   await tick();
   assert.equal(bindCount, 1);
   bindPending.resolve(binding("thr-two", { sourceKind: "selected-existing" }));
