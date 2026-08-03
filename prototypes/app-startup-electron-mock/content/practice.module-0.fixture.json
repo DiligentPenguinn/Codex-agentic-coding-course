@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "courseRunId": "fixture-course-run",
+  "lessonId": "module-0",
+  "missionId": "module-0-read-only-inspection-awareness-fixture",
+  "checkpointId": "executor-awareness",
+  "fixtureMetadata": {
+    "contentKind": "mock-adaptation",
+    "source": "existing Module 0 ContentPilot Lite inspection exercise",
+    "sourceOwner": "Triết",
+    "mechanismOwner": "Duy",
+    "productionApproved": false
+  },
+  "content": {
+    "version": "mock-1",
+    "locale": "vi-VN",
+    "title": "Inspect ContentPilot Lite ở chế độ chỉ đọc",
+    "description": "Fixture dùng để kiểm tra cơ chế Practice Mode.",
+    "learningOutcomes": [
+      "Viết yêu cầu inspect repo ở chế độ chỉ đọc trước khi sửa file"
+    ],
+    "instructions": [
+      "Tự viết prompt cho Executor trong Codex",
+      "Yêu cầu report giúp quyết định bước tiếp theo",
+      "Đọc report trước khi hỏi Teacher"
+    ],
+    "allowedActions": [
+      "read files",
+      "list files",
+      "summarize"
+    ],
+    "prohibitedActions": [
+      "edit files",
+      "install packages",
+      "use network"
+    ],
+    "expectedEvidence": [
+      "structured inspection report"
+    ]
+  },
+  "workspace": {
+    "exercisePath": "prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite"
+  }
+}
