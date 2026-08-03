@@ -28,6 +28,14 @@ const CREATE_ERROR = "A dedicated Codex task could not be created. Retry or choo
 const BIND_ERROR = "That Codex task is unavailable or belongs to a different workspace.";
 const DISCONNECTED_ERROR = "The bound Codex task is disconnected. Retry or rebind explicitly.";
 const TEACHER_ERROR = "Teacher could not answer from the current context. Retry your message.";
+const BINDING_TRANSITION_ERROR = "Executor task binding is changing. Wait for it to finish.";
+const UNKNOWN_SESSION_ERROR = "Practice encountered a recoverable issue. Retry or restart the session.";
+const SAFE_SESSION_ERRORS = new Set([
+  CREATE_ERROR,
+  BIND_ERROR,
+  DISCONNECTED_ERROR,
+  TEACHER_ERROR,
+]);
 
 function publicError(message, code = "PRACTICE_OPERATION_FAILED") {
   return Object.assign(new Error(message), { code });
@@ -37,6 +45,11 @@ function safeHandoff(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   if (typeof value.opened !== "boolean" || typeof value.fallbackName !== "string") return null;
   return { opened: value.opened, fallbackName: value.fallbackName };
+}
+
+function safeSessionError(value) {
+  if (value === null || value === undefined) return null;
+  return SAFE_SESSION_ERRORS.has(value) ? value : UNKNOWN_SESSION_ERROR;
 }
 
 function safeEligibleTasks(value) {
@@ -74,6 +87,8 @@ export function createPracticeOrchestrator({
   const activitySuppressions = new Set();
   let disposed = false;
   let bindingEpoch = 0;
+  let committedBindingGeneration = 0;
+  let bindingTransition = false;
   let teacherEpoch = 0;
   let stateQueue = Promise.resolve();
   const listeners = new Set();
@@ -100,8 +115,32 @@ export function createPracticeOrchestrator({
 
   function requireBinding() {
     const session = requireSession();
+    if (bindingTransition) {
+      throw publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION");
+    }
     if (!session.binding) throw publicError(NO_BINDING_ERROR, "PRACTICE_BINDING_REQUIRED");
     return session;
+  }
+
+  function captureCommittedBinding() {
+    const session = requireBinding();
+    return Object.freeze({
+      sessionId: session.sessionId,
+      threadId: session.binding.threadId,
+      generation: committedBindingGeneration,
+    });
+  }
+
+  function bindingCaptureIsCurrent(capture) {
+    const session = persisted?.activeSession;
+    return Boolean(
+      !disposed
+      && !bindingTransition
+      && session?.binding
+      && committedBindingGeneration === capture.generation
+      && session.sessionId === capture.sessionId
+      && session.binding.threadId === capture.threadId
+    );
   }
 
   function currentContext() {
@@ -153,7 +192,7 @@ export function createPracticeOrchestrator({
           taskName: session.binding.displayName,
         }) : null,
         teacherChat: persisted.teacherChat,
-        error: session.error ?? null,
+        error: safeSessionError(session.error),
       } : null,
       presentation: {
         mode: persisted?.presentation.mode ?? "full",
@@ -176,8 +215,9 @@ export function createPracticeOrchestrator({
 
   function transact(mutator, { guard, afterCommit } = {}) {
     requireUsable();
+    const allowed = () => !disposed && (!guard || guard());
     const run = async () => {
-      if (disposed || (guard && !guard())) return getViewModel();
+      if (!allowed()) return getViewModel();
       const patch = mutator(persisted);
       if (patch === null || patch === undefined) return getViewModel();
       let candidate;
@@ -198,12 +238,15 @@ export function createPracticeOrchestrator({
         throw publicError(SAVE_ERROR, "PRACTICE_SAVE_FAILED");
       }
 
+      if (!allowed()) return getViewModel();
+
       let committed;
       try {
         committed = parsePracticeState(written);
       } catch {
         throw publicError(SAVE_ERROR, "PRACTICE_SAVE_FAILED");
       }
+      if (!allowed()) return getViewModel();
       persisted = committed;
       if (afterCommit) afterCommit();
       return emit();
@@ -248,8 +291,69 @@ export function createPracticeOrchestrator({
     return nextBinding;
   }
 
+  function beginBindingTransition() {
+    const session = requireSession();
+    bindingTransition = true;
+    bindingEpoch += 1;
+    committedBindingGeneration += 1;
+    teacherEpoch += 1;
+    handoff = null;
+    return Object.freeze({
+      token: bindingEpoch,
+      generation: committedBindingGeneration,
+      sessionId: session.sessionId,
+      priorBinding: session.binding ? structuredClone(session.binding) : null,
+      priorActivity: session.activity ? structuredClone(session.activity) : null,
+    });
+  }
+
+  function transitionIsCurrent(operation) {
+    return Boolean(
+      !disposed
+      && bindingTransition
+      && bindingEpoch === operation.token
+      && committedBindingGeneration === operation.generation
+      && persisted?.activeSession?.sessionId === operation.sessionId
+    );
+  }
+
+  function finishBindingTransition(operation) {
+    if (transitionIsCurrent(operation)) bindingTransition = false;
+  }
+
+  async function rollbackReader(operation) {
+    try { activityReader.pause(); } catch { /* Rollback remains best effort. */ }
+    if (!operation.priorBinding) return true;
+    try {
+      const snapshot = await activityReader.bind(structuredClone(operation.priorBinding));
+      if (snapshot?.threadId === operation.priorBinding.threadId) return true;
+    } catch {
+      // A failed rollback is handled as a disconnected retained binding.
+    }
+    try { activityReader.pause(); } catch { /* Rollback remains best effort. */ }
+    return false;
+  }
+
+  function readerSwitchFailure(error, rollbackFailed) {
+    return {
+      code: error?.code,
+      rollbackFailed,
+      readerSwitchFailure: true,
+    };
+  }
+
   const removeActivityListener = activityReader.onSnapshot((activity) => {
-    if (disposed || activitySuppressions.size > 0 || !persisted?.activeSession?.binding) return;
+    if (
+      disposed
+      || bindingTransition
+      || activitySuppressions.size > 0
+      || !persisted?.activeSession?.binding
+    ) return;
+    const capture = {
+      sessionId: persisted.activeSession.sessionId,
+      threadId: persisted.activeSession.binding.threadId,
+      generation: committedBindingGeneration,
+    };
     void transact((current) => {
       const session = current?.activeSession;
       if (!session?.binding || activity?.threadId !== session.binding.threadId) return null;
@@ -257,7 +361,7 @@ export function createPracticeOrchestrator({
         type: "ACTIVITY_OBSERVED", activity, at: at(),
       });
       return activeSession === session ? null : { activeSession };
-    }).catch(() => {
+    }, { guard: () => bindingCaptureIsCurrent(capture) }).catch(() => {
       // Background observation failure retains the last committed state.
     });
   });
@@ -282,6 +386,8 @@ export function createPracticeOrchestrator({
         return emit();
       }
 
+      bindingTransition = true;
+      committedBindingGeneration += 1;
       const suppression = Symbol("initialize");
       activitySuppressions.add(suppression);
       try {
@@ -302,16 +408,18 @@ export function createPracticeOrchestrator({
             activity: nextActivity,
             at: at(),
           }),
-        }));
+        }), { afterCommit: () => { bindingTransition = false; } });
       } catch (error) {
         if (error?.code === "PRACTICE_SAVE_FAILED" || error?.code === "PRACTICE_DISPOSED") throw error;
+        try { activityReader.pause(); } catch { /* Failed restart remains disconnected. */ }
         await transact((current) => ({
           activeSession: reducePracticeSession(current.activeSession, {
             type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
           }),
-        }));
+        }), { afterCommit: () => { bindingTransition = false; } });
       } finally {
         activitySuppressions.delete(suppression);
+        if (!disposed && !initialized && bindingTransition) bindingTransition = false;
       }
       initialized = true;
       return getViewModel();
@@ -340,55 +448,74 @@ export function createPracticeOrchestrator({
     return startPromise;
   }
 
-  async function applyBinding(nextBindingValue, nextHandoff, token, expectedThreadId = null) {
-    if (disposed || token !== bindingEpoch) return getViewModel();
+  async function applyBinding(nextBindingValue, nextHandoff, operation, expectedThreadId = null) {
+    if (!transitionIsCurrent(operation)) return getViewModel();
     const session = requireSession();
     const nextBinding = validBindingForSession(nextBindingValue, session, expectedThreadId);
     const suppression = Symbol("binding");
     activitySuppressions.add(suppression);
-    let nextActivity;
     try {
-      nextActivity = await activityReader.bind(nextBinding);
+      let nextActivity;
+      try {
+        nextActivity = await activityReader.bind(nextBinding);
+        if (!transitionIsCurrent(operation)) return getViewModel();
+        if (!nextActivity || nextActivity.threadId !== nextBinding.threadId) {
+          throw new TypeError("Activity identity does not match the Executor binding.");
+        }
+        const mappedHandoff = safeHandoff(nextHandoff);
+        return await transact((current) => {
+          const currentSession = current?.activeSession;
+          if (!currentSession || currentSession.sessionId !== nextBinding.sessionId) return null;
+          return {
+            activeSession: reducePracticeSession(currentSession, {
+              type: "BINDING_VERIFIED", binding: nextBinding, activity: nextActivity, at: at(),
+            }),
+          };
+        }, {
+          guard: () => transitionIsCurrent(operation),
+          afterCommit: () => {
+            handoff = mappedHandoff;
+            finishBindingTransition(operation);
+          },
+        });
+      } catch (error) {
+        if (!transitionIsCurrent(operation)) return getViewModel();
+        const restored = await rollbackReader(operation);
+        throw readerSwitchFailure(error, !restored);
+      }
     } finally {
       activitySuppressions.delete(suppression);
     }
-    if (disposed || token !== bindingEpoch) return getViewModel();
-    if (!nextActivity || nextActivity.threadId !== nextBinding.threadId) {
-      throw new TypeError("Activity identity does not match the Executor binding.");
-    }
-    const mappedHandoff = safeHandoff(nextHandoff);
-    return transact((current) => {
-      const currentSession = current?.activeSession;
-      if (!currentSession || currentSession.sessionId !== nextBinding.sessionId) return null;
-      return {
-        activeSession: reducePracticeSession(currentSession, {
-          type: "BINDING_VERIFIED", binding: nextBinding, activity: nextActivity, at: at(),
-        }),
-      };
-    }, {
-      guard: () => !disposed && token === bindingEpoch,
-      afterCommit: () => { handoff = mappedHandoff; },
-    });
   }
 
   function runBindingOperation(work, failureMessage, { bindingLost = false } = {}) {
     requireSession();
     if (bindingPromise) return bindingPromise;
-    const token = ++bindingEpoch;
+    const operation = beginBindingTransition();
     const promise = (async () => {
       try {
-        return await work(token);
+        return await work(operation);
       } catch (error) {
-        if (disposed || token !== bindingEpoch) return getViewModel();
-        if (error?.code === "PRACTICE_SAVE_FAILED") throw error;
-        if (!bindingLost) {
-          return setSessionError(failureMessage, () => !disposed && token === bindingEpoch);
+        if (!transitionIsCurrent(operation)) return getViewModel();
+        if (error?.code === "PRACTICE_SAVE_FAILED" && !error?.rollbackFailed) {
+          finishBindingTransition(operation);
+          throw publicError(SAVE_ERROR, "PRACTICE_SAVE_FAILED");
         }
-        return transact((current) => ({
-          activeSession: reducePracticeSession(current.activeSession, {
-            type: "BINDING_LOST", error: failureMessage, at: at(),
-          }),
-        }), { guard: () => !disposed && token === bindingEpoch });
+        const lost = bindingLost || error?.rollbackFailed;
+        const safeError = lost ? DISCONNECTED_ERROR : failureMessage;
+        try {
+          return await transact((current) => ({
+            activeSession: reducePracticeSession(current.activeSession, {
+              type: lost ? "BINDING_LOST" : "ERROR", error: safeError, at: at(),
+            }),
+          }), {
+            guard: () => transitionIsCurrent(operation),
+            afterCommit: () => finishBindingTransition(operation),
+          });
+        } catch (saveError) {
+          finishBindingTransition(operation);
+          throw saveError;
+        }
       }
     })();
     bindingPromise = promise.finally(() => {
@@ -399,13 +526,13 @@ export function createPracticeOrchestrator({
   }
 
   function createDedicatedTask() {
-    return runBindingOperation(async (token) => {
+    return runBindingOperation(async (operation) => {
       const session = requireSession();
       const result = await conversationService.createDedicatedTask(
         session.startRequest,
         session.sessionId,
       );
-      return applyBinding(result?.binding, result?.handoff, token);
+      return applyBinding(result?.binding, result?.handoff, operation);
     }, CREATE_ERROR);
   }
 
@@ -425,78 +552,119 @@ export function createPracticeOrchestrator({
     if (typeof threadId !== "string" || !/^[A-Za-z0-9_-]+$/.test(threadId)) {
       return Promise.reject(publicError(BIND_ERROR, "PRACTICE_BIND_FAILED"));
     }
-    return runBindingOperation(async (token) => {
+    return runBindingOperation(async (operation) => {
       const session = requireSession();
       const nextBinding = await conversationService.bindExistingTask(
         session.startRequest,
         session.sessionId,
         threadId,
       );
-      return applyBinding(nextBinding, null, token, threadId);
+      return applyBinding(nextBinding, null, operation, threadId);
     }, BIND_ERROR);
   }
 
   async function openBoundTask() {
-    const session = requireBinding();
-    const token = bindingEpoch;
+    const capture = captureCommittedBinding();
+    const binding = structuredClone(persisted.activeSession.binding);
     try {
-      const result = await conversationService.openBoundTask(structuredClone(session.binding));
-      if (disposed || token !== bindingEpoch) return getViewModel();
+      const result = await conversationService.openBoundTask(binding);
+      if (!bindingCaptureIsCurrent(capture)) return getViewModel();
       const mapped = safeHandoff(result);
       if (!mapped) throw new TypeError("Invalid handoff result.");
-      handoff = mapped;
-      return emit();
+      return transact(() => ({}), {
+        guard: () => bindingCaptureIsCurrent(capture),
+        afterCommit: () => { handoff = mapped; },
+      });
     } catch (error) {
-      if (error?.code === "PRACTICE_DISPOSED") throw error;
+      if (error?.code === "PRACTICE_DISPOSED" || error?.code === "PRACTICE_SAVE_FAILED") throw error;
       throw publicError("The bound Codex task could not be opened.", "PRACTICE_OPEN_FAILED");
     }
   }
 
   function requestRebind() {
     requireSession();
-    bindingEpoch += 1;
-    teacherEpoch += 1;
     bindingPromise = null;
+    const operation = beginBindingTransition();
     activityReader.pause();
     return transact((current) => ({
       activeSession: reducePracticeSession(current.activeSession, {
         type: "REBIND_REQUESTED", at: at(),
       }),
     }), {
-      afterCommit: () => { handoff = null; },
+      guard: () => transitionIsCurrent(operation),
+      afterCommit: () => finishBindingTransition(operation),
+    }).catch(async (error) => {
+      if (!transitionIsCurrent(operation)) return getViewModel();
+      const suppression = Symbol("rebind-rollback");
+      activitySuppressions.add(suppression);
+      try {
+        const restored = await rollbackReader(operation);
+        if (!transitionIsCurrent(operation)) return getViewModel();
+        if (restored) {
+          finishBindingTransition(operation);
+          throw error;
+        }
+        try {
+          return await transact((current) => ({
+            activeSession: reducePracticeSession(current.activeSession, {
+              type: "BINDING_LOST", error: DISCONNECTED_ERROR, at: at(),
+            }),
+          }), {
+            guard: () => transitionIsCurrent(operation),
+            afterCommit: () => finishBindingTransition(operation),
+          });
+        } catch (saveError) {
+          finishBindingTransition(operation);
+          throw saveError;
+        }
+      } finally {
+        activitySuppressions.delete(suppression);
+      }
     });
   }
 
   function retryObservation() {
-    return runBindingOperation(async (token) => {
-      const session = requireBinding();
-      const savedThreadId = session.binding.threadId;
+    requireBinding();
+    return runBindingOperation(async (operation) => {
+      if (!operation.priorBinding) throw new TypeError("A committed binding is required.");
+      const savedThreadId = operation.priorBinding.threadId;
       const suppression = Symbol("retry");
       activitySuppressions.add(suppression);
-      let nextActivity;
       try {
-        nextActivity = await activityReader.bind(structuredClone(session.binding));
+        try {
+          const nextActivity = await activityReader.bind(structuredClone(operation.priorBinding));
+          if (!transitionIsCurrent(operation)) return getViewModel();
+          if (!nextActivity || nextActivity.threadId !== savedThreadId) {
+            throw new TypeError("Activity identity does not match the saved binding.");
+          }
+          return await transact((current) => {
+            if (
+              current.activeSession?.sessionId !== operation.sessionId
+              || current.activeSession?.binding?.threadId !== savedThreadId
+            ) return null;
+            let activeSession = reducePracticeSession(current.activeSession, { type: "RESUME", at: at() });
+            activeSession = reducePracticeSession(activeSession, {
+              type: "ACTIVITY_OBSERVED", activity: nextActivity, at: at(),
+            });
+            activeSession = reducePracticeSession(activeSession, { type: "ERROR", error: null, at: at() });
+            return { activeSession };
+          }, {
+            guard: () => transitionIsCurrent(operation),
+            afterCommit: () => finishBindingTransition(operation),
+          });
+        } catch (error) {
+          if (!transitionIsCurrent(operation)) return getViewModel();
+          const restored = await rollbackReader(operation);
+          throw readerSwitchFailure(error, !restored);
+        }
       } finally {
         activitySuppressions.delete(suppression);
       }
-      if (disposed || token !== bindingEpoch) return getViewModel();
-      if (!nextActivity || nextActivity.threadId !== savedThreadId) {
-        throw new TypeError("Activity identity does not match the saved binding.");
-      }
-      return transact((current) => {
-        if (current.activeSession?.binding?.threadId !== savedThreadId) return null;
-        let activeSession = reducePracticeSession(current.activeSession, { type: "RESUME", at: at() });
-        activeSession = reducePracticeSession(activeSession, {
-          type: "ACTIVITY_OBSERVED", activity: nextActivity, at: at(),
-        });
-        activeSession = reducePracticeSession(activeSession, { type: "ERROR", error: null, at: at() });
-        return { activeSession };
-      }, { guard: () => !disposed && token === bindingEpoch });
     }, DISCONNECTED_ERROR, { bindingLost: true });
   }
 
   async function sendTeacherMessage(text) {
-    const session = requireBinding();
+    const bindingCapture = captureCommittedBinding();
     if (
       typeof text !== "string"
       || text.trim() === ""
@@ -512,6 +680,7 @@ export function createPracticeOrchestrator({
     }
     teacherSending = true;
     const token = ++teacherEpoch;
+    const guard = () => token === teacherEpoch && bindingCaptureIsCurrent(bindingCapture);
     const priorChat = structuredClone(persisted.teacherChat);
     const learnerMessage = parseTeacherChatMessage({
       id: randomUUID(), role: "learner", text, createdAt: at(),
@@ -523,8 +692,8 @@ export function createPracticeOrchestrator({
         activeSession: reducePracticeSession(current.activeSession, {
           type: "ERROR", error: null, at: at(),
         }),
-      }), { guard: () => !disposed && token === teacherEpoch });
-      if (disposed || token !== teacherEpoch) return getViewModel();
+      }), { guard });
+      if (!guard()) return getViewModel();
 
       const envelope = currentContext();
       if (!envelope) throw new TypeError("Bound Teacher context is unavailable.");
@@ -533,7 +702,7 @@ export function createPracticeOrchestrator({
         chat: priorChat,
         learnerMessage: learnerMessage.text,
       });
-      if (disposed || token !== teacherEpoch) return getViewModel();
+      if (!guard()) return getViewModel();
       const teacherMessage = parseTeacherChatMessage({
         id: randomUUID(), role: "teacher", text: answer, createdAt: at(),
       });
@@ -542,11 +711,11 @@ export function createPracticeOrchestrator({
         activeSession: reducePracticeSession(current.activeSession, {
           type: "ERROR", error: null, at: at(),
         }),
-      }), { guard: () => !disposed && token === teacherEpoch });
+      }), { guard });
     } catch (error) {
-      if (disposed || token !== teacherEpoch) return getViewModel();
+      if (!guard()) return getViewModel();
       if (error?.code === "PRACTICE_SAVE_FAILED") throw error;
-      return setSessionError(TEACHER_ERROR, () => !disposed && token === teacherEpoch);
+      return setSessionError(TEACHER_ERROR, guard);
     } finally {
       teacherSending = false;
     }
@@ -583,6 +752,9 @@ export function createPracticeOrchestrator({
   function pause() {
     const session = requireSession();
     if (!session.binding) return Promise.resolve(emit());
+    if (bindingTransition) {
+      return Promise.reject(publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION"));
+    }
     bindingEpoch += 1;
     teacherEpoch += 1;
     bindingPromise = null;
@@ -603,13 +775,22 @@ export function createPracticeOrchestrator({
     if (disposed) return;
     disposed = true;
     bindingEpoch += 1;
+    committedBindingGeneration += 1;
+    bindingTransition = true;
     teacherEpoch += 1;
+    bindingPromise = null;
+    listeners.clear();
     try { removeActivityListener(); } catch { /* Cleanup is best effort. */ }
     try { activityReader.pause(); } catch { /* Cleanup is best effort. */ }
     try { activityReader.dispose(); } catch { /* Cleanup is best effort. */ }
-    try { await teacherAdapter.dispose(); } catch { /* Cleanup is best effort. */ }
-    await stateQueue.catch(() => undefined);
-    listeners.clear();
+    const queued = stateQueue.catch(() => undefined);
+    let teacherCleanup;
+    try {
+      teacherCleanup = Promise.resolve(teacherAdapter.dispose()).catch(() => undefined);
+    } catch {
+      teacherCleanup = Promise.resolve();
+    }
+    await Promise.all([queued, teacherCleanup]);
   }
 
   return Object.freeze({

@@ -283,8 +283,11 @@ test("a failed same-ID replacement cannot persist provisional reader activity or
     activityBind: async (nextBinding, listener) => {
       bindCount += 1;
       if (bindCount === 1) return activity(nextBinding.threadId);
-      listener?.(activity(nextBinding.threadId, { cursor: "provisional-cursor", status: "working" }));
-      throw new Error("RAW bind failure");
+      if (bindCount === 2) {
+        listener?.(activity(nextBinding.threadId, { cursor: "provisional-cursor", status: "working" }));
+        throw new Error("RAW bind failure");
+      }
+      return activity(nextBinding.threadId);
     },
   });
   await harness.orchestrator.initialize();
@@ -294,6 +297,84 @@ test("a failed same-ID replacement cannot persist provisional reader activity or
   assert.equal(harness.stored.activeSession.observationCursor, "initial");
   assert.equal(harness.stored.activeSession.activity.status, "ready");
   assert.equal(view.session.error, "That Codex task is unavailable or belongs to a different workspace.");
+});
+
+test("a reader that switches before rejecting is rolled back exactly before replacement failure leaves transition", async () => {
+  let bindCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    activityBind: async (nextBinding, listener) => {
+      bindCount += 1;
+      if (bindCount === 1) return activity(nextBinding.threadId);
+      if (bindCount === 2) {
+        listener?.(activity(nextBinding.threadId, { cursor: "provisional-new" }));
+        throw new Error("reader switched before rejecting");
+      }
+      return activity(nextBinding.threadId, { cursor: "rollback-snapshot" });
+    },
+  });
+  await harness.orchestrator.initialize();
+
+  const view = await harness.orchestrator.bindExistingTask("thr-two");
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-two", "thr-one"]);
+  assert.ok(harness.pauseCalls.length >= 1);
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-one");
+  assert.equal(harness.stored.activeSession.observationCursor, "initial");
+  assert.equal(view.session.error, "That Codex task is unavailable or belongs to a different workspace.");
+  assert.doesNotMatch(JSON.stringify(harness.stored), /provisional-new/);
+});
+
+test("a failed durable replacement write rolls the switched reader back to the exact committed binding", async () => {
+  let bindCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    activityBind: async (nextBinding, listener) => {
+      bindCount += 1;
+      if (bindCount === 2) {
+        listener?.(activity(nextBinding.threadId, { cursor: "uncommitted-new-cursor" }));
+      }
+      return activity(nextBinding.threadId, { cursor: bindCount === 2 ? "verified-new" : "initial" });
+    },
+    writeImpl: async (value) => {
+      if (value.activeSession?.binding?.threadId === "thr-two") throw new Error("disk failed");
+      return value;
+    },
+  });
+  await harness.orchestrator.initialize();
+
+  await assert.rejects(
+    harness.orchestrator.bindExistingTask("thr-two"),
+    /Practice state could not be saved/,
+  );
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-two", "thr-one"]);
+  assert.ok(harness.pauseCalls.length >= 1);
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-one");
+  assert.equal(harness.stored.activeSession.observationCursor, "initial");
+  assert.doesNotMatch(JSON.stringify(harness.stored), /uncommitted-new-cursor/);
+});
+
+test("rollback failure pauses observation and durably marks the retained binding disconnected", async () => {
+  let bindCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    activityBind: async (nextBinding) => {
+      bindCount += 1;
+      if (bindCount === 1) return activity(nextBinding.threadId);
+      if (bindCount === 2) throw new Error("new reader failed after switching");
+      throw new Error("old reader rollback failed");
+    },
+  });
+  await harness.orchestrator.initialize();
+
+  const view = await harness.orchestrator.bindExistingTask("thr-two");
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-two", "thr-one"]);
+  assert.ok(harness.pauseCalls.length >= 2);
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-one");
+  assert.equal(harness.stored.activeSession.activity.status, "disconnected");
+  assert.equal(view.session.error, "The bound Codex task is disconnected. Retry or rebind explicitly.");
 });
 
 test("wrong-thread listener activity is discarded at the orchestrator boundary", async () => {
@@ -374,6 +455,46 @@ test("Teacher failure retains learner message and exposes only a fixed retryable
   assert.equal(harness.stored.teacherChat.at(-1).text, "Please help");
   assert.equal(view.session.error, "Teacher could not answer from the current context. Retry your message.");
   assert.doesNotMatch(JSON.stringify(view), /credential|protocol/i);
+});
+
+test("a pending Teacher answer cannot attach after an explicit replacement starts and commits", async () => {
+  const answer = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    teacherRespond: async () => answer.promise,
+    randomUUID: (() => { const ids = ["learner-old", "teacher-old"]; return () => ids.shift(); })(),
+  });
+  await harness.orchestrator.initialize();
+  const sending = harness.orchestrator.sendTeacherMessage("Question for old task");
+  await tick();
+
+  await harness.orchestrator.bindExistingTask("thr-two");
+  answer.resolve("OLD TASK ANSWER MUST NOT PERSIST");
+  await sending;
+
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-two");
+  assert.deepEqual(harness.stored.teacherChat.map(({ role }) => role), ["learner"]);
+  assert.doesNotMatch(JSON.stringify(harness.orchestrator.getViewModel()), /OLD TASK ANSWER/);
+});
+
+test("a pending Teacher answer cannot attach after requestRebind clears the committed binding", async () => {
+  const answer = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    teacherRespond: async () => answer.promise,
+    randomUUID: (() => { const ids = ["learner-old", "teacher-old"]; return () => ids.shift(); })(),
+  });
+  await harness.orchestrator.initialize();
+  const sending = harness.orchestrator.sendTeacherMessage("Question before rebind");
+  await tick();
+
+  await harness.orchestrator.requestRebind();
+  answer.resolve("OLD REBIND ANSWER MUST NOT PERSIST");
+  await sending;
+
+  assert.equal(harness.stored.activeSession.binding, null);
+  assert.deepEqual(harness.stored.teacherChat.map(({ role }) => role), ["learner"]);
+  assert.doesNotMatch(JSON.stringify(harness.orchestrator.getViewModel()), /OLD REBIND ANSWER/);
 });
 
 test("initialize revalidates only the saved binding and suppresses stale bind emissions before one atomic commit", async () => {
@@ -493,6 +614,94 @@ test("ViewModel and handoff expose only the exact safe renderer shape", async ()
   assert.doesNotMatch(serialized, /C:\\\\course|threadId|workspaceRoot|cursor|rawOutput|diff|reasoning|credential|environment|SECRET/);
 });
 
+test("requestRebind blocks new Teacher and handoff work synchronously before the queued clear commits", async () => {
+  const clearGate = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    writeImpl: async (value, writeNumber) => writeNumber === 2
+      ? clearGate.promise.then(() => value)
+      : value,
+  });
+  await harness.orchestrator.initialize();
+
+  const rebinding = harness.orchestrator.requestRebind();
+  let teacherOutcome = "pending";
+  let openOutcome = "pending";
+  const teacherAttempt = harness.orchestrator.sendTeacherMessage("Too late").then(
+    () => { teacherOutcome = "resolved"; },
+    (error) => { teacherOutcome = error.message; },
+  );
+  const openAttempt = harness.orchestrator.openBoundTask().then(
+    () => { openOutcome = "resolved"; },
+    (error) => { openOutcome = error.message; },
+  );
+  await tick();
+  const immediateTeacherOutcome = teacherOutcome;
+  const immediateOpenOutcome = openOutcome;
+
+  clearGate.resolve();
+  await Promise.allSettled([rebinding, teacherAttempt, openAttempt]);
+  assert.match(immediateTeacherOutcome, /binding is changing/i);
+  assert.match(immediateOpenOutcome, /binding is changing/i);
+  assert.equal(harness.teacherCalls.length, 0);
+  assert.equal(harness.calls.some(([kind]) => kind === "open"), false);
+  assert.equal(harness.stored.activeSession.binding, null);
+});
+
+test("a failed durable rebind clear restores the exact prior reader before leaving transition", async () => {
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    writeImpl: async (value) => {
+      if (value.activeSession?.binding === null) throw new Error("clear failed");
+      return value;
+    },
+  });
+  await harness.orchestrator.initialize();
+
+  await assert.rejects(harness.orchestrator.requestRebind(), /Practice state could not be saved/);
+
+  assert.deepEqual(harness.bindCalls.map(({ threadId }) => threadId), ["thr-one", "thr-one"]);
+  assert.ok(harness.pauseCalls.length >= 1);
+  assert.equal(harness.orchestrator.getViewModel().session.executor.bound, true);
+  await assert.doesNotReject(harness.orchestrator.openBoundTask());
+});
+
+test("a pending open result is dropped when rebind invalidates its committed binding generation", async () => {
+  const opened = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    openBoundTask: async () => opened.promise,
+  });
+  await harness.orchestrator.initialize();
+  const opening = harness.orchestrator.openBoundTask();
+  await tick();
+
+  await harness.orchestrator.requestRebind();
+  opened.resolve({ opened: true, fallbackName: "OLD HANDOFF MUST NOT PERSIST" });
+  await opening;
+
+  const view = harness.orchestrator.getViewModel();
+  assert.equal(view.session.executor.handoff, null);
+  assert.doesNotMatch(JSON.stringify(view), /OLD HANDOFF/);
+});
+
+test("unknown persisted session errors are mapped to one fixed safe fallback", async () => {
+  const unsafe = "C:\\Users\\learner\\secret.txt protocol failure apiKey=credential environment=private";
+  const harness = createHarness({
+    initialState: state({
+      activeSession: activeSession({
+        lifecycle: "needs-binding", binding: null, activity: null,
+        observationCursor: null, boundAt: null, error: unsafe,
+      }),
+    }),
+  });
+
+  const view = await harness.orchestrator.initialize();
+
+  assert.equal(view.session.error, "Practice encountered a recoverable issue. Retry or restart the session.");
+  assert.doesNotMatch(JSON.stringify(view), /Users|secret\.txt|protocol|apiKey|credential|environment|private/i);
+});
+
 test("serialized writes preserve order across delayed presentation, activity, and Teacher updates", async () => {
   const firstWrite = deferred();
   let stored = state({ activeSession: activeSession() });
@@ -548,6 +757,43 @@ test("a store write failure leaves the prior in-memory ViewModel committed and i
 
   assert.deepEqual(harness.orchestrator.getViewModel(), before);
   assert.doesNotMatch(JSON.stringify(harness.orchestrator.getViewModel()), /disk path|credential/i);
+});
+
+test("dispose synchronously clears listeners and a pending write cannot commit ViewModel or handoff afterward", async () => {
+  const pendingWrite = deferred();
+  const writeStarted = deferred();
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    createDedicatedTask: async () => ({
+      binding: binding("thr-two"),
+      handoff: { opened: true, fallbackName: "LATE HANDOFF" },
+    }),
+    writeImpl: async (value) => {
+      if (value.activeSession?.binding?.threadId === "thr-two") {
+        writeStarted.resolve();
+        await pendingWrite.promise;
+      }
+      return value;
+    },
+  });
+  await harness.orchestrator.initialize();
+  const observed = [];
+  harness.orchestrator.onChange((value) => observed.push(value));
+  const before = harness.orchestrator.getViewModel();
+  const creating = harness.orchestrator.createDedicatedTask();
+  await writeStarted.promise;
+  const observedBeforeDispose = observed.length;
+
+  const disposing = harness.orchestrator.dispose();
+  assert.equal(harness.removed, true);
+  assert.equal(harness.disposedReader, true);
+  assert.throws(() => harness.orchestrator.createDedicatedTask(), /disposed/);
+  pendingWrite.resolve();
+  await Promise.all([creating, disposing]);
+
+  assert.equal(observed.length, observedBeforeDispose);
+  assert.deepEqual(harness.orchestrator.getViewModel(), before);
+  assert.equal(harness.orchestrator.getViewModel().session.executor.handoff, null);
 });
 
 test("double create, bind, and send operations cannot race", async () => {
