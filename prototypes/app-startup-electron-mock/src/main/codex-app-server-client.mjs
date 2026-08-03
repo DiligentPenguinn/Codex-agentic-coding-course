@@ -59,7 +59,7 @@ export class CodexAppServerClient {
     });
     this.#rawNotify("initialized", {});
     this.#initialized = true;
-    this.#logger.info("app-server-started", { status: "initialized" });
+    this.#safeLog("info", "app-server-started", { status: "initialized" });
     this.#emitConnectionState("connected");
   }
 
@@ -155,7 +155,7 @@ export class CodexAppServerClient {
     try {
       message = JSON.parse(line);
     } catch {
-      this.#logger.error("app-server-protocol-error", {
+      this.#safeLog("error", "app-server-protocol-error", {
         code: "MALFORMED_JSON",
       });
       return;
@@ -193,7 +193,7 @@ export class CodexAppServerClient {
         "APP_SERVER_EXITED",
         "Codex App Server exited unexpectedly.",
       ));
-      this.#logger.error("app-server-exited", {
+      this.#safeLog("error", "app-server-exited", {
         code: Number.isInteger(code) ? code : "unknown",
       });
       this.#emitConnectionState("disconnected");
@@ -205,12 +205,16 @@ export class CodexAppServerClient {
       try {
         listener(state);
       } catch {
-        try {
-          this.#logger.error("app-server-connection-listener-error", { state });
-        } catch {
-          // Connection observers and logging are both non-authoritative.
-        }
+        this.#safeLog("error", "app-server-connection-listener-error", { state });
       }
+    }
+  }
+
+  #safeLog(level, event, fields) {
+    try {
+      this.#logger[level](event, fields);
+    } catch {
+      // Logging is non-authoritative and cannot alter client lifecycle.
     }
   }
 
