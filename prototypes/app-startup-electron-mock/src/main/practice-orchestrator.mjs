@@ -80,6 +80,7 @@ export function createPracticeOrchestrator({
   let persisted = null;
   let handoff = null;
   let initialized = false;
+  let initializationFailed = false;
   let initializePromise = null;
   let startPromise = null;
   let bindingPromise = null;
@@ -92,6 +93,7 @@ export function createPracticeOrchestrator({
   let bindingTransition = false;
   let activeBindingTransition = null;
   let observationEnabled = false;
+  let observationEpoch = 0;
   let teacherEpoch = 0;
   let stateQueue = Promise.resolve();
   const listeners = new Set();
@@ -126,25 +128,24 @@ export function createPracticeOrchestrator({
   }
 
   async function bindReader(binding) {
+    observationEpoch += 1;
+    const token = observationEpoch;
+    observationEnabled = false;
     const snapshot = await activityReader.bind(structuredClone(binding));
-    observationEnabled = true;
+    if (!disposed && observationEpoch === token) observationEnabled = true;
     return snapshot;
   }
 
   function pauseReader() {
-    try {
-      activityReader.pause();
-    } finally {
-      observationEnabled = false;
-    }
+    observationEpoch += 1;
+    observationEnabled = false;
+    activityReader.pause();
   }
 
   function disposeReader() {
-    try {
-      activityReader.dispose();
-    } finally {
-      observationEnabled = false;
-    }
+    observationEpoch += 1;
+    observationEnabled = false;
+    activityReader.dispose();
   }
 
   function captureCommittedBinding() {
@@ -165,6 +166,14 @@ export function createPracticeOrchestrator({
       && committedBindingGeneration === capture.generation
       && session.sessionId === capture.sessionId
       && session.binding.threadId === capture.threadId
+    );
+  }
+
+  function observationCaptureIsCurrent(capture) {
+    return Boolean(
+      observationEnabled
+      && observationEpoch === capture.observationToken
+      && bindingCaptureIsCurrent(capture)
     );
   }
 
@@ -386,6 +395,7 @@ export function createPracticeOrchestrator({
     if (
       disposed
       || !initialized
+      || !observationEnabled
       || bindingTransition
       || activitySuppressions.size > 0
       || !persisted?.activeSession?.binding
@@ -394,6 +404,7 @@ export function createPracticeOrchestrator({
       sessionId: persisted.activeSession.sessionId,
       threadId: persisted.activeSession.binding.threadId,
       generation: committedBindingGeneration,
+      observationToken: observationEpoch,
     };
     void transact((current) => {
       const session = current?.activeSession;
@@ -402,13 +413,16 @@ export function createPracticeOrchestrator({
         type: "ACTIVITY_OBSERVED", activity, at: at(),
       });
       return activeSession === session ? null : { activeSession };
-    }, { guard: () => initialized && bindingCaptureIsCurrent(capture) }).catch(() => {
+    }, { guard: () => initialized && observationCaptureIsCurrent(capture) }).catch(() => {
       // Background observation failure retains the last committed state.
     });
   });
 
   function initialize() {
     requireUsable();
+    if (initializationFailed) {
+      return Promise.reject(publicError(INITIALIZE_ERROR, "PRACTICE_INITIALIZE_FAILED"));
+    }
     if (initialized) return Promise.resolve(emit());
     if (initializePromise) return initializePromise;
     initializePromise = (async () => {
@@ -470,20 +484,22 @@ export function createPracticeOrchestrator({
             },
           });
         }
-      } catch (error) {
-        if (!disposed) {
-          try { pauseReader(); } catch { /* Failed initialization stays non-observing. */ }
-          initialized = false;
-          bindingEpoch += 1;
-          committedBindingGeneration += 1;
-          bindingTransition = false;
-        }
-        throw error;
       } finally {
         activitySuppressions.delete(suppression);
       }
       return getViewModel();
-    })().finally(() => {
+    })().catch((error) => {
+      if (!disposed) {
+        initializationFailed = true;
+        initialized = false;
+        bindingEpoch += 1;
+        committedBindingGeneration += 1;
+        bindingTransition = false;
+        activeBindingTransition = null;
+        try { pauseReader(); } catch { /* Terminal initialization failure stays non-observing. */ }
+      }
+      throw error;
+    }).finally(() => {
       initializePromise = null;
     });
     return initializePromise;
@@ -548,9 +564,15 @@ export function createPracticeOrchestrator({
     }
   }
 
-  function claimBindingOperation(run, owner) {
-    const task = Promise.resolve().then(run);
+  function claimBindingOperation(run, owner, operation) {
     let owned;
+    const task = Promise.resolve().then(() => {
+      if (disposed) throw publicError(DISPOSED_ERROR, "PRACTICE_DISPOSED");
+      if (bindingPromise !== owned || !transitionIsCurrent(operation)) {
+        throw publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION");
+      }
+      return run();
+    });
     owned = task.finally(() => {
       if (bindingPromise === owned) {
         bindingPromise = null;
@@ -593,7 +615,7 @@ export function createPracticeOrchestrator({
           throw saveError;
         }
       }
-    }, "binding");
+    }, "binding", operation);
   }
 
   function createDedicatedTask() {
@@ -697,7 +719,7 @@ export function createPracticeOrchestrator({
           activitySuppressions.delete(suppression);
         }
       }
-    }, "rebind");
+    }, "rebind", operation);
   }
 
   function retryObservation() {
