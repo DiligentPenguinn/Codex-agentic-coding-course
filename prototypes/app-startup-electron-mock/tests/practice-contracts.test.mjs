@@ -164,6 +164,35 @@ test("parseActivitySnapshot rejects a 2,001-code-point summary and 51 changed fi
   assert.throws(() => parseActivitySnapshot({ ...activity, changedFiles: Array.from({ length: 51 }, (_, index) => `file-${index}.txt`) }), /changedFiles cannot exceed 50/);
 });
 
+test("parseActivitySnapshot accepts only normalized repository-relative changed files", () => {
+  assert.deepEqual(
+    parseActivitySnapshot({ ...activity, changedFiles: ["src/main/mission-repository.mjs"] }).changedFiles,
+    ["src/main/mission-repository.mjs"],
+  );
+  for (const invalidPath of [
+    "/absolute/file.mjs", "C:\\course\\file.mjs", "\\\\server\\share\\file.mjs",
+    "../outside.mjs", "src/../file.mjs", "src/./file.mjs", "src//file.mjs",
+    "src\\file.mjs", ".", "",
+  ]) {
+    assert.throws(
+      () => parseActivitySnapshot({ ...activity, changedFiles: [invalidPath] }),
+      /normalized repository-relative path/,
+      invalidPath,
+    );
+  }
+});
+
+test("timestamp parsers reject locale-style and noncanonical ISO values", () => {
+  assert.throws(
+    () => parseExecutorBinding({ ...binding, boundAt: "August 3, 2026 00:00:00 UTC" }),
+    /boundAt must be an ISO timestamp/,
+  );
+  assert.throws(
+    () => parseTeacherChatMessage({ id: "message-1", role: "learner", text: "Hello", createdAt: "2026-08-03T00:00:03Z" }),
+    /message.createdAt must be an ISO timestamp/,
+  );
+});
+
 test("parseTeacherContextEnvelope accepts bound-thread-only provenance", () => {
   assert.deepEqual(parseTeacherContextEnvelope(envelope), envelope);
 });

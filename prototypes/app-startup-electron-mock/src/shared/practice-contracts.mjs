@@ -51,7 +51,27 @@ function schemaVersion(value) {
 
 function isoTimestamp(value, label) {
   if (typeof value !== "string" || Number.isNaN(Date.parse(value))) throw new TypeError(`${label} must be an ISO timestamp.`);
-  return new Date(value).toISOString();
+  const canonical = new Date(value).toISOString();
+  if (value !== canonical) throw new TypeError(`${label} must be an ISO timestamp.`);
+  return canonical;
+}
+
+function normalizedRepositoryRelativePath(value, label) {
+  if (typeof value !== "string" || value.trim() === "" || [...value].length > 1_000) {
+    throw new TypeError(`${label} must be a normalized repository-relative path.`);
+  }
+  const segments = value.split("/");
+  if (
+    path.posix.isAbsolute(value)
+    || path.win32.isAbsolute(value)
+    || /^[A-Za-z]:/.test(value)
+    || value.includes("\\")
+    || value.includes("//")
+    || segments.some((segment) => segment === "" || segment === "." || segment === "..")
+  ) {
+    throw new TypeError(`${label} must be a normalized repository-relative path.`);
+  }
+  return value;
 }
 
 const CONTENT_KEYS = ["version", "locale", "title", "description", "learningOutcomes", "instructions", "allowedActions", "prohibitedActions", "expectedEvidence"];
@@ -119,7 +139,7 @@ export function parseActivitySnapshot(input) {
   }
   if (!Array.isArray(value.activityKinds) || value.activityKinds.some((item) => typeof item !== "string")) throw new TypeError("activityKinds must be strings.");
   if (!Array.isArray(value.changedFiles) || value.changedFiles.length > MAX_CHANGED_FILES) throw new TypeError(`changedFiles cannot exceed ${MAX_CHANGED_FILES} items.`);
-  value.changedFiles.forEach((item) => requiredString(item, "changedFiles item", 1_000));
+  value.changedFiles.forEach((item) => normalizedRepositoryRelativePath(item, "changedFiles item"));
   return { ...structuredClone(value), observedAt: isoTimestamp(value.observedAt, "observedAt") };
 }
 
