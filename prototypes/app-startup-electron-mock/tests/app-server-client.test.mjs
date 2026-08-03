@@ -153,7 +153,9 @@ test("child exit rejects pending requests with a typed error", async () => {
 test("restart preserves listeners and initializes a replacement process", async () => {
   const { client, processes } = await startClient();
   const notifications = [];
+  const connectionStates = [];
   client.onNotification((message) => notifications.push(message.method));
+  client.onConnectionState((state) => connectionStates.push(state));
 
   const restarting = client.restart();
   await new Promise((resolve) => setImmediate(resolve));
@@ -171,10 +173,13 @@ test("restart preserves listeners and initializes a replacement process", async 
 
   assert.equal(processes.length, 2);
   assert.deepEqual(notifications, ["account/updated"]);
+  assert.deepEqual(connectionStates, ["stopped", "connected"]);
 });
 
 test("stop rejects pending work and ends the child", async () => {
   const { client, processes } = await startClient();
+  const connectionStates = [];
+  client.onConnectionState((state) => connectionStates.push(state));
   const pending = client.request("slow/request", {});
   await nextRequest(processes[0]);
 
@@ -182,4 +187,63 @@ test("stop rejects pending work and ends the child", async () => {
 
   await assert.rejects(pending, { code: "APP_SERVER_STOPPED" });
   assert.equal(processes[0].exitCode, 0);
+  assert.deepEqual(connectionStates, ["stopped"]);
+});
+
+test("emits connected after initialization and disconnected after unexpected exit", async () => {
+  const proc = createFakeProcess();
+  const client = new CodexAppServerClient({ spawn: () => proc });
+  const connectionStates = [];
+  client.onConnectionState((state) => connectionStates.push(state));
+
+  const starting = client.start();
+  const initialize = await nextRequest(proc);
+  proc.stdout.write(`${JSON.stringify({ id: initialize.id, result: {} })}\n`);
+  await starting;
+  proc.emit("exit", 9);
+
+  assert.deepEqual(connectionStates, ["connected", "disconnected"]);
+});
+
+test("connection listener failures do not corrupt lifecycle or block other listeners", async () => {
+  const proc = createFakeProcess();
+  const errors = [];
+  const client = new CodexAppServerClient({
+    spawn: () => proc,
+    logger: {
+      info() {},
+      error(event, fields) {
+        errors.push({ event, fields });
+      },
+    },
+  });
+  const connectionStates = [];
+  client.onConnectionState(() => {
+    throw new Error("listener secret must not escape");
+  });
+  client.onConnectionState((state) => connectionStates.push(state));
+
+  const starting = client.start();
+  const initialize = await nextRequest(proc);
+  proc.stdout.write(`${JSON.stringify({ id: initialize.id, result: {} })}\n`);
+  await starting;
+  proc.emit("exit", 9);
+
+  assert.deepEqual(connectionStates, ["connected", "disconnected"]);
+  assert.equal(client.initialized, false);
+  assert.doesNotMatch(JSON.stringify(errors), /listener secret/);
+});
+
+test("explicit listener clearing removes connection listeners", async () => {
+  const { client, processes } = await startClient();
+  const connectionStates = [];
+  client.onConnectionState((state) => connectionStates.push(state));
+
+  await client.stop({ clearListeners: true });
+  const starting = client.start();
+  const initialize = await nextRequest(processes[1]);
+  processes[1].stdout.write(`${JSON.stringify({ id: initialize.id, result: {} })}\n`);
+  await starting;
+
+  assert.deepEqual(connectionStates, ["stopped"]);
 });

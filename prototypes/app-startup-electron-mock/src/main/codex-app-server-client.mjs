@@ -15,6 +15,7 @@ export class CodexAppServerClient {
   #nextId = 1;
   #pending = new Map();
   #listeners = new Set();
+  #connectionListeners = new Set();
   #process = null;
   #initialized = false;
   #expectedStop = false;
@@ -59,6 +60,7 @@ export class CodexAppServerClient {
     this.#rawNotify("initialized", {});
     this.#initialized = true;
     this.#logger.info("app-server-started", { status: "initialized" });
+    this.#emitConnectionState("connected");
   }
 
   request(method, params = {}) {
@@ -86,6 +88,11 @@ export class CodexAppServerClient {
     return () => this.#listeners.delete(listener);
   }
 
+  onConnectionState(listener) {
+    this.#connectionListeners.add(listener);
+    return () => this.#connectionListeners.delete(listener);
+  }
+
   async stop({ clearListeners = true } = {}) {
     const child = this.#process;
     this.#expectedStop = true;
@@ -101,7 +108,11 @@ export class CodexAppServerClient {
       if (child.exitCode === null) child.kill();
     }
     this.#process = null;
-    if (clearListeners) this.#listeners.clear();
+    this.#emitConnectionState("stopped");
+    if (clearListeners) {
+      this.#listeners.clear();
+      this.#connectionListeners.clear();
+    }
   }
 
   async restart() {
@@ -185,6 +196,17 @@ export class CodexAppServerClient {
       this.#logger.error("app-server-exited", {
         code: Number.isInteger(code) ? code : "unknown",
       });
+      this.#emitConnectionState("disconnected");
+    }
+  }
+
+  #emitConnectionState(state) {
+    for (const listener of this.#connectionListeners) {
+      try {
+        listener(state);
+      } catch {
+        this.#logger.error("app-server-connection-listener-error", { state });
+      }
     }
   }
 
