@@ -220,6 +220,54 @@ test("ignores non-authoritative and unsafe item content", () => {
   assert.doesNotMatch(JSON.stringify(snapshot), /SECRET/);
 });
 
+test("unsupported and delta notifications preserve identity and freshness", () => {
+  const initial = createInitialActivitySnapshot(bound, fixedClock("2026-08-03T00:00:00.000Z"));
+  const unsupported = reduceExecutorNotification(initial, {
+    method: "thread/unknown",
+    params: { threadId: bound.threadId, rawProtocol: "UNKNOWN SECRET" },
+  }, bound, fixedClock("2026-08-03T00:00:10.000Z"));
+  const delta = reduceExecutorNotification(initial, {
+    method: "item/agentMessage/delta",
+    params: { threadId: bound.threadId, delta: "DELTA SECRET" },
+  }, bound, fixedClock("2026-08-03T00:00:10.000Z"));
+
+  assert.strictEqual(unsupported, initial);
+  assert.strictEqual(delta, initial);
+  assert.equal(initial.observedAt, "2026-08-03T00:00:00.000Z");
+  assert.doesNotMatch(JSON.stringify(initial), /SECRET/);
+});
+
+test("supported item lifecycle observations recover stale and disconnected states safely", () => {
+  const initial = createInitialActivitySnapshot(bound, fixedClock("2026-08-03T00:00:00.000Z"));
+  const stale = { ...initial, status: "stale" };
+  const started = reduceExecutorNotification(stale, {
+    method: "item/started",
+    params: {
+      threadId: bound.threadId,
+      turnId: "turn-active",
+      item: { id: "reasoning-start", type: "reasoning", text: "STARTED SECRET" },
+    },
+  }, bound, fixedClock("2026-08-03T00:00:10.000Z"));
+
+  const disconnected = { ...started, status: "disconnected" };
+  const completed = reduceExecutorNotification(disconnected, {
+    method: "item/completed",
+    params: {
+      threadId: bound.threadId,
+      turnId: "turn-active",
+      item: { id: "reasoning-complete", type: "reasoning", summary: "COMPLETED SECRET" },
+    },
+  }, bound, fixedClock("2026-08-03T00:00:11.000Z"));
+
+  assert.equal(started.status, "working");
+  assert.equal(started.observedAt, "2026-08-03T00:00:10.000Z");
+  assert.equal(completed.status, "working");
+  assert.equal(completed.observedAt, "2026-08-03T00:00:11.000Z");
+  assert.equal(completed.executorResponseSummary, "");
+  assert.deepEqual(completed.activityKinds, []);
+  assert.doesNotMatch(JSON.stringify({ started, completed }), /SECRET/);
+});
+
 test("persists only final-answer agent messages", () => {
   const phases = ["commentary", undefined, "unknown"];
   let snapshot = createInitialActivitySnapshot(bound, fixedClock());
@@ -519,4 +567,139 @@ test("pause clears one interval and repeated ticks do not overlap reads", async 
 
   assert.deepEqual(cleared, [42]);
   reader.dispose();
+});
+
+test("pause during a pending resume prevents bind from installing an interval", async () => {
+  const pendingResume = deferred();
+  let intervalInstallCount = 0;
+  const client = createFakeClient(async (method, params) => {
+    if (method === "thread/resume") return pendingResume.promise;
+    return { thread: { id: params.threadId, turns: [] } };
+  });
+  const reader = createExecutorActivityReader({
+    client,
+    clock: fixedClock(),
+    setIntervalFn() {
+      intervalInstallCount += 1;
+      return intervalInstallCount;
+    },
+    clearIntervalFn() {},
+  });
+
+  const binding = reader.bind(bound);
+  await new Promise((resolve) => setImmediate(resolve));
+  reader.pause();
+  pendingResume.resolve({});
+  await binding;
+
+  assert.equal(intervalInstallCount, 0);
+  reader.dispose();
+});
+
+test("pause during the initial refresh prevents bind from installing an interval", async () => {
+  const pendingRead = deferred();
+  let intervalInstallCount = 0;
+  const client = createFakeClient(async (method) => {
+    if (method === "thread/resume") return {};
+    return pendingRead.promise;
+  });
+  const reader = createExecutorActivityReader({
+    client,
+    clock: fixedClock(),
+    setIntervalFn() {
+      intervalInstallCount += 1;
+      return intervalInstallCount;
+    },
+    clearIntervalFn() {},
+  });
+
+  const binding = reader.bind(bound);
+  await new Promise((resolve) => setImmediate(resolve));
+  reader.pause();
+  pendingRead.resolve({ thread: { id: bound.threadId, turns: [] } });
+  await binding;
+
+  assert.equal(intervalInstallCount, 0);
+  reader.dispose();
+});
+
+test("a pending old-generation interval read cannot block or unlock the new generation", async () => {
+  const oldTickRead = deferred();
+  const newTickRead = deferred();
+  const secondBinding = { ...bound, threadId: "thr-second", sessionId: "practice-session-2" };
+  let intervalCallback;
+  let oldReads = 0;
+  let newReads = 0;
+  const client = createFakeClient(async (method, params) => {
+    if (method === "thread/resume") return {};
+    if (params.threadId === bound.threadId) {
+      oldReads += 1;
+      return oldReads === 1
+        ? { thread: { id: bound.threadId, turns: [] } }
+        : oldTickRead.promise;
+    }
+    newReads += 1;
+    return newReads === 1
+      ? { thread: { id: secondBinding.threadId, turns: [] } }
+      : newTickRead.promise;
+  });
+  const reader = createExecutorActivityReader({
+    client,
+    clock: fixedClock(),
+    setIntervalFn(callback) {
+      intervalCallback = callback;
+      return 7;
+    },
+    clearIntervalFn() {},
+  });
+
+  await reader.bind(bound);
+  intervalCallback();
+  await new Promise((resolve) => setImmediate(resolve));
+  await reader.bind(secondBinding);
+  intervalCallback();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(newReads, 2);
+
+  oldTickRead.resolve({ thread: { id: bound.threadId, turns: [] } });
+  await new Promise((resolve) => setImmediate(resolve));
+  intervalCallback();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(newReads, 2);
+
+  newTickRead.resolve({ thread: { id: secondBinding.threadId, turns: [] } });
+  await new Promise((resolve) => setImmediate(resolve));
+  reader.dispose();
+});
+
+test("dispose is terminal and cannot resurrect polling or subscriptions", async () => {
+  let intervalCallback;
+  const client = createFakeClient();
+  const reader = createExecutorActivityReader({
+    client,
+    clock: fixedClock(),
+    setIntervalFn(callback) {
+      intervalCallback = callback;
+      return 9;
+    },
+    clearIntervalFn() {},
+  });
+  await reader.bind(bound);
+  reader.dispose();
+  const requestCount = client.requests.length;
+
+  await assert.rejects(
+    reader.bind(bound),
+    {
+      code: "EXECUTOR_ACTIVITY_READER_DISPOSED",
+      message: "Executor activity reader is disposed.",
+    },
+  );
+  assert.equal(await reader.refresh(), null);
+  intervalCallback();
+  client.emitNotification(boundAnswer);
+  client.emitConnection("disconnected");
+  await new Promise((resolve) => setImmediate(resolve));
+
+  assert.equal(client.requests.length, requestCount);
 });

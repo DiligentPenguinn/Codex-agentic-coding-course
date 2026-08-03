@@ -234,6 +234,33 @@ test("connection listener failures do not corrupt lifecycle or block other liste
   assert.doesNotMatch(JSON.stringify(errors), /listener secret/);
 });
 
+test("a throwing logger cannot let a connection listener block later listeners", async () => {
+  const proc = createFakeProcess();
+  const client = new CodexAppServerClient({
+    spawn: () => proc,
+    logger: {
+      info() {},
+      error() {
+        throw new Error("logger failure");
+      },
+    },
+  });
+  const connectionStates = [];
+  client.onConnectionState(() => {
+    throw new Error("listener failure");
+  });
+  client.onConnectionState((state) => connectionStates.push(state));
+
+  const starting = client.start();
+  const initialize = await nextRequest(proc);
+  proc.stdout.write(`${JSON.stringify({ id: initialize.id, result: {} })}\n`);
+  await starting;
+  await client.stop();
+
+  assert.deepEqual(connectionStates, ["connected", "stopped"]);
+  assert.equal(client.initialized, false);
+});
+
 test("explicit listener clearing removes connection listeners", async () => {
   const { client, processes } = await startClient();
   const connectionStates = [];

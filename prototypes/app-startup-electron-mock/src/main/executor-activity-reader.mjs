@@ -3,6 +3,21 @@ import path from "node:path";
 import { parseActivitySnapshot } from "../shared/practice-contracts.mjs";
 
 const TOOL_KINDS = new Set(["read", "listFiles", "search"]);
+const SUPPORTED_NOTIFICATION_METHODS = new Set([
+  "thread/status/changed",
+  "turn/started",
+  "turn/completed",
+  "item/started",
+  "item/completed",
+  "thread/closed",
+  "thread/archived",
+]);
+
+function disposedError() {
+  return Object.assign(new Error("Executor activity reader is disposed."), {
+    code: "EXECUTOR_ACTIVITY_READER_DISPOSED",
+  });
+}
 
 function bounded(text, maximum = 2_000) {
   const normalized = String(text ?? "").replaceAll(/\s+/g, " ").trim();
@@ -52,9 +67,10 @@ export function reduceExecutorNotification(
   clock = () => new Date(),
 ) {
   if (notification?.params?.threadId !== binding.threadId) return snapshot;
+  const { method, params } = notification;
+  if (!SUPPORTED_NOTIFICATION_METHODS.has(method)) return snapshot;
 
   const next = structuredClone(snapshot);
-  const { method, params } = notification;
   if (method === "turn/started") next.status = "working";
   if (method === "turn/completed") {
     next.status = params.turn?.status === "completed" ? "response-ready" : "ready";
@@ -72,38 +88,41 @@ export function reduceExecutorNotification(
         ? "disconnected"
         : next.status;
   }
+  if (method === "item/started") next.status = "working";
   if (method === "item/completed") {
+    if (["stale", "disconnected"].includes(next.status)) next.status = "working";
     const item = params.item;
-    if (!item || typeof item !== "object") return snapshot;
-    next.cursor = `${params.turnId}:${item.id}`;
-    if (item.type === "userMessage") {
-      next.learnerPromptSummary = bounded(
-        item.content
-          ?.filter(({ type }) => type === "text")
-          .map(({ text }) => text)
-          .join(" "),
-      );
-      next.activityKinds = mergeKinds(next.activityKinds, ["prompt"]);
-    }
-    if (item.type === "agentMessage" && item.phase === "final_answer") {
-      next.executorResponseSummary = bounded(item.text);
-      next.activityKinds = mergeKinds(next.activityKinds, ["response"]);
-      next.status = "response-ready";
-    }
-    if (item.type === "commandExecution") {
-      const kinds = (item.commandActions ?? [])
-        .map(({ type }) => type)
-        .filter((type) => TOOL_KINDS.has(type));
-      if (kinds.length > 0) {
-        next.activityKinds = mergeKinds(next.activityKinds, ["read"]);
+    if (item && typeof item === "object") {
+      next.cursor = `${params.turnId}:${item.id}`;
+      if (item.type === "userMessage") {
+        next.learnerPromptSummary = bounded(
+          item.content
+            ?.filter(({ type }) => type === "text")
+            .map(({ text }) => text)
+            .join(" "),
+        );
+        next.activityKinds = mergeKinds(next.activityKinds, ["prompt"]);
       }
-    }
-    if (item.type === "fileChange") {
-      const additions = (item.changes ?? [])
-        .map(({ path: filePath }) => relativeChangedPath(filePath, binding.workspaceRoot))
-        .filter(Boolean);
-      next.changedFiles = [...new Set([...next.changedFiles, ...additions])].slice(0, 50);
-      next.activityKinds = mergeKinds(next.activityKinds, ["file-change"]);
+      if (item.type === "agentMessage" && item.phase === "final_answer") {
+        next.executorResponseSummary = bounded(item.text);
+        next.activityKinds = mergeKinds(next.activityKinds, ["response"]);
+        next.status = "response-ready";
+      }
+      if (item.type === "commandExecution") {
+        const kinds = (item.commandActions ?? [])
+          .map(({ type }) => type)
+          .filter((type) => TOOL_KINDS.has(type));
+        if (kinds.length > 0) {
+          next.activityKinds = mergeKinds(next.activityKinds, ["read"]);
+        }
+      }
+      if (item.type === "fileChange") {
+        const additions = (item.changes ?? [])
+          .map(({ path: filePath }) => relativeChangedPath(filePath, binding.workspaceRoot))
+          .filter(Boolean);
+        next.changedFiles = [...new Set([...next.changedFiles, ...additions])].slice(0, 50);
+        next.activityKinds = mergeKinds(next.activityKinds, ["file-change"]);
+      }
     }
   }
 
@@ -152,7 +171,9 @@ export function createExecutorActivityReader({
   let binding = null;
   let snapshot = null;
   let interval = null;
-  let intervalRefreshPending = false;
+  let intervalRefreshToken = null;
+  let pollingEnabled = false;
+  let pollingEpoch = 0;
   let generation = 0;
   let revision = 0;
   let disposed = false;
@@ -223,27 +244,39 @@ export function createExecutorActivityReader({
   }
 
   async function poll() {
-    if (intervalRefreshPending) return;
-    intervalRefreshPending = true;
+    if (disposed || !pollingEnabled || !binding) return;
+    const pollGeneration = generation;
+    if (intervalRefreshToken?.generation === pollGeneration) return;
+    const token = { generation: pollGeneration };
+    intervalRefreshToken = token;
     try {
       await refresh();
     } finally {
-      intervalRefreshPending = false;
+      if (intervalRefreshToken === token) intervalRefreshToken = null;
     }
   }
 
   async function bind(nextBinding) {
-    disposed = false;
+    if (disposed) throw disposedError();
     generation += 1;
     revision += 1;
+    pollingEpoch += 1;
+    pollingEnabled = true;
     const bindGeneration = generation;
+    const bindPollingEpoch = pollingEpoch;
     binding = structuredClone(nextBinding);
     emit(createInitialActivitySnapshot(binding, clock));
 
     await client.request("thread/resume", { threadId: binding.threadId });
     if (disposed || generation !== bindGeneration) return currentSnapshot();
     await refresh();
-    if (!disposed && generation === bindGeneration && !interval) {
+    if (
+      !disposed
+      && generation === bindGeneration
+      && pollingEnabled
+      && pollingEpoch === bindPollingEpoch
+      && !interval
+    ) {
       interval = setIntervalFn(() => void poll(), pollEveryMs);
     }
     return currentSnapshot();
@@ -255,6 +288,8 @@ export function createExecutorActivityReader({
   }
 
   function pause() {
+    pollingEnabled = false;
+    pollingEpoch += 1;
     if (interval !== null) clearIntervalFn(interval);
     interval = null;
   }
@@ -263,6 +298,9 @@ export function createExecutorActivityReader({
     disposed = true;
     generation += 1;
     revision += 1;
+    pollingEnabled = false;
+    pollingEpoch += 1;
+    intervalRefreshToken = null;
     removeNotification();
     removeConnection();
     pause();

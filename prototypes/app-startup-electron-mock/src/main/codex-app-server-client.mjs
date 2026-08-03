@@ -205,7 +205,11 @@ export class CodexAppServerClient {
       try {
         listener(state);
       } catch {
-        this.#logger.error("app-server-connection-listener-error", { state });
+        try {
+          this.#logger.error("app-server-connection-listener-error", { state });
+        } catch {
+          // Connection observers and logging are both non-authoritative.
+        }
       }
     }
   }
