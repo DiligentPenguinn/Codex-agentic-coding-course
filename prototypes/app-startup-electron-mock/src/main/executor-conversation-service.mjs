@@ -42,13 +42,21 @@ function canonicalUpdatedAt(value) {
   return date.toISOString();
 }
 
+function pickerStatus(value) {
+  if (value == null) return "notLoaded";
+  if (!value || typeof value !== "object" || Array.isArray(value) || !TASK_STATUSES.has(value.type)) {
+    throw new TypeError("Executor task status is invalid.");
+  }
+  return value.type;
+}
+
 function pickerTask(thread, expectedRoot) {
   verifyThread(thread, expectedRoot);
   return {
     threadId: thread.id,
     displayName: displayName(thread),
     updatedAt: canonicalUpdatedAt(thread.updatedAt),
-    status: TASK_STATUSES.has(thread.status?.type) ? thread.status.type : "notLoaded",
+    status: pickerStatus(thread.status),
   };
 }
 

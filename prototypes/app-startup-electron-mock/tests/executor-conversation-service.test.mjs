@@ -148,7 +148,6 @@ test("lists only display-safe persistent tasks in the exact workspace", async ()
   assert.deepEqual(tasks, [
     { threadId: "thr-named", displayName: "A safe name", updatedAt: "2025-08-04T00:00:00.000Z", status: "idle" },
     { threadId: "thr-fallback", displayName: "Codex task llback", updatedAt: "2025-08-04T00:00:00.000Z", status: "idle" },
-    { threadId: "thr-unknown-status", displayName: "Existing task", updatedAt: "2025-08-04T00:00:00.000Z", status: "notLoaded" },
   ]);
   assert.equal(JSON.stringify(tasks).includes("DECOY PREVIEW"), false);
   assert.equal(JSON.stringify(tasks).includes("SECRET PROMPT"), false);
