@@ -439,15 +439,22 @@ fails, the session stays `NeedsBinding` and does not retain a partial binding.
 
 ### Desktop handoff constraint
 
-Current App Server documentation establishes task creation and naming but does
-not guarantee that an external application can focus the Codex desktop app on
-that exact task. Implementation therefore includes an early capability spike:
+Current ChatGPT desktop documentation defines
+`codex://threads/<thread-id>` as the canonical deep link for opening a local
+task. Practice Mode constructs that URL only from the verified bound
+`threadId`, validates the `codex:` scheme and exact `threads` path, and opens
+it through Electron's main-process external-URL boundary. Implementation still
+includes an early capability spike because an App Server-created task must be
+confirmed as visible to the installed desktop build:
 
-- preferred result: open or focus the created task directly in Codex;
+- preferred result: the canonical deep link opens or focuses the created task
+  directly in Codex;
 - acceptable fallback: show the unique task name and a one-step **Locate in
   Codex** instruction while retaining the valid binding;
 - unacceptable result: create an unidentifiable task or pretend that focus
   succeeded.
+
+Reference: [ChatGPT desktop commands and deep links](https://learn.chatgpt.com/docs/reference/commands#deep-links).
 
 The fallback changes convenience, not the binding or Teacher-awareness
 architecture.
