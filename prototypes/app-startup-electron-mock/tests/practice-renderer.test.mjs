@@ -656,6 +656,28 @@ test("interaction: Teacher send survives subscription ordering and restores focu
   assert.equal(harness.view.messageAnnouncementCount, 2);
 });
 
+test("interaction: rejected Teacher send retains the full-window draft and fails closed", async () => {
+  const harness = createInteractionHarness({
+    sendTeacherMessage: () => failed("RAW provider credential and protocol error"),
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Retry this question");
+
+  await harness.controller.sendTeacherMessage();
+
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.controller.getState().teacherDraft, "Retry this question");
+  assert.deepEqual(harness.controller.getState().error, {
+    message: "The Teacher could not answer right now. Your draft is still here.",
+    recoveryAction: "retry-teacher",
+  });
+  assert.equal(harness.view.composerFocusCount, 1);
+  assert.doesNotMatch(
+    JSON.stringify(harness.controller.getState()),
+    /RAW|credential|protocol|provider/i,
+  );
+});
+
 test("interaction: tab success and compact failure cannot steal Teacher ownership", async () => {
   const teacherPending = pendingResult();
   const initial = boundViewModel();

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { createPracticeOrchestrator } from "../src/main/practice-orchestrator.mjs";
+import { createTeacherFailure } from "../src/main/teacher-adapter.mjs";
 import { createDefaultPracticeState } from "../src/shared/practice-state-schema.mjs";
 
 const ROOT = "C:\\course";
@@ -451,19 +452,82 @@ test("activity persists while Teacher inference is pending", async () => {
   await sending;
 });
 
-test("Teacher failure retains learner message and exposes only a fixed retryable error", async () => {
+test("Teacher failures reject truthfully with stage-specific fixed messages", async (t) => {
+  const scenarios = [
+    ["thread-start", "runtime-failure", "Teacher could not start a response. Retry."],
+    ["turn-start", "runtime-failure", "Teacher response did not complete. Retry."],
+    ["turn-completion", "timeout", "Teacher is taking too long. Retry your message."],
+    ["turn-completion", "disconnected", "Teacher lost connection. Retry observation or restart Course App."],
+    ["turn-completion", "boundary-violation", "Teacher could not use the current Practice context. Refresh observation and retry."],
+  ];
+
+  for (const [operation, category, expected] of scenarios) {
+    await t.test(`${operation} ${category}`, async () => {
+      const harness = createHarness({
+        initialState: state({ activeSession: activeSession() }),
+        teacherRespond: async () => { throw createTeacherFailure(operation, category); },
+        randomUUID: () => "learner-1",
+      });
+      await harness.orchestrator.initialize();
+
+      await assert.rejects(
+        harness.orchestrator.sendTeacherMessage("Please help"),
+        { message: expected, code: "PRACTICE_TEACHER_FAILED" },
+      );
+
+      assert.equal(harness.stored.teacherChat.at(-1).text, "Please help");
+      assert.equal(harness.stored.activeSession.error, expected);
+      assert.doesNotMatch(JSON.stringify(harness.stored), /credential|protocol|provider/i);
+    });
+  }
+});
+
+test("retrying the same unresolved Teacher message reuses it and excludes it from prior chat", async () => {
+  let attempt = 0;
   const harness = createHarness({
     initialState: state({ activeSession: activeSession() }),
-    teacherRespond: async () => { throw new Error("RAW provider credential and protocol error"); },
-    randomUUID: () => "learner-1",
+    teacherRespond: async () => {
+      attempt += 1;
+      if (attempt === 1) throw createTeacherFailure("turn-completion", "runtime-failure");
+      return "Recovered answer";
+    },
+    randomUUID: (() => {
+      const values = ["learner-1", "teacher-1"];
+      return () => values.shift();
+    })(),
   });
   await harness.orchestrator.initialize();
 
-  const view = await harness.orchestrator.sendTeacherMessage("Please help");
+  await assert.rejects(harness.orchestrator.sendTeacherMessage("  Please help  "));
+  await harness.orchestrator.sendTeacherMessage("Please help");
 
-  assert.equal(harness.stored.teacherChat.at(-1).text, "Please help");
-  assert.equal(view.session.error, "Teacher could not answer from the current context. Retry your message.");
-  assert.doesNotMatch(JSON.stringify(view), /credential|protocol/i);
+  assert.deepEqual(harness.stored.teacherChat.map(({ role, text }) => [role, text]), [
+    ["learner", "Please help"],
+    ["teacher", "Recovered answer"],
+  ]);
+  assert.equal(harness.teacherCalls.length, 2);
+  assert.equal(harness.teacherCalls[1].learnerMessage, "Please help");
+  assert.equal(harness.teacherCalls[1].chat.some(({ text }) => text === "Please help"), false);
+});
+
+test("a different message after Teacher failure appends a new learner turn", async () => {
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    teacherRespond: async () => { throw createTeacherFailure("turn-completion", "runtime-failure"); },
+    randomUUID: (() => {
+      const values = ["learner-1", "learner-2"];
+      return () => values.shift();
+    })(),
+  });
+  await harness.orchestrator.initialize();
+
+  await assert.rejects(harness.orchestrator.sendTeacherMessage("First question"));
+  await assert.rejects(harness.orchestrator.sendTeacherMessage("Second question"));
+
+  assert.deepEqual(harness.stored.teacherChat.map(({ text }) => text), [
+    "First question",
+    "Second question",
+  ]);
 });
 
 test("a pending Teacher answer cannot attach after an explicit replacement starts and commits", async () => {

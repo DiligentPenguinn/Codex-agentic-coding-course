@@ -22,6 +22,7 @@ const DEVELOPER_INSTRUCTIONS = [
 ].join(" ");
 
 const SAFE_ID = /^[A-Za-z0-9_-]{1,500}$/;
+const SAFE_MODEL_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/;
 const STOPPED = Symbol("teacher-adapter-stopped");
 const MAX_STARTING_FACTS = 64;
 const TEACHER_OPERATIONS = new Set([
@@ -109,6 +110,30 @@ function boundedAnswer(value) {
     : `${codePoints.slice(0, 3_999).join("")}…`;
 }
 
+function completedAnswer(item) {
+  if (
+    item?.type !== "agentMessage"
+    || (item.phase !== "final_answer" && item.phase != null)
+    || typeof item.text !== "string"
+    || item.text.trim() === ""
+  ) return null;
+  return boundedAnswer(item.text);
+}
+
+function terminalFailureCategory(error) {
+  const info = error?.codexErrorInfo;
+  if (info === "unauthorized") return "disconnected";
+  if (!info || typeof info !== "object" || Array.isArray(info)) {
+    return "runtime-failure";
+  }
+  if (
+    Object.hasOwn(info, "httpConnectionFailed")
+    || Object.hasOwn(info, "responseStreamConnectionFailed")
+    || Object.hasOwn(info, "responseStreamDisconnected")
+  ) return "disconnected";
+  return "runtime-failure";
+}
+
 function notificationFact(notification) {
   const { method, params } = notification ?? {};
   if (!params || typeof params !== "object" || Array.isArray(params)) return null;
@@ -119,23 +144,29 @@ function notificationFact(notification) {
     if (FORBIDDEN_TOOL_ITEMS.has(item?.type)) {
       return { kind: "forbidden", turnId: params.turnId };
     }
-    if (
-      method === "item/completed"
-      && item?.type === "agentMessage"
-      && item.phase === "final_answer"
-      && typeof item.text === "string"
-      && item.text.trim() !== ""
-    ) {
-      return { kind: "answer", turnId: params.turnId, text: boundedAnswer(item.text) };
+    const text = method === "item/completed" ? completedAnswer(item) : null;
+    if (text) {
+      return { kind: "answer", turnId: params.turnId, text };
     }
     return null;
   }
 
   if (method === "turn/completed" && safeId(params.turn?.id)) {
+    const items = Array.isArray(params.turn.items) ? params.turn.items : [];
+    if (items.some((item) => FORBIDDEN_TOOL_ITEMS.has(item?.type))) {
+      return { kind: "forbidden", turnId: params.turn.id };
+    }
+    let answer = null;
+    for (const item of items) {
+      const candidate = completedAnswer(item);
+      if (candidate) answer = candidate;
+    }
     return {
       kind: "completed",
       turnId: params.turn.id,
       completed: params.turn.status === "completed",
+      answer,
+      category: terminalFailureCategory(params.turn.error),
     };
   }
   return null;
@@ -159,6 +190,20 @@ function verifyThreadStart(result, teacherCwd) {
 function verifyTurnStart(result) {
   if (!safeId(result?.turn?.id)) throw new TypeError("Teacher turn response is invalid.");
   return result.turn.id;
+}
+
+function verifyDefaultModel(result) {
+  if (!Array.isArray(result?.data)) {
+    throw new TypeError("Teacher model catalog is invalid.");
+  }
+  const model = result.data.find((item) => (
+    item?.isDefault === true
+    && item.hidden === false
+    && typeof item.model === "string"
+    && SAFE_MODEL_ID.test(item.model)
+  ));
+  if (!model) throw new TypeError("Teacher default model is unavailable.");
+  return model.model;
 }
 
 function stoppedError() {
@@ -199,6 +244,7 @@ export function createAppServerTeacherAdapter({
   if (!absolutePath(teacherCwd)) throw new TypeError("Teacher workspace must be absolute.");
 
   let teacherThreadId = null;
+  let teacherModelId = null;
   let pending = null;
   let starting = null;
   let busy = false;
@@ -248,10 +294,11 @@ export function createAppServerTeacherAdapter({
       return;
     }
     if (fact.kind === "completed") {
+      if (fact.answer) pending.answer = fact.answer;
       if (fact.completed && pending.answer) {
         finish(null, pending.answer);
       } else {
-        finish(createTeacherFailure("turn-completion", "runtime-failure"));
+        finish(createTeacherFailure("turn-completion", fact.category));
       }
     }
   }
@@ -262,10 +309,23 @@ export function createAppServerTeacherAdapter({
     return result;
   }
 
+  async function ensureModel(activeGeneration) {
+    if (teacherModelId) return teacherModelId;
+    const result = await setupRequest(Promise.resolve(client.request("model/list", {
+      limit: 100,
+    })));
+    const verifiedModelId = verifyDefaultModel(result);
+    if (disposed || activeGeneration !== generation) throw STOPPED;
+    teacherModelId = verifiedModelId;
+    return verifiedModelId;
+  }
+
   async function ensureThread(activeGeneration) {
     if (teacherThreadId) return teacherThreadId;
+    const model = await ensureModel(activeGeneration);
     const request = Promise.resolve(client.request("thread/start", {
       cwd: teacherCwd,
+      model,
       ephemeral: true,
       sandbox: "read-only",
       approvalPolicy: "never",

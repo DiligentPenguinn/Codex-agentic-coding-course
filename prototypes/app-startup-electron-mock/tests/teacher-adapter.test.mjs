@@ -68,6 +68,15 @@ function fakeClient(requestImpl) {
     get listenerCount() { return listeners.size; },
     async request(method, params) {
       requests.push([method, params]);
+      if (method === "model/list") {
+        return {
+          data: [{
+            model: "teacher-default-model",
+            isDefault: true,
+            hidden: false,
+          }],
+        };
+      }
       if (requestImpl) return requestImpl(method, params, requests.length);
       if (method === "thread/start") {
         return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
@@ -203,6 +212,22 @@ test("classifies every Teacher failure stage without leaking raw errors", async 
       drive(client) { client.emit(completedNotification()); },
     },
     {
+      name: "terminal structured connection failure",
+      expected: { operation: "turn-completion", category: "disconnected" },
+      drive(client) {
+        client.emit(completedNotification({
+          turn: {
+            id: "turn-teacher-1",
+            status: "failed",
+            error: {
+              message: raw,
+              codexErrorInfo: { responseStreamDisconnected: { httpStatusCode: null } },
+            },
+          },
+        }));
+      },
+    },
+    {
       name: "forbidden tool item",
       expected: { operation: "turn-completion", category: "boundary-violation" },
       drive(client) {
@@ -318,21 +343,23 @@ test("starts one verified ephemeral no-tools Teacher thread and sends text-only 
   const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
   const { response } = await startResponse(adapter);
 
-  assert.deepEqual(client.requests[0], ["thread/start", {
+  assert.deepEqual(client.requests[0], ["model/list", { limit: 100 }]);
+  assert.deepEqual(client.requests[1], ["thread/start", {
     cwd: TEACHER_CWD,
+    model: "teacher-default-model",
     ephemeral: true,
     sandbox: "read-only",
     approvalPolicy: "never",
     serviceName: "content_builder_academy_teacher",
     developerInstructions: DEVELOPER_INSTRUCTIONS,
   }]);
-  assert.equal(client.requests[1][0], "turn/start");
-  assert.deepEqual(Object.keys(client.requests[1][1]), ["threadId", "input"]);
-  assert.equal(client.requests[1][1].threadId, "thr-teacher");
-  assert.equal(client.requests[1][1].input.length, 1);
-  assert.deepEqual(Object.keys(client.requests[1][1].input[0]), ["type", "text"]);
-  assert.equal(client.requests[1][1].input[0].type, "text");
-  assert.match(client.requests[1][1].input[0].text, /CURRENT_LEARNER_MESSAGE\nWhat next\?/);
+  assert.equal(client.requests[2][0], "turn/start");
+  assert.deepEqual(Object.keys(client.requests[2][1]), ["threadId", "input"]);
+  assert.equal(client.requests[2][1].threadId, "thr-teacher");
+  assert.equal(client.requests[2][1].input.length, 1);
+  assert.deepEqual(Object.keys(client.requests[2][1].input[0]), ["type", "text"]);
+  assert.equal(client.requests[2][1].input[0].type, "text");
+  assert.match(client.requests[2][1].input[0].text, /CURRENT_LEARNER_MESSAGE\nWhat next\?/);
 
   client.emit(itemNotification("item/completed", {
     id: "answer-1", type: "agentMessage", phase: "final_answer", text: "Use read-only inspection.",
@@ -448,6 +475,95 @@ test("ignores reasoning, commentary, unknown phases, and empty final answers", a
   client.emit(completedNotification());
 
   assert.equal(await response, "Safe final");
+  await adapter.dispose();
+});
+
+test("accepts completed agent messages whose installed-schema phase is unknown", async (t) => {
+  for (const phase of [undefined, null]) {
+    await t.test(phase === null ? "null phase" : "omitted phase", async () => {
+      const client = fakeClient();
+      const adapter = createAppServerTeacherAdapter({
+        client,
+        teacherCwd: TEACHER_CWD,
+      });
+      const { response } = await startResponse(adapter);
+      const item = {
+        id: "schema-compatible-answer",
+        type: "agentMessage",
+        text: "Installed-schema phase compatibility answer",
+      };
+      if (phase === null) item.phase = null;
+      client.emit(itemNotification("item/completed", item));
+      client.emit(completedNotification());
+
+      assert.equal(
+        await response,
+        "Installed-schema phase compatibility answer",
+      );
+      await adapter.dispose();
+    });
+  }
+});
+
+test("uses authoritative installed-schema items from turn completion", async () => {
+  const client = fakeClient();
+  const adapter = createAppServerTeacherAdapter({
+    client,
+    teacherCwd: TEACHER_CWD,
+  });
+  const { response } = await startResponse(adapter);
+
+  client.emit(completedNotification({
+    turn: {
+      id: "turn-teacher-1",
+      status: "completed",
+      items: [
+        {
+          id: "commentary-only",
+          type: "agentMessage",
+          phase: "commentary",
+          text: "Interim text must not win",
+        },
+        {
+          id: "terminal-answer",
+          type: "agentMessage",
+          phase: null,
+          text: "Answer carried only by terminal Turn.items",
+        },
+      ],
+    },
+  }));
+
+  assert.equal(await response, "Answer carried only by terminal Turn.items");
+  await adapter.dispose();
+});
+
+test("rejects forbidden tool evidence carried only by terminal Turn.items", async () => {
+  const client = fakeClient();
+  const adapter = createAppServerTeacherAdapter({
+    client,
+    teacherCwd: TEACHER_CWD,
+  });
+  const { response } = await startResponse(adapter);
+
+  client.emit(completedNotification({
+    turn: {
+      id: "turn-teacher-1",
+      status: "completed",
+      items: [{
+        id: "terminal-tool",
+        type: "commandExecution",
+        aggregatedOutput: "RAW TERMINAL TOOL OUTPUT",
+      }],
+    },
+  }));
+
+  const error = await rejectedValue(response);
+  assert.deepEqual(teacherFailureDetails(error), {
+    operation: "turn-completion",
+    category: "boundary-violation",
+  });
+  assert.doesNotMatch(JSON.stringify(error), /RAW|TERMINAL TOOL OUTPUT/i);
   await adapter.dispose();
 });
 
@@ -654,6 +770,7 @@ test("dispose races cannot leave setup responses pending or resurrect late serve
   });
   const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
   const response = adapter.respond(input);
+  await tick();
   await adapter.dispose();
   await assert.rejects(response, { message: "Teacher adapter stopped." });
 

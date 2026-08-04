@@ -17,6 +17,7 @@ import {
   createContextReceipt,
   createTeacherContextEnvelope,
 } from "./teacher-context-broker.mjs";
+import { teacherFailureDetails } from "./teacher-adapter.mjs";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const SAVE_ERROR = "Practice state could not be saved. Retry the operation.";
@@ -27,14 +28,22 @@ const DISPOSED_ERROR = "The Practice session orchestrator is disposed.";
 const CREATE_ERROR = "A dedicated Codex task could not be created. Retry or choose an eligible task.";
 const BIND_ERROR = "That Codex task is unavailable or belongs to a different workspace.";
 const DISCONNECTED_ERROR = "The bound Codex task is disconnected. Retry or rebind explicitly.";
-const TEACHER_ERROR = "Teacher could not answer from the current context. Retry your message.";
+const TEACHER_START_ERROR = "Teacher could not start a response. Retry.";
+const TEACHER_COMPLETION_ERROR = "Teacher response did not complete. Retry.";
+const TEACHER_TIMEOUT_ERROR = "Teacher is taking too long. Retry your message.";
+const TEACHER_DISCONNECTED_ERROR = "Teacher lost connection. Retry observation or restart Course App.";
+const TEACHER_BOUNDARY_ERROR = "Teacher could not use the current Practice context. Refresh observation and retry.";
 const BINDING_TRANSITION_ERROR = "Executor task binding is changing. Wait for it to finish.";
 const UNKNOWN_SESSION_ERROR = "Practice encountered a recoverable issue. Retry or restart the session.";
 const SAFE_SESSION_ERRORS = new Set([
   CREATE_ERROR,
   BIND_ERROR,
   DISCONNECTED_ERROR,
-  TEACHER_ERROR,
+  TEACHER_START_ERROR,
+  TEACHER_COMPLETION_ERROR,
+  TEACHER_TIMEOUT_ERROR,
+  TEACHER_DISCONNECTED_ERROR,
+  TEACHER_BOUNDARY_ERROR,
 ]);
 
 function publicError(message, code = "PRACTICE_OPERATION_FAILED") {
@@ -50,6 +59,16 @@ function safeHandoff(value) {
 function safeSessionError(value) {
   if (value === null || value === undefined) return null;
   return SAFE_SESSION_ERRORS.has(value) ? value : UNKNOWN_SESSION_ERROR;
+}
+
+function teacherPublicMessage(error) {
+  const { operation, category } = teacherFailureDetails(error);
+  if (category === "timeout") return TEACHER_TIMEOUT_ERROR;
+  if (category === "disconnected") return TEACHER_DISCONNECTED_ERROR;
+  if (category === "boundary-violation") return TEACHER_BOUNDARY_ERROR;
+  return operation === "thread-start"
+    ? TEACHER_START_ERROR
+    : TEACHER_COMPLETION_ERROR;
 }
 
 function safeEligibleTasks(value) {
@@ -808,6 +827,7 @@ export function createPracticeOrchestrator({
         "PRACTICE_TEACHER_MESSAGE_INVALID",
       );
     }
+    const normalizedText = text.trim();
     if (teacherSendOwnerIsCurrent(teacherSendOwner)) {
       throw publicError("A Teacher message is already being sent.", "PRACTICE_TEACHER_BUSY");
     }
@@ -817,14 +837,22 @@ export function createPracticeOrchestrator({
     });
     teacherSendOwner = owner;
     const guard = () => teacherSendOwnerIsCurrent(owner);
-    const priorChat = structuredClone(persisted.teacherChat);
-    const learnerMessage = parseTeacherChatMessage({
-      id: randomUUID(), role: "learner", text, createdAt: at(),
-    });
+    const currentChat = structuredClone(persisted.teacherChat);
+    const unresolved = currentChat.at(-1);
+    const retryingUnresolved = unresolved?.role === "learner"
+      && unresolved.text.trim() === normalizedText;
+    const priorChat = retryingUnresolved ? currentChat.slice(0, -1) : currentChat;
+    const learnerMessage = retryingUnresolved
+      ? unresolved
+      : parseTeacherChatMessage({
+        id: randomUUID(), role: "learner", text: normalizedText, createdAt: at(),
+      });
 
     try {
       await transact((current) => ({
-        teacherChat: [...current.teacherChat, learnerMessage].slice(-40),
+        teacherChat: retryingUnresolved
+          ? current.teacherChat
+          : [...current.teacherChat, learnerMessage].slice(-40),
         activeSession: reducePracticeSession(current.activeSession, {
           type: "ERROR", error: null, at: at(),
         }),
@@ -851,7 +879,10 @@ export function createPracticeOrchestrator({
     } catch (error) {
       if (!guard()) return getViewModel();
       if (error?.code === "PRACTICE_SAVE_FAILED") throw error;
-      return await setSessionError(TEACHER_ERROR, guard);
+      const message = teacherPublicMessage(error);
+      await setSessionError(message, guard);
+      if (!guard()) return getViewModel();
+      throw publicError(message, "PRACTICE_TEACHER_FAILED");
     } finally {
       if (teacherSendOwner?.token === owner.token) teacherSendOwner = null;
     }
