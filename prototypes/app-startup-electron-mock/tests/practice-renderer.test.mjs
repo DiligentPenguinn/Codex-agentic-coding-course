@@ -6,6 +6,7 @@ import {
   createInitialPracticeRendererState,
   reducePracticeRenderer,
 } from "../src/renderer/practice-state.mjs";
+import * as practiceRendererModule from "../src/renderer/practice-state.mjs";
 
 function viewModel(overrides = {}) {
   return {
@@ -214,12 +215,384 @@ test("unknown events preserve object identity", () => {
   );
 });
 
+function ok(value) {
+  return { ok: true, value };
+}
+
+function failed(message = "RAW bridge failure") {
+  return { ok: false, error: { message } };
+}
+
+function boundViewModel(overrides = {}) {
+  const value = viewModel();
+  value.session.lifecycle = "ready";
+  value.session.executor = {
+    bound: true,
+    taskName: "Practice · Module 0 · Read-only inspection",
+    status: "ready",
+    freshness: "fresh",
+    observedAt: "2026-08-04T02:03:04.000Z",
+    handoff: { opened: true, fallbackName: "Practice task" },
+  };
+  value.session.contextReceipt = {
+    missionTitle: value.session.mission.title,
+    taskName: value.session.executor.taskName,
+    scopeLabel: "Bound task only",
+    freshness: "fresh",
+    observedAt: "2026-08-04T02:03:04.000Z",
+  };
+  return { ...value, ...overrides };
+}
+
+function pendingResult() {
+  let resolve;
+  const promise = new Promise((done) => { resolve = done; });
+  return { promise, resolve };
+}
+
+function createInteractionHarness(operationOverrides = {}, options = {}) {
+  const calls = [];
+  let stateListener = null;
+  let listenerRemovals = 0;
+  const operations = {
+    getState: () => ok(boundViewModel()),
+    start: () => ok(viewModel()),
+    createTask: () => ok(boundViewModel()),
+    listTasks: () => ok([]),
+    bindTask: () => ok(boundViewModel()),
+    rebind: () => ok(viewModel()),
+    openTask: () => ok(boundViewModel()),
+    retry: () => ok(boundViewModel()),
+    sendTeacherMessage: () => ok(boundViewModel()),
+    selectTab: () => ok(boundViewModel()),
+    compact: () => ok(undefined),
+    ...operationOverrides,
+  };
+  const bridge = {};
+  for (const name of Object.keys(operations)) {
+    bridge[name] = (...args) => {
+      calls.push([name, ...args]);
+      return operations[name](...args);
+    };
+  }
+  bridge.onStateChanged = (listener) => {
+    calls.push(["onStateChanged"]);
+    stateListener = listener;
+    return () => {
+      listenerRemovals += 1;
+      stateListener = null;
+    };
+  };
+
+  const messageNodes = new Map();
+  const statusNode = { value: null };
+  const view = {
+    state: createInitialPracticeRendererState(),
+    renderCount: 0,
+    composerUpdateCount: 0,
+    messageAnnouncementCount: 0,
+    practiceHeadingFocusCount: 0,
+    composerFocusCount: 0,
+    pickerAlertFocusCount: 0,
+    pickerTriggerFocusCount: 0,
+    boundTaskFocusCount: 0,
+    focusedChoice: null,
+    pickerMode: "closed",
+    choicesDisabled: false,
+    statusNode,
+    messageNodes,
+    render(next) {
+      this.state = next;
+      this.renderCount += 1;
+      statusNode.value = next.viewModel?.session?.executor?.status ?? "not-bound";
+      for (const message of next.viewModel?.session?.teacherChat ?? []) {
+        if (!messageNodes.has(message.id)) {
+          messageNodes.set(message.id, { id: message.id });
+          this.messageAnnouncementCount += 1;
+        }
+      }
+      this.pickerMode = !next.pickerOpen
+        ? "closed"
+        : next.error
+          ? "error"
+          : next.busyAction === "listing"
+            ? "loading"
+            : next.busyAction === "binding"
+              ? "binding"
+              : next.eligibleTasks.length > 0
+                ? "choices"
+                : "empty";
+      this.choicesDisabled = next.pickerOpen && next.busyAction === "binding";
+    },
+    updateComposer(next) {
+      this.state = next;
+      this.composerUpdateCount += 1;
+    },
+    focusPracticeHeading() { this.practiceHeadingFocusCount += 1; },
+    focusComposer() { this.composerFocusCount += 1; },
+    focusPickerAlert() { this.pickerAlertFocusCount += 1; },
+    focusPickerTrigger() { this.pickerTriggerFocusCount += 1; },
+    focusBoundTask() { this.boundTaskFocusCount += 1; },
+    focusPickerChoice(taskId) { this.focusedChoice = taskId; },
+  };
+  const confirmations = [];
+  const createController = practiceRendererModule.createPracticeRendererController;
+  const controller = createController({
+    bridge,
+    view,
+    confirmRebind(message) {
+      confirmations.push(message);
+      return options.confirmRebind ?? true;
+    },
+  });
+  return {
+    bridge,
+    calls,
+    confirmations,
+    controller,
+    emit(value) { stateListener?.(value); },
+    get listenerRemovals() { return listenerRemovals; },
+    view,
+  };
+}
+
+test("interaction: start focuses Practice once after resolution despite an earlier subscription push", async () => {
+  let harness;
+  const needsBinding = viewModel();
+  harness = createInteractionHarness({
+    start() {
+      harness.emit(needsBinding);
+      return ok(needsBinding);
+    },
+    createTask: () => ok(boundViewModel()),
+  });
+  const firstRemoval = harness.controller.subscribe();
+  const secondRemoval = harness.controller.subscribe();
+
+  await harness.controller.startPractice();
+
+  assert.equal(harness.calls.filter(([name]) => name === "start").length, 1);
+  assert.equal(harness.calls.filter(([name]) => name === "createTask").length, 1);
+  assert.equal(harness.view.practiceHeadingFocusCount, 1);
+  assert.equal(harness.controller.getState().screen, "practice");
+  assert.equal(firstRemoval, secondRemoval);
+  firstRemoval();
+  assert.equal(harness.listenerRemovals, 1);
+});
+
+test("interaction: start skips task creation when a committed binding already exists", async () => {
+  const harness = createInteractionHarness({
+    start: () => ok(boundViewModel()),
+  });
+  harness.controller.subscribe();
+
+  await harness.controller.startPractice();
+
+  assert.equal(harness.calls.filter(([name]) => name === "createTask").length, 0);
+  assert.equal(harness.view.practiceHeadingFocusCount, 1);
+});
+
+test("interaction: typing updates only the composer and preserves status and message identity", async () => {
+  const initial = boundViewModel();
+  initial.session.teacherChat = [{
+    id: "teacher-one",
+    role: "teacher",
+    text: "Existing answer",
+    createdAt: "2026-08-04T02:03:04.000Z",
+  }];
+  const harness = createInteractionHarness({ getState: () => ok(initial) });
+  await harness.controller.initialize();
+  const renderCount = harness.view.renderCount;
+  const statusNode = harness.view.statusNode;
+  const messageNode = harness.view.messageNodes.get("teacher-one");
+  const announcements = harness.view.messageAnnouncementCount;
+
+  harness.controller.changeTeacherDraft("W");
+  harness.controller.changeTeacherDraft("Wh");
+  harness.controller.changeTeacherDraft("What happened?");
+
+  assert.equal(harness.view.renderCount, renderCount);
+  assert.equal(harness.view.statusNode, statusNode);
+  assert.equal(harness.view.messageNodes.get("teacher-one"), messageNode);
+  assert.equal(harness.view.messageAnnouncementCount, announcements);
+  assert.equal(harness.view.composerUpdateCount, 3);
+  assert.equal(harness.controller.getState().teacherDraft, "What happened?");
+});
+
+test("interaction: key actions route through their named bridge operations", async () => {
+  const tasks = [{
+    threadId: "thr-eligible",
+    displayName: "Eligible task",
+    updatedAt: "2026-08-04T02:03:04.000Z",
+    status: "idle",
+  }];
+  const harness = createInteractionHarness({ listTasks: () => ok(tasks) });
+  await harness.controller.initialize();
+  await harness.controller.selectTab("teacher");
+  await harness.controller.openBoundTask();
+  await harness.controller.retryObservation();
+  await harness.controller.compact();
+  await harness.controller.openTaskPicker();
+  await harness.controller.bindSelectedTask("thr-eligible");
+  harness.controller.changeTeacherDraft("What happened?");
+  await harness.controller.sendTeacherMessage();
+
+  for (const [name, expectedArgs] of [
+    ["selectTab", ["teacher"]],
+    ["openTask", []],
+    ["retry", []],
+    ["compact", []],
+    ["listTasks", []],
+    ["bindTask", ["thr-eligible"]],
+    ["sendTeacherMessage", ["What happened?"]],
+  ]) {
+    const matching = harness.calls.filter(([called]) => called === name);
+    assert.equal(matching.length, 1, `${name} should be called once`);
+    assert.deepEqual(matching[0].slice(1), expectedArgs);
+  }
+});
+
+test("interaction: a failed start renders a fixed visible Course error", async () => {
+  const harness = createInteractionHarness({
+    start: () => failed("RAW C:\\private\\protocol failure"),
+  });
+
+  await harness.controller.startPractice();
+
+  assert.equal(harness.controller.getState().screen, "course");
+  assert.deepEqual(harness.view.state.error, {
+    message: "Practice Mode could not be started.",
+    recoveryAction: "retry-start",
+  });
+  assert.doesNotMatch(JSON.stringify(harness.view.state), /RAW|private|protocol/i);
+});
+
+test("interaction: picker list failures stay in-modal and can be retried", async () => {
+  let attempts = 0;
+  const tasks = [{
+    threadId: "thr-eligible",
+    displayName: "Eligible task",
+    updatedAt: "2026-08-04T02:03:04.000Z",
+    status: "idle",
+  }];
+  const harness = createInteractionHarness({
+    getState: () => ok(viewModel()),
+    listTasks() {
+      attempts += 1;
+      return attempts === 1 ? failed() : ok(tasks);
+    },
+  });
+  await harness.controller.initialize();
+
+  await harness.controller.openTaskPicker();
+  assert.equal(harness.controller.getState().pickerOpen, true);
+  assert.equal(harness.view.pickerMode, "error");
+  assert.equal(harness.view.pickerAlertFocusCount, 1);
+
+  await harness.controller.openTaskPicker();
+  assert.equal(harness.view.pickerMode, "choices");
+  assert.equal(harness.controller.getState().eligibleTasks.length, 1);
+});
+
+test("interaction: pending and rejected binds stay in the picker without duplicates", async () => {
+  const bindPending = pendingResult();
+  let bindAttempt = 0;
+  const tasks = [{
+    threadId: "thr-eligible",
+    displayName: "Eligible task",
+    updatedAt: "2026-08-04T02:03:04.000Z",
+    status: "idle",
+  }];
+  const rejected = viewModel();
+  rejected.session.error = "A selected Codex task could not be bound. Choose another eligible task.";
+  const harness = createInteractionHarness({
+    getState: () => ok(viewModel()),
+    listTasks: () => ok(tasks),
+    bindTask() {
+      bindAttempt += 1;
+      return bindAttempt === 1 ? bindPending.promise : ok(boundViewModel());
+    },
+  });
+  await harness.controller.initialize();
+  await harness.controller.openTaskPicker();
+
+  const first = harness.controller.bindSelectedTask("thr-eligible");
+  const duplicate = harness.controller.bindSelectedTask("thr-eligible");
+  assert.equal(harness.calls.filter(([name]) => name === "bindTask").length, 1);
+  assert.equal(harness.view.pickerMode, "binding");
+  assert.equal(harness.view.choicesDisabled, true);
+  bindPending.resolve(ok(rejected));
+  await Promise.all([first, duplicate]);
+
+  assert.equal(harness.controller.getState().pickerOpen, true);
+  assert.equal(harness.view.pickerMode, "error");
+  assert.equal(harness.view.focusedChoice, "thr-eligible");
+  assert.equal(harness.view.boundTaskFocusCount, 0);
+
+  await harness.controller.bindSelectedTask("thr-eligible");
+  assert.equal(harness.controller.getState().pickerOpen, false);
+  assert.equal(harness.view.boundTaskFocusCount, 1);
+});
+
+test("interaction: Teacher send survives subscription ordering and restores focus", async () => {
+  const pending = pendingResult();
+  const initial = boundViewModel();
+  initial.session.teacherChat = [];
+  const pushed = boundViewModel();
+  pushed.session.teacherChat = [{
+    id: "learner-one",
+    role: "learner",
+    text: "What happened?",
+    createdAt: "2026-08-04T02:03:04.000Z",
+  }];
+  const answered = boundViewModel();
+  answered.session.teacherChat = [
+    ...pushed.session.teacherChat,
+    { id: "teacher-one", role: "teacher", text: "A bounded answer", createdAt: "2026-08-04T02:04:04.000Z" },
+  ];
+  const harness = createInteractionHarness({
+    getState: () => ok(initial),
+    sendTeacherMessage: () => pending.promise,
+  });
+  harness.controller.subscribe();
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("What happened?");
+
+  const sending = harness.controller.sendTeacherMessage();
+  harness.emit(pushed);
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+  assert.equal(harness.controller.getState().teacherDraft, "What happened?");
+  pending.resolve(ok(answered));
+  await sending;
+
+  assert.equal(harness.controller.getState().teacherDraft, "");
+  assert.equal(harness.view.composerFocusCount, 1);
+  assert.equal(harness.view.messageAnnouncementCount, 2);
+});
+
+test("interaction: rebind explains cursor reset and unbound retry is suppressed", async () => {
+  const harness = createInteractionHarness({
+    getState: () => ok(viewModel()),
+    rebind: () => ok(viewModel()),
+    listTasks: () => ok([]),
+  });
+  await harness.controller.initialize();
+
+  await harness.controller.retryObservation();
+  assert.equal(harness.calls.filter(([name]) => name === "retry").length, 0);
+  await harness.controller.rebindTask();
+  assert.equal(harness.calls.filter(([name]) => name === "rebind").length, 1);
+  assert.equal(harness.calls.filter(([name]) => name === "listTasks").length, 1);
+  assert.match(harness.confirmations[0], /observation cursor will reset/i);
+});
+
 test("renderer shell keeps Course and Practice in one accessible window", async () => {
   const rendererRoot = new URL("../src/renderer/", import.meta.url);
-  const [html, script, css] = await Promise.all([
+  const [html, script, css, controllerSource] = await Promise.all([
     readFile(new URL("index.html", rendererRoot), "utf8"),
     readFile(new URL("app.js", rendererRoot), "utf8"),
     readFile(new URL("styles.css", rendererRoot), "utf8"),
+    readFile(new URL("practice-state.mjs", rendererRoot), "utf8"),
   ]);
 
   assert.match(html, /data-screen="destination"/);
@@ -228,6 +601,11 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /id="course-practice-error"[^>]*role="alert"/);
   assert.match(html, /id="practice-shell"[^>]*data-screen="practice"/);
   assert.match(html, /class="practice-header"/);
+  assert.match(html, /id="practice-title"[^>]*tabindex="-1"/);
+  assert.doesNotMatch(html, /<main id="app"[^>]*aria-live/);
+  assert.match(html, /id="picker-error"[^>]*role="alert"/);
+  assert.match(html, /data-practice-action="retry-picker"/);
+  assert.match(html, /id="picker-status"[^>]*role="status"/);
   assert.match(html, /id="executor-status"[^>]*role="status"/);
   assert.match(html, /data-practice-action="compact"[^>]*>\s*Compact to Teacher/);
 
@@ -261,19 +639,18 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /<dialog id="task-picker"/);
   assert.match(html, /id="eligible-task-list"/);
 
-  assert.doesNotMatch(script, /node:|from\s+["']electron|require\s*\(|App Server|credentials|process\.env|filesystem/i);
-  assert.doesNotMatch(script, /innerHTML/);
-  assert.doesNotMatch(script, /native.*minimi|minimi.*addEventListener/i);
-  assert.match(script, /practice\.onStateChanged/);
+  const rendererSource = `${script}\n${controllerSource}`;
+  assert.doesNotMatch(rendererSource, /node:|from\s+["']electron|require\s*\(|App Server|credentials|process\.env|filesystem/i);
+  assert.doesNotMatch(rendererSource, /innerHTML/);
+  assert.doesNotMatch(rendererSource, /native.*minimi|minimi.*addEventListener/i);
+  assert.match(script, /createPracticeRendererController/);
+  assert.match(script, /practiceController\.subscribe\(\)/);
   assert.match(script, /removePracticeListener/);
-  assert.match(script, /practice\.start\(\)/);
-  assert.match(script, /practice\.createTask\(\)/);
-  assert.match(script, /lifecycle === "needs-binding"[\s\S]{0,120}createDedicatedTask\(\)/);
-  assert.match(script, /practice\.retry\(\)/);
-  assert.match(script, /practice\.rebind\(\)/);
-  assert.match(script, /observation cursor will reset/i);
+  assert.match(controllerSource, /observation cursor will reset/i);
   assert.match(script, /Intl\.DateTimeFormat/);
   assert.match(script, /\.textContent\s*=/);
+  assert.doesNotMatch(script, /function renderTeacherMessages[\s\S]{0,500}replaceChildren/);
+  assert.match(script, /choice\.disabled\s*=/);
 
   assert.match(css, /@media\s*\(min-width:\s*921px\)/);
   assert.match(css, /grid-template-columns:/);

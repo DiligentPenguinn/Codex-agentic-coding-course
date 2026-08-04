@@ -4,7 +4,7 @@ import {
 } from "./onboarding-state.mjs";
 import {
   createInitialPracticeRendererState,
-  reducePracticeRenderer,
+  createPracticeRendererController,
 } from "./practice-state.mjs";
 
 const courseSetup = window.courseSetup;
@@ -42,6 +42,10 @@ function safeText(value, fallback = "Not available", limit = 4_000) {
   return text || fallback;
 }
 
+function setTextIfChanged(element, value) {
+  if (element.textContent !== value) element.textContent = value;
+}
+
 function safeTextArray(value) {
   if (!Array.isArray(value)) return [];
   return value
@@ -71,19 +75,6 @@ function dispatch(event) {
       const heading = document.querySelector(
         `[data-screen="${CSS.escape(currentScreen())}"] h2`,
       );
-      heading?.setAttribute("tabindex", "-1");
-      heading?.focus();
-    });
-  }
-}
-
-function dispatchPractice(event, { focusHeading = false } = {}) {
-  const previousScreen = currentScreen();
-  practiceState = reducePracticeRenderer(practiceState, event);
-  render();
-  if (focusHeading && currentScreen() !== previousScreen) {
-    queueMicrotask(() => {
-      const heading = document.querySelector("#practice-title");
       heading?.setAttribute("tabindex", "-1");
       heading?.focus();
     });
@@ -276,28 +267,18 @@ function renderExecutorStatus(executor) {
   const [symbol, label] = EXECUTOR_STATUS[statusKey];
   const root = document.querySelector("#executor-status");
   root.dataset.status = statusKey;
-
-  const mark = document.createElement("span");
-  mark.className = "executor-symbol";
-  mark.setAttribute("aria-hidden", "true");
-  mark.textContent = symbol;
-
-  const copy = document.createElement("span");
-  const caption = document.createElement("small");
-  caption.textContent = "Executor";
-  const strong = document.createElement("strong");
-  strong.textContent = label;
-  copy.append(caption, strong);
-  root.replaceChildren(mark, copy);
+  setTextIfChanged(root.querySelector(".executor-symbol"), symbol);
+  setTextIfChanged(root.querySelector("small"), "Executor");
+  setTextIfChanged(root.querySelector("strong"), label);
 }
 
 function renderExercise(session) {
   const mission = session?.mission ?? {};
   const executor = session?.executor ?? {};
-  document.querySelector("#exercise-description").textContent = safeText(
+  setTextIfChanged(document.querySelector("#exercise-description"), safeText(
     mission.description,
     "The mission description is unavailable.",
-  );
+  ));
   replaceList("#exercise-outcomes", mission.learningOutcomes, "No lesson outcome is available.");
   replaceList("#exercise-instructions", mission.instructions, "No instructions are available.");
   replaceList("#allowed-actions", mission.allowedActions, "No allowed actions are listed.");
@@ -326,18 +307,18 @@ function renderExercise(session) {
 function renderContextReceipt(session) {
   const receipt = session?.contextReceipt ?? {};
   const executor = session?.executor ?? {};
-  document.querySelector("#receipt-mission").textContent = safeText(
+  setTextIfChanged(document.querySelector("#receipt-mission"), safeText(
     receipt.missionTitle,
     safeText(session?.mission?.title, "Mission unavailable"),
-  );
-  document.querySelector("#receipt-task").textContent = safeText(
+  ));
+  setTextIfChanged(document.querySelector("#receipt-task"), safeText(
     receipt.taskName,
     executor.bound ? safeText(executor.taskName, "Verified Practice task") : "No task bound",
-  );
-  document.querySelector("#receipt-scope").textContent = safeText(
+  ));
+  setTextIfChanged(document.querySelector("#receipt-scope"), safeText(
     receipt.scopeLabel,
     "Bound task only",
-  );
+  ));
 
   const rawFreshness = typeof receipt.freshness === "string"
     ? receipt.freshness
@@ -348,39 +329,62 @@ function renderContextReceipt(session) {
       ? "Stale"
       : "Disconnected";
   const observedAt = receipt.observedAt ?? executor.observedAt;
-  document.querySelector("#freshness-disclosure").textContent =
-    `${freshness} · Observed ${formatTime(observedAt)}`;
+  setTextIfChanged(
+    document.querySelector("#freshness-disclosure"),
+    `${freshness} · Observed ${formatTime(observedAt)}`,
+  );
 }
 
 function renderTeacherMessages(messages) {
   const log = document.querySelector("#teacher-messages");
-  log.replaceChildren();
   const safeMessages = Array.isArray(messages) ? messages.slice(-40) : [];
-  for (const message of safeMessages) {
+  const desired = [];
+  for (const [index, message] of safeMessages.entries()) {
     if (!message || typeof message !== "object") continue;
     const role = message.role === "teacher" ? "teacher" : message.role === "learner" ? "learner" : null;
     if (!role || typeof message.text !== "string") continue;
-    const article = document.createElement("article");
+    const key = typeof message.id === "string" && message.id.length <= 200
+      ? message.id
+      : `message-${index}`;
+    desired.push({ key, message, role });
+  }
+
+  const desiredKeys = new Set(desired.map(({ key }) => key));
+  for (const child of [...log.children]) {
+    if (!desiredKeys.has(child.dataset.messageKey)) child.remove();
+  }
+
+  for (const [index, { key, message, role }] of desired.entries()) {
+    let article = [...log.children].find(
+      (child) => child.dataset.messageKey === key,
+    );
+    if (!article) {
+      article = document.createElement("article");
+      article.dataset.messageKey = key;
+      const meta = document.createElement("p");
+      meta.className = "message-meta";
+      const text = document.createElement("p");
+      text.className = "message-text";
+      article.append(meta, text);
+      log.insertBefore(article, log.children[index] ?? null);
+    } else if (log.children[index] !== article) {
+      log.insertBefore(article, log.children[index] ?? null);
+    }
     article.className = `chat-message is-${role}`;
-    const meta = document.createElement("p");
-    meta.className = "message-meta";
     const roleLabel = role === "teacher" ? "Teacher" : "You";
-    meta.textContent = `${roleLabel} · ${formatTime(message.createdAt, "Time unavailable")}`;
-    const text = document.createElement("p");
-    text.className = "message-text";
-    text.textContent = message.text.slice(0, 12_000);
-    article.append(meta, text);
-    log.append(article);
+    setTextIfChanged(
+      article.querySelector(".message-meta"),
+      `${roleLabel} · ${formatTime(message.createdAt, "Time unavailable")}`,
+    );
+    setTextIfChanged(
+      article.querySelector(".message-text"),
+      message.text.slice(0, 12_000),
+    );
   }
   document.querySelector("#teacher-empty").hidden = log.childElementCount > 0;
 }
 
-function renderTeacher(session) {
-  document.querySelector("#teacher-mission").textContent = session?.mission
-    ? `Current mission: ${safeText(session.mission.title, "Practice mission")}. Ask about activity in the verified task.`
-    : "The Teacher can discuss this mission using bound-task context only.";
-  renderContextReceipt(session);
-  renderTeacherMessages(session?.teacherChat);
+function renderTeacherComposer() {
   const composer = document.querySelector("#teacher-message");
   if (composer.value !== practiceState.teacherDraft) {
     composer.value = practiceState.teacherDraft;
@@ -389,6 +393,18 @@ function renderTeacher(session) {
   composer.disabled = sending;
   document.querySelector("#teacher-send").disabled = sending;
   document.querySelector("#teacher-send").textContent = sending ? "Sending…" : "Send";
+}
+
+function renderTeacher(session) {
+  setTextIfChanged(
+    document.querySelector("#teacher-mission"),
+    session?.mission
+      ? `Current mission: ${safeText(session.mission.title, "Practice mission")}. Ask about activity in the verified task.`
+      : "The Teacher can discuss this mission using bound-task context only.",
+  );
+  renderContextReceipt(session);
+  renderTeacherMessages(session?.teacherChat);
+  renderTeacherComposer();
 }
 
 function renderTabs(viewModel) {
@@ -406,18 +422,20 @@ function renderTabs(viewModel) {
 
 function renderRecovery(session) {
   const executor = session?.executor ?? {};
-  const disconnected = ["stale", "disconnected"].includes(executor.status)
-    || ["stale", "disconnected"].includes(executor.freshness);
-  const fixedError = practiceState.error?.message ?? "";
+  const disconnected = Boolean(executor.bound) && (
+    ["stale", "disconnected"].includes(executor.status)
+    || ["stale", "disconnected"].includes(executor.freshness)
+  );
+  const fixedError = practiceState.pickerOpen ? "" : practiceState.error?.message ?? "";
   const sessionError = typeof session?.error === "string"
     ? safeText(session.error, "Practice encountered a recoverable issue.", 500)
     : "";
-  document.querySelector("#practice-error").textContent = fixedError || sessionError;
+  setTextIfChanged(document.querySelector("#practice-error"), fixedError || (practiceState.pickerOpen ? "" : sessionError));
   const actions = document.querySelector("#recovery-actions");
   actions.hidden = !disconnected && !fixedError && !sessionError;
   const retry = document.querySelector('[data-practice-action="retry"]');
   const rebind = document.querySelector('[data-practice-action="rebind"]');
-  retry.hidden = !disconnected && practiceState.error?.recoveryAction !== "retry-observation";
+  retry.hidden = !executor.bound || (!disconnected && practiceState.error?.recoveryAction !== "retry-observation");
   rebind.hidden = !executor.bound;
   retry.disabled = practiceState.busyAction === "retrying";
   rebind.disabled = practiceState.busyAction === "rebinding";
@@ -426,35 +444,55 @@ function renderRecovery(session) {
 function renderTaskPicker() {
   const dialog = document.querySelector("#task-picker");
   const list = document.querySelector("#eligible-task-list");
-  list.replaceChildren();
+  const pickerError = practiceState.pickerOpen ? practiceState.error?.message ?? "" : "";
+  const errorPanel = document.querySelector("#picker-error-panel");
+  errorPanel.hidden = !pickerError;
+  setTextIfChanged(document.querySelector("#picker-error"), pickerError);
+  document.querySelector('[data-practice-action="retry-picker"]').disabled =
+    practiceState.busyAction === "listing";
 
-  if (practiceState.busyAction === "listing") {
-    const status = document.createElement("p");
-    status.className = "picker-status";
-    status.textContent = "Checking recent tasks in this workspace…";
-    list.append(status);
-  } else if (practiceState.eligibleTasks.length === 0) {
-    const status = document.createElement("p");
-    status.className = "picker-status";
-    status.textContent = "No eligible tasks are available. Create a dedicated task instead.";
-    list.append(status);
-  } else {
-    for (const task of practiceState.eligibleTasks) {
-      const choice = document.createElement("button");
+  const status = practiceState.busyAction === "listing"
+    ? "Checking recent tasks in this workspace…"
+    : practiceState.busyAction === "binding"
+      ? "Binding the selected task. Other choices are temporarily unavailable."
+      : pickerError
+        ? ""
+        : practiceState.pickerOpen && practiceState.eligibleTasks.length === 0
+          ? "No eligible tasks are available. Create a dedicated task instead."
+          : "";
+  setTextIfChanged(document.querySelector("#picker-status"), status);
+
+  const taskIds = new Set(practiceState.eligibleTasks.map((task) => task.threadId));
+  for (const choice of [...list.querySelectorAll("[data-practice-task-choice]")]) {
+    if (!taskIds.has(choice.value)) choice.remove();
+  }
+  for (const [index, task] of practiceState.eligibleTasks.entries()) {
+    let choice = [...list.querySelectorAll("[data-practice-task-choice]")]
+      .find((candidate) => candidate.value === task.threadId);
+    if (!choice) {
+      choice = document.createElement("button");
       choice.type = "button";
       choice.className = "eligible-task";
       choice.dataset.practiceTaskChoice = "";
       choice.value = task.threadId;
       const name = document.createElement("strong");
-      name.textContent = task.displayName;
       const detail = document.createElement("span");
-      detail.textContent = `${safeText(task.status, "Unknown status")} · Updated ${formatTime(task.updatedAt, "time unavailable")}`;
       choice.append(name, detail);
-      list.append(choice);
+      list.insertBefore(choice, list.children[index] ?? null);
     }
+    setTextIfChanged(choice.querySelector("strong"), task.displayName);
+    setTextIfChanged(
+      choice.querySelector("span"),
+      `${safeText(task.status, "Unknown status")} · Updated ${formatTime(task.updatedAt, "time unavailable")}`,
+    );
+    choice.disabled = practiceState.busyAction === "binding";
   }
 
-  if (practiceState.pickerOpen && !dialog.open) dialog.showModal();
+  document.querySelector("#close-picker").disabled = practiceState.busyAction === "binding";
+  if (practiceState.pickerOpen && !dialog.open) {
+    dialog.showModal();
+    queueMicrotask(() => document.querySelector("#task-picker-title")?.focus());
+  }
   if (!practiceState.pickerOpen && dialog.open) dialog.close();
 }
 
@@ -504,6 +542,45 @@ function render() {
   renderPractice();
 }
 
+const practiceView = Object.freeze({
+  render(next) {
+    practiceState = next;
+    render();
+  },
+  updateComposer(next) {
+    practiceState = next;
+    renderTeacherComposer();
+  },
+  focusPracticeHeading() {
+    queueMicrotask(() => document.querySelector("#practice-title")?.focus());
+  },
+  focusComposer() {
+    queueMicrotask(() => document.querySelector("#teacher-message")?.focus());
+  },
+  focusPickerAlert() {
+    queueMicrotask(() => document.querySelector("#picker-error")?.focus());
+  },
+  focusPickerChoice(taskId) {
+    queueMicrotask(() => {
+      const choice = [...document.querySelectorAll("[data-practice-task-choice]")]
+        .find((candidate) => candidate.value === taskId);
+      choice?.focus();
+    });
+  },
+  focusPickerTrigger() {
+    queueMicrotask(() => document.querySelector('[data-practice-action="open-picker"]')?.focus());
+  },
+  focusBoundTask() {
+    queueMicrotask(() => document.querySelector('[data-practice-action="open-task"]')?.focus());
+  },
+});
+
+const practiceController = createPracticeRendererController({
+  bridge: practice,
+  view: practiceView,
+  confirmRebind: (message) => window.confirm(message),
+});
+
 async function loadContent() {
   if (state.content) return;
   const content = unwrap(await courseSetup.getContent());
@@ -528,15 +605,6 @@ async function refreshStatus() {
   }
 }
 
-async function refreshPracticeState() {
-  try {
-    const value = unwrap(await practice.getState());
-    dispatchPractice({ type: "VIEW_MODEL_LOADED", viewModel: value });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "generic" });
-  }
-}
-
 async function startBrowserLogin() {
   dispatch({ type: "BROWSER_LOGIN_OPENING" });
   try {
@@ -554,116 +622,6 @@ async function startDeviceLogin() {
     dispatch({ type: "DEVICE_LOGIN_STARTED", ...result });
   } catch (error) {
     dispatch({ type: "LOGIN_FAILED", message: error.message });
-  }
-}
-
-async function createDedicatedTask() {
-  dispatchPractice({ type: "CREATE_TASK_REQUESTED" });
-  try {
-    const value = unwrap(await practice.createTask());
-    const handoff = value?.session?.executor?.handoff;
-    dispatchPractice({
-      type: "TASK_CREATED",
-      viewModel: value,
-      opened: handoff?.opened !== false,
-      fallbackName: handoff?.fallbackName,
-    });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "binding" });
-  }
-}
-
-async function startPractice() {
-  dispatchPractice({ type: "START_REQUESTED" });
-  let value;
-  try {
-    value = unwrap(await practice.start());
-    dispatchPractice({ type: "VIEW_MODEL_LOADED", viewModel: value }, { focusHeading: true });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "start" });
-    return;
-  }
-  if (value?.session?.lifecycle === "needs-binding") {
-    await createDedicatedTask();
-  }
-}
-
-async function openTaskPicker() {
-  dispatchPractice({ type: "OPEN_PICKER" });
-  try {
-    const tasks = unwrap(await practice.listTasks());
-    dispatchPractice({ type: "ELIGIBLE_TASKS_LOADED", tasks });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "picker" });
-  }
-}
-
-async function bindSelectedTask(taskId) {
-  dispatchPractice({ type: "TASK_BIND_REQUESTED" });
-  try {
-    const value = unwrap(await practice.bindTask(taskId));
-    dispatchPractice({ type: "TASK_BOUND", viewModel: value });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "binding" });
-  }
-}
-
-async function selectPracticeTab(tab) {
-  dispatchPractice({ type: "TAB_SELECTED", tab });
-  try {
-    const value = unwrap(await practice.selectTab(tab));
-    dispatchPractice({ type: "VIEW_MODEL_LOADED", viewModel: value });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "generic" });
-  }
-}
-
-async function retryObservation() {
-  dispatchPractice({ type: "BUSY_STARTED", action: "retrying" });
-  try {
-    const value = unwrap(await practice.retry());
-    dispatchPractice({ type: "VIEW_MODEL_LOADED", viewModel: value });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "observation" });
-  }
-}
-
-async function rebindTask() {
-  const confirmed = window.confirm(
-    "Rebind this Practice session? The observation cursor will reset, and the Teacher will use only the newly selected task.",
-  );
-  if (!confirmed) return;
-  dispatchPractice({ type: "BUSY_STARTED", action: "rebinding" });
-  try {
-    const value = unwrap(await practice.rebind());
-    dispatchPractice({ type: "VIEW_MODEL_LOADED", viewModel: value });
-    if (value?.session?.lifecycle === "needs-binding") await openTaskPicker();
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "rebind" });
-  }
-}
-
-async function openBoundTask() {
-  dispatchPractice({ type: "BUSY_STARTED", action: "opening" });
-  try {
-    const value = unwrap(await practice.openTask());
-    const handoff = value?.session?.executor?.handoff;
-    dispatchPractice({
-      type: "TASK_CREATED",
-      viewModel: value,
-      opened: handoff?.opened !== false,
-      fallbackName: handoff?.fallbackName,
-    });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "open" });
-  }
-}
-
-async function compactPractice() {
-  try {
-    unwrap(await practice.compact());
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "generic" });
   }
 }
 
@@ -690,25 +648,12 @@ document.querySelector("#fixture-form").addEventListener("input", (event) => {
 });
 
 document.querySelector("#teacher-message").addEventListener("input", (event) => {
-  dispatchPractice({ type: "TEACHER_DRAFT_CHANGED", text: event.target.value });
+  practiceController.changeTeacherDraft(event.target.value);
 });
 
 document.querySelector("#teacher-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const composer = document.querySelector("#teacher-message");
-  const text = practiceState.teacherDraft.trim();
-  if (!text || practiceState.busyAction === "teacher") {
-    composer.focus();
-    return;
-  }
-  dispatchPractice({ type: "TEACHER_SEND_REQUESTED" });
-  try {
-    const value = unwrap(await practice.sendTeacherMessage(text));
-    dispatchPractice({ type: "TEACHER_SEND_ACCEPTED", viewModel: value });
-  } catch {
-    dispatchPractice({ type: "ERROR", kind: "teacher" });
-  }
-  queueMicrotask(() => document.querySelector("#teacher-message")?.focus());
+  await practiceController.sendTeacherMessage();
 });
 
 document.querySelector(".practice-tabs").addEventListener("keydown", async (event) => {
@@ -722,36 +667,38 @@ document.querySelector(".practice-tabs").addEventListener("keydown", async (even
       : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
   event.preventDefault();
   tabs[next].focus();
-  await selectPracticeTab(tabs[next].dataset.practiceTab);
+  await practiceController.selectTab(tabs[next].dataset.practiceTab);
 });
 
 document.querySelector("#task-picker").addEventListener("cancel", (event) => {
   event.preventDefault();
-  dispatchPractice({ type: "CLOSE_PICKER" });
+  practiceController.closePicker();
 });
 
 document.addEventListener("click", async (event) => {
   const taskChoice = event.target.closest("[data-practice-task-choice]");
   if (taskChoice) {
-    await bindSelectedTask(taskChoice.value);
+    await practiceController.bindSelectedTask(taskChoice.value);
     return;
   }
 
   const tab = event.target.closest("[data-practice-tab]")?.dataset.practiceTab;
   if (tab) {
-    await selectPracticeTab(tab);
+    await practiceController.selectTab(tab);
     return;
   }
 
   const practiceAction = event.target.closest("[data-practice-action]")?.dataset.practiceAction;
-  if (practiceAction === "start") await startPractice();
-  if (practiceAction === "create-task") await createDedicatedTask();
-  if (practiceAction === "open-picker") await openTaskPicker();
-  if (practiceAction === "close-picker") dispatchPractice({ type: "CLOSE_PICKER" });
-  if (practiceAction === "open-task") await openBoundTask();
-  if (practiceAction === "retry") await retryObservation();
-  if (practiceAction === "rebind") await rebindTask();
-  if (practiceAction === "compact") await compactPractice();
+  if (practiceAction === "start") await practiceController.startPractice();
+  if (practiceAction === "create-task") await practiceController.createDedicatedTask();
+  if (["open-picker", "retry-picker"].includes(practiceAction)) {
+    await practiceController.openTaskPicker();
+  }
+  if (practiceAction === "close-picker") practiceController.closePicker();
+  if (practiceAction === "open-task") await practiceController.openBoundTask();
+  if (practiceAction === "retry") await practiceController.retryObservation();
+  if (practiceAction === "rebind") await practiceController.rebindTask();
+  if (practiceAction === "compact") await practiceController.compact();
   if (practiceAction) return;
 
   const action = event.target.closest("[data-action]")?.dataset.action;
@@ -808,9 +755,7 @@ removeAuthListener = courseSetup.onAuthStatusChanged(async (status) => {
   }
 });
 
-removePracticeListener = practice.onStateChanged((value) => {
-  dispatchPractice({ type: "STATE_PUSHED", viewModel: value });
-});
+removePracticeListener = practiceController.subscribe();
 
 window.addEventListener("beforeunload", () => {
   removeAuthListener();
@@ -818,4 +763,4 @@ window.addEventListener("beforeunload", () => {
 }, { once: true });
 
 render();
-await Promise.all([refreshStatus(), refreshPracticeState()]);
+await Promise.all([refreshStatus(), practiceController.initialize()]);

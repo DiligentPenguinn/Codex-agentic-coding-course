@@ -1013,11 +1013,39 @@ dialog::backdrop {
 }
 
 .picker-status {
-  margin: 0;
+  margin: 20px 0 0;
   border-left: 4px solid var(--signal);
   padding: 16px;
   background: #f8eadc;
   line-height: 1.5;
+}
+
+.picker-status:empty {
+  display: none;
+}
+
+.picker-error-panel {
+  margin-top: 20px;
+  border: 1px solid var(--danger);
+  border-left: 5px solid var(--danger);
+  padding: 16px;
+  background: var(--danger-soft);
+}
+
+.picker-error-panel[hidden] {
+  display: none;
+}
+
+.picker-error-panel p {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.picker-error-panel .button {
+  margin-top: 12px;
 }
 
 .empty-list-item {

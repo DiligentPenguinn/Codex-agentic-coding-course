@@ -202,7 +202,9 @@ test("renderer shell and orchestration preserve the accessible narrow boundary",
     readFile(new URL("styles.css", rendererRoot), "utf8"),
   ]);
 
-  assert.match(html, /<main id="app" aria-live="polite">/);
+  assert.match(html, /<main id="app">/);
+  assert.doesNotMatch(html, /<main id="app"[^>]*aria-live/);
+  assert.match(html, /id="landing-status"[^>]*role="status"/);
   assert.match(html, /Welcome to Content Builder Academy/);
   assert.match(html, /data-action="enter"/);
   assert.match(html, /Connect Codex/);

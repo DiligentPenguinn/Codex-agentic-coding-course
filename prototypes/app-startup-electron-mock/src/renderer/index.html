@@ -31,7 +31,7 @@
         </ol>
       </nav>
 
-      <main id="app" aria-live="polite">
+      <main id="app">
         <section class="panel landing-panel" data-screen="landing">
           <p class="section-number">Welcome</p>
           <h2>Welcome to Content Builder Academy</h2>
@@ -142,7 +142,7 @@
           <header class="practice-header">
             <div class="mission-heading">
               <p id="practice-kicker" class="eyebrow">Practice fixture · Focused workshop</p>
-              <h2 id="practice-title">Preparing your mission…</h2>
+              <h2 id="practice-title" tabindex="-1">Preparing your mission…</h2>
               <p id="practice-description" class="practice-deck"></p>
             </div>
             <div class="practice-controls">
@@ -257,12 +257,17 @@
     <dialog id="task-picker" aria-labelledby="task-picker-title">
       <div class="dialog-heading">
         <p class="workshop-label">Eligible tasks · Current workspace</p>
-        <h3 id="task-picker-title">Choose an existing Codex task</h3>
+        <h3 id="task-picker-title" tabindex="-1">Choose an existing Codex task</h3>
         <p>Only recent, verified tasks from this exercise workspace appear here.</p>
+      </div>
+      <p id="picker-status" class="picker-status" role="status"></p>
+      <div id="picker-error-panel" class="picker-error-panel" hidden>
+        <p id="picker-error" role="alert" tabindex="-1"></p>
+        <button class="button secondary" type="button" data-practice-action="retry-picker">Refresh eligible tasks</button>
       </div>
       <div id="eligible-task-list" class="eligible-task-list"></div>
       <div class="dialog-actions">
-        <button class="button secondary" type="button" data-practice-action="close-picker">Cancel</button>
+        <button id="close-picker" class="button secondary" type="button" data-practice-action="close-picker">Cancel</button>
       </div>
     </dialog>
     <script type="module" src="./app.js"></script>

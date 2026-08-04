@@ -33,10 +33,12 @@ const FIXED_ERRORS = Object.freeze({
   }),
 });
 
-function deepFreeze(value) {
+function deepFreeze(value, seen = new WeakSet()) {
   if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  if (seen.has(value)) return value;
+  seen.add(value);
   Object.freeze(value);
-  for (const child of Object.values(value)) deepFreeze(child);
+  for (const child of Object.values(value)) deepFreeze(child, seen);
   return value;
 }
 
@@ -80,6 +82,12 @@ function safeFallbackName(value) {
     return "the named Practice task";
   }
   return trimmed;
+}
+
+function fallbackNotice(event) {
+  return event.opened === false
+    ? `Codex could not focus the new task. Locate “${safeFallbackName(event.fallbackName)}” in Codex; the verified binding is still active.`
+    : null;
 }
 
 function frozenState(state) {
@@ -141,10 +149,9 @@ export function reducePracticeRenderer(state, event) {
         fallbackNotice: null,
       });
     case "TASK_CREATED": {
-      const fallbackNotice = event.opened === false
-        ? `Codex could not focus the new task. Locate “${safeFallbackName(event.fallbackName)}” in Codex; the verified binding is still active.`
-        : null;
-      const next = withViewModel(state, event.viewModel, { fallbackNotice });
+      const next = withViewModel(state, event.viewModel, {
+        fallbackNotice: fallbackNotice(event),
+      });
       if (!next.viewModel?.presentation) return next;
       return frozenState({
         ...next,
@@ -157,6 +164,10 @@ export function reducePracticeRenderer(state, event) {
         }),
       });
     }
+    case "HANDOFF_UPDATED":
+      return withViewModel(state, event.viewModel, {
+        fallbackNotice: fallbackNotice(event),
+      });
     case "OPEN_PICKER":
       return frozenState({
         ...state,
@@ -179,6 +190,7 @@ export function reducePracticeRenderer(state, event) {
         pickerOpen: false,
         eligibleTasks: [],
         busyAction: null,
+        error: null,
       });
     case "TASK_BIND_REQUESTED":
       return frozenState({ ...state, busyAction: "binding", error: null });
@@ -187,6 +199,13 @@ export function reducePracticeRenderer(state, event) {
         pickerOpen: false,
         eligibleTasks: [],
         fallbackNotice: null,
+      });
+    case "TASK_BIND_REJECTED":
+      return withViewModel(state, event.viewModel ?? state.viewModel, {
+        pickerOpen: true,
+        eligibleTasks: state.eligibleTasks,
+        busyAction: null,
+        error: FIXED_ERRORS.binding,
       });
     case "TAB_SELECTED": {
       if (
@@ -214,9 +233,7 @@ export function reducePracticeRenderer(state, event) {
     case "TEACHER_SEND_REQUESTED":
       return frozenState({ ...state, busyAction: "teacher", error: null });
     case "TEACHER_SEND_ACCEPTED":
-      return withViewModel(state, event.viewModel, {
-        teacherDraft: "",
-      });
+      return withViewModel(state, event.viewModel, { teacherDraft: "" });
     case "BUSY_STARTED":
       return frozenState({
         ...state,
@@ -234,4 +251,252 @@ export function reducePracticeRenderer(state, event) {
     default:
       return state;
   }
+}
+
+function unwrapBridgeResult(result) {
+  if (result?.ok) return result.value;
+  throw new Error("The renderer bridge operation failed.");
+}
+
+function needsBinding(viewModel) {
+  return viewModel?.session?.lifecycle === "needs-binding"
+    && viewModel.session.executor?.bound !== true;
+}
+
+function hasBinding(viewModel) {
+  return viewModel?.session?.executor?.bound === true;
+}
+
+function hasCommittedBinding(viewModel) {
+  return hasBinding(viewModel)
+    && ["ready", "active", "paused"].includes(viewModel.session.lifecycle)
+    && !viewModel.session.error;
+}
+
+export function createPracticeRendererController({
+  bridge,
+  view,
+  confirmRebind = () => false,
+}) {
+  let state = createInitialPracticeRendererState();
+  let removeSubscription = null;
+
+  function apply(event, { composerOnly = false } = {}) {
+    state = reducePracticeRenderer(state, event);
+    if (composerOnly) view.updateComposer?.(state);
+    else view.render?.(state);
+    return state;
+  }
+
+  function subscribe() {
+    if (removeSubscription) return removeSubscription;
+    const removeBridgeListener = bridge.onStateChanged((value) => {
+      apply({ type: "STATE_PUSHED", viewModel: value });
+    });
+    let removed = false;
+    removeSubscription = () => {
+      if (removed) return;
+      removed = true;
+      removeBridgeListener?.();
+      removeSubscription = null;
+    };
+    return removeSubscription;
+  }
+
+  async function initialize() {
+    try {
+      const value = unwrapBridgeResult(await bridge.getState());
+      return apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+    } catch {
+      return apply({ type: "ERROR", kind: "generic" });
+    }
+  }
+
+  async function createDedicatedTask() {
+    if (state.busyAction === "binding") return state;
+    apply({ type: "CREATE_TASK_REQUESTED" });
+    try {
+      const value = unwrapBridgeResult(await bridge.createTask());
+      if (!hasBinding(value)) {
+        apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+        return apply({ type: "ERROR", kind: "binding" });
+      }
+      const handoff = value.session.executor?.handoff;
+      return apply({
+        type: "TASK_CREATED",
+        viewModel: value,
+        opened: handoff?.opened !== false,
+        fallbackName: handoff?.fallbackName,
+      });
+    } catch {
+      return apply({ type: "ERROR", kind: "binding" });
+    }
+  }
+
+  async function startPractice() {
+    if (state.busyAction === "entering") return state;
+    apply({ type: "START_REQUESTED" });
+    let value;
+    try {
+      value = unwrapBridgeResult(await bridge.start());
+      apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+    } catch {
+      return apply({ type: "ERROR", kind: "start" });
+    }
+    if (value?.session) view.focusPracticeHeading?.();
+    if (needsBinding(value)) return createDedicatedTask();
+    return state;
+  }
+
+  async function openTaskPicker() {
+    if (state.busyAction === "binding") return state;
+    apply({ type: "OPEN_PICKER" });
+    try {
+      const tasks = unwrapBridgeResult(await bridge.listTasks());
+      return apply({ type: "ELIGIBLE_TASKS_LOADED", tasks });
+    } catch {
+      const next = apply({ type: "ERROR", kind: "picker" });
+      view.focusPickerAlert?.();
+      return next;
+    }
+  }
+
+  async function bindSelectedTask(taskId) {
+    if (!state.pickerOpen || state.busyAction === "binding") return state;
+    const selected = state.eligibleTasks.find((task) => task.threadId === taskId);
+    if (!selected) return state;
+    apply({ type: "TASK_BIND_REQUESTED" });
+    try {
+      const value = unwrapBridgeResult(await bridge.bindTask(selected.threadId));
+      if (!hasCommittedBinding(value)) {
+        const next = apply({ type: "TASK_BIND_REJECTED", viewModel: value });
+        view.focusPickerChoice?.(selected.threadId);
+        return next;
+      }
+      const next = apply({ type: "TASK_BOUND", viewModel: value });
+      view.focusBoundTask?.();
+      return next;
+    } catch {
+      const next = apply({ type: "TASK_BIND_REJECTED" });
+      view.focusPickerChoice?.(selected.threadId);
+      return next;
+    }
+  }
+
+  function closePicker() {
+    if (state.busyAction === "binding") return state;
+    const next = apply({ type: "CLOSE_PICKER" });
+    view.focusPickerTrigger?.();
+    return next;
+  }
+
+  async function selectTab(tab) {
+    if (!["exercise", "teacher"].includes(tab)) return state;
+    apply({ type: "TAB_SELECTED", tab });
+    try {
+      const value = unwrapBridgeResult(await bridge.selectTab(tab));
+      return apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+    } catch {
+      return apply({ type: "ERROR", kind: "generic" });
+    }
+  }
+
+  async function openBoundTask() {
+    if (!hasBinding(state.viewModel)) return state;
+    apply({ type: "BUSY_STARTED", action: "opening" });
+    try {
+      const value = unwrapBridgeResult(await bridge.openTask());
+      const handoff = value?.session?.executor?.handoff;
+      return apply({
+        type: "HANDOFF_UPDATED",
+        viewModel: value,
+        opened: handoff?.opened !== false,
+        fallbackName: handoff?.fallbackName,
+      });
+    } catch {
+      return apply({ type: "ERROR", kind: "open" });
+    }
+  }
+
+  async function retryObservation() {
+    if (!hasBinding(state.viewModel) || state.busyAction === "retrying") return state;
+    apply({ type: "BUSY_STARTED", action: "retrying" });
+    try {
+      const value = unwrapBridgeResult(await bridge.retry());
+      return apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+    } catch {
+      return apply({ type: "ERROR", kind: "observation" });
+    }
+  }
+
+  async function rebindTask() {
+    if (state.busyAction === "rebinding") return state;
+    const confirmed = confirmRebind(
+      "Rebind this Practice session? The observation cursor will reset, and the Teacher will use only the newly selected task.",
+    );
+    if (!confirmed) return state;
+    apply({ type: "BUSY_STARTED", action: "rebinding" });
+    try {
+      const value = unwrapBridgeResult(await bridge.rebind());
+      apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
+      if (needsBinding(value)) return openTaskPicker();
+      return state;
+    } catch {
+      return apply({ type: "ERROR", kind: "rebind" });
+    }
+  }
+
+  async function compact() {
+    try {
+      unwrapBridgeResult(await bridge.compact());
+    } catch {
+      apply({ type: "ERROR", kind: "generic" });
+    }
+    return state;
+  }
+
+  function changeTeacherDraft(text) {
+    if (state.busyAction === "teacher") return state;
+    return apply({ type: "TEACHER_DRAFT_CHANGED", text }, { composerOnly: true });
+  }
+
+  async function sendTeacherMessage() {
+    const text = state.teacherDraft.trim();
+    if (!text || state.busyAction === "teacher" || !hasBinding(state.viewModel)) {
+      view.focusComposer?.();
+      return state;
+    }
+    apply({ type: "TEACHER_SEND_REQUESTED" }, { composerOnly: true });
+    try {
+      const value = unwrapBridgeResult(await bridge.sendTeacherMessage(text));
+      apply({ type: "TEACHER_SEND_ACCEPTED", viewModel: value });
+    } catch {
+      apply({ type: "ERROR", kind: "teacher" });
+    }
+    view.focusComposer?.();
+    return state;
+  }
+
+  function dispose() {
+    removeSubscription?.();
+  }
+
+  return Object.freeze({
+    bindSelectedTask,
+    changeTeacherDraft,
+    closePicker,
+    compact,
+    createDedicatedTask,
+    dispose,
+    getState: () => state,
+    initialize,
+    openBoundTask,
+    openTaskPicker,
+    rebindTask,
+    retryObservation,
+    selectTab,
+    sendTeacherMessage,
+    startPractice,
+    subscribe,
+  });
 }
