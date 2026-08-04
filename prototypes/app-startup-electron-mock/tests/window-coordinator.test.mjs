@@ -139,10 +139,18 @@ class FakeWindow extends EventEmitter {
 
 function createHarness(overrides = {}) {
   const windows = [];
+  const loadResolvers = [];
   class BrowserWindow extends FakeWindow {
     constructor(options) {
       super(options);
       windows.push(this);
+      if (overrides.delayLoads) {
+        this.loadFile = async (file) => {
+          this.loadedFile = file;
+          this.webContents.url = `file:///${file.replaceAll("\\", "/")}`;
+          await new Promise((resolve) => loadResolvers.push(resolve));
+        };
+      }
     }
 
     static fromWebContents(sender) {
@@ -225,6 +233,9 @@ function createHarness(overrides = {}) {
     quitCalls,
     builtTemplates,
     popupCalls,
+    releaseLoads() {
+      for (const resolve of loadResolvers.splice(0)) resolve();
+    },
   };
 }
 
@@ -264,6 +275,22 @@ test("create builds and secures all three windows exactly once, showing only mai
   assert.equal(main.visible, true);
 });
 
+test("a compact request during delayed creation wins without main being shown later", async () => {
+  const harness = createHarness({ delayLoads: true });
+  const creating = harness.coordinator.create();
+  await new Promise((resolve) => setImmediate(resolve));
+  const compacting = harness.coordinator.compact();
+  await new Promise((resolve) => setImmediate(resolve));
+
+  harness.releaseLoads();
+  await Promise.all([creating, compacting]);
+
+  const [main, bubble, quickChat] = harness.windows;
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, false]);
+  assert.equal(main.showCalls, 0);
+  assert.deepEqual(harness.updates.at(-1), { mode: "compact" });
+});
+
 test("compact, quick chat, close, and expand keep one prominent course surface", async () => {
   const harness = createHarness();
   await harness.coordinator.create();
@@ -298,6 +325,39 @@ test("compact, quick chat, close, and expand keep one prominent course surface",
   assert.equal(main.focusCalls, 1);
 });
 
+test("quick chat ignores stale persisted coordinates and reanchors beside the bubble", async () => {
+  const harness = createHarness({
+    presentation: {
+      bubbleBounds: { x: 912, y: 680, width: 72, height: 72 },
+      popoverBounds: { x: 16, y: 16, width: 360, height: 520 },
+    },
+  });
+  await harness.coordinator.create();
+  await harness.coordinator.compact();
+  harness.updates.length = 0;
+  await harness.coordinator.openQuickChat();
+  const [, bubble, quickChat] = harness.windows;
+
+  assert.equal(quickChat.bounds.x + quickChat.bounds.width + 16, bubble.bounds.x);
+  assert.ok(quickChat.bounds.x + quickChat.bounds.width <= bubble.bounds.x);
+  assert.deepEqual(harness.updates, [
+    { popoverBounds: quickChat.getBounds() },
+    { mode: "quick-chat" },
+  ]);
+});
+
+test("same-tick compact, open, and close applies the final compact invariant", async () => {
+  const harness = createHarness();
+  await harness.coordinator.create();
+  await Promise.all([
+    harness.coordinator.compact(),
+    harness.coordinator.openQuickChat(),
+    harness.coordinator.closeQuickChat(),
+  ]);
+  assert.deepEqual(harness.windows.map((window) => window.visible), [false, true, false]);
+  assert.deepEqual(harness.updates.at(-1), { mode: "compact" });
+});
+
 test("quick-chat blur closes only the popover", async () => {
   const harness = createHarness();
   await harness.coordinator.create();
@@ -322,19 +382,20 @@ test("move and resize events debounce and persist clamped bounds per window", as
     [quickChat, "popoverBounds", { x: 2050, y: 700, width: 360, height: 520 }],
   ];
 
-  for (const [window, key, bounds] of samples) {
+  for (const [window, , bounds] of samples) {
     window.setBounds(bounds);
     window.emit("move");
     window.emit("resize");
-    assert.equal(harness.scheduler.size, 1);
-    await harness.scheduler.flush();
-    assert.deepEqual(Object.keys(harness.updates.at(-1)), [key]);
-    assert.deepEqual(harness.updates.at(-1)[key], window.getBounds());
   }
+  assert.equal(harness.scheduler.size, 3);
+  await harness.scheduler.flush();
 
   assert.deepEqual(main.getBounds(), { x: 16, y: 16, width: 900, height: 700 });
   assert.deepEqual(bubble.getBounds(), { x: 2112, y: 100, width: 72, height: 72 });
   assert.deepEqual(quickChat.getBounds(), { x: 1824, y: 364, width: 360, height: 520 });
+  assert.deepEqual(harness.updates, samples.map(([window, key]) => ({
+    [key]: window.getBounds(),
+  })));
 });
 
 test("display removal reclamps and persists both compact surfaces", async () => {
@@ -350,12 +411,15 @@ test("display removal reclamps and persists both compact surfaces", async () => 
   harness.screen.setDisplays([primary]);
   harness.screen.emit("display-removed", {}, secondary);
   assert.deepEqual(bubble.getBounds(), { x: 912, y: 700, width: 72, height: 72 });
-  assert.deepEqual(quickChat.getBounds(), { x: 624, y: 264, width: 360, height: 520 });
+  assert.deepEqual(quickChat.getBounds(), { x: 536, y: 252, width: 360, height: 520 });
+  assert.equal(quickChat.bounds.x + quickChat.bounds.width + 16, bubble.bounds.x);
+  assert.ok(quickChat.bounds.x + quickChat.bounds.width <= bubble.bounds.x);
   await harness.scheduler.flush();
   assert.deepEqual(harness.updates, [
     { bubbleBounds: bubble.getBounds() },
     { popoverBounds: quickChat.getBounds() },
   ]);
+  assert.deepEqual(harness.presentation.popoverBounds, quickChat.getBounds());
 });
 
 test("broadcast maps a distinct safe ViewModel to each live presentation", async () => {
@@ -384,7 +448,7 @@ test("broadcast maps a distinct safe ViewModel to each live presentation", async
 test("bubble menu exposes only the four approved entries and routes actions", async () => {
   const harness = createHarness();
   await harness.coordinator.create();
-  const [, bubble] = harness.windows;
+  const [main, bubble] = harness.windows;
   harness.coordinator.openBubbleMenu(bubble.webContents);
   const [template] = harness.builtTemplates;
 
@@ -395,9 +459,12 @@ test("bubble menu exposes only the four approved entries and routes actions", as
     "Quit Course App",
   ]);
   assert.deepEqual(harness.popupCalls, [{ window: bubble }]);
+  template[0].click();
   template[1].click();
   template[3].click();
   await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(harness.selectedTabs, ["teacher"]);
+  assert.equal(main.restoreCalls, 1);
   assert.equal(harness.paused.length, 1);
   assert.equal(harness.quitCalls.length, 1);
 });

@@ -30,6 +30,24 @@ function distanceToWorkArea(point, area) {
   return (xDistance ** 2) + (yDistance ** 2);
 }
 
+function displayForBounds(bounds, displays) {
+  const center = {
+    x: bounds.x + bounds.width / 2,
+    y: bounds.y + bounds.height / 2,
+  };
+  return displays.find(({ workArea }) => (
+    center.x >= workArea.x
+    && center.x <= workArea.x + workArea.width
+    && center.y >= workArea.y
+    && center.y <= workArea.y + workArea.height
+  )) ?? displays.reduce((nearest, current) => (
+    distanceToWorkArea(center, current.workArea)
+      < distanceToWorkArea(center, nearest.workArea)
+      ? current
+      : nearest
+  ));
+}
+
 export function clampBounds(bounds, displays, fallback) {
   if (!Array.isArray(displays) || displays.length === 0) {
     throw new TypeError("At least one display is required to clamp window bounds.");
@@ -38,22 +56,7 @@ export function clampBounds(bounds, displays, fallback) {
   if (!isRectangle(candidate)) {
     throw new TypeError("Window bounds require a valid rectangle or fallback.");
   }
-  const center = {
-    x: candidate.x + candidate.width / 2,
-    y: candidate.y + candidate.height / 2,
-  };
-  const containingDisplay = displays.find(({ workArea }) => (
-    center.x >= workArea.x
-    && center.x <= workArea.x + workArea.width
-    && center.y >= workArea.y
-    && center.y <= workArea.y + workArea.height
-  ));
-  const display = containingDisplay ?? displays.reduce((nearest, current) => (
-    distanceToWorkArea(center, current.workArea)
-      < distanceToWorkArea(center, nearest.workArea)
-      ? current
-      : nearest
-  ));
+  const display = displayForBounds(candidate, displays);
   const area = display.workArea;
   const width = Math.min(candidate.width, Math.max(1, area.width - 32));
   const height = Math.min(candidate.height, Math.max(1, area.height - 32));
@@ -120,7 +123,8 @@ export function createWindowCoordinator({
   let quickChatWindow = null;
   let createPromise = null;
   let disposed = false;
-  let desiredMode = presentationState.mode ?? "full";
+  let requestedMode = presentationState.mode ?? "full";
+  let appliedMode = null;
   let transitionVersion = 0;
   let transitionQueue = Promise.resolve();
   let updateQueue = Promise.resolve();
@@ -156,14 +160,49 @@ export function createWindowCoordinator({
     };
   }
 
-  function quickFallback(bubbleBounds) {
-    const area = primaryArea();
-    return {
-      x: bubbleBounds.x - 376,
-      y: Math.max(area.y + 16, bubbleBounds.y - 448),
-      width: 360,
-      height: 520,
-    };
+  function quickFallback(bubbleBounds, displays = allDisplays()) {
+    const display = displayForBounds(bubbleBounds, displays);
+    const area = display.workArea;
+    const left = bubbleBounds.x - 376;
+    const right = bubbleBounds.x + bubbleBounds.width + 16;
+    const hasRoomLeft = left >= area.x + 16;
+    const hasRoomRight = right + 360 <= area.x + area.width - 16;
+    const above = bubbleBounds.y - 536;
+    const below = bubbleBounds.y + bubbleBounds.height + 16;
+    const hasRoomAbove = above >= area.y + 16;
+    const hasRoomBelow = below + 520 <= area.y + area.height - 16;
+    let candidate;
+    if (hasRoomLeft || hasRoomRight) {
+      candidate = {
+        x: hasRoomLeft ? left : right,
+        y: Math.max(area.y + 16, bubbleBounds.y + bubbleBounds.height - 520),
+        width: 360,
+        height: 520,
+      };
+    } else {
+      candidate = {
+        x: bubbleBounds.x,
+        y: hasRoomAbove || !hasRoomBelow ? above : below,
+        width: 360,
+        height: 520,
+      };
+    }
+    return clampBounds(null, [display], candidate);
+  }
+
+  function clampedBubbleBounds() {
+    return clampBounds(
+      bubbleWindow.getBounds(),
+      allDisplays(),
+      bubbleFallback(),
+    );
+  }
+
+  function currentQuickFallback() {
+    const bubbleBounds = activeWindow(bubbleWindow)
+      ? clampedBubbleBounds()
+      : clampBounds(presentationState.bubbleBounds, allDisplays(), bubbleFallback());
+    return quickFallback(bubbleBounds);
   }
 
   function boundsDefinition(kind) {
@@ -181,13 +220,10 @@ export function createWindowCoordinator({
         fallback: bubbleFallback(),
       };
     }
-    const fallbackBubble = activeWindow(bubbleWindow)
-      ? clampBounds(bubbleWindow.getBounds(), allDisplays(), bubbleFallback())
-      : clampBounds(presentationState.bubbleBounds, allDisplays(), bubbleFallback());
     return {
       window: quickChatWindow,
       field: "popoverBounds",
-      fallback: quickFallback(fallbackBubble),
+      fallback: currentQuickFallback(),
     };
   }
 
@@ -220,14 +256,62 @@ export function createWindowCoordinator({
     }
   }
 
+  function applyPresentationInvariant(mode, {
+    restoreMain = false,
+    focusMain = false,
+    focusQuickChat = false,
+  } = {}) {
+    if (![mainWindow, bubbleWindow, quickChatWindow].every(activeWindow)) return false;
+    if (mode === "full") {
+      bubbleWindow.hide();
+      quickChatWindow.hide();
+      if (restoreMain) mainWindow.restore();
+      mainWindow.show();
+      if (focusMain) mainWindow.focus();
+    } else if (mode === "compact") {
+      quickChatWindow.hide();
+      mainWindow.hide();
+      bubbleWindow.show();
+    } else if (mode === "quick-chat") {
+      mainWindow.hide();
+      bubbleWindow.show();
+      quickChatWindow.show();
+      if (focusQuickChat) quickChatWindow.focus();
+    } else {
+      throw new TypeError("Unknown Practice presentation mode.");
+    }
+    appliedMode = mode;
+    return true;
+  }
+
+  function reconcileQuickChatAnchor() {
+    const bubbleBounds = clampedBubbleBounds();
+    setClampedBounds("bubble", bubbleBounds);
+    const quickBounds = quickFallback(bubbleBounds);
+    setClampedBounds("quickChat", quickBounds);
+    return { bubbleBounds, quickBounds };
+  }
+
+  function persistExactBounds(field, bounds) {
+    if (sameBounds(presentationState[field], bounds)) return Promise.resolve(true);
+    return queuePresentationUpdate({ [field]: bounds });
+  }
+
+  async function persistQuickChatAnchor(isCurrent) {
+    const { bubbleBounds, quickBounds } = reconcileQuickChatAnchor();
+    await persistExactBounds("bubbleBounds", bubbleBounds);
+    if (!isCurrent()) return false;
+    await persistExactBounds("popoverBounds", quickBounds);
+    return isCurrent();
+  }
+
   async function persistBoundsNow(kind) {
     if (disposed) return false;
     const { window, field, fallback } = boundsDefinition(kind);
     if (!activeWindow(window)) return false;
     const bounds = clampBounds(window.getBounds(), allDisplays(), fallback);
     setClampedBounds(kind, bounds);
-    if (sameBounds(presentationState[field], bounds)) return true;
-    return queuePresentationUpdate({ [field]: bounds });
+    return persistExactBounds(field, bounds);
   }
 
   function scheduleBoundsPersistence(kind) {
@@ -242,27 +326,30 @@ export function createWindowCoordinator({
   }
 
   function reclampCompactWindows() {
-    if (disposed) return;
-    for (const kind of ["bubble", "quickChat"]) {
-      const { window, fallback } = boundsDefinition(kind);
-      if (!activeWindow(window)) continue;
-      const bounds = clampBounds(window.getBounds(), allDisplays(), fallback);
-      setClampedBounds(kind, bounds);
-      scheduleBoundsPersistence(kind);
-    }
+    if (disposed || !activeWindow(bubbleWindow) || !activeWindow(quickChatWindow)) return;
+    reconcileQuickChatAnchor();
+    scheduleBoundsPersistence("bubble");
+    scheduleBoundsPersistence("quickChat");
   }
 
   function requestTransition(nextMode, operation) {
     if (disposed) return Promise.resolve(false);
     const version = ++transitionVersion;
-    desiredMode = nextMode;
+    requestedMode = nextMode;
     const isCurrent = () => !disposed && version === transitionVersion;
     const run = transitionQueue.then(async () => {
+      if (!isCurrent()) return false;
+      if (createPromise) await createPromise;
       if (!isCurrent()) return false;
       try {
         return await operation(isCurrent);
       } catch (error) {
-        if (isCurrent()) desiredMode = presentationState.mode ?? "full";
+        if (isCurrent()) {
+          requestedMode = appliedMode ?? presentationState.mode ?? "full";
+          if (appliedMode === null) {
+            applyPresentationInvariant(requestedMode);
+          }
+        }
         throw error;
       }
     });
@@ -332,7 +419,18 @@ export function createWindowCoordinator({
         bubbleWindow.loadFile(rendererPaths.bubble),
         quickChatWindow.loadFile(rendererPaths.quickChat),
       ]);
-      if (!disposed && activeWindow(mainWindow)) mainWindow.show();
+      if (!disposed && transitionVersion === 0) {
+        const initialMode = presentationState.mode ?? "full";
+        if (initialMode === "quick-chat") {
+          const initialIsCurrent = () => !disposed && transitionVersion === 0;
+          await persistQuickChatAnchor(initialIsCurrent);
+        }
+        if (!disposed && transitionVersion === 0) {
+          applyPresentationInvariant(initialMode, {
+            focusQuickChat: initialMode === "quick-chat",
+          });
+        }
+      }
       return mainWindow;
     })();
     return createPromise;
@@ -375,55 +473,40 @@ export function createWindowCoordinator({
         bubbleFallback(),
       );
       setClampedBounds("bubble", bounds);
-      quickChatWindow.hide();
-      mainWindow.hide();
-      bubbleWindow.show();
-      return true;
+      return applyPresentationInvariant("compact");
     });
   }
 
   function openQuickChat() {
     requireWindows();
-    if (desiredMode !== "compact") {
+    if (requestedMode !== "compact") {
       return Promise.reject(new Error("Quick chat requires compact mode."));
     }
     return requestTransition("quick-chat", async (isCurrent) => {
       await persistBoundsNow("main");
       if (!isCurrent()) return false;
+      await persistQuickChatAnchor(isCurrent);
+      if (!isCurrent()) return false;
       await queuePresentationUpdate({ mode: "quick-chat" });
       if (!isCurrent()) return false;
 
-      const bubbleBounds = clampBounds(
-        bubbleWindow.getBounds(),
-        allDisplays(),
-        bubbleFallback(),
-      );
-      setClampedBounds("bubble", bubbleBounds);
-      const quickBounds = clampBounds(
-        presentationState.popoverBounds,
-        allDisplays(),
-        quickFallback(bubbleBounds),
-      );
-      setClampedBounds("quickChat", quickBounds);
-      mainWindow.hide();
-      bubbleWindow.show();
-      quickChatWindow.show();
-      quickChatWindow.focus();
-      return true;
+      return applyPresentationInvariant("quick-chat", {
+        focusQuickChat: true,
+      });
     });
   }
 
   function closeQuickChat() {
     if (disposed || !activeWindow(quickChatWindow)) return Promise.resolve(false);
-    if (desiredMode !== "quick-chat") {
-      quickChatWindow.hide();
-      return Promise.resolve(false);
-    }
+    if (requestedMode !== "quick-chat") return Promise.resolve(false);
     return requestTransition("compact", async (isCurrent) => {
+      await persistBoundsNow("main");
+      if (!isCurrent()) return false;
+      const bounds = clampedBubbleBounds();
+      setClampedBounds("bubble", bounds);
       await queuePresentationUpdate({ mode: "compact" });
       if (!isCurrent()) return false;
-      quickChatWindow.hide();
-      return true;
+      return applyPresentationInvariant("compact");
     });
   }
 
@@ -435,12 +518,10 @@ export function createWindowCoordinator({
       await queuePresentationUpdate({ mode: "full" });
       if (!isCurrent()) return false;
 
-      bubbleWindow.hide();
-      quickChatWindow.hide();
-      mainWindow.restore();
-      mainWindow.show();
-      mainWindow.focus();
-      return true;
+      return applyPresentationInvariant("full", {
+        restoreMain: true,
+        focusMain: true,
+      });
     });
   }
 
