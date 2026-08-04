@@ -506,6 +506,64 @@ test("a pending Teacher answer cannot attach after requestRebind clears the comm
   assert.doesNotMatch(JSON.stringify(harness.orchestrator.getViewModel()), /OLD REBIND ANSWER/);
 });
 
+test("a stale Teacher send cannot block or release the current binding's Teacher ownership", async () => {
+  const answerA = deferred();
+  const answerB = deferred();
+  const answerC = deferred();
+  const answers = [answerA, answerB, answerC];
+  let respondCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession() }),
+    teacherRespond: async () => answers[respondCount++].promise,
+    randomUUID: (() => {
+      const ids = ["learner-a", "learner-b", "teacher-b", "learner-c", "teacher-c"];
+      return () => ids.shift();
+    })(),
+  });
+  await harness.orchestrator.initialize();
+  const sendingA = harness.orchestrator.sendTeacherMessage("Question for binding A");
+  await tick();
+  await harness.orchestrator.bindExistingTask("thr-two");
+
+  let sendBError = null;
+  const sendingB = harness.orchestrator.sendTeacherMessage("Question for binding B").catch((error) => {
+    sendBError = error;
+  });
+  await tick();
+  const callsWhileAIsPending = harness.teacherCalls.length;
+  if (callsWhileAIsPending !== 2) {
+    answerA.resolve("STALE A ANSWER");
+    await Promise.all([sendingA, sendingB]);
+    assert.equal(callsWhileAIsPending, 2);
+  }
+
+  await assert.rejects(
+    harness.orchestrator.sendTeacherMessage("Concurrent B question"),
+    /already being sent/,
+  );
+  answerA.resolve("STALE A ANSWER MUST NOT PERSIST");
+  await sendingA;
+  await assert.rejects(
+    harness.orchestrator.sendTeacherMessage("Still concurrent with B"),
+    /already being sent/,
+  );
+
+  answerB.resolve("Current B answer");
+  await sendingB;
+  assert.equal(sendBError, null);
+  const sendingC = harness.orchestrator.sendTeacherMessage("Follow-up for binding B");
+  await tick();
+  assert.equal(harness.teacherCalls.length, 3);
+  answerC.resolve("Current B follow-up");
+  await sendingC;
+
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-two");
+  assert.deepEqual(harness.stored.teacherChat.map(({ role }) => role), [
+    "learner", "learner", "teacher", "learner", "teacher",
+  ]);
+  assert.doesNotMatch(JSON.stringify(harness.stored), /STALE A ANSWER/);
+});
+
 test("initialize revalidates only the saved binding and suppresses stale bind emissions before one atomic commit", async () => {
   const harness = createHarness({
     initialState: state({ activeSession: activeSession() }),

@@ -85,7 +85,7 @@ export function createPracticeOrchestrator({
   let startPromise = null;
   let bindingPromise = null;
   let bindingOwner = null;
-  let teacherSending = false;
+  let teacherSendOwner = null;
   let activitySuppressionOwner = null;
   let disposed = false;
   let bindingEpoch = 0;
@@ -94,7 +94,6 @@ export function createPracticeOrchestrator({
   let activeBindingTransition = null;
   let observationEnabled = false;
   let observationEpoch = 0;
-  let teacherEpoch = 0;
   let stateQueue = Promise.resolve();
   const listeners = new Set();
 
@@ -166,6 +165,14 @@ export function createPracticeOrchestrator({
       && committedBindingGeneration === capture.generation
       && session.sessionId === capture.sessionId
       && session.binding.threadId === capture.threadId
+    );
+  }
+
+  function teacherSendOwnerIsCurrent(owner) {
+    return Boolean(
+      owner?.token
+      && teacherSendOwner?.token === owner.token
+      && bindingCaptureIsCurrent(owner)
     );
   }
 
@@ -362,7 +369,7 @@ export function createPracticeOrchestrator({
     bindingEpoch += 1;
     committedBindingGeneration += 1;
     activitySuppressionOwner = null;
-    teacherEpoch += 1;
+    teacherSendOwner = null;
     handoff = null;
     const operation = Object.freeze({
       token: bindingEpoch,
@@ -801,12 +808,15 @@ export function createPracticeOrchestrator({
         "PRACTICE_TEACHER_MESSAGE_INVALID",
       );
     }
-    if (teacherSending) {
+    if (teacherSendOwnerIsCurrent(teacherSendOwner)) {
       throw publicError("A Teacher message is already being sent.", "PRACTICE_TEACHER_BUSY");
     }
-    teacherSending = true;
-    const token = ++teacherEpoch;
-    const guard = () => token === teacherEpoch && bindingCaptureIsCurrent(bindingCapture);
+    const owner = Object.freeze({
+      ...bindingCapture,
+      token: Symbol("teacher-send"),
+    });
+    teacherSendOwner = owner;
+    const guard = () => teacherSendOwnerIsCurrent(owner);
     const priorChat = structuredClone(persisted.teacherChat);
     const learnerMessage = parseTeacherChatMessage({
       id: randomUUID(), role: "learner", text, createdAt: at(),
@@ -832,7 +842,7 @@ export function createPracticeOrchestrator({
       const teacherMessage = parseTeacherChatMessage({
         id: randomUUID(), role: "teacher", text: answer, createdAt: at(),
       });
-      return transact((current) => ({
+      return await transact((current) => ({
         teacherChat: [...current.teacherChat, teacherMessage].slice(-40),
         activeSession: reducePracticeSession(current.activeSession, {
           type: "ERROR", error: null, at: at(),
@@ -841,9 +851,9 @@ export function createPracticeOrchestrator({
     } catch (error) {
       if (!guard()) return getViewModel();
       if (error?.code === "PRACTICE_SAVE_FAILED") throw error;
-      return setSessionError(TEACHER_ERROR, guard);
+      return await setSessionError(TEACHER_ERROR, guard);
     } finally {
-      teacherSending = false;
+      if (teacherSendOwner?.token === owner.token) teacherSendOwner = null;
     }
   }
 
@@ -882,7 +892,7 @@ export function createPracticeOrchestrator({
       return Promise.reject(publicError(BINDING_TRANSITION_ERROR, "PRACTICE_BINDING_TRANSITION"));
     }
     bindingEpoch += 1;
-    teacherEpoch += 1;
+    teacherSendOwner = null;
     pauseReader();
     return transact((current) => ({
       activeSession: reducePracticeSession(current.activeSession, { type: "PAUSE", at: at() }),
@@ -904,7 +914,7 @@ export function createPracticeOrchestrator({
     bindingTransition = true;
     activeBindingTransition = null;
     activitySuppressionOwner = null;
-    teacherEpoch += 1;
+    teacherSendOwner = null;
     bindingPromise = null;
     bindingOwner = null;
     listeners.clear();
