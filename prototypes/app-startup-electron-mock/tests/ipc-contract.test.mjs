@@ -280,6 +280,7 @@ test("unit script preserves setup coverage and includes Practice tests in order"
     "tests/executor-activity-reader.test.mjs",
     "tests/teacher-context-broker.test.mjs",
     "tests/teacher-adapter.test.mjs",
+    "tests/teacher-probe.test.mjs",
     "tests/practice-orchestrator.test.mjs",
     "tests/practice-ipc-contract.test.mjs",
     "tests/window-coordinator.test.mjs",

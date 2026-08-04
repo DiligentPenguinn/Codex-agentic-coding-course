@@ -59,6 +59,11 @@ creates and verifies an empty dedicated task named
 `Practice · Module 0 · Read-only inspection`. The learner writes and submits
 the first exercise prompt in Codex; the Course App does not submit it.
 
+The setup presentation is first-run only. A returning learner whose setup and
+dependencies are already valid sees `Setup complete — opening Course.` and is
+routed directly to Course, or directly back to an active Practice session after
+its binding is revalidated. **Review setup** remains available inside the app.
+
 ## What installation may occur
 
 The terminal displays one plan before running any missing action:
@@ -87,7 +92,8 @@ before the combined Node-based plan can run. Every displayed plan requires
 - Node.js 22+, npm, Codex CLI, Codex App Server, lockfile, and Electron runtime
   detection;
 - exact installation plan, scope, reason, and permission gate;
-- repeat runs that skip installation when the lock and runtime match;
+- repeat runs that skip the first-run presentation and installation prompts
+  when setup, the lock, and the runtime already match;
 - secure Electron windows with renderer sandboxing and context isolation;
 - Codex App Server lifecycle, request correlation, managed authentication, and
   sanitized failure states;
@@ -101,8 +107,10 @@ before the combined Node-based plan can run. Every displayed plan requires
 - eligible same-workspace existing-task fallback;
 - strict bound-task-only prompt, response, read-action, and changed-file
   awareness;
-- bounded Teacher context receipt and guarded ephemeral real Teacher adapter;
-- draggable always-on-top Teacher bubble and quick-chat popover;
+- bounded Teacher context receipt, guarded ephemeral real Teacher adapter,
+  advertised-model selection, and safe same-message retry;
+- draggable always-on-top Teacher bubble with a visible grip and quick-chat
+  popover;
 - restart revalidation, stale/disconnected disclosure, retry, pause, and
   explicit rebind.
 
@@ -123,9 +131,9 @@ an evaluation result.
 The normal application path does not use those fake events. It connects to the
 installed Codex App Server for account and Executor task behavior and invokes
 the guarded ephemeral real Teacher adapter with a bounded context envelope.
-That real path still requires the manual checkpoint below on the installed
-desktop build; automated success is not proof that the real adapter checkpoint
-passed.
+`npm run probe:teacher` exercises one bounded real Teacher round trip and emits
+only a pass/fail result. It complements, but does not replace, the visible
+desktop checkpoint below.
 
 ## Explicitly deferred
 
@@ -202,6 +210,11 @@ Use the recovery that matches the visible state:
 - **Wrong workspace:** Practice Mode rejects the task and excludes it from the
   eligible-task picker. Create the dedicated task in the repository workspace
   or choose a verified recent task shown for that workspace.
+- **Teacher could not answer:** the UI shows a fixed, non-provider error and
+  retains the learner's draft. Retry the same message; the retry reuses that
+  unresolved learner turn without adding a duplicate chat bubble. If it still
+  fails, run `npm run probe:teacher` from the prototype directory and record
+  only its bounded pass/fail result.
 - **Named-task fallback:** **Open in Codex** uses
   `codex://threads/<verified-threadId>`. If the installed desktop build cannot
   focus that task, locate the exact displayed task name in Codex. The verified
@@ -240,6 +253,7 @@ From `prototypes\app-startup-electron-mock`:
 ```powershell
 npm ci
 npx --no-install install-electron --no
+npm run probe:teacher
 npm run check
 ```
 
@@ -247,7 +261,10 @@ npm run check
 Electron smoke test. The smoke flow uses an isolated temporary profile and the
 local fake App Server. It exercises setup, the same-window Practice transition,
 the bound-task-only awareness boundary, Teacher chat, compact mode, and restart
-revalidation. Passing this gate proves the automated fixture path only.
+revalidation. `npm run probe:teacher` separately validates the installed App
+Server's advertised default model and one terminal Teacher response without
+printing private response content. Passing these gates still does not prove the
+physical-drag or visible-desktop checkpoints.
 
 ## Real Codex desktop checkpoint
 
@@ -255,32 +272,39 @@ This is a manual acceptance gate for the installed Codex/ChatGPT desktop build.
 Do not record it as passed unless every applicable item has been observed on
 the real path:
 
-1. From the repository root, run `.\start-course.cmd` and reach Practice Mode
-   through the normal setup flow.
-2. Confirm **Start Practice** creates
+1. From the repository root, run `.\start-course.cmd`. On a completed setup,
+   confirm the terminal prints only `Setup complete — opening Course.` rather
+   than repeating the first-run workflow.
+2. Confirm the app opens Course directly, or restores an active Practice
+   session only after binding revalidation. Confirm **Review setup** remains
+   available.
+3. Confirm **Start Practice** creates
    `Practice · Module 0 · Read-only inspection` in the repository workspace.
-3. Confirm **Open in Codex** focuses that exact verified task through the
+4. Confirm **Open in Codex** focuses that exact verified task through the
    canonical deep link, or follow the truthful named-task fallback above.
-4. Confirm the task composer is empty and Practice Mode did not submit a first
+5. Confirm the task composer is empty and Practice Mode did not submit a first
    prompt.
-5. In Codex, author and send a read-only inspection prompt for the fixture.
-6. Under normal local conditions, confirm Practice Mode shows **Working** and
+6. In Codex, author and send a read-only inspection prompt for the fixture.
+7. Under normal local conditions, confirm Practice Mode shows **Working** and
    then **Response ready** within 10 seconds.
-7. Create a second Codex task with visibly different decoy activity.
-8. Ask the Teacher what the bound Executor was asked, which constraints it
+8. Create a second Codex task with visibly different decoy activity.
+9. Ask the Teacher in English and Vietnamese what the bound Executor was asked,
+   which constraints it
    followed, what it reported, and whether files changed.
-9. Confirm the Teacher reports only the bound task, accurately describes its
+10. Confirm the Teacher reports only the bound task, accurately describes its
    prompt and report, confirms that the Executor followed the read-only/no-edit
    constraints, confirms that observed changed files were exactly zero, and
    omits the decoy. A nonzero observed changed-file result must fail acceptance,
    even when the Teacher reports it accurately.
-10. Confirm **Compact to Teacher** hides the main window, shows one draggable
-    bubble, opens quick chat, and **Expand Practice** restores the Teacher tab.
-11. Disconnect or stop the App Server and confirm Practice Mode discloses stale
+11. Confirm **Compact to Teacher** hides the main window and shows one 72×72
+    bubble. Physically drag it using the visible grip, reopen quick chat, and
+    confirm **Expand Practice** restores the Teacher tab.
+12. Disconnect or stop the App Server and confirm Practice Mode discloses stale
     or disconnected state without claiming current awareness.
-12. Restart the Course App and confirm the mission, verified task, and bounded
+13. Restart through `.\start-course.cmd` and confirm the concise returning path;
+    the mission, verified task, and bounded
     Teacher chat return only after binding revalidation.
-13. Inspect the UI, logs/output, and persisted state. Confirm that no
+14. Inspect the UI, logs/output, and persisted state. Confirm that no
     credentials, authentication URLs, raw protocol messages or payloads,
     environment variables, hidden reasoning, or unrelated-task/decoy content
     appeared. Record pass/fail only; do not record private values or content.
