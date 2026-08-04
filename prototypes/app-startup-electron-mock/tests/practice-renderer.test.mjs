@@ -570,6 +570,107 @@ test("interaction: Teacher send survives subscription ordering and restores focu
   assert.equal(harness.view.messageAnnouncementCount, 2);
 });
 
+test("interaction: rebind supersedes a late Teacher success without disturbing the picker or newer draft", async () => {
+  const teacherPending = pendingResult();
+  const tasks = [{
+    threadId: "thr-rebound",
+    displayName: "Rebound task",
+    updatedAt: "2026-08-04T02:05:04.000Z",
+    status: "idle",
+  }];
+  const staleAnswer = boundViewModel();
+  staleAnswer.session.teacherChat = [{
+    id: "stale-teacher",
+    role: "teacher",
+    text: "This answer belongs to the old binding.",
+    createdAt: "2026-08-04T02:06:04.000Z",
+  }];
+  const harness = createInteractionHarness({
+    sendTeacherMessage: () => teacherPending.promise,
+    rebind: () => ok(viewModel()),
+    listTasks: () => ok(tasks),
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Question for the old task");
+  const oldSend = harness.controller.sendTeacherMessage();
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+
+  const rebinding = harness.controller.rebindTask();
+  assert.equal(harness.controller.getState().busyAction, "rebinding");
+  await rebinding;
+  assert.equal(harness.controller.getState().pickerOpen, true);
+  assert.equal(harness.view.pickerMode, "choices");
+
+  harness.controller.changeTeacherDraft("Question for whichever task I bind next");
+  const beforeLateSuccess = harness.controller.getState();
+  const renderCount = harness.view.renderCount;
+  const composerFocusCount = harness.view.composerFocusCount;
+  teacherPending.resolve(ok(staleAnswer));
+  await oldSend;
+
+  assert.equal(harness.controller.getState(), beforeLateSuccess);
+  assert.equal(harness.controller.getState().teacherDraft, "Question for whichever task I bind next");
+  assert.equal(harness.controller.getState().pickerOpen, true);
+  assert.equal(harness.controller.getState().error, null);
+  assert.equal(harness.view.pickerMode, "choices");
+  assert.equal(harness.view.renderCount, renderCount);
+  assert.equal(harness.view.composerFocusCount, composerFocusCount);
+});
+
+test("interaction: a stale Teacher rejection cannot unlock or clear a newer Teacher request", async () => {
+  const oldTeacherPending = pendingResult();
+  const newTeacherPending = pendingResult();
+  let sendCount = 0;
+  const tasks = [{
+    threadId: "thr-new-context",
+    displayName: "New context task",
+    updatedAt: "2026-08-04T02:07:04.000Z",
+    status: "idle",
+  }];
+  const newAnswer = boundViewModel();
+  newAnswer.session.teacherChat = [{
+    id: "current-teacher",
+    role: "teacher",
+    text: "This answer belongs to the new binding.",
+    createdAt: "2026-08-04T02:08:04.000Z",
+  }];
+  const harness = createInteractionHarness({
+    sendTeacherMessage() {
+      sendCount += 1;
+      return sendCount === 1 ? oldTeacherPending.promise : newTeacherPending.promise;
+    },
+    rebind: () => ok(viewModel()),
+    listTasks: () => ok(tasks),
+    bindTask: () => ok(boundViewModel()),
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Old question");
+  const oldSend = harness.controller.sendTeacherMessage();
+  await harness.controller.rebindTask();
+  await harness.controller.bindSelectedTask("thr-new-context");
+
+  harness.controller.changeTeacherDraft("New question");
+  const newSend = harness.controller.sendTeacherMessage();
+  const beforeLateRejection = harness.controller.getState();
+  const renderCount = harness.view.renderCount;
+  oldTeacherPending.resolve(failed("RAW stale Teacher failure"));
+  await oldSend;
+
+  assert.equal(harness.controller.getState(), beforeLateRejection);
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+  assert.equal(harness.controller.getState().teacherDraft, "New question");
+  assert.equal(harness.controller.getState().error, null);
+  assert.equal(harness.controller.getState().pickerOpen, false);
+  assert.equal(harness.view.renderCount, renderCount);
+  assert.equal(harness.view.composerFocusCount, 0);
+
+  newTeacherPending.resolve(ok(newAnswer));
+  await newSend;
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.controller.getState().teacherDraft, "");
+  assert.equal(harness.view.composerFocusCount, 1);
+});
+
 test("interaction: rebind explains cursor reset and unbound retry is suppressed", async () => {
   const harness = createInteractionHarness({
     getState: () => ok(viewModel()),
@@ -658,6 +759,7 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(css, /overflow-wrap:\s*anywhere/);
   assert.match(css, /border-style:\s*dashed/);
   assert.match(css, /position:\s*sticky/);
+  assert.match(css, /dialog\s*\{[^}]*overscroll-behavior:\s*contain/);
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion/);
 });

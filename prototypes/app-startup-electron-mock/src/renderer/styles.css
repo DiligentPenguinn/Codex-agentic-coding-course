@@ -960,6 +960,7 @@ dialog {
   width: min(calc(100% - 36px), 680px);
   max-height: min(80vh, 760px);
   overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--ink);
   border-top: 7px solid var(--ink);
   padding: 28px;

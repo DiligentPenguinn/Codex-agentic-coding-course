@@ -280,12 +280,24 @@ export function createPracticeRendererController({
 }) {
   let state = createInitialPracticeRendererState();
   let removeSubscription = null;
+  let teacherRequestGeneration = 0;
+  let activeTeacherRequest = null;
 
   function apply(event, { composerOnly = false } = {}) {
     state = reducePracticeRenderer(state, event);
     if (composerOnly) view.updateComposer?.(state);
     else view.render?.(state);
     return state;
+  }
+
+  function supersedeTeacherRequest() {
+    teacherRequestGeneration += 1;
+    activeTeacherRequest = null;
+  }
+
+  function ownsTeacherRequest(request) {
+    return activeTeacherRequest === request
+      && request.generation === teacherRequestGeneration;
   }
 
   function subscribe() {
@@ -435,6 +447,7 @@ export function createPracticeRendererController({
       "Rebind this Practice session? The observation cursor will reset, and the Teacher will use only the newly selected task.",
     );
     if (!confirmed) return state;
+    supersedeTeacherRequest();
     apply({ type: "BUSY_STARTED", action: "rebinding" });
     try {
       const value = unwrapBridgeResult(await bridge.rebind());
@@ -466,11 +479,17 @@ export function createPracticeRendererController({
       view.focusComposer?.();
       return state;
     }
+    const request = Object.freeze({ generation: teacherRequestGeneration });
+    activeTeacherRequest = request;
     apply({ type: "TEACHER_SEND_REQUESTED" }, { composerOnly: true });
     try {
       const value = unwrapBridgeResult(await bridge.sendTeacherMessage(text));
+      if (!ownsTeacherRequest(request)) return state;
+      activeTeacherRequest = null;
       apply({ type: "TEACHER_SEND_ACCEPTED", viewModel: value });
     } catch {
+      if (!ownsTeacherRequest(request)) return state;
+      activeTeacherRequest = null;
       apply({ type: "ERROR", kind: "teacher" });
     }
     view.focusComposer?.();
@@ -478,6 +497,7 @@ export function createPracticeRendererController({
   }
 
   function dispose() {
+    supersedeTeacherRequest();
     removeSubscription?.();
   }
 
