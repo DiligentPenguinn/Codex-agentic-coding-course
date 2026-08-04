@@ -4,6 +4,8 @@ import test from "node:test";
 import {
   createAppServerTeacherAdapter,
   createFakeTeacherAdapter,
+  createTeacherFailure,
+  teacherFailureDetails,
 } from "../src/main/teacher-adapter.mjs";
 
 const TEACHER_CWD = "C:\\teacher-sandbox";
@@ -125,6 +127,192 @@ async function outcomeByNextTurn(promise) {
   ]);
 }
 
+function tick() {
+  return new Promise((resolve) => setImmediate(resolve));
+}
+
+async function rejectedValue(promise) {
+  return promise.then(
+    () => null,
+    (error) => error,
+  );
+}
+
+test("Teacher failure helpers expose only the fixed safe contract", () => {
+  const failure = createTeacherFailure("thread-start", "runtime-failure");
+
+  assert.equal(failure.code, "TEACHER_ADAPTER_FAILED");
+  assert.deepEqual(teacherFailureDetails(failure), {
+    operation: "thread-start",
+    category: "runtime-failure",
+  });
+  assert.deepEqual(teacherFailureDetails(new Error("RAW credential protocol URL")), {
+    operation: "turn-completion",
+    category: "runtime-failure",
+  });
+  assert.deepEqual(Object.keys(failure).sort(), ["category", "code", "operation"]);
+  assert.doesNotMatch(JSON.stringify(failure), /RAW|credential|protocol|URL/i);
+});
+
+test("classifies every Teacher failure stage without leaking raw errors", async (t) => {
+  const raw = "RAW credential protocol URL";
+  const scenarios = [
+    {
+      name: "thread request runtime failure",
+      expected: { operation: "thread-start", category: "runtime-failure" },
+      request(method) {
+        if (method === "thread/start") throw new Error(raw);
+        return {};
+      },
+    },
+    {
+      name: "thread response verification failure",
+      expected: { operation: "thread-start", category: "runtime-failure" },
+      request(method) {
+        if (method === "thread/start") {
+          return { thread: { id: "bad/id", cwd: TEACHER_CWD, ephemeral: true } };
+        }
+        return {};
+      },
+    },
+    {
+      name: "turn request runtime failure",
+      expected: { operation: "turn-start", category: "runtime-failure" },
+      request(method) {
+        if (method === "thread/start") {
+          return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+        }
+        if (method === "turn/start") throw new Error(raw);
+        return {};
+      },
+    },
+    {
+      name: "turn response verification failure",
+      expected: { operation: "turn-start", category: "runtime-failure" },
+      request(method) {
+        if (method === "thread/start") {
+          return { thread: { id: "thr-teacher", cwd: TEACHER_CWD, ephemeral: true } };
+        }
+        if (method === "turn/start") return { turn: { id: "" } };
+        return {};
+      },
+    },
+    {
+      name: "terminal completion without an answer",
+      expected: { operation: "turn-completion", category: "runtime-failure" },
+      drive(client) { client.emit(completedNotification()); },
+    },
+    {
+      name: "forbidden tool item",
+      expected: { operation: "turn-completion", category: "boundary-violation" },
+      drive(client) {
+        client.emit(itemNotification("item/started", {
+          id: "forbidden",
+          type: "commandExecution",
+          rawOutput: raw,
+        }));
+      },
+    },
+  ];
+
+  for (const scenario of scenarios) {
+    await t.test(scenario.name, async () => {
+      const diagnostics = [];
+      const client = fakeClient(scenario.request);
+      const adapter = createAppServerTeacherAdapter({
+        client,
+        teacherCwd: TEACHER_CWD,
+        onDiagnostic: (value) => diagnostics.push(value),
+      });
+      const response = rejectedValue(adapter.respond(input));
+      await tick();
+      scenario.drive?.(client);
+      const error = await response;
+
+      assert.equal(error?.code, "TEACHER_ADAPTER_FAILED");
+      assert.deepEqual(teacherFailureDetails(error), scenario.expected);
+      assert.deepEqual(diagnostics, [scenario.expected]);
+      assert.doesNotMatch(
+        JSON.stringify({
+          message: error?.message,
+          code: error?.code,
+          operation: error?.operation,
+          category: error?.category,
+          diagnostics,
+        }),
+        /RAW|credential|protocol|URL/i,
+      );
+      await adapter.dispose();
+    });
+  }
+});
+
+test("classifies stable connection codes and timeout safely", async (t) => {
+  for (const code of [
+    "APP_SERVER_NOT_INITIALIZED",
+    "APP_SERVER_EXITED",
+    "APP_SERVER_STOPPED",
+  ]) {
+    await t.test(code, async () => {
+      const diagnostics = [];
+      const client = fakeClient((method) => {
+        if (method === "thread/start") {
+          throw Object.assign(new Error("RAW private connection detail"), { code });
+        }
+        return {};
+      });
+      const adapter = createAppServerTeacherAdapter({
+        client,
+        teacherCwd: TEACHER_CWD,
+        onDiagnostic: (value) => diagnostics.push(value),
+      });
+      const error = await rejectedValue(adapter.respond(input));
+
+      assert.deepEqual(teacherFailureDetails(error), {
+        operation: "thread-start",
+        category: "disconnected",
+      });
+      assert.deepEqual(diagnostics, [{
+        operation: "thread-start",
+        category: "disconnected",
+      }]);
+      assert.doesNotMatch(JSON.stringify(error), /RAW|private|connection detail/i);
+      await adapter.dispose();
+    });
+  }
+
+  await t.test("adapter timeout", async () => {
+    const timers = [];
+    const diagnostics = [];
+    const client = fakeClient();
+    const adapter = createAppServerTeacherAdapter({
+      client,
+      teacherCwd: TEACHER_CWD,
+      onDiagnostic: (value) => diagnostics.push(value),
+      setTimeoutFn(callback) {
+        const timer = { callback };
+        timers.push(timer);
+        return timer;
+      },
+      clearTimeoutFn() {},
+    });
+    const response = adapter.respond(input);
+    await tick();
+    timers[0].callback();
+    const error = await rejectedValue(response);
+
+    assert.deepEqual(teacherFailureDetails(error), {
+      operation: "turn-completion",
+      category: "timeout",
+    });
+    assert.deepEqual(diagnostics, [{
+      operation: "turn-completion",
+      category: "timeout",
+    }]);
+    await adapter.dispose();
+  });
+});
+
 test("starts one verified ephemeral no-tools Teacher thread and sends text-only turn input", async () => {
   const client = fakeClient();
   const adapter = createAppServerTeacherAdapter({ client, teacherCwd: TEACHER_CWD });
@@ -240,7 +428,7 @@ test("fails safely and interrupts when the provisional notification buffer overf
 
   assert.deepEqual(outcome, {
     status: "rejected",
-    message: "Teacher notification buffer overflowed.",
+    message: "Teacher inference did not complete.",
   });
   assert.deepEqual(client.requests.find(([method]) => method === "turn/interrupt"), [
     "turn/interrupt", { threadId: "thr-teacher", turnId: "turn-teacher-1" },

@@ -24,6 +24,74 @@ const DEVELOPER_INSTRUCTIONS = [
 const SAFE_ID = /^[A-Za-z0-9_-]{1,500}$/;
 const STOPPED = Symbol("teacher-adapter-stopped");
 const MAX_STARTING_FACTS = 64;
+const TEACHER_OPERATIONS = new Set([
+  "thread-start",
+  "turn-start",
+  "turn-completion",
+]);
+const TEACHER_CATEGORIES = new Set([
+  "timeout",
+  "disconnected",
+  "boundary-violation",
+  "runtime-failure",
+]);
+const DISCONNECTED_CODES = new Set([
+  "APP_SERVER_NOT_INITIALIZED",
+  "APP_SERVER_EXITED",
+  "APP_SERVER_STOPPED",
+]);
+
+function teacherFailureMessage(operation, category) {
+  if (category === "timeout") return "Teacher response timed out.";
+  if (category === "disconnected") return "Teacher connection is unavailable.";
+  if (category === "boundary-violation") {
+    return "Teacher inference violated the no-tools boundary.";
+  }
+  if (operation === "thread-start" || operation === "turn-start") {
+    return "Teacher inference setup failed.";
+  }
+  return "Teacher inference did not complete.";
+}
+
+export function createTeacherFailure(operation, category) {
+  const safeOperation = TEACHER_OPERATIONS.has(operation)
+    ? operation
+    : "turn-completion";
+  const safeCategory = TEACHER_CATEGORIES.has(category)
+    ? category
+    : "runtime-failure";
+  return Object.assign(
+    new Error(teacherFailureMessage(safeOperation, safeCategory)),
+    {
+      code: "TEACHER_ADAPTER_FAILED",
+      operation: safeOperation,
+      category: safeCategory,
+    },
+  );
+}
+
+export function teacherFailureDetails(error) {
+  if (
+    error?.code === "TEACHER_ADAPTER_FAILED"
+    && TEACHER_OPERATIONS.has(error.operation)
+    && TEACHER_CATEGORIES.has(error.category)
+  ) {
+    return Object.freeze({
+      operation: error.operation,
+      category: error.category,
+    });
+  }
+  return Object.freeze({
+    operation: "turn-completion",
+    category: "runtime-failure",
+  });
+}
+
+function failureCategory(error) {
+  return DISCONNECTED_CODES.has(error?.code)
+    ? "disconnected"
+    : "runtime-failure";
+}
 
 function safeId(value) {
   return typeof value === "string" && SAFE_ID.test(value);
@@ -94,11 +162,9 @@ function verifyTurnStart(result) {
 }
 
 function stoppedError() {
-  return new Error("Teacher adapter stopped.");
-}
-
-function setupError() {
-  return new Error("Teacher inference setup failed.");
+  return Object.assign(new Error("Teacher adapter stopped."), {
+    code: "TEACHER_ADAPTER_STOPPED",
+  });
 }
 
 export function createFakeTeacherAdapter() {
@@ -128,6 +194,7 @@ export function createAppServerTeacherAdapter({
   setTimeoutFn = setTimeout,
   clearTimeoutFn = clearTimeout,
   timeoutMs = 60_000,
+  onDiagnostic = () => {},
 }) {
   if (!absolutePath(teacherCwd)) throw new TypeError("Teacher workspace must be absolute.");
 
@@ -172,7 +239,7 @@ export function createAppServerTeacherAdapter({
     if (!pending || fact.turnId !== pending.turnId) return;
     if (fact.kind === "forbidden") {
       const { threadId, turnId } = pending;
-      finish(new Error("Teacher inference violated the no-tools boundary."));
+      finish(createTeacherFailure("turn-completion", "boundary-violation"));
       void interrupt(threadId, turnId);
       return;
     }
@@ -184,7 +251,7 @@ export function createAppServerTeacherAdapter({
       if (fact.completed && pending.answer) {
         finish(null, pending.answer);
       } else {
-        finish(new Error("Teacher inference did not complete."));
+        finish(createTeacherFailure("turn-completion", "runtime-failure"));
       }
     }
   }
@@ -245,12 +312,33 @@ export function createAppServerTeacherAdapter({
     if (busy) throw new Error("Teacher is already responding.");
     busy = true;
     const activeGeneration = generation;
+    let diagnosticReported = false;
+
+    function reportFailure(error) {
+      if (error?.code !== "TEACHER_ADAPTER_FAILED") return error;
+      if (!diagnosticReported) {
+        diagnosticReported = true;
+        try {
+          onDiagnostic(teacherFailureDetails(error));
+        } catch {
+          // Diagnostics are non-authoritative and contain only fixed fields.
+        }
+      }
+      return error;
+    }
 
     let activeThreadId;
     let turnId;
     let provisional;
     try {
       activeThreadId = await ensureThread(activeGeneration);
+    } catch (error) {
+      busy = false;
+      if (error === STOPPED || disposed || activeGeneration !== generation) throw stoppedError();
+      throw reportFailure(createTeacherFailure("thread-start", failureCategory(error)));
+    }
+
+    try {
       const text = buildTeacherTurnInput({ envelope, chat, learnerMessage });
       provisional = {
         threadId: activeThreadId,
@@ -280,7 +368,7 @@ export function createAppServerTeacherAdapter({
       if (starting === provisional) starting = null;
       busy = false;
       if (error === STOPPED || disposed || activeGeneration !== generation) throw stoppedError();
-      throw setupError();
+      throw reportFailure(createTeacherFailure("turn-start", failureCategory(error)));
     }
 
     let resolveCompletion;
@@ -299,7 +387,7 @@ export function createAppServerTeacherAdapter({
     };
     if (starting === provisional) starting = null;
     if (provisional.overflowed) {
-      finish(new Error("Teacher notification buffer overflowed."));
+      finish(createTeacherFailure("turn-completion", "runtime-failure"));
       void interrupt(activeThreadId, turnId);
     } else {
       for (const fact of provisional.facts) {
@@ -311,15 +399,17 @@ export function createAppServerTeacherAdapter({
       if (pending) {
         pending.timeout = setTimeoutFn(() => {
           if (!pending || pending.threadId !== activeThreadId || pending.turnId !== turnId) return;
-          finish(new Error("Teacher response timed out."));
+          finish(createTeacherFailure("turn-completion", "timeout"));
           void interrupt(activeThreadId, turnId);
         }, timeoutMs);
       }
     } catch {
-      finish(setupError());
+      finish(createTeacherFailure("turn-completion", "runtime-failure"));
       void interrupt(activeThreadId, turnId);
     }
-    return completion;
+    return completion.catch((error) => {
+      throw reportFailure(error);
+    });
   }
 
   async function dispose() {
