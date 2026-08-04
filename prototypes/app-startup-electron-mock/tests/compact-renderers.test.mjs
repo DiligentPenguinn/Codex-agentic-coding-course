@@ -43,7 +43,10 @@ test("compact HTML keeps main-renderer CSP parity and exact accessible landmarks
   assert.match(bubble, /class="drag-ring"[^>]*aria-hidden="true"/);
   assert.match(bubble, /id="executor-symbol"[^>]*>○<\/span>/);
   assert.match(bubble, /id="unread-badge"[^>]*hidden[^>]*>0<\/span>/);
-  assert.match(bubble, /id="bubble-status"[^>]*role="status"[^>]*>Executor ready<\/span>/);
+  assert.match(
+    bubble,
+    /id="bubble-status"[^>]*role="status"[^>]*>[\s\S]*Executor ready\. No new Teacher message updates observed\.[\s\S]*<\/span>/,
+  );
   assert.match(bubble, /<script type="module" src="\.\/bubble\.js"><\/script>/);
 
   assert.match(quickChat, /<header class="quick-header">/);
@@ -55,6 +58,61 @@ test("compact HTML keeps main-renderer CSP parity and exact accessible landmarks
   assert.match(quickChat, /<button type="submit"[^>]*>Send<\/button>/);
   assert.match(quickChat, /<button type="button" data-action="expand">Expand Practice<\/button>/);
   assert.match(quickChat, /<script type="module" src="\.\/quick-chat\.js"><\/script>/);
+});
+
+test("bubble action name describes an external live Executor and unread status", async () => {
+  const [html, bubbleModule] = await Promise.all([
+    readRenderer("bubble.html"),
+    import(new URL("bubble.js", rendererUrl)),
+  ]);
+  assert.match(
+    html,
+    /id="teacher-bubble"[^>]*aria-label="Open Teacher quick chat"[^>]*aria-describedby="bubble-status"/,
+  );
+  assert.match(html, /id="unread-badge"[^>]*aria-hidden="true"/);
+  assert.match(
+    html,
+    /id="bubble-status"[^>]*role="status"[^>]*>Executor ready\. No new Teacher message updates observed\.<\/span>/,
+  );
+
+  const elements = new Map();
+  for (const selector of [
+    ".bubble-shell",
+    "#executor-symbol",
+    "#unread-badge",
+    "#bubble-status",
+  ]) {
+    elements.set(selector, {
+      attributes: new Map(),
+      dataset: {},
+      hidden: false,
+      textContent: "",
+      setAttribute(name, value) { this.attributes.set(name, value); },
+    });
+  }
+  const view = bubbleModule.createBubbleDomView({
+    root: { querySelector: (selector) => elements.get(selector) },
+  });
+  const liveStatus = elements.get("#bubble-status");
+  const badge = elements.get("#unread-badge");
+
+  view.renderStatus({ key: "working", symbol: "◌", label: "Executor working" });
+  assert.equal(
+    liveStatus.textContent,
+    "Executor working. No new Teacher message updates observed.",
+  );
+  view.renderUnread(1);
+  assert.equal(liveStatus.textContent, "Executor working. 1 new Teacher message update observed.");
+  view.renderStatus({ key: "stale", symbol: "~", label: "Executor context stale" });
+  assert.equal(liveStatus.textContent, "Executor context stale. 1 new Teacher message update observed.");
+  view.renderUnread(2);
+  assert.equal(liveStatus.textContent, "Executor context stale. 2 new Teacher message updates observed.");
+  view.renderUnread(0);
+  assert.equal(
+    liveStatus.textContent,
+    "Executor context stale. No new Teacher message updates observed.",
+  );
+  assert.equal(badge.hidden, true);
 });
 
 test("compact CSS preserves the 72px bubble, drag boundaries, and resilient accessibility", async () => {
@@ -74,6 +132,49 @@ test("compact CSS preserves the 72px bubble, drag boundaries, and resilient acce
   assert.match(css, /@media\s*\(forced-colors:\s*active\)/);
   assert.match(css, /overflow-wrap:\s*anywhere/);
   assert.doesNotMatch(css, /@import|https?:\/\//);
+});
+
+test("small Send and unread text keep at least 4.5:1 normal-theme contrast", async () => {
+  const [bubbleCss, compactCss] = await Promise.all([
+    readRenderer("bubble.css"),
+    readRenderer("compact.css"),
+  ]);
+  function rgb(hex) {
+    const value = Number.parseInt(hex.slice(1), 16);
+    return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+  }
+  function luminance(hex) {
+    return rgb(hex)
+      .map((channel) => channel / 255)
+      .map((channel) => (
+        channel <= 0.04045
+          ? channel / 12.92
+          : ((channel + 0.055) / 1.055) ** 2.4
+      ))
+      .reduce(
+        (sum, channel, index) => sum + channel * [0.2126, 0.7152, 0.0722][index],
+        0,
+      );
+  }
+  function contrast(first, second) {
+    const [lighter, darker] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  const bubbleAccent = bubbleCss.match(/--signal-dark:\s*(#[0-9a-f]{6})/i)?.[1];
+  const compactAccent = compactCss.match(/--signal-dark:\s*(#[0-9a-f]{6})/i)?.[1];
+  assert.ok(bubbleAccent);
+  assert.ok(compactAccent);
+  assert.ok(contrast(bubbleAccent, "#ffffff") >= 4.5);
+  assert.ok(contrast(compactAccent, "#ffffff") >= 4.5);
+  assert.match(
+    bubbleCss,
+    /\.unread-badge\s*\{[^}]*background:\s*var\(--signal-dark\)[^}]*color:\s*#fff/s,
+  );
+  assert.match(
+    compactCss,
+    /#quick-form button\[type="submit"\]\s*\{[^}]*background:\s*var\(--signal-dark\)[^}]*color:\s*#fff/s,
+  );
 });
 
 test("compact renderer sources use only narrow bridges and DOM-safe incremental rendering", async () => {
@@ -226,6 +327,71 @@ test("bubble arbitrates click, double-click, keyboard Expand, and context menu w
   assert.deepEqual(calls, ["open", "expand", "expand", "expand", "menu"]);
 });
 
+test("bubble waits through a realistic platform double-click window without opening once", async () => {
+  const {
+    BUBBLE_CLICK_DELAY_MS,
+    createBubbleController,
+  } = await import(new URL("bubble.js", rendererUrl));
+  let now = 0;
+  let timerId = 0;
+  const timers = new Map();
+  const calls = [];
+  const schedule = (callback, delay) => {
+    const id = ++timerId;
+    timers.set(id, { at: now + delay, callback });
+    return id;
+  };
+  const cancel = (id) => timers.delete(id);
+  const advance = (elapsed) => {
+    now += elapsed;
+    while (true) {
+      const next = [...timers.entries()]
+        .filter(([, timer]) => timer.at <= now)
+        .sort(([, left], [, right]) => left.at - right.at)[0];
+      if (!next) break;
+      timers.delete(next[0]);
+      next[1].callback();
+    }
+  };
+  const controller = createBubbleController({
+    bridge: {
+      getState: async () => ({ ok: true, value: {} }),
+      onStateChanged: () => () => {},
+      openQuickChat: async () => { calls.push("open"); return { ok: true, value: true }; },
+      expand: async () => { calls.push("expand"); return { ok: true, value: true }; },
+      openMenu: async () => ({ ok: true }),
+    },
+    view: { renderStatus() {}, renderUnread() {} },
+    schedule,
+    cancel,
+  });
+  const pointer = (detail) => ({ detail, preventDefault() {} });
+
+  controller.handleClick(pointer(1));
+  advance(450);
+  await flushPromises();
+  assert.deepEqual(calls, []);
+  controller.handleClick(pointer(2));
+  controller.handleDoubleClick(pointer(2));
+  advance(100);
+  await flushPromises();
+  assert.deepEqual(calls, ["expand"]);
+
+  assert.equal(BUBBLE_CLICK_DELAY_MS, 525);
+  controller.handleClick(pointer(1));
+  advance(BUBBLE_CLICK_DELAY_MS - 1);
+  await flushPromises();
+  assert.deepEqual(calls, ["expand"]);
+  advance(1);
+  await flushPromises();
+  assert.deepEqual(calls, ["expand", "open"]);
+
+  controller.handleClick(pointer(1));
+  assert.equal(timers.size, 1);
+  controller.dispose();
+  assert.equal(timers.size, 0);
+});
+
 test("bubble initialization never overwrites a newer pushed state with a stale snapshot", async () => {
   const { createBubbleController } = await import(new URL("bubble.js", rendererUrl));
   const initial = deferred();
@@ -316,6 +482,103 @@ test("bubble fails closed on initial state or open failure", async () => {
   scheduled.shift()();
   await flushPromises();
   assert.equal(unread.at(-1), 1);
+});
+
+test("bubble clears unread only for the current confirmed quick-chat open", async (t) => {
+  const { createBubbleController } = await import(new URL("bubble.js", rendererUrl));
+
+  async function harness(openQuickChat) {
+    let listener;
+    let timerId = 0;
+    const timers = new Map();
+    const unread = [];
+    const controller = createBubbleController({
+      bridge: {
+        getState: async () => ({
+          ok: true,
+          value: {
+            executor: { status: "ready", freshness: "fresh" },
+            newestTeacherMessageId: "teacher-unseen",
+          },
+        }),
+        onStateChanged(next) { listener = next; return () => {}; },
+        openQuickChat,
+        expand: async () => ({ ok: true, value: true }),
+        openMenu: async () => ({ ok: true }),
+      },
+      view: {
+        renderStatus() {},
+        renderUnread: (count) => unread.push(count),
+      },
+      schedule(callback) { const id = ++timerId; timers.set(id, callback); return id; },
+      cancel(id) { timers.delete(id); },
+    });
+    await controller.initialize();
+    return {
+      controller,
+      listener,
+      unread,
+      startOpen() {
+        controller.handleClick({ detail: 1 });
+        const callback = [...timers.values()].shift();
+        timers.clear();
+        callback();
+      },
+    };
+  }
+
+  await t.test("requires a true coordinator value", async () => {
+    const current = await harness(async () => ({ ok: true, value: false }));
+    current.startOpen();
+    await flushPromises();
+    assert.equal(current.unread.at(-1), 1);
+  });
+
+  await t.test("preserves unread for sanitized failure and throw", async () => {
+    for (const openQuickChat of [
+      async () => ({ ok: false }),
+      async () => { throw new Error("private failure"); },
+    ]) {
+      const current = await harness(openQuickChat);
+      current.startOpen();
+      await flushPromises();
+      assert.equal(current.unread.at(-1), 1);
+    }
+  });
+
+  await t.test("clears only after the current confirmed request", async () => {
+    const first = deferred();
+    const second = deferred();
+    const pending = [first, second];
+    const current = await harness(() => pending.shift().promise);
+    current.startOpen();
+    current.startOpen();
+    first.resolve({ ok: true, value: true });
+    await flushPromises();
+    assert.equal(current.unread.at(-1), 1, "stale success must not clear unread");
+    second.resolve({ ok: true, value: true });
+    await flushPromises();
+    assert.equal(current.unread.at(-1), 0);
+  });
+
+  await t.test("does not mutate after unload", async () => {
+    const completion = deferred();
+    const current = await harness(() => completion.promise);
+    current.startOpen();
+    const renderCount = current.unread.length;
+    current.controller.dispose();
+    completion.resolve({ ok: true, value: true });
+    await flushPromises();
+    assert.equal(current.unread.length, renderCount);
+    assert.equal(current.unread.at(-1), 1);
+  });
+
+  await t.test("Expand never marks quick-chat unread seen", async () => {
+    const current = await harness(async () => ({ ok: true, value: true }));
+    current.controller.handleDoubleClick({ preventDefault() {} });
+    await flushPromises();
+    assert.equal(current.unread.at(-1), 1);
+  });
 });
 
 test("quick chat normalizes a bounded recent role/text/timestamp log", async () => {

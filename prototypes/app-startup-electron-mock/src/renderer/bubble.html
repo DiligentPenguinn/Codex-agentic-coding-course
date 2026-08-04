@@ -13,12 +13,17 @@
   <body>
     <main class="bubble-shell" aria-label="Teacher companion">
       <div class="drag-ring" aria-hidden="true"></div>
-      <button id="teacher-bubble" type="button" aria-label="Open Teacher quick chat">
+      <button
+        id="teacher-bubble"
+        type="button"
+        aria-label="Open Teacher quick chat"
+        aria-describedby="bubble-status"
+      >
         <span class="teacher-avatar" aria-hidden="true">T</span>
         <span id="executor-symbol" class="executor-symbol" aria-hidden="true">○</span>
-        <span id="unread-badge" class="unread-badge" aria-label="0 unread Teacher messages" hidden>0</span>
+        <span id="unread-badge" class="unread-badge" aria-hidden="true" hidden>0</span>
       </button>
-      <span id="bubble-status" class="sr-only" role="status">Executor ready</span>
+      <span id="bubble-status" class="sr-only" role="status">Executor ready. No new Teacher message updates observed.</span>
     </main>
     <script type="module" src="./bubble.js"></script>
   </body>

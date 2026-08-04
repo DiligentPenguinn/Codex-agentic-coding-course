@@ -8,6 +8,11 @@ export const STATUS = Object.freeze({
   "not-bound": Object.freeze(["–", "No Executor task bound"]),
 });
 
+// Chromium does not expose the operating system's double-click threshold.
+// 525ms covers the deliberate 300–500ms desktop double-click window while
+// keeping a confirmed single click close to a half-second response.
+export const BUBBLE_CLICK_DELAY_MS = 525;
+
 function effectiveStatus(executor) {
   if (executor?.freshness === "disconnected") return "disconnected";
   if (executor?.freshness === "stale") return "stale";
@@ -28,16 +33,15 @@ function invokeSafely(operation) {
   }
 }
 
-function invokeAndThen(operation, onSuccess, isDisposed) {
-  try {
-    Promise.resolve(operation())
-      .then((response) => {
-        if (!isDisposed() && response?.ok) onSuccess();
-      })
-      .catch(() => {});
-  } catch {
-    // A failed compact action must not claim that the destination opened.
+export function formatBubbleLiveStatus(executorLabel, unreadCount) {
+  const count = Math.max(
+    0,
+    Number.isFinite(unreadCount) ? Math.floor(unreadCount) : 0,
+  );
+  if (count === 0) {
+    return `${executorLabel}. No new Teacher message updates observed.`;
   }
+  return `${executorLabel}. ${count} new Teacher message ${count === 1 ? "update" : "updates"} observed.`;
 }
 
 export function createBubbleController({
@@ -45,7 +49,7 @@ export function createBubbleController({
   view,
   schedule = globalThis.setTimeout,
   cancel = globalThis.clearTimeout,
-  clickDelay = 240,
+  clickDelay = BUBBLE_CLICK_DELAY_MS,
 }) {
   let disposed = false;
   let initialized = false;
@@ -53,6 +57,7 @@ export function createBubbleController({
   let removeStateListener = null;
   let pendingOpenTimer = null;
   let newestTeacherMessageId = null;
+  let presentationRequestGeneration = 0;
   let lastSeenTeacherMessageId = null;
   let unreadTransitions = 0;
   const observedTeacherMessageIds = new Set();
@@ -103,17 +108,30 @@ export function createBubbleController({
   }
 
   function openQuickChat() {
+    const requestGeneration = ++presentationRequestGeneration;
     pendingOpenTimer = null;
-    invokeAndThen(
-      () => bridge.openQuickChat(),
-      markCurrentSeen,
-      () => disposed,
-    );
+    try {
+      Promise.resolve(bridge.openQuickChat())
+        .then((response) => {
+          if (
+            !disposed
+            && presentationRequestGeneration === requestGeneration
+            && response?.ok === true
+            && response.value === true
+          ) {
+            markCurrentSeen();
+          }
+        })
+        .catch(() => {});
+    } catch {
+      // Failure cannot claim that quick chat opened or mutate unread state.
+    }
   }
 
   function expand() {
     cancelPendingOpen();
-    invokeAndThen(() => bridge.expand(), markCurrentSeen, () => disposed);
+    presentationRequestGeneration += 1;
+    invokeSafely(() => bridge.expand());
   }
 
   async function initialize() {
@@ -141,9 +159,11 @@ export function createBubbleController({
     }
   }
 
-  function handleClick() {
+  function handleClick(event) {
     if (disposed) return;
     cancelPendingOpen();
+    // The second click only cancels; the following dblclick owns Expand.
+    if (Number.isFinite(event?.detail) && event.detail > 1) return;
     pendingOpenTimer = schedule(openQuickChat, clickDelay);
   }
 
@@ -169,6 +189,7 @@ export function createBubbleController({
   function dispose() {
     if (disposed) return;
     disposed = true;
+    presentationRequestGeneration += 1;
     cancelPendingOpen();
     removeStateListener?.();
     removeStateListener = null;
@@ -184,28 +205,31 @@ export function createBubbleController({
   });
 }
 
-function createBubbleDomView() {
-  const shell = document.querySelector(".bubble-shell");
-  const symbol = document.querySelector("#executor-symbol");
-  const badge = document.querySelector("#unread-badge");
-  const status = document.querySelector("#bubble-status");
+export function createBubbleDomView({ root = document } = {}) {
+  const shell = root.querySelector(".bubble-shell");
+  const symbol = root.querySelector("#executor-symbol");
+  const badge = root.querySelector("#unread-badge");
+  const status = root.querySelector("#bubble-status");
+  let executorLabel = "Executor ready";
+  let unreadCount = 0;
+
+  function renderLiveStatus() {
+    status.textContent = formatBubbleLiveStatus(executorLabel, unreadCount);
+  }
 
   return Object.freeze({
     renderStatus(next) {
       shell.dataset.state = next.key;
       symbol.textContent = next.symbol;
-      status.textContent = next.label;
+      executorLabel = next.label;
+      renderLiveStatus();
     },
     renderUnread(count) {
       const bounded = Math.max(0, Number.isFinite(count) ? count : 0);
+      unreadCount = bounded;
       badge.hidden = bounded === 0;
       badge.textContent = bounded > 99 ? "99+" : String(bounded);
-      badge.setAttribute(
-        "aria-label",
-        bounded === 0
-          ? "No new Teacher message updates"
-          : `${bounded > 99 ? "More than 99" : bounded} new Teacher message ${bounded === 1 ? "update" : "updates"} observed`,
-      );
+      renderLiveStatus();
     },
   });
 }
@@ -216,7 +240,7 @@ function startBubbleRenderer() {
   if (!bridge || !button) return;
 
   const controller = createBubbleController({ bridge, view: createBubbleDomView() });
-  const onClick = () => controller.handleClick();
+  const onClick = (event) => controller.handleClick(event);
   const onDoubleClick = (event) => controller.handleDoubleClick(event);
   const onKeyDown = (event) => controller.handleKeyDown(event);
   const onContextMenu = (event) => controller.handleContextMenu(event);
