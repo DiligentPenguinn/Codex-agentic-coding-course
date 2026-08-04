@@ -671,6 +671,94 @@ test("interaction: a stale Teacher rejection cannot unlock or clear a newer Teac
   assert.equal(harness.view.composerFocusCount, 1);
 });
 
+test("interaction: Retry supersedes a late Teacher success while retaining retry ownership and a newer draft", async () => {
+  const oldTeacherPending = pendingResult();
+  const retryPending = pendingResult();
+  const staleAnswer = boundViewModel();
+  staleAnswer.session.teacherChat = [{
+    id: "stale-retry-teacher",
+    role: "teacher",
+    text: "This answer predates Retry observation.",
+    createdAt: "2026-08-04T02:09:04.000Z",
+  }];
+  const retried = boundViewModel();
+  retried.session.executor.observedAt = "2026-08-04T02:10:04.000Z";
+  const harness = createInteractionHarness({
+    sendTeacherMessage: () => oldTeacherPending.promise,
+    retry: () => retryPending.promise,
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Question before Retry");
+  const oldSend = harness.controller.sendTeacherMessage();
+
+  const retrying = harness.controller.retryObservation();
+  assert.equal(harness.controller.getState().busyAction, "retrying");
+  assert.equal(harness.calls.filter(([name]) => name === "retry").length, 1);
+  harness.controller.changeTeacherDraft("Question retained during Retry");
+  const beforeLateSuccess = harness.controller.getState();
+  const renderCount = harness.view.renderCount;
+  const composerFocusCount = harness.view.composerFocusCount;
+  oldTeacherPending.resolve(ok(staleAnswer));
+  await oldSend;
+
+  assert.equal(harness.controller.getState(), beforeLateSuccess);
+  assert.equal(harness.controller.getState().busyAction, "retrying");
+  assert.equal(harness.controller.getState().teacherDraft, "Question retained during Retry");
+  assert.equal(harness.controller.getState().error, null);
+  assert.equal(harness.view.renderCount, renderCount);
+  assert.equal(harness.view.composerFocusCount, composerFocusCount);
+
+  retryPending.resolve(ok(retried));
+  await retrying;
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.controller.getState().teacherDraft, "Question retained during Retry");
+  assert.equal(harness.controller.getState().viewModel.session.executor.observedAt, "2026-08-04T02:10:04.000Z");
+});
+
+test("interaction: a Teacher rejection superseded by Retry cannot unlock a newer Teacher request", async () => {
+  const oldTeacherPending = pendingResult();
+  const newTeacherPending = pendingResult();
+  let sendCount = 0;
+  const currentAnswer = boundViewModel();
+  currentAnswer.session.teacherChat = [{
+    id: "current-retry-teacher",
+    role: "teacher",
+    text: "This answer follows Retry observation.",
+    createdAt: "2026-08-04T02:11:04.000Z",
+  }];
+  const harness = createInteractionHarness({
+    sendTeacherMessage() {
+      sendCount += 1;
+      return sendCount === 1 ? oldTeacherPending.promise : newTeacherPending.promise;
+    },
+    retry: () => ok(boundViewModel()),
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Old question");
+  const oldSend = harness.controller.sendTeacherMessage();
+  await harness.controller.retryObservation();
+
+  harness.controller.changeTeacherDraft("New question after Retry");
+  const newSend = harness.controller.sendTeacherMessage();
+  const beforeLateRejection = harness.controller.getState();
+  const renderCount = harness.view.renderCount;
+  oldTeacherPending.resolve(failed("RAW stale Teacher failure after Retry"));
+  await oldSend;
+
+  assert.equal(harness.controller.getState(), beforeLateRejection);
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+  assert.equal(harness.controller.getState().teacherDraft, "New question after Retry");
+  assert.equal(harness.controller.getState().error, null);
+  assert.equal(harness.view.renderCount, renderCount);
+  assert.equal(harness.view.composerFocusCount, 0);
+
+  newTeacherPending.resolve(ok(currentAnswer));
+  await newSend;
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.controller.getState().teacherDraft, "");
+  assert.equal(harness.view.composerFocusCount, 1);
+});
+
 test("interaction: rebind explains cursor reset and unbound retry is suppressed", async () => {
   const harness = createInteractionHarness({
     getState: () => ok(viewModel()),

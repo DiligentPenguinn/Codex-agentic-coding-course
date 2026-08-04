@@ -295,6 +295,11 @@ export function createPracticeRendererController({
     activeTeacherRequest = null;
   }
 
+  function beginBindingTransition(event) {
+    supersedeTeacherRequest();
+    return apply(event);
+  }
+
   function ownsTeacherRequest(request) {
     return activeTeacherRequest === request
       && request.generation === teacherRequestGeneration;
@@ -326,7 +331,7 @@ export function createPracticeRendererController({
 
   async function createDedicatedTask() {
     if (state.busyAction === "binding") return state;
-    apply({ type: "CREATE_TASK_REQUESTED" });
+    beginBindingTransition({ type: "CREATE_TASK_REQUESTED" });
     try {
       const value = unwrapBridgeResult(await bridge.createTask());
       if (!hasBinding(value)) {
@@ -377,7 +382,7 @@ export function createPracticeRendererController({
     if (!state.pickerOpen || state.busyAction === "binding") return state;
     const selected = state.eligibleTasks.find((task) => task.threadId === taskId);
     if (!selected) return state;
-    apply({ type: "TASK_BIND_REQUESTED" });
+    beginBindingTransition({ type: "TASK_BIND_REQUESTED" });
     try {
       const value = unwrapBridgeResult(await bridge.bindTask(selected.threadId));
       if (!hasCommittedBinding(value)) {
@@ -432,7 +437,7 @@ export function createPracticeRendererController({
 
   async function retryObservation() {
     if (!hasBinding(state.viewModel) || state.busyAction === "retrying") return state;
-    apply({ type: "BUSY_STARTED", action: "retrying" });
+    beginBindingTransition({ type: "BUSY_STARTED", action: "retrying" });
     try {
       const value = unwrapBridgeResult(await bridge.retry());
       return apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
@@ -447,8 +452,7 @@ export function createPracticeRendererController({
       "Rebind this Practice session? The observation cursor will reset, and the Teacher will use only the newly selected task.",
     );
     if (!confirmed) return state;
-    supersedeTeacherRequest();
-    apply({ type: "BUSY_STARTED", action: "rebinding" });
+    beginBindingTransition({ type: "BUSY_STARTED", action: "rebinding" });
     try {
       const value = unwrapBridgeResult(await bridge.rebind());
       apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
