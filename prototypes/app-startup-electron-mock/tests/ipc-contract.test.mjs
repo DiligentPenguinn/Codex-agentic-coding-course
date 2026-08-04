@@ -250,3 +250,93 @@ test("main process composes secure services and guarded development hooks", asyn
   assert.match(source, /requestSingleInstanceLock/);
   assert.doesNotMatch(source, /\.codex[\\/]auth\.json|auth\.json/);
 });
+
+test("unit script preserves setup coverage and includes Practice tests in order", async () => {
+  const packageJson = JSON.parse(await readFile(
+    new URL("../package.json", import.meta.url),
+    "utf8",
+  ));
+  const command = packageJson.scripts["test:unit"];
+  const existingTests = [
+    "tests/content-schema.test.mjs",
+    "tests/setup-detection.test.mjs",
+    "tests/setup-store.test.mjs",
+    "tests/app-server-client.test.mjs",
+    "tests/auth-service.test.mjs",
+    "tests/window-policy.test.mjs",
+    "tests/onboarding-state.test.mjs",
+    "tests/ipc-contract.test.mjs",
+    "tests/launcher-contract.test.mjs",
+  ];
+  const practiceTests = [
+    "tests/practice-contracts.test.mjs",
+    "tests/practice-store.test.mjs",
+    "tests/practice-session-reducer.test.mjs",
+    "tests/executor-conversation-service.test.mjs",
+    "tests/executor-activity-reader.test.mjs",
+    "tests/teacher-context-broker.test.mjs",
+    "tests/teacher-adapter.test.mjs",
+    "tests/practice-orchestrator.test.mjs",
+    "tests/practice-ipc-contract.test.mjs",
+    "tests/window-coordinator.test.mjs",
+    "tests/practice-renderer.test.mjs",
+    "tests/compact-renderers.test.mjs",
+  ];
+
+  assert.equal(command, `node --test ${[...existingTests, ...practiceTests].join(" ")}`);
+});
+
+test("main process composes one shared Practice lifecycle and coordinated windows", async () => {
+  const source = await readFile(
+    new URL("../src/main/main.mjs", import.meta.url),
+    "utf8",
+  );
+
+  for (const moduleName of [
+    "mission-repository.mjs",
+    "practice-store.mjs",
+    "executor-conversation-service.mjs",
+    "executor-activity-reader.mjs",
+    "teacher-adapter.mjs",
+    "practice-orchestrator.mjs",
+    "practice-ipc-handlers.mjs",
+    "window-coordinator.mjs",
+  ]) {
+    assert.match(source, new RegExp(moduleName.replaceAll(".", "\\.")));
+  }
+
+  assert.equal(source.match(/client\s*=\s*createCodexClient\(\)/g)?.length, 1);
+  assert.match(source, /path\.join\(userDataPath\(\),\s*"teacher-sandbox"\)/);
+  assert.match(source, /mkdir\(teacherCwd,\s*\{\s*recursive:\s*true\s*\}\)/);
+  assert.match(source, /createAppServerTeacherAdapter\(\{\s*client,\s*teacherCwd\s*\}\)/);
+  assert.match(source, /practice\.module-0\.fixture\.json/);
+  assert.match(source, /repositoryRoot:\s*path\.resolve\(mockRoot,\s*"\.\.",\s*"\.\."\)/);
+  assert.match(source, /registerIpcHandlers\(\{/);
+  assert.match(source, /registerPracticeIpcHandlers\(\{/);
+  assert.match(source, /toBubbleViewModel/);
+  assert.match(source, /toQuickChatViewModel/);
+  assert.match(source, /orchestrator\.onChange\(\(viewModel\)\s*=>\s*\{/);
+  assert.match(source, /windowCoordinator\?\.broadcast\(viewModel\)/);
+  assert.match(source, /second-instance[\s\S]*?expandTeacher\(\)/);
+  assert.doesNotMatch(source, /\.codex[\\/]auth\.json|auth\.json/);
+
+  const cleanupOrder = [
+    "unregisterIpc()",
+    "unregisterPracticeIpc()",
+    "removeAuthForwarder()",
+    "removePracticeForwarder()",
+    "windowCoordinator?.dispose()",
+    "await orchestrator?.dispose()",
+    "auth?.dispose()",
+    "client.stop()",
+  ];
+  let cursor = source.indexOf("async function cleanup");
+  assert.notEqual(cursor, -1);
+  for (const marker of cleanupOrder) {
+    const next = source.indexOf(marker, cursor);
+    assert.notEqual(next, -1, `missing cleanup marker: ${marker}`);
+    assert.ok(next >= cursor, `cleanup marker out of order: ${marker}`);
+    cursor = next;
+  }
+  assert.match(source, /setTimeout\(resolve,\s*1_500\)/);
+});
