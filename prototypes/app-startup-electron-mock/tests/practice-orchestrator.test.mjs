@@ -1020,6 +1020,43 @@ test("a superseded delayed bind cannot re-enable observation after rebind rollba
   assert.equal(observed.length, 0);
 });
 
+test("a stale pending bind suppression cannot block snapshots from a committed successor binding", async () => {
+  const oldBindStarted = deferred();
+  const oldBind = deferred();
+  let bindCount = 0;
+  const harness = createHarness({
+    initialState: state({ activeSession: activeSession({ lifecycle: "active" }) }),
+    activityBind: async (nextBinding) => {
+      bindCount += 1;
+      if (bindCount === 2) {
+        oldBindStarted.resolve();
+        return oldBind.promise;
+      }
+      return activity(nextBinding.threadId);
+    },
+  });
+  await harness.orchestrator.initialize();
+  const staleReplacement = harness.orchestrator.bindExistingTask("thr-two");
+  await oldBindStarted.promise;
+
+  await harness.orchestrator.requestRebind();
+  await harness.orchestrator.bindExistingTask("thr-three");
+  const writesBeforeCurrentSnapshot = harness.writes.length;
+  harness.emitActivity(activity("thr-three", { cursor: "successor-live", status: "working" }));
+  await tick();
+  const writesWhileOldBindPending = harness.writes.length;
+
+  oldBind.resolve(activity("thr-two", { cursor: "stale-bind-result" }));
+  await staleReplacement;
+  harness.emitActivity(activity("thr-three", { cursor: "successor-after-stale", status: "response-ready" }));
+  await tick();
+
+  assert.equal(writesWhileOldBindPending, writesBeforeCurrentSnapshot + 1);
+  assert.equal(harness.stored.activeSession.binding.threadId, "thr-three");
+  assert.equal(harness.stored.activeSession.observationCursor, "successor-after-stale");
+  assert.doesNotMatch(JSON.stringify(harness.stored), /stale-bind-result/);
+});
+
 test("a pending open result is dropped when rebind invalidates its committed binding generation", async () => {
   const opened = deferred();
   const harness = createHarness({

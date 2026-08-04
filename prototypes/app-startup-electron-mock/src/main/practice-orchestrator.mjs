@@ -86,7 +86,7 @@ export function createPracticeOrchestrator({
   let bindingPromise = null;
   let bindingOwner = null;
   let teacherSending = false;
-  const activitySuppressions = new Set();
+  let activitySuppressionOwner = null;
   let disposed = false;
   let bindingEpoch = 0;
   let committedBindingGeneration = 0;
@@ -175,6 +175,31 @@ export function createPracticeOrchestrator({
       && observationEpoch === capture.observationToken
       && bindingCaptureIsCurrent(capture)
     );
+  }
+
+  function claimActivitySuppression(operation = null) {
+    const owner = Object.freeze({
+      token: Symbol("activity-suppression"),
+      bindingToken: operation?.token ?? bindingEpoch,
+      generation: operation?.generation ?? committedBindingGeneration,
+      sessionId: operation?.sessionId ?? persisted?.activeSession?.sessionId ?? null,
+    });
+    activitySuppressionOwner = owner;
+    return owner;
+  }
+
+  function activitySuppressionIsCurrent() {
+    const owner = activitySuppressionOwner;
+    return Boolean(
+      owner
+      && owner.bindingToken === bindingEpoch
+      && owner.generation === committedBindingGeneration
+      && owner.sessionId === persisted?.activeSession?.sessionId
+    );
+  }
+
+  function releaseActivitySuppression(owner) {
+    if (activitySuppressionOwner === owner) activitySuppressionOwner = null;
   }
 
   function currentContext() {
@@ -336,6 +361,7 @@ export function createPracticeOrchestrator({
     bindingTransition = true;
     bindingEpoch += 1;
     committedBindingGeneration += 1;
+    activitySuppressionOwner = null;
     teacherEpoch += 1;
     handoff = null;
     const operation = Object.freeze({
@@ -397,7 +423,7 @@ export function createPracticeOrchestrator({
       || !initialized
       || !observationEnabled
       || bindingTransition
-      || activitySuppressions.size > 0
+      || activitySuppressionIsCurrent()
       || !persisted?.activeSession?.binding
     ) return;
     const capture = {
@@ -413,7 +439,11 @@ export function createPracticeOrchestrator({
         type: "ACTIVITY_OBSERVED", activity, at: at(),
       });
       return activeSession === session ? null : { activeSession };
-    }, { guard: () => initialized && observationCaptureIsCurrent(capture) }).catch(() => {
+    }, {
+      guard: () => initialized
+        && !activitySuppressionIsCurrent()
+        && observationCaptureIsCurrent(capture),
+    }).catch(() => {
       // Background observation failure retains the last committed state.
     });
   });
@@ -443,8 +473,7 @@ export function createPracticeOrchestrator({
 
       bindingTransition = true;
       committedBindingGeneration += 1;
-      const suppression = Symbol("initialize");
-      activitySuppressions.add(suppression);
+      const suppression = claimActivitySuppression();
       try {
         try {
           const result = await conversationService.revalidateBinding(
@@ -485,7 +514,7 @@ export function createPracticeOrchestrator({
           });
         }
       } finally {
-        activitySuppressions.delete(suppression);
+        releaseActivitySuppression(suppression);
       }
       return getViewModel();
     })().catch((error) => {
@@ -496,6 +525,7 @@ export function createPracticeOrchestrator({
         committedBindingGeneration += 1;
         bindingTransition = false;
         activeBindingTransition = null;
+        activitySuppressionOwner = null;
         try { pauseReader(); } catch { /* Terminal initialization failure stays non-observing. */ }
       }
       throw error;
@@ -528,8 +558,7 @@ export function createPracticeOrchestrator({
     if (!transitionIsCurrent(operation)) return getViewModel();
     const session = requireSession();
     const nextBinding = validBindingForSession(nextBindingValue, session, expectedThreadId);
-    const suppression = Symbol("binding");
-    activitySuppressions.add(suppression);
+    const suppression = claimActivitySuppression(operation);
     try {
       let nextActivity;
       try {
@@ -560,7 +589,7 @@ export function createPracticeOrchestrator({
         throw readerSwitchFailure(error, !restored);
       }
     } finally {
-      activitySuppressions.delete(suppression);
+      releaseActivitySuppression(suppression);
     }
   }
 
@@ -693,8 +722,7 @@ export function createPracticeOrchestrator({
         });
       } catch (error) {
         if (!transitionIsCurrent(operation)) return getViewModel();
-        const suppression = Symbol("rebind-rollback");
-        activitySuppressions.add(suppression);
+        const suppression = claimActivitySuppression(operation);
         try {
           const restored = await rollbackReader(operation);
           if (!transitionIsCurrent(operation)) return getViewModel();
@@ -716,7 +744,7 @@ export function createPracticeOrchestrator({
             throw saveError;
           }
         } finally {
-          activitySuppressions.delete(suppression);
+          releaseActivitySuppression(suppression);
         }
       }
     }, "rebind", operation);
@@ -727,8 +755,7 @@ export function createPracticeOrchestrator({
     return runBindingOperation(async (operation) => {
       if (!operation.priorBinding) throw new TypeError("A committed binding is required.");
       const savedThreadId = operation.priorBinding.threadId;
-      const suppression = Symbol("retry");
-      activitySuppressions.add(suppression);
+      const suppression = claimActivitySuppression(operation);
       try {
         try {
           const nextActivity = await bindReader(operation.priorBinding);
@@ -757,7 +784,7 @@ export function createPracticeOrchestrator({
           throw readerSwitchFailure(error, !restored);
         }
       } finally {
-        activitySuppressions.delete(suppression);
+        releaseActivitySuppression(suppression);
       }
     }, DISCONNECTED_ERROR, { bindingLost: true });
   }
@@ -876,6 +903,7 @@ export function createPracticeOrchestrator({
     committedBindingGeneration += 1;
     bindingTransition = true;
     activeBindingTransition = null;
+    activitySuppressionOwner = null;
     teacherEpoch += 1;
     bindingPromise = null;
     bindingOwner = null;
