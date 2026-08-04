@@ -1,6 +1,6 @@
 # Real Practice Acceptance Corrections Design
 
-**Status:** Proposed correction design; awaiting user review | **Date:** 4 August 2026 | **Owner:** Duy | **Target:** Windows-first local prototype
+**Status:** Approved design; ready for implementation planning | **Date:** 4 August 2026 | **Owner:** Duy | **Target:** Windows-first local prototype
 
 ## Purpose
 
