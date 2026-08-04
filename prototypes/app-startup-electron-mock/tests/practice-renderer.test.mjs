@@ -494,6 +494,84 @@ test("interaction: picker list failures stay in-modal and can be retried", async
   assert.equal(harness.controller.getState().eligibleTasks.length, 1);
 });
 
+test("interaction: closing the picker supersedes late task-list success and failure", async (t) => {
+  for (const outcome of ["success", "failure"]) {
+    await t.test(outcome, async () => {
+      const listingPending = pendingResult();
+      const harness = createInteractionHarness({
+        getState: () => ok(viewModel()),
+        listTasks: () => listingPending.promise,
+      });
+      await harness.controller.initialize();
+
+      const listing = harness.controller.openTaskPicker();
+      assert.equal(harness.controller.getState().busyAction, "listing");
+      harness.controller.closePicker();
+      const closedState = harness.controller.getState();
+      const alertFocusCount = harness.view.pickerAlertFocusCount;
+      const triggerFocusCount = harness.view.pickerTriggerFocusCount;
+      listingPending.resolve(outcome === "success"
+        ? ok([{
+          threadId: "thr-late",
+          displayName: "Late task",
+          updatedAt: "2026-08-04T02:12:04.000Z",
+          status: "idle",
+        }])
+        : failed("RAW late listing failure"));
+      await listing;
+
+      assert.equal(harness.controller.getState(), closedState);
+      assert.equal(harness.controller.getState().pickerOpen, false);
+      assert.deepEqual(harness.controller.getState().eligibleTasks, []);
+      assert.equal(harness.controller.getState().error, null);
+      assert.equal(harness.view.pickerMode, "closed");
+      assert.equal(harness.view.pickerAlertFocusCount, alertFocusCount);
+      assert.equal(harness.view.pickerTriggerFocusCount, triggerFocusCount);
+    });
+  }
+});
+
+test("interaction: an older task-list result cannot affect a newer listing owner", async () => {
+  const oldListingPending = pendingResult();
+  const newListingPending = pendingResult();
+  let listCount = 0;
+  const harness = createInteractionHarness({
+    getState: () => ok(viewModel()),
+    listTasks() {
+      listCount += 1;
+      return listCount === 1 ? oldListingPending.promise : newListingPending.promise;
+    },
+  });
+  await harness.controller.initialize();
+
+  const oldListing = harness.controller.openTaskPicker();
+  const newListing = harness.controller.openTaskPicker();
+  const newListingState = harness.controller.getState();
+  oldListingPending.resolve(ok([{
+    threadId: "thr-old-list",
+    displayName: "Old listing task",
+    updatedAt: "2026-08-04T02:13:04.000Z",
+    status: "idle",
+  }]));
+  await oldListing;
+
+  assert.equal(harness.controller.getState(), newListingState);
+  assert.equal(harness.controller.getState().busyAction, "listing");
+  assert.deepEqual(harness.controller.getState().eligibleTasks, []);
+  assert.equal(harness.view.pickerAlertFocusCount, 0);
+
+  newListingPending.resolve(ok([{
+    threadId: "thr-new-list",
+    displayName: "New listing task",
+    updatedAt: "2026-08-04T02:14:04.000Z",
+    status: "idle",
+  }]));
+  await newListing;
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.controller.getState().eligibleTasks.length, 1);
+  assert.equal(harness.controller.getState().eligibleTasks[0].threadId, "thr-new-list");
+});
+
 test("interaction: pending and rejected binds stay in the picker without duplicates", async () => {
   const bindPending = pendingResult();
   let bindAttempt = 0;
@@ -576,6 +654,95 @@ test("interaction: Teacher send survives subscription ordering and restores focu
   assert.equal(harness.controller.getState().teacherDraft, "");
   assert.equal(harness.view.composerFocusCount, 1);
   assert.equal(harness.view.messageAnnouncementCount, 2);
+});
+
+test("interaction: tab success and compact failure cannot steal Teacher ownership", async () => {
+  const teacherPending = pendingResult();
+  const initial = boundViewModel();
+  initial.session.mission.title = "Current owned mission";
+  const stalePresentationResult = boundViewModel();
+  stalePresentationResult.session.mission.title = "Stale presentation mission";
+  stalePresentationResult.presentation.lastFullTab = "teacher";
+  const harness = createInteractionHarness({
+    getState: () => ok(initial),
+    sendTeacherMessage: () => teacherPending.promise,
+    selectTab: () => ok(stalePresentationResult),
+    compact: () => failed("RAW compact failure"),
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Teacher-owned draft");
+  const sending = harness.controller.sendTeacherMessage();
+
+  await harness.controller.selectTab("teacher");
+  const afterTab = harness.controller.getState();
+  assert.equal(afterTab.busyAction, "teacher");
+  assert.equal(afterTab.teacherDraft, "Teacher-owned draft");
+  assert.equal(afterTab.error, null);
+  assert.equal(afterTab.viewModel.presentation.lastFullTab, "teacher");
+  assert.equal(afterTab.viewModel.session.mission.title, "Current owned mission");
+  assert.equal(harness.view.composerFocusCount, 0);
+  await harness.controller.compact();
+
+  assert.equal(harness.calls.filter(([name]) => name === "selectTab").length, 1);
+  assert.equal(harness.calls.filter(([name]) => name === "compact").length, 1);
+  assert.equal(harness.controller.getState(), afterTab);
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+  assert.equal(harness.controller.getState().error, null);
+  assert.equal(harness.view.composerFocusCount, 0);
+
+  teacherPending.resolve(ok(boundViewModel()));
+  await sending;
+});
+
+test("interaction: tab and compact failures preserve Retry and Rebind owners", async (t) => {
+  for (const scenario of [
+    {
+      name: "Retry",
+      busyAction: "retrying",
+      bridgeMethod: "retry",
+      start: (controller) => controller.retryObservation(),
+      result: () => ok(boundViewModel()),
+    },
+    {
+      name: "Rebind",
+      busyAction: "rebinding",
+      bridgeMethod: "rebind",
+      start: (controller) => controller.rebindTask(),
+      result: () => ok(viewModel()),
+    },
+  ]) {
+    await t.test(scenario.name, async () => {
+      const transitionPending = pendingResult();
+      const initial = boundViewModel();
+      initial.session.mission.title = `${scenario.name} owned mission`;
+      const harness = createInteractionHarness({
+        getState: () => ok(initial),
+        [scenario.bridgeMethod]: () => transitionPending.promise,
+        selectTab: () => failed("RAW tab failure"),
+        compact: () => failed("RAW compact failure"),
+        listTasks: () => ok([]),
+      });
+      await harness.controller.initialize();
+      const transition = scenario.start(harness.controller);
+      harness.controller.changeTeacherDraft(`${scenario.name} retained draft`);
+
+      await harness.controller.selectTab("teacher");
+      const afterTabFailure = harness.controller.getState();
+      assert.equal(afterTabFailure.busyAction, scenario.busyAction);
+      assert.equal(afterTabFailure.error, null);
+      assert.equal(afterTabFailure.teacherDraft, `${scenario.name} retained draft`);
+      assert.equal(afterTabFailure.viewModel.presentation.lastFullTab, "teacher");
+      assert.equal(afterTabFailure.viewModel.session.mission.title, `${scenario.name} owned mission`);
+      await harness.controller.compact();
+
+      assert.equal(harness.controller.getState(), afterTabFailure);
+      assert.equal(harness.calls.filter(([name]) => name === "selectTab").length, 1);
+      assert.equal(harness.calls.filter(([name]) => name === "compact").length, 1);
+      assert.equal(harness.view.composerFocusCount, 0);
+      transitionPending.resolve(scenario.result());
+      await transition;
+    });
+  }
 });
 
 test("interaction: rebind supersedes a late Teacher success without disturbing the picker or newer draft", async () => {

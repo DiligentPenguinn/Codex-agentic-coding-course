@@ -301,6 +301,8 @@ export function createPracticeRendererController({
   let removeSubscription = null;
   let teacherRequestGeneration = 0;
   let activeTeacherRequest = null;
+  let taskListRequestGeneration = 0;
+  let activeTaskListRequest = null;
 
   function apply(event, { composerOnly = false } = {}) {
     state = reducePracticeRenderer(state, event);
@@ -322,6 +324,34 @@ export function createPracticeRendererController({
   function ownsTeacherRequest(request) {
     return activeTeacherRequest === request
       && request.generation === teacherRequestGeneration;
+  }
+
+  function claimTaskListRequest() {
+    const request = Object.freeze({ generation: taskListRequestGeneration + 1 });
+    taskListRequestGeneration = request.generation;
+    activeTaskListRequest = request;
+    return request;
+  }
+
+  function supersedeTaskListRequest() {
+    taskListRequestGeneration += 1;
+    activeTaskListRequest = null;
+  }
+
+  function ownsTaskListRequest(request) {
+    return activeTaskListRequest === request
+      && request.generation === taskListRequestGeneration;
+  }
+
+  async function runNonOwningPresentationAction(event, operation) {
+    if (event) apply(event);
+    try {
+      unwrapBridgeResult(await operation());
+    } catch {
+      // Presentation feedback is deferred so it cannot steal another action's
+      // busy, error, ViewModel, draft, or focus ownership.
+    }
+    return state;
   }
 
   function subscribe() {
@@ -386,15 +416,21 @@ export function createPracticeRendererController({
 
   async function openTaskPicker() {
     if (state.busyAction === "binding") return state;
+    const request = claimTaskListRequest();
     apply({ type: "OPEN_PICKER" });
+    let tasks;
     try {
-      const tasks = unwrapBridgeResult(await bridge.listTasks());
-      return apply({ type: "ELIGIBLE_TASKS_LOADED", tasks });
+      tasks = unwrapBridgeResult(await bridge.listTasks());
     } catch {
+      if (!ownsTaskListRequest(request)) return state;
+      activeTaskListRequest = null;
       const next = apply({ type: "ERROR", kind: "picker" });
       view.focusPickerAlert?.();
       return next;
     }
+    if (!ownsTaskListRequest(request)) return state;
+    activeTaskListRequest = null;
+    return apply({ type: "ELIGIBLE_TASKS_LOADED", tasks });
   }
 
   async function bindSelectedTask(taskId) {
@@ -422,6 +458,7 @@ export function createPracticeRendererController({
 
   function closePicker() {
     if (state.busyAction === "binding") return state;
+    supersedeTaskListRequest();
     const next = apply({ type: "CLOSE_PICKER" });
     view.focusPickerTrigger?.();
     return next;
@@ -429,13 +466,10 @@ export function createPracticeRendererController({
 
   async function selectTab(tab) {
     if (!["exercise", "teacher"].includes(tab)) return state;
-    apply({ type: "TAB_SELECTED", tab });
-    try {
-      const value = unwrapBridgeResult(await bridge.selectTab(tab));
-      return apply({ type: "VIEW_MODEL_LOADED", viewModel: value });
-    } catch {
-      return apply({ type: "ERROR", kind: "generic" });
-    }
+    return runNonOwningPresentationAction(
+      { type: "TAB_SELECTED", tab },
+      () => bridge.selectTab(tab),
+    );
   }
 
   async function openBoundTask() {
@@ -484,12 +518,7 @@ export function createPracticeRendererController({
   }
 
   async function compact() {
-    try {
-      unwrapBridgeResult(await bridge.compact());
-    } catch {
-      apply({ type: "ERROR", kind: "generic" });
-    }
-    return state;
+    return runNonOwningPresentationAction(null, () => bridge.compact());
   }
 
   function changeTeacherDraft(text) {
@@ -524,6 +553,7 @@ export function createPracticeRendererController({
 
   function dispose() {
     supersedeTeacherRequest();
+    supersedeTaskListRequest();
     removeSubscription?.();
   }
 
