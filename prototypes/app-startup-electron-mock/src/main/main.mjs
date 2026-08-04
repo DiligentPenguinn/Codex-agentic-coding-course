@@ -120,6 +120,66 @@ export function createCoordinatorOwnership({ onReleased = () => {} } = {}) {
   });
 }
 
+
+
+export async function ensureUsableCoordinatorMain({
+  ownership,
+  acquire,
+  expand = false,
+  assertCurrent = () => {},
+}) {
+  if (
+    !ownership
+    || typeof ownership.current !== "function"
+    || typeof ownership.isCurrent !== "function"
+    || typeof ownership.hasUsableMain !== "function"
+    || typeof acquire !== "function"
+    || typeof assertCurrent !== "function"
+  ) {
+    throw new TypeError("Current-main recovery requires lifecycle dependencies.");
+  }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    assertCurrent();
+    if (!ownership.hasUsableMain()) {
+      await acquire();
+      assertCurrent();
+    }
+
+    const coordinator = ownership.current();
+    if (
+      !coordinator
+      || !ownership.isCurrent(coordinator)
+      || !ownership.hasUsableMain()
+    ) {
+      continue;
+    }
+
+    if (expand) {
+      let expanded = false;
+      try {
+        expanded = await coordinator.expandTeacher();
+      } catch {
+        assertCurrent();
+        continue;
+      }
+      assertCurrent();
+      if (expanded !== true) continue;
+    }
+
+    if (
+      !ownership.isCurrent(coordinator)
+      || !ownership.hasUsableMain()
+    ) {
+      continue;
+    }
+    const mainWindow = coordinator.getMainWindow();
+    if (!mainWindow || mainWindow.isDestroyed()) continue;
+    return mainWindow;
+  }
+  return null;
+}
+
 export function createLifecycleGate() {
   let generation = 0;
   let cancelled = false;
@@ -488,21 +548,12 @@ async function createCoordinatedWindows(generation = lifecycleGate.capture()) {
 async function ensureCurrentMainWindow({ expand = false } = {}) {
   const generation = lifecycleGate.capture();
   lifecycleGate.assertCurrent(generation);
-  for (
-    let attempt = 0;
-    attempt < 2 && !coordinatorOwnership.hasUsableMain();
-    attempt += 1
-  ) {
-    await createCoordinatedWindows(generation);
-    lifecycleGate.assertCurrent(generation);
-  }
-  if (!coordinatorOwnership.hasUsableMain()) return null;
-  const coordinator = coordinatorOwnership.current();
-  if (expand) {
-    await coordinator.expandTeacher();
-    lifecycleGate.assertCurrent(generation);
-  }
-  return coordinator.getMainWindow();
+  return ensureUsableCoordinatorMain({
+    ownership: coordinatorOwnership,
+    acquire: () => createCoordinatedWindows(generation),
+    expand,
+    assertCurrent: () => lifecycleGate.assertCurrent(generation),
+  });
 }
 
 const cleanupController = createOrderedCleanup({

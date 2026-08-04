@@ -325,6 +325,7 @@ test("main process composes one shared Practice lifecycle and coordinated window
   assert.match(source, /activate[\s\S]*?ensureCurrentMainWindow\(\)/);
   assert.doesNotMatch(source, /BrowserWindow\.getAllWindows\(\)/);
   assert.match(source, /runOwnedStartup\(\{/);
+  assert.match(source, /return ensureUsableCoordinatorMain\(\{/);
   assert.doesNotMatch(source, /\.codex[\\/]auth\.json|auth\.json/);
 
   const cleanupOrder = [
@@ -400,7 +401,9 @@ function loadMainLifecycleHelpers() {
   return mainLifecycleHelpersPromise;
 }
 
-function createFakeCoordinator(label) {
+function createFakeCoordinator(label, {
+  expandTeacher = async () => true,
+} = {}) {
   const mainWindow = new EventEmitter();
   mainWindow.destroyed = false;
   mainWindow.isDestroyed = () => mainWindow.destroyed;
@@ -417,6 +420,7 @@ function createFakeCoordinator(label) {
       return disposeCount;
     },
     getMainWindow: () => mainWindow,
+    expandTeacher,
     dispose() {
       disposeCount += 1;
       for (const compactWindow of compactWindows) compactWindow.closed = true;
@@ -460,6 +464,103 @@ test("coordinator ownership closes hidden compact windows and ignores stale main
     currentCoordinator.compactWindows.map(({ closed }) => closed),
     [true, true],
   );
+});
+
+
+
+test("current-main recovery replaces a coordinator released during awaited expansion", async () => {
+  const {
+    createCoordinatorOwnership,
+    ensureUsableCoordinatorMain,
+  } = await loadMainLifecycleHelpers();
+  const ownership = createCoordinatorOwnership();
+  let resolveFirstExpansion;
+  let secondExpansionCalls = 0;
+  const first = createFakeCoordinator("first", {
+    expandTeacher: () => new Promise((resolve) => {
+      resolveFirstExpansion = resolve;
+    }),
+  });
+  const second = createFakeCoordinator("second", {
+    expandTeacher: async () => {
+      secondExpansionCalls += 1;
+      second.mainWindow.focused = true;
+      return true;
+    },
+  });
+  ownership.install(first);
+  let acquisitionCalls = 0;
+
+  const recovery = ensureUsableCoordinatorMain({
+    ownership,
+    expand: true,
+    acquire: async () => {
+      acquisitionCalls += 1;
+      ownership.install(second);
+      return second.mainWindow;
+    },
+  });
+  await Promise.resolve();
+  assert.equal(typeof resolveFirstExpansion, "function");
+
+  first.mainWindow.destroyed = true;
+  first.mainWindow.emit("closed");
+  resolveFirstExpansion(false);
+
+  const recoveredMain = await recovery;
+  assert.equal(recoveredMain, second.mainWindow);
+  assert.equal(recoveredMain.isDestroyed(), false);
+  assert.equal(ownership.current(), second);
+  assert.equal(acquisitionCalls, 1);
+  assert.equal(secondExpansionCalls, 1);
+  assert.equal(second.mainWindow.focused, true);
+});
+
+test("current-main recovery retries expansion failure once and never loops indefinitely", async () => {
+  const {
+    createCoordinatorOwnership,
+    ensureUsableCoordinatorMain,
+  } = await loadMainLifecycleHelpers();
+
+  for (const firstOutcome of ["false", "throw"]) {
+    const ownership = createCoordinatorOwnership();
+    let expansionCalls = 0;
+    const coordinator = createFakeCoordinator(firstOutcome, {
+      expandTeacher: async () => {
+        expansionCalls += 1;
+        if (expansionCalls === 1 && firstOutcome === "throw") {
+          throw new Error("stale expansion");
+        }
+        return expansionCalls > 1;
+      },
+    });
+    ownership.install(coordinator);
+
+    assert.equal(await ensureUsableCoordinatorMain({
+      ownership,
+      acquire: async () => {
+        throw new Error("usable current coordinator must not be replaced");
+      },
+      expand: true,
+    }), coordinator.mainWindow);
+    assert.equal(expansionCalls, 2);
+  }
+
+  const ownership = createCoordinatorOwnership();
+  let boundedCalls = 0;
+  const neverExpanded = createFakeCoordinator("never-expanded", {
+    expandTeacher: async () => {
+      boundedCalls += 1;
+      return false;
+    },
+  });
+  ownership.install(neverExpanded);
+  assert.equal(await ensureUsableCoordinatorMain({
+    ownership,
+    acquire: async () => neverExpanded.mainWindow,
+    expand: true,
+  }), null);
+  assert.equal(boundedCalls, 2);
 });
 
 test("bounded App Server startup clears hanging and rejected children before clean retry", async () => {
