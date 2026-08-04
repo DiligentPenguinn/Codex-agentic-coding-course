@@ -6,6 +6,8 @@ const fixtureDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(fixtureDirectory, "..", "..", "..", "..");
 const promptText = "Inspect ContentPilot Lite. Read only; do not edit, install, or use network.";
 const reportText = "ContentPilot Lite contains Brand Brain, Idea Lab, Draft Studio, and Calendar Board. No files changed.";
+const restartReportText = "RESTART_REVALIDATED_BOUND_TASK: ContentPilot Lite was revalidated from the same bound task; Brand Brain, Idea Lab, Draft Studio, and Calendar Board remain present. No files changed.";
+const restartRevalidation = process.env.COURSE_MOCK_RESTART_REVALIDATION === "1";
 const decoyText = "DECOY TASK MUST STAY OUT OF TEACHER CONTEXT";
 const taskName = "Practice · Module 0 · Read-only inspection";
 const threads = new Map();
@@ -169,7 +171,11 @@ function ensureRestoredPracticeThread(threadId) {
   if (thread || threadId !== "thr-practice-1") return thread ?? null;
   thread = threadRecord(threadId, { cwd: repositoryRoot, ephemeral: false });
   thread.name = taskName;
-  thread.turns = [makeActivityTurn(thread.id, promptText, reportText)];
+  thread.turns = [makeActivityTurn(
+    thread.id,
+    promptText,
+    restartRevalidation ? restartReportText : reportText,
+  )];
   thread.updatedAt = Math.floor(Date.now() / 1_000);
   threads.set(thread.id, thread);
   nextThread = Math.max(nextThread, 2);

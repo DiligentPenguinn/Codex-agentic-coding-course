@@ -21,6 +21,8 @@ const userDataPath = path.join(
 const taskName = "Practice · Module 0 · Read-only inspection";
 const firstTeacherQuestion = "What did my Executor inspect, which constraints did it follow, and did files change?";
 const secondTeacherQuestion = "Summarize the same bound-task report once more.";
+const restartTeacherQuestion = "What report was revalidated from the bound task after restart?";
+const restartSentinel = "RESTART_REVALIDATED_BOUND_TASK";
 
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -93,7 +95,7 @@ async function waitForWindowVisibility(electronApp, page, visible, timeoutMs = 5
   );
 }
 
-async function launchMock() {
+async function launchMock({ restartRevalidation = false } = {}) {
   return electron.launch({
     args: ["--disable-gpu", "--disable-software-rasterizer", mockRoot],
     env: {
@@ -101,6 +103,7 @@ async function launchMock() {
       NODE_ENV: "test",
       COURSE_MOCK_APP_SERVER_FIXTURE: fakeServerPath,
       COURSE_MOCK_USER_DATA_DIR: userDataPath,
+      COURSE_MOCK_RESTART_REVALIDATION: restartRevalidation ? "1" : "0",
     },
   });
 }
@@ -338,7 +341,8 @@ test("completes startup and proves the bound-task Practice flow", {
   assert.ok(persisted.teacherChat.some(({ role, text }) => (
     role === "teacher" && /Zero changed files/i.test(text)
   )));
-  for (const forbidden of [
+  assert.doesNotMatch(persistedSource, new RegExp(restartSentinel));
+  const forbiddenPersistenceTerms = [
     "DECOY",
     "RAW OUTPUT",
     "accessToken",
@@ -346,11 +350,12 @@ test("completes startup and proves the bound-task Practice flow", {
     "apiKey",
     "authorization",
     "reasoning",
-  ]) {
+  ];
+  for (const forbidden of forbiddenPersistenceTerms) {
     assert.doesNotMatch(persistedSource, new RegExp(forbidden, "i"));
   }
 
-  electronApp = await launchMock();
+  electronApp = await launchMock({ restartRevalidation: true });
   mainWindow = await findWindowByFile(electronApp, "index.html", {
     visible: true,
   });
@@ -374,7 +379,44 @@ test("completes startup and proves the bound-task Practice flow", {
   assert.match(restoredChat, /ContentPilot Lite/);
   assert.match(restoredChat, /Zero changed files/i);
   assert.doesNotMatch(restoredChat, /DECOY/i);
+  assert.doesNotMatch(restoredChat, new RegExp(restartSentinel));
   assert.doesNotMatch(await mainWindow.getByRole("main").innerText(), /DECOY/i);
+
+  await mainWindow.getByRole("textbox", { name: "Message Teacher" }).fill(
+    restartTeacherQuestion,
+  );
+  await mainWindow.getByRole("button", { name: "Send", exact: true }).click();
+  const revalidatedDom = await pollUntil(
+    () => mainWindow.getByRole("log", {
+      name: "Teacher conversation",
+    }).innerText(),
+    (text) => text.includes(restartSentinel),
+    { timeoutMs: 10_000, description: "restart-revalidated Teacher answer" },
+  );
+  assert.match(revalidatedDom, new RegExp(restartSentinel));
+  assert.doesNotMatch(revalidatedDom, /DECOY/i);
+
+  const revalidatedSource = await readFile(practiceStatePath, "utf8");
+  const revalidatedState = JSON.parse(revalidatedSource);
+  assert.equal(revalidatedState.activeSession.binding.threadId, "thr-practice-1");
+  assert.deepEqual(
+    collectKeyPaths(revalidatedState, "thr-practice-1").sort(),
+    [
+      "activeSession.activity.threadId",
+      "activeSession.binding.threadId",
+    ],
+  );
+  assert.match(
+    revalidatedState.activeSession.activity.executorResponseSummary,
+    new RegExp(restartSentinel),
+  );
+  assert.match(revalidatedSource, new RegExp(restartSentinel));
+  assert.ok(revalidatedState.teacherChat.some(({ text }) => (
+    text === restartTeacherQuestion
+  )));
+  for (const forbidden of forbiddenPersistenceTerms) {
+    assert.doesNotMatch(revalidatedSource, new RegExp(forbidden, "i"));
+  }
 
   await closeApplication(electronApp);
   electronApp = null;

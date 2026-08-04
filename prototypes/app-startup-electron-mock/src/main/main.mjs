@@ -56,20 +56,237 @@ const forceDisconnected = (
   )
 );
 
+export const APP_SERVER_START_TIMEOUT_MS = 2_000;
+export const APP_SERVER_STOP_TIMEOUT_MS = 1_500;
+
+function activeMainWindow(coordinator) {
+  const mainWindow = coordinator?.getMainWindow?.();
+  return Boolean(mainWindow && !mainWindow.isDestroyed());
+}
+
+export function createCoordinatorOwnership({ onReleased = () => {} } = {}) {
+  let currentRecord = null;
+  let nextGeneration = 0;
+
+  function release(record) {
+    if (!record || record.released) return false;
+    record.released = true;
+    try {
+      record.coordinator.dispose();
+    } finally {
+      if (currentRecord === record) currentRecord = null;
+      try {
+        onReleased(record.coordinator);
+      } catch {
+        // Release reporting cannot retain a dead coordinator.
+      }
+    }
+    return true;
+  }
+
+  function install(coordinator) {
+    if (!coordinator || typeof coordinator.getMainWindow !== "function") {
+      throw new TypeError("A window coordinator is required.");
+    }
+    if (currentRecord?.coordinator === coordinator) return currentRecord.generation;
+    release(currentRecord);
+
+    const mainWindow = coordinator.getMainWindow();
+    const record = {
+      coordinator,
+      generation: ++nextGeneration,
+      released: false,
+    };
+    currentRecord = record;
+    if (!mainWindow || typeof mainWindow.once !== "function") {
+      release(record);
+      throw new Error("The coordinator main window is unavailable.");
+    }
+    mainWindow.once("closed", () => release(record));
+    if (mainWindow.isDestroyed()) release(record);
+    return record.generation;
+  }
+
+  return Object.freeze({
+    install,
+    current: () => currentRecord?.coordinator ?? null,
+    isCurrent: (coordinator) => (
+      currentRecord?.coordinator === coordinator && !currentRecord.released
+    ),
+    hasUsableMain: () => (
+      !currentRecord?.released && activeMainWindow(currentRecord?.coordinator)
+    ),
+    disposeCurrent: () => release(currentRecord),
+  });
+}
+
+export function createLifecycleGate() {
+  let generation = 0;
+  let cancelled = false;
+
+  function isCurrent(capturedGeneration) {
+    return !cancelled && capturedGeneration === generation;
+  }
+
+  function assertCurrent(capturedGeneration) {
+    if (!isCurrent(capturedGeneration)) {
+      throw Object.assign(new Error("Application lifecycle is no longer current."), {
+        code: "APPLICATION_LIFECYCLE_CANCELLED",
+      });
+    }
+  }
+
+  return Object.freeze({
+    capture: () => generation,
+    isCurrent,
+    assertCurrent,
+    cancel() {
+      if (cancelled) return;
+      cancelled = true;
+      generation += 1;
+    },
+  });
+}
+
+export function createOrderedCleanup({
+  steps,
+  onStart = () => {},
+  onFinish = () => {},
+}) {
+  if (!Array.isArray(steps) || steps.some((step) => typeof step !== "function")) {
+    throw new TypeError("Cleanup steps must be functions.");
+  }
+  let cleanupPromise = null;
+  let cleanupFinished = false;
+
+  function run() {
+    if (cleanupPromise) return cleanupPromise;
+    try {
+      onStart();
+    } catch {
+      // Cleanup still owns every acquired resource.
+    }
+    cleanupPromise = (async () => {
+      for (const step of steps) {
+        try {
+          await step();
+        } catch {
+          // Cleanup remains best effort and preserves required ordering.
+        }
+      }
+      cleanupFinished = true;
+      try {
+        onFinish();
+      } catch {
+        // Completion reporting is non-authoritative.
+      }
+    })();
+    return cleanupPromise;
+  }
+
+  return Object.freeze({
+    run,
+    finished: () => cleanupFinished,
+  });
+}
+
+export async function runOwnedStartup({
+  gate,
+  start,
+  cleanup,
+}) {
+  const generation = gate.capture();
+  const assertCurrent = () => gate.assertCurrent(generation);
+  try {
+    assertCurrent();
+    return await start({ generation, assertCurrent });
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
+}
+
+function timeoutResult(timers, timeoutMs, result) {
+  let timer = null;
+  return {
+    promise: new Promise((resolve) => {
+      timer = timers.setTimeout(() => resolve(result), timeoutMs);
+    }),
+    clear() {
+      if (timer !== null) timers.clearTimeout(timer);
+      timer = null;
+    },
+  };
+}
+
+export async function stopClientBounded(clientInstance, {
+  stopTimeoutMs = APP_SERVER_STOP_TIMEOUT_MS,
+  clearListeners = true,
+  timers = globalThis,
+} = {}) {
+  if (!clientInstance) return;
+  const timeout = timeoutResult(timers, stopTimeoutMs, undefined);
+  const stopping = Promise.resolve()
+    .then(() => clientInstance.stop({ clearListeners }))
+    .catch(() => undefined);
+  try {
+    await Promise.race([stopping, timeout.promise]);
+  } finally {
+    timeout.clear();
+  }
+}
+
+export async function startClientWithBoundedCleanup({
+  client: clientInstance,
+  startTimeoutMs = APP_SERVER_START_TIMEOUT_MS,
+  stopTimeoutMs = APP_SERVER_STOP_TIMEOUT_MS,
+  clearListenersOnFailure = true,
+  isCurrent = () => true,
+  timers = globalThis,
+}) {
+  const timeout = timeoutResult(timers, startTimeoutMs, { connected: false });
+  const starting = Promise.resolve()
+    .then(() => clientInstance.start())
+    .then(
+      () => ({ connected: true }),
+      () => ({ connected: false }),
+    );
+  let outcome;
+  try {
+    outcome = await Promise.race([starting, timeout.promise]);
+  } finally {
+    timeout.clear();
+  }
+  if (outcome.connected && isCurrent()) return true;
+  await stopClientBounded(clientInstance, {
+    stopTimeoutMs,
+    clearListeners: clearListenersOnFailure,
+    timers,
+  });
+  return false;
+}
+
 let client = null;
 let auth = null;
 let practiceStore = null;
 let orchestrator = null;
-let windowCoordinator = null;
+let startupActivityReader = null;
+let startupTeacherAdapter = null;
 let applicationPromise = null;
-let windowCreationPromise = null;
-let cleanupPromise = null;
+let windowCreation = null;
+let retryPromise = null;
 let unregisterIpc = () => {};
 let unregisterPracticeIpc = () => {};
 let removeAuthForwarder = () => {};
 let removePracticeForwarder = () => {};
-let cleanupStarted = false;
 let cleanupFinished = false;
+
+const lifecycleGate = createLifecycleGate();
+const coordinatorOwnership = createCoordinatorOwnership({
+  onReleased(coordinator) {
+    if (windowCreation?.coordinator === coordinator) windowCreation = null;
+  },
+});
 
 const logger = Object.freeze({
   info(event, fields) {
@@ -120,28 +337,58 @@ function userDataPath() {
   return app.getPath("userData");
 }
 
-async function connectAppServer() {
+async function connectAppServer(generation) {
   if (forceDisconnected) return false;
-  try {
-    await client.start();
-    return true;
-  } catch {
-    return false;
-  }
+  return startClientWithBoundedCleanup({
+    client,
+    isCurrent: () => lifecycleGate.isCurrent(generation),
+  });
 }
 
-async function retryAppServer() {
-  if (client.initialized) {
-    await client.restart();
-  } else {
-    await client.start();
-  }
-  return auth.readAccount();
+function retryAppServer() {
+  const generation = lifecycleGate.capture();
+  lifecycleGate.assertCurrent(generation);
+  if (retryPromise) return retryPromise;
+
+  const current = (async () => {
+    lifecycleGate.assertCurrent(generation);
+    if (client.initialized) {
+      await stopClientBounded(client, { clearListeners: false });
+      lifecycleGate.assertCurrent(generation);
+    }
+    const connected = await startClientWithBoundedCleanup({
+      client,
+      clearListenersOnFailure: false,
+      isCurrent: () => lifecycleGate.isCurrent(generation),
+    });
+    lifecycleGate.assertCurrent(generation);
+    if (!connected) {
+      throw Object.assign(new Error("Codex App Server is unavailable."), {
+        code: "APP_SERVER_RETRY_FAILED",
+      });
+    }
+    const account = await auth.readAccount();
+    lifecycleGate.assertCurrent(generation);
+    return account;
+  })();
+  retryPromise = current;
+  current.then(
+    () => {
+      if (retryPromise === current) retryPromise = null;
+    },
+    () => {
+      if (retryPromise === current) retryPromise = null;
+    },
+  );
+  return current;
 }
 
 function requireWindowCoordinator() {
-  if (!windowCoordinator) throw new Error("Practice windows are unavailable.");
-  return windowCoordinator;
+  const coordinator = coordinatorOwnership.current();
+  if (!coordinator || !coordinatorOwnership.hasUsableMain()) {
+    throw new Error("Practice windows are unavailable.");
+  }
+  return coordinator;
 }
 
 const windowActions = Object.freeze({
@@ -154,8 +401,7 @@ const windowActions = Object.freeze({
 });
 
 function configureWindowCoordinator(presentation) {
-  windowCoordinator?.dispose();
-  windowCoordinator = createWindowCoordinator({
+  return createWindowCoordinator({
     BrowserWindow,
     Menu,
     screen,
@@ -178,136 +424,237 @@ function configureWindowCoordinator(presentation) {
     toBubbleViewModel,
     toQuickChatViewModel,
   });
-  return windowCoordinator;
 }
 
-function createCoordinatedWindows() {
-  if (cleanupStarted) return Promise.resolve(null);
-  if (windowCreationPromise) return windowCreationPromise;
-  const current = (async () => {
-    const persistedPracticeState = await practiceStore.read();
-    if (cleanupStarted) return null;
-    const coordinator = configureWindowCoordinator(
-      persistedPracticeState.presentation,
-    );
-    const mainWindow = await coordinator.create();
-    if (cleanupStarted || coordinator !== windowCoordinator) {
-      coordinator.dispose();
-      return null;
-    }
-    coordinator.broadcast(orchestrator.getViewModel());
-    return mainWindow;
-  })();
-  windowCreationPromise = current;
-  current.then(
-    () => {
-      if (windowCreationPromise === current) windowCreationPromise = null;
-    },
-    () => {
-      if (windowCreationPromise === current) windowCreationPromise = null;
-    },
-  );
-  return current;
-}
+function startCoordinatorCreation(presentation, generation) {
+  lifecycleGate.assertCurrent(generation);
+  if (windowCreation) return windowCreation.promise;
 
-async function createApplication() {
-  if (applicationPromise) return applicationPromise;
-  applicationPromise = (async () => {
-    if (!app.isReady()) await app.whenReady();
-    const onboardingContent = await loadOnboardingFixture();
-    const setupStore = createSetupStore({ userDataPath: userDataPath() });
-    practiceStore = createPracticeStore({ userDataPath: userDataPath() });
-    const practiceStartRequest = await loadPracticeStartRequest({
-      fixturePath: path.join(
-        mockRoot,
-        "content",
-        "practice.module-0.fixture.json",
-      ),
-      repositoryRoot: path.resolve(mockRoot, "..", ".."),
-    });
+  const coordinator = configureWindowCoordinator(presentation);
+  const operation = {
+    coordinator,
+    promise: null,
+  };
+  windowCreation = operation;
 
-    client = createCodexClient();
-    await connectAppServer();
-    auth = createAuthService({ client, openExternal: openAuthUrl });
+  let windowsReady;
+  try {
+    windowsReady = coordinator.create();
+    lifecycleGate.assertCurrent(generation);
+    coordinatorOwnership.install(coordinator);
+  } catch (error) {
+    coordinator.dispose();
+    if (windowCreation === operation) windowCreation = null;
+    throw error;
+  }
 
-    const teacherCwd = path.join(userDataPath(), "teacher-sandbox");
-    await mkdir(teacherCwd, { recursive: true });
-    const conversationService = createExecutorConversationService({
-      client,
-      openExternal: (url) => (
-        fixtureServerPath ? Promise.resolve() : shell.openExternal(url)
-      ),
-    });
-    const activityReader = createExecutorActivityReader({ client });
-    const teacherAdapter = createAppServerTeacherAdapter({ client, teacherCwd });
-    orchestrator = createPracticeOrchestrator({
-      startRequest: practiceStartRequest,
-      store: practiceStore,
-      conversationService,
-      activityReader,
-      teacherAdapter,
-    });
-    await orchestrator.initialize();
-
-    const persistedPracticeState = await practiceStore.read();
-    const coordinator = configureWindowCoordinator(
-      persistedPracticeState.presentation,
-    );
-    const windowsReady = coordinator.create();
-
-    unregisterIpc = registerIpcHandlers({
-      ipcMain,
-      auth,
-      store: setupStore,
-      content: onboardingContent,
-      retryAppServer,
-    });
-    unregisterPracticeIpc = registerPracticeIpcHandlers({
-      ipcMain,
-      orchestrator,
-      windowActions,
-    });
-    removeAuthForwarder = auth.onStatus((status) => {
-      const mainWindow = windowCoordinator?.getMainWindow();
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send(CHANNELS.AUTH_STATUS_CHANGED, status);
-      }
-    });
-    removePracticeForwarder = orchestrator.onChange((viewModel) => {
-      windowCoordinator?.broadcast(viewModel);
-    });
-
+  operation.promise = (async () => {
     await windowsReady;
-    if (cleanupStarted || coordinator !== windowCoordinator) {
-      coordinator.dispose();
-      return null;
-    }
+    lifecycleGate.assertCurrent(generation);
+    if (!coordinatorOwnership.isCurrent(coordinator)) return null;
     coordinator.broadcast(orchestrator.getViewModel());
     return coordinator.getMainWindow();
   })();
-  return applicationPromise;
+  operation.promise.then(
+    () => {
+      if (windowCreation === operation) windowCreation = null;
+    },
+    () => {
+      if (windowCreation === operation) windowCreation = null;
+    },
+  );
+  return operation.promise;
 }
 
-async function cleanup() {
-  if (cleanupPromise) return cleanupPromise;
-  cleanupStarted = true;
-  cleanupPromise = (async () => {
-    try { unregisterIpc(); } catch { /* Cleanup remains best effort. */ }
-    try { unregisterPracticeIpc(); } catch { /* Cleanup remains best effort. */ }
-    try { removeAuthForwarder(); } catch { /* Cleanup remains best effort. */ }
-    try { removePracticeForwarder(); } catch { /* Cleanup remains best effort. */ }
-    try { windowCoordinator?.dispose(); } catch { /* Cleanup remains best effort. */ }
-    try { await orchestrator?.dispose(); } catch { /* Cleanup remains best effort. */ }
-    try { auth?.dispose(); } catch { /* Cleanup remains best effort. */ }
-    if (client) {
-      await Promise.race([
-        client.stop(),
-        new Promise((resolve) => setTimeout(resolve, 1_500)),
-      ]).catch(() => {});
-    }
+async function createCoordinatedWindows(generation = lifecycleGate.capture()) {
+  lifecycleGate.assertCurrent(generation);
+  if (coordinatorOwnership.hasUsableMain()) {
+    return coordinatorOwnership.current().getMainWindow();
+  }
+  if (windowCreation) return windowCreation.promise;
+
+  const persistedPracticeState = await practiceStore.read();
+  lifecycleGate.assertCurrent(generation);
+  if (coordinatorOwnership.hasUsableMain()) {
+    return coordinatorOwnership.current().getMainWindow();
+  }
+  if (windowCreation) return windowCreation.promise;
+  return startCoordinatorCreation(
+    persistedPracticeState.presentation,
+    generation,
+  );
+}
+
+async function ensureCurrentMainWindow({ expand = false } = {}) {
+  const generation = lifecycleGate.capture();
+  lifecycleGate.assertCurrent(generation);
+  for (
+    let attempt = 0;
+    attempt < 2 && !coordinatorOwnership.hasUsableMain();
+    attempt += 1
+  ) {
+    await createCoordinatedWindows(generation);
+    lifecycleGate.assertCurrent(generation);
+  }
+  if (!coordinatorOwnership.hasUsableMain()) return null;
+  const coordinator = coordinatorOwnership.current();
+  if (expand) {
+    await coordinator.expandTeacher();
+    lifecycleGate.assertCurrent(generation);
+  }
+  return coordinator.getMainWindow();
+}
+
+const cleanupController = createOrderedCleanup({
+  onStart() {
+    lifecycleGate.cancel();
+  },
+  steps: [
+    () => {
+      unregisterIpc();
+      unregisterIpc = () => {};
+    },
+    () => {
+      unregisterPracticeIpc();
+      unregisterPracticeIpc = () => {};
+    },
+    () => {
+      removeAuthForwarder();
+      removeAuthForwarder = () => {};
+    },
+    () => {
+      removePracticeForwarder();
+      removePracticeForwarder = () => {};
+    },
+    () => coordinatorOwnership.disposeCurrent(),
+    async () => {
+      if (orchestrator) {
+        await orchestrator?.dispose();
+      } else {
+        try { startupActivityReader?.dispose(); } catch { /* Best effort. */ }
+        try {
+          await startupTeacherAdapter?.dispose();
+        } catch {
+          /* Best effort. */
+        }
+      }
+      orchestrator = null;
+      startupActivityReader = null;
+      startupTeacherAdapter = null;
+    },
+    () => {
+      auth?.dispose();
+      auth = null;
+    },
+    async () => {
+      await stopClientBounded(client, {
+        stopTimeoutMs: APP_SERVER_STOP_TIMEOUT_MS,
+      });
+      client = null;
+    },
+  ],
+  onFinish() {
     cleanupFinished = true;
-  })();
-  return cleanupPromise;
+  },
+});
+
+function cleanup() {
+  return cleanupController.run();
+}
+
+function createApplication() {
+  if (applicationPromise) return applicationPromise;
+  applicationPromise = runOwnedStartup({
+    gate: lifecycleGate,
+    cleanup,
+    start: async ({ generation, assertCurrent }) => {
+      if (!app.isReady()) {
+        await app.whenReady();
+        assertCurrent();
+      }
+
+      const onboardingContent = await loadOnboardingFixture();
+      assertCurrent();
+      const setupStore = createSetupStore({ userDataPath: userDataPath() });
+      practiceStore = createPracticeStore({ userDataPath: userDataPath() });
+      const practiceStartRequest = await loadPracticeStartRequest({
+        fixturePath: path.join(
+          mockRoot,
+          "content",
+          "practice.module-0.fixture.json",
+        ),
+        repositoryRoot: path.resolve(mockRoot, "..", ".."),
+      });
+      assertCurrent();
+
+      client = createCodexClient();
+      await connectAppServer(generation);
+      assertCurrent();
+      auth = createAuthService({ client, openExternal: openAuthUrl });
+
+      const teacherCwd = path.join(userDataPath(), "teacher-sandbox");
+      await mkdir(teacherCwd, { recursive: true });
+      assertCurrent();
+      const conversationService = createExecutorConversationService({
+        client,
+        openExternal: (url) => (
+          fixtureServerPath ? Promise.resolve() : shell.openExternal(url)
+        ),
+      });
+      startupActivityReader = createExecutorActivityReader({ client });
+      startupTeacherAdapter = createAppServerTeacherAdapter({
+        client,
+        teacherCwd,
+      });
+      orchestrator = createPracticeOrchestrator({
+        startRequest: practiceStartRequest,
+        store: practiceStore,
+        conversationService,
+        activityReader: startupActivityReader,
+        teacherAdapter: startupTeacherAdapter,
+      });
+      await orchestrator.initialize();
+      assertCurrent();
+
+      const persistedPracticeState = await practiceStore.read();
+      assertCurrent();
+      const windowsReady = startCoordinatorCreation(
+        persistedPracticeState.presentation,
+        generation,
+      );
+      assertCurrent();
+
+      unregisterIpc = registerIpcHandlers({
+        ipcMain,
+        auth,
+        store: setupStore,
+        content: onboardingContent,
+        retryAppServer,
+      });
+      unregisterPracticeIpc = registerPracticeIpcHandlers({
+        ipcMain,
+        orchestrator,
+        windowActions,
+      });
+      removeAuthForwarder = auth.onStatus((status) => {
+        const mainWindow = coordinatorOwnership.current()?.getMainWindow();
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send(CHANNELS.AUTH_STATUS_CHANGED, status);
+        }
+      });
+      removePracticeForwarder = orchestrator.onChange((viewModel) => {
+        coordinatorOwnership.current()?.broadcast(viewModel);
+      });
+
+      await windowsReady;
+      assertCurrent();
+      if (!coordinatorOwnership.hasUsableMain()) return null;
+      const coordinator = coordinatorOwnership.current();
+      coordinator.broadcast(orchestrator.getViewModel());
+      return coordinator.getMainWindow();
+    },
+  });
+  return applicationPromise;
 }
 
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
@@ -315,34 +662,34 @@ if (!hasSingleInstanceLock) {
   app.quit();
 } else {
   app.on("second-instance", () => {
-    void createApplication().then(async () => {
-      if (cleanupStarted) return;
-      if (BrowserWindow.getAllWindows().length === 0) {
-        await createCoordinatedWindows();
-      }
-      await windowActions.expandTeacher();
-    }).catch(() => {});
+    void createApplication()
+      .then(() => ensureCurrentMainWindow({ expand: true }))
+      .catch(() => {});
   });
 
   app.on("activate", () => {
-    void createApplication().then(async () => {
-      if (!cleanupStarted && BrowserWindow.getAllWindows().length === 0) {
-        await createCoordinatedWindows();
-      }
-    }).catch(() => app.exit(1));
+    void createApplication()
+      .then(() => ensureCurrentMainWindow())
+      .catch(async () => {
+        await cleanup();
+        app.exit(1);
+      });
   });
 
-  app.whenReady().then(() => createApplication()).catch(() => {
-    app.exit(1);
-  });
+  app.whenReady()
+    .then(() => createApplication())
+    .catch(async () => {
+      await cleanup();
+      app.exit(1);
+    });
 
   app.on("window-all-closed", () => {
-    app.quit();
+    if (process.platform !== "darwin") app.quit();
   });
 
   app.on("before-quit", (event) => {
     if (cleanupFinished) return;
     event.preventDefault();
-    void cleanup().finally(() => app.quit());
+    void cleanup().then(() => app.quit());
   });
 }

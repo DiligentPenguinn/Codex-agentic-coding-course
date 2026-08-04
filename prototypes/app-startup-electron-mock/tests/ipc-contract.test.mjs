@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { EventEmitter } from "node:events";
 import { readFile } from "node:fs/promises";
+import { registerHooks } from "node:module";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { registerIpcHandlers } from "../src/main/ipc-handlers.mjs";
 import { CHANNELS } from "../src/shared/channels.mjs";
@@ -240,7 +244,7 @@ test("main process composes secure services and guarded development hooks", asyn
     assert.match(source, new RegExp(moduleName.replaceAll(".", "\\.")));
   }
   assert.match(source, /app\.getPath\("userData"\)/);
-  assert.match(source, /client\.stop\(\)/);
+  assert.match(source, /stopClientBounded\(client/);
   assert.match(
     source,
     /process\.env\.NODE_ENV === "test"\s*&&\s*!app\.isPackaged/,
@@ -308,7 +312,7 @@ test("main process composes one shared Practice lifecycle and coordinated window
   assert.equal(source.match(/client\s*=\s*createCodexClient\(\)/g)?.length, 1);
   assert.match(source, /path\.join\(userDataPath\(\),\s*"teacher-sandbox"\)/);
   assert.match(source, /mkdir\(teacherCwd,\s*\{\s*recursive:\s*true\s*\}\)/);
-  assert.match(source, /createAppServerTeacherAdapter\(\{\s*client,\s*teacherCwd\s*\}\)/);
+  assert.match(source, /createAppServerTeacherAdapter\(\{\s*client,\s*teacherCwd,\s*\}\)/);
   assert.match(source, /practice\.module-0\.fixture\.json/);
   assert.match(source, /repositoryRoot:\s*path\.resolve\(mockRoot,\s*"\.\.",\s*"\.\."\)/);
   assert.match(source, /registerIpcHandlers\(\{/);
@@ -316,8 +320,11 @@ test("main process composes one shared Practice lifecycle and coordinated window
   assert.match(source, /toBubbleViewModel/);
   assert.match(source, /toQuickChatViewModel/);
   assert.match(source, /orchestrator\.onChange\(\(viewModel\)\s*=>\s*\{/);
-  assert.match(source, /windowCoordinator\?\.broadcast\(viewModel\)/);
-  assert.match(source, /second-instance[\s\S]*?expandTeacher\(\)/);
+  assert.match(source, /coordinatorOwnership\.current\(\)\?\.broadcast\(viewModel\)/);
+  assert.match(source, /second-instance[\s\S]*?ensureCurrentMainWindow\(\{\s*expand:\s*true\s*\}\)/);
+  assert.match(source, /activate[\s\S]*?ensureCurrentMainWindow\(\)/);
+  assert.doesNotMatch(source, /BrowserWindow\.getAllWindows\(\)/);
+  assert.match(source, /runOwnedStartup\(\{/);
   assert.doesNotMatch(source, /\.codex[\\/]auth\.json|auth\.json/);
 
   const cleanupOrder = [
@@ -325,12 +332,12 @@ test("main process composes one shared Practice lifecycle and coordinated window
     "unregisterPracticeIpc()",
     "removeAuthForwarder()",
     "removePracticeForwarder()",
-    "windowCoordinator?.dispose()",
+    "coordinatorOwnership.disposeCurrent()",
     "await orchestrator?.dispose()",
     "auth?.dispose()",
-    "client.stop()",
+    "await stopClientBounded(client",
   ];
-  let cursor = source.indexOf("async function cleanup");
+  let cursor = source.indexOf("const cleanupController");
   assert.notEqual(cursor, -1);
   for (const marker of cleanupOrder) {
     const next = source.indexOf(marker, cursor);
@@ -338,5 +345,355 @@ test("main process composes one shared Practice lifecycle and coordinated window
     assert.ok(next >= cursor, `cleanup marker out of order: ${marker}`);
     cursor = next;
   }
-  assert.match(source, /setTimeout\(resolve,\s*1_500\)/);
+  assert.match(source, /APP_SERVER_START_TIMEOUT_MS = 2_000/);
+  assert.match(source, /APP_SERVER_STOP_TIMEOUT_MS = 1_500/);
+  assert.match(source, /await cleanup\(\);\s*app\.exit\(1\)/);
+});
+
+
+let mainLifecycleHelpersPromise;
+
+function loadMainLifecycleHelpers() {
+  if (mainLifecycleHelpersPromise) return mainLifecycleHelpersPromise;
+  const electronModuleUrl = "task11-electron:stub";
+  const hooks = registerHooks({
+    resolve(specifier, context, nextResolve) {
+      if (specifier === "electron") {
+        return { url: electronModuleUrl, shortCircuit: true };
+      }
+      return nextResolve(specifier, context);
+    },
+    load(url, context, nextLoad) {
+      if (url === electronModuleUrl) {
+        return {
+          format: "module",
+          shortCircuit: true,
+          source: `
+            export const app = {
+              isPackaged: true,
+              isReady: () => true,
+              whenReady: () => Promise.resolve(),
+              disableHardwareAcceleration() {},
+              setPath() {},
+              getPath: () => "C:/task-11-test",
+              requestSingleInstanceLock: () => false,
+              quit() {},
+              exit() {},
+              on() {},
+            };
+            export class BrowserWindow {
+              static getAllWindows() { return []; }
+            }
+            export const ipcMain = {};
+            export const Menu = {};
+            export const screen = {};
+            export const shell = { openExternal: async () => undefined };
+          `,
+        };
+      }
+      return nextLoad(url, context);
+    },
+  });
+  mainLifecycleHelpersPromise = import(
+    new URL("../src/main/main.mjs?task-11-lifecycle-contract=1", import.meta.url)
+  ).finally(() => hooks.deregister());
+  return mainLifecycleHelpersPromise;
+}
+
+function createFakeCoordinator(label) {
+  const mainWindow = new EventEmitter();
+  mainWindow.destroyed = false;
+  mainWindow.isDestroyed = () => mainWindow.destroyed;
+  const compactWindows = [
+    { label: `${label}-bubble`, closed: false },
+    { label: `${label}-quick-chat`, closed: false },
+  ];
+  let disposeCount = 0;
+  return {
+    label,
+    mainWindow,
+    compactWindows,
+    get disposeCount() {
+      return disposeCount;
+    },
+    getMainWindow: () => mainWindow,
+    dispose() {
+      disposeCount += 1;
+      for (const compactWindow of compactWindows) compactWindow.closed = true;
+    },
+  };
+}
+
+test("coordinator ownership closes hidden compact windows and ignores stale main-close races", async () => {
+  const { createCoordinatorOwnership } = await loadMainLifecycleHelpers();
+  const released = [];
+  const ownership = createCoordinatorOwnership({
+    onReleased: (coordinator) => released.push(coordinator.label),
+  });
+
+  const first = createFakeCoordinator("first");
+  ownership.install(first);
+  assert.equal(ownership.hasUsableMain(), true);
+  first.mainWindow.destroyed = true;
+  first.mainWindow.emit("closed");
+
+  assert.equal(ownership.current(), null);
+  assert.deepEqual(first.compactWindows.map(({ closed }) => closed), [true, true]);
+  assert.deepEqual(released, ["first"]);
+
+  const oldCoordinator = createFakeCoordinator("old");
+  const currentCoordinator = createFakeCoordinator("current");
+  ownership.install(oldCoordinator);
+  ownership.install(currentCoordinator);
+  oldCoordinator.mainWindow.destroyed = true;
+  oldCoordinator.mainWindow.emit("closed");
+
+  assert.equal(ownership.current(), currentCoordinator);
+  assert.equal(ownership.hasUsableMain(), true);
+  assert.equal(currentCoordinator.disposeCount, 0);
+
+  currentCoordinator.mainWindow.destroyed = true;
+  assert.equal(ownership.hasUsableMain(), false);
+  currentCoordinator.mainWindow.emit("closed");
+  assert.equal(ownership.current(), null);
+  assert.deepEqual(
+    currentCoordinator.compactWindows.map(({ closed }) => closed),
+    [true, true],
+  );
+});
+
+test("bounded App Server startup clears hanging and rejected children before clean retry", async () => {
+  const { startClientWithBoundedCleanup } = await loadMainLifecycleHelpers();
+
+  for (const firstFailure of ["hang", "reject"]) {
+    let attempt = 0;
+    let live = false;
+    let stops = 0;
+    const client = {
+      async start() {
+        if (live) {
+          throw Object.assign(new Error("already started"), {
+            code: "APP_SERVER_ALREADY_STARTED",
+          });
+        }
+        live = true;
+        attempt += 1;
+        if (attempt === 1 && firstFailure === "hang") {
+          return new Promise(() => {});
+        }
+        if (attempt === 1) throw new Error("initialize rejected");
+      },
+      async stop() {
+        stops += 1;
+        live = false;
+      },
+    };
+
+    assert.equal(await startClientWithBoundedCleanup({
+      client,
+      startTimeoutMs: 10,
+      stopTimeoutMs: 10,
+    }), false);
+    assert.equal(live, false);
+    assert.equal(stops, 1);
+
+    assert.equal(await startClientWithBoundedCleanup({
+      client,
+      startTimeoutMs: 10,
+      stopTimeoutMs: 10,
+    }), true);
+    assert.equal(attempt, 2);
+    assert.equal(live, true);
+    await client.stop();
+  }
+
+  let cancelledStops = 0;
+  const cancelledClient = {
+    start: async () => undefined,
+    stop: async () => {
+      cancelledStops += 1;
+    },
+  };
+  assert.equal(await startClientWithBoundedCleanup({
+    client: cancelledClient,
+    startTimeoutMs: 10,
+    stopTimeoutMs: 10,
+    isCurrent: () => false,
+  }), false);
+  assert.equal(cancelledStops, 1);
+});
+
+test("owned startup cleans partial acquisitions in exact order and cleanup is single-flight", async () => {
+  const {
+    createLifecycleGate,
+    createOrderedCleanup,
+    runOwnedStartup,
+  } = await loadMainLifecycleHelpers();
+  const acquisitionOrder = [
+    "client",
+    "auth",
+    "orchestrator",
+    "coordinator",
+    "ipc",
+  ];
+  const cleanupOrder = [
+    "ipc",
+    "coordinator",
+    "orchestrator",
+    "auth",
+    "client",
+  ];
+
+  for (const failedStage of ["client", "orchestrator", "ipc"]) {
+    const gate = createLifecycleGate();
+    const acquired = new Set();
+    const cleaned = [];
+    const cleanup = createOrderedCleanup({
+      onStart: () => gate.cancel(),
+      steps: cleanupOrder.map((resource) => async () => {
+        if (acquired.has(resource)) cleaned.push(resource);
+      }),
+    });
+
+    await assert.rejects(runOwnedStartup({
+      gate,
+      cleanup: cleanup.run,
+      start: async ({ assertCurrent }) => {
+        for (const resource of acquisitionOrder) {
+          acquired.add(resource);
+          await Promise.resolve();
+          assertCurrent();
+          if (resource === failedStage) {
+            throw new Error(`failed at ${resource}`);
+          }
+        }
+      },
+    }), new RegExp(`failed at ${failedStage}`));
+
+    assert.deepEqual(
+      cleaned,
+      cleanupOrder.filter((resource) => acquired.has(resource)),
+    );
+    assert.equal(cleanup.finished(), true);
+  }
+
+  let releaseStep;
+  let stepCalls = 0;
+  const cleanup = createOrderedCleanup({
+    steps: [async () => {
+      stepCalls += 1;
+      await new Promise((resolve) => {
+        releaseStep = resolve;
+      });
+    }],
+  });
+  const first = cleanup.run();
+  const second = cleanup.run();
+  assert.equal(first, second);
+  releaseStep();
+  await Promise.all([first, second]);
+  assert.equal(stepCalls, 1);
+});
+
+
+function startFixtureProtocol({ restartRevalidation = false } = {}) {
+  const fixturePath = fileURLToPath(new URL(
+    "./fixtures/fake-app-server.mjs",
+    import.meta.url,
+  ));
+  const child = spawn(process.execPath, [fixturePath], {
+    env: {
+      ...process.env,
+      ...(restartRevalidation
+        ? { COURSE_MOCK_RESTART_REVALIDATION: "1" }
+        : {}),
+    },
+    stdio: ["pipe", "pipe", "pipe"],
+    windowsHide: true,
+  });
+  child.stderr.resume();
+  let nextId = 1;
+  let buffer = "";
+  const pending = new Map();
+  child.stdout.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    buffer += chunk;
+    let newline = buffer.indexOf("\n");
+    while (newline >= 0) {
+      const line = buffer.slice(0, newline);
+      buffer = buffer.slice(newline + 1);
+      if (line) {
+        const message = JSON.parse(line);
+        const request = pending.get(message.id);
+        if (request) {
+          pending.delete(message.id);
+          if (message.error) request.reject(new Error(message.error.message));
+          else request.resolve(message.result);
+        }
+      }
+      newline = buffer.indexOf("\n");
+    }
+  });
+  child.once("exit", () => {
+    for (const request of pending.values()) {
+      request.reject(new Error("Fixture exited before responding."));
+    }
+    pending.clear();
+  });
+
+  return {
+    request(method, params = {}) {
+      const id = nextId++;
+      const response = new Promise((resolve, reject) => {
+        pending.set(id, { resolve, reject });
+      });
+      child.stdin.write(`${JSON.stringify({ id, method, params })}\n`);
+      return response;
+    },
+    close() {
+      child.stdin.end();
+      if (child.exitCode === null) child.kill();
+    },
+  };
+}
+
+function finalActivityText(thread) {
+  return thread.turns
+    .flatMap((turn) => turn.items ?? [])
+    .find((item) => item.type === "agentMessage" && item.phase === "final_answer")
+    ?.text;
+}
+
+test("restart-signaled fake revalidates the same bound task with a distinct report", async (t) => {
+  const normal = startFixtureProtocol();
+  t.after(() => normal.close());
+  await normal.request("initialize", {});
+  const initialRead = await normal.request("thread/read", {
+    threadId: "thr-practice-1",
+    includeTurns: true,
+  });
+  const canonical = finalActivityText(initialRead.thread);
+  assert.match(canonical, /ContentPilot Lite contains Brand Brain/);
+  assert.doesNotMatch(canonical, /RESTART_REVALIDATED_BOUND_TASK/);
+
+  const restart = startFixtureProtocol({ restartRevalidation: true });
+  t.after(() => restart.close());
+  await restart.request("initialize", {});
+  const revalidatedRead = await restart.request("thread/read", {
+    threadId: "thr-practice-1",
+    includeTurns: true,
+  });
+  const revalidatedResume = await restart.request("thread/resume", {
+    threadId: "thr-practice-1",
+  });
+  const readReport = finalActivityText(revalidatedRead.thread);
+  const resumedReport = finalActivityText(revalidatedResume.thread);
+
+  assert.equal(revalidatedRead.thread.id, "thr-practice-1");
+  assert.equal(revalidatedResume.thread.id, "thr-practice-1");
+  assert.match(readReport, /RESTART_REVALIDATED_BOUND_TASK/);
+  assert.equal(resumedReport, readReport);
+  assert.notEqual(readReport, canonical);
+  assert.doesNotMatch(JSON.stringify(revalidatedRead), /DECOY/);
+  assert.doesNotMatch(JSON.stringify(revalidatedResume), /DECOY/);
 });
