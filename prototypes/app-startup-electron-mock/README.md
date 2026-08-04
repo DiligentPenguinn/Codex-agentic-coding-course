@@ -270,16 +270,20 @@ the real path:
 8. Ask the Teacher what the bound Executor was asked, which constraints it
    followed, what it reported, and whether files changed.
 9. Confirm the Teacher reports only the bound task, accurately describes its
-   prompt, constraints, report, and changed-file result, and omits the decoy.
+   prompt and report, confirms that the Executor followed the read-only/no-edit
+   constraints, confirms that observed changed files were exactly zero, and
+   omits the decoy. A nonzero observed changed-file result must fail acceptance,
+   even when the Teacher reports it accurately.
 10. Confirm **Compact to Teacher** hides the main window, shows one draggable
     bubble, opens quick chat, and **Expand Practice** restores the Teacher tab.
 11. Disconnect or stop the App Server and confirm Practice Mode discloses stale
     or disconnected state without claiming current awareness.
 12. Restart the Course App and confirm the mission, verified task, and bounded
     Teacher chat return only after binding revalidation.
-13. Inspect the visible UI and application output for privacy-boundary
-    violations. Record pass/fail only; do not record private account,
-    conversation, authentication, provider, machine, or unrelated-task data.
+13. Inspect the UI, logs/output, and persisted state. Confirm that no
+    credentials, authentication URLs, raw protocol messages or payloads,
+    environment variables, hidden reasoning, or unrelated-task/decoy content
+    appeared. Record pass/fail only; do not record private values or content.
 
 If the created task is not visible in the installed desktop build, stop this
 checkpoint. Preserve the UI and contracts, report the real adapter gate as
