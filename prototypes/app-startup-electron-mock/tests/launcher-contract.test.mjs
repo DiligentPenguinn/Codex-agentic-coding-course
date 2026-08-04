@@ -6,11 +6,16 @@ import process from "node:process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { resolveNodeToolCommand } from "../../../scripts/setup-and-start.mjs";
+import {
+  main,
+  resolveNodeToolCommand,
+  selectStartupPresentation,
+} from "../../../scripts/setup-and-start.mjs";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testsDirectory, "..", "..", "..");
 const launcherPath = path.join(repositoryRoot, "start-course.cmd");
+const presentationPath = path.join(repositoryRoot, "scripts", "startup-first-run.txt");
 
 test("runs npm shims through Node without enabling a shell", () => {
   assert.deepEqual(
@@ -37,45 +42,106 @@ test("runs npm shims through Node without enabling a shell", () => {
   );
 });
 
-test("root launcher is short, Windows-native, and contains no teaching or auth", async () => {
-  const source = await readFile(launcherPath, "utf8");
+test("root launcher defers the shared first-run presentation until Node is missing", async () => {
+  const [source, presentation, setupSource] = await Promise.all([
+    readFile(launcherPath, "utf8"),
+    readFile(presentationPath, "utf8"),
+    readFile(path.join(repositoryRoot, "scripts", "setup-and-start.mjs"), "utf8"),
+  ]);
 
   assert.doesNotMatch(source, /ExecutionPolicy|Bypass/i);
   assert.match(source, /OpenJS\.NodeJS\.LTS/);
   assert.match(source, /winget/);
   assert.match(source, /setup-and-start\.mjs/);
+  assert.match(source, /startup-first-run\.txt/);
   assert.match(source, /process\.versions\.node/);
   assert.match(source, /set \/p/i);
   assert.match(source, /%~dp0/);
-  assert.match(source, /Welcome to Content Builder Academy!/);
-  assert.match(source, /CONTENT BUILDER/);
-  assert.match(source, /\[ I D E A S \]/);
-  assert.match(source, /THE WORKSHOP IS YOURS\./);
-  assert.match(source, /Idea in\. Working product out\. Let's begin\./);
-  assert.match(source, /SETUP  \[\.\.\.\.\.\.\.\.\.\.\]/);
+  assert.doesNotMatch(source, /Welcome to Content Builder Academy!|CONTENT BUILDER|THE WORKSHOP IS YOURS/);
+  assert.match(presentation, /Welcome to Content Builder Academy!/);
+  assert.match(presentation, /CONTENT BUILDER/);
+  assert.match(presentation, /\[ I D E A S \]/);
+  assert.match(presentation, /THE WORKSHOP IS YOURS\./);
+  assert.match(presentation, /Idea in\. Working product out\. Let's begin\./);
+  assert.match(presentation, /SETUP  \[\.\.\.\.\.\.\.\.\.\.\]/);
+  assert.match(presentation, /Nothing will be installed without your approval/);
   assert.ok(
-    source.indexOf("CONTENT BUILDER")
-      < source.indexOf("Welcome to Content Builder Academy!"),
-    "the workshop splash must appear before the welcome",
+    source.indexOf(":node_missing") < source.indexOf("startup-first-run.txt")
+      && source.indexOf("startup-first-run.txt") < source.indexOf("Required: Node.js 22 or newer"),
+    "the shared first-run presentation must precede the Node permission path",
   );
-  assert.match(source, /Nothing will be installed without your approval/);
-  const setupSource = await readFile(
-    path.join(repositoryRoot, "scripts", "setup-and-start.mjs"),
-    "utf8",
-  );
-  assert.match(
-    setupSource,
-    /Everything is ready\. Opening the course setup app/,
-  );
-  assert.ok(
-    source.indexOf("Welcome to Content Builder Academy!")
-      < source.indexOf("where node"),
-    "the learner welcome must appear before prerequisite checks",
-  );
+  assert.match(setupSource, /Setup complete — opening Course\./);
   assert.doesNotMatch(
-    source,
+    `${source}\n${presentation}\n${setupSource}`,
     /ChatGPT|access.?token|refresh.?token|api.?key|teaching question/i,
   );
+});
+
+function readyReport(overrides = {}) {
+  return {
+    platformSupported: true,
+    nodeCompatible: true,
+    npmAvailable: true,
+    codexAvailable: true,
+    appServerAvailable: true,
+    lockMatches: true,
+    electronRuntimeAvailable: true,
+    ...overrides,
+  };
+}
+
+test("selectStartupPresentation distinguishes ready return from every recovery case", () => {
+  assert.equal(selectStartupPresentation(readyReport(), []), "returning");
+  for (const report of [
+    readyReport({ lockMatches: false }),
+    readyReport({ electronRuntimeAvailable: false }),
+    readyReport({ appServerAvailable: false }),
+  ]) {
+    assert.equal(selectStartupPresentation(report, [{ id: "recovery" }]), "first-run");
+  }
+  assert.equal(
+    selectStartupPresentation(readyReport(), [{ id: "unexpected-install" }]),
+    "first-run",
+  );
+});
+
+test("returning startup prints one line, skips approval, and launches immediately", async () => {
+  const writes = [];
+  let executeCalls = 0;
+  let launchCalls = 0;
+  await main({
+    detect: async () => readyReport({ privateCredential: "MUST_NOT_PRINT" }),
+    buildPlan: () => [],
+    execute: async () => { executeCalls += 1; },
+    launch: async () => { launchCalls += 1; return 0; },
+    output: { write: (value) => writes.push(value) },
+    readFirstRun: async () => "FIRST RUN MUST NOT PRINT",
+  });
+
+  assert.equal(executeCalls, 0);
+  assert.equal(launchCalls, 1);
+  assert.equal(writes.join(""), "Setup complete — opening Course.\n");
+  assert.doesNotMatch(writes.join(""), /FIRST RUN|credential|MUST_NOT_PRINT/i);
+});
+
+test("first-run presentation appears once before a non-empty plan asks approval", async () => {
+  const order = [];
+  let detections = 0;
+  await main({
+    detect: async () => {
+      detections += 1;
+      return readyReport({ lockMatches: detections > 1 });
+    },
+    buildPlan: () => [{ id: "project-packages" }],
+    execute: async () => { order.push("approval"); },
+    launch: async () => 0,
+    output: { write: (value) => order.push(value) },
+    readFirstRun: async () => "FIRST_RUN_PRESENTATION\n",
+  });
+
+  assert.equal(order.filter((value) => value === "FIRST_RUN_PRESENTATION\n").length, 1);
+  assert.ok(order.indexOf("FIRST_RUN_PRESENTATION\n") < order.indexOf("approval"));
+  assert.equal(order.at(-1), "Setup complete — opening Course.\n");
 });
 
 test("declining a simulated missing Node install exits without winget", async () => {

@@ -108,19 +108,6 @@ async function launchMock({ restartRevalidation = false } = {}) {
   });
 }
 
-async function openCourseIfPresented(mainWindow) {
-  const openCourse = mainWindow.getByRole("button", { name: "Open course" });
-  const state = await pollUntil(async () => ({
-    courseButton: await openCourse.isVisible().catch(() => false),
-    practiceHeading: await mainWindow.getByRole("heading", {
-      name: /Inspect ContentPilot Lite/,
-    }).isVisible().catch(() => false),
-  }), (value) => value.courseButton || value.practiceHeading, {
-    description: "saved course or restored Practice screen",
-  });
-  if (state.courseButton) await openCourse.click();
-}
-
 async function waitForResponseReady(mainWindow, timeoutMs = 10_000) {
   const statuses = mainWindow.getByRole("status").filter({
     hasText: "Response ready",
@@ -215,12 +202,8 @@ test("completes startup and proves the bound-task Practice flow", {
     visible: true,
   });
   await mainWindow.getByRole("heading", {
-    name: "Welcome to Content Builder Academy",
-  }).waitFor();
-  await mainWindow.getByRole("button", { name: "Open course" }).click();
-  await mainWindow.getByRole("heading", {
     name: "Work safely with an Executor",
-  }).waitFor();
+  }).waitFor({ timeout: 5_000 });
 
   await mainWindow.getByRole("button", { name: "Review setup" }).click();
   await mainWindow.getByRole("heading", {
@@ -386,7 +369,6 @@ test("completes startup and proves the bound-task Practice flow", {
   mainWindow = await findWindowByFile(electronApp, "index.html", {
     visible: true,
   });
-  await openCourseIfPresented(mainWindow);
   await mainWindow.getByRole("heading", {
     name: /Inspect ContentPilot Lite/,
   }).waitFor({ timeout: 5_000 });

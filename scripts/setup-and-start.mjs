@@ -20,6 +20,11 @@ const mockRoot = path.join(
   "prototypes",
   "app-startup-electron-mock",
 );
+const firstRunPresentationPath = path.join(
+  repositoryRoot,
+  "scripts",
+  "startup-first-run.txt",
+);
 
 export function resolveNodeToolCommand(
   command,
@@ -113,7 +118,28 @@ export async function launchElectron({
   return result.exitCode;
 }
 
-export async function main() {
+export function selectStartupPresentation(report, installPlan) {
+  const ready = Array.isArray(installPlan)
+    && installPlan.length === 0
+    && report?.platformSupported === true
+    && report.nodeCompatible === true
+    && report.npmAvailable === true
+    && report.codexAvailable === true
+    && report.appServerAvailable === true
+    && report.lockMatches === true
+    && report.electronRuntimeAvailable === true;
+  return ready ? "returning" : "first-run";
+}
+
+export async function main({
+  detect = detectSetup,
+  buildPlan = buildInstallPlan,
+  execute = executeInstallPlan,
+  launch = launchElectron,
+  output = process.stdout,
+  readFirstRun = () => readFile(firstRunPresentationPath, "utf8"),
+  dependencyOverrides = {},
+} = {}) {
   const lockPath = path.join(mockRoot, "package-lock.json");
   const stampPath = path.join(
     mockRoot,
@@ -141,9 +167,10 @@ export async function main() {
     confirm: confirmInstall,
     run: runProcess,
     writeFile,
+    ...dependencyOverrides,
   };
 
-  const report = await detectSetup(deps);
+  const report = await detect(deps);
   if (!report.platformSupported) {
     throw Object.assign(new Error("This prototype currently supports Windows."), {
       code: "UNSUPPORTED_PLATFORM",
@@ -157,14 +184,16 @@ export async function main() {
     });
   }
 
-  const plan = buildInstallPlan(report);
-  if (plan.length > 0) await executeInstallPlan(plan, deps);
+  const plan = buildPlan(report);
+  if (selectStartupPresentation(report, plan) === "first-run") {
+    const presentation = await readFirstRun();
+    output.write(presentation.endsWith("\n") ? presentation : `${presentation}\n`);
+  }
+  if (plan.length > 0) await execute(plan, deps);
 
-  const finalReport = await detectSetup(deps);
-  process.stdout.write(
-    "Everything is ready. Opening the course setup app...\n\n",
-  );
-  const exitCode = await launchElectron({
+  const finalReport = await detect(deps);
+  output.write("Setup complete — opening Course.\n");
+  const exitCode = await launch({
     root: mockRoot,
     disconnected: (
       !finalReport.codexAvailable || !finalReport.appServerAvailable
