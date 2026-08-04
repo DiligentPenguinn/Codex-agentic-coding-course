@@ -2,14 +2,19 @@
   color-scheme: light;
   --paper: #f4f0e7;
   --paper-raised: #fffdf7;
+  --paper-deep: #e8e1d4;
   --ink: #172c3d;
   --ink-soft: #526471;
   --rule: #c9c2b3;
+  --rule-dark: #8f948f;
   --signal: #e66b2e;
   --signal-dark: #a83e12;
   --success: #1d7257;
+  --success-soft: #e4efe8;
   --danger: #a33232;
-  font-family: Cambria, "Palatino Linotype", serif;
+  --danger-soft: #f6e6e2;
+  --teacher: #2e5f68;
+  font-family: Charter, Cambria, "Palatino Linotype", serif;
   background: var(--paper);
   color: var(--ink);
 }
@@ -28,15 +33,38 @@ body {
     var(--paper);
 }
 
+body.is-practice {
+  min-width: 0;
+  background: var(--paper);
+}
+
 button,
-input {
+input,
+textarea {
   font: inherit;
+}
+
+button,
+a,
+textarea,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .page-frame {
   width: min(100% - 64px, 960px);
   margin: 0 auto;
   padding: 42px 0 28px;
+}
+
+.is-practice .page-frame {
+  width: min(100% - 48px, 1380px);
+  padding: 24px 0 40px;
+}
+
+.is-practice .masthead,
+.is-practice footer {
+  display: none;
 }
 
 .masthead {
@@ -52,13 +80,23 @@ input {
 .section-number,
 .prototype-stamp,
 .fixture-badge,
-.field-label {
+.field-label,
+.workshop-label,
+.receipt-stamp,
+.task-name-label {
   margin: 0;
   font-family: Bahnschrift, "Arial Narrow", sans-serif;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--ink);
 }
 
 h1,
@@ -77,6 +115,20 @@ h1 {
 h2 {
   margin-top: 8px;
   font-size: clamp(1.75rem, 4vw, 2.65rem);
+}
+
+h3 {
+  margin: 7px 0 14px;
+  font-size: clamp(1.35rem, 2.3vw, 1.8rem);
+  line-height: 1.15;
+}
+
+h4 {
+  margin: 0 0 9px;
+  font-family: Bahnschrift, "Arial Narrow", sans-serif;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .prototype-stamp,
@@ -132,7 +184,9 @@ h2 {
   box-shadow: 9px 10px 0 rgb(23 44 61 / 10%);
 }
 
-.panel[hidden] {
+.panel[hidden],
+.practice-shell[hidden],
+.practice-panel[hidden] {
   display: none;
 }
 
@@ -147,7 +201,8 @@ h2 {
   border-top-color: var(--signal);
 }
 
-.landing-summary {
+.landing-summary,
+.completion-grid {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0;
@@ -156,7 +211,8 @@ h2 {
   border-top: 1px solid var(--rule);
 }
 
-.landing-summary > * {
+.landing-summary > *,
+.completion-grid > * {
   margin: 0;
   border-bottom: 1px solid var(--rule);
   padding: 12px 0;
@@ -216,7 +272,6 @@ h2 {
 .status-mark.is-failed,
 .status-mark.is-disconnected {
   border-color: var(--danger);
-  background: linear-gradient(45deg, transparent 40%, var(--danger) 42% 58%, transparent 60%);
 }
 
 .device-card,
@@ -274,20 +329,29 @@ input[type="text"] {
   background: #fff;
 }
 
-.actions {
+.actions,
+.task-actions,
+.recovery-actions,
+.dialog-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 28px;
 }
 
-.button {
+.button,
+.text-button,
+.eligible-task,
+.practice-tabs button {
   min-height: 44px;
+  cursor: pointer;
+  font-family: Bahnschrift, "Arial Narrow", sans-serif;
+  font-weight: 700;
+}
+
+.button {
   border: 1px solid var(--ink);
   padding: 10px 18px;
-  cursor: pointer;
-  font-family: Bahnschrift, sans-serif;
-  font-weight: 700;
 }
 
 .button.primary {
@@ -300,12 +364,15 @@ input[type="text"] {
   color: var(--ink);
 }
 
-.button:hover {
+.button:hover,
+.text-button:hover,
+.eligible-task:hover {
   transform: translateY(-1px);
   box-shadow: 3px 3px 0 var(--signal);
 }
 
-.button:disabled {
+.button:disabled,
+.text-button:disabled {
   cursor: wait;
   opacity: 0.65;
   transform: none;
@@ -324,21 +391,638 @@ input[type="text"] {
 }
 
 .completion-grid {
-  display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0;
-  max-width: 620px;
-  margin: 28px 0;
-  border-top: 1px solid var(--rule);
-}
-
-.completion-grid > * {
-  border-bottom: 1px solid var(--rule);
-  padding: 12px 0;
 }
 
 .completion-grid strong {
   color: var(--success);
+}
+
+.course-panel {
+  position: relative;
+  overflow: hidden;
+  border-top-color: var(--signal);
+}
+
+.course-panel::after {
+  position: absolute;
+  right: -22px;
+  bottom: -42px;
+  color: rgb(23 44 61 / 7%);
+  content: "P";
+  font-family: Georgia, serif;
+  font-size: 14rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.course-rule {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  max-width: 650px;
+  margin: 44px 0 12px;
+  color: var(--ink-soft);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.course-rule i {
+  height: 1px;
+  background: var(--rule);
+}
+
+/* Practice is a focused learning workshop, not a second application window. */
+.practice-shell {
+  min-height: calc(100vh - 64px);
+  border: 1px solid var(--rule-dark);
+  background: var(--paper-raised);
+  box-shadow: 10px 12px 0 rgb(23 44 61 / 10%);
+  animation: workshop-enter 280ms ease-out both;
+}
+
+.practice-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(24px, 4vw, 68px);
+  min-height: 156px;
+  border-top: 7px solid var(--ink);
+  border-bottom: 3px double var(--ink);
+  padding: clamp(24px, 4vw, 44px);
+  background: #fcf8ef;
+}
+
+.mission-heading {
+  min-width: 0;
+}
+
+.mission-heading h2 {
+  max-width: 24ch;
+  overflow-wrap: anywhere;
+  font-family: "Iowan Old Style", Charter, Cambria, serif;
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  letter-spacing: -0.025em;
+}
+
+.practice-deck,
+.readable-copy {
+  max-width: 72ch;
+  overflow-wrap: anywhere;
+  color: var(--ink-soft);
+  font-size: 1.04rem;
+  line-height: 1.65;
+}
+
+.practice-deck {
+  margin: 15px 0 0;
+}
+
+.practice-controls {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.executor-status {
+  display: flex;
+  min-width: 208px;
+  min-height: 58px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--ink);
+  border-left: 5px solid var(--ink);
+  padding: 10px 14px;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.executor-status small,
+.executor-status strong {
+  display: block;
+  font-family: Bahnschrift, sans-serif;
+}
+
+.executor-status small {
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.executor-status strong {
+  margin-top: 2px;
+  font-size: 0.9rem;
+}
+
+.executor-symbol {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: var(--ink);
+  font-family: Bahnschrift, sans-serif;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.executor-status[data-status="ready"],
+.executor-status[data-status="response-ready"] {
+  border-left-color: var(--success);
+}
+
+.executor-status[data-status="ready"] .executor-symbol,
+.executor-status[data-status="response-ready"] .executor-symbol {
+  color: var(--success);
+}
+
+.executor-status[data-status="working"] {
+  border-left-color: var(--signal);
+}
+
+.executor-status[data-status="working"] .executor-symbol {
+  color: var(--signal-dark);
+  animation: spin 1.2s linear infinite;
+}
+
+.executor-status[data-status="waiting-for-learner"],
+.executor-status[data-status="stale"],
+.executor-status[data-status="disconnected"] {
+  border-left-color: var(--danger);
+}
+
+.executor-status[data-status="waiting-for-learner"] .executor-symbol,
+.executor-status[data-status="stale"] .executor-symbol,
+.executor-status[data-status="disconnected"] .executor-symbol {
+  color: var(--danger);
+}
+
+.compact-button {
+  width: 100%;
+  background: transparent;
+  color: var(--ink);
+}
+
+.practice-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--ink);
+  background: var(--paper-deep);
+}
+
+.practice-tabs button {
+  position: relative;
+  min-width: 160px;
+  border: 0;
+  border-right: 1px solid var(--rule-dark);
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+.practice-tabs button[aria-selected="true"] {
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.practice-tabs button[aria-selected="true"]::after {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  left: 20px;
+  height: 4px;
+  background: var(--signal);
+  content: "";
+}
+
+.practice-panel {
+  min-width: 0;
+  background: var(--paper-raised);
+}
+
+.exercise-layout {
+  min-width: 0;
+}
+
+.exercise-brief,
+.exercise-sidebar {
+  min-width: 0;
+  padding: clamp(28px, 4vw, 54px);
+}
+
+.exercise-brief {
+  border-bottom: 1px solid var(--rule);
+}
+
+.workshop-label {
+  color: var(--signal-dark);
+}
+
+.brief-section {
+  max-width: 72ch;
+  margin-top: 36px;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+}
+
+.outcome-list,
+.instruction-list,
+.action-card ul,
+.evidence-block ul {
+  margin: 0;
+  padding-left: 1.35rem;
+}
+
+.outcome-list li,
+.instruction-list li,
+.action-card li,
+.evidence-block li {
+  margin-block: 8px;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+
+.instruction-list {
+  counter-reset: workshop-step;
+  list-style: none;
+  padding: 0;
+}
+
+.instruction-list li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 13px;
+  counter-increment: workshop-step;
+}
+
+.instruction-list li::before {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--ink);
+  content: counter(workshop-step, decimal-leading-zero);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.exercise-sidebar {
+  background: #f8f3e9;
+}
+
+.guardrail-block,
+.evidence-block,
+.task-handoff {
+  min-width: 0;
+}
+
+.evidence-block,
+.task-handoff {
+  margin-top: 28px;
+  border-top: 3px double var(--rule-dark);
+  padding-top: 25px;
+}
+
+.action-ledger {
+  display: grid;
+  gap: 12px;
+}
+
+.action-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  border: 2px solid var(--success);
+  padding: 16px;
+  background: var(--success-soft);
+}
+
+.action-card.prohibited-card {
+  border-color: var(--danger);
+  border-style: dashed;
+  background: var(--danger-soft);
+}
+
+.action-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: var(--success);
+  font-family: Bahnschrift, sans-serif;
+  font-weight: 800;
+}
+
+.prohibited-card .action-icon {
+  border-radius: 0;
+  color: var(--danger);
+}
+
+.task-name-label {
+  margin: 18px 0 5px;
+  color: var(--ink-soft);
+}
+
+.bound-task-name {
+  margin: 0;
+  border-left: 4px solid var(--signal);
+  padding: 12px 14px;
+  background: var(--paper-raised);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.handoff-notice {
+  margin: 12px 0 0;
+  border: 1px solid var(--signal-dark);
+  padding: 12px;
+  background: #f8eadc;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.task-actions {
+  align-items: center;
+  margin-top: 16px;
+}
+
+.text-button {
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 8px 3px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.teacher-panel {
+  position: relative;
+  min-height: 620px;
+  padding: clamp(24px, 4vw, 48px) clamp(20px, 5vw, 72px) 0;
+  background: #f7f2e8;
+}
+
+.teacher-intro {
+  display: grid;
+  gap: 24px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.context-receipt {
+  min-width: 0;
+  border: 1px solid var(--teacher);
+  border-top: 5px solid var(--teacher);
+  padding: 18px;
+  background: var(--paper-raised);
+}
+
+.receipt-stamp {
+  color: var(--teacher);
+}
+
+.context-receipt dl {
+  margin: 13px 0 0;
+}
+
+.context-receipt dl div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  border-top: 1px solid var(--rule);
+  padding: 8px 0;
+}
+
+.context-receipt dt {
+  color: var(--ink-soft);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.context-receipt dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.freshness-disclosure {
+  margin: 13px 0 0;
+  border-top: 1px solid var(--rule);
+  padding-top: 12px;
+  color: var(--ink-soft);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.teacher-messages {
+  display: grid;
+  gap: 16px;
+  max-width: 860px;
+  min-height: 220px;
+  margin: 34px auto 0;
+  padding-bottom: 20px;
+}
+
+.teacher-empty {
+  max-width: 660px;
+  margin: 44px auto;
+  color: var(--ink-soft);
+  font-style: italic;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.chat-message {
+  width: min(88%, 680px);
+  border: 1px solid var(--rule-dark);
+  padding: 16px 18px;
+  background: var(--paper-raised);
+  box-shadow: 4px 4px 0 rgb(23 44 61 / 8%);
+  overflow-wrap: anywhere;
+}
+
+.chat-message.is-learner {
+  justify-self: end;
+  border-right: 5px solid var(--signal);
+}
+
+.chat-message.is-teacher {
+  justify-self: start;
+  border-left: 5px solid var(--teacher);
+}
+
+.message-meta {
+  margin: 0 0 7px;
+  color: var(--ink-soft);
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.message-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.58;
+}
+
+.teacher-composer {
+  position: sticky;
+  z-index: 3;
+  bottom: 0;
+  max-width: 940px;
+  margin: 20px auto 0;
+  border-top: 3px double var(--ink);
+  padding: 18px 0 20px;
+  background: #f7f2e8;
+}
+
+.teacher-composer > label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: Bahnschrift, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.composer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.composer-row textarea {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 12px 14px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.composer-row .button {
+  min-width: 94px;
+}
+
+.composer-note {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.practice-recovery {
+  border-top: 1px solid var(--rule);
+  padding: 0 clamp(24px, 4vw, 48px) 24px;
+  background: var(--paper-raised);
+}
+
+.practice-recovery .error-message:empty,
+.recovery-actions[hidden] {
+  display: none;
+}
+
+.practice-recovery .error-message:not(:empty) {
+  margin: 0;
+  border-left: 5px solid var(--danger);
+  padding: 16px;
+  background: var(--danger-soft);
+  overflow-wrap: anywhere;
+}
+
+.recovery-actions {
+  margin-top: 12px;
+}
+
+dialog {
+  width: min(calc(100% - 36px), 680px);
+  max-height: min(80vh, 760px);
+  overflow: auto;
+  border: 1px solid var(--ink);
+  border-top: 7px solid var(--ink);
+  padding: 28px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  box-shadow: 12px 12px 0 rgb(23 44 61 / 24%);
+}
+
+dialog::backdrop {
+  background: rgb(23 44 61 / 58%);
+}
+
+.dialog-heading {
+  border-bottom: 3px double var(--ink);
+  padding-bottom: 18px;
+}
+
+.dialog-heading p:last-child {
+  max-width: 72ch;
+  margin-bottom: 0;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.eligible-task-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.eligible-task {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  border: 1px solid var(--rule-dark);
+  padding: 14px 16px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.eligible-task strong,
+.eligible-task span {
+  overflow-wrap: anywhere;
+}
+
+.eligible-task span {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.picker-status {
+  margin: 0;
+  border-left: 4px solid var(--signal);
+  padding: 16px;
+  background: #f8eadc;
+  line-height: 1.5;
+}
+
+.empty-list-item {
+  color: var(--ink-soft);
+  font-style: italic;
 }
 
 footer {
@@ -353,9 +1037,56 @@ footer {
   }
 }
 
+@keyframes workshop-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 760px) {
+  .teacher-intro {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+    align-items: start;
+  }
+}
+
+@media (min-width: 921px) {
+  .exercise-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.28fr) minmax(340px, 0.72fr);
+  }
+
+  .exercise-brief {
+    border-right: 1px solid var(--rule);
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 920px) {
+  .practice-header {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-controls {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-items: stretch;
+  }
+
+  .compact-button {
+    width: auto;
+  }
+}
+
 @media (max-width: 720px) {
-  .page-frame {
-    width: min(100% - 28px, 960px);
+  .page-frame,
+  .is-practice .page-frame {
+    width: min(100% - 24px, 960px);
   }
 
   .masthead,
@@ -369,6 +1100,39 @@ footer {
 
   .progress li:nth-child(2) {
     border-right: 0;
+  }
+
+  .practice-header {
+    padding: 24px 20px;
+  }
+
+  .practice-controls,
+  .composer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-tabs button {
+    min-width: 0;
+    flex: 1 1 50%;
+    padding-inline: 12px;
+  }
+
+  .exercise-brief,
+  .exercise-sidebar,
+  .teacher-panel {
+    padding: 26px 20px;
+  }
+
+  .teacher-panel {
+    padding-bottom: 0;
+  }
+
+  .chat-message {
+    width: 96%;
+  }
+
+  .composer-row .button {
+    width: 100%;
   }
 }
 
