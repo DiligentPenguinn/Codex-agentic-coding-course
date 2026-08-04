@@ -332,6 +332,64 @@ test("persisted quick chat creates full first and waits for explicit compact/ope
   );
 });
 
+for (const persistedMode of ["compact", "quick-chat"]) {
+  test(
+    "failed transition during delayed create restores full from persisted " + persistedMode,
+    async () => {
+      const saved = {
+        mainBounds: { x: 140, y: 70, width: 800, height: 650 },
+        bubbleBounds: { x: 880, y: 590, width: 72, height: 72 },
+        popoverBounds: { x: 490, y: 110, width: 360, height: 520 },
+      };
+      const attempts = [];
+      const harness = createHarness({
+        delayLoads: true,
+        presentation: {
+          mode: persistedMode,
+          ...saved,
+        },
+        updatePresentation: async (patch) => {
+          attempts.push(structuredClone(patch));
+          throw new Error("presentation persistence rejected");
+        },
+      });
+      const creating = harness.coordinator.create();
+      await new Promise((resolve) => setImmediate(resolve));
+      const compacting = harness.coordinator.compact();
+      const rejected = assert.rejects(compacting, /persistence rejected/);
+
+      harness.releaseLoads();
+      await Promise.all([creating, rejected]);
+
+      const [main, bubble, quickChat] = harness.windows;
+      assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [true, false, false]);
+      assert.deepEqual([main.getBounds(), bubble.getBounds(), quickChat.getBounds()], [
+        saved.mainBounds,
+        saved.bubbleBounds,
+        saved.popoverBounds,
+      ]);
+      assert.deepEqual(harness.presentation, {
+        mode: persistedMode,
+        lastFullTab: "exercise",
+        ...saved,
+      });
+      assert.deepEqual(attempts, [{ mode: "compact" }]);
+      const terminalCalls = harness.windows.map((window) => ({
+        show: window.showCalls,
+        hide: window.hideCalls,
+        focus: window.focusCalls,
+      }));
+      await new Promise((resolve) => setImmediate(resolve));
+      assert.deepEqual(harness.windows.map((window) => window.visible), [true, false, false]);
+      assert.deepEqual(harness.windows.map((window) => ({
+        show: window.showCalls,
+        hide: window.hideCalls,
+        focus: window.focusCalls,
+      })), terminalCalls);
+    },
+  );
+}
+
 test("a compact request during delayed creation wins without main being shown later", async () => {
   const harness = createHarness({ delayLoads: true });
   const creating = harness.coordinator.create();

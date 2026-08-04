@@ -345,7 +345,7 @@ export function createWindowCoordinator({
         return await operation(isCurrent);
       } catch (error) {
         if (isCurrent()) {
-          requestedMode = appliedMode ?? presentationState.mode ?? "full";
+          requestedMode = appliedMode ?? "full";
           if (appliedMode === null) {
             applyPresentationInvariant(requestedMode);
           }
