@@ -123,7 +123,7 @@ export function createWindowCoordinator({
   let quickChatWindow = null;
   let createPromise = null;
   let disposed = false;
-  let requestedMode = presentationState.mode ?? "full";
+  let requestedMode = "full";
   let appliedMode = null;
   let transitionVersion = 0;
   let transitionQueue = Promise.resolve();
@@ -420,16 +420,7 @@ export function createWindowCoordinator({
         quickChatWindow.loadFile(rendererPaths.quickChat),
       ]);
       if (!disposed && transitionVersion === 0) {
-        const initialMode = presentationState.mode ?? "full";
-        if (initialMode === "quick-chat") {
-          const initialIsCurrent = () => !disposed && transitionVersion === 0;
-          await persistQuickChatAnchor(initialIsCurrent);
-        }
-        if (!disposed && transitionVersion === 0) {
-          applyPresentationInvariant(initialMode, {
-            focusQuickChat: initialMode === "quick-chat",
-          });
-        }
+        applyPresentationInvariant("full");
       }
       return mainWindow;
     })();

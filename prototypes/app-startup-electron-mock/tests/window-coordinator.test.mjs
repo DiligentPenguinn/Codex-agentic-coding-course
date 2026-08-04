@@ -275,6 +275,63 @@ test("create builds and secures all three windows exactly once, showing only mai
   assert.equal(main.visible, true);
 });
 
+test("persisted compact creates full first and retains saved bounds for explicit compact", async () => {
+  const saved = {
+    mainBounds: { x: 100, y: 50, width: 800, height: 650 },
+    bubbleBounds: { x: 900, y: 600, width: 72, height: 72 },
+    popoverBounds: { x: 500, y: 100, width: 360, height: 520 },
+  };
+  const harness = createHarness({
+    presentation: {
+      mode: "compact",
+      ...saved,
+    },
+  });
+
+  await harness.coordinator.create();
+  const [main, bubble, quickChat] = harness.windows;
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [true, false, false]);
+  assert.deepEqual(main.getBounds(), saved.mainBounds);
+  assert.deepEqual(bubble.getBounds(), saved.bubbleBounds);
+  assert.deepEqual(quickChat.getBounds(), saved.popoverBounds);
+  assert.deepEqual(harness.updates, []);
+
+  await harness.coordinator.compact();
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, false]);
+  assert.deepEqual(bubble.getBounds(), saved.bubbleBounds);
+});
+
+test("persisted quick chat creates full first and waits for explicit compact/open", async () => {
+  const saved = {
+    mainBounds: { x: 120, y: 60, width: 820, height: 680 },
+    bubbleBounds: { x: 16, y: 100, width: 72, height: 72 },
+    popoverBounds: { x: 500, y: 120, width: 360, height: 520 },
+  };
+  const harness = createHarness({
+    presentation: {
+      mode: "quick-chat",
+      ...saved,
+    },
+  });
+
+  await harness.coordinator.create();
+  const [main, bubble, quickChat] = harness.windows;
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [true, false, false]);
+  assert.deepEqual(main.getBounds(), saved.mainBounds);
+  assert.deepEqual(bubble.getBounds(), saved.bubbleBounds);
+  assert.deepEqual(quickChat.getBounds(), saved.popoverBounds);
+  assert.deepEqual(harness.updates, []);
+
+  await harness.coordinator.compact();
+  await harness.coordinator.openQuickChat();
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, true]);
+  assert.deepEqual(bubble.getBounds(), saved.bubbleBounds);
+  assert.equal(
+    bubble.bounds.x + bubble.bounds.width + 16,
+    quickChat.bounds.x,
+  );
+});
+
 test("a compact request during delayed creation wins without main being shown later", async () => {
   const harness = createHarness({ delayLoads: true });
   const creating = harness.coordinator.create();
