@@ -333,8 +333,9 @@ function renderContextReceipt(session) {
   );
 }
 
-function renderTeacherMessages(messages) {
+function renderTeacherMessages(messages, thinking = false) {
   const log = document.querySelector("#teacher-messages");
+  log.querySelector('[data-teacher-thinking="true"]')?.remove();
   const safeMessages = Array.isArray(messages) ? messages.slice(-40) : [];
   const desired = [];
   for (const [index, message] of safeMessages.entries()) {
@@ -379,6 +380,21 @@ function renderTeacherMessages(messages) {
       message.text.slice(0, 12_000),
     );
   }
+  if (thinking) {
+    const article = document.createElement("article");
+    article.className = "chat-message is-teacher is-thinking";
+    article.dataset.teacherThinking = "true";
+    article.setAttribute("role", "status");
+    article.setAttribute("aria-label", "Teacher is thinking");
+    const meta = document.createElement("p");
+    meta.className = "message-meta";
+    meta.textContent = "Teacher";
+    const text = document.createElement("p");
+    text.className = "message-text teacher-thinking-text";
+    text.textContent = "Thinking\u2026";
+    article.append(meta, text);
+    log.append(article);
+  }
   document.querySelector("#teacher-empty").hidden = log.childElementCount > 0;
 }
 
@@ -415,7 +431,10 @@ function renderTeacher(session) {
       : "The Teacher can discuss this mission using bound-task context only.",
   );
   renderContextReceipt(session);
-  renderTeacherMessages(session?.teacherChat);
+  renderTeacherMessages(
+    session?.teacherChat,
+    practiceState.busyAction === "teacher",
+  );
   renderTeacherComposer();
 }
 

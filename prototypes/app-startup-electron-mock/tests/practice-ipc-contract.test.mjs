@@ -243,6 +243,7 @@ test("maps full state to compact display-safe view models only", () => {
   assert.deepEqual(bubble, {
     executor: { status: "working", freshness: "fresh" },
     newestTeacherMessageId: "teacher-2",
+    presentationMode: "compact",
   });
   assert.equal(Object.isFrozen(bubble), true);
 
@@ -371,7 +372,7 @@ function assertStateListener(bridge, listeners) {
   assert.equal(listeners.has("practice:state-changed"), false);
 }
 
-test("bubble preload exposes only its five least-privilege methods", async () => {
+test("bubble preload exposes only its six least-privilege methods", async () => {
   const source = await readPreload("bubble-preload.cjs");
   assertSafePreloadSource(source);
   const runtime = executePreload(source);
@@ -379,15 +380,17 @@ test("bubble preload exposes only its five least-privilege methods", async () =>
   assert.deepEqual([...runtime.exposed.keys()], ["practiceBubble"]);
   const bridge = runtime.exposed.get("practiceBubble");
   assert.deepEqual(Object.keys(bridge).sort(), [
-    "expand", "getState", "onStateChanged", "openMenu", "openQuickChat",
+    "closeQuickChat", "expand", "getState", "onStateChanged", "openMenu", "openQuickChat",
   ]);
   await bridge.getState();
   await bridge.openQuickChat();
+  await bridge.closeQuickChat();
   await bridge.expand();
   await bridge.openMenu();
   assert.deepEqual(runtime.invocations, [
     ["practice:get-bubble-state"],
     ["practice:open-quick-chat"],
+    ["practice:close-quick-chat"],
     ["practice:expand"],
     ["practice:bubble-menu"],
   ]);

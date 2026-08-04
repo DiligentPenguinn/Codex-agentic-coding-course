@@ -162,14 +162,14 @@ test("selects Teacher by changing only the safe presentation copy", () => {
   assert.equal(loaded.viewModel.presentation.lastFullTab, "exercise");
 });
 
-test("retains the Teacher draft until the bridge accepts it", () => {
+test("clears the Teacher draft on Send and restores it only after rejection", () => {
   let state = reducePracticeRenderer(createInitialPracticeRendererState(), {
     type: "TEACHER_DRAFT_CHANGED",
     text: "What did the Executor inspect?",
   });
   state = reducePracticeRenderer(state, { type: "TEACHER_SEND_REQUESTED" });
   assert.equal(state.busyAction, "teacher");
-  assert.equal(state.teacherDraft, "What did the Executor inspect?");
+  assert.equal(state.teacherDraft, "");
 
   state = reducePracticeRenderer(state, {
     type: "TEACHER_SEND_ACCEPTED",
@@ -177,6 +177,20 @@ test("retains the Teacher draft until the bridge accepts it", () => {
   });
   assert.equal(state.busyAction, null);
   assert.equal(state.teacherDraft, "");
+
+  let rejected = reducePracticeRenderer(createInitialPracticeRendererState(), {
+    type: "TEACHER_SEND_REQUESTED",
+  });
+  rejected = reducePracticeRenderer(rejected, {
+    type: "TEACHER_SEND_REJECTED",
+    text: "Retry this exact question",
+  });
+  assert.equal(rejected.busyAction, null);
+  assert.equal(rejected.teacherDraft, "Retry this exact question");
+  assert.deepEqual(rejected.error, {
+    message: "The Teacher could not answer right now. Your draft is still here.",
+    recoveryAction: "retry-teacher",
+  });
 });
 
 test("keeps the Teacher composer busy across subscription state pushes", () => {
@@ -191,7 +205,7 @@ test("keeps the Teacher composer busy across subscription state pushes", () => {
   });
   assert.equal(state.screen, "practice");
   assert.equal(state.busyAction, "teacher");
-  assert.equal(state.teacherDraft, "Keep this draft");
+  assert.equal(state.teacherDraft, "");
 });
 
 test("maps failures to fixed alerts and explicit recovery actions", () => {
@@ -647,7 +661,7 @@ test("interaction: Teacher send survives subscription ordering and restores focu
   const sending = harness.controller.sendTeacherMessage();
   harness.emit(pushed);
   assert.equal(harness.controller.getState().busyAction, "teacher");
-  assert.equal(harness.controller.getState().teacherDraft, "What happened?");
+  assert.equal(harness.controller.getState().teacherDraft, "");
   pending.resolve(ok(answered));
   await sending;
 
@@ -698,7 +712,7 @@ test("interaction: tab success and compact failure cannot steal Teacher ownershi
   await harness.controller.selectTab("teacher");
   const afterTab = harness.controller.getState();
   assert.equal(afterTab.busyAction, "teacher");
-  assert.equal(afterTab.teacherDraft, "Teacher-owned draft");
+  assert.equal(afterTab.teacherDraft, "");
   assert.equal(afterTab.error, null);
   assert.equal(afterTab.viewModel.presentation.lastFullTab, "teacher");
   assert.equal(afterTab.viewModel.session.mission.title, "Current owned mission");
@@ -855,7 +869,7 @@ test("interaction: a stale Teacher rejection cannot unlock or clear a newer Teac
 
   assert.equal(harness.controller.getState(), beforeLateRejection);
   assert.equal(harness.controller.getState().busyAction, "teacher");
-  assert.equal(harness.controller.getState().teacherDraft, "New question");
+  assert.equal(harness.controller.getState().teacherDraft, "");
   assert.equal(harness.controller.getState().error, null);
   assert.equal(harness.controller.getState().pickerOpen, false);
   assert.equal(harness.view.renderCount, renderCount);
@@ -944,7 +958,7 @@ test("interaction: a Teacher rejection superseded by Retry cannot unlock a newer
 
   assert.equal(harness.controller.getState(), beforeLateRejection);
   assert.equal(harness.controller.getState().busyAction, "teacher");
-  assert.equal(harness.controller.getState().teacherDraft, "New question after Retry");
+  assert.equal(harness.controller.getState().teacherDraft, "");
   assert.equal(harness.controller.getState().error, null);
   assert.equal(harness.view.renderCount, renderCount);
   assert.equal(harness.view.composerFocusCount, 0);
@@ -1016,7 +1030,7 @@ test("interaction: Open in Codex is inert while Teacher owns the controller", as
   assert.equal(harness.calls.filter(([name]) => name === "openTask").length, 0);
   assert.equal(harness.controller.getState(), teacherState);
   assert.equal(harness.controller.getState().busyAction, "teacher");
-  assert.equal(harness.controller.getState().teacherDraft, "Question before Open attempt");
+  assert.equal(harness.controller.getState().teacherDraft, "");
 
   teacherPending.resolve(ok(boundViewModel()));
   await sending;
@@ -1123,6 +1137,9 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(controllerSource, /observation cursor will reset/i);
   assert.match(script, /Intl\.DateTimeFormat/);
   assert.match(script, /\.textContent\s*=/);
+  assert.match(script, /Teacher is thinking/);
+  assert.match(script, /practiceState\.busyAction === "teacher"/);
+  assert.match(script, /teacher-thinking-text/);
   assert.doesNotMatch(script, /function renderTeacherMessages[\s\S]{0,500}replaceChildren/);
   assert.match(script, /choice\.disabled\s*=/);
 
@@ -1134,5 +1151,6 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(css, /position:\s*sticky/);
   assert.match(css, /dialog\s*\{[^}]*overscroll-behavior:\s*contain/);
   assert.match(css, /:focus-visible/);
-  assert.match(css, /prefers-reduced-motion/);
+  assert.match(css, /prefers-reduced-motion:\s*no-preference/);
+  assert.match(css, /teacher-thinking-pulse/);
 });

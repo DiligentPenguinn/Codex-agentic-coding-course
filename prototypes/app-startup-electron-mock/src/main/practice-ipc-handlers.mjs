@@ -163,6 +163,9 @@ export function toBubbleViewModel(full) {
       freshness: session?.executor?.freshness ?? "disconnected",
     },
     newestTeacherMessageId: newestTeacher?.id ?? null,
+    presentationMode: full?.presentation?.mode === "quick-chat"
+      ? "quick-chat"
+      : "compact",
   });
 }
 

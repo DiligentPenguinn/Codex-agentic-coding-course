@@ -171,6 +171,23 @@ main {
   border-radius: 3px 13px 13px 13px;
 }
 
+.teacher-thinking-text {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .teacher-thinking-text {
+    animation: teacher-thinking-pulse 1.2s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes teacher-thinking-pulse {
+  to {
+    opacity: 0.45;
+  }
+}
+
 .quick-message.is-learner {
   align-self: flex-end;
   border-color: var(--ink);

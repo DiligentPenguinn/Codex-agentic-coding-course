@@ -57,6 +57,7 @@ export function createBubbleController({
   let removeStateListener = null;
   let pendingOpenTimer = null;
   let newestTeacherMessageId = null;
+  let presentationMode = "compact";
   let presentationRequestGeneration = 0;
   let lastSeenTeacherMessageId = null;
   let unreadTransitions = 0;
@@ -86,6 +87,10 @@ export function createBubbleController({
         ? value.executor.freshness
         : "disconnected",
     });
+    presentationMode = value.presentationMode === "quick-chat"
+      ? "quick-chat"
+      : "compact";
+    view.renderPresentationMode?.(presentationMode);
     observeTeacherMessage(value.newestTeacherMessageId);
     renderUnread();
   }
@@ -128,6 +133,28 @@ export function createBubbleController({
     }
   }
 
+  function closeQuickChat() {
+    const requestGeneration = ++presentationRequestGeneration;
+    pendingOpenTimer = null;
+    try {
+      Promise.resolve(bridge.closeQuickChat())
+        .then((response) => {
+          if (
+            !disposed
+            && presentationRequestGeneration === requestGeneration
+            && response?.ok === true
+            && response.value === true
+          ) {
+            presentationMode = "compact";
+            view.renderPresentationMode?.(presentationMode);
+          }
+        })
+        .catch(() => {});
+    } catch {
+      // The shared state stream remains authoritative after a failed close.
+    }
+  }
+
   function expand() {
     cancelPendingOpen();
     presentationRequestGeneration += 1;
@@ -164,7 +191,10 @@ export function createBubbleController({
     cancelPendingOpen();
     // The second click only cancels; the following dblclick owns Expand.
     if (Number.isFinite(event?.detail) && event.detail > 1) return;
-    pendingOpenTimer = schedule(openQuickChat, clickDelay);
+    const action = presentationMode === "quick-chat"
+      ? closeQuickChat
+      : openQuickChat;
+    pendingOpenTimer = schedule(action, clickDelay);
   }
 
   function handleDoubleClick(event) {
@@ -206,6 +236,7 @@ export function createBubbleController({
 }
 
 export function createBubbleDomView({ root = document } = {}) {
+  const button = root.querySelector("#teacher-bubble");
   const shell = root.querySelector(".bubble-shell");
   const symbol = root.querySelector("#executor-symbol");
   const badge = root.querySelector("#unread-badge");
@@ -218,6 +249,14 @@ export function createBubbleDomView({ root = document } = {}) {
   }
 
   return Object.freeze({
+    renderPresentationMode(mode) {
+      button.setAttribute(
+        "aria-label",
+        mode === "quick-chat"
+          ? "Minimize Teacher quick chat"
+          : "Open Teacher quick chat",
+      );
+    },
     renderStatus(next) {
       shell.dataset.state = next.key;
       symbol.textContent = next.symbol;

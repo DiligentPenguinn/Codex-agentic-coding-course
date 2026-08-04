@@ -90,6 +90,7 @@ export function createQuickChatController({ bridge, view }) {
   function renderComposer() {
     if (disposed) return;
     view.renderComposer({ draft, sending });
+    view.renderThinking?.(sending);
   }
 
   function applyState(value) {
@@ -153,11 +154,13 @@ export function createQuickChatController({ bridge, view }) {
   }
 
   async function send() {
-    const text = draft.trim();
+    const submittedDraft = draft;
+    const text = submittedDraft.trim();
     if (disposed || sending || text.length === 0) return;
     const request = Object.freeze({ generation: ++requestGeneration });
     activeRequest = request;
     sending = true;
+    draft = "";
     view.renderLocalError(null);
     renderComposer();
 
@@ -172,9 +175,9 @@ export function createQuickChatController({ bridge, view }) {
     activeRequest = null;
     sending = false;
     if (response?.ok) {
-      draft = "";
       view.renderLocalError(null);
     } else {
+      draft = submittedDraft;
       view.renderLocalError("Your message was not sent. Check the connection and try again.");
     }
     renderComposer();
@@ -235,6 +238,12 @@ function createQuickChatDomView() {
   const sendButton = document.querySelector('#quick-form button[type="submit"]');
   let stateError = null;
   let localError = null;
+  let messageCount = 0;
+  let teacherThinking = false;
+
+  function syncEmptyState() {
+    empty.hidden = messageCount > 0 || teacherThinking;
+  }
 
   function renderError() {
     const message = localError || stateError;
@@ -246,6 +255,7 @@ function createQuickChatDomView() {
     const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
     const desiredKeys = new Set(messages.map(({ id }) => id));
     for (const child of [...log.children]) {
+      if (child.dataset.teacherThinking === "true") continue;
       if (!desiredKeys.has(child.dataset.messageKey)) child.remove();
     }
 
@@ -275,7 +285,8 @@ function createQuickChatDomView() {
       if (meta.textContent !== metaText) meta.textContent = metaText;
       if (text.textContent !== message.text) text.textContent = message.text;
     }
-    empty.hidden = messages.length > 0;
+    messageCount = messages.length;
+    syncEmptyState();
     if (added && nearBottom) log.scrollTop = log.scrollHeight;
   }
 
@@ -292,6 +303,29 @@ function createQuickChatDomView() {
     renderLocalError(message) {
       localError = message;
       renderError();
+    },
+    renderThinking(active) {
+      teacherThinking = Boolean(active);
+      let article = log.querySelector('[data-teacher-thinking="true"]');
+      if (teacherThinking && !article) {
+        article = document.createElement("article");
+        article.className = "quick-message is-teacher is-thinking";
+        article.dataset.teacherThinking = "true";
+        article.setAttribute("role", "status");
+        article.setAttribute("aria-label", "Teacher is thinking");
+        const meta = document.createElement("p");
+        meta.className = "message-meta";
+        meta.textContent = "Teacher";
+        const text = document.createElement("p");
+        text.className = "message-text teacher-thinking-text";
+        text.textContent = "Thinking\u2026";
+        article.append(meta, text);
+        log.append(article);
+        log.scrollTop = log.scrollHeight;
+      } else if (!teacherThinking) {
+        article?.remove();
+      }
+      syncEmptyState();
     },
     renderSnapshot(snapshot) {
       status.dataset.state = snapshot.executor.key;

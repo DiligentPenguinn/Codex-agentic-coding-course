@@ -79,6 +79,7 @@ test("bubble action name describes an external live Executor and unread status",
   const elements = new Map();
   for (const selector of [
     ".bubble-shell",
+    "#teacher-bubble",
     "#executor-symbol",
     "#unread-badge",
     "#bubble-status",
@@ -94,8 +95,14 @@ test("bubble action name describes an external live Executor and unread status",
   const view = bubbleModule.createBubbleDomView({
     root: { querySelector: (selector) => elements.get(selector) },
   });
+  const button = elements.get("#teacher-bubble");
   const liveStatus = elements.get("#bubble-status");
   const badge = elements.get("#unread-badge");
+
+  view.renderPresentationMode("quick-chat");
+  assert.equal(button.attributes.get("aria-label"), "Minimize Teacher quick chat");
+  view.renderPresentationMode("compact");
+  assert.equal(button.attributes.get("aria-label"), "Open Teacher quick chat");
 
   view.renderStatus({ key: "working", symbol: "◌", label: "Executor working" });
   assert.equal(
@@ -334,6 +341,51 @@ test("bubble arbitrates click, double-click, keyboard Expand, and context menu w
   runTimers();
   await flushPromises();
   assert.deepEqual(calls, ["open", "expand", "expand", "expand", "menu"]);
+});
+
+test("bubble click minimizes quick chat without blur reopening it", async () => {
+  const { createBubbleController } = await import(new URL("bubble.js", rendererUrl));
+  const calls = [];
+  const scheduled = [];
+  let listener;
+  const modes = [];
+  const controller = createBubbleController({
+    bridge: {
+      getState: async () => ({
+        ok: true,
+        value: {
+          executor: { status: "ready", freshness: "fresh" },
+          newestTeacherMessageId: null,
+          presentationMode: "quick-chat",
+        },
+      }),
+      onStateChanged(next) { listener = next; return () => {}; },
+      openQuickChat: async () => { calls.push("open"); return { ok: true, value: true }; },
+      closeQuickChat: async () => { calls.push("close"); return { ok: true, value: true }; },
+      expand: async () => ({ ok: true, value: true }),
+      openMenu: async () => ({ ok: true }),
+    },
+    view: {
+      renderStatus() {},
+      renderUnread() {},
+      renderPresentationMode: (mode) => modes.push(mode),
+    },
+    schedule(callback) { scheduled.push(callback); return scheduled.length; },
+    cancel() {},
+  });
+
+  await controller.initialize();
+  assert.equal(modes.at(-1), "quick-chat");
+  controller.handleClick({ detail: 1 });
+  listener({
+    executor: { status: "ready", freshness: "fresh" },
+    newestTeacherMessageId: null,
+    presentationMode: "compact",
+  });
+  scheduled.shift()();
+  await flushPromises();
+  assert.deepEqual(calls, ["close"]);
+  assert.equal(calls.includes("open"), false);
 });
 
 test("bubble waits through a realistic platform double-click window without opening once", async () => {
@@ -616,6 +668,7 @@ test("quick chat updates only the composer while typing and fails closed on dupl
   const snapshots = [];
   const composers = [];
   const errors = [];
+  const thinking = [];
   let focusCalls = 0;
   const controller = createQuickChatController({
     bridge: {
@@ -636,6 +689,7 @@ test("quick chat updates only the composer while typing and fails closed on dupl
       renderSnapshot: (snapshot) => snapshots.push(snapshot),
       renderComposer: (composer) => composers.push({ ...composer }),
       renderLocalError: (message) => errors.push(message),
+      renderThinking: (active) => thinking.push(active),
       focusComposer: () => { focusCalls += 1; },
     },
   });
@@ -650,6 +704,8 @@ test("quick chat updates only the composer while typing and fails closed on dupl
   const duplicateSend = controller.send();
   assert.equal(sendCalls, 1);
   assert.equal(composers.at(-1).sending, true);
+  assert.equal(composers.at(-1).draft, "");
+  assert.equal(thinking.at(-1), true);
   await duplicateSend;
 
   listener({
@@ -657,12 +713,13 @@ test("quick chat updates only the composer while typing and fails closed on dupl
     teacherChat: [{ id: "learner-1", role: "learner", text: "Keep this draft", createdAt: "2026-08-03T10:00:00.000Z" }],
     error: null,
   });
-  assert.equal(composers.at(-1).draft, "  Keep this draft  ");
+  assert.equal(composers.at(-1).draft, "");
 
   sendResult.resolve({ ok: false, error: { message: "RAW private failure" } });
   await firstSend;
   assert.equal(composers.at(-1).draft, "  Keep this draft  ");
   assert.equal(composers.at(-1).sending, false);
+  assert.equal(thinking.at(-1), false);
   assert.equal(errors.at(-1), "Your message was not sent. Check the connection and try again.");
   assert.equal(errors.some((message) => /RAW|private/.test(message)), false);
   assert.equal(focusCalls, 1);
@@ -704,7 +761,7 @@ test("quick chat request identity prevents a closed stale send from clearing or 
   const currentSend = controller.send();
   first.resolve({ ok: true, value: { private: "must be ignored" } });
   await staleSend;
-  assert.equal(composers.at(-1).draft, "newer");
+  assert.equal(composers.at(-1).draft, "");
   assert.equal(composers.at(-1).sending, true);
   assert.equal(focusCalls, 0);
 

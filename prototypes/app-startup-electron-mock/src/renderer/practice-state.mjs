@@ -231,9 +231,23 @@ export function reducePracticeRenderer(state, event) {
           : "",
       });
     case "TEACHER_SEND_REQUESTED":
-      return frozenState({ ...state, busyAction: "teacher", error: null });
+      return frozenState({
+        ...state,
+        busyAction: "teacher",
+        teacherDraft: "",
+        error: null,
+      });
     case "TEACHER_SEND_ACCEPTED":
       return withViewModel(state, event.viewModel, { teacherDraft: "" });
+    case "TEACHER_SEND_REJECTED":
+      return frozenState({
+        ...state,
+        busyAction: null,
+        teacherDraft: typeof event.text === "string"
+          ? event.text.slice(0, 4_000)
+          : "",
+        error: FIXED_ERRORS.teacher,
+      });
     case "BUSY_STARTED":
       return frozenState({
         ...state,
@@ -528,7 +542,8 @@ export function createPracticeRendererController({
 
   async function sendTeacherMessage() {
     const policy = getPracticeActionPolicy(state);
-    const text = state.teacherDraft.trim();
+    const submittedDraft = state.teacherDraft;
+    const text = submittedDraft.trim();
     if (!policy.canSendTeacherMessage) {
       if (policy.hasAsyncOwner) return state;
       view.focusComposer?.();
@@ -545,7 +560,7 @@ export function createPracticeRendererController({
     } catch {
       if (!ownsTeacherRequest(request)) return state;
       activeTeacherRequest = null;
-      apply({ type: "ERROR", kind: "teacher" });
+      apply({ type: "TEACHER_SEND_REJECTED", text: submittedDraft });
     }
     view.focusComposer?.();
     return state;
