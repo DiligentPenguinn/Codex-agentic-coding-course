@@ -11,9 +11,13 @@ const CHANNELS = Object.freeze({
 
 contextBridge.exposeInMainWorld("practiceQuickChat", Object.freeze({
   getState: () => ipcRenderer.invoke(CHANNELS.PRACTICE_GET_QUICK_STATE),
-  sendTeacherMessage: (text) => (
-    ipcRenderer.invoke(CHANNELS.PRACTICE_SEND_TEACHER, { text })
-  ),
+  sendTeacherMessage: async (text) => {
+    const result = await ipcRenderer.invoke(
+      CHANNELS.PRACTICE_SEND_TEACHER,
+      { text },
+    );
+    return result?.ok ? Object.freeze({ ok: true, value: null }) : result;
+  },
   closeQuickChat: () => (
     ipcRenderer.invoke(CHANNELS.PRACTICE_CLOSE_QUICK_CHAT)
   ),

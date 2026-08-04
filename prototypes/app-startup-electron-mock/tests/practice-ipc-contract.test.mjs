@@ -267,14 +267,17 @@ test("maps full state to compact display-safe view models only", () => {
   }
 });
 
-function executePreload(source) {
+function executePreload(
+  source,
+  invokeResult = (channel) => ({ ok: true, value: channel }),
+) {
   const exposed = new Map();
   const invocations = [];
   const listeners = new Map();
   const ipcRenderer = {
     invoke(channel, payload) {
       invocations.push(payload === undefined ? [channel] : [channel, payload]);
-      return Promise.resolve({ ok: true, value: channel });
+      return Promise.resolve(invokeResult(channel, payload));
     },
     on(channel, listener) {
       listeners.set(channel, listener);
@@ -413,4 +416,47 @@ test("quick-chat preload exposes only its five least-privilege methods", async (
     ["practice:expand"],
   ]);
   assertStateListener(bridge, runtime.listeners);
+});
+
+test("quick-chat send resolves with ack-only success and preserves sanitized failure", async () => {
+  const source = await readPreload("quick-chat-preload.cjs");
+  const privateFullViewModel = {
+    session: {
+      mission: { title: "private-mission" },
+      executor: {
+        threadId: "private-thread",
+        changedFiles: ["private-file"],
+      },
+      teacherChat: [{ id: "private-message", role: "teacher", text: "private-answer" }],
+    },
+  };
+  const successRuntime = executePreload(source, (channel) => (
+    channel === "practice:send-teacher"
+      ? { ok: true, value: privateFullViewModel }
+      : { ok: true, value: channel }
+  ));
+  const success = await successRuntime.exposed
+    .get("practiceQuickChat")
+    .sendTeacherMessage("Hello");
+  assert.deepEqual(structuredClone(success), { ok: true, value: null });
+  assert.doesNotMatch(JSON.stringify(success), /private-/);
+
+  const sanitizedFailure = Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "TEACHER_FAILED",
+      message: "Teacher could not respond.",
+      recoveryAction: "Try again from Practice.",
+    }),
+  });
+  const failureRuntime = executePreload(source, (channel) => (
+    channel === "practice:send-teacher"
+      ? sanitizedFailure
+      : { ok: true, value: channel }
+  ));
+  const failure = await failureRuntime.exposed
+    .get("practiceQuickChat")
+    .sendTeacherMessage("Hello");
+  assert.equal(failure, sanitizedFailure);
+  assert.deepEqual(structuredClone(failure), structuredClone(sanitizedFailure));
 });

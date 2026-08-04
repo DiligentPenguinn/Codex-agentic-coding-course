@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Practice Teacher quick chat</title>
+    <link rel="stylesheet" href="./compact.css">
+  </head>
+  <body>
+    <header class="quick-header">
+      <div>
+        <span class="eyebrow">Practice Teacher</span>
+        <strong id="quick-status">○ Executor ready</strong>
+      </div>
+      <button type="button" data-action="expand">Expand Practice</button>
+    </header>
+    <main>
+      <p id="quick-freshness" role="status">Waiting for a fresh Executor observation.</p>
+      <p id="quick-error" role="alert" hidden></p>
+      <div
+        id="quick-messages"
+        role="log"
+        aria-label="Teacher conversation"
+        aria-live="polite"
+        aria-relevant="additions text"
+      ></div>
+      <p id="quick-empty">Your recent Teacher conversation will appear here.</p>
+    </main>
+    <form id="quick-form">
+      <label for="quick-message">Message Teacher</label>
+      <textarea id="quick-message" maxlength="4000" rows="3"></textarea>
+      <button type="submit" disabled>Send</button>
+    </form>
+    <script type="module" src="./quick-chat.js"></script>
+  </body>
+</html>
