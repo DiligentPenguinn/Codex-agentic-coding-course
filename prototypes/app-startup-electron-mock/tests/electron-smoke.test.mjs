@@ -287,6 +287,33 @@ test("completes startup and proves the bound-task Practice flow", {
     { width: bubbleState.bounds.width, height: bubbleState.bounds.height },
     { width: 72, height: 72 },
   );
+  const bubbleGeometry = await bubbleWindow.evaluate(() => {
+    const grip = document.querySelector(".drag-grip");
+    const button = document.querySelector("#teacher-bubble");
+    const ring = document.querySelector(".state-ring");
+    const gripBounds = grip.getBoundingClientRect();
+    const buttonBounds = button.getBoundingClientRect();
+    return {
+      grip: {
+        width: gripBounds.width,
+        height: gripBounds.height,
+        appRegion: getComputedStyle(grip).getPropertyValue("-webkit-app-region"),
+      },
+      button: {
+        width: buttonBounds.width,
+        height: buttonBounds.height,
+        appRegion: getComputedStyle(button).getPropertyValue("-webkit-app-region"),
+      },
+      ringPointerEvents: getComputedStyle(ring).pointerEvents,
+    };
+  });
+  assert.ok(bubbleGeometry.grip.width >= 28);
+  assert.ok(bubbleGeometry.grip.height >= 10);
+  assert.equal(bubbleGeometry.grip.appRegion.trim(), "drag");
+  assert.ok(bubbleGeometry.button.width >= 44);
+  assert.ok(bubbleGeometry.button.height >= 44);
+  assert.equal(bubbleGeometry.button.appRegion.trim(), "no-drag");
+  assert.equal(bubbleGeometry.ringPointerEvents, "none");
   await bubbleWindow.getByRole("button", {
     name: "Open Teacher quick chat",
   }).click();

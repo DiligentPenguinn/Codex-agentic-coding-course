@@ -32,28 +32,49 @@ button {
   display: grid;
   width: 100%;
   height: 100%;
-  place-items: center;
-  -webkit-app-region: drag;
+  grid-template-rows: 12px 60px;
+  justify-items: center;
+  -webkit-app-region: no-drag;
   user-select: none;
 }
 
-.drag-ring {
+.drag-grip {
+  z-index: 3;
+  grid-row: 1;
+  align-self: end;
+  width: 32px;
+  height: 10px;
+  border: 1px solid rgb(255 253 247 / 78%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 10px 50%, var(--paper) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 16px 50%, var(--paper) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 22px 50%, var(--paper) 0 1.5px, transparent 2px),
+    var(--ink-deep);
+  box-shadow: 0 2px 5px rgb(13 31 45 / 32%);
+  cursor: move;
+  -webkit-app-region: drag;
+}
+
+.state-ring {
   position: absolute;
-  inset: 1px;
+  top: 11px;
+  left: 6px;
+  width: 60px;
+  height: 60px;
   border: 2px solid var(--signal);
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 28px 4px, var(--ink) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 35px 2px, var(--ink) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 42px 4px, var(--ink) 0 1.5px, transparent 2px);
   box-shadow: 0 6px 16px rgb(13 31 45 / 24%);
   pointer-events: none;
-  -webkit-app-region: drag;
+  -webkit-app-region: no-drag;
 }
 
 #teacher-bubble {
   position: relative;
+  z-index: 2;
   display: grid;
+  grid-row: 2;
+  align-self: center;
   width: 56px;
   min-width: 44px;
   height: 56px;
@@ -166,7 +187,7 @@ button {
     transition: transform 120ms ease, box-shadow 120ms ease;
   }
 
-  .bubble-shell[data-state="working"] .drag-ring {
+  .bubble-shell[data-state="working"] .state-ring {
     animation: working-ring 1.8s ease-in-out infinite;
   }
 }
@@ -188,7 +209,8 @@ button {
 }
 
 @media (forced-colors: active) {
-  .drag-ring,
+  .drag-grip,
+  .state-ring,
   #teacher-bubble,
   .executor-symbol,
   .unread-badge {

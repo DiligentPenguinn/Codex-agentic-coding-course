@@ -304,6 +304,7 @@ function handleThreadStart(message) {
     || params.serviceName !== expectedService
     || params.sandbox !== "read-only"
     || params.approvalPolicy !== expectedApproval
+    || (ephemeral && params.model !== "fixture-teacher-model")
   ) {
     reject(message.id, "Invalid fixture thread/start request.");
     return;
@@ -431,6 +432,23 @@ lines.on("line", (line) => {
   if (message.method === "account/login/cancel") {
     activeLogin = null;
     respond(message.id, {});
+    return;
+  }
+
+  if (message.method === "model/list") {
+    respond(message.id, {
+      data: [{
+        id: "fixture-teacher-model",
+        model: "fixture-teacher-model",
+        displayName: "Fixture Teacher Model",
+        description: "Deterministic smoke-test Teacher model.",
+        hidden: false,
+        isDefault: true,
+        defaultReasoningEffort: "medium",
+        supportedReasoningEfforts: [{ effort: "medium", description: "Fixture" }],
+      }],
+      nextCursor: null,
+    });
     return;
   }
 

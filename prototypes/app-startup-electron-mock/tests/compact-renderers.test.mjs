@@ -40,7 +40,8 @@ test("compact HTML keeps main-renderer CSP parity and exact accessible landmarks
   assert.match(bubble, /<main class="bubble-shell" aria-label="Teacher companion">/);
   assert.equal((bubble.match(/<button\b/g) ?? []).length, 1);
   assert.match(bubble, /id="teacher-bubble"[^>]*aria-label="Open Teacher quick chat"/);
-  assert.match(bubble, /class="drag-ring"[^>]*aria-hidden="true"/);
+  assert.match(bubble, /class="drag-grip"[^>]*aria-label="Drag Teacher bubble"[^>]*title="Drag Teacher bubble"/);
+  assert.match(bubble, /class="state-ring"[^>]*aria-hidden="true"/);
   assert.match(bubble, /id="executor-symbol"[^>]*>○<\/span>/);
   assert.match(bubble, /id="unread-badge"[^>]*hidden[^>]*>0<\/span>/);
   assert.match(
@@ -122,8 +123,16 @@ test("compact CSS preserves the 72px bubble, drag boundaries, and resilient acce
   ]);
   const css = `${bubbleCss}\n${compactCss}`;
 
-  assert.match(bubbleCss, /\.bubble-shell\s*\{[^}]*-webkit-app-region:\s*drag/s);
+  assert.match(bubbleCss, /\.bubble-shell\s*\{[^}]*-webkit-app-region:\s*no-drag/s);
+  assert.match(
+    bubbleCss,
+    /\.drag-grip\s*\{[^}]*width:\s*(?:2[89]|3\d|4\d)px[^}]*height:\s*(?:1\d|2\d)px[^}]*cursor:\s*move[^}]*-webkit-app-region:\s*drag/s,
+  );
   assert.match(bubbleCss, /#teacher-bubble\s*\{[^}]*-webkit-app-region:\s*no-drag/s);
+  assert.match(
+    bubbleCss,
+    /\.state-ring\s*\{[^}]*pointer-events:\s*none[^}]*-webkit-app-region:\s*no-drag/s,
+  );
   assert.doesNotMatch(bubbleCss, /body\s*\{[^}]*min-(?:width|height):\s*(?:7[3-9]|[89]\d|\d{3,})px/s);
   assert.match(css, /min-width:\s*44px/);
   assert.match(css, /min-height:\s*44px/);
