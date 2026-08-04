@@ -363,13 +363,31 @@ test("completes startup and proves the bound-task Practice flow", {
   await mainWindow.getByRole("heading", {
     name: /Inspect ContentPilot Lite/,
   }).waitFor({ timeout: 5_000 });
-  await mainWindow.getByText(taskName, { exact: true }).first().waitFor();
+  const exerciseTab = mainWindow.getByRole("tab", { name: "Exercise" });
+  const teacherTab = mainWindow.getByRole("tab", { name: "Teacher chat" });
+  await pollUntil(
+    () => teacherTab.getAttribute("aria-selected"),
+    (selected) => selected === "true",
+    { description: "initial restored Teacher tab selection" },
+  );
+
+  await exerciseTab.click();
+  await pollUntil(
+    () => exerciseTab.getAttribute("aria-selected"),
+    (selected) => selected === "true",
+    { description: "restored Exercise tab selection" },
+  );
+  await mainWindow.getByText(taskName, { exact: true }).first().waitFor({
+    state: "visible",
+    timeout: 5_000,
+  });
   await waitForResponseReady(mainWindow);
-  assert.equal(
-    await mainWindow.getByRole("tab", { name: "Teacher chat" }).getAttribute(
-      "aria-selected",
-    ),
-    "true",
+
+  await teacherTab.click();
+  await pollUntil(
+    () => teacherTab.getAttribute("aria-selected"),
+    (selected) => selected === "true",
+    { description: "restored Teacher tab selection" },
   );
   const restoredChat = await mainWindow.getByRole("log", {
     name: "Teacher conversation",
