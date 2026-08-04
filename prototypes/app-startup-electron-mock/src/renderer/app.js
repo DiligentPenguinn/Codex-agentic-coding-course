@@ -5,6 +5,7 @@ import {
 import {
   createInitialPracticeRendererState,
   createPracticeRendererController,
+  getPracticeActionPolicy,
 } from "./practice-state.mjs";
 
 const courseSetup = window.courseSetup;
@@ -294,13 +295,10 @@ function renderExercise(session) {
   notice.hidden = !practiceState.fallbackNotice;
   notice.textContent = practiceState.fallbackNotice ?? "";
 
-  const openButton = document.querySelector('[data-practice-action="open-task"]');
   const createButton = document.querySelector('[data-practice-action="create-task"]');
   const pickerButton = document.querySelector('[data-practice-action="open-picker"]');
-  openButton.disabled = !executor.bound || practiceState.busyAction === "opening";
   createButton.hidden = Boolean(executor.bound);
   pickerButton.hidden = Boolean(executor.bound);
-  createButton.disabled = practiceState.busyAction === "binding";
   pickerButton.disabled = ["binding", "listing"].includes(practiceState.busyAction);
 }
 
@@ -390,9 +388,23 @@ function renderTeacherComposer() {
     composer.value = practiceState.teacherDraft;
   }
   const sending = practiceState.busyAction === "teacher";
-  composer.disabled = sending;
-  document.querySelector("#teacher-send").disabled = sending;
-  document.querySelector("#teacher-send").textContent = sending ? "Sending…" : "Send";
+  const send = document.querySelector("#teacher-send");
+  send.textContent = sending ? "Sending…" : "Send";
+}
+
+function renderPracticeActionControls() {
+  const policy = getPracticeActionPolicy(practiceState);
+  document.querySelector('[data-practice-action="open-task"]').disabled =
+    !policy.canOpenBoundTask;
+  document.querySelector('[data-practice-action="create-task"]').disabled =
+    !policy.canBeginBindingTransition;
+  document.querySelector("#teacher-message").disabled = !policy.canEditTeacherDraft;
+  const send = document.querySelector("#teacher-send");
+  send.disabled = !policy.canSendTeacherMessage;
+  document.querySelector('[data-practice-action="retry"]').disabled =
+    !policy.canRetryObservation;
+  document.querySelector('[data-practice-action="rebind"]').disabled =
+    !policy.canBeginBindingTransition;
 }
 
 function renderTeacher(session) {
@@ -437,8 +449,6 @@ function renderRecovery(session) {
   const rebind = document.querySelector('[data-practice-action="rebind"]');
   retry.hidden = !executor.bound || (!disconnected && practiceState.error?.recoveryAction !== "retry-observation");
   rebind.hidden = !executor.bound;
-  retry.disabled = practiceState.busyAction === "retrying";
-  rebind.disabled = practiceState.busyAction === "rebinding";
 }
 
 function renderTaskPicker() {
@@ -530,6 +540,7 @@ function renderPractice() {
   renderTeacher(session);
   renderRecovery(session);
   renderTaskPicker();
+  renderPracticeActionControls();
 }
 
 function render() {
@@ -550,6 +561,7 @@ const practiceView = Object.freeze({
   updateComposer(next) {
     practiceState = next;
     renderTeacherComposer();
+    renderPracticeActionControls();
   },
   focusPracticeHeading() {
     queueMicrotask(() => document.querySelector("#practice-title")?.focus());

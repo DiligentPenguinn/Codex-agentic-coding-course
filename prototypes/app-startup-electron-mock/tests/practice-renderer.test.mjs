@@ -521,6 +521,14 @@ test("interaction: pending and rejected binds stay in the picker without duplica
   assert.equal(harness.calls.filter(([name]) => name === "bindTask").length, 1);
   assert.equal(harness.view.pickerMode, "binding");
   assert.equal(harness.view.choicesDisabled, true);
+  harness.controller.changeTeacherDraft("Draft retained while binding");
+  const bindingState = harness.controller.getState();
+  const bindingFocusCount = harness.view.composerFocusCount;
+  await harness.controller.sendTeacherMessage();
+  assert.equal(harness.calls.filter(([name]) => name === "sendTeacherMessage").length, 0);
+  assert.equal(harness.controller.getState(), bindingState);
+  assert.equal(harness.controller.getState().teacherDraft, "Draft retained while binding");
+  assert.equal(harness.view.composerFocusCount, bindingFocusCount);
   bindPending.resolve(ok(rejected));
   await Promise.all([first, duplicate]);
 
@@ -759,6 +767,91 @@ test("interaction: a Teacher rejection superseded by Retry cannot unlock a newer
   assert.equal(harness.view.composerFocusCount, 1);
 });
 
+test("interaction: Teacher draft stays editable but Send is inert during Retry and Rebind", async (t) => {
+  for (const scenario of [
+    {
+      name: "Retry",
+      busyAction: "retrying",
+      bridgeMethod: "retry",
+      start: (controller) => controller.retryObservation(),
+      result: () => ok(boundViewModel()),
+    },
+    {
+      name: "Rebind",
+      busyAction: "rebinding",
+      bridgeMethod: "rebind",
+      start: (controller) => controller.rebindTask(),
+      result: () => ok(viewModel()),
+    },
+  ]) {
+    await t.test(scenario.name, async () => {
+      const transitionPending = pendingResult();
+      const harness = createInteractionHarness({
+        [scenario.bridgeMethod]: () => transitionPending.promise,
+        listTasks: () => ok([]),
+      });
+      await harness.controller.initialize();
+
+      const transition = scenario.start(harness.controller);
+      assert.equal(harness.controller.getState().busyAction, scenario.busyAction);
+      harness.controller.changeTeacherDraft(`Draft retained during ${scenario.name}`);
+      const transitionState = harness.controller.getState();
+      const composerFocusCount = harness.view.composerFocusCount;
+      await harness.controller.sendTeacherMessage();
+
+      assert.equal(harness.calls.filter(([name]) => name === "sendTeacherMessage").length, 0);
+      assert.equal(harness.controller.getState(), transitionState);
+      assert.equal(harness.controller.getState().busyAction, scenario.busyAction);
+      assert.equal(harness.controller.getState().teacherDraft, `Draft retained during ${scenario.name}`);
+      assert.equal(harness.view.composerFocusCount, composerFocusCount);
+
+      transitionPending.resolve(scenario.result());
+      await transition;
+      assert.equal(harness.controller.getState().teacherDraft, `Draft retained during ${scenario.name}`);
+    });
+  }
+});
+
+test("interaction: Open in Codex is inert while Teacher owns the controller", async () => {
+  const teacherPending = pendingResult();
+  const harness = createInteractionHarness({
+    sendTeacherMessage: () => teacherPending.promise,
+  });
+  await harness.controller.initialize();
+  harness.controller.changeTeacherDraft("Question before Open attempt");
+  const sending = harness.controller.sendTeacherMessage();
+  const teacherState = harness.controller.getState();
+
+  await harness.controller.openBoundTask();
+
+  assert.equal(harness.calls.filter(([name]) => name === "openTask").length, 0);
+  assert.equal(harness.controller.getState(), teacherState);
+  assert.equal(harness.controller.getState().busyAction, "teacher");
+  assert.equal(harness.controller.getState().teacherDraft, "Question before Open attempt");
+
+  teacherPending.resolve(ok(boundViewModel()));
+  await sending;
+  assert.equal(harness.controller.getState().busyAction, null);
+  assert.equal(harness.view.composerFocusCount, 1);
+});
+
+test("interaction: Open in Codex rejects duplicate attempts while its first request owns state", async () => {
+  const openPending = pendingResult();
+  const harness = createInteractionHarness({ openTask: () => openPending.promise });
+  await harness.controller.initialize();
+
+  const opening = harness.controller.openBoundTask();
+  const openingState = harness.controller.getState();
+  const duplicate = harness.controller.openBoundTask();
+  assert.equal(harness.calls.filter(([name]) => name === "openTask").length, 1);
+  assert.equal(harness.controller.getState(), openingState);
+  assert.equal(harness.controller.getState().busyAction, "opening");
+
+  openPending.resolve(ok(boundViewModel()));
+  await Promise.all([opening, duplicate]);
+  assert.equal(harness.controller.getState().busyAction, null);
+});
+
 test("interaction: rebind explains cursor reset and unbound retry is suppressed", async () => {
   const harness = createInteractionHarness({
     getState: () => ok(viewModel()),
@@ -835,6 +928,9 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(script, /createPracticeRendererController/);
   assert.match(script, /practiceController\.subscribe\(\)/);
   assert.match(script, /removePracticeListener/);
+  assert.match(script, /getPracticeActionPolicy/);
+  assert.match(script, /function renderPracticeActionControls\(\)[\s\S]{0,240}getPracticeActionPolicy/);
+  assert.match(script, /updateComposer\(next\)[\s\S]{0,160}renderPracticeActionControls\(\)/);
   assert.match(controllerSource, /observation cursor will reset/i);
   assert.match(script, /Intl\.DateTimeFormat/);
   assert.match(script, /\.textContent\s*=/);

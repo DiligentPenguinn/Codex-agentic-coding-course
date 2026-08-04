@@ -273,6 +273,25 @@ function hasCommittedBinding(viewModel) {
     && !viewModel.session.error;
 }
 
+export function getPracticeActionPolicy(state) {
+  const busyAction = typeof state?.busyAction === "string" && state.busyAction
+    ? state.busyAction
+    : null;
+  const hasAsyncOwner = busyAction !== null;
+  const canBeginBindingTransition = !hasAsyncOwner || busyAction === "teacher";
+  const bound = hasBinding(state?.viewModel);
+  const hasTeacherDraft = typeof state?.teacherDraft === "string"
+    && Boolean(state.teacherDraft.trim());
+  return Object.freeze({
+    canBeginBindingTransition,
+    canEditTeacherDraft: busyAction !== "teacher",
+    canOpenBoundTask: bound && !hasAsyncOwner,
+    canRetryObservation: bound && canBeginBindingTransition,
+    canSendTeacherMessage: bound && !hasAsyncOwner && hasTeacherDraft,
+    hasAsyncOwner,
+  });
+}
+
 export function createPracticeRendererController({
   bridge,
   view,
@@ -330,7 +349,7 @@ export function createPracticeRendererController({
   }
 
   async function createDedicatedTask() {
-    if (state.busyAction === "binding") return state;
+    if (!getPracticeActionPolicy(state).canBeginBindingTransition) return state;
     beginBindingTransition({ type: "CREATE_TASK_REQUESTED" });
     try {
       const value = unwrapBridgeResult(await bridge.createTask());
@@ -379,7 +398,8 @@ export function createPracticeRendererController({
   }
 
   async function bindSelectedTask(taskId) {
-    if (!state.pickerOpen || state.busyAction === "binding") return state;
+    const policy = getPracticeActionPolicy(state);
+    if (!state.pickerOpen || !policy.canBeginBindingTransition) return state;
     const selected = state.eligibleTasks.find((task) => task.threadId === taskId);
     if (!selected) return state;
     beginBindingTransition({ type: "TASK_BIND_REQUESTED" });
@@ -419,7 +439,7 @@ export function createPracticeRendererController({
   }
 
   async function openBoundTask() {
-    if (!hasBinding(state.viewModel)) return state;
+    if (!getPracticeActionPolicy(state).canOpenBoundTask) return state;
     apply({ type: "BUSY_STARTED", action: "opening" });
     try {
       const value = unwrapBridgeResult(await bridge.openTask());
@@ -436,7 +456,7 @@ export function createPracticeRendererController({
   }
 
   async function retryObservation() {
-    if (!hasBinding(state.viewModel) || state.busyAction === "retrying") return state;
+    if (!getPracticeActionPolicy(state).canRetryObservation) return state;
     beginBindingTransition({ type: "BUSY_STARTED", action: "retrying" });
     try {
       const value = unwrapBridgeResult(await bridge.retry());
@@ -447,7 +467,7 @@ export function createPracticeRendererController({
   }
 
   async function rebindTask() {
-    if (state.busyAction === "rebinding") return state;
+    if (!getPracticeActionPolicy(state).canBeginBindingTransition) return state;
     const confirmed = confirmRebind(
       "Rebind this Practice session? The observation cursor will reset, and the Teacher will use only the newly selected task.",
     );
@@ -473,13 +493,15 @@ export function createPracticeRendererController({
   }
 
   function changeTeacherDraft(text) {
-    if (state.busyAction === "teacher") return state;
+    if (!getPracticeActionPolicy(state).canEditTeacherDraft) return state;
     return apply({ type: "TEACHER_DRAFT_CHANGED", text }, { composerOnly: true });
   }
 
   async function sendTeacherMessage() {
+    const policy = getPracticeActionPolicy(state);
     const text = state.teacherDraft.trim();
-    if (!text || state.busyAction === "teacher" || !hasBinding(state.viewModel)) {
+    if (!policy.canSendTeacherMessage) {
+      if (policy.hasAsyncOwner) return state;
       view.focusComposer?.();
       return state;
     }
