@@ -12,6 +12,18 @@ const CHANNELS = Object.freeze({
   GET_CONTENT: "setup:get-content",
   SAVE_RESPONSES: "setup:save-responses",
   REOPEN_SETUP: "setup:reopen",
+  PRACTICE_GET_STATE: "practice:get-state",
+  PRACTICE_START: "practice:start",
+  PRACTICE_CREATE_TASK: "practice:create-task",
+  PRACTICE_LIST_TASKS: "practice:list-tasks",
+  PRACTICE_BIND_TASK: "practice:bind-task",
+  PRACTICE_REBIND: "practice:rebind",
+  PRACTICE_OPEN_TASK: "practice:open-task",
+  PRACTICE_RETRY: "practice:retry",
+  PRACTICE_SEND_TEACHER: "practice:send-teacher",
+  PRACTICE_SELECT_TAB: "practice:select-tab",
+  PRACTICE_COMPACT: "practice:compact",
+  PRACTICE_STATE_CHANGED: "practice:state-changed",
 });
 
 contextBridge.exposeInMainWorld("courseSetup", Object.freeze({
@@ -34,4 +46,31 @@ contextBridge.exposeInMainWorld("courseSetup", Object.freeze({
     ipcRenderer.invoke(CHANNELS.SAVE_RESPONSES, { responses })
   ),
   reopenSetup: () => ipcRenderer.invoke(CHANNELS.REOPEN_SETUP),
+}));
+
+contextBridge.exposeInMainWorld("practice", Object.freeze({
+  getState: () => ipcRenderer.invoke(CHANNELS.PRACTICE_GET_STATE),
+  start: () => ipcRenderer.invoke(CHANNELS.PRACTICE_START),
+  createTask: () => ipcRenderer.invoke(CHANNELS.PRACTICE_CREATE_TASK),
+  listTasks: () => ipcRenderer.invoke(CHANNELS.PRACTICE_LIST_TASKS),
+  bindTask: (threadId) => (
+    ipcRenderer.invoke(CHANNELS.PRACTICE_BIND_TASK, { threadId })
+  ),
+  rebind: () => ipcRenderer.invoke(CHANNELS.PRACTICE_REBIND),
+  openTask: () => ipcRenderer.invoke(CHANNELS.PRACTICE_OPEN_TASK),
+  retry: () => ipcRenderer.invoke(CHANNELS.PRACTICE_RETRY),
+  sendTeacherMessage: (text) => (
+    ipcRenderer.invoke(CHANNELS.PRACTICE_SEND_TEACHER, { text })
+  ),
+  selectTab: (tab) => (
+    ipcRenderer.invoke(CHANNELS.PRACTICE_SELECT_TAB, { tab })
+  ),
+  compact: () => ipcRenderer.invoke(CHANNELS.PRACTICE_COMPACT),
+  onStateChanged: (listener) => {
+    const wrapped = (_event, value) => listener(value);
+    ipcRenderer.on(CHANNELS.PRACTICE_STATE_CHANGED, wrapped);
+    return () => (
+      ipcRenderer.removeListener(CHANNELS.PRACTICE_STATE_CHANGED, wrapped)
+    );
+  },
 }));

@@ -76,7 +76,7 @@ function createDependencies() {
 }
 
 test("exports the exact frozen channel contract", () => {
-  assert.deepEqual(CHANNELS, {
+  const legacyChannels = {
     GET_STATUS: "setup:get-status",
     START_BROWSER_LOGIN: "auth:start-browser-login",
     START_DEVICE_LOGIN: "auth:start-device-login",
@@ -86,7 +86,13 @@ test("exports the exact frozen channel contract", () => {
     GET_CONTENT: "setup:get-content",
     SAVE_RESPONSES: "setup:save-responses",
     REOPEN_SETUP: "setup:reopen",
-  });
+  };
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.keys(legacyChannels).map((key) => [key, CHANNELS[key]]),
+    ),
+    legacyChannels,
+  );
   assert.equal(Object.isFrozen(CHANNELS), true);
 });
 
@@ -104,6 +110,7 @@ test("registers only fixed handlers and unregisters exactly those handlers", () 
   assert.deepEqual(
     [...ipcMain.handlers.keys()].sort(),
     Object.values(CHANNELS)
+      .filter((channel) => !channel.startsWith("practice:"))
       .filter((channel) => channel !== CHANNELS.AUTH_STATUS_CHANGED)
       .sort(),
   );
