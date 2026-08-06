@@ -2,7 +2,7 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 2 journey and persistence verified; Increment 3 awaits approval
+**Current phase:** Increment 3 floating Teacher chat verified; Increment 4 awaits approval
 **Current decision:** Build a real fixture-backed desktop app for personal testing before live Teacher/Codex integration
 
 ## Product decision
@@ -205,6 +205,13 @@ with the exact saved scene. Reset and last-known-good recovery are implemented.
 - Add accessible keyboard and focus behavior.
 - Prove that closing the main window leaves the companion available.
 
+**Status: Verified on macOS, 6 August 2026.** The compact Hương character opens
+an expanded pixel chat panel with the current checkpoint, composer, message
+history, and explicit live-disconnected fixture labels. Enter sends, Shift+Enter
+creates a new line, focus moves to the composer on expansion, and both chat
+history and companion mode survive a complete app restart. Reset clears the
+journey, chat, and companion setting together.
+
 ### Increment 4 — Adapter-driven practice loop
 
 - Connect the fixture `TeacherAdapter` and `PracticeAdapter`.
@@ -271,6 +278,31 @@ with the exact saved scene. Reset and last-known-good recovery are implemented.
 - Deliberately absent: free-form Teacher chat, persisted chat history, practice
   lifecycle fixtures, and live Codex integration.
 
+## Increment 3 verification record — 6 August 2026
+
+- Adapter boundary: the renderer depends on typed Teacher message contracts;
+  deterministic response logic and filesystem access remain in Electron.
+- Persistence: learner and fixture messages append to `teacher-chat.jsonl`;
+  malformed lines are skipped with a visible recovery notice rather than
+  crashing or silently replacing the conversation.
+- Honesty: the panel states `CHƯA KẾT NỐI TEACHER LIVE`, its identity says
+  `TEACHER · MÔ PHỎNG`, and every fixture reply carries a `MÔ PHỎNG` badge.
+- Unit verification: 14/14 tests passed across placement, progress, fixture
+  source labelling, chat persistence, malformed-line recovery, mode persistence,
+  and coordinated reset.
+- Desktop lifecycle smoke: three real Electron launches proved journey resume,
+  visible reset, checkpoint persistence, composer focus, Enter-to-send, fixture
+  response, expanded-mode persistence, chat-history relaunch, restore, native
+  close, and explicit Quit.
+- Real-app visual inspection: the persisted chat rendered in the actual
+  380x520 always-on-top Electron window with message history and checkpoint
+  context readable.
+- Narrow inspection: at 320x480 the panel and composer remained within 320px,
+  focus stayed on `Nhắn cho Hương`, the message log scrolled internally, and no
+  console errors or horizontal overflow appeared.
+- Deliberately absent: live Teacher inference, streamed responses, practice
+  lifecycle fixtures, and Codex observation.
+
 ## Progress snapshot
 
 Do not convert these gates into one percentage. A locked decision, implemented
@@ -284,9 +316,9 @@ progress.
 | Desktop shell | **Verified with MVP pixel renderer** | Electron lifecycle, security, real-app visual inspection, and narrow-width inspection pass. |
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
-| Floating Teacher | **Lifecycle shell verified** | Compact/expanded window behavior passes; Teacher chat and chat persistence remain Increment 3. |
+| Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
 | Fixture practice loop | **Not started** | Requires adapter-driven success and failure scenarios. |
-| Personal self-test gate | **In progress** | P1, P2, P3, P4, P8, and P9 pass; the remaining checks depend on Increments 3–5. |
+| Personal self-test gate | **In progress** | P1–P5, P8, and P9 pass; P7 is partial and the remaining checks depend on Increments 4–5. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
 
@@ -298,9 +330,9 @@ progress.
 | P2 | A new learner can complete the Intro and enter Module 1. | Pass |
 | P3 | A returning learner resumes the exact saved checkpoint. | Pass |
 | P4 | Closing the main window leaves the floating Teacher character running. | Pass |
-| P5 | Clicking the character opens chat and chat history survives a full restart. | Not started |
+| P5 | Clicking the character opens chat and chat history survives a full restart. | Pass |
 | P6 | The practice journey responds correctly to success, approval, stale, offline, and error fixtures. | Not started |
-| P7 | Every simulated integration state is visibly identifiable as a fixture. | Not started |
+| P7 | Every simulated integration state is visibly identifiable as a fixture. | Partial — Teacher fixture passes; practice fixtures remain Increment 4 |
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
 | P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Partial — checks and build pass; clean-copy rehearsal belongs to Increment 5 |

@@ -80,11 +80,54 @@ export type ProgressLoadResult =
   | { status: 'recovered'; progress: LearnerProgress }
   | { status: 'reset-required'; reason: string }
 
+export type TeacherContext = {
+  lessonId: LessonId
+  checkpointId: CheckpointId
+  sceneId: SceneId
+}
+
+export type TeacherMessage = {
+  id: string
+  role: 'learner' | 'teacher'
+  source: 'learner' | 'fixture'
+  content: string
+  timestamp: string
+  checkpointId?: CheckpointId
+}
+
+export type TeacherConversation = {
+  messages: TeacherMessage[]
+  recovered: boolean
+}
+
+export type TeacherSendRequest = {
+  content: string
+  context?: TeacherContext
+}
+
+export type TeacherSendResult = {
+  learnerMessage: TeacherMessage
+  teacherMessage: TeacherMessage
+}
+
+export type CompanionState = {
+  mode: CompanionMode
+  conversation: TeacherConversation
+}
+
+export type TeacherAdapter = {
+  loadConversation: () => Promise<TeacherConversation>
+  sendMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
+  reset: () => Promise<void>
+}
+
 export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
   saveProgress: (update: ProgressUpdate) => Promise<LearnerProgress>
   resetProgress: () => Promise<void>
+  loadCompanionState: () => Promise<CompanionState>
+  sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
   showLearningWindow: () => Promise<void>
   hideLearningWindow: () => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>

@@ -15,10 +15,19 @@ describe('getCompanionBounds', () => {
 
   it('keeps the expanded companion on screen while preserving its lower-right anchor', () => {
     expect(getCompanionBounds(workArea, 'expanded')).toEqual({
-      x: 1072,
-      y: 590,
-      width: 344,
-      height: 286
+      x: 1036,
+      y: 356,
+      width: 380,
+      height: 520
+    })
+  })
+
+  it('shrinks the expanded chat panel to fit a small work area', () => {
+    expect(getCompanionBounds({ x: 0, y: 0, width: 360, height: 480 }, 'expanded')).toEqual({
+      x: 24,
+      y: 24,
+      width: 312,
+      height: 432
     })
   })
 

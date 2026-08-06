@@ -12,20 +12,28 @@ The current app proves:
 - a full learning window;
 - a separate always-on-top Teacher companion;
 - minimize-to-companion and restore behavior;
-- explicit Quit behavior; and
+- explicit Quit behavior;
 - a context-isolated, sandboxed renderer with narrow preload IPC;
 - new-learner and returning-learner routing;
 - Intro-to-Module-1 scene transitions;
 - atomic local checkpoint saves with a last-known-good backup;
-- exact resume after a complete app relaunch; and
-- confirmed reset and damaged-state recovery behavior.
+- exact resume after a complete app relaunch;
+- confirmed reset and damaged-state recovery behavior;
+- a floating Teacher chat with checkpoint-aware scripted replies;
+- persistent `teacher-chat.jsonl` history and companion window mode;
+- visible fixture labels that never present scripted replies as live Teacher
+  intelligence.
 
-Teacher chat, adapter-driven practice fixtures, and live Codex integration
-belong to later increments.
+Adapter-driven practice fixtures and live Teacher/Codex integration belong to
+later increments.
 
 Learner progress is stored by Electron in the operating system's application
 data directory. It is not stored in browser `localStorage` or inside the
 repository.
+
+The current Teacher adapter is deliberately deterministic and fixture-backed.
+The expanded panel labels this state as **MÔ PHỎNG** and **CHƯA KẾT NỐI TEACHER
+LIVE**.
 
 ## Run locally
 

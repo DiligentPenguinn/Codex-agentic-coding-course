@@ -1,7 +1,17 @@
 import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'node:path'
-import type { CompanionMode, ProgressUpdate, RuntimeInfo } from '../../shared/contracts'
+import type {
+  CompanionMode,
+  ProgressUpdate,
+  RuntimeInfo,
+  TeacherSendRequest
+} from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
+import {
+  FixtureTeacherAdapter,
+  isTeacherSendRequest,
+  TeacherChatRepository
+} from './teacher-fixture'
 import { getCompanionBounds } from './window-layout'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
@@ -11,7 +21,10 @@ if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
 let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
+let companionMode: CompanionMode = 'compact'
 const progressRepository = new ProgressRepository(app.getPath('userData'))
+const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
+const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
 
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')
@@ -62,9 +75,9 @@ function createMainWindow(): BrowserWindow {
   return window
 }
 
-function createCompanionWindow(): BrowserWindow {
+function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   const display = screen.getPrimaryDisplay()
-  const initialBounds = getCompanionBounds(display.workArea, 'compact')
+  const initialBounds = getCompanionBounds(display.workArea, mode)
   const window = new BrowserWindow({
     ...initialBounds,
     show: false,
@@ -97,12 +110,12 @@ function createCompanionWindow(): BrowserWindow {
   return window
 }
 
-function positionCompanion(mode: CompanionMode): void {
+function positionCompanion(mode: CompanionMode, show = true): void {
   if (!companionWindow) return
 
   const display = screen.getDisplayMatching(companionWindow.getBounds())
   companionWindow.setBounds(getCompanionBounds(display.workArea, mode), true)
-  companionWindow.showInactive()
+  if (show) companionWindow.showInactive()
 }
 
 function registerIpcHandlers(): void {
@@ -119,7 +132,38 @@ function registerIpcHandlers(): void {
     return progressRepository.save(update)
   })
 
-  ipcMain.handle('course:reset-progress', () => progressRepository.reset())
+  ipcMain.handle('course:reset-progress', async () => {
+    await Promise.all([progressRepository.reset(), teacherAdapter.reset()])
+    companionMode = 'compact'
+    positionCompanion(companionMode, false)
+  })
+
+  ipcMain.handle('course:load-companion-state', async () => ({
+    mode: companionMode,
+    conversation: await teacherAdapter.loadConversation()
+  }))
+
+  ipcMain.handle(
+    'course:send-teacher-message',
+    async (_event, request: TeacherSendRequest) => {
+      if (!isTeacherSendRequest(request)) throw new Error('Invalid teacher message request')
+      const progressResult = await progressRepository.load()
+      const progress =
+        progressResult.status === 'returning' || progressResult.status === 'recovered'
+          ? progressResult.progress
+          : undefined
+      return teacherAdapter.sendMessage({
+        content: request.content,
+        context: progress
+          ? {
+              lessonId: progress.currentLessonId,
+              checkpointId: progress.checkpointId,
+              sceneId: progress.sceneId
+            }
+          : undefined
+      })
+    }
+  )
 
   ipcMain.handle('course:show-learning-window', () => {
     companionWindow?.hide()
@@ -132,11 +176,13 @@ function registerIpcHandlers(): void {
     companionWindow?.showInactive()
   })
 
-  ipcMain.handle('course:set-companion-mode', (_event, mode: CompanionMode) => {
+  ipcMain.handle('course:set-companion-mode', async (_event, mode: CompanionMode) => {
     if (mode !== 'compact' && mode !== 'expanded') {
       throw new Error('Unsupported companion mode')
     }
-    positionCompanion(mode)
+    companionMode = mode
+    positionCompanion(companionMode)
+    await teacherRepository.saveMode(companionMode)
   })
 
   ipcMain.handle('course:quit', () => app.quit())
@@ -154,8 +200,9 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   registerIpcHandlers()
-  companionWindow = createCompanionWindow()
+  companionMode = await teacherRepository.loadMode()
+  companionWindow = createCompanionWindow(companionMode)
   mainWindow = createMainWindow()
 })

@@ -516,11 +516,122 @@ button:focus-visible {
   -webkit-app-region: no-drag;
 }
 .pixel-panel-minimize:hover { border-color: var(--pixel-sky); }
-.pixel-teacher-panel > p { margin: 16px 0 13px; color: #e7ebf7; font-size: 14px; line-height: 1.5; }
-.pixel-teacher-panel > footer { margin-top: auto; display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
+
+.pixel-fixture-notice {
+  margin-top: 10px;
+  padding: 8px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 2px solid var(--pixel-yellow);
+  color: var(--pixel-yellow);
+  background: #171a2d;
+}
+.pixel-fixture-notice strong { font: 800 7px/1.2 var(--pixel-font); }
+.pixel-fixture-notice span { color: var(--pixel-muted); font-size: 10px; line-height: 1.2; text-align: right; }
+
+.pixel-chat-context {
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-left: 3px solid var(--pixel-cyan);
+  background: #10192f;
+}
+.pixel-chat-context span,
+.pixel-chat-context strong { display: block; font-family: var(--pixel-font); }
+.pixel-chat-context span { color: var(--pixel-cyan); font-size: 6px; letter-spacing: 0.1em; }
+.pixel-chat-context strong { margin-top: 4px; overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+
+.pixel-chat-log {
+  min-height: 0;
+  margin-top: 8px;
+  padding: 8px;
+  flex: 1 1 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 2px solid var(--pixel-line-soft);
+  background: #080f22;
+  scrollbar-color: var(--pixel-line) transparent;
+  scrollbar-width: thin;
+}
+
+.pixel-chat-empty {
+  min-height: 100%;
+  padding: 18px;
+  display: grid;
+  place-content: center;
+  gap: 7px;
+  color: var(--pixel-muted);
+  text-align: center;
+}
+.pixel-chat-empty strong { color: var(--pixel-cream); font: 800 9px/1.2 var(--pixel-font); }
+.pixel-chat-empty span { font-size: 12px; line-height: 1.4; }
+
+.pixel-chat-message {
+  width: 88%;
+  margin-bottom: 8px;
+  padding: 8px 9px;
+  border: 2px solid var(--pixel-line-soft);
+  background: #121b35;
+}
+.pixel-chat-message.is-learner { margin-left: auto; border-color: #52658f; background: #182543; }
+.pixel-chat-message.is-teacher { margin-right: auto; border-color: var(--pixel-violet); }
+.pixel-chat-message > header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pixel-chat-message > header strong { font: 800 7px/1 var(--pixel-font); }
+.pixel-chat-message > header span {
+  padding: 3px 4px;
+  color: #11182a;
+  background: var(--pixel-yellow);
+  font: 800 5px/1 var(--pixel-font);
+}
+.pixel-chat-message > header time { margin-left: auto; color: var(--pixel-muted); font: 6px/1 var(--pixel-font); }
+.pixel-chat-message p { margin: 7px 0 0; color: #eef2fb; font-size: 12px; line-height: 1.42; white-space: pre-wrap; }
+
+.pixel-chat-warning,
+.pixel-chat-error {
+  margin-top: 6px;
+  font: 800 7px/1.35 var(--pixel-font);
+}
+.pixel-chat-warning { color: var(--pixel-yellow); }
+.pixel-chat-error { color: var(--pixel-danger); }
+
+.pixel-chat-composer { margin-top: 8px; }
+.pixel-chat-composer textarea {
+  width: 100%;
+  height: 58px;
+  padding: 9px;
+  resize: none;
+  border: 2px solid var(--pixel-line);
+  border-radius: 0;
+  outline: 0;
+  color: var(--pixel-cream);
+  background: #0b1329;
+  font: 12px/1.35 "Trebuchet MS", sans-serif;
+}
+.pixel-chat-composer textarea::placeholder { color: #7f8aa7; }
+.pixel-chat-composer textarea:focus { border-color: var(--pixel-sky); box-shadow: inset 0 0 0 1px var(--pixel-sky); }
+.pixel-chat-composer > div { margin-top: 5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pixel-chat-composer small { color: var(--pixel-muted); font: 6px/1.2 var(--pixel-font); }
+.pixel-chat-composer button {
+  min-width: 66px;
+  min-height: 30px;
+  padding: 6px 9px;
+  border: 2px solid var(--pixel-yellow);
+  color: #11182a;
+  background: var(--pixel-yellow);
+  font: 800 7px/1 var(--pixel-font);
+}
+.pixel-chat-composer button:disabled { cursor: not-allowed; opacity: 0.5; }
+.pixel-chat-composer button:not(:disabled):hover { background: #ffe38f; }
+
+.pixel-teacher-panel > footer { margin-top: 8px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; }
 .pixel-panel-quit,
 .pixel-panel-primary {
-  min-height: 40px;
+  min-height: 34px;
   padding: 8px;
   border: 3px solid var(--pixel-line);
   font: 800 8px/1.25 var(--pixel-font);

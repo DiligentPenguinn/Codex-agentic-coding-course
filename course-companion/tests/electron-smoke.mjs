@@ -81,6 +81,7 @@ async function loadWindows(electronApp) {
 
 let firstLaunch
 let resumedLaunch
+let chatHistoryLaunch
 
 try {
   firstLaunch = await launchCourseCompanion()
@@ -169,10 +170,30 @@ try {
     .click()
   const expanded = await waitForSnapshot(
     resumedLaunch,
-    (windows) => companionWindow(windows)?.bounds.width === 344,
+    (windows) => companionWindow(windows)?.bounds.width === 380,
     'Expected the Teacher companion to expand'
   )
-  assert.equal(companionWindow(expanded)?.bounds.height, 286)
+  assert.equal(companionWindow(expanded)?.bounds.height, 520)
+
+  await companionPage
+    .getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true })
+    .waitFor()
+  const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Hương' })
+  assert.equal(
+    await composer.evaluate((element) => element === element.ownerDocument.activeElement),
+    true
+  )
+  await composer.fill('Tôi cần kiểm tra gì trước khi duyệt?')
+  await composer.press('Enter')
+  await companionPage
+    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
+    .waitFor()
+  await companionPage
+    .getByText(
+      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
+      { exact: true }
+    )
+    .waitFor()
 
   await companionPage.getByRole('button', { name: 'Mở lại bài học' }).click()
   await waitForSnapshot(
@@ -207,11 +228,49 @@ try {
   assert.equal(persisted.checkpointId, 'm1-plan-approval')
   assert.equal(persisted.decisions.timeBudget, '30')
 
+  const persistedChat = (await readFile(join(userDataDirectory, 'teacher-chat.jsonl'), 'utf8'))
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line))
+  assert.equal(persistedChat.length, 2)
+  assert.equal(persistedChat[1].source, 'fixture')
+
+  chatHistoryLaunch = await launchCourseCompanion()
+  const historyWindows = await loadWindows(chatHistoryLaunch)
+  await chatHistoryLaunch.evaluate(({ BrowserWindow }) => {
+    const learning = BrowserWindow.getAllWindows().find((window) =>
+      window.webContents.getURL().includes('#/learning')
+    )
+    learning?.close()
+  })
+  const restoredChat = await waitForSnapshot(
+    chatHistoryLaunch,
+    (windows) =>
+      learningWindow(windows)?.visible === false &&
+      companionWindow(windows)?.visible === true &&
+      companionWindow(windows)?.bounds.width === 380,
+    'Expected the expanded Teacher chat mode to survive a full restart'
+  )
+  assert.equal(companionWindow(restoredChat)?.bounds.height, 520)
+  await historyWindows.companionPage
+    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
+    .waitFor()
+  await historyWindows.companionPage
+    .getByText(
+      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
+      { exact: true }
+    )
+    .waitFor()
+  await historyWindows.companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
+  await chatHistoryLaunch.waitForEvent('close')
+  chatHistoryLaunch = undefined
+
   console.log(
-    'Electron smoke: new start, exact relaunch resume, Intro transition, security, companion lifecycle, and persisted Module 1 checkpoint passed'
+    'Electron smoke: journey resume, reset, persisted Module 1 checkpoint, fixture chat, focus, expanded mode, history relaunch, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)
   await resumedLaunch?.close().catch(() => undefined)
+  await chatHistoryLaunch?.close().catch(() => undefined)
   await rm(userDataDirectory, { recursive: true, force: true })
 }

@@ -1,11 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   CompanionMode,
+  CompanionState,
   CourseCompanionApi,
   LearnerProgress,
   ProgressLoadResult,
   ProgressUpdate,
-  RuntimeInfo
+  RuntimeInfo,
+  TeacherSendRequest,
+  TeacherSendResult
 } from '../../shared/contracts'
 
 const courseCompanionApi: CourseCompanionApi = {
@@ -15,6 +18,10 @@ const courseCompanionApi: CourseCompanionApi = {
   saveProgress: (update: ProgressUpdate) =>
     ipcRenderer.invoke('course:save-progress', update) as Promise<LearnerProgress>,
   resetProgress: () => ipcRenderer.invoke('course:reset-progress') as Promise<void>,
+  loadCompanionState: () =>
+    ipcRenderer.invoke('course:load-companion-state') as Promise<CompanionState>,
+  sendTeacherMessage: (request: TeacherSendRequest) =>
+    ipcRenderer.invoke('course:send-teacher-message', request) as Promise<TeacherSendResult>,
   showLearningWindow: () => ipcRenderer.invoke('course:show-learning-window') as Promise<void>,
   hideLearningWindow: () => ipcRenderer.invoke('course:hide-learning-window') as Promise<void>,
   setCompanionMode: (mode: CompanionMode) =>
