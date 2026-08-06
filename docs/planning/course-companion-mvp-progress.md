@@ -2,7 +2,7 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 1 pixel renderer verified; Increment 2 awaits approval
+**Current phase:** Increment 2 journey and persistence verified; Increment 3 awaits approval
 **Current decision:** Build a real fixture-backed desktop app for personal testing before live Teacher/Codex integration
 
 ## Product decision
@@ -192,6 +192,12 @@ accepted as sufficient for the MVP rather than treated as final polish.
 - Implement the local `ProgressRepository`, recovery, and reset.
 - Prove exact-checkpoint resume after a complete app quit.
 
+**Status: Verified on macOS, 6 August 2026.** A new learner starts in the
+pixel welcome scene, progresses through the Intro checkpoints, and enters the
+focused Module 1 mission. Every meaningful transition is saved through the
+Electron-owned repository. A returning learner sees an explicit resume screen
+with the exact saved scene. Reset and last-known-good recovery are implemented.
+
 ### Increment 3 — Floating Teacher
 
 - Implement the minimized Teacher character and expanded chat panel.
@@ -241,6 +247,30 @@ accepted as sufficient for the MVP rather than treated as final polish.
 - Deliberately absent: persisted journey state, Teacher chat,
   Practice fixtures, and live Codex integration.
 
+## Increment 2 verification record — 6 August 2026
+
+- State authority: Electron-owned `learner-state.json`; browser
+  `localStorage` remains unused.
+- Save safety: schema and course version validation, whitelisted checkpoint and
+  scene relationships, atomic temporary-file rename, and a last-known-good
+  backup.
+- Activity evidence: each successful checkpoint save and recovery appends a
+  timestamped event to `activity-log.jsonl`.
+- Unit verification: 8/8 tests passed across companion placement, new state,
+  exact saves, start-time preservation, recovery, reset-required handling, and
+  reset.
+- Desktop lifecycle smoke: a clean profile started Intro, saved a checkpoint,
+  quit fully, relaunched to the exact scene, completed Intro into Module 1,
+  exercised the companion lifecycle, and retained `module-1-success` with
+  checkpoint `m1-plan-approval` after explicit Quit.
+- Real-app visual inspection: the 1180x780 new-learner pixel welcome screen
+  rendered in Electron using an isolated temporary profile.
+- Narrow inspection: at 390x844 the welcome and lesson scenes remained 390px
+  wide with no horizontal overflow; growing lesson content became a scrollable
+  single-column flow with no panel overlap.
+- Deliberately absent: free-form Teacher chat, persisted chat history, practice
+  lifecycle fixtures, and live Codex integration.
+
 ## Progress snapshot
 
 Do not convert these gates into one percentage. A locked decision, implemented
@@ -250,13 +280,13 @@ progress.
 | Area | State | Evidence / next proof |
 |---|---|---|
 | Product boundary | **Locked** | Desktop journey, fixture boundary, and external-test boundary approved on 6 August 2026. |
-| Production location | **Locked** | New root package will be `course-companion/`; prototypes remain references. |
+| Production location | **Locked** | The real package is `course-companion/`; prototypes remain references. |
 | Desktop shell | **Verified with MVP pixel renderer** | Electron lifecycle, security, real-app visual inspection, and narrow-width inspection pass. |
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
-| Journey and state | **Not started** | Requires Intro and Module 1 scenes plus quit/relaunch proof. |
+| Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Lifecycle shell verified** | Compact/expanded window behavior passes; Teacher chat and chat persistence remain Increment 3. |
 | Fixture practice loop | **Not started** | Requires adapter-driven success and failure scenarios. |
-| Personal self-test gate | **In progress** | P1, P4, and P9 pass; the remaining checks depend on Increments 2–5. |
+| Personal self-test gate | **In progress** | P1, P2, P3, P4, P8, and P9 pass; the remaining checks depend on Increments 3–5. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
 
@@ -265,13 +295,13 @@ progress.
 | ID | Acceptance check | Status |
 |---|---|---|
 | P1 | The supported entry point launches an Electron app, not an HTML course page. | Pass |
-| P2 | A new learner can complete the Intro and enter Module 1. | Not started |
-| P3 | A returning learner resumes the exact saved checkpoint. | Not started |
+| P2 | A new learner can complete the Intro and enter Module 1. | Pass |
+| P3 | A returning learner resumes the exact saved checkpoint. | Pass |
 | P4 | Closing the main window leaves the floating Teacher character running. | Pass |
 | P5 | Clicking the character opens chat and chat history survives a full restart. | Not started |
 | P6 | The practice journey responds correctly to success, approval, stale, offline, and error fixtures. | Not started |
 | P7 | Every simulated integration state is visibly identifiable as a fixture. | Not started |
-| P8 | Reset and last-known-good recovery work without manually editing state files. | Not started |
+| P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
 | P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Partial — checks and build pass; clean-copy rehearsal belongs to Increment 5 |
 

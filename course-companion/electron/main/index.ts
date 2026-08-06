@@ -1,11 +1,17 @@
 import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'node:path'
-import type { CompanionMode, RuntimeInfo } from '../../shared/contracts'
+import type { CompanionMode, ProgressUpdate, RuntimeInfo } from '../../shared/contracts'
+import { isProgressUpdate, ProgressRepository } from './progress-repository'
 import { getCompanionBounds } from './window-layout'
+
+if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
+  app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
+}
 
 let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
+const progressRepository = new ProgressRepository(app.getPath('userData'))
 
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')
@@ -105,6 +111,15 @@ function registerIpcHandlers(): void {
     platform: process.platform,
     packaged: app.isPackaged
   }))
+
+  ipcMain.handle('course:load-progress', () => progressRepository.load())
+
+  ipcMain.handle('course:save-progress', (_event, update: ProgressUpdate) => {
+    if (!isProgressUpdate(update)) throw new Error('Invalid learner progress update')
+    return progressRepository.save(update)
+  })
+
+  ipcMain.handle('course:reset-progress', () => progressRepository.reset())
 
   ipcMain.handle('course:show-learning-window', () => {
     companionWindow?.hide()

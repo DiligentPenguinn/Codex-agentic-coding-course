@@ -4,19 +4,28 @@ This is the production desktop-app package for the learner-facing Course
 Companion. It is intentionally separate from the historical HTML prototypes and
 from ContentPilot, the application learners build during the course.
 
-## Increment 1 scope
+## Implemented scope
 
-The current shell proves:
+The current app proves:
 
 - a real Electron application;
 - a full learning window;
 - a separate always-on-top Teacher companion;
 - minimize-to-companion and restore behavior;
 - explicit Quit behavior; and
-- a context-isolated, sandboxed renderer with narrow preload IPC.
+- a context-isolated, sandboxed renderer with narrow preload IPC;
+- new-learner and returning-learner routing;
+- Intro-to-Module-1 scene transitions;
+- atomic local checkpoint saves with a last-known-good backup;
+- exact resume after a complete app relaunch; and
+- confirmed reset and damaged-state recovery behavior.
 
-Lesson progression, persistence, Teacher chat, practice fixtures, and live Codex
-integration belong to later increments.
+Teacher chat, adapter-driven practice fixtures, and live Codex integration
+belong to later increments.
+
+Learner progress is stored by Electron in the operating system's application
+data directory. It is not stored in browser `localStorage` or inside the
+repository.
 
 ## Run locally
 
