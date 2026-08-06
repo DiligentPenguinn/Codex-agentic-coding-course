@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Bản mẫu Course Companion với một nhiệm vụ tập trung trong thế giới pixel."
+    >
+    <title>Course Companion — Cảnh học tập trung</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --night: #070b18;
+        --navy: #0d1730;
+        --panel: #151f3d;
+        --panel-deep: #0b1228;
+        --line: #6b78a5;
+        --line-soft: #39496f;
+        --sky: #72dcff;
+        --cyan: #45c8d6;
+        --yellow: #ffd666;
+        --violet: #a98cff;
+        --mint: #72e2b0;
+        --danger: #ff8c9f;
+        --cream: #fff1ca;
+        --muted: #a7b3ce;
+        --pixel-shadow: 7px 7px 0 rgba(2, 5, 13, 0.82);
+        --pixel-font: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", monospace;
+        --body-font: "Trebuchet MS", "Avenir Next", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body { min-width: 320px; min-height: 100%; margin: 0; }
+
+      body {
+        overflow: hidden;
+        color: var(--cream);
+        background: var(--night);
+        font-family: var(--body-font);
+      }
+
+      button { color: inherit; font: inherit; }
+      button:not(:disabled) { cursor: pointer; }
+      button:focus-visible {
+        outline: 4px solid var(--yellow);
+        outline-offset: 4px;
+      }
+
+      [hidden] { display: none !important; }
+
+      .prototype-shell {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        min-height: 620px;
+        overflow: hidden;
+        isolation: isolate;
+        background: var(--night);
+      }
+
+      .scene-world {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(4, 8, 22, 0.1), rgba(4, 8, 22, 0.73)),
+          url("../mvp-3-course-experience-companion/assets/home-base.png") center/cover no-repeat;
+        image-rendering: pixelated;
+        filter: saturate(0.92) brightness(0.82);
+        transform: scale(1.015);
+      }
+
+      .scene-world::after {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 77% 36%, rgba(255, 210, 102, 0.1), transparent 24%),
+          linear-gradient(90deg, rgba(4, 7, 17, 0.18), transparent 30%, transparent 72%, rgba(4, 7, 17, 0.2));
+        content: "";
+      }
+
+      .hud {
+        position: absolute;
+        z-index: 20;
+        top: 0;
+        left: 0;
+        right: 0;
+        min-height: 72px;
+        padding: 13px 22px;
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) minmax(280px, 560px) minmax(150px, 1fr);
+        align-items: center;
+        gap: 22px;
+        border-bottom: 3px solid #36466e;
+        background: rgba(8, 13, 30, 0.95);
+        box-shadow: 0 5px 0 rgba(3, 5, 14, 0.62);
+      }
+
+      .brand,
+      .mission-meta,
+      .prototype-badge { font-family: var(--pixel-font); }
+
+      .brand { display: flex; align-items: center; gap: 11px; }
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border: 3px solid var(--sky);
+        color: var(--sky);
+        font-size: 17px;
+        font-weight: 800;
+        box-shadow: 3px 3px 0 #25385d;
+      }
+      .brand strong,
+      .brand small,
+      .mission-meta span,
+      .mission-meta strong { display: block; }
+      .brand strong { font-size: 10px; letter-spacing: 0.08em; }
+      .brand small { margin-top: 4px; color: var(--muted); font-size: 7px; letter-spacing: 0.12em; }
+
+      .mission-meta { text-align: center; }
+      .mission-meta span { color: var(--yellow); font-size: 8px; letter-spacing: 0.16em; }
+      .mission-meta strong { margin: 5px 0 8px; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+      .progress-track { height: 6px; border: 2px solid #46577e; background: #080d1d; }
+      .progress-track i {
+        display: block;
+        width: 25%;
+        height: 100%;
+        background: var(--cyan);
+        box-shadow: 0 0 11px rgba(69, 200, 214, 0.55);
+        transition: width 180ms steps(4, end);
+      }
+
+      .prototype-badge {
+        justify-self: end;
+        padding: 8px 10px;
+        border: 2px solid var(--violet);
+        color: var(--violet);
+        background: #151b35;
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        box-shadow: 3px 3px 0 rgba(4, 6, 16, 0.72);
+      }
+
+      .scene-title {
+        position: absolute;
+        z-index: 3;
+        top: 102px;
+        right: 5vw;
+        width: min(460px, 42vw);
+        padding: 15px 17px;
+        border: 3px solid rgba(112, 135, 183, 0.78);
+        background: rgba(11, 18, 40, 0.9);
+        box-shadow: var(--pixel-shadow);
+      }
+      .scene-title small,
+      .scene-title strong { display: block; font-family: var(--pixel-font); }
+      .scene-title small { color: var(--yellow); font-size: 8px; letter-spacing: 0.12em; }
+      .scene-title strong { margin-top: 8px; font-size: clamp(13px, 1.35vw, 18px); line-height: 1.35; }
+
+      .teacher-character {
+        position: absolute;
+        z-index: 4;
+        left: 6vw;
+        bottom: 165px;
+        width: min(28vw, 390px);
+        max-height: 68vh;
+        object-fit: contain;
+        object-position: bottom;
+        image-rendering: pixelated;
+        filter:
+          drop-shadow(10px 12px 0 rgba(3, 5, 13, 0.62))
+          drop-shadow(0 0 25px rgba(69, 200, 214, 0.18));
+        animation: character-in 420ms steps(5, end) both;
+      }
+
+      .consequence-panel {
+        position: absolute;
+        z-index: 5;
+        top: 190px;
+        right: 6vw;
+        width: min(470px, 44vw);
+        padding: 16px;
+        border: 4px solid var(--line);
+        background: rgba(10, 17, 36, 0.95);
+        box-shadow: var(--pixel-shadow);
+      }
+      .consequence-panel[data-tone="good"] { border-color: var(--mint); }
+      .consequence-panel[data-tone="bad"] { border-color: var(--danger); }
+      .consequence-panel header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+      .consequence-panel header span,
+      .consequence-panel header strong { font-family: var(--pixel-font); }
+      .consequence-panel header span { color: var(--yellow); font-size: 8px; letter-spacing: 0.12em; }
+      .consequence-panel header strong { font-size: 10px; }
+      .request-card {
+        margin-top: 13px;
+        padding: 13px;
+        border: 2px solid var(--line-soft);
+        background: #131d39;
+      }
+      .request-card p { margin: 0; font-size: 14px; line-height: 1.5; }
+      .evidence-grid { margin-top: 13px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+      .evidence-grid div { min-height: 58px; padding: 9px; border: 2px solid #3d4d73; background: #0c142b; }
+      .evidence-grid small,
+      .evidence-grid strong { display: block; }
+      .evidence-grid small { color: var(--muted); font: 7px/1 var(--pixel-font); }
+      .evidence-grid strong { margin-top: 7px; color: var(--cream); font-size: 11px; line-height: 1.3; }
+      .evidence-grid .is-ready { border-color: var(--mint); }
+      .evidence-grid .is-ready small { color: var(--mint); }
+
+      .dialogue-box {
+        position: absolute;
+        z-index: 10;
+        left: 5vw;
+        right: 5vw;
+        bottom: 24px;
+        min-height: 190px;
+        padding: 18px 20px 17px;
+        border: 4px solid #7584ac;
+        background: rgba(11, 18, 39, 0.98);
+        box-shadow: 9px 9px 0 rgba(2, 4, 12, 0.83);
+      }
+      .dialogue-box::before {
+        position: absolute;
+        inset: 7px;
+        border: 1px solid rgba(150, 174, 220, 0.22);
+        content: "";
+        pointer-events: none;
+      }
+      .speaker { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; }
+      .dialogue-avatar {
+        display: none;
+        width: 42px;
+        height: 42px;
+        object-fit: cover;
+        object-position: 50% 12%;
+        border: 2px solid var(--violet);
+        image-rendering: pixelated;
+      }
+      .speaker span {
+        padding: 5px 7px;
+        color: #11182a;
+        background: var(--yellow);
+        font: 800 8px/1 var(--pixel-font);
+      }
+      .speaker strong { font: 800 14px/1 var(--pixel-font); }
+      .dialogue-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 1050px;
+        min-height: 52px;
+        margin: 14px 0 0;
+        color: #edf1fb;
+        font-size: clamp(15px, 1.45vw, 19px);
+        line-height: 1.5;
+      }
+      .choices {
+        position: relative;
+        z-index: 1;
+        margin-top: 13px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 10px;
+      }
+      .choices .pixel-button {
+        width: min(720px, 100%);
+        text-align: left;
+      }
+      .pixel-button {
+        min-height: 42px;
+        padding: 9px 13px;
+        border: 3px solid #6879a3;
+        color: var(--cream);
+        background: #1a2545;
+        font: 800 9px/1.35 var(--pixel-font);
+        box-shadow: 4px 4px 0 rgba(3, 5, 14, 0.82);
+      }
+      .pixel-button:hover { border-color: var(--sky); transform: translate(-1px, -1px); }
+      .pixel-button.primary { border-color: var(--yellow); color: #11182a; background: var(--yellow); }
+      .pixel-button.primary:hover { background: #ffe38f; }
+      .pixel-button.danger { border-color: var(--danger); }
+
+      .practice-world {
+        position: absolute;
+        inset: 0;
+        z-index: 40;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 34%, rgba(69, 200, 214, 0.13), transparent 34%),
+          #070b18;
+      }
+      .practice-world:focus { outline: none; }
+      .codex-window {
+        position: absolute;
+        inset: 7vh 12vw 10vh 8vw;
+        border: 4px solid #40527a;
+        background: #0d1427;
+        box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.58);
+      }
+      .codex-bar {
+        height: 48px;
+        padding: 0 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #344568;
+        color: var(--muted);
+        background: #151e36;
+        font: 8px/1 var(--pixel-font);
+      }
+      .codex-content {
+        height: calc(100% - 48px);
+        padding: 30px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+      .codex-content div { max-width: 580px; }
+      .codex-content small { color: var(--violet); font: 8px/1 var(--pixel-font); letter-spacing: 0.13em; }
+      .codex-content h2 { margin: 14px 0 10px; font: 800 clamp(17px, 2vw, 27px)/1.4 var(--pixel-font); }
+      .codex-content p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+      .floating-teacher {
+        position: absolute;
+        z-index: 45;
+        right: 18px;
+        bottom: 14px;
+        width: 150px;
+        height: 205px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        filter: drop-shadow(8px 10px 0 rgba(0, 0, 0, 0.58));
+      }
+      .floating-teacher img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; image-rendering: pixelated; }
+      .floating-teacher span {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        padding: 6px 8px;
+        border: 2px solid var(--yellow);
+        color: #11182a;
+        background: var(--yellow);
+        font: 800 8px/1 var(--pixel-font);
+        box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.72);
+      }
+      .floating-teacher:hover { transform: translateY(-3px); }
+
+      .teacher-panel {
+        position: absolute;
+        z-index: 50;
+        right: 18px;
+        bottom: 18px;
+        width: min(410px, calc(100vw - 36px));
+        padding: 16px;
+        border: 4px solid var(--violet);
+        background: #101833;
+        box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.76);
+      }
+      .teacher-panel header { display: flex; align-items: center; gap: 10px; }
+      .teacher-panel header img { width: 58px; height: 58px; object-fit: cover; object-position: 50% 12%; border: 2px solid var(--violet); image-rendering: pixelated; }
+      .teacher-panel header small,
+      .teacher-panel header strong { display: block; font-family: var(--pixel-font); }
+      .teacher-panel header small { color: var(--mint); font-size: 7px; }
+      .teacher-panel header strong { margin-top: 5px; font-size: 13px; }
+      .teacher-panel p { margin: 15px 0; color: #e7ebf7; font-size: 14px; line-height: 1.55; }
+      .teacher-panel footer { display: flex; justify-content: flex-end; gap: 9px; }
+
+      .status-toast {
+        position: absolute;
+        z-index: 60;
+        top: 18px;
+        left: 50%;
+        padding: 9px 12px;
+        border: 2px solid var(--mint);
+        color: var(--mint);
+        background: #0d172b;
+        font: 8px/1 var(--pixel-font);
+        transform: translateX(-50%);
+      }
+
+      @keyframes character-in {
+        from { opacity: 0; transform: translateX(-24px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      @media (max-width: 760px) {
+        body { overflow: auto; }
+        .prototype-shell { min-height: 760px; height: 100dvh; }
+        .hud { min-height: 66px; padding: 10px 12px; grid-template-columns: 1fr auto; gap: 10px; }
+        .brand small,
+        .prototype-badge { display: none; }
+        .brand strong { max-width: 150px; font-size: 8px; }
+        .brand-mark { width: 34px; height: 34px; }
+        .mission-meta { text-align: right; }
+        .mission-meta strong { max-width: 170px; font-size: 8px; }
+        .scene-title { top: 84px; right: 12px; width: calc(100% - 24px); padding: 11px; }
+        .scene-title strong { font-size: 12px; }
+        .teacher-character { left: -18px; bottom: 330px; width: 180px; max-height: 42vh; }
+        .consequence-panel { top: 154px; right: 12px; width: calc(100% - 24px); padding: 12px; }
+        .evidence-grid { grid-template-columns: 1fr; }
+        .evidence-grid div { min-height: 46px; }
+        .dialogue-box { left: 12px; right: 12px; bottom: 12px; min-height: 300px; padding: 14px; }
+        .dialogue-avatar { display: block; }
+        .dialogue-copy { min-height: 64px; font-size: 15px; }
+        .choices { flex-direction: column; }
+        .pixel-button { width: 100%; min-height: 43px; }
+        .codex-window { inset: 18px 18px 110px; }
+        .codex-content { padding: 22px; }
+        .floating-teacher { width: 112px; height: 154px; right: 8px; bottom: 5px; }
+        .teacher-panel { right: 10px; bottom: 10px; width: calc(100vw - 20px); }
+        .teacher-panel footer { flex-direction: column; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="prototype-shell" id="prototype">
+      <section id="learningScene" aria-label="Cảnh học tương tác">
+        <div class="scene-world" aria-hidden="true"></div>
+
+        <header class="hud">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">C</span>
+            <span><strong>CONTENT BUILDER ACADEMY</strong><small>PIXEL MISSION STUDIO</small></span>
+          </div>
+          <div class="mission-meta">
+            <span>NHIỆM VỤ 01 · BƯỚC <b id="stepNumber">1</b>/4</span>
+            <strong>Viết yêu cầu để Codex có thể kiểm chứng</strong>
+            <div class="progress-track" aria-hidden="true"><i id="progressFill"></i></div>
+          </div>
+          <span class="prototype-badge">BẢN MẪU TƯƠNG TÁC</span>
+        </header>
+
+        <div class="scene-title">
+          <small>BÀI HỌC CHÍNH</small>
+          <strong id="sceneObjective">Nhận ra rủi ro của một yêu cầu mơ hồ</strong>
+        </div>
+
+        <img
+          class="teacher-character"
+          src="../mvp-3-course-experience-companion/assets/teacher.png"
+          alt="Hương, giáo viên đồng hành"
+        >
+
+        <aside class="consequence-panel" id="consequencePanel" data-tone="neutral" aria-live="polite">
+          <header><span id="panelLabel">YÊU CẦU VỪA NHẬN</span><strong id="panelStatus">CHƯA GỬI</strong></header>
+          <div class="request-card"><p id="requestText">“Làm phần giới thiệu đẹp hơn.”</p></div>
+          <div class="evidence-grid" id="evidenceGrid">
+            <div><small>MỤC TIÊU</small><strong>Chưa rõ</strong></div>
+            <div><small>PHẠM VI</small><strong>Chưa giới hạn</strong></div>
+            <div><small>BẰNG CHỨNG</small><strong>Chưa có</strong></div>
+          </div>
+        </aside>
+
+        <section class="dialogue-box" aria-labelledby="speakerName">
+          <div class="speaker">
+            <img
+              class="dialogue-avatar"
+              src="../mvp-3-course-experience-companion/assets/teacher.png"
+              alt=""
+            >
+            <span>TEACHER</span><strong id="speakerName">Hương</strong>
+          </div>
+          <p class="dialogue-copy" id="dialogueCopy">
+            Bạn vừa nhận một yêu cầu: “Làm phần giới thiệu đẹp hơn.” Nếu gửi ngay cho Codex, điều gì có thể xảy ra?
+          </p>
+          <div class="choices" id="choices"></div>
+        </section>
+      </section>
+
+      <section class="practice-world" id="practiceWorld" tabindex="-1" aria-label="Chế độ thực hành với Hương nổi bên cạnh" hidden>
+        <div class="codex-window" aria-hidden="true">
+          <div class="codex-bar"><span>CODEX · NHIỆM VỤ 01</span><span>● ĐANG CHỜ BẠN</span></div>
+          <div class="codex-content">
+            <div>
+              <small>BÀN LÀM VIỆC</small>
+              <h2>Codex là nơi thực hành.<br>Hương vẫn ở cạnh bạn.</h2>
+              <p>Trong sản phẩm thật, đây là lúc cửa sổ bài học thu lại và người học chuyển sang Codex.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="floating-teacher" id="floatingTeacher" type="button" aria-label="Mở Hương">
+          <img src="../mvp-3-course-experience-companion/assets/teacher.png" alt="">
+          <span>HƯƠNG</span>
+        </button>
+
+        <section class="teacher-panel" id="teacherPanel" aria-label="Hương, giáo viên đồng hành" hidden>
+          <header>
+            <img src="../mvp-3-course-experience-companion/assets/teacher.png" alt="">
+            <div><small>TEACHER · ĐANG Ở BÊN BẠN</small><strong>Hương</strong></div>
+          </header>
+          <p>“Bạn đã có mục tiêu, phạm vi và bằng chứng. Khi Codex đưa kế hoạch, hãy kiểm tra ba điều đó trước khi chấp thuận.”</p>
+          <footer>
+            <button class="pixel-button" id="closeTeacher" type="button">Thu nhỏ Hương</button>
+            <button class="pixel-button primary" id="returnToScene" type="button">Mở lại cảnh học</button>
+          </footer>
+        </section>
+        <div class="status-toast">HƯƠNG ĐANG Ở BÊN BẠN · BẤM ĐỂ HỎI</div>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const ui = {
+          learningScene: document.querySelector('#learningScene'),
+          practiceWorld: document.querySelector('#practiceWorld'),
+          stepNumber: document.querySelector('#stepNumber'),
+          progressFill: document.querySelector('#progressFill'),
+          sceneObjective: document.querySelector('#sceneObjective'),
+          consequencePanel: document.querySelector('#consequencePanel'),
+          panelLabel: document.querySelector('#panelLabel'),
+          panelStatus: document.querySelector('#panelStatus'),
+          requestText: document.querySelector('#requestText'),
+          evidenceGrid: document.querySelector('#evidenceGrid'),
+          dialogueCopy: document.querySelector('#dialogueCopy'),
+          choices: document.querySelector('#choices'),
+          floatingTeacher: document.querySelector('#floatingTeacher'),
+          teacherPanel: document.querySelector('#teacherPanel'),
+          closeTeacher: document.querySelector('#closeTeacher'),
+          returnToScene: document.querySelector('#returnToScene')
+        }
+
+        let step = 0
+
+        const buttons = (items) => {
+          ui.choices.replaceChildren(...items.map((item) => {
+            const button = document.createElement('button')
+            button.type = 'button'
+            button.className = `pixel-button${item.primary ? ' primary' : ''}${item.danger ? ' danger' : ''}`
+            button.textContent = item.label
+            button.addEventListener('click', item.action)
+            return button
+          }))
+        }
+
+        const evidence = (items) => {
+          ui.evidenceGrid.innerHTML = items.map((item) => `
+            <div class="${item.ready ? 'is-ready' : ''}">
+              <small>${item.label}</small><strong>${item.value}</strong>
+            </div>
+          `).join('')
+        }
+
+        const setStep = (nextStep) => {
+          step = nextStep
+          ui.stepNumber.textContent = String(step + 1)
+          ui.progressFill.style.width = `${(step + 1) * 25}%`
+        }
+
+        const showOpening = () => {
+          setStep(0)
+          ui.sceneObjective.textContent = 'Nhận ra rủi ro của một yêu cầu mơ hồ'
+          ui.consequencePanel.dataset.tone = 'neutral'
+          ui.panelLabel.textContent = 'YÊU CẦU TỪ NGƯỜI DÙNG'
+          ui.panelStatus.textContent = 'CHƯA GỬI'
+          ui.requestText.textContent = '“Làm phần giới thiệu đẹp hơn.”'
+          evidence([
+            { label: 'MỤC TIÊU', value: 'Chưa rõ' },
+            { label: 'PHẠM VI', value: 'Chưa giới hạn' },
+            { label: 'BẰNG CHỨNG', value: 'Chưa có' }
+          ])
+          ui.dialogueCopy.textContent = 'Bạn vừa nhận một yêu cầu: “Làm phần giới thiệu đẹp hơn.” Nếu gửi ngay cho Codex, điều gì có thể xảy ra?'
+          buttons([
+            { label: 'Codex sẽ tự hiểu đúng ý', danger: true, action: showBadConsequence },
+            { label: 'Kết quả sẽ khó đoán và khó kiểm tra', primary: true, action: showConcept }
+          ])
+        }
+
+        const showBadConsequence = () => {
+          ui.consequencePanel.dataset.tone = 'bad'
+          ui.panelLabel.textContent = 'KẾT QUẢ GIẢ ĐỊNH'
+          ui.panelStatus.textContent = 'KHÓ KIỂM CHỨNG'
+          ui.requestText.textContent = 'Codex thay bố cục, màu sắc và ba tệp—nhưng không biết thay đổi nào thực sự giải quyết vấn đề.'
+          evidence([
+            { label: 'TỆP THAY ĐỔI', value: '5 tệp' },
+            { label: 'LÝ DO', value: 'Không rõ' },
+            { label: 'DONE-WHEN', value: 'Không có' }
+          ])
+          ui.dialogueCopy.textContent = 'Đúng là Codex có thể làm rất nhiều—nhưng bạn không có tiêu chuẩn để biết kết quả có đúng hay không. Hãy quay lại trước khi gửi.'
+          buttons([{ label: 'Làm rõ yêu cầu', primary: true, action: showConcept }])
+        }
+
+        const showConcept = () => {
+          setStep(1)
+          ui.sceneObjective.textContent = 'Tìm ba phần giúp yêu cầu có thể kiểm chứng'
+          ui.consequencePanel.dataset.tone = 'neutral'
+          ui.panelLabel.textContent = 'BA Ô CÒN THIẾU'
+          ui.panelStatus.textContent = '0/3 SẴN SÀNG'
+          ui.requestText.textContent = 'Một yêu cầu an toàn cần trả lời: thay đổi gì, được phép chạm vào đâu, và bằng chứng nào xác nhận đã xong.'
+          evidence([
+            { label: 'MỤC TIÊU', value: 'Thay đổi gì?' },
+            { label: 'PHẠM VI', value: 'Được sửa đâu?' },
+            { label: 'BẰNG CHỨNG', value: 'Xong khi nào?' }
+          ])
+          ui.dialogueCopy.textContent = 'Ba phần cần có là mục tiêu, phạm vi và bằng chứng. Bây giờ hãy chọn yêu cầu mà bạn có thể kiểm tra sau khi Codex hoàn thành.'
+          buttons([{ label: 'Chọn một yêu cầu', primary: true, action: showBriefChoices }])
+        }
+
+        const showBriefChoices = () => {
+          setStep(2)
+          ui.sceneObjective.textContent = 'Chọn yêu cầu có giới hạn và bằng chứng rõ ràng'
+          ui.dialogueCopy.textContent = 'Bạn sẽ gửi yêu cầu nào cho Codex?'
+          buttons([
+            { label: 'A · Làm giao diện đẹp và hiện đại hơn', danger: true, action: showWeakBrief },
+            { label: 'B · Tự quyết định mọi thứ cần sửa', danger: true, action: showWeakBrief },
+            { label: 'C · Nút chính rộng 100% ở 390px; chỉ sửa CSS; không tràn ngang', primary: true, action: showSuccess }
+          ])
+        }
+
+        const showWeakBrief = () => {
+          ui.consequencePanel.dataset.tone = 'bad'
+          ui.panelLabel.textContent = 'YÊU CẦU VẪN CÒN MƠ HỒ'
+          ui.panelStatus.textContent = '1/3 SẴN SÀNG'
+          ui.requestText.textContent = 'Có ý định thay đổi, nhưng phạm vi và bằng chứng vẫn do Codex tự đoán.'
+          evidence([
+            { label: 'MỤC TIÊU', value: 'Còn chủ quan' },
+            { label: 'PHẠM VI', value: 'Không giới hạn' },
+            { label: 'BẰNG CHỨNG', value: 'Không đo được' }
+          ])
+          ui.dialogueCopy.textContent = 'Yêu cầu này nghe có vẻ rõ, nhưng “đẹp” và “mọi thứ cần sửa” không tạo ra một điểm kiểm tra. Hãy chọn lại.'
+          buttons([{ label: 'Chọn lại', primary: true, action: showBriefChoices }])
+        }
+
+        const showSuccess = () => {
+          setStep(3)
+          ui.sceneObjective.textContent = 'Mang yêu cầu đã kiểm chứng sang Codex'
+          ui.consequencePanel.dataset.tone = 'good'
+          ui.panelLabel.textContent = 'YÊU CẦU ĐÃ SẴN SÀNG'
+          ui.panelStatus.textContent = '3/3 SẴN SÀNG'
+          ui.requestText.textContent = '“Ở 390px, làm nút chính rộng 100%. Chỉ sửa CSS của onboarding. Xong khi không có tràn ngang.”'
+          evidence([
+            { label: 'MỤC TIÊU', value: 'Nút dễ chạm', ready: true },
+            { label: 'PHẠM VI', value: 'Một tệp CSS', ready: true },
+            { label: 'BẰNG CHỨNG', value: '390px, không tràn', ready: true }
+          ])
+          ui.dialogueCopy.textContent = 'Tốt. Bạn không bảo Codex phải làm thế nào; bạn làm rõ điều gì được phép thay đổi và cách kiểm chứng kết quả. Bây giờ có thể chuyển sang thực hành.'
+          buttons([
+            { label: 'Xem lại từ đầu', action: showOpening },
+            { label: 'Thu nhỏ để thực hành', primary: true, action: showPractice }
+          ])
+        }
+
+        const showPractice = () => {
+          ui.learningScene.hidden = true
+          ui.practiceWorld.hidden = false
+          ui.teacherPanel.hidden = true
+          ui.floatingTeacher.hidden = false
+          ui.practiceWorld.focus()
+        }
+
+        const showTeacher = () => {
+          ui.floatingTeacher.hidden = true
+          ui.teacherPanel.hidden = false
+          ui.closeTeacher.focus()
+        }
+
+        const hideTeacher = () => {
+          ui.teacherPanel.hidden = true
+          ui.floatingTeacher.hidden = false
+          ui.floatingTeacher.focus()
+        }
+
+        const returnToScene = () => {
+          ui.practiceWorld.hidden = true
+          ui.learningScene.hidden = false
+          showSuccess()
+        }
+
+        ui.floatingTeacher.addEventListener('click', showTeacher)
+        ui.closeTeacher.addEventListener('click', hideTeacher)
+        ui.returnToScene.addEventListener('click', returnToScene)
+        document.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape' || ui.practiceWorld.hidden) return
+          if (!ui.teacherPanel.hidden) hideTeacher()
+          else returnToScene()
+        })
+
+        showOpening()
+      })()
+    </script>
+  </body>
+</html>
