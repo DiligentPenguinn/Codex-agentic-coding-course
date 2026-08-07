@@ -418,7 +418,7 @@ test("bubble preload exposes only its six least-privilege methods", async () => 
   assertStateListener(bridge, runtime.listeners);
 });
 
-test("quick-chat preload exposes only its five least-privilege methods", async () => {
+test("quick-chat preload exposes only its six least-privilege methods", async () => {
   const source = await readPreload("quick-chat-preload.cjs");
   assertSafePreloadSource(source);
   const runtime = executePreload(source);
@@ -426,15 +426,17 @@ test("quick-chat preload exposes only its five least-privilege methods", async (
   assert.deepEqual([...runtime.exposed.keys()], ["practiceQuickChat"]);
   const bridge = runtime.exposed.get("practiceQuickChat");
   assert.deepEqual(Object.keys(bridge).sort(), [
-    "closeQuickChat", "expand", "getState", "onStateChanged",
-    "sendTeacherMessage",
+    "closeQuickChat", "expand", "getState", "getWorkspace",
+    "onStateChanged", "sendTeacherMessage",
   ]);
   await bridge.getState();
+  await bridge.getWorkspace();
   await bridge.sendTeacherMessage("Hello");
   await bridge.closeQuickChat();
   await bridge.expand();
   assert.deepEqual(structuredClone(runtime.invocations), [
     ["practice:get-quick-state"],
+    ["practice:workspace:get"],
     ["practice:send-teacher", { text: "Hello" }],
     ["practice:close-quick-chat"],
     ["practice:expand"],

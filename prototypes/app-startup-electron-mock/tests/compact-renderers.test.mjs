@@ -57,7 +57,10 @@ test("compact HTML keeps main-renderer CSP parity and exact accessible landmarks
   assert.match(quickChat, /<label for="quick-message">Message Teacher<\/label>/);
   assert.match(quickChat, /<textarea id="quick-message" maxlength="4000" rows="3"><\/textarea>/);
   assert.match(quickChat, /<button type="submit"[^>]*>Send<\/button>/);
-  assert.match(quickChat, /<button type="button" data-action="expand">Expand Practice<\/button>/);
+  assert.match(quickChat, /data-action="expand"[^>]*aria-label="Mở Practice toàn màn hình"/);
+  assert.match(quickChat, /class="quick-tabs"[^>]*aria-label="Teacher và tiến độ"/);
+  assert.match(quickChat, /data-quick-panel="teacher"/);
+  assert.match(quickChat, /id="quick-progress-panel"[^>]*hidden/);
   assert.match(quickChat, /<script type="module" src="\.\/quick-chat\.js"><\/script>/);
 });
 
@@ -429,7 +432,7 @@ test("bubble waits through a realistic platform double-click window without open
   const pointer = (detail) => ({ detail, preventDefault() {} });
 
   controller.handleClick(pointer(1));
-  advance(450);
+  advance(250);
   await flushPromises();
   assert.deepEqual(calls, []);
   controller.handleClick(pointer(2));
@@ -438,7 +441,7 @@ test("bubble waits through a realistic platform double-click window without open
   await flushPromises();
   assert.deepEqual(calls, ["expand"]);
 
-  assert.equal(BUBBLE_CLICK_DELAY_MS, 525);
+  assert.equal(BUBBLE_CLICK_DELAY_MS, 300);
   controller.handleClick(pointer(1));
   advance(BUBBLE_CLICK_DELAY_MS - 1);
   await flushPromises();

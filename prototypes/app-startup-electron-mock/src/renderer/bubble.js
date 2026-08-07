@@ -9,9 +9,8 @@ export const STATUS = Object.freeze({
 });
 
 // Chromium does not expose the operating system's double-click threshold.
-// 525ms covers the deliberate 300–500ms desktop double-click window while
-// keeping a confirmed single click close to a half-second response.
-export const BUBBLE_CLICK_DELAY_MS = 525;
+// The approved interaction contract uses one 300ms click arbiter.
+export const BUBBLE_CLICK_DELAY_MS = 300;
 
 function effectiveStatus(executor) {
   if (executor?.freshness === "disconnected") return "disconnected";

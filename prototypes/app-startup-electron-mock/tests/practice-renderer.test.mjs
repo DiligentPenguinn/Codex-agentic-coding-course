@@ -1081,8 +1081,13 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   ]);
 
   assert.match(html, /data-screen="destination"/);
-  assert.match(html, /Work safely with an Executor/);
-  assert.match(html, /data-practice-action="start"/);
+  assert.match(html, /id="practice-objective"/);
+  assert.match(html, /id="practice-expected-outcome"/);
+  assert.match(html, /data-workspace-action="start-new"/);
+  assert.match(html, /data-workspace-action="resume"/);
+  assert.match(html, /id="practice-loading"[^>]*aria-live="polite"/);
+  assert.match(html, /<dialog id="transfer-dialog"/);
+  assert.match(html, /Chuyển ngữ cảnh có chọn lọc/);
   assert.match(html, /id="course-practice-error"[^>]*role="alert"/);
   assert.match(html, /id="practice-shell"[^>]*data-screen="practice"/);
   assert.match(html, /class="practice-header"/);
@@ -1092,9 +1097,9 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /data-practice-action="retry-picker"/);
   assert.match(html, /id="picker-status"[^>]*role="status"/);
   assert.match(html, /id="executor-status"[^>]*role="status"/);
-  assert.match(html, /data-practice-action="compact"[^>]*>\s*Compact to Teacher/);
+  assert.match(html, /data-practice-action="compact"[^>]*aria-label="Thu nhỏ thành bong bóng Teacher"/);
 
-  assert.match(html, /role="tablist"[^>]*aria-label="Practice Mode"/);
+  assert.match(html, /role="tablist"[^>]*aria-label="Teacher và tiến độ Practice"/);
   assert.match(html, /id="exercise-tab"[^>]*role="tab"[^>]*aria-controls="exercise-panel"/);
   assert.match(html, /id="teacher-tab"[^>]*role="tab"[^>]*aria-controls="teacher-panel"/);
   assert.match(html, /id="exercise-panel"[^>]*role="tabpanel"[^>]*aria-labelledby="exercise-tab"/);
@@ -1123,6 +1128,10 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /data-practice-action="rebind"[^>]*>\s*Rebind task/);
   assert.match(html, /<dialog id="task-picker"/);
   assert.match(html, /id="eligible-task-list"/);
+  assert.match(html, /id="practice-checklist"[^>]*aria-label="Các bước Practice"/);
+  assert.match(html, /data-workspace-action="retry-switch"/);
+  assert.match(html, /data-workspace-action="cancel-switch"/);
+  assert.match(html, /class="legacy-practice-details"/);
 
   const rendererSource = `${script}\n${controllerSource}`;
   assert.doesNotMatch(rendererSource, /node:|from\s+["']electron|require\s*\(|App Server|credentials|process\.env|filesystem/i);
@@ -1130,6 +1139,9 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.doesNotMatch(rendererSource, /native.*minimi|minimi.*addEventListener/i);
   assert.match(script, /createPracticeRendererController/);
   assert.match(script, /practiceController\.subscribe\(\)/);
+  assert.match(script, /createPracticeWorkspaceRendererController/);
+  assert.match(script, /workspaceController\.requestStartNew\(\)/);
+  assert.match(script, /getPracticeWorkspaceLoadingLabel/);
   assert.match(script, /removePracticeListener/);
   assert.match(script, /getPracticeActionPolicy/);
   assert.match(script, /function renderPracticeActionControls\(\)[\s\S]{0,240}getPracticeActionPolicy/);
@@ -1153,4 +1165,8 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(css, /:focus-visible/);
   assert.match(css, /prefers-reduced-motion:\s*no-preference/);
   assert.match(css, /teacher-thinking-pulse/);
+  assert.match(css, /\.practice-brief-panel/);
+  assert.match(css, /\.practice-checklist/);
+  assert.match(css, /\.practice-loading/);
+  assert.match(css, /\.transfer-choice/);
 });

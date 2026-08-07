@@ -329,6 +329,7 @@ export function registerPracticeWorkspaceIpcHandlers({
   transitionCoordinator,
   workspaceStore,
   loadStartRequest,
+  activateRuntime = async () => {},
 }) {
   async function project(state, navigation = null) {
     const startRequest = await loadStartRequest();
@@ -348,14 +349,17 @@ export function registerPracticeWorkspaceIpcHandlers({
       const result = await transitionCoordinator.beginSwitch({
         mode: transfer ? "selective" : "fresh",
       });
+      await activateRuntime(result.state);
       return project(result.state, result.navigation);
     }],
     [CHANNELS.PRACTICE_RESUME_ACTIVE, async () => {
       const result = await transitionCoordinator.resumeActive();
+      await activateRuntime(result.state);
       return project(result.state, result.navigation);
     }],
     [CHANNELS.PRACTICE_RETRY_SWITCH, async () => {
       const result = await transitionCoordinator.retrySwitch();
+      await activateRuntime(result.state);
       return project(result.state, result.navigation);
     }],
     [CHANNELS.PRACTICE_CANCEL_SWITCH, async () => (

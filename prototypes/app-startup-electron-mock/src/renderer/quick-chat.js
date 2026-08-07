@@ -345,12 +345,49 @@ function createQuickChatDomView() {
   });
 }
 
+function safeWorkspaceText(value, fallback) {
+  if (typeof value !== "string") return fallback;
+  return value.trim().slice(0, 1_000) || fallback;
+}
+
+export function renderQuickWorkspaceProgress(root, workspace) {
+  const objective = root.querySelector("#quick-objective");
+  const outcome = root.querySelector("#quick-outcome");
+  const checklist = root.querySelector("#quick-checklist");
+  if (!objective || !outcome || !checklist) return;
+  objective.textContent = safeWorkspaceText(workspace?.brief?.objective, "Mục tiêu chưa sẵn sàng.");
+  outcome.textContent = safeWorkspaceText(workspace?.brief?.expectedOutcome, "Kết quả chưa sẵn sàng.");
+  while (checklist.firstChild) checklist.firstChild.remove();
+  const steps = Array.isArray(workspace?.activeRun?.steps)
+    ? workspace.activeRun.steps
+    : [];
+  if (steps.length === 0) {
+    const item = root.createElement("li");
+    item.textContent = "Bắt đầu Practice để xem tiến độ.";
+    checklist.append(item);
+    return;
+  }
+  for (const step of steps) {
+    const item = root.createElement("li");
+    const status = ["completed", "next", "remaining"].includes(step?.status)
+      ? step.status
+      : "remaining";
+    item.className = `is-${status}`;
+    if (status === "next") item.setAttribute("aria-current", "step");
+    item.textContent = safeWorkspaceText(step?.title, "Bước Practice");
+    checklist.append(item);
+  }
+}
+
 function startQuickChatRenderer() {
   const bridge = window.practiceQuickChat;
   const form = document.querySelector("#quick-form");
   const composer = document.querySelector("#quick-message");
   const expandButton = document.querySelector('[data-action="expand"]');
-  if (!bridge || !form || !composer || !expandButton) return;
+  const quickTeacher = document.querySelector("#quick-teacher-panel");
+  const quickProgress = document.querySelector("#quick-progress-panel");
+  const panelButtons = [...document.querySelectorAll("[data-quick-panel]")];
+  if (!bridge || !form || !composer || !expandButton || !quickTeacher || !quickProgress) return;
 
   const controller = createQuickChatController({
     bridge,
@@ -365,10 +402,21 @@ function startQuickChatRenderer() {
   const onKeyDown = (event) => controller.handleKeyDown(event);
   composer.addEventListener("input", onInput);
   form.addEventListener("submit", onSubmit);
+  const onPanelClick = (event) => {
+    const progressActive = event.currentTarget.dataset.quickPanel === "progress";
+    document.body.classList.toggle("show-progress", progressActive);
+    quickTeacher.hidden = progressActive;
+    form.hidden = progressActive;
+    quickProgress.hidden = !progressActive;
+    for (const button of panelButtons) {
+      button.setAttribute("aria-pressed", String(button === event.currentTarget));
+    }
+  };
   expandButton.addEventListener("click", onExpand);
   document.addEventListener("keydown", onKeyDown);
 
   let disposed = false;
+  for (const button of panelButtons) button.addEventListener("click", onPanelClick);
   const dispose = () => {
     if (disposed) return;
     disposed = true;
@@ -376,10 +424,18 @@ function startQuickChatRenderer() {
     form.removeEventListener("submit", onSubmit);
     expandButton.removeEventListener("click", onExpand);
     document.removeEventListener("keydown", onKeyDown);
+    for (const button of panelButtons) button.removeEventListener("click", onPanelClick);
     controller.dispose();
   };
   window.addEventListener("unload", dispose, { once: true });
   void controller.initialize();
+  Promise.resolve(bridge.getWorkspace())
+    .then(({ ok, value } = {}) => {
+      if (!disposed && ok) {
+        renderQuickWorkspaceProgress(document, value?.workspace);
+      }
+    })
+    .catch(() => {});
 }
 
 if (typeof window !== "undefined" && typeof document !== "undefined") {

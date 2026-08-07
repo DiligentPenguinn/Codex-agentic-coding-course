@@ -91,6 +91,7 @@ test("registers intent-level switching handlers with an exact boolean transfer c
     transitionCoordinator: coordinator,
     workspaceStore: { read: async () => currentState },
     loadStartRequest: async () => startRequest(),
+    activateRuntime: async (nextState) => calls.push(["activate", nextState.activeRun.binding.displayName]),
   });
 
   assert.deepEqual([...handlers.keys()], [
@@ -102,10 +103,12 @@ test("registers intent-level switching handlers with an exact boolean transfer c
   ]);
   assert.equal((await handlers.get(CHANNELS.PRACTICE_START_NEW)(null, { transfer: true })).ok, true);
   assert.deepEqual(calls[0], ["begin", { mode: "selective" }]);
+  assert.deepEqual(calls[1], ["activate", "Practice hiện tại"]);
   assert.equal((await handlers.get(CHANNELS.PRACTICE_START_NEW)(null, { transfer: false })).ok, true);
-  assert.deepEqual(calls[1], ["begin", { mode: "fresh" }]);
+  assert.deepEqual(calls[2], ["begin", { mode: "fresh" }]);
+  assert.deepEqual(calls[3], ["activate", "Practice hiện tại"]);
   assert.equal((await handlers.get(CHANNELS.PRACTICE_START_NEW)(null, { transfer: "yes" })).ok, false);
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 4);
 
   unregister();
   assert.deepEqual(removed, [...handlers.keys()]);

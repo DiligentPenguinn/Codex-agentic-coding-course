@@ -16,9 +16,13 @@
         <span class="eyebrow">Practice Teacher</span>
         <strong id="quick-status">○ Executor ready</strong>
       </div>
-      <button type="button" data-action="expand">Expand Practice</button>
+      <button type="button" data-action="expand" aria-label="Mở Practice toàn màn hình" title="Mở Practice toàn màn hình">↗</button>
     </header>
-    <main>
+    <nav class="quick-tabs" aria-label="Teacher và tiến độ">
+      <button type="button" aria-pressed="true" data-quick-panel="teacher">Teacher</button>
+      <button type="button" aria-pressed="false" data-quick-panel="progress">Tiến độ</button>
+    </nav>
+    <main id="quick-teacher-panel">
       <p id="quick-freshness" role="status">Waiting for a fresh Executor observation.</p>
       <p id="quick-error" role="alert" hidden></p>
       <div
@@ -35,6 +39,17 @@
       <textarea id="quick-message" maxlength="4000" rows="3"></textarea>
       <button type="submit" disabled>Send</button>
     </form>
+    <section id="quick-progress-panel" class="quick-progress-panel" hidden>
+      <div>
+        <span class="eyebrow">Mục tiêu</span>
+        <p id="quick-objective">Đang tải…</p>
+      </div>
+      <div>
+        <span class="eyebrow">Kết quả mong đợi</span>
+        <p id="quick-outcome">Đang tải…</p>
+      </div>
+      <ol id="quick-checklist" aria-label="Tiến độ Practice"></ol>
+    </section>
     <script type="module" src="./quick-chat.js"></script>
   </body>
 </html>

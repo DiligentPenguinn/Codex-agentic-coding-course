@@ -124,18 +124,35 @@
           </div>
         </section>
 
-        <section class="panel course-panel" data-screen="destination" hidden>
-          <p class="section-number">Course fixture · Module 0</p>
-          <h2>Work safely with an Executor</h2>
-          <p>This mock handoff tests Practice Mode mechanics; it is not production course content.</p>
-          <p id="course-practice-error" class="error-message" role="alert"></p>
-          <div class="course-rule" aria-hidden="true">
-            <span>Course</span><i></i><span>Practice workshop</span>
+        <section class="panel course-panel practice-brief-panel" data-screen="destination" hidden>
+          <div class="brief-topline">
+            <p class="section-number">Practice · Module 0</p>
+            <button class="icon-button" type="button" data-action="reopen" aria-label="Xem lại thiết lập" title="Xem lại thiết lập">⚙</button>
           </div>
+          <p class="brief-overline">Mục tiêu ngắn gọn</p>
+          <h2 id="practice-brief-title" tabindex="-1">Sẵn sàng cho một lượt thực hành tập trung?</h2>
+          <div class="brief-summary-grid">
+            <article>
+              <span aria-hidden="true">◎</span>
+              <div><h3>Mục tiêu</h3><p id="practice-objective">Đang tải mục tiêu…</p></div>
+            </article>
+            <article>
+              <span aria-hidden="true">✓</span>
+              <div><h3>Kết quả mong đợi</h3><p id="practice-expected-outcome">Đang tải kết quả…</p></div>
+            </article>
+          </div>
+          <p id="practice-run-status" class="run-status" role="status">Đang kiểm tra Practice đã lưu…</p>
+          <p id="course-practice-error" class="error-message" role="alert" tabindex="-1"></p>
           <div class="actions">
-            <button class="button secondary" type="button" data-action="reopen">Review setup</button>
-            <button class="button primary" type="button" data-practice-action="start">Start Practice</button>
+            <button id="retry-practice-switch" class="button secondary" type="button" data-workspace-action="retry-switch" hidden>Tiếp tục chuyển đổi</button>
+            <button id="cancel-practice-switch" class="text-button" type="button" data-workspace-action="cancel-switch" hidden>Hủy chuyển đổi</button>
+            <button id="resume-practice" class="button secondary" type="button" data-workspace-action="resume" hidden>Tiếp tục Practice</button>
+            <button id="start-new-practice" class="button primary" type="button" data-workspace-action="start-new">Bắt đầu Practice mới</button>
           </div>
+          <details class="brief-disclosure">
+            <summary>Practice này hoạt động như thế nào?</summary>
+            <p>Mỗi lượt Practice dùng đúng một Executor chat. Bạn có thể theo dõi bước tiếp theo trong bảng Tiến độ mà không rời Codex.</p>
+          </details>
         </section>
 
         <section id="practice-shell" class="practice-shell" data-screen="practice" hidden>
@@ -148,18 +165,32 @@
             <div class="practice-controls">
               <div id="executor-status" class="executor-status" role="status">
                 <span class="executor-symbol" aria-hidden="true">–</span>
-                <span><small>Executor</small><strong>No task bound</strong></span>
+                <span><small>Executor chat</small><strong>Chưa kết nối</strong></span>
               </div>
-              <button class="button compact-button" type="button" data-practice-action="compact">Compact to Teacher</button>
+              <button class="icon-button" type="button" data-practice-tab="exercise" aria-label="Mở tiến độ" title="Mở tiến độ">☷</button>
+              <button class="icon-button" type="button" data-practice-action="compact" aria-label="Thu nhỏ thành bong bóng Teacher" title="Thu nhỏ thành bong bóng Teacher">—</button>
             </div>
           </header>
 
-          <div class="practice-tabs" role="tablist" aria-label="Practice Mode">
-            <button id="exercise-tab" type="button" role="tab" aria-controls="exercise-panel" aria-selected="true" tabindex="0" data-practice-tab="exercise">Exercise</button>
-            <button id="teacher-tab" type="button" role="tab" aria-controls="teacher-panel" aria-selected="false" tabindex="-1" data-practice-tab="teacher">Teacher chat</button>
+          <div class="practice-tabs" role="tablist" aria-label="Teacher và tiến độ Practice">
+            <button id="teacher-tab" type="button" role="tab" aria-controls="teacher-panel" aria-selected="true" tabindex="0" data-practice-tab="teacher">Teacher</button>
+            <button id="exercise-tab" type="button" role="tab" aria-controls="exercise-panel" aria-selected="false" tabindex="-1" data-practice-tab="exercise">Tiến độ</button>
           </div>
 
           <section id="exercise-panel" class="practice-panel exercise-panel" role="tabpanel" aria-labelledby="exercise-tab" tabindex="0">
+            <div class="progress-overview">
+              <div class="progress-heading">
+                <div><p class="workshop-label">Tiến độ Practice</p><h3>Bước tiếp theo của bạn</h3></div>
+                <span id="progress-count" class="progress-count">0 / 0</span>
+              </div>
+              <div class="progress-brief">
+                <p><strong>Mục tiêu</strong><span id="progress-objective">Đang tải…</span></p>
+                <p><strong>Kết quả</strong><span id="progress-outcome">Đang tải…</span></p>
+              </div>
+              <ol id="practice-checklist" class="practice-checklist" aria-label="Các bước Practice"></ol>
+            </div>
+            <details class="legacy-practice-details">
+              <summary>Xem hướng dẫn và phạm vi chi tiết</summary>
             <div class="exercise-layout">
               <article class="exercise-brief" aria-labelledby="brief-heading">
                 <p class="workshop-label">01 · Mission brief</p>
@@ -209,6 +240,7 @@
                 </section>
               </aside>
             </div>
+            </details>
           </section>
 
           <section id="teacher-panel" class="practice-panel teacher-panel" role="tabpanel" aria-labelledby="teacher-tab" tabindex="0" hidden>
@@ -251,6 +283,12 @@
         </section>
       </main>
 
+      <div id="practice-loading" class="practice-loading" role="status" aria-live="polite" hidden>
+        <span class="loading-orbit" aria-hidden="true"></span>
+        <p id="practice-loading-label">Đang chuẩn bị Practice mới…</p>
+        <button class="text-button" type="button" data-workspace-action="cancel-switch" hidden>Hủy chuyển đổi</button>
+      </div>
+
       <footer>Experimental setup preview · Your progress stays on this computer.</footer>
     </div>
 
@@ -268,6 +306,24 @@
       <div id="eligible-task-list" class="eligible-task-list"></div>
       <div class="dialog-actions">
         <button id="close-picker" class="button secondary" type="button" data-practice-action="close-picker">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="transfer-dialog" aria-labelledby="transfer-dialog-title">
+      <div class="dialog-heading">
+        <p class="workshop-label">Bắt đầu Practice mới</p>
+        <h3 id="transfer-dialog-title" tabindex="-1">Bạn muốn mang theo điều gì?</h3>
+        <p>Practice hiện tại sẽ được lưu lại. Chọn cách khởi tạo Executor chat mới.</p>
+      </div>
+      <div class="transfer-choices">
+        <button class="transfer-choice recommended" type="button" data-workspace-action="transfer-selective">
+          <span aria-hidden="true">↗</span><strong>Chuyển ngữ cảnh có chọn lọc</strong><small>Chỉ mang theo mục tiêu, quyết định, ràng buộc, trở ngại và kết quả hữu ích.</small>
+        </button>
+        <button class="transfer-choice" type="button" data-workspace-action="transfer-fresh">
+          <span aria-hidden="true">○</span><strong>Bắt đầu hoàn toàn mới</strong><small>Tạo Executor chat trống, không mang nội dung từ Practice trước.</small>
+        </button>
+      </div>
+      <div class="dialog-actions">
+        <button class="button secondary" type="button" data-workspace-action="close-transfer">Hủy</button>
       </div>
     </dialog>
     <script type="module" src="./app.js"></script>

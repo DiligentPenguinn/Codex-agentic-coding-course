@@ -202,10 +202,10 @@ test("completes startup and proves the bound-task Practice flow", {
     visible: true,
   });
   await mainWindow.getByRole("heading", {
-    name: "Work safely with an Executor",
+    name: "Sẵn sàng cho một lượt thực hành tập trung?",
   }).waitFor({ timeout: 5_000 });
 
-  await mainWindow.getByRole("button", { name: "Review setup" }).click();
+  await mainWindow.getByRole("button", { name: "Xem lại thiết lập" }).click();
   await mainWindow.getByRole("heading", {
     name: "Sample teaching setup",
   }).waitFor();
@@ -217,27 +217,36 @@ test("completes startup and proves the bound-task Practice flow", {
   await mainWindow.getByRole("heading", { name: "Setup complete" }).waitFor();
   await mainWindow.getByRole("button", { name: "Continue to mock app" }).click();
   await mainWindow.getByRole("heading", {
-    name: "Work safely with an Executor",
+    name: "Sẵn sàng cho một lượt thực hành tập trung?",
   }).waitFor();
 
   const mainWindowCountBeforePractice = electronApp.windows().filter((page) => (
     pageMatchesFile(page, "index.html")
   )).length;
-  await mainWindow.getByRole("button", { name: "Start Practice" }).click();
+  const bubbleWindow = await findWindowByFile(electronApp, "bubble.html");
+  const quickChatWindow = await findWindowByFile(electronApp, "quick-chat.html");
+  await mainWindow.getByRole("button", { name: "Bắt đầu Practice mới" }).click();
+  await waitForWindowVisibility(electronApp, mainWindow, false, 10_000);
+  await waitForWindowVisibility(electronApp, bubbleWindow, true, 10_000);
+  await bubbleWindow.getByRole("button", {
+    name: "Open Teacher quick chat",
+  }).dblclick();
+  await waitForWindowVisibility(electronApp, mainWindow, true, 10_000);
+  await waitForWindowVisibility(electronApp, bubbleWindow, false);
   await mainWindow.getByRole("heading", {
     name: /Inspect ContentPilot Lite/,
-  }).waitFor();
+  }).waitFor({ timeout: 10_000 });
   assert.equal(
     electronApp.windows().filter((page) => pageMatchesFile(page, "index.html")).length,
     mainWindowCountBeforePractice,
     "Practice must reuse the existing main Course window.",
   );
-  await mainWindow.getByText(taskName, { exact: true }).first().waitFor({
-    timeout: 5_000,
-  });
   await waitForResponseReady(mainWindow);
 
-  await mainWindow.getByRole("tab", { name: "Teacher chat" }).click();
+  assert.equal(
+    await mainWindow.getByRole("tab", { name: "Teacher" }).getAttribute("aria-selected"),
+    "true",
+  );
   const teacherComposer = mainWindow.getByRole("textbox", {
     name: "Message Teacher",
   });
@@ -261,9 +270,7 @@ test("completes startup and proves the bound-task Practice flow", {
   assert.doesNotMatch(teacherText, /DECOY/i);
   assert.doesNotMatch(await mainWindow.getByRole("main").innerText(), /DECOY/i);
 
-  const bubbleWindow = await findWindowByFile(electronApp, "bubble.html");
-  const quickChatWindow = await findWindowByFile(electronApp, "quick-chat.html");
-  await mainWindow.getByRole("button", { name: "Compact to Teacher" }).click();
+  await mainWindow.getByRole("button", { name: "Thu nhỏ thành bong bóng Teacher" }).click();
   await waitForWindowVisibility(electronApp, mainWindow, false);
   const bubbleState = await waitForWindowVisibility(electronApp, bubbleWindow, true);
   assert.deepEqual(
@@ -301,6 +308,14 @@ test("completes startup and proves the bound-task Practice flow", {
     name: "Open Teacher quick chat",
   }).click();
   await waitForWindowVisibility(electronApp, quickChatWindow, true);
+  await quickChatWindow.getByRole("button", { name: "Tiến độ" }).click();
+  await quickChatWindow.getByText(
+    "Kiểm tra repository mà chưa thay đổi tệp.",
+    { exact: true },
+  ).waitFor();
+  await quickChatWindow.getByRole("list", { name: "Tiến độ Practice" }).waitFor();
+  await quickChatWindow.getByRole("button", { name: "Teacher" }).click();
+
   await quickChatWindow.getByRole("textbox", { name: "Message Teacher" }).fill(
     secondTeacherQuestion,
   );
@@ -315,13 +330,13 @@ test("completes startup and proves the bound-task Practice flow", {
   );
   assert.doesNotMatch(await quickChatWindow.getByRole("main").innerText(), /DECOY/i);
   await quickChatWindow.getByRole("button", {
-    name: "Expand Practice",
+    name: "Mở Practice toàn màn hình",
   }).click();
   await waitForWindowVisibility(electronApp, mainWindow, true);
   await waitForWindowVisibility(electronApp, bubbleWindow, false);
   await waitForWindowVisibility(electronApp, quickChatWindow, false);
   assert.equal(
-    await mainWindow.getByRole("tab", { name: "Teacher chat" }).getAttribute(
+    await mainWindow.getByRole("tab", { name: "Teacher" }).getAttribute(
       "aria-selected",
     ),
     "true",
@@ -333,6 +348,14 @@ test("completes startup and proves the bound-task Practice flow", {
   const practiceStatePath = path.join(userDataPath, "practice-state.json");
   const persistedSource = await readFile(practiceStatePath, "utf8");
   const persisted = JSON.parse(persistedSource);
+  const workspaceStatePath = path.join(userDataPath, "practice-workspace-state.json");
+  const workspaceSource = await readFile(workspaceStatePath, "utf8");
+  const persistedWorkspace = JSON.parse(workspaceSource);
+  assert.equal(persistedWorkspace.schemaVersion, 2);
+  assert.equal(persistedWorkspace.activeRun.binding.threadId, "thr-practice-1");
+  assert.equal(persistedWorkspace.activeRun.status, "active");
+  assert.equal(persistedWorkspace.pendingTransition, null);
+  assert.deepEqual(persistedWorkspace.archivedRuns, []);
   assert.equal(persisted.activeSession.binding.threadId, "thr-practice-1");
   assert.deepEqual(
     collectKeyPaths(persisted, "thr-practice-1").sort(),
@@ -370,10 +393,31 @@ test("completes startup and proves the bound-task Practice flow", {
     visible: true,
   });
   await mainWindow.getByRole("heading", {
-    name: /Inspect ContentPilot Lite/,
+    name: "Sẵn sàng cho một lượt thực hành tập trung?",
   }).waitFor({ timeout: 5_000 });
-  const exerciseTab = mainWindow.getByRole("tab", { name: "Exercise" });
-  const teacherTab = mainWindow.getByRole("tab", { name: "Teacher chat" });
+  await mainWindow.getByRole("button", { name: "Bắt đầu Practice mới" }).click();
+  const transferDialog = mainWindow.getByRole("dialog", {
+    name: "Bạn muốn mang theo điều gì?",
+  });
+  await transferDialog.waitFor();
+  await transferDialog.getByRole("button", { name: /Chuyển ngữ cảnh có chọn lọc/ }).waitFor();
+  await transferDialog.getByRole("button", { name: /Bắt đầu hoàn toàn mới/ }).waitFor();
+  await transferDialog.getByRole("button", { name: "Hủy" }).click();
+
+  await mainWindow.getByRole("button", { name: "Tiếp tục Practice" }).click();
+  const restartBubbleWindow = await findWindowByFile(electronApp, "bubble.html", {
+    visible: true,
+    timeoutMs: 10_000,
+  });
+  await restartBubbleWindow.getByRole("button", {
+    name: "Open Teacher quick chat",
+  }).dblclick();
+  await waitForWindowVisibility(electronApp, mainWindow, true, 10_000);
+  await mainWindow.getByRole("heading", {
+    name: /Inspect ContentPilot Lite/,
+  }).waitFor({ timeout: 10_000 });
+  const exerciseTab = mainWindow.getByRole("tab", { name: "Tiến độ" });
+  const teacherTab = mainWindow.getByRole("tab", { name: "Teacher" });
   await pollUntil(
     () => teacherTab.getAttribute("aria-selected"),
     (selected) => selected === "true",
@@ -386,10 +430,6 @@ test("completes startup and proves the bound-task Practice flow", {
     (selected) => selected === "true",
     { description: "restored Exercise tab selection" },
   );
-  await mainWindow.getByText(taskName, { exact: true }).first().waitFor({
-    state: "visible",
-    timeout: 5_000,
-  });
   await waitForResponseReady(mainWindow);
 
   await teacherTab.click();

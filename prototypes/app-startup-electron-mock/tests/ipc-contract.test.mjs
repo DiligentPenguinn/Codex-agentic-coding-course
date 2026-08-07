@@ -292,6 +292,7 @@ test("unit script preserves setup coverage and includes Practice tests in order"
     "tests/practice-orchestrator.test.mjs",
     "tests/practice-ipc-contract.test.mjs",
     "tests/practice-workspace-ipc.test.mjs",
+    "tests/practice-workspace-renderer.test.mjs",
     "tests/window-coordinator.test.mjs",
     "tests/practice-renderer.test.mjs",
     "tests/compact-renderers.test.mjs",

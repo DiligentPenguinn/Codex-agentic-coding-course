@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 // Sandboxed preloads duplicate only the fixed channels their bridge needs.
 const CHANNELS = Object.freeze({
   PRACTICE_GET_QUICK_STATE: "practice:get-quick-state",
+  PRACTICE_WORKSPACE_GET: "practice:workspace:get",
   PRACTICE_SEND_TEACHER: "practice:send-teacher",
   PRACTICE_CLOSE_QUICK_CHAT: "practice:close-quick-chat",
   PRACTICE_EXPAND: "practice:expand",
@@ -11,6 +12,7 @@ const CHANNELS = Object.freeze({
 
 contextBridge.exposeInMainWorld("practiceQuickChat", Object.freeze({
   getState: () => ipcRenderer.invoke(CHANNELS.PRACTICE_GET_QUICK_STATE),
+  getWorkspace: () => ipcRenderer.invoke(CHANNELS.PRACTICE_WORKSPACE_GET),
   sendTeacherMessage: async (text) => {
     const result = await ipcRenderer.invoke(
       CHANNELS.PRACTICE_SEND_TEACHER,

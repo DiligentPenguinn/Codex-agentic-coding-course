@@ -696,6 +696,16 @@ function createApplication() {
       await orchestrator.initialize();
       assertCurrent();
 
+      const syncPracticeRuntime = async (workspaceState) => {
+        const binding = workspaceState?.activeRun?.binding;
+        if (!binding) return;
+        if (!orchestrator.getViewModel()?.session) {
+          await orchestrator.startPractice();
+        }
+        await orchestrator.bindExistingTask(binding.threadId);
+        await orchestrator.selectTab("teacher");
+      };
+
       let practiceWorkspaceState = await practiceWorkspaceStore.read();
       const legacyPracticeState = await practiceStore.read();
       if (!practiceWorkspaceState.activeRun && legacyPracticeState.activeSession) {
@@ -708,11 +718,18 @@ function createApplication() {
       }
       if (practiceWorkspaceState.pendingTransition) {
         try {
-          await transitionCoordinator.retrySwitch();
+          const recovered = await transitionCoordinator.retrySwitch();
+          practiceWorkspaceState = recovered.state;
         } catch {
           // The durable transition remains available to the explicit Retry action.
         }
       }
+      try {
+        await syncPracticeRuntime(practiceWorkspaceState);
+      } catch {
+        // Resume and Start new can retry compatibility activation explicitly.
+      }
+
       assertCurrent();
 
       const persistedPracticeState = await practiceStore.read();
@@ -740,6 +757,10 @@ function createApplication() {
         transitionCoordinator,
         workspaceStore: practiceWorkspaceStore,
         loadStartRequest: async () => structuredClone(practiceStartRequest),
+        activateRuntime: async (workspaceState) => {
+          await syncPracticeRuntime(workspaceState);
+          await windowActions.compact();
+        },
       });
 
       removeAuthForwarder = auth.onStatus((status) => {

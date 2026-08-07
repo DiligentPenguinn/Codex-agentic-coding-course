@@ -7,11 +7,18 @@ import {
   createPracticeRendererController,
   getPracticeActionPolicy,
 } from "./practice-state.mjs";
+import {
+  createInitialPracticeWorkspaceRendererState,
+  createPracticeWorkspaceRendererController,
+  getPracticeWorkspaceLoadingLabel,
+} from "./practice-workspace-state.mjs";
 
 const courseSetup = window.courseSetup;
 const practice = window.practice;
 let state = createInitialOnboardingState();
 let practiceState = createInitialPracticeRendererState();
+let workspaceState = createInitialPracticeWorkspaceRendererState();
+let practiceSessionVisible = false;
 let removeAuthListener = () => {};
 let removePracticeListener = () => {};
 
@@ -64,7 +71,9 @@ function formatTime(value, fallback = "Observation time unavailable") {
 }
 
 function currentScreen() {
-  return practiceState.screen === "practice" ? "practice" : state.screen;
+  return practiceSessionVisible && practiceState.screen === "practice"
+    ? "practice"
+    : state.screen;
 }
 
 function dispatch(event) {
@@ -525,19 +534,117 @@ function renderTaskPicker() {
   if (!practiceState.pickerOpen && dialog.open) dialog.close();
 }
 
+function renderWorkspaceChecklist(activeRun) {
+  const list = document.querySelector("#practice-checklist");
+  while (list.firstChild) list.firstChild.remove();
+  const steps = Array.isArray(activeRun?.steps) ? activeRun.steps : [];
+  const completed = steps.filter((step) => step.status === "completed").length;
+  setTextIfChanged(document.querySelector("#progress-count"), `${completed} / ${steps.length}`);
+  if (steps.length === 0) {
+    const empty = document.createElement("li");
+    empty.className = "checklist-empty";
+    empty.textContent = "Bắt đầu Practice để xem các bước và tiến độ.";
+    list.append(empty);
+    return;
+  }
+  const statusLabels = {
+    completed: "Đã hoàn thành",
+    next: "Tiếp theo",
+    remaining: "Sắp tới",
+  };
+  for (const step of steps) {
+    const item = document.createElement("li");
+    const status = ["completed", "next", "remaining"].includes(step.status)
+      ? step.status
+      : "remaining";
+    item.className = `checklist-step is-${status}`;
+    if (status === "next") item.setAttribute("aria-current", "step");
+    const mark = document.createElement("span");
+    mark.className = "checklist-mark";
+    mark.setAttribute("aria-hidden", "true");
+    mark.textContent = status === "completed" ? "✓" : status === "next" ? "→" : "·";
+    const copy = document.createElement("span");
+    const title = document.createElement("strong");
+    title.textContent = safeText(step.title, "Bước Practice");
+    const detail = document.createElement("small");
+    const authority = step.completionAuthority === "teacher"
+      ? "Teacher xác nhận"
+      : "Executor chat xác nhận";
+    detail.textContent = `${statusLabels[status]} · ${authority}`;
+    copy.append(title, detail);
+    item.append(mark, copy);
+    list.append(item);
+  }
+}
+
+function renderPracticeWorkspace() {
+  const workspace = workspaceState.workspace;
+  const brief = workspace?.brief ?? {};
+  setTextIfChanged(
+    document.querySelector("#practice-objective"),
+    safeText(brief.objective, "Mục tiêu Practice chưa sẵn sàng."),
+  );
+  setTextIfChanged(
+    document.querySelector("#practice-expected-outcome"),
+    safeText(brief.expectedOutcome, "Kết quả mong đợi chưa sẵn sàng."),
+  );
+  setTextIfChanged(
+    document.querySelector("#progress-objective"),
+    safeText(brief.objective, "Chưa có mục tiêu."),
+  );
+  setTextIfChanged(
+    document.querySelector("#progress-outcome"),
+    safeText(brief.expectedOutcome, "Chưa có kết quả mong đợi."),
+  );
+  renderWorkspaceChecklist(workspace?.activeRun);
+
+  const transition = workspace?.transition;
+  const runStatus = transition?.label
+    ?? workspaceState.navigationNotice
+    ?? (workspace?.activeRun
+      ? `Một Practice đang hoạt động trong “${safeText(workspace.activeRun.executorChatName, "Executor chat hiện tại", 200)}”.`
+      : "Chưa có Practice đang hoạt động.");
+  setTextIfChanged(document.querySelector("#practice-run-status"), runStatus);
+  setTextIfChanged(
+    document.querySelector("#course-practice-error"),
+    workspaceState.error?.message ?? "",
+  );
+
+  const ready = workspaceState.phase === "ready";
+  const start = document.querySelector("#start-new-practice");
+  const resume = document.querySelector("#resume-practice");
+  const retry = document.querySelector("#retry-practice-switch");
+  const cancel = document.querySelector("#cancel-practice-switch");
+  start.hidden = !workspace?.actions?.canStartNew;
+  start.disabled = !ready;
+  resume.hidden = !workspace?.actions?.canResume;
+  resume.disabled = !ready;
+  retry.hidden = !workspace?.actions?.canRetrySwitch;
+  retry.disabled = !ready;
+  cancel.hidden = !transition?.canCancel || !ready;
+
+  const loading = document.querySelector("#practice-loading");
+  loading.hidden = workspaceState.phase !== "switching";
+  setTextIfChanged(
+    document.querySelector("#practice-loading-label"),
+    getPracticeWorkspaceLoadingLabel(workspaceState) || "Đang chuẩn bị Practice mới…",
+  );
+  loading.querySelector('[data-workspace-action="cancel-switch"]').hidden = true;
+
+  const dialog = document.querySelector("#transfer-dialog");
+  dialog.querySelector('[data-workspace-action="transfer-selective"]').disabled =
+    !workspace?.activeRun?.executorChatName || !ready;
+  dialog.querySelector('[data-workspace-action="transfer-fresh"]').disabled = !ready;
+
+  if (workspaceState.transferDialogOpen && !dialog.open) dialog.showModal();
+  if (!workspaceState.transferDialogOpen && dialog.open) dialog.close();
+}
+
 function renderPractice() {
   const viewModel = practiceState.viewModel;
-  document.querySelector("#course-practice-error").textContent =
-    practiceState.screen === "course" ? practiceState.error?.message ?? "" : "";
-
   const session = viewModel?.session;
   if (!session) {
     renderTaskPicker();
-    const startButton = document.querySelector('[data-practice-action="start"]');
-    startButton.disabled = practiceState.busyAction === "entering";
-    startButton.textContent = practiceState.busyAction === "entering"
-      ? "Opening Practice…"
-      : "Start Practice";
     return;
   }
 
@@ -569,6 +676,7 @@ function render() {
   renderFixture();
   document.querySelector("#complete-connection").textContent =
     state.connection === "connected" ? "Connected" : "Needs recheck";
+  renderPracticeWorkspace();
   renderPractice();
 }
 
@@ -610,6 +718,33 @@ const practiceController = createPracticeRendererController({
   bridge: practice,
   view: practiceView,
   confirmRebind: (message) => window.confirm(message),
+});
+
+const workspaceView = Object.freeze({
+  render(next) {
+    workspaceState = next;
+    render();
+  },
+  openPractice() {
+    practiceSessionVisible = true;
+    void practiceController.selectTab("teacher");
+    render();
+    queueMicrotask(() => document.querySelector("#teacher-panel h3")?.focus());
+  },
+  focusTransferDialog() {
+    queueMicrotask(() => document.querySelector("#transfer-dialog-title")?.focus());
+  },
+  focusStartNew() {
+    queueMicrotask(() => document.querySelector("#start-new-practice")?.focus());
+  },
+  focusError() {
+    queueMicrotask(() => document.querySelector("#course-practice-error")?.focus());
+  },
+});
+
+const workspaceController = createPracticeWorkspaceRendererController({
+  bridge: practice,
+  view: workspaceView,
 });
 
 async function loadContent() {
@@ -706,7 +841,22 @@ document.querySelector("#task-picker").addEventListener("cancel", (event) => {
   practiceController.closePicker();
 });
 
+document.querySelector("#transfer-dialog").addEventListener("cancel", (event) => {
+  event.preventDefault();
+  workspaceController.closeTransferDialog();
+});
+
 document.addEventListener("click", async (event) => {
+  const workspaceAction = event.target.closest("[data-workspace-action]")?.dataset.workspaceAction;
+  if (workspaceAction === "start-new") await workspaceController.requestStartNew();
+  if (workspaceAction === "resume") await workspaceController.resumeActive();
+  if (workspaceAction === "retry-switch") await workspaceController.retrySwitch();
+  if (workspaceAction === "cancel-switch") await workspaceController.cancelSwitch();
+  if (workspaceAction === "transfer-selective") await workspaceController.startNew(true);
+  if (workspaceAction === "transfer-fresh") await workspaceController.startNew(false);
+  if (workspaceAction === "close-transfer") workspaceController.closeTransferDialog();
+  if (workspaceAction) return;
+
   const taskChoice = event.target.closest("[data-practice-task-choice]");
   if (taskChoice) {
     await practiceController.bindSelectedTask(taskChoice.value);
@@ -791,7 +941,11 @@ removePracticeListener = practiceController.subscribe();
 window.addEventListener("beforeunload", () => {
   removeAuthListener();
   removePracticeListener();
+  practiceController.dispose();
+  workspaceController.dispose();
 }, { once: true });
 
 render();
-await Promise.all([refreshStatus(), practiceController.initialize()]);
+await Promise.all([
+  refreshStatus(), practiceController.initialize(), workspaceController.initialize(),
+]);
