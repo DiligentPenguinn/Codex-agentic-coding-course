@@ -28,4 +28,9 @@ export const CHANNELS = Object.freeze({
   PRACTICE_BUBBLE_MENU: "practice:bubble-menu",
   PRACTICE_QUIT: "practice:quit",
   PRACTICE_STATE_CHANGED: "practice:state-changed",
+  PRACTICE_WORKSPACE_GET: "practice:workspace:get",
+  PRACTICE_START_NEW: "practice:workspace:start-new",
+  PRACTICE_RESUME_ACTIVE: "practice:workspace:resume-active",
+  PRACTICE_RETRY_SWITCH: "practice:workspace:retry-switch",
+  PRACTICE_CANCEL_SWITCH: "practice:workspace:cancel-switch",
 });

@@ -278,9 +278,11 @@ test("unit script preserves setup coverage and includes Practice tests in order"
     "tests/practice-session-reducer.test.mjs",
     "tests/practice-workspace-state.test.mjs",
     "tests/practice-workspace-migration.test.mjs",
+    "tests/practice-transition-coordinator.test.mjs",
     "tests/executor-conversation-service.test.mjs",
     "tests/executor-conversation-handoff.test.mjs",
     "tests/selective-handoff.test.mjs",
+    "tests/automatic-handoff-selection.test.mjs",
     "tests/executor-chat-coordinator.test.mjs",
     "tests/executor-chat-fake-server.test.mjs",
     "tests/executor-activity-reader.test.mjs",
@@ -289,6 +291,7 @@ test("unit script preserves setup coverage and includes Practice tests in order"
     "tests/teacher-probe.test.mjs",
     "tests/practice-orchestrator.test.mjs",
     "tests/practice-ipc-contract.test.mjs",
+    "tests/practice-workspace-ipc.test.mjs",
     "tests/window-coordinator.test.mjs",
     "tests/practice-renderer.test.mjs",
     "tests/compact-renderers.test.mjs",
@@ -306,8 +309,11 @@ test("main process composes one shared Practice lifecycle and coordinated window
   for (const moduleName of [
     "mission-repository.mjs",
     "practice-store.mjs",
+    "practice-state-schema.mjs",
     "executor-conversation-service.mjs",
+    "executor-chat-coordinator.mjs",
     "executor-activity-reader.mjs",
+    "practice-transition-coordinator.mjs",
     "teacher-adapter.mjs",
     "practice-orchestrator.mjs",
     "practice-ipc-handlers.mjs",
@@ -324,6 +330,11 @@ test("main process composes one shared Practice lifecycle and coordinated window
   assert.match(source, /repositoryRoot:\s*path\.resolve\(mockRoot,\s*"\.\.",\s*"\.\."\)/);
   assert.match(source, /registerIpcHandlers\(\{/);
   assert.match(source, /registerPracticeIpcHandlers\(\{/);
+  assert.match(source, /registerPracticeWorkspaceIpcHandlers\(\{/);
+  assert.match(source, /createPracticeWorkspaceStore\(\{/);
+  assert.match(source, /createPracticeTransitionCoordinator\(\{/);
+  assert.match(source, /migrateLegacyPracticeState\(/);
+  assert.match(source, /transitionCoordinator\.retrySwitch\(\)/);
   assert.match(source, /toBubbleViewModel/);
   assert.match(source, /toQuickChatViewModel/);
   assert.match(source, /orchestrator\.onChange\(\(viewModel\)\s*=>\s*\{/);
@@ -338,6 +349,7 @@ test("main process composes one shared Practice lifecycle and coordinated window
   const cleanupOrder = [
     "unregisterIpc()",
     "unregisterPracticeIpc()",
+    "unregisterPracticeWorkspaceIpc()",
     "removeAuthForwarder()",
     "removePracticeForwarder()",
     "coordinatorOwnership.disposeCurrent()",

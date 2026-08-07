@@ -24,6 +24,11 @@ const CHANNELS = Object.freeze({
   PRACTICE_SELECT_TAB: "practice:select-tab",
   PRACTICE_COMPACT: "practice:compact",
   PRACTICE_STATE_CHANGED: "practice:state-changed",
+  PRACTICE_WORKSPACE_GET: "practice:workspace:get",
+  PRACTICE_START_NEW: "practice:workspace:start-new",
+  PRACTICE_RESUME_ACTIVE: "practice:workspace:resume-active",
+  PRACTICE_RETRY_SWITCH: "practice:workspace:retry-switch",
+  PRACTICE_CANCEL_SWITCH: "practice:workspace:cancel-switch",
 });
 
 contextBridge.exposeInMainWorld("courseSetup", Object.freeze({
@@ -66,6 +71,13 @@ contextBridge.exposeInMainWorld("practice", Object.freeze({
     ipcRenderer.invoke(CHANNELS.PRACTICE_SELECT_TAB, { tab })
   ),
   compact: () => ipcRenderer.invoke(CHANNELS.PRACTICE_COMPACT),
+  getWorkspace: () => ipcRenderer.invoke(CHANNELS.PRACTICE_WORKSPACE_GET),
+  startNew: (transfer) => (
+    ipcRenderer.invoke(CHANNELS.PRACTICE_START_NEW, { transfer })
+  ),
+  resumeActive: () => ipcRenderer.invoke(CHANNELS.PRACTICE_RESUME_ACTIVE),
+  retrySwitch: () => ipcRenderer.invoke(CHANNELS.PRACTICE_RETRY_SWITCH),
+  cancelSwitch: () => ipcRenderer.invoke(CHANNELS.PRACTICE_CANCEL_SWITCH),
   onStateChanged: (listener) => {
     const wrapped = (_event, value) => listener(value);
     ipcRenderer.on(CHANNELS.PRACTICE_STATE_CHANGED, wrapped);

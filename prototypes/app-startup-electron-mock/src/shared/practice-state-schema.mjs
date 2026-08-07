@@ -173,11 +173,17 @@ const ARCHIVED_RUN_KEYS = new Set([
   "archivedAt", "handoffHash",
 ]);
 const TRANSITION_KEYS = new Set([
-  "id", "sourceRunId", "sourceBindingGeneration", "mode", "stage",
-  "targetChat", "handoffHash", "attachmentReceipt", "createdAt", "updatedAt",
+  "id", "targetRunId", "sourceRunId", "sourceBindingGeneration", "mode", "stage",
+  "targetChat", "handoffHash", "handoff", "attachmentReceipt", "createdAt", "updatedAt",
 ]);
 const ATTACHMENT_RECEIPT_KEYS = new Set(["marker", "hash", "attachedAt", "visible"]);
+const HANDOFF_KEYS = new Set([
+  "schemaVersion", "sourceThreadId", "sourceDisplayName", "hash", "marker",
+  "text", "item", "createdAt",
+]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const HANDOFF_HASH = /^[a-f0-9]{64}$/;
+const HANDOFF_FORBIDDEN_TEXT = /authorization\s*:|bearer\s+[A-Za-z0-9._-]+|api[_-]?key\s*[:=]|access[_-]?token\s*[:=]|refresh[_-]?token\s*[:=]|begin [a-z ]*private key/i;
 const RUN_STATUSES = new Set(["preparing", "active", "paused"]);
 const CHECKLIST_STATUSES = new Set(["completed", "next", "remaining"]);
 const TRANSITION_STAGES = new Set([
@@ -305,11 +311,41 @@ function parseAttachmentReceipt(value) {
   return { ...structuredClone(receipt), attachedAt: isoTimestamp(receipt.attachedAt, "Practice attachment attachedAt") };
 }
 
+function parsePersistedHandoff(value, activeRun) {
+  if (value === null) return null;
+  const handoff = plainObject(value, "Practice selective handoff");
+  exactKeys(handoff, HANDOFF_KEYS, "Practice selective handoff");
+  if (handoff.schemaVersion !== 1) throw new TypeError("Practice selective handoff schemaVersion must equal 1.");
+  boundedString(handoff.sourceThreadId, "Practice handoff sourceThreadId", 500);
+  boundedString(handoff.sourceDisplayName, "Practice handoff sourceDisplayName", 500);
+  if (!HANDOFF_HASH.test(handoff.hash ?? "") || handoff.marker !== `[CBA_HANDOFF_V1:${handoff.hash}]`) {
+    throw new TypeError("Practice selective handoff marker and hash are invalid.");
+  }
+  boundedString(handoff.text, "Practice handoff text", 6_000);
+  if (!handoff.text.includes(handoff.marker)) throw new TypeError("Practice handoff text must contain its marker.");
+  if (HANDOFF_FORBIDDEN_TEXT.test(handoff.text)) throw new TypeError("Practice handoff text contains forbidden content.");
+  const item = plainObject(handoff.item, "Practice handoff item");
+  exactKeys(item, new Set(["type", "role", "content"]), "Practice handoff item");
+  if (item.type !== "message" || item.role !== "assistant" || !Array.isArray(item.content) || item.content.length !== 1) {
+    throw new TypeError("Practice handoff item must be one assistant message.");
+  }
+  const content = plainObject(item.content[0], "Practice handoff item content");
+  exactKeys(content, new Set(["type", "text"]), "Practice handoff item content");
+  if (content.type !== "output_text" || content.text !== handoff.text) {
+    throw new TypeError("Practice handoff item content must equal the visible handoff text.");
+  }
+  if (activeRun?.binding && handoff.sourceThreadId !== activeRun.binding.threadId) {
+    throw new TypeError("Practice handoff must identify the active source Executor chat.");
+  }
+  return { ...structuredClone(handoff), createdAt: isoTimestamp(handoff.createdAt, "Practice handoff createdAt") };
+}
+
 function parsePendingTransition(value, activeRun) {
   if (value === null) return null;
   const transition = plainObject(value, "Practice pending transition");
   exactKeys(transition, TRANSITION_KEYS, "Practice pending transition");
   if (!UUID.test(transition.id ?? "")) throw new TypeError("Practice transition id must be a UUID.");
+  if (!UUID.test(transition.targetRunId ?? "")) throw new TypeError("Practice transition targetRunId must be a UUID.");
   if (!new Set(["fresh", "selective"]).has(transition.mode)) throw new TypeError("Invalid Practice transition mode.");
   if (!TRANSITION_STAGES.has(transition.stage)) throw new TypeError("Invalid Practice transition stage.");
   if (transition.sourceRunId === null) {
@@ -319,14 +355,47 @@ function parsePendingTransition(value, activeRun) {
     if (transition.sourceBindingGeneration !== activeRun.bindingGeneration) throw new TypeError("Pending transition must reference the exact binding generation.");
   }
   const targetChat = transition.targetChat === null ? null : parseExecutorBinding(transition.targetChat);
+  if (targetChat && targetChat.sessionId !== transition.targetRunId) {
+    throw new TypeError("Practice transition target chat must identify targetRunId.");
+  }
   if (transition.handoffHash !== null) boundedString(transition.handoffHash, "Practice transition handoffHash", 200);
+  const handoff = parsePersistedHandoff(transition.handoff, activeRun);
+  if (handoff && transition.handoffHash !== handoff.hash) {
+    throw new TypeError("Practice transition handoff hash must match its payload.");
+  }
   const attachmentReceipt = parseAttachmentReceipt(transition.attachmentReceipt);
   if (attachmentReceipt && transition.handoffHash !== attachmentReceipt.hash) {
     throw new TypeError("Practice attachment receipt hash must match the handoff hash.");
   }
+  if (transition.stage === "prepared" && targetChat !== null) {
+    throw new TypeError("Prepared Practice transition cannot have a target chat.");
+  }
+  if (transition.stage !== "prepared" && targetChat === null) {
+    throw new TypeError("Advanced Practice transition requires a target chat.");
+  }
+  if (transition.mode === "fresh") {
+    if (handoff !== null || transition.handoffHash !== null || attachmentReceipt !== null) {
+      throw new TypeError("Fresh Practice transition cannot contain handoff data.");
+    }
+  } else if (["prepared", "target-created"].includes(transition.stage)) {
+    if (handoff !== null || transition.handoffHash !== null || attachmentReceipt !== null) {
+      throw new TypeError("Selective handoff data is not valid before handoff preparation.");
+    }
+  } else {
+    if (handoff === null || transition.handoffHash !== handoff.hash) {
+      throw new TypeError("Selective Practice transition requires its persisted handoff.");
+    }
+    if (["attached", "verified"].includes(transition.stage) && attachmentReceipt === null) {
+      throw new TypeError("Attached Practice transition requires a visible receipt.");
+    }
+    if (transition.stage === "handoff-prepared" && attachmentReceipt !== null) {
+      throw new TypeError("Handoff preparation cannot contain an attachment receipt.");
+    }
+  }
   return {
     ...structuredClone(transition),
     targetChat,
+    handoff,
     attachmentReceipt,
     createdAt: isoTimestamp(transition.createdAt, "Practice transition createdAt"),
     updatedAt: isoTimestamp(transition.updatedAt, "Practice transition updatedAt"),

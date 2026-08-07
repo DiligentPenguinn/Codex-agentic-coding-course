@@ -94,6 +94,40 @@ export function extractBoundedHandoffSource(threadInput, options = {}) {
   };
 }
 
+function boundedSummary(value) {
+  const normalized = value.replaceAll(/\s+/g, " ").trim();
+  const points = [...normalized];
+  return points.length <= 500 ? normalized : `${points.slice(0, 499).join("")}…`;
+}
+
+export function createAutomaticHandoffSelection(sourceInput) {
+  const source = plainObject(sourceInput, "Bounded handoff source");
+  exactKeys(source, new Set(["schemaVersion", "sourceThreadId", "messages"]), "Bounded handoff source");
+  if (source.schemaVersion !== 1 || !THREAD_ID.test(source.sourceThreadId ?? "") || !Array.isArray(source.messages)) {
+    throw new TypeError("Bounded handoff source is invalid.");
+  }
+  const messages = source.messages.flatMap((message) => {
+    if (!message || typeof message !== "object" || Array.isArray(message)) return [];
+    if (!["learner", "executor"].includes(message.role) || typeof message.text !== "string") return [];
+    const text = boundedSummary(message.text);
+    if (!text || FORBIDDEN_TEXT.test(text)) return [];
+    return [{ role: message.role, text }];
+  });
+  const learner = messages.filter((message) => message.role === "learner").map((message) => message.text);
+  const executor = messages.filter((message) => message.role === "executor").map((message) => message.text);
+  const decisionPattern = /quyết định|đã chọn|giữ nguyên|\bdecid(?:e|ed|ing)\b|\bkeep\b/i;
+  const constraintPattern = /\bchỉ\b|\bkhông\b|\bphải\b|\bonly\b|\bmust\b|\bdo not\b|\bdon't\b/i;
+  const blockerPattern = /chưa thể|không thể|cần phê duyệt|bị chặn|\bblocked\b|\bcannot\b|\bneed(?:s|ed)? approval\b/i;
+  const blockers = executor.filter((text) => blockerPattern.test(text));
+  return {
+    goals: learner.slice(-2),
+    decisions: learner.filter((text) => decisionPattern.test(text)).slice(-1),
+    constraints: learner.filter((text) => constraintPattern.test(text)).slice(-2),
+    blockers: blockers.slice(-1),
+    outcomes: executor.filter((text) => !blockerPattern.test(text)).slice(-2),
+  };
+}
+
 function parseSelection(input) {
   const selection = plainObject(input, "Selective handoff selection");
   exactKeys(selection, new Set(CATEGORY_KEYS), "Selective handoff selection");

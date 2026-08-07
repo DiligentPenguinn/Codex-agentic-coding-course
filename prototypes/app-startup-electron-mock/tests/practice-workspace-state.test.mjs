@@ -187,12 +187,14 @@ test("accepts exactly one active run and one ordered next checklist step", () =>
 test("requires pending transitions to reference the exact active run generation", () => {
   const pendingTransition = {
     id: "22222222-2222-4222-8222-222222222222",
+    targetRunId: "33333333-3333-4333-8333-333333333333",
     sourceRunId: RUN_ID,
     sourceBindingGeneration: 1,
     mode: "fresh",
     stage: "prepared",
     targetChat: null,
     handoffHash: null,
+    handoff: null,
     attachmentReceipt: null,
     createdAt: NOW,
     updatedAt: NOW,

@@ -96,6 +96,31 @@ const FAILURES = Object.freeze({
     message: "Practice could not be closed.",
     recoveryAction: "Expand Practice and retry.",
   },
+  [CHANNELS.PRACTICE_WORKSPACE_GET]: {
+    code: "PRACTICE_WORKSPACE_UNAVAILABLE",
+    message: "Practice workspace could not be loaded.",
+    recoveryAction: "Retry or restart Course App.",
+  },
+  [CHANNELS.PRACTICE_START_NEW]: {
+    code: "PRACTICE_SWITCH_FAILED",
+    message: "A new Practice could not be started.",
+    recoveryAction: "Retry the saved transition or continue the current Practice.",
+  },
+  [CHANNELS.PRACTICE_RESUME_ACTIVE]: {
+    code: "PRACTICE_RESUME_FAILED",
+    message: "The active Executor chat could not be opened.",
+    recoveryAction: "Locate the named Executor chat in Codex or retry.",
+  },
+  [CHANNELS.PRACTICE_RETRY_SWITCH]: {
+    code: "PRACTICE_SWITCH_RETRY_FAILED",
+    message: "The saved Practice switch could not continue.",
+    recoveryAction: "Retry without starting another Practice.",
+  },
+  [CHANNELS.PRACTICE_CANCEL_SWITCH]: {
+    code: "PRACTICE_SWITCH_CANCEL_FAILED",
+    message: "The Practice switch could not be cancelled.",
+    recoveryAction: "Retry the saved transition; attached context cannot be cancelled.",
+  },
 });
 
 function failure({ code, message, recoveryAction }) {
@@ -229,6 +254,118 @@ export function registerPracticeIpcHandlers({
     FAILURES[CHANNELS.PRACTICE_SELECT_TAB],
   ));
 
+  for (const [channel, handler] of handlers) ipcMain.handle(channel, handler);
+  return () => {
+    for (const channel of handlers.keys()) ipcMain.removeHandler(channel);
+  };
+}
+
+const TRANSITION_LABELS = Object.freeze({
+  prepared: "Đang chuẩn bị Practice mới…",
+  "target-created": "Đang tạo phần tóm tắt có chọn lọc…",
+  "handoff-prepared": "Đang gắn phần tóm tắt đã chọn lọc…",
+  attached: "Đang xác minh phần tóm tắt trong Executor chat mới…",
+  verified: "Đang chuyển sang Practice mới…",
+});
+
+export function toPracticeWorkspaceViewModel(state, fallbackStartRequest) {
+  const definition = state?.activeRun?.startRequest?.practiceDefinition
+    ?? fallbackStartRequest?.practiceDefinition;
+  if (!definition || !Array.isArray(definition.steps)) {
+    throw new TypeError("Practice definition is unavailable.");
+  }
+  const checklist = new Map(
+    (state?.activeRun?.checklist ?? []).map((step) => [step.stepId, step]),
+  );
+  const activeRun = state?.activeRun
+    ? {
+        status: state.activeRun.status,
+        executorChatName: state.activeRun.binding?.displayName ?? null,
+        steps: definition.steps.map((step) => ({
+          id: step.id,
+          title: step.title,
+          completionAuthority: step.completionAuthority,
+          status: checklist.get(step.id)?.status ?? "remaining",
+        })),
+      }
+    : null;
+  const transition = state?.pendingTransition
+    ? {
+        mode: state.pendingTransition.mode,
+        stage: state.pendingTransition.stage,
+        label: TRANSITION_LABELS[state.pendingTransition.stage] ?? "Đang tiếp tục Practice mới…",
+        canCancel: new Set(["prepared", "target-created", "handoff-prepared"]).has(state.pendingTransition.stage),
+      }
+    : null;
+  return Object.freeze({
+    brief: {
+      objective: definition.objective,
+      expectedOutcome: definition.expectedOutcome,
+    },
+    activeRun,
+    transition,
+    archivedRunCount: Array.isArray(state?.archivedRuns) ? state.archivedRuns.length : 0,
+    presentation: {
+      mode: state?.presentation?.mode ?? "full",
+      activePanel: state?.presentation?.activePanel ?? "teacher",
+    },
+    actions: {
+      canStartNew: transition === null,
+      canResume: Boolean(activeRun?.executorChatName) && transition === null,
+      canRetrySwitch: transition !== null,
+    },
+  });
+}
+
+function parseTransferChoice(payload) {
+  if (!hasExactPayloadKey(payload, "transfer") || typeof payload.transfer !== "boolean") {
+    throw new TypeError("Practice transfer choice must be boolean.");
+  }
+  return payload.transfer;
+}
+
+export function registerPracticeWorkspaceIpcHandlers({
+  ipcMain,
+  transitionCoordinator,
+  workspaceStore,
+  loadStartRequest,
+}) {
+  async function project(state, navigation = null) {
+    const startRequest = await loadStartRequest();
+    return {
+      workspace: toPracticeWorkspaceViewModel(state, startRequest),
+      navigation: navigation ? {
+        opened: navigation.opened === true,
+        fallbackName: typeof navigation.fallbackName === "string" ? navigation.fallbackName : null,
+      } : null,
+    };
+  }
+
+  const operations = new Map([
+    [CHANNELS.PRACTICE_WORKSPACE_GET, async () => project(await workspaceStore.read())],
+    [CHANNELS.PRACTICE_START_NEW, async (_event, payload) => {
+      const transfer = parseTransferChoice(payload);
+      const result = await transitionCoordinator.beginSwitch({
+        mode: transfer ? "selective" : "fresh",
+      });
+      return project(result.state, result.navigation);
+    }],
+    [CHANNELS.PRACTICE_RESUME_ACTIVE, async () => {
+      const result = await transitionCoordinator.resumeActive();
+      return project(result.state, result.navigation);
+    }],
+    [CHANNELS.PRACTICE_RETRY_SWITCH, async () => {
+      const result = await transitionCoordinator.retrySwitch();
+      return project(result.state, result.navigation);
+    }],
+    [CHANNELS.PRACTICE_CANCEL_SWITCH, async () => (
+      project(await transitionCoordinator.cancelSwitch())
+    )],
+  ]);
+  const handlers = new Map();
+  for (const [channel, operation] of operations) {
+    handlers.set(channel, safeHandler(operation, FAILURES[channel]));
+  }
   for (const [channel, handler] of handlers) ipcMain.handle(channel, handler);
   return () => {
     for (const channel of handlers.keys()) ipcMain.removeHandler(channel);

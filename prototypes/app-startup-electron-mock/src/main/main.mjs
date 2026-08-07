@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
@@ -16,22 +17,27 @@ import {
 import { createAuthService } from "./auth-service.mjs";
 import { CodexAppServerClient } from "./codex-app-server-client.mjs";
 import { createExecutorActivityReader } from "./executor-activity-reader.mjs";
+import { createExecutorChatCoordinator } from "./executor-chat-coordinator.mjs";
 import { createExecutorConversationService } from "./executor-conversation-service.mjs";
 import { registerIpcHandlers } from "./ipc-handlers.mjs";
 import { loadPracticeStartRequest } from "./mission-repository.mjs";
 import {
   registerPracticeIpcHandlers,
+  registerPracticeWorkspaceIpcHandlers,
   toBubbleViewModel,
   toQuickChatViewModel,
 } from "./practice-ipc-handlers.mjs";
 import { createPracticeOrchestrator } from "./practice-orchestrator.mjs";
-import { createPracticeStore } from "./practice-store.mjs";
+import { createPracticeStore, createPracticeWorkspaceStore } from "./practice-store.mjs";
+import { createPracticeTransitionCoordinator } from "./practice-transition-coordinator.mjs";
+import { createAutomaticHandoffSelection } from "./selective-handoff.mjs";
 import { createSetupStore } from "./setup-store.mjs";
 import { createAppServerTeacherAdapter } from "./teacher-adapter.mjs";
 import { createWindowCoordinator } from "./window-coordinator.mjs";
 import { CHANNELS } from "../shared/channels.mjs";
 import { parseOnboardingContent } from "../shared/content-schema.mjs";
 
+import { migrateLegacyPracticeState } from "../shared/practice-state-schema.mjs";
 // Window security is applied by window-coordinator.mjs through window-policy.mjs.
 const mainDirectory = path.dirname(fileURLToPath(import.meta.url));
 const mockRoot = path.resolve(mainDirectory, "..", "..");
@@ -329,7 +335,9 @@ export async function startClientWithBoundedCleanup({
 let client = null;
 let auth = null;
 let practiceStore = null;
+let practiceWorkspaceStore = null;
 let orchestrator = null;
+let transitionCoordinator = null;
 let startupActivityReader = null;
 let startupTeacherAdapter = null;
 let applicationPromise = null;
@@ -337,6 +345,7 @@ let windowCreation = null;
 let retryPromise = null;
 let unregisterIpc = () => {};
 let unregisterPracticeIpc = () => {};
+let unregisterPracticeWorkspaceIpc = () => {};
 let removeAuthForwarder = () => {};
 let removePracticeForwarder = () => {};
 let cleanupFinished = false;
@@ -570,6 +579,10 @@ const cleanupController = createOrderedCleanup({
       unregisterPracticeIpc = () => {};
     },
     () => {
+      unregisterPracticeWorkspaceIpc();
+      unregisterPracticeWorkspaceIpc = () => {};
+    },
+    () => {
       removeAuthForwarder();
       removeAuthForwarder = () => {};
     },
@@ -590,6 +603,8 @@ const cleanupController = createOrderedCleanup({
         }
       }
       orchestrator = null;
+      transitionCoordinator = null;
+      practiceWorkspaceStore = null;
       startupActivityReader = null;
       startupTeacherAdapter = null;
     },
@@ -628,6 +643,9 @@ function createApplication() {
       assertCurrent();
       const setupStore = createSetupStore({ userDataPath: userDataPath() });
       practiceStore = createPracticeStore({ userDataPath: userDataPath() });
+      practiceWorkspaceStore = createPracticeWorkspaceStore({
+        userDataPath: userDataPath(),
+      });
       const practiceStartRequest = await loadPracticeStartRequest({
         fixturePath: path.join(
           mockRoot,
@@ -652,6 +670,17 @@ function createApplication() {
           fixtureServerPath ? Promise.resolve() : shell.openExternal(url)
         ),
       });
+      const executorChatCoordinator = createExecutorChatCoordinator({
+        client,
+        conversationService,
+        summarize: createAutomaticHandoffSelection,
+      });
+      transitionCoordinator = createPracticeTransitionCoordinator({
+        store: practiceWorkspaceStore,
+        chatCoordinator: executorChatCoordinator,
+        loadStartRequest: async () => structuredClone(practiceStartRequest),
+        createId: randomUUID,
+      });
       startupActivityReader = createExecutorActivityReader({ client });
       startupTeacherAdapter = createAppServerTeacherAdapter({
         client,
@@ -665,6 +694,25 @@ function createApplication() {
         teacherAdapter: startupTeacherAdapter,
       });
       await orchestrator.initialize();
+      assertCurrent();
+
+      let practiceWorkspaceState = await practiceWorkspaceStore.read();
+      const legacyPracticeState = await practiceStore.read();
+      if (!practiceWorkspaceState.activeRun && legacyPracticeState.activeSession) {
+        practiceWorkspaceState = await practiceWorkspaceStore.write(
+          migrateLegacyPracticeState(
+            legacyPracticeState,
+            practiceStartRequest.practiceDefinition,
+          ),
+        );
+      }
+      if (practiceWorkspaceState.pendingTransition) {
+        try {
+          await transitionCoordinator.retrySwitch();
+        } catch {
+          // The durable transition remains available to the explicit Retry action.
+        }
+      }
       assertCurrent();
 
       const persistedPracticeState = await practiceStore.read();
@@ -687,6 +735,13 @@ function createApplication() {
         orchestrator,
         windowActions,
       });
+      unregisterPracticeWorkspaceIpc = registerPracticeWorkspaceIpcHandlers({
+        ipcMain,
+        transitionCoordinator,
+        workspaceStore: practiceWorkspaceStore,
+        loadStartRequest: async () => structuredClone(practiceStartRequest),
+      });
+
       removeAuthForwarder = auth.onStatus((status) => {
         const mainWindow = coordinatorOwnership.current()?.getMainWindow();
         if (mainWindow && !mainWindow.isDestroyed()) {

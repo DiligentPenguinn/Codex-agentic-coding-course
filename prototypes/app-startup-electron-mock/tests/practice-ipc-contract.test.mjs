@@ -45,6 +45,14 @@ const PRACTICE_CHANNELS = Object.freeze({
   PRACTICE_STATE_CHANGED: "practice:state-changed",
 });
 
+const PRACTICE_WORKSPACE_CHANNELS = Object.freeze({
+  PRACTICE_WORKSPACE_GET: "practice:workspace:get",
+  PRACTICE_START_NEW: "practice:workspace:start-new",
+  PRACTICE_RESUME_ACTIVE: "practice:workspace:resume-active",
+  PRACTICE_RETRY_SWITCH: "practice:workspace:retry-switch",
+  PRACTICE_CANCEL_SWITCH: "practice:workspace:cancel-switch",
+});
+
 const fullViewModel = {
   session: {
     sessionId: "private-session",
@@ -136,12 +144,14 @@ function assertSanitizedFailure(result) {
 }
 
 test("keeps setup and auth channels unchanged and adds the exact Practice channels", () => {
-  for (const [key, value] of Object.entries({ ...LEGACY_CHANNELS, ...PRACTICE_CHANNELS })) {
+  const expectedChannels = { ...LEGACY_CHANNELS, ...PRACTICE_CHANNELS, ...PRACTICE_WORKSPACE_CHANNELS };
+  for (const [key, value] of Object.entries(expectedChannels)) {
     assert.equal(CHANNELS[key], value, key);
   }
   assert.deepEqual(Object.keys(CHANNELS).sort(), [
     ...Object.keys(LEGACY_CHANNELS),
     ...Object.keys(PRACTICE_CHANNELS),
+    ...Object.keys(PRACTICE_WORKSPACE_CHANNELS),
   ].sort());
   assert.equal(Object.isFrozen(CHANNELS), true);
 });
@@ -329,9 +339,10 @@ test("full preload preserves courseSetup and exposes only full Practice methods"
   ]);
   const practice = runtime.exposed.get("practice");
   assert.deepEqual(Object.keys(practice).sort(), [
-    "bindTask", "compact", "createTask", "getState", "listTasks",
-    "onStateChanged", "openTask", "rebind", "retry", "selectTab",
-    "sendTeacherMessage", "start",
+    "bindTask", "cancelSwitch", "compact", "createTask", "getState",
+    "getWorkspace", "listTasks", "onStateChanged", "openTask", "rebind",
+    "resumeActive", "retry", "retrySwitch", "selectTab", "sendTeacherMessage",
+    "start", "startNew",
   ]);
 
   await practice.getState();
@@ -345,6 +356,11 @@ test("full preload preserves courseSetup and exposes only full Practice methods"
   await practice.sendTeacherMessage("Hello");
   await practice.selectTab("teacher");
   await practice.compact();
+  await practice.getWorkspace();
+  await practice.startNew(true);
+  await practice.resumeActive();
+  await practice.retrySwitch();
+  await practice.cancelSwitch();
   assert.deepEqual(structuredClone(runtime.invocations), [
     ["practice:get-state"],
     ["practice:start"],
@@ -357,6 +373,11 @@ test("full preload preserves courseSetup and exposes only full Practice methods"
     ["practice:send-teacher", { text: "Hello" }],
     ["practice:select-tab", { tab: "teacher" }],
     ["practice:compact"],
+    ["practice:workspace:get"],
+    ["practice:workspace:start-new", { transfer: true }],
+    ["practice:workspace:resume-active"],
+    ["practice:workspace:retry-switch"],
+    ["practice:workspace:cancel-switch"],
   ]);
   assertStateListener(practice, runtime.listeners);
 });
