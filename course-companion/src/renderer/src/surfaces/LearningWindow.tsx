@@ -701,7 +701,6 @@ function PixelAppShell({
               <div>
                 <small>HOME BASE · LỘ TRÌNH</small>
                 <h1 id="homeBaseTitle">Lộ trình khóa học</h1>
-                <p>Chọn chặng có nhãn “Bạn đang ở đây” để tiếp tục học.</p>
               </div>
               <div className="pixel-course-progress">
                 <small>TIẾN ĐỘ TOÀN KHÓA</small>

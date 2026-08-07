@@ -1,5 +1,6 @@
 :root {
-  font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+  --app-font: "Be Vietnam Pro", sans-serif;
+  font-family: var(--app-font);
   color: #fff1ca;
   background: transparent;
   font-synthesis: none;
@@ -19,7 +20,7 @@
   --pixel-cream: #fff1ca;
   --pixel-muted: #a7b3ce;
   --pixel-shadow: 7px 7px 0 rgba(2, 5, 13, 0.82);
-  --pixel-font: "SFMono-Regular", "Cascadia Mono", "Liberation Mono", monospace;
+  --pixel-font: var(--app-font);
 }
 
 * { box-sizing: border-box; }
@@ -37,6 +38,9 @@ body,
 }
 
 button { color: inherit; font: inherit; }
+input,
+select,
+textarea { font-family: var(--app-font); }
 button:not(:disabled) { cursor: pointer; }
 button:focus-visible {
   outline: 4px solid var(--pixel-yellow);
@@ -435,7 +439,7 @@ button:focus-visible {
   text-align: center;
 }
 
-.pixel-loading--error span { color: var(--pixel-cream); font: 15px/1.5 "Trebuchet MS", sans-serif; }
+.pixel-loading--error span { color: var(--pixel-cream); font: 15px/1.5 var(--app-font); }
 .pixel-loading button { color: #11182a; background: var(--pixel-yellow); }
 
 .pixel-companion-surface {
@@ -629,7 +633,7 @@ button:focus-visible {
   outline: 0;
   color: var(--pixel-cream);
   background: #0b1329;
-  font: 12px/1.35 "Trebuchet MS", sans-serif;
+  font: 12px/1.35 var(--app-font);
 }
 .pixel-chat-composer textarea::placeholder { color: #7f8aa7; }
 .pixel-chat-composer textarea:focus { border-color: var(--pixel-sky); box-shadow: inset 0 0 0 1px var(--pixel-sky); }

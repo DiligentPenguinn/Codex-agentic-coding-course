@@ -116,6 +116,26 @@ try {
     .waitFor()
   await firstWindows.learningPage.getByText('TIẾN ĐỘ TOÀN KHÓA', { exact: true }).waitFor()
   await firstWindows.learningPage.getByText('BẠN ĐANG Ở ĐÂY', { exact: true }).waitFor()
+  assert.equal(
+    await firstWindows.learningPage
+      .getByText('Chọn chặng có nhãn “Bạn đang ở đây” để tiếp tục học.', { exact: true })
+      .count(),
+    0
+  )
+  const typography = await firstWindows.learningPage.evaluate(async () => {
+    await globalThis.document.fonts.ready
+    const heading = globalThis.document.querySelector('#homeBaseTitle')
+    return {
+      body: globalThis.getComputedStyle(globalThis.document.body).fontFamily,
+      heading: heading ? globalThis.getComputedStyle(heading).fontFamily : '',
+      regularLoaded: globalThis.document.fonts.check('400 16px "Be Vietnam Pro"', 'Tiếng Việt có dấu'),
+      boldLoaded: globalThis.document.fonts.check('800 16px "Be Vietnam Pro"', 'Lộ trình khóa học')
+    }
+  })
+  assert.match(typography.body, /Be Vietnam Pro/)
+  assert.match(typography.heading, /Be Vietnam Pro/)
+  assert.equal(typography.regularLoaded, true)
+  assert.equal(typography.boldLoaded, true)
   assert.equal(await firstWindows.learningPage.locator('.pixel-app-current').count(), 0)
   assert.equal(
     await firstWindows.learningPage.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(),

@@ -45,6 +45,14 @@ The accepted correction is:
   never a primary tab; and
 - progress and settings remain subordinate utility controls in the header.
 
+### Typography correction — 7 August 2026
+
+The Course Companion uses locally bundled **Be Vietnam Pro** for every surface,
+including Home Base, lessons, entry states, settings, chat, practice, and the
+floating Hương companion. The app does not depend on a remote font request at
+runtime. The redundant Home Base sentence explaining how to select **Bạn đang ở
+đây** was removed; the highlighted stage and its action now carry that meaning.
+
 The app becomes eligible for an external learner test only after those fixture
 adapters are replaced by live Teacher and Codex integrations and the integration
 gate in this document passes.
@@ -441,6 +449,9 @@ refreshed clean self-test copy passes the same complete Electron journey.
 - Progress hierarchy: Home Base shows course progress through the roadmap and
   **Tiến độ toàn khóa** badge; only the lesson surface shows step progress under
   **Bài học hiện tại**.
+- Typography: Be Vietnam Pro is bundled with the Electron renderer and applied
+  to body copy, headings, controls, lesson scenes, and both Hương surfaces; the
+  Electron smoke checks the loaded regular and bold Vietnamese faces.
 - Shared Teacher behavior: the right-docked Hương overlay and floating panel use
   the same chat, practice, checkpoint, and persistence component.
 - Real setting: `companionAlwaysOnTop` is validated, migrated from the old
