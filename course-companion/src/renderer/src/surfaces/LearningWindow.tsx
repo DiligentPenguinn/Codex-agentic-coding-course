@@ -654,11 +654,9 @@ function PixelAppShell({
   const moduleOneComplete = progress.sceneId === 'module-1-complete'
   const practice = progress.practice
 
-  const surfaceCopy: Record<Exclude<AppDestination, 'home' | 'lesson'>, { kicker: string; title: string; description: string }> = {
+  const surfaceCopy: Record<Exclude<AppDestination, 'home' | 'lesson'>, { kicker?: string; title: string; description?: string }> = {
     progress: {
-      kicker: 'TIẾN TRÌNH & BẰNG CHỨNG',
-      title: 'Những gì đã hoàn thành và cách bạn đã quyết định',
-      description: 'Tiến trình này được lưu cục bộ và khôi phục khi mở lại ứng dụng.'
+      title: 'Hồ sơ học tập'
     },
     settings: {
       kicker: 'CÀI ĐẶT',
@@ -682,7 +680,7 @@ function PixelAppShell({
             className={destination === 'progress' ? 'is-active' : ''}
             type="button"
             onClick={() => onNavigate('progress')}
-          >Tiến trình</button>
+          >Hồ sơ học tập</button>
           <button
             aria-current={destination === 'settings' ? 'page' : undefined}
             className={destination === 'settings' ? 'is-active' : ''}
@@ -744,9 +742,9 @@ function PixelAppShell({
         <section className={`pixel-app-surface is-${destination}`}>
           <header className="pixel-surface-heading">
             <div>
-              <small>{surfaceCopy[destination].kicker}</small>
+              {surfaceCopy[destination].kicker ? <small>{surfaceCopy[destination].kicker}</small> : null}
               <h1>{surfaceCopy[destination].title}</h1>
-              <p>{surfaceCopy[destination].description}</p>
+              {surfaceCopy[destination].description ? <p>{surfaceCopy[destination].description}</p> : null}
             </div>
             <button type="button" onClick={() => onNavigate('home')}>Về Home Base</button>
           </header>
