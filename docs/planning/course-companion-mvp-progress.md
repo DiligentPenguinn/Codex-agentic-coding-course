@@ -2,7 +2,7 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 4 adapter-driven practice loop verified; Increment 5 awaits approval
+**Current phase:** Increment 5 self-test release candidate verified; ready for Triết's personal walkthrough
 **Current decision:** Build a real fixture-backed desktop app for personal testing before live Teacher/Codex integration
 
 ## Product decision
@@ -238,6 +238,15 @@ finish. Live Teacher inference and live Codex observation remain excluded.
   secrets, or learner state.
 - Install dependencies inside the clean copy and repeat the self-test journey.
 
+**Status: Verified on macOS, 7 August 2026.** A committed-HEAD snapshot was
+created beside the working repository, audited before dependency installation,
+installed from the lockfile, and exercised through the complete real-Electron
+journey. The first rehearsal exposed a hard-coded Electron binary path in the
+smoke test; commit `8c11131` replaced it with Electron's runtime resolver. A
+second copy rebuilt from that checkpoint passed from a fresh install with no
+Electron runtime initially present. The copy is now ready for Triết's personal
+walkthrough; external testing remains behind the live integration gate.
+
 ## Increment 1 verification record — 6 August 2026
 
 - Runtime: Node.js 22.20.0 and npm 11.12.1.
@@ -340,6 +349,33 @@ finish. Live Teacher inference and live Codex observation remain excluded.
 - Deliberately absent: live Teacher inference, live Codex lifecycle events,
   automatic real-work evidence detection, and external learner validation.
 
+## Increment 5 verification record — 7 August 2026
+
+- Release source: `codex-content-creator-course-self-test-2026-08-07/` was
+  created beside the working repository from committed `HEAD`, excluding all
+  unrelated dirty work.
+- Initial hygiene audit: 236 committed files; no `.git`, `node_modules`, build
+  output, real environment file, live learner state, Teacher chat, or activity
+  log. Safe `.env.example`, schema, and example learner-state files remain by
+  design.
+- Locked install: `npm ci --offline` installed 202 packages and audited 203;
+  npm reported 0 vulnerabilities.
+- Clean-copy verification: typecheck and lint passed; 19/19 unit tests passed;
+  the production build succeeded.
+- Blocker found and fixed: the original smoke test hard-coded an Electron
+  binary path that does not exist immediately after Electron 43 installation.
+  It now imports Electron's official executable resolver.
+- Decisive desktop rehearsal: with no Electron `dist/` present before launch,
+  the resolver installed the runtime and the three-launch smoke passed journey
+  resume, reset, all six practice fixtures, reflection, debrief, Module 1
+  completion, Teacher chat, window lifecycle, security settings, and persisted
+  relaunch state.
+- Supported entry point: `npm run dev` built the Electron main/preload surfaces,
+  started the renderer server, and launched the app from the clean copy.
+- Handoff state: locked dependencies remain installed for personal testing;
+  generated `out/`, TypeScript build caches, and the temporary learner profile
+  were removed after verification.
+
 ## Progress snapshot
 
 Do not convert these gates into one percentage. A locked decision, implemented
@@ -355,7 +391,7 @@ progress.
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
 | Fixture practice loop | **Verified** | Six honest fixture states, evidence reflection, debrief, persistence, and real-app visual inspection pass. |
-| Personal self-test gate | **In progress** | P1–P5, P8, and P9 pass; P7 is partial and the remaining checks depend on Increments 4–5. |
+| Personal self-test gate | **Verified** | P1–P10 pass in source and in a rebuilt clean copy; Triết's hands-on walkthrough is next. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
 
@@ -368,11 +404,11 @@ progress.
 | P3 | A returning learner resumes the exact saved checkpoint. | Pass |
 | P4 | Closing the main window leaves the floating Teacher character running. | Pass |
 | P5 | Clicking the character opens chat and chat history survives a full restart. | Pass |
-| P6 | The practice journey responds correctly to success, approval, stale, offline, and error fixtures. | Not started |
-| P7 | Every simulated integration state is visibly identifiable as a fixture. | Partial — Teacher fixture passes; practice fixtures remain Increment 4 |
+| P6 | The practice journey responds correctly to success, approval, stale, offline, and error fixtures. | Pass |
+| P7 | Every simulated integration state is visibly identifiable as a fixture. | Pass |
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
-| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Partial — checks and build pass; clean-copy rehearsal belongs to Increment 5 |
+| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Pass |
 
 The personal-test MVP is complete only when P1–P10 pass. Passing source checks
 without verifying the desktop window lifecycle is insufficient.
@@ -411,7 +447,8 @@ increment. Aesthetic preference alone is not an MVP blocker.
 
 ## Next action
 
-Approve or revise the focused pixel-scene prototype. After approval, replace the
-generic Increment 1 renderer while preserving the verified Electron window and
-security architecture. Increment 2 does not begin until that visual correction
-is implemented and reverified.
+Triết performs one personal walkthrough from the clean self-test copy using
+`cd course-companion && npm run dev`. Record only blockers that prevent start,
+completion, resume, honest fixture interpretation, or the floating companion
+lifecycle. Do not invite an external tester or add Modules 2–6 until the live
+Teacher/Codex integration gate is intentionally opened and verified.
