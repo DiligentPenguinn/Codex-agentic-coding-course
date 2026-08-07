@@ -117,11 +117,14 @@ try {
   await capture(firstWindows.learningPage, 'home-base.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
-    const narrowWidths = await firstWindows.learningPage.evaluate(() => ({
-      body: document.body.scrollWidth,
-      document: document.documentElement.scrollWidth,
-      viewport: window.innerWidth
-    }))
+    const narrowWidths = await firstWindows.learningPage.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
     assert.equal(narrowWidths.body, narrowWidths.viewport)
     assert.equal(narrowWidths.document, narrowWidths.viewport)
     await capture(firstWindows.learningPage, 'home-base-390px.png')
