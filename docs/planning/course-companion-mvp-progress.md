@@ -2,8 +2,8 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 5 self-test release candidate verified; ready for Triết's personal walkthrough
-**Current decision:** Build a real fixture-backed desktop app for personal testing before live Teacher/Codex integration
+**Current phase:** Increment 6 complete app shell verified in source; clean self-test copy refresh pending
+**Current decision:** Use the pixel Home Base as the real product hub around the focused lesson and floating Hương
 
 ## Product decision
 
@@ -15,6 +15,11 @@ The personal-test version will provide a real Course Companion interface,
 desktop-window behavior, learner journey, local progress, resume behavior, and
 Teacher chat history. Teacher intelligence, Codex lifecycle events, and evidence
 detection will initially come through clearly labelled fixture adapters.
+
+The complete app now opens into a pixel Home Base with explicit access to the
+roadmap, current lesson, Hương, saved progress, and settings. The focused lesson
+remains a separate, distraction-limited scene, while the same Hương workspace is
+available both inside the full application and through the floating window.
 
 The app becomes eligible for an external learner test only after those fixture
 adapters are replaced by live Teacher and Codex integrations and the integration
@@ -35,8 +40,8 @@ The selected correction is one focused mission inside the existing pixel world:
   visible evidence changes;
 - practice mode uses a transparent floating Hương sprite that expands into a
   pixel dialogue panel; and
-- the complete clickable Home Base, hotspots, rewards, and game economy remain
-  deferred.
+- the Home Base, essential hotspots, roadmap, progress, and settings form the
+  product shell; rewards, streaks, inventory, and a game economy remain deferred.
 
 The disposable review surface is
 [`prototypes/course-companion-focused-pixel/`](../../prototypes/course-companion-focused-pixel/).
@@ -47,10 +52,11 @@ been migrated into the production Electron renderer.
 ## MVP finish line
 
 The personal-test MVP is complete when Triết can launch the Course Companion
-from the repository, complete or resume the Intro and Module 1 journey, move
-between the full learning window and the floating Teacher companion, exercise
-the complete practice-and-debrief loop through honest fixtures, quit the app,
-and recover the same state after relaunch.
+from the repository, complete or resume the Intro and Module 1 journey, orient
+from Home Base, inspect the roadmap and saved progress, change a real companion
+setting, move between the full learning window and the floating Teacher
+companion, exercise the complete practice-and-debrief loop through honest
+fixtures, quit the app, and recover the same state after relaunch.
 
 This finish line validates the product experience and desktop behavior. It does
 not validate live Teacher quality or real Codex observation.
@@ -61,6 +67,8 @@ not validate live Teacher quality or real Codex observation.
 Launch Course Companion
   -> load saved progress
   -> welcome a new learner or offer exact resume
+  -> open the pixel Home Base and choose a destination
+  -> inspect the Pilot roadmap, progress, Hương, or settings
   -> play an interactive character-led lesson scene
   -> present the current practice mission
   -> minimize the main window to the floating Teacher character
@@ -81,6 +89,11 @@ ends only through an explicit Quit action.
 - A production package at `course-companion/`.
 - Electron, React, and TypeScript.
 - A full learning window.
+- A pixel Home Base with working navigation to roadmap, lesson, Hương, progress,
+  and settings.
+- A roadmap that distinguishes the active Pilot from locked future modules.
+- A progress surface backed by the saved learner state.
+- A real setting for the floating companion's always-on-top behavior.
 - An always-on-top floating Teacher character.
 - An expandable Teacher chat panel.
 - Intro and Module 1 only.
@@ -95,8 +108,8 @@ ends only through an explicit Quit action.
 
 ### Explicitly deferred
 
-- A pixel-art Home Base or explorable room.
-- Hotspots, rewards, streaks, inventory, or a game economy.
+- Free movement or an explorable-room game.
+- Rewards, streaks, inventory, collectibles, or a game economy.
 - Voice interaction or continuous screen awareness.
 - Modules 2–6.
 - Real Teacher inference in Triết's implementation scope.
@@ -245,7 +258,24 @@ journey. The first rehearsal exposed a hard-coded Electron binary path in the
 smoke test; commit `8c11131` replaced it with Electron's runtime resolver. A
 second copy rebuilt from that checkpoint passed from a fresh install with no
 Electron runtime initially present. The copy is now ready for Triết's personal
-walkthrough; external testing remains behind the live integration gate.
+walkthrough of the pre-shell build. Increment 6 supersedes that copy, so it must
+be refreshed before the next personal walkthrough; external testing remains
+behind the live integration gate.
+
+### Increment 6 — Complete Course Companion shell
+
+- Make the pixel Home Base the new-start and resume destination.
+- Add explicit roadmap, lesson, Hương, progress, and settings navigation.
+- Reuse one Teacher workspace inside the full app and floating companion.
+- Persist and apply the floating companion's always-on-top setting.
+- Preserve the focused lesson and existing fixture practice loop.
+
+**Status: Verified in the source repository on macOS, 7 August 2026.** The real
+Electron flow opens Home Base, reaches all six destinations, applies the
+always-on-top setting to the native companion window, completes the full Pilot
+journey, restores Hương, and survives relaunch. Desktop and 390px screenshots
+confirm the pixel hierarchy and separate full-width narrow-layout rows. The
+clean self-test copy still needs to be rebuilt from this checkpoint.
 
 ## Increment 1 verification record — 6 August 2026
 
@@ -376,6 +406,27 @@ walkthrough; external testing remains behind the live integration gate.
   generated `out/`, TypeScript build caches, and the temporary learner profile
   were removed after verification.
 
+## Increment 6 verification record — 7 August 2026
+
+- Product shell: new start and resume now open Home Base instead of dropping
+  directly into one lesson scene.
+- Required destinations: Home Base, Lộ trình, Bài học, Hương, Tiến trình, and
+  Cài đặt are visible in one stable navigation bar.
+- Shared Teacher behavior: the full-app Hương workspace and floating panel use
+  the same chat, practice, checkpoint, and persistence component.
+- Real setting: `companionAlwaysOnTop` is validated, migrated from the old
+  mode-only settings file, persisted atomically, and applied to the native
+  BrowserWindow immediately.
+- Honesty: Teacher and Codex remain visibly labelled as local fixtures; the
+  settings surface does not imply a live connection.
+- Static and unit verification: typecheck and lint passed; 21/21 tests passed.
+- Desktop lifecycle smoke: the complete real-Electron journey passed across
+  Home Base, roadmap, embedded Hương, settings, lesson progression, all six
+  practice fixtures, floating Hương, reset, quit, and restart persistence.
+- Visual inspection: desktop captures show a restrained pixel product shell
+  over the established room; the 390px Home Base uses full-width stacked rows
+  with no horizontal overflow.
+
 ## Progress snapshot
 
 Do not convert these gates into one percentage. A locked decision, implemented
@@ -388,10 +439,11 @@ progress.
 | Production location | **Locked** | The real package is `course-companion/`; prototypes remain references. |
 | Desktop shell | **Verified with MVP pixel renderer** | Electron lifecycle, security, real-app visual inspection, and narrow-width inspection pass. |
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
+| Complete app shell | **Verified in source** | Home Base, roadmap, lesson, embedded Hương, progress, and working settings pass in real Electron; clean-copy refresh is next. |
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
 | Fixture practice loop | **Verified** | Six honest fixture states, evidence reflection, debrief, persistence, and real-app visual inspection pass. |
-| Personal self-test gate | **Verified** | P1–P10 pass in source and in a rebuilt clean copy; Triết's hands-on walkthrough is next. |
+| Personal self-test gate | **Refresh required** | P1–P11 pass in source; the clean copy must be rebuilt after the Increment 6 checkpoint. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
 
@@ -408,9 +460,10 @@ progress.
 | P7 | Every simulated integration state is visibly identifiable as a fixture. | Pass |
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
-| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Pass |
+| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Source pass; clean-copy refresh pending |
+| P11 | Home Base exposes roadmap, lesson, Hương, progress, and working settings without bypassing the focused lesson. | Pass in source; clean-copy proof pending |
 
-The personal-test MVP is complete only when P1–P10 pass. Passing source checks
+The personal-test MVP is complete only when P1–P11 pass. Passing source checks
 without verifying the desktop window lifecycle is insufficient.
 
 ## External tester integration gate
@@ -447,8 +500,10 @@ increment. Aesthetic preference alone is not an MVP blocker.
 
 ## Next action
 
-Triết performs one personal walkthrough from the clean self-test copy using
-`cd course-companion && npm run dev`. Record only blockers that prevent start,
-completion, resume, honest fixture interpretation, or the floating companion
-lifecycle. Do not invite an external tester or add Modules 2–6 until the live
-Teacher/Codex integration gate is intentionally opened and verified.
+Rebuild the clean self-test copy from the Increment 6 checkpoint, install its
+locked dependencies, and repeat the complete Electron smoke once there. Then
+Triết performs one personal walkthrough using `cd course-companion && npm run
+dev`. Record only blockers that prevent start, orientation, completion, resume,
+honest fixture interpretation, or the floating companion lifecycle. Do not
+invite an external tester or add Modules 2–6 until the live Teacher/Codex
+integration gate is intentionally opened and verified.

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import electronExecutable from 'electron'
@@ -7,6 +7,16 @@ import { _electron as electron } from 'playwright-core'
 
 const mainEntry = join(process.cwd(), 'out/main/index.js')
 const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electron-'))
+const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
+
+async function capture(page, filename) {
+  if (!screenshotDirectory) return
+  await mkdir(screenshotDirectory, { recursive: true })
+  await page.screenshot({
+    animations: 'disabled',
+    path: join(screenshotDirectory, filename)
+  })
+}
 
 async function launchCourseCompanion() {
   return electron.launch({
@@ -99,7 +109,32 @@ try {
   assert.equal(companionWindow(initial)?.alwaysOnTop, true)
 
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu phần giới thiệu' })
+    .getByRole('button', { name: 'Bắt đầu và mở Home Base' })
+    .click()
+  await firstWindows.learningPage
+    .getByRole('heading', { name: 'Hành trình học của bạn' })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'home-base.png')
+  if (screenshotDirectory) {
+    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+    const narrowWidths = await firstWindows.learningPage.evaluate(() => ({
+      body: document.body.scrollWidth,
+      document: document.documentElement.scrollWidth,
+      viewport: window.innerWidth
+    }))
+    assert.equal(narrowWidths.body, narrowWidths.viewport)
+    assert.equal(narrowWidths.document, narrowWidths.viewport)
+    await capture(firstWindows.learningPage, 'home-base-390px.png')
+    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
+  await firstWindows.learningPage.getByRole('button', { name: /LỘ TRÌNH/ }).click()
+  await firstWindows.learningPage
+    .getByRole('heading', { name: 'Biết mình đang ở đâu và điều gì đến tiếp theo' })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'roadmap.png')
+  await firstWindows.learningPage.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Tiếp tục bài học hiện tại' })
     .click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
@@ -127,7 +162,32 @@ try {
   await learningPage
     .getByRole('heading', { name: 'Bắt đầu hành trình ContentPilot' })
     .waitFor()
-  await learningPage.getByRole('button', { name: 'Bắt đầu phần giới thiệu' }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu và mở Home Base' }).click()
+  await learningPage.getByRole('button', { name: 'Hương', exact: true }).click()
+  await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
+  await learningPage
+    .getByLabel('Hương, giáo viên đồng hành')
+    .getByRole('button', { name: 'Về Home Base' })
+    .click()
+  await learningPage.getByRole('button', { name: 'Cài đặt', exact: true }).click()
+  await capture(learningPage, 'settings.png')
+  const alwaysOnTopSwitch = learningPage.getByRole('switch', {
+    name: 'Luôn ở phía trên cửa sổ khác'
+  })
+  await alwaysOnTopSwitch.click()
+  const notFloating = await waitForSnapshot(
+    resumedLaunch,
+    (windows) => companionWindow(windows)?.alwaysOnTop === false,
+    'Expected Settings to disable always-on-top for the Teacher companion'
+  )
+  assert.equal(companionWindow(notFloating)?.alwaysOnTop, false)
+  await alwaysOnTopSwitch.click()
+  await waitForSnapshot(
+    resumedLaunch,
+    (windows) => companionWindow(windows)?.alwaysOnTop === true,
+    'Expected Settings to restore always-on-top for the Teacher companion'
+  )
+  await learningPage.getByRole('button', { name: 'Bài học', exact: true }).click()
   await learningPage
     .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
     .click()
@@ -211,7 +271,7 @@ try {
   await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
   await companionPage.getByText('BẰNG CHỨNG MỚI · MÔ PHỎNG', { exact: true }).waitFor()
 
-  await companionPage.getByRole('button', { name: 'Mở lại bài học' }).click()
+  await companionPage.getByRole('button', { name: 'Mở bài học' }).click()
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
@@ -303,7 +363,7 @@ try {
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: journey resume, reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
+    'Electron smoke: Home Base, roadmap, embedded Teacher, settings, journey resume/reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'node:path'
 import type {
   CompanionMode,
+  AppSettingsUpdate,
   PracticeFixtureRequest,
   ProgressUpdate,
   RuntimeInfo,
@@ -11,6 +12,7 @@ import { isProgressUpdate, ProgressRepository } from './progress-repository'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
   FixtureTeacherAdapter,
+  isAppSettingsUpdate,
   isTeacherSendRequest,
   TeacherChatRepository
 } from './teacher-fixture'
@@ -24,6 +26,7 @@ let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
+let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
@@ -91,7 +94,7 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
     minimizable: false,
     fullscreenable: false,
     skipTaskbar: true,
-    alwaysOnTop: true,
+    alwaysOnTop: companionAlwaysOnTop,
     hasShadow: false,
     webPreferences: {
       preload: rendererPreloadPath(),
@@ -101,7 +104,7 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
     }
   })
 
-  window.setAlwaysOnTop(true, 'floating')
+  window.setAlwaysOnTop(companionAlwaysOnTop, 'floating')
   window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false })
 
   window.on('close', (event) => {
@@ -138,6 +141,8 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:reset-progress', async () => {
     await Promise.all([progressRepository.reset(), teacherAdapter.reset()])
     companionMode = 'compact'
+    companionAlwaysOnTop = true
+    companionWindow?.setAlwaysOnTop(true, 'floating')
     positionCompanion(companionMode, false)
   })
 
@@ -147,6 +152,18 @@ function registerIpcHandlers(): void {
   }))
 
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
+
+  ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
+
+  ipcMain.handle('course:save-app-settings', async (_event, update: AppSettingsUpdate) => {
+    if (!isAppSettingsUpdate(update)) throw new Error('Invalid app settings update')
+    companionAlwaysOnTop = update.companionAlwaysOnTop
+    companionWindow?.setAlwaysOnTop(companionAlwaysOnTop, companionAlwaysOnTop ? 'floating' : 'normal')
+    return teacherRepository.saveSettings({
+      companionMode,
+      companionAlwaysOnTop
+    })
+  })
 
   ipcMain.handle(
     'course:emit-practice-fixture',
@@ -216,7 +233,9 @@ app.on('activate', () => {
 
 app.whenReady().then(async () => {
   registerIpcHandlers()
-  companionMode = await teacherRepository.loadMode()
+  const settings = await teacherRepository.loadSettings()
+  companionMode = settings.companionMode
+  companionAlwaysOnTop = settings.companionAlwaysOnTop
   companionWindow = createCompanionWindow(companionMode)
   mainWindow = createMainWindow()
 })

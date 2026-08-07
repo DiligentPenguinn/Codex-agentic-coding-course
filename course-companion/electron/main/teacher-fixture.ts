@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto'
 import {
   checkpointIds,
   sceneIds,
+  type AppSettings,
+  type AppSettingsUpdate,
   type CheckpointId,
   type CompanionMode,
   type TeacherAdapter,
@@ -25,6 +27,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isCompanionMode(value: unknown): value is CompanionMode {
   return value === 'compact' || value === 'expanded'
+}
+
+const defaultAppSettings: AppSettings = {
+  companionMode: 'compact',
+  companionAlwaysOnTop: true
+}
+
+function isAppSettings(value: unknown): value is AppSettings {
+  return (
+    isRecord(value) &&
+    isCompanionMode(value.companionMode) &&
+    typeof value.companionAlwaysOnTop === 'boolean'
+  )
+}
+
+export function isAppSettingsUpdate(value: unknown): value is AppSettingsUpdate {
+  return isRecord(value) && typeof value.companionAlwaysOnTop === 'boolean'
 }
 
 function isCheckpointId(value: unknown): value is CheckpointId {
@@ -128,19 +147,34 @@ export class TeacherChatRepository {
   }
 
   async loadMode(): Promise<CompanionMode> {
+    return (await this.loadSettings()).companionMode
+  }
+
+  async loadSettings(): Promise<AppSettings> {
     try {
       const parsed: unknown = JSON.parse(await readFile(this.settingsPath, 'utf8'))
-      return isRecord(parsed) && isCompanionMode(parsed.mode) ? parsed.mode : 'compact'
+      if (isAppSettings(parsed)) return parsed
+      if (isRecord(parsed) && isCompanionMode(parsed.mode)) {
+        return { ...defaultAppSettings, companionMode: parsed.mode }
+      }
+      return defaultAppSettings
     } catch {
-      return 'compact'
+      return defaultAppSettings
     }
   }
 
   async saveMode(mode: CompanionMode): Promise<void> {
     if (!isCompanionMode(mode)) throw new Error('Unsupported companion mode')
+    const current = await this.loadSettings()
+    await this.saveSettings({ ...current, companionMode: mode })
+  }
+
+  async saveSettings(settings: AppSettings): Promise<AppSettings> {
+    if (!isAppSettings(settings)) throw new Error('Invalid app settings')
     await mkdir(this.dataDirectory, { recursive: true })
-    await writeFile(this.settingsTempPath, `${JSON.stringify({ mode }, null, 2)}\n`, 'utf8')
+    await writeFile(this.settingsTempPath, `${JSON.stringify(settings, null, 2)}\n`, 'utf8')
     await rename(this.settingsTempPath, this.settingsPath)
+    return settings
   }
 
   async reset(): Promise<void> {

@@ -6,6 +6,13 @@ export type RuntimeInfo = {
 
 export type CompanionMode = 'compact' | 'expanded'
 
+export type AppSettings = {
+  companionMode: CompanionMode
+  companionAlwaysOnTop: boolean
+}
+
+export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
+
 export const COURSE_VERSION = '0.1.0'
 export const LEARNER_STATE_SCHEMA_VERSION = 2
 
@@ -189,6 +196,8 @@ export type CourseCompanionApi = {
   loadPracticeState: () => Promise<PracticeState>
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
   onLearningWindowShown: (callback: () => void) => () => void
+  loadAppSettings: () => Promise<AppSettings>
+  saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
   showLearningWindow: () => Promise<void>
   hideLearningWindow: () => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>

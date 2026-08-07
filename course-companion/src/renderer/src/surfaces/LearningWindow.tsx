@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  checkpointIds,
+  type AppSettings,
   type PracticeState,
   type CheckpointId,
   type LearnerProgress,
@@ -13,6 +15,7 @@ import {
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
 import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 type EvidenceItem = {
   label: string
@@ -449,7 +452,8 @@ const scenes: Record<SceneId, SceneContent> = {
   }
 }
 
-type View = 'loading' | 'welcome' | 'resume' | 'lesson' | 'reset-confirm' | 'reset-required' | 'error'
+type View = 'loading' | 'welcome' | 'resume' | 'app' | 'reset-confirm' | 'reset-required' | 'error'
+type AppDestination = 'home' | 'roadmap' | 'lesson' | 'teacher' | 'progress' | 'settings'
 
 const sceneStyle = { '--pixel-room-image': `url("${roomImage}")` } as CSSProperties
 
@@ -465,6 +469,11 @@ function initialUpdate(): ProgressUpdate {
 
 function emptyPracticeState(): PracticeState {
   return { missionId: 'm1-verifiable-brief', status: 'idle' }
+}
+
+const defaultAppSettings: AppSettings = {
+  companionMode: 'compact',
+  companionAlwaysOnTop: true
 }
 
 function previewProgress(update: ProgressUpdate, previous?: LearnerProgress): LearnerProgress {
@@ -552,10 +561,268 @@ function EntryScreen({
             </button>
           ) : null}
           <button type="button" className="pixel-entry-primary" disabled={busy} onClick={onPrimary}>
-            {busy ? 'Đang lưu…' : isWelcome ? 'Bắt đầu phần giới thiệu' : isConfirm ? 'Xóa và bắt đầu lại' : 'Tiếp tục bài học'}
+            {busy ? 'Đang lưu…' : isWelcome ? 'Bắt đầu và mở Home Base' : isConfirm ? 'Xóa và bắt đầu lại' : 'Mở Course Companion'}
           </button>
         </div>
       </section>
+    </main>
+  )
+}
+
+const appNavigation: Array<{ id: AppDestination; label: string; mark: string }> = [
+  { id: 'home', label: 'Home Base', mark: '⌂' },
+  { id: 'roadmap', label: 'Lộ trình', mark: '◇' },
+  { id: 'lesson', label: 'Bài học', mark: '▶' },
+  { id: 'teacher', label: 'Hương', mark: 'H' },
+  { id: 'progress', label: 'Tiến trình', mark: '✓' },
+  { id: 'settings', label: 'Cài đặt', mark: '⚙' }
+]
+
+const futureModules = [
+  'Thiết lập thương hiệu và giọng viết',
+  'Nghiên cứu có bằng chứng',
+  'Tạo và chọn ý tưởng',
+  'Phát triển nội dung',
+  'Kiểm tra và bàn giao'
+]
+
+const decisionLabels: Record<string, string> = {
+  firstEvidence: 'Bằng chứng đầu tiên',
+  timeBudget: 'Thời lượng học',
+  humanControl: 'Quyền kiểm soát',
+  practiceContext: 'Ngữ cảnh thực hành',
+  platform: 'Nền tảng',
+  readiness: 'Mức sẵn sàng',
+  evidenceReview: 'Cách duyệt bằng chứng'
+}
+
+const decisionValues: Record<string, string> = {
+  'project-and-scope': 'Dự án và phạm vi',
+  'source-files': 'Các tệp nguồn',
+  'content-review': 'Duyệt nội dung và thông tin',
+  publishing: 'Quyết định xuất bản',
+  'real-work': 'Công việc thật',
+  'moc-hoc': 'Thương hiệu mẫu Mộc Học',
+  linkedin: 'LinkedIn',
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  passed: 'Đã sẵn sàng',
+  'current-and-matches': 'Bằng chứng mới và khớp tiêu chí'
+}
+
+type PixelAppShellProps = {
+  progress: LearnerProgress
+  runtime: RuntimeInfo | null
+  destination: AppDestination
+  settings: AppSettings
+  onNavigate: (destination: AppDestination) => void
+  onMinimize: () => void
+  onQuit: () => void
+  onReset: () => void
+  onSettingsChange: (alwaysOnTop: boolean) => void
+}
+
+function PixelAppShell({
+  progress,
+  runtime,
+  destination,
+  settings,
+  onNavigate,
+  onMinimize,
+  onQuit,
+  onReset,
+  onSettingsChange
+}: PixelAppShellProps) {
+  const [confirmReset, setConfirmReset] = useState(false)
+  const scene = scenes[progress.sceneId]
+  const completed = new Set(progress.completedCheckpointIds)
+  if (progress.sceneId === 'intro-complete' || progress.sceneId === 'module-1-complete') {
+    completed.add(progress.checkpointId)
+  }
+  const progressPercent = Math.round((completed.size / checkpointIds.length) * 100)
+  const introComplete = progress.currentLessonId === 'module-1' || completed.has('intro-complete')
+  const moduleOneComplete = progress.sceneId === 'module-1-complete'
+  const practice = progress.practice
+
+  const surfaceCopy: Record<Exclude<AppDestination, 'home' | 'lesson'>, { kicker: string; title: string; description: string }> = {
+    roadmap: {
+      kicker: 'LỘ TRÌNH HỌC',
+      title: 'Biết mình đang ở đâu và điều gì đến tiếp theo',
+      description: 'Pilot hiện mở Phần giới thiệu và Module 1. Các module sau vẫn khóa để giữ đúng phạm vi.'
+    },
+    teacher: {
+      kicker: 'TEACHER WORKSPACE',
+      title: 'Hương đồng hành cùng checkpoint hiện tại',
+      description: 'Chat và trạng thái thực hành dùng cùng dữ liệu với Hương nổi.'
+    },
+    progress: {
+      kicker: 'TIẾN TRÌNH & BẰNG CHỨNG',
+      title: 'Những gì đã hoàn thành và cách bạn đã quyết định',
+      description: 'Tiến trình này được lưu cục bộ và khôi phục khi mở lại ứng dụng.'
+    },
+    settings: {
+      kicker: 'CÀI ĐẶT',
+      title: 'Điều khiển hành vi ứng dụng và dữ liệu cục bộ',
+      description: 'Chỉ các cài đặt đang hoạt động thật mới xuất hiện ở đây.'
+    }
+  }
+
+  return (
+    <main className="pixel-course-app">
+      <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
+
+      <header className="pixel-app-header">
+        <button className="pixel-app-brand" type="button" onClick={() => onNavigate('home')}>
+          <span>C</span>
+          <span><strong>CONTENT BUILDER ACADEMY</strong><small>COURSE COMPANION · PILOT 0.1</small></span>
+        </button>
+        <div className="pixel-app-current">
+          <span>{scene.lessonId === 'intro' ? 'PHẦN GIỚI THIỆU' : 'MODULE 1'} · {scene.step}/{scene.totalSteps}</span>
+          <strong>{scene.objective}</strong>
+          <i><b style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></i>
+        </div>
+        <div className="pixel-app-actions">
+          <button type="button" onClick={onMinimize}>Thu nhỏ về Hương</button>
+          <button type="button" onClick={onQuit}>Thoát · v{runtime?.appVersion ?? '…'}</button>
+        </div>
+      </header>
+
+      <nav className="pixel-app-nav" aria-label="Điều hướng Course Companion">
+        {appNavigation.map((item) => (
+          <button
+            aria-current={destination === item.id ? 'page' : undefined}
+            className={destination === item.id ? 'is-active' : ''}
+            key={item.id}
+            type="button"
+            onClick={() => onNavigate(item.id)}
+          >
+            <span aria-hidden="true">{item.mark}</span>
+            <strong>{item.label}</strong>
+          </button>
+        ))}
+      </nav>
+
+      {destination === 'home' ? (
+        <section className="pixel-home-base" aria-labelledby="homeBaseTitle">
+          <div className="pixel-home-heading">
+            <small>HOME BASE</small>
+            <h1 id="homeBaseTitle">Hành trình học của bạn</h1>
+            <p>{scene.mission}</p>
+          </div>
+
+          <button className="pixel-home-hotspot is-roadmap" type="button" onClick={() => onNavigate('roadmap')}>
+            <span>◇</span><small>LỘ TRÌNH</small><strong>{introComplete ? 'Module 1 đang mở' : 'Bắt đầu từ phần giới thiệu'}</strong>
+          </button>
+          <button className="pixel-home-hotspot is-lesson" type="button" onClick={() => onNavigate('lesson')}>
+            <span>▶</span><small>BÀI HỌC HIỆN TẠI</small><strong>{scene.objective}</strong>
+          </button>
+          <button className="pixel-home-teacher" type="button" onClick={() => onNavigate('teacher')}>
+            <img src={teacherImage} alt="" />
+            <span><small>TEACHER · MÔ PHỎNG</small><strong>Hương</strong><em>Mở không gian đồng hành</em></span>
+          </button>
+          <button className="pixel-home-hotspot is-progress" type="button" onClick={() => onNavigate('progress')}>
+            <span>✓</span><small>TIẾN TRÌNH</small><strong>{completed.size}/{checkpointIds.length} checkpoint · {progressPercent}%</strong>
+          </button>
+          <button className="pixel-home-hotspot is-settings" type="button" onClick={() => onNavigate('settings')}>
+            <span>⚙</span><small>CÀI ĐẶT</small><strong>Dữ liệu và Hương nổi</strong>
+          </button>
+        </section>
+      ) : destination === 'lesson' ? null : (
+        <section className={`pixel-app-surface is-${destination}`}>
+          <header className="pixel-surface-heading">
+            <div>
+              <small>{surfaceCopy[destination].kicker}</small>
+              <h1>{surfaceCopy[destination].title}</h1>
+              <p>{surfaceCopy[destination].description}</p>
+            </div>
+            <button type="button" onClick={() => onNavigate('home')}>Về Home Base</button>
+          </header>
+
+          {destination === 'roadmap' ? (
+            <div className="pixel-roadmap">
+              <article className={introComplete ? 'is-complete' : 'is-current'}>
+                <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Làm quen với Course Companion và quyền quyết định</strong><p>{introComplete ? 'Đã hoàn thành' : 'Đang học'}</p></div><em>{introComplete ? 'HOÀN THÀNH' : 'HIỆN TẠI'}</em>
+              </article>
+              <article className={moduleOneComplete ? 'is-complete' : progress.currentLessonId === 'module-1' ? 'is-current' : ''}>
+                <span>01</span><div><small>MODULE 1</small><strong>Viết yêu cầu để Codex có thể kiểm chứng</strong><p>{moduleOneComplete ? 'Đã hoàn thành' : progress.currentLessonId === 'module-1' ? scene.objective : 'Mở sau phần giới thiệu'}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : progress.currentLessonId === 'module-1' ? 'HIỆN TẠI' : 'TIẾP THEO'}</em>
+              </article>
+              {futureModules.map((title, index) => (
+                <article className="is-locked" key={title}>
+                  <span>{String(index + 2).padStart(2, '0')}</span><div><small>MODULE {index + 2}</small><strong>{title}</strong><p>Ngoài phạm vi Pilot 0.1</p></div><em>ĐÃ KHÓA</em>
+                </article>
+              ))}
+              <button className="pixel-roadmap-continue" type="button" onClick={() => onNavigate('lesson')}>Tiếp tục bài học hiện tại</button>
+            </div>
+          ) : null}
+
+          {destination === 'teacher' ? (
+            <div className="pixel-embedded-teacher">
+              <TeacherWorkspace embedded onClose={() => onNavigate('home')} onOpenLesson={() => onNavigate('lesson')} />
+            </div>
+          ) : null}
+
+          {destination === 'progress' ? (
+            <div className="pixel-progress-surface">
+              <section className="pixel-progress-summary">
+                <div><small>CHECKPOINT</small><strong>{completed.size}/{checkpointIds.length}</strong><span>Đã ghi nhận</span></div>
+                <div><small>BÀI HIỆN TẠI</small><strong>{scene.step}/{scene.totalSteps}</strong><span>{scene.lessonLabel}</span></div>
+                <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Mô phỏng đã lưu' : 'Chưa có sự kiện'}</span></div>
+              </section>
+              <section className="pixel-progress-detail">
+                <div>
+                  <small>CHECKPOINT HIỆN TẠI</small>
+                  <h2>{scene.objective}</h2>
+                  <p>{scene.mission}</p>
+                  <button type="button" onClick={() => onNavigate('lesson')}>Mở bài học</button>
+                </div>
+                <div>
+                  <small>QUYẾT ĐỊNH ĐÃ LƯU</small>
+                  {Object.keys(progress.decisions).length === 0 ? <p>Chưa có quyết định nào.</p> : (
+                    <dl>
+                      {Object.entries(progress.decisions).map(([key, value]) => (
+                        <div key={key}><dt>{decisionLabels[key] ?? key}</dt><dd>{key === 'timeBudget' ? `${value} phút` : decisionValues[value] ?? value}</dd></div>
+                      ))}
+                    </dl>
+                  )}
+                </div>
+              </section>
+              {practice.latestEvent?.evidence ? (
+                <section className="pixel-evidence-receipt">
+                  <small>BẰNG CHỨNG THỰC HÀNH · MÔ PHỎNG</small>
+                  <strong>{practice.latestEvent.summary}</strong>
+                  <div><span>Viewport {practice.latestEvent.evidence.viewport}</span><span>{practice.latestEvent.evidence.changedScope}</span><span>{practice.latestEvent.evidence.horizontalOverflow}</span></div>
+                </section>
+              ) : null}
+            </div>
+          ) : null}
+
+          {destination === 'settings' ? (
+            <div className="pixel-settings">
+              <section>
+                <div><small>HƯƠNG NỔI</small><h2>Luôn ở phía trên cửa sổ khác</h2><p>Tắt tùy chọn này nếu Hương che khuất công việc trong Codex.</p></div>
+                <button
+                  aria-label="Luôn ở phía trên cửa sổ khác"
+                  aria-checked={settings.companionAlwaysOnTop}
+                  className={settings.companionAlwaysOnTop ? 'is-on' : ''}
+                  role="switch"
+                  type="button"
+                  onClick={() => onSettingsChange(!settings.companionAlwaysOnTop)}
+                ><span>{settings.companionAlwaysOnTop ? 'BẬT' : 'TẮT'}</span></button>
+              </section>
+              <section>
+                <div><small>KẾT NỐI</small><h2>Teacher và Codex</h2><p>Ứng dụng hiện chỉ dùng phản hồi và sự kiện mô phỏng cục bộ.</p></div>
+                <strong className="pixel-settings-status">MÔ PHỎNG · CHƯA LIVE</strong>
+              </section>
+              <section className="is-danger-zone">
+                <div><small>DỮ LIỆU CỤC BỘ</small><h2>Xóa hành trình và bắt đầu lại</h2><p>Xóa checkpoint, quyết định, chat, thực hành và cài đặt trên máy này.</p></div>
+                {confirmReset ? (
+                  <div className="pixel-settings-confirm"><button type="button" onClick={() => setConfirmReset(false)}>Hủy</button><button type="button" onClick={onReset}>Xóa toàn bộ dữ liệu</button></div>
+                ) : <button type="button" onClick={() => setConfirmReset(true)}>Bắt đầu lại</button>}
+              </section>
+            </div>
+          ) : null}
+        </section>
+      )}
     </main>
   )
 }
@@ -567,6 +834,8 @@ export function LearningWindow() {
   const [recovered, setRecovered] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [destination, setDestination] = useState<AppDestination>('home')
+  const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
@@ -596,11 +865,13 @@ export function LearningWindow() {
     const load = async () => {
       try {
         const api = window.courseCompanion
-        const [runtimeInfo, loadResult]: [RuntimeInfo | null, ProgressLoadResult] = await Promise.all([
+        const [runtimeInfo, loadResult, loadedSettings]: [RuntimeInfo | null, ProgressLoadResult, AppSettings] = await Promise.all([
           api?.getRuntimeInfo() ?? Promise.resolve(null),
-          api?.loadProgress() ?? Promise.resolve({ status: 'new' as const })
+          api?.loadProgress() ?? Promise.resolve({ status: 'new' as const }),
+          api?.loadAppSettings() ?? Promise.resolve(defaultAppSettings)
         ])
         setRuntime(runtimeInfo)
+        setAppSettings(loadedSettings)
 
         if (loadResult.status === 'new') {
           setView('welcome')
@@ -662,7 +933,8 @@ export function LearningWindow() {
     try {
       await persist(initialUpdate())
       setRecovered(false)
-      setView('lesson')
+      setDestination('home')
+      setView('app')
     } catch {
       setError('Không thể tạo tiến trình mới.')
       setView('error')
@@ -676,6 +948,8 @@ export function LearningWindow() {
     try {
       await window.courseCompanion?.resetProgress()
       setProgress(null)
+      setAppSettings(defaultAppSettings)
+      setDestination('home')
       setRecovered(false)
       setView('welcome')
     } catch {
@@ -689,6 +963,18 @@ export function LearningWindow() {
   const minimizeToTeacher = async () => {
     await window.courseCompanion?.setCompanionMode('compact')
     await window.courseCompanion?.hideLearningWindow()
+  }
+
+  const updateAppSettings = async (companionAlwaysOnTop: boolean) => {
+    setError('')
+    try {
+      const saved = window.courseCompanion
+        ? await window.courseCompanion.saveAppSettings({ companionAlwaysOnTop })
+        : { ...appSettings, companionAlwaysOnTop }
+      setAppSettings(saved)
+    } catch {
+      setError('Không thể lưu cài đặt Hương nổi.')
+    }
   }
 
   const choose = async (choice: Choice) => {
@@ -737,7 +1023,14 @@ export function LearningWindow() {
         progress={progress}
         recovered={recovered}
         busy={busy}
-        onPrimary={() => void (view === 'resume' ? setView('lesson') : view === 'welcome' ? startNew() : reset())}
+        onPrimary={() => {
+          if (view === 'resume') {
+            setDestination('home')
+            setView('app')
+            return
+          }
+          void (view === 'welcome' ? startNew() : reset())
+        }}
         onReset={() => setView('reset-confirm')}
         onCancelReset={() => setView(progress ? 'resume' : 'welcome')}
       />
@@ -754,6 +1047,22 @@ export function LearningWindow() {
     )
   }
 
+  if (destination !== 'lesson') {
+    return (
+      <PixelAppShell
+        progress={progress}
+        runtime={runtime}
+        destination={destination}
+        settings={appSettings}
+        onNavigate={setDestination}
+        onMinimize={() => void minimizeToTeacher()}
+        onQuit={() => void window.courseCompanion?.quitApp()}
+        onReset={() => void reset()}
+        onSettingsChange={(alwaysOnTop) => void updateAppSettings(alwaysOnTop)}
+      />
+    )
+  }
+
   const scene = scenes[progress.sceneId]
 
   return (
@@ -761,18 +1070,21 @@ export function LearningWindow() {
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
-        <div className="pixel-brand">
+        <button className="pixel-brand pixel-brand--button" type="button" onClick={() => setDestination('home')}>
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
-          <span><strong>CONTENT BUILDER ACADEMY</strong><small>PIXEL MISSION STUDIO</small></span>
-        </div>
+          <span><strong>CONTENT BUILDER ACADEMY</strong><small>VỀ HOME BASE</small></span>
+        </button>
         <div className="pixel-mission-meta" aria-label={`Bước ${scene.step} trên ${scene.totalSteps}`}>
           <span>{scene.lessonId === 'intro' ? 'INTRO' : 'NHIỆM VỤ 01'} · BƯỚC {scene.step}/{scene.totalSteps}</span>
           <strong>{scene.mission}</strong>
           <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></div>
         </div>
-        <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
-          THOÁT · v{runtime?.appVersion ?? '…'}
-        </button>
+        <div className="pixel-hud-actions">
+          <button className="pixel-hud-teacher" type="button" onClick={() => setDestination('teacher')}>HỎI HƯƠNG</button>
+          <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
+            THOÁT · v{runtime?.appVersion ?? '…'}
+          </button>
+        </div>
       </header>
 
       <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>

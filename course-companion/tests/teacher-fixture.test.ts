@@ -65,6 +65,39 @@ describe('FixtureTeacherAdapter', () => {
     await expect(repository.loadMode()).resolves.toBe('compact')
     await repository.saveMode('expanded')
     await expect(repository.loadMode()).resolves.toBe('expanded')
+    await expect(repository.loadSettings()).resolves.toEqual({
+      companionMode: 'expanded',
+      companionAlwaysOnTop: true
+    })
+  })
+
+  it('persists the floating Teacher setting while preserving companion mode', async () => {
+    const repository = new TeacherChatRepository(await temporaryDirectory())
+    await repository.saveMode('expanded')
+    await repository.saveSettings({
+      companionMode: 'expanded',
+      companionAlwaysOnTop: false
+    })
+
+    await expect(repository.loadSettings()).resolves.toEqual({
+      companionMode: 'expanded',
+      companionAlwaysOnTop: false
+    })
+  })
+
+  it('migrates the previous mode-only settings schema', async () => {
+    const directory = await temporaryDirectory()
+    await writeFile(
+      join(directory, 'companion-settings.json'),
+      `${JSON.stringify({ mode: 'expanded' })}\n`,
+      'utf8'
+    )
+    const repository = new TeacherChatRepository(directory)
+
+    await expect(repository.loadSettings()).resolves.toEqual({
+      companionMode: 'expanded',
+      companionAlwaysOnTop: true
+    })
   })
 
   it('keeps valid history while flagging a malformed JSONL line', async () => {
@@ -84,11 +117,11 @@ describe('FixtureTeacherAdapter', () => {
     })
   })
 
-  it('clears chat and mode together on reset', async () => {
+  it('clears chat, mode, and app settings together on reset', async () => {
     const repository = new TeacherChatRepository(await temporaryDirectory())
     const adapter = new FixtureTeacherAdapter(repository)
     await adapter.sendMessage({ content: 'Tin nhắn sẽ bị xóa' })
-    await repository.saveMode('expanded')
+    await repository.saveSettings({ companionMode: 'expanded', companionAlwaysOnTop: false })
     await adapter.reset()
 
     await expect(repository.loadConversation()).resolves.toEqual({
@@ -96,6 +129,10 @@ describe('FixtureTeacherAdapter', () => {
       recovered: false
     })
     await expect(repository.loadMode()).resolves.toBe('compact')
+    await expect(repository.loadSettings()).resolves.toEqual({
+      companionMode: 'compact',
+      companionAlwaysOnTop: true
+    })
   })
 
   it('rejects empty messages before persistence', async () => {

@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   CompanionMode,
+  AppSettings,
+  AppSettingsUpdate,
   CompanionState,
   CourseCompanionApi,
   LearnerProgress,
@@ -33,6 +35,10 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.on('course:learning-window-shown', listener)
     return () => ipcRenderer.removeListener('course:learning-window-shown', listener)
   },
+  loadAppSettings: () =>
+    ipcRenderer.invoke('course:load-app-settings') as Promise<AppSettings>,
+  saveAppSettings: (update: AppSettingsUpdate) =>
+    ipcRenderer.invoke('course:save-app-settings', update) as Promise<AppSettings>,
   showLearningWindow: () => ipcRenderer.invoke('course:show-learning-window') as Promise<void>,
   hideLearningWindow: () => ipcRenderer.invoke('course:hide-learning-window') as Promise<void>,
   setCompanionMode: (mode: CompanionMode) =>
