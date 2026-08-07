@@ -15,6 +15,7 @@ const scheduledTimers = new Set();
 const teacherTurnTimers = new Map();
 let nextThread = 1;
 let nextTeacherTurn = 1;
+let nextInjectedTurn = 1;
 let account = null;
 let activeLogin = null;
 
@@ -375,6 +376,34 @@ function handleThreadResume(message) {
   send({ method: "thread/started", params: { thread: serializeThread(thread, true) } });
 }
 
+function handleThreadInjectItems(message) {
+  const thread = threads.get(message.params?.threadId);
+  const items = message.params?.items;
+  if (!thread || thread.ephemeral || !Array.isArray(items) || items.length !== 1) {
+    reject(message.id, "Only one visible item can be injected into a persistent Practice task.");
+    return;
+  }
+  const item = items[0];
+  const valid = item?.type === "message"
+    && item?.role === "assistant"
+    && Array.isArray(item?.content)
+    && item.content.length === 1
+    && item.content[0]?.type === "output_text"
+    && typeof item.content[0]?.text === "string"
+    && /^\[CBA_HANDOFF_V1:[a-f0-9]{64}\]/.test(item.content[0].text);
+  if (!valid) {
+    reject(message.id, "Injected Practice item is invalid.");
+    return;
+  }
+  thread.turns.push({
+    id: `turn-injected-${nextInjectedTurn++}`,
+    status: "completed",
+    items: [structuredClone(item)],
+  });
+  thread.updatedAt = Math.floor(Date.now() / 1_000);
+  respond(message.id, {});
+}
+
 const lines = readline.createInterface({ input: process.stdin });
 lines.on("line", (line) => {
   let message;
@@ -457,6 +486,7 @@ lines.on("line", (line) => {
   if (message.method === "thread/read") return handleThreadRead(message);
   if (message.method === "thread/list") return handleThreadList(message);
   if (message.method === "thread/resume") return handleThreadResume(message);
+  if (message.method === "thread/inject_items") return handleThreadInjectItems(message);
   if (message.method === "thread/unsubscribe") {
     respond(message.id, { status: "unsubscribed" });
     return;

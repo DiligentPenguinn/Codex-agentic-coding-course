@@ -65,15 +65,15 @@ export function createExecutorConversationService({
   openExternal,
   clock = () => new Date(),
 }) {
-  async function readAndVerify(startRequest, threadId) {
+  async function readAndVerify(startRequest, threadId, includeTurns = false) {
     if (!validThreadId(threadId)) throw new TypeError("Executor task ID is invalid.");
-    const result = await client.request("thread/read", { threadId, includeTurns: false });
+    const result = await client.request("thread/read", { threadId, includeTurns });
     const thread = verifyThread(result?.thread, startRequest.workspace.expectedRepositoryRoot);
-    if (thread.id !== threadId) throw new TypeError("Executor task does not match the requested task.");
+    if (thread.id !== threadId) throw new TypeError("Executor chat does not match the requested chat; it does not match the requested task.");
     return thread;
   }
 
-  async function createDedicatedTask(startRequest, sessionId) {
+  async function createDedicatedTask(startRequest, sessionId, { open = true } = {}) {
     const started = await client.request("thread/start", {
       cwd: startRequest.workspace.expectedRepositoryRoot,
       sandbox: "read-only",
@@ -95,7 +95,7 @@ export function createExecutorConversationService({
       boundAt: now,
       verifiedAt: now,
     });
-    return { binding, handoff: await openBoundTask(binding) };
+    return { binding, handoff: open ? await openBoundTask(binding) : null };
   }
 
   async function listEligibleTasks(startRequest) {
@@ -132,16 +132,24 @@ export function createExecutorConversationService({
     });
   }
 
-  async function revalidateBinding(startRequest, binding) {
-    const parsedBinding = parseExecutorBinding(binding);
-    if (!samePath(parsedBinding.workspaceRoot, startRequest.workspace.expectedRepositoryRoot)) {
+  async function readBoundTask(startRequest, inputBinding, { includeTurns = false } = {}) {
+    if (typeof includeTurns !== "boolean") throw new TypeError("includeTurns must be boolean.");
+    const binding = parseExecutorBinding(inputBinding);
+    if (!samePath(binding.workspaceRoot, startRequest.workspace.expectedRepositoryRoot)) {
       throw new TypeError("Executor binding workspace does not match the mission.");
     }
-    const thread = await readAndVerify(startRequest, parsedBinding.threadId);
+    const thread = await readAndVerify(startRequest, binding.threadId, includeTurns);
     return {
       thread,
-      binding: parseExecutorBinding({ ...parsedBinding, verifiedAt: clock().toISOString() }),
+      binding: parseExecutorBinding({
+        ...binding,
+        verifiedAt: clock().toISOString(),
+      }),
     };
+  }
+
+  async function revalidateBinding(startRequest, binding) {
+    return readBoundTask(startRequest, binding, { includeTurns: false });
   }
 
   async function openBoundTask(binding) {
@@ -163,6 +171,7 @@ export function createExecutorConversationService({
     createDedicatedTask,
     listEligibleTasks,
     bindExistingTask,
+    readBoundTask,
     revalidateBinding,
     openBoundTask,
   });
