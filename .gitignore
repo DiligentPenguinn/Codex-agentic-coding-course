@@ -23,3 +23,8 @@ node_modules/
 
 # Local isolated implementation worktrees.
 .worktrees/
+
+# Course Companion local dependencies and generated output.
+course-companion/node_modules/
+course-companion/out/
+course-companion/*.tsbuildinfo

@@ -1,70 +1,133 @@
-# Script — Xác định quy trình nội dung hằng tuần
+# Kịch bản — Bắt đầu với ContentPilot
 
-## Beat 1 — Định hướng (`intro-time-budget`)
+## Bước 1 — Xem phần giới thiệu trực quan (`intro-visual-onboarding`)
 
-Teacher nói: "Chào bạn. Trong pilot này, mình sẽ không bắt đầu bằng bài giảng về
-AI. Mình sẽ bắt đầu bằng một workflow nội dung thật của bạn, rồi dùng nó để xây
-ContentPilot từng bước."
+Teacher nói: "Chào bạn. Trước khi mình hỏi bất kỳ điều gì về thương hiệu hoặc
+quy trình nội dung, mình sẽ giúp bạn hiểu khóa học này xây gì và bạn sẽ làm việc
+ở đâu. Phần giới thiệu trực quan mất khoảng 3 phút và chỉ dùng để hướng dẫn."
+
+[Dùng `WORKSPACE_ROOT` để tạo link Markdown cục bộ tuyệt đối tới
+`course/onboarding/index.html` với nhãn **Mở phần giới thiệu ContentPilot**.
+Không chạy server, không yêu cầu cài dependency và không mở ứng dụng bên ngoài
+thay Learner.]
+
+Teacher nói: "Trang HTML này chỉ giải thích bằng hình ảnh; nó không thể đọc,
+sửa hoặc chạy bất kỳ thứ gì trong workspace. Hãy xem đến màn hình cuối, rồi
+quay lại task Codex này và gửi câu mà trang đã chuẩn bị. Sau đó chúng ta mới
+bắt đầu bài thực hành trong workspace thật."
+
+[Dừng chờ Learner. Chỉ đạt khi Learner quay lại sau trải nghiệm và gửi câu xác
+nhận "Tôi đã xem xong phần giới thiệu. Hãy bắt đầu bài thực hành chỉ đọc trong
+Codex.", hoặc nói rõ họ đã hoàn thành. Sau đó checkpoint
+`intro-visual-onboarding`. Không giả định rằng bất kỳ hành động nào trong trang
+HTML đã tác động đến workspace.]
+
+## Bước 2 — Bài thực hành chỉ đọc đầu tiên (`intro-first-safe-win`)
+
+Teacher nói: "Bạn đã quay lại Codex. Từ đây, Codex có thể làm việc với
+workspace thật. Bước đầu tiên chỉ cho phép đọc file để hiểu đúng dự án và tránh
+sửa nhầm. Codex sẽ báo ba loại bằng chứng: tên dự án, phạm vi Pilot và các file
+đã đọc."
+
+Teacher nói: "Trước khi Codex đọc, bạn dự đoán báo cáo sẽ xác nhận điều gì:
+đúng dự án ContentPilot, đúng phạm vi phần mở đầu và Module 1, hay đúng các file
+nguồn? Ba ý này bổ sung cho nhau; mình khuyến nghị kiểm tra cả ba."
+
+[Mở Assessment State dạng prediction. Dừng chờ Learner. Cần thấy Learner hiểu
+đây là bước chỉ đọc và chọn ít nhất một bằng chứng muốn kiểm tra. Không biến câu
+hỏi thành bài đánh đố. Dùng hint ladder nếu cần.]
+
+[Khi prediction đạt, nói ngắn rằng Executor sẽ chỉ đọc. Trong cùng thread, đọc
+`START_HERE.md`, `course/course-structure.json` và liệt kê các thư mục cấp cao
+của workspace. Không sửa file, không cài dependency, không dùng network. Báo
+ba bằng chứng: tên workspace, phạm vi Pilot hiện có, và các đường dẫn đã đọc.]
+
+Teacher nói: "Executor vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
+chi tiết cụ thể trong báo cáo cho thấy nó đã đọc đúng dự án."
+
+[Dừng chờ Learner. Chấp nhận một bằng chứng cụ thể từ output như tên
+ContentPilot, intro + Module 1 hoặc đường dẫn file. Khi đạt, checkpoint
+`intro-first-safe-win`.]
+
+## Bước 3 — Chọn thời lượng học hôm nay (`intro-time-budget`)
+
+Teacher nói: "Bạn vừa hoàn thành vòng cộng tác đầu tiên: dự đoán, cho Executor
+đọc và kiểm tra bằng chứng. Tiếp theo, chúng ta sẽ gắn nội dung khóa học với
+một quy trình nội dung thật của bạn."
 
 Teacher nói: "Hôm nay bạn có bao nhiêu phút: 10, 20, 30, 45 hay 60?"
 
 [Dừng chờ Learner. Ghi time budget bằng checkpoint `intro-time-budget`. Nếu
-dưới 20 phút, nói rõ checkpoint phù hợp và vẫn bắt đầu Beat 2.]
+dưới 20 phút, nói rõ mốc phù hợp và vẫn bắt đầu Bước 4.]
 
-Teacher nói: "Kết quả của phần mở đầu là một quest card ngắn. Nó giúp mọi quyết
-định sau này phục vụ công việc của bạn thay vì một ví dụ chung chung."
+Teacher nói: "Kết quả của phần mở đầu là một phiếu định hướng cá nhân. Phiếu
+này ghi đối tượng, nền tảng, vấn đề cần giải quyết, tiêu chí duyệt và những
+quyết định bạn muốn tự giữ. Nhờ vậy, các bài sau phục vụ công việc của bạn thay
+vì một ví dụ chung chung."
 
-## Beat 2 — Nhìn thấy đích đến (`intro-graduation`)
+## Bước 4 — Hiểu sản phẩm cuối khóa (`intro-graduation`)
 
 Teacher nói: "ContentPilot cuối khóa sẽ nhận dữ liệu thương hiệu, tạo 10 ý tưởng,
-để bạn chọn 5, rồi giúp tạo, duyệt, lưu và xuất 5 gói nội dung. Một lần chạy API
-thật là bằng chứng tốt nghiệp; dữ liệu mô phỏng chỉ đủ để học và sửa lỗi."
+để bạn chọn 5, rồi giúp tạo, duyệt, lưu và xuất 5 bộ nội dung. Mỗi bộ gồm bài
+viết và các phần hỗ trợ như câu mở đầu, lời kêu gọi hành động và gợi ý hình ảnh.
+Để hoàn thành toàn bộ khóa học, bạn cần chạy API thật ít nhất một lần; dữ liệu
+mô phỏng chỉ dùng để học và sửa lỗi."
 
-Teacher nói: "Theo bạn, phần nào trong quy trình đó nhất định phải do bạn giữ
-quyền quyết định?"
+Teacher nói: "Bạn luôn giữ quyền quyết định cuối cùng. Bạn muốn trực tiếp kiểm
+soát phần nào: chọn ý tưởng, kiểm tra thông tin, giọng viết, hình ảnh hay xuất
+bản? Các lựa chọn có thể kết hợp; mình khuyến nghị ít nhất giữ quyền duyệt nội
+dung và quyết định xuất bản."
 
 [Dừng chờ Learner. Không yêu cầu một đáp án duy nhất; cần một quyết định có lý
 do như chọn ý tưởng, duyệt claim, giọng viết, hình ảnh hoặc xuất bản. Khi đạt,
 checkpoint `intro-graduation`.]
 
-## Beat 3 — Vấn đề hằng tuần (`intro-problem`)
+## Bước 5 — Chọn vấn đề nội dung hằng tuần (`intro-problem`)
 
 Teacher nói: "Hãy chọn một việc nội dung lặp lại mỗi tuần đang tốn thời gian,
-khó giữ nhất quán hoặc bị kẹt ở khâu duyệt. Chỉ cần mô tả một việc cụ thể."
+khó giữ nhất quán hoặc bị kẹt ở khâu duyệt. Chỉ cần mô tả một việc cụ thể. Nếu
+chưa có tình huống thật, bạn có thể dùng thương hiệu mẫu Mộc Học; mình khuyến
+nghị dùng công việc thật nếu bạn đã có."
 
 [Dừng chờ Learner. Nếu quá chung, hỏi một biến làm rõ: loại bài, người nhận,
 deadline hoặc khâu duyệt. Khi đạt, checkpoint `intro-problem`.]
 
-## Beat 4 — Nền tảng chính (`intro-platform`)
+## Bước 6 — Chọn nền tảng nội dung chính (`intro-platform`)
 
 Teacher nói: "Nếu Pilot chỉ được tối ưu đầu ra cho một nền tảng trước, bạn chọn
-nền tảng nào và vì sao nó quan trọng nhất lúc này?"
+nền tảng nào và vì sao? Ví dụ: LinkedIn để tiếp cận khách hàng chuyên nghiệp,
+Facebook để nuôi cộng đồng hoặc Instagram để ưu tiên nội dung hình ảnh. Hãy
+chọn nền tảng quan trọng nhất với công việc hiện tại của bạn."
 
 [Dừng chờ Learner. Khi có platform và lý do, checkpoint `intro-platform`.]
 
-## Beat 5 — Quest card (`intro-quest-card`)
+## Bước 7 — Hoàn thành phiếu định hướng (`intro-quest-card`)
 
-Teacher nói: "Giờ hãy viết quest card bằng nội dung của bạn. Bạn có thể dùng
-khung trong `artifacts/quest-card.template.md`, nhưng câu trả lời phải có một
-tiêu chí quan sát được cho 5 gói nội dung sẵn sàng để bạn duyệt."
+Teacher nói: "Giờ hãy hoàn thành phiếu định hướng bằng nội dung của bạn. Dùng
+khung trong `artifacts/quest-card.template.md`. Ở dòng tiêu chí duyệt, hãy viết
+một dấu hiệu có thể kiểm tra được, chẳng hạn đúng giọng thương hiệu, không có
+thông tin chưa được xác minh hoặc có lời kêu gọi hành động rõ. Bạn có thể kết
+hợp nhiều tiêu chí phù hợp với công việc của mình."
 
 [Dừng chờ Learner. Teacher không điền thay. Sau khi Learner trả lời đủ, xin phép
 tạo `artifacts/quest-card.md` từ nội dung họ đã viết. Khi file được tạo,
 checkpoint `intro-quest-card`.]
 
-## Beat 6 — Readiness gate (`intro-readiness`)
+## Bước 8 — Kiểm tra sẵn sàng (`intro-readiness`)
 
-Teacher nói: "Quest card đã đủ để dẫn đường rồi. Mình kiểm tra sẵn sàng bằng hai
-câu ngắn, từng câu một nhé."
+Teacher nói: "Phiếu định hướng đã đủ thông tin để dùng trong Module 1. Trước khi
+chuyển bài, mình sẽ hỏi hai câu ngắn: một câu về tiêu chí duyệt nội dung và một
+câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 
 [Dùng `course/quizzes/intro.quiz.json`. Khi pass, checkpoint
 `intro-readiness`.]
 
-## Beat 7 — Chuyển sang Module 1 (`intro-complete`)
+## Bước 9 — Chuyển sang Module 1 (`intro-complete`)
 
 Teacher nói: "Bạn đã có đích đến và quyền quyết định rõ ràng. Module 1 sẽ dùng
-chính workspace này để luyện vòng làm việc: inspect, brief, duyệt plan, build,
-xem diff và kiểm chứng."
+chính workspace này để luyện một quy trình đầy đủ: đọc dự án, viết bản mô tả
+công việc, duyệt kế hoạch, sửa giao diện, xem phần thay đổi và kiểm chứng kết
+quả."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

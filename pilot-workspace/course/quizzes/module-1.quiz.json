@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Mastery gate — Làm việc an toàn với Codex",
+  "title": "Kiểm tra cuối Module 1 — Làm việc an toàn với Codex",
   "passingScore": 0.8,
   "delivery": {
     "mode": "one-question-at-a-time",
@@ -13,10 +13,10 @@
     {
       "id": "m1-q1",
       "type": "multiple-choice",
-      "prompt": "Bạn chưa biết vì sao trang setup không lưu dữ liệu. Bước đầu nào dễ review nhất?",
+      "prompt": "Bạn chưa biết vì sao trang thiết lập không lưu dữ liệu. Bước đầu nào giúp bạn kiểm tra nguyên nhân rõ ràng và an toàn nhất?",
       "choices": [
         "Yêu cầu Codex sửa mọi file liên quan cho đến khi hoạt động.",
-        "Yêu cầu Codex inspect read-only route setup, storage và test liên quan; báo giả thuyết, bằng chứng và đề xuất bước tiếp theo.",
+        "Yêu cầu Codex chỉ đọc route thiết lập, phần lưu trữ và bài kiểm tra liên quan; sau đó báo giả thuyết, bằng chứng và bước tiếp theo.",
         "Cài thêm database để tránh lỗi.",
         "Deploy app rồi thử trên production."
       ],
@@ -27,7 +27,7 @@
     {
       "id": "m1-q2",
       "type": "classification",
-      "prompt": "Phân loại từng hành động: đọc file local; sửa CSS; npm install; xóa thư mục data; deploy app. Hành động nào cần Learner phê duyệt trước?",
+      "prompt": "Phân loại từng hành động sau: đọc file trên máy; sửa CSS; chạy npm install; xóa thư mục dữ liệu; đưa ứng dụng lên môi trường công khai. Hành động nào cần bạn phê duyệt trước?",
       "expectedSignals": [
         "Đọc file local là read-only",
         "Sửa CSS cần phê duyệt edit",
@@ -39,7 +39,7 @@
     {
       "id": "m1-q3",
       "type": "short-answer",
-      "prompt": "Viết hai tiêu chí done-when kiểm chứng được cho một cải tiến nhỏ khác trong ContentPilot. Không dùng lại task nút mobile.",
+      "prompt": "Viết hai dấu hiệu hoàn thành có thể kiểm chứng cho một cải tiến nhỏ khác trong ContentPilot. Không dùng lại bài tập nút trên màn hình hẹp.",
       "expectedSignals": [
         "Mỗi tiêu chí có nơi hoặc cách kiểm tra",
         "Mỗi tiêu chí có dấu hiệu pass quan sát được",
@@ -49,17 +49,17 @@
     {
       "id": "m1-q4",
       "type": "short-answer",
-      "prompt": "Khi automated check pass nhưng UI mobile vẫn sai brief, bạn nên chấp nhận hay yêu cầu sửa? Giải thích bằng một câu.",
+      "prompt": "Khi kiểm tra tự động đạt nhưng giao diện trên màn hình hẹp vẫn không đúng yêu cầu, bạn nên chấp nhận hay yêu cầu sửa? Giải thích bằng một câu.",
       "expectedSignals": [
-        "Không chấp nhận chỉ vì automated check pass",
-        "Dùng manual UI evidence",
+        "Không chấp nhận chỉ vì kiểm tra tự động đạt",
+        "Dùng bằng chứng quan sát giao diện",
         "Yêu cầu sửa hoặc điều tra trước khi chấp nhận"
       ]
     },
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Nêu một điều thuộc AGENTS.md và một điều chỉ nên nằm trong task brief một lần.",
+      "prompt": "Nêu một hướng dẫn nên lưu lâu dài trong AGENTS.md và một yêu cầu chỉ nên nằm trong bản mô tả của một công việc.",
       "expectedSignals": [
         "AGENTS.md chứa hướng dẫn bền vững",
         "Task brief chứa mục tiêu hoặc phạm vi cụ thể của một thay đổi",
@@ -68,4 +68,3 @@
     }
   ]
 }
-
