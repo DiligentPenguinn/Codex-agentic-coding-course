@@ -676,11 +676,6 @@ function PixelAppShell({
           <span>C</span>
           <span><strong>CONTENT BUILDER ACADEMY</strong><small>COURSE COMPANION · PILOT 0.1</small></span>
         </button>
-        <div className="pixel-app-current">
-          <span>{scene.lessonId === 'intro' ? 'PHẦN GIỚI THIỆU' : 'MODULE 1'} · {scene.step}/{scene.totalSteps}</span>
-          <strong>{scene.objective}</strong>
-          <i><b style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></i>
-        </div>
         <div className="pixel-app-actions">
           <button
             aria-current={destination === 'progress' ? 'page' : undefined}
@@ -705,10 +700,13 @@ function PixelAppShell({
             <div className="pixel-home-heading">
               <div>
                 <small>HOME BASE · LỘ TRÌNH</small>
-                <h1 id="homeBaseTitle">Hành trình học của bạn</h1>
-                <p>Chọn chặng hiện tại để tiếp tục. Các chặng sắp tới sẽ mở lần lượt khi bạn hoàn thành bài học.</p>
+                <h1 id="homeBaseTitle">Lộ trình khóa học</h1>
+                <p>Chọn chặng có nhãn “Bạn đang ở đây” để tiếp tục học.</p>
               </div>
-              <span>{completed.size}/{checkpointIds.length} checkpoint · {progressPercent}%</span>
+              <div className="pixel-course-progress">
+                <small>TIẾN ĐỘ TOÀN KHÓA</small>
+                <strong>{completed.size}/{checkpointIds.length} checkpoint · {progressPercent}%</strong>
+              </div>
             </div>
 
             <div className="pixel-roadmap" aria-label="Lộ trình học">
@@ -718,12 +716,12 @@ function PixelAppShell({
                 </article>
               ) : (
                 <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Làm quen với Course Companion và quyền quyết định</strong><p>{scene.objective}</p></div><em>MỞ BÀI HỌC →</em>
+                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Làm quen với Course Companion và quyền quyết định</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               )}
               {progress.currentLessonId === 'module-1' ? (
                 <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                  <span>01</span><div><small>MODULE 1</small><strong>Viết yêu cầu để Codex có thể kiểm chứng</strong><p>{scene.objective}</p></div><em>MỞ BÀI HỌC →</em>
+                  <span>01</span><div><small>MODULE 1</small><strong>Viết yêu cầu để Codex có thể kiểm chứng</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               ) : (
                 <article>
@@ -1085,7 +1083,7 @@ export function LearningWindow() {
           <span><strong>CONTENT BUILDER ACADEMY</strong><small>VỀ HOME BASE</small></span>
         </button>
         <div className="pixel-mission-meta" aria-label={`Bước ${scene.step} trên ${scene.totalSteps}`}>
-          <span>{scene.lessonId === 'intro' ? 'INTRO' : 'NHIỆM VỤ 01'} · BƯỚC {scene.step}/{scene.totalSteps}</span>
+          <span>BÀI HỌC HIỆN TẠI · BƯỚC {scene.step}/{scene.totalSteps}</span>
           <strong>{scene.mission}</strong>
           <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></div>
         </div>

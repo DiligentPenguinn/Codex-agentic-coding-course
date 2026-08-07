@@ -799,7 +799,7 @@ button:focus-visible {
   min-height: 82px;
   padding: 13px 20px;
   display: grid;
-  grid-template-columns: minmax(215px, 1fr) minmax(280px, 440px) minmax(350px, auto);
+  grid-template-columns: minmax(215px, 1fr) minmax(350px, auto);
   align-items: center;
   gap: 20px;
   border-bottom: 3px solid var(--pixel-line);
@@ -833,15 +833,6 @@ button:focus-visible {
 .pixel-app-brand strong { font-size: 9px; letter-spacing: 0.06em; }
 .pixel-app-brand small { margin-top: 5px; color: var(--pixel-muted); font-size: 6px; letter-spacing: 0.09em; }
 .pixel-app-brand:hover strong { color: var(--pixel-sky); }
-
-.pixel-app-current { min-width: 0; text-align: center; font-family: var(--pixel-font); }
-.pixel-app-current span,
-.pixel-app-current strong,
-.pixel-app-current i { display: block; }
-.pixel-app-current span { color: var(--pixel-yellow); font-size: 7px; letter-spacing: 0.13em; }
-.pixel-app-current strong { margin: 5px 0 8px; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.pixel-app-current i { height: 6px; border: 2px solid #46577e; background: #080d1d; }
-.pixel-app-current b { display: block; height: 100%; background: var(--pixel-cyan); }
 
 .pixel-app-actions { justify-self: end; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .pixel-app-actions button {
@@ -891,14 +882,17 @@ button:focus-visible {
 .pixel-home-heading small { color: var(--pixel-yellow); font: 800 8px/1 var(--pixel-font); letter-spacing: 0.16em; }
 .pixel-home-heading h1 { margin: 9px 0 0; font: 800 clamp(20px, 2.4vw, 32px)/1.2 var(--pixel-font); }
 .pixel-home-heading p { margin: 9px 0 0; color: #e4eaf7; font-size: 14px; line-height: 1.42; }
-.pixel-home-heading > span {
+.pixel-course-progress {
   flex: 0 0 auto;
   padding: 9px 11px;
   border: 2px solid var(--pixel-line-soft);
-  color: var(--pixel-cyan);
   background: #101a34;
-  font: 800 7px/1.2 var(--pixel-font);
+  text-align: left;
 }
+.pixel-course-progress small,
+.pixel-course-progress strong { display: block; font-family: var(--pixel-font); }
+.pixel-course-progress small { color: var(--pixel-cyan); font-size: 6px; letter-spacing: 0.1em; }
+.pixel-course-progress strong { margin-top: 6px; color: var(--pixel-cream); font-size: 8px; line-height: 1.25; }
 
 .pixel-home-teacher {
   position: fixed;
@@ -987,6 +981,10 @@ button:focus-visible {
 .pixel-roadmap-stage p { margin: 5px 0 0; color: var(--pixel-muted); font-size: 11px; }
 .pixel-roadmap article > em,
 .pixel-roadmap-stage > em { color: var(--pixel-muted); font: 800 7px/1 var(--pixel-font); font-style: normal; }
+.pixel-roadmap-stage > em span,
+.pixel-roadmap-stage > em b { display: block; }
+.pixel-roadmap-stage > em span { color: var(--pixel-yellow); font-size: 6px; letter-spacing: 0.08em; }
+.pixel-roadmap-stage > em b { margin-top: 7px; font-size: 7px; }
 .pixel-roadmap .is-current { border-color: var(--pixel-yellow); background: rgba(20, 31, 61, 0.98); }
 .pixel-roadmap .is-current > em { color: var(--pixel-yellow); }
 .pixel-roadmap article.is-complete { border-color: var(--pixel-mint); }
@@ -1082,7 +1080,6 @@ button:focus-visible {
   .pixel-app-brand > span:first-child { width: 34px; height: 34px; }
   .pixel-app-brand strong { max-width: 190px; font-size: 7px; }
   .pixel-app-brand small { display: none; }
-  .pixel-app-current { display: none; }
   .pixel-app-actions button { min-height: 30px; padding: 5px 7px; font-size: 6px; }
   .pixel-app-actions button:nth-last-child(-n + 2) { display: none; }
   .pixel-home-base,
@@ -1092,7 +1089,7 @@ button:focus-visible {
   .pixel-home-heading { padding: 14px; align-items: stretch; flex-direction: column; gap: 12px; }
   .pixel-home-heading h1 { font-size: 18px; }
   .pixel-home-heading p { font-size: 12px; }
-  .pixel-home-heading > span { align-self: flex-start; }
+  .pixel-course-progress { align-self: flex-start; }
   .pixel-home-teacher { right: 10px; bottom: 10px; width: 108px; }
   .pixel-home-teacher img { height: 64px; }
   .pixel-home-teacher em { display: none; }

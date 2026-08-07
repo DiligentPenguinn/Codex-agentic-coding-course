@@ -112,8 +112,11 @@ try {
     .getByRole('button', { name: 'Bắt đầu và mở Home Base' })
     .click()
   await firstWindows.learningPage
-    .getByRole('heading', { name: 'Hành trình học của bạn' })
+    .getByRole('heading', { name: 'Lộ trình khóa học' })
     .waitFor()
+  await firstWindows.learningPage.getByText('TIẾN ĐỘ TOÀN KHÓA', { exact: true }).waitFor()
+  await firstWindows.learningPage.getByText('BẠN ĐANG Ở ĐÂY', { exact: true }).waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-app-current').count(), 0)
   assert.equal(
     await firstWindows.learningPage.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(),
     0
@@ -139,6 +142,10 @@ try {
   await firstWindows.learningPage
     .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
     .click()
+  await firstWindows.learningPage
+    .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'lesson-progress.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
     .click()

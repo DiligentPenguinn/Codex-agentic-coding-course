@@ -21,7 +21,8 @@ roadmap. The highlighted current stage is the lesson entry point; lesson and
 Teacher are not separate primary-navigation destinations. The focused lesson
 remains a distraction-limited scene, while Hương stays available as a compact
 corner companion that expands into a right-docked overlay. Saved progress and
-settings remain quiet header utilities.
+settings remain quiet header utilities. Home Base is the sole course-progress
+surface; lesson-step progress appears only after the learner enters a lesson.
 
 ### Home Base interaction correction — 7 August 2026
 
@@ -35,6 +36,10 @@ The accepted correction is:
 - Home Base directly renders the Pilot roadmap;
 - the current unlocked stage is visually highlighted and opens the focused
   lesson when selected;
+- Home Base labels overall progress as **Tiến độ toàn khóa** and marks the
+  actionable stage as **Bạn đang ở đây** instead of repeating lesson progress
+  in the header;
+- the focused lesson alone labels its step indicator as **Bài học hiện tại**;
 - the lesson returns to the same roadmap-first Home Base;
 - Hương sits in the bottom-right corner and expands into a right-docked overlay,
   never a primary tab; and
@@ -433,6 +438,9 @@ refreshed clean self-test copy passes the same complete Electron journey.
 - Interaction hierarchy: the former six-destination navigation bar is removed;
   the highlighted roadmap stage opens the lesson, while progress and settings
   remain header utilities.
+- Progress hierarchy: Home Base shows course progress through the roadmap and
+  **Tiến độ toàn khóa** badge; only the lesson surface shows step progress under
+  **Bài học hiện tại**.
 - Shared Teacher behavior: the right-docked Hương overlay and floating panel use
   the same chat, practice, checkpoint, and persistence component.
 - Real setting: `companionAlwaysOnTop` is validated, migrated from the old
@@ -486,7 +494,7 @@ progress.
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
 | P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Pass |
-| P11 | Home Base directly shows the roadmap, opens the focused lesson from the highlighted current stage, and keeps Hương plus utilities subordinate. | Pass |
+| P11 | Home Base directly shows course progress in the roadmap, opens the focused lesson from **Bạn đang ở đây**, and reserves lesson-step progress for the lesson surface. | Pass |
 
 The personal-test MVP is complete only when P1–P11 pass. Passing source checks
 without verifying the desktop window lifecycle is insufficient.
