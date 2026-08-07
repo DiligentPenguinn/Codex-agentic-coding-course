@@ -2,6 +2,18 @@
 
 This dependency-free prototype demonstrates the proposed course experience around Codex. It is intentionally separate from ContentPilot, the application learners build during the course.
 
+## Canonical visual authority
+
+This folder is the repository's single current visual prototype for the
+learner-facing teaching application. It is the reference for the Home Base,
+authored lesson scenes, simulated Codex Workshop, Teacher character and chat,
+progress surfaces, evidence checkpoint, debrief, and responsive behavior.
+
+Earlier standalone Teacher-layout and roadmap-comparison experiments have been
+retired after their useful decisions were compared with this complete flow.
+This prototype remains frontend-only and does not replace the runnable course
+authority in `pilot-workspace/`.
+
 The mock combines:
 
 - an evolving pixel-art Home Base;

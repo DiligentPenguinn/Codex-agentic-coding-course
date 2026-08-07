@@ -77,3 +77,7 @@ node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesso
 - Ask one main question or action and wait.
 - Do not dump setup instructions, a course outline, or multiple quiz questions.
 - Keep execution read-only until the script and Learner authorize an edit.
+- At `intro-visual-onboarding`, resolve
+  `course/onboarding/index.html` from `WORKSPACE_ROOT` and render it as a
+  clickable absolute local-file Markdown link. Do not start a server, install a
+  dependency, or skip directly to personal brand questions.

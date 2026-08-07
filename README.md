@@ -7,9 +7,10 @@ by building something useful. You do not need to be a developer. Bring a
 content idea, follow the guided workflow, and turn it into a working tool.
 
 > [!NOTE]
-> **Early access:** the course is still evolving, and the guided setup
-> currently supports Windows. You may encounter preview course screens while
-> we finish the complete learning experience.
+> **Early access:** guided startup is available for Windows and macOS. The
+> course is still evolving, and the current macOS Course Companion uses clearly
+> labelled fixture Teacher and practice responses rather than live Codex
+> observation.
 
 ## What you will learn
 
@@ -35,13 +36,14 @@ steps and want to finish with something you can actually use.
 
 For the current early-access experience, you need:
 
-- a Windows computer;
-- [Git](https://git-scm.com/download/win);
+- a Windows or macOS computer;
+- [Git](https://git-scm.com/downloads);
 - a ChatGPT account with access to Codex;
-- an internet connection.
+- an internet connection; and
+- on macOS, Node.js 22 or newer.
 
-**No coding experience is required.** The setup will check the other tools it
-needs and explain anything missing before making changes.
+**No coding experience is required.** The launcher checks the other tools it
+needs and explains anything missing before making changes.
 
 ## Start the course on Windows
 
@@ -54,40 +56,46 @@ cd codex-content-creator-course
 .\start-course.cmd
 ```
 
-That is it—the launcher will guide you from there.
+## Start the course on macOS
+
+Open **Terminal** in the folder where you want to keep the course. Run these
+commands one at a time:
+
+```bash
+git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
+cd codex-content-creator-course
+./start-course.command
+```
+
+After cloning, you can also double-click `start-course.command` in Finder.
 
 ## What happens next?
 
 1. You receive a quick welcome and an explanation of the setup process.
 2. The launcher checks whether the required tools are ready.
-3. If anything is missing, you see what it is, why it is needed, and the exact
-   installation command.
+3. If local dependencies are needed, you see what will run before it runs.
 4. **Nothing is installed unless you approve it.**
-5. The setup app opens and helps you connect your Codex account.
-6. You answer a few setup questions and continue into the course experience.
+5. The course application opens and restores local progress when available.
+6. You continue into the current early-access learning experience.
 
-You can safely decline an installation. The launcher will stop and show you
-what to do manually.
+You can safely decline an installation. The launcher will stop and explain the
+next manual step.
 
 ## Your account and progress
 
-- Codex handles your ChatGPT sign-in through its official login flow.
-- The course does not read or store your Codex password or authentication
-  tokens.
-- Your non-secret setup progress stays on your computer.
-- Your account connection is checked again when you reopen the app.
-
-## macOS
-
-Guided macOS startup is not available yet. We will add macOS instructions when
-that workflow has been implemented and tested.
+- The Windows setup path uses Codex's official ChatGPT login flow and does not
+  read or store your password or authentication tokens.
+- The current macOS Course Companion does not connect to a live Teacher or
+  observe live Codex tasks; its simulated responses are labelled in the app.
+- Non-secret setup and learning progress stay on your computer.
+- The application checks the available local state when you reopen it.
 
 ## Need help?
 
-If setup does not work as expected, see the
-[startup help and recovery guide](prototypes/app-startup-electron-mock/README.md).
-It includes prerequisite information, manual recovery commands, stored-data
-details, and known limitations.
+- For Windows setup and recovery, see the
+  [startup help guide](prototypes/app-startup-electron-mock/README.md).
+- For macOS startup, verification, and current limitations, see the
+  [Course Companion guide](course-companion/README.md).
 
 ## For contributors
 
@@ -95,14 +103,34 @@ The links below are for people developing the course itself. Learners do not
 need to read them to begin.
 
 <details>
-<summary>Open contributor resources</summary>
+<summary>Open contributor resources and authority map</summary>
 
-- [Startup mock technical design](docs/superpowers/specs/2026-07-30-electron-startup-mock-design.md)
-- [Interactive team workload map](docs/planning/team-workload-map.html)
-- [Pedagogy kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md)
-- [Course repository prototype](prototypes/mvp-1-course-repo/README.vi.md)
-- [Course experience companion](prototypes/mvp-3-course-experience-companion/README.md)
-- [ContentPilot learner starter](starters/contentpilot/README.md)
-- [Pilot workspace](pilot-workspace/START_HERE.md)
+### Current authority
+
+- [Pilot 0.1 workspace](pilot-workspace/START_HERE.md) is the runnable
+  Codex-native course authority for `intro`, `module-1`, and `resume`.
+- [Course Companion](course-companion/README.md) is the implemented desktop-app
+  package; its Teacher and practice adapters are currently fixture-backed.
+- [ContentPilot learner starter](starters/contentpilot/README.md) is the
+  validated application baseline that learners extend.
+- [Planning handoff](docs/planning/content-automation-course-handoff.md) and its
+  linked contracts define the approved public-course direction.
+- [UI, UX, and interaction review](docs/planning/ui-ux-interaction-review-index.md)
+  maps current behavior, planned behavior, and historical references.
+- [Interactive team workload map](docs/planning/team-workload-map.html) records
+  the current collaboration boundaries.
+
+From the repository root, `$start-course-lesson` and `$course-teacher` delegate
+to the skills inside `pilot-workspace/`. They do not fall back to historical
+prototype curricula.
+
+### Historical references
+
+- [Windows startup mock technical design](docs/superpowers/specs/2026-07-30-electron-startup-mock-design.md)
+- [MVP 0.5 pedagogy kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md)
+- [MVP 1 course repository prototype](prototypes/mvp-1-course-repo/README.vi.md)
+- [MVP 2 workflow prototype](prototypes/mvp-2-content-workflow-prototype/README.md)
+- [MVP 3 course experience visual prototype](prototypes/mvp-3-course-experience-companion/README.md)
+- `codex_content_creator_course_plan_v8.html`, the original 13-module strategy
 
 </details>

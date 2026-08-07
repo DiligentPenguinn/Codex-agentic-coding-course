@@ -1,6 +1,8 @@
-# Mastery Rubric - Vietnamese First
+# Tiêu chí đánh giá mức độ thành thạo
 
-Rubric này đánh giá năng lực cộng tác với Codex, không đánh giá kiến thức lập trình thuần túy. Teacher dùng rubric để quyết định learner có thể sang submodule tiếp theo hay cần luyện thêm.
+Bảng tiêu chí này đánh giá năng lực cộng tác với Codex, không đánh giá kiến
+thức lập trình thuần túy. Teacher dùng bảng để quyết định learner đã hoàn thành
+module hay cần luyện thêm.
 
 ## Thang điểm
 
@@ -9,7 +11,7 @@ Rubric này đánh giá năng lực cộng tác với Codex, không đánh giá 
 - **2 - Làm được có kiểm tra**: learner làm được với gợi ý nhẹ và biết nêu bằng chứng.
 - **3 - Tự chủ**: learner tự đưa yêu cầu rõ, phân loại rủi ro, kiểm tra kết quả, và giải thích được.
 
-## Kỹ năng cốt lõi của Module 0
+## Kỹ năng cốt lõi của Module 1
 
 | Skill | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
@@ -20,9 +22,9 @@ Rubric này đánh giá năng lực cộng tác với Codex, không đánh giá 
 | Evidence review | Tin vào tóm tắt chung chung | Hỏi lại Teacher "đã xong chưa" | Kiểm tra file/log/diff/test theo hướng dẫn | Tự nêu bằng chứng cần có và tóm tắt kết quả |
 | Reflection and transfer | Không nói lại được bài học | Lặp lại định nghĩa | Giải thích được bằng ví dụ của lesson | Chuyển kỹ năng sang tình huống marketing/content khác |
 
-## Mastery gate cho Module 0
+## Tiêu chí hoàn thành Module 1
 
-Learner pass Module 0 khi đạt tất cả điều kiện:
+Learner pass Module 1 khi đạt tất cả điều kiện:
 
 - Đạt mức 2 trở lên ở 4/6 skill.
 - Không skill nào ở mức 0.
@@ -34,12 +36,16 @@ Learner pass Module 0 khi đạt tất cả điều kiện:
 
 ### Nếu learner đạt
 
-"Bạn đã đạt Module 0. Bằng chứng là: prompt inspect của bạn có goal/context/constraint/done-when, bạn phân loại đúng các approval risk chính, và bạn giải thích được lúc nào cần Teacher vs Executor. Bước tiếp theo là Module 1: tạo Brand Brain đầu tiên."
+"Bạn đã đạt Module 1. Bằng chứng là: prompt inspect của bạn có goal/context/constraint/done-when, bạn phân loại đúng các approval risk chính, và bạn dùng diff, check cùng quan sát giao diện để quyết định có chấp nhận thay đổi hay không. Bạn đã hoàn thành Pilot 0.1; Module 2 chưa có trong workspace này."
 
 ### Nếu learner gần đạt
 
-"Bạn gần đạt rồi. Điểm cần luyện là approval awareness: bạn nhận ra file edit, nhưng chưa nhận ra network và dependency install cũng cần dừng lại. Ta sẽ làm một bài phân loại 3 phút trước khi sang Module 1."
+"Bạn gần hoàn thành rồi. Điểm cần luyện là nhận diện hành động cần phê duyệt:
+bạn đã nhận ra việc sửa file, nhưng chưa nhận ra dùng mạng và cài gói phụ thuộc
+cũng cần dừng lại. Ta sẽ làm một bài phân loại 3 phút rồi kiểm tra lại."
 
 ### Nếu learner chưa đạt
 
-"Mình chưa sang module tiếp theo với tâm lý an toàn được. Không sao. Ta quay lại prompt đầu tiên: Codex nên đọc gì, không được làm gì, và bằng chứng nào sẽ cho thấy nó đã inspect xong?"
+"Bằng chứng hiện tại chưa đủ để hoàn thành module. Không sao. Ta quay lại yêu
+cầu đầu tiên: Codex nên đọc gì, không được làm gì và cần báo bằng chứng nào sau
+khi kiểm tra xong?"

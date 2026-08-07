@@ -1,7 +1,7 @@
 # Course Experience UI — Collaborator Update
 
-**Snapshot date:** 29 July 2026  
-**Status:** Direction aligned; interactive mock and technical workflow map available; production scope not yet selected.
+**Snapshot date:** 6 August 2026
+**Status:** One canonical visual prototype selected; Electron implementation has not started.
 
 ## Interactive mock
 
@@ -9,7 +9,11 @@ The collaborator-facing mock is located at:
 
 - [`prototypes/mvp-3-course-experience-companion/`](../../prototypes/mvp-3-course-experience-companion/)
 
-It demonstrates the approved interaction direction with visible simulation labels. It is not a production Codex integration.
+It is the repository's single current visual authority for the teaching
+application. It demonstrates the approved interaction direction with visible
+simulation labels and a complete Home Base-to-debrief loop. It is not a
+production Codex integration. Earlier standalone Teacher-layout and
+roadmap-comparison experiments have been retired.
 
 The collaborator-facing technical map is:
 
