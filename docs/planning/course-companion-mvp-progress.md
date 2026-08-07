@@ -2,7 +2,7 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 6 complete app shell verified in source; clean self-test copy refresh pending
+**Current phase:** Increment 6 and refreshed clean self-test copy verified; ready for Triết's personal walkthrough
 **Current decision:** Use the pixel Home Base as the real product hub around the focused lesson and floating Hương
 
 ## Product decision
@@ -257,10 +257,9 @@ installed from the lockfile, and exercised through the complete real-Electron
 journey. The first rehearsal exposed a hard-coded Electron binary path in the
 smoke test; commit `8c11131` replaced it with Electron's runtime resolver. A
 second copy rebuilt from that checkpoint passed from a fresh install with no
-Electron runtime initially present. The copy is now ready for Triết's personal
-walkthrough of the pre-shell build. Increment 6 supersedes that copy, so it must
-be refreshed before the next personal walkthrough; external testing remains
-behind the live integration gate.
+Electron runtime initially present. Increment 6 superseded that pre-shell copy;
+the refreshed Home Base copy is recorded below. External testing remains behind
+the live integration gate.
 
 ### Increment 6 — Complete Course Companion shell
 
@@ -275,7 +274,7 @@ Electron flow opens Home Base, reaches all six destinations, applies the
 always-on-top setting to the native companion window, completes the full Pilot
 journey, restores Hương, and survives relaunch. Desktop and 390px screenshots
 confirm the pixel hierarchy and separate full-width narrow-layout rows. The
-clean self-test copy still needs to be rebuilt from this checkpoint.
+refreshed clean self-test copy passes the same complete Electron journey.
 
 ## Increment 1 verification record — 6 August 2026
 
@@ -426,6 +425,10 @@ clean self-test copy still needs to be rebuilt from this checkpoint.
 - Visual inspection: desktop captures show a restrained pixel product shell
   over the established room; the 390px Home Base uses full-width stacked rows
   with no horizontal overflow.
+- Clean-copy rehearsal: the committed source was exported without `.git`,
+  dependencies were installed from the lockfile, lint and 21/21 tests passed,
+  and the complete Electron smoke passed from
+  `codex-content-creator-course-self-test-2026-08-07-home-base/`.
 
 ## Progress snapshot
 
@@ -439,11 +442,11 @@ progress.
 | Production location | **Locked** | The real package is `course-companion/`; prototypes remain references. |
 | Desktop shell | **Verified with MVP pixel renderer** | Electron lifecycle, security, real-app visual inspection, and narrow-width inspection pass. |
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
-| Complete app shell | **Verified in source** | Home Base, roadmap, lesson, embedded Hương, progress, and working settings pass in real Electron; clean-copy refresh is next. |
+| Complete app shell | **Verified** | Home Base, roadmap, lesson, embedded Hương, progress, and working settings pass in source and the refreshed clean copy. |
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
 | Fixture practice loop | **Verified** | Six honest fixture states, evidence reflection, debrief, persistence, and real-app visual inspection pass. |
-| Personal self-test gate | **Refresh required** | P1–P11 pass in source; the clean copy must be rebuilt after the Increment 6 checkpoint. |
+| Personal self-test gate | **Verified** | P1–P11 pass in source and the refreshed clean copy; Triết's hands-on walkthrough is next. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
 
@@ -460,8 +463,8 @@ progress.
 | P7 | Every simulated integration state is visibly identifiable as a fixture. | Pass |
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
-| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Source pass; clean-copy refresh pending |
-| P11 | Home Base exposes roadmap, lesson, Hương, progress, and working settings without bypassing the focused lesson. | Pass in source; clean-copy proof pending |
+| P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Pass |
+| P11 | Home Base exposes roadmap, lesson, Hương, progress, and working settings without bypassing the focused lesson. | Pass |
 
 The personal-test MVP is complete only when P1–P11 pass. Passing source checks
 without verifying the desktop window lifecycle is insufficient.
@@ -500,10 +503,9 @@ increment. Aesthetic preference alone is not an MVP blocker.
 
 ## Next action
 
-Rebuild the clean self-test copy from the Increment 6 checkpoint, install its
-locked dependencies, and repeat the complete Electron smoke once there. Then
-Triết performs one personal walkthrough using `cd course-companion && npm run
-dev`. Record only blockers that prevent start, orientation, completion, resume,
-honest fixture interpretation, or the floating companion lifecycle. Do not
-invite an external tester or add Modules 2–6 until the live Teacher/Codex
-integration gate is intentionally opened and verified.
+Triết performs one personal walkthrough from
+`codex-content-creator-course-self-test-2026-08-07-home-base/` using `cd
+course-companion && npm run dev`. Record only blockers that prevent start,
+orientation, completion, resume, honest fixture interpretation, or the floating
+companion lifecycle. Do not invite an external tester or add Modules 2–6 until
+the live Teacher/Codex integration gate is intentionally opened and verified.
