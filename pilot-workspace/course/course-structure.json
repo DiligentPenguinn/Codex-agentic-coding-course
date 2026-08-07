@@ -8,8 +8,8 @@
   "modules": [
     {
       "id": "intro",
-      "titleVi": "Lời gọi xây ContentPilot",
-      "titleEn": "The call to build ContentPilot",
+      "titleVi": "Bắt đầu với ContentPilot",
+      "titleEn": "Getting started with ContentPilot",
       "estimatedMinutes": 25,
       "lessonPath": "course/lessons/intro.vi.md",
       "scriptPath": "course/lesson-scripts/intro.script.vi.md",

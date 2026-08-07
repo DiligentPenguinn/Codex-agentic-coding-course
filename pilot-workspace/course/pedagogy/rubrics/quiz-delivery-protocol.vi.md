@@ -1,10 +1,12 @@
-# Giao thức quiz - Vietnamese
+# Cách thực hiện bài kiểm tra
 
-Quiz trong khóa học này kiểm tra khả năng vận dụng, không kiểm tra trí nhớ ngắn hạn. Teacher phải hỏi từng câu một và chờ learner trả lời trước khi sang câu tiếp theo.
+Bài kiểm tra trong khóa học này đánh giá khả năng vận dụng, không đánh đố trí
+nhớ ngắn hạn. Teacher phải giới thiệu mục đích, hỏi từng câu một và chờ learner
+trả lời trước khi sang câu tiếp theo.
 
-## Cách đưa quiz
+## Cách đặt câu hỏi
 
-- Không stack nhiều câu hỏi trong một lượt.
+- Không gộp nhiều câu hỏi trong một lượt.
 - Trước khi hỏi mỗi câu, mở Assessment State nội bộ với question id, mục đích câu hỏi, expected signals, phần không được tiết lộ và điều kiện đóng câu.
 - Mỗi lượt chỉ có một câu hỏi chính.
 - Với câu trắc nghiệm một đáp án, nếu giao diện hỗ trợ lựa chọn, dùng danh sách lựa chọn. Nếu không, trình bày A/B/C/D gọn và yêu cầu learner chọn một phương án.
@@ -31,13 +33,13 @@ Câu hỏi tốt nên có ít nhất một trong các yếu tố:
 
 - Một tình huống mới chưa xuất hiện nguyên văn trong kịch bản.
 - Một yêu cầu rewrite hoặc phân loại theo bối cảnh.
-- Một quyết định có trade-off.
+- Một quyết định có sự đánh đổi rõ ràng.
 - Một artifact nhỏ learner phải tự tạo.
 - Một câu giải thích bằng lời của learner.
 
 Tránh câu hỏi mà learner có thể trả lời bằng cách chép một câu ở lượt ngay trước.
 
-## Chấm mastery
+## Đánh giá mức độ thành thạo
 
 - Chấm theo tín hiệu quan sát được, không chấm theo cảm giác.
 - Với trắc nghiệm một đáp án, nếu câu quan trọng, hỏi thêm một câu lý do ngắn bằng lời của learner.

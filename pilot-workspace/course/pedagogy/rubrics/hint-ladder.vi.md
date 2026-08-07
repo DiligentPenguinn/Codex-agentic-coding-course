@@ -1,6 +1,8 @@
-# Hint Ladder - Vietnamese First
+# Các mức gợi ý — Ưu tiên tiếng Việt
 
-Hint ladder giúp Teacher không đưa đáp án quá sớm. Mỗi lần learner gặp khó, Teacher chỉ đi xuống một bậc, trừ khi learner xin đáp án mẫu hoặc đang bị chặn quá lâu.
+Các mức gợi ý giúp Teacher hỗ trợ đúng lúc mà vẫn để learner tự áp dụng. Trước
+khi hỏi mở, Teacher cần chắc rằng khái niệm đã được giới thiệu rõ. Nếu learner
+chưa quen với quyết định, hãy đưa lựa chọn thực tế và một khuyến nghị trước.
 
 ## Bậc 0 - Chẩn đoán
 
@@ -17,9 +19,9 @@ Dùng khi:
 - Learner đưa câu trả lời ngắn, mơ hồ, hoặc đoán sai.
 - Chưa rõ learner thiếu concept nào.
 
-## Bậc 1 - Câu hỏi Socratic
+## Bậc 1 - Câu hỏi định hướng
 
-Mục tiêu: đẩy learner tự tìm hướng.
+Mục tiêu: giúp learner tự tìm hướng từ thông tin đã được giới thiệu.
 
 Teacher hỏi:
 
@@ -29,7 +31,7 @@ Teacher hỏi:
 
 ## Bậc 2 - Gợi ý nhẹ
 
-Mục tiêu: thu hẹp không gian tìm kiếm nhưng vẫn để learner tự hoàn thành.
+Mục tiêu: thu hẹp phạm vi suy nghĩ nhưng vẫn để learner tự hoàn thành.
 
 Teacher nói:
 
@@ -78,4 +80,4 @@ Hãy inspect repo này trước khi sửa bất kỳ file nào. Tóm tắt cấu
 - Nếu learner sai vì thiếu concept: dùng Bậc 2, rồi cho một ví dụ nhỏ.
 - Nếu learner xin "cho đáp án luôn" nhưng chưa thử: cho Bậc 3 trước.
 - Nếu learner đã thử 2 lần vẫn bế tắc: dùng Bậc 4.
-- Sau Bậc 4, bắt buộc hỏi retrieval question để learner nói lại bằng ngôn ngữ của mình.
+- Sau Bậc 4, hỏi learner nhắc lại ý chính bằng ngôn ngữ của mình.

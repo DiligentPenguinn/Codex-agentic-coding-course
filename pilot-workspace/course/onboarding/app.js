@@ -1,69 +1,65 @@
-const STORAGE_KEY = "codex-academy-pixel-onboarding-v1";
+const STORAGE_KEY = "codex-academy-visual-map-v2";
 
 const story = [
   {
-    avatar: "T",
-    speaker: "TEACHER",
-    role: "NGƯỜI DẪN ĐƯỜNG",
-    title: "TÍN HIỆU ĐẦU TIÊN",
-    text: "Chào bạn. Đây không phải khóa học biến bạn thành lập trình viên. Đây là hành trình giúp bạn biến một công việc nội dung lặp lại thành công cụ của riêng mình."
+    title: "HAI KHÔNG GIAN, HAI MỤC ĐÍCH",
+    text: "Phần giới thiệu này giúp bạn hiểu khóa học. Codex là nơi bạn trò chuyện, cho phép hành động và kiểm tra công việc thật."
   },
   {
-    avatar: "E",
-    speaker: "EXECUTOR",
-    role: "CỘNG SỰ THỰC THI",
-    title: "MỘT SỨC MẠNH MỚI",
-    text: "Tôi là Codex. Tôi có thể đọc workspace, lập kế hoạch, sửa file và chạy kiểm tra. Nhưng tôi không tự quyết định mục tiêu hay điều gì đủ tốt."
+    title: "BẠN KHÔNG CẦN BIẾT LẬP TRÌNH",
+    text: "Bạn có thể giao việc bằng ngôn ngữ bình thường. Vai trò của bạn là giữ mục tiêu, đưa ra quyết định và nói rõ điều gì đủ tốt."
   },
   {
-    avatar: "Y",
-    speaker: "BẠN",
-    role: "NGƯỜI GIỮ QUYỀN QUYẾT ĐỊNH",
-    title: "VAI TRÒ CỦA BẠN",
-    text: "Bạn không cần hiểu mọi dòng code. Bạn giữ mục tiêu, phê duyệt hành động có rủi ro và dùng bằng chứng để quyết định kết quả có được chấp nhận hay không."
+    title: "CODEX PHẢI ĐƯA RA BẰNG CHỨNG",
+    text: "Codex có thể đọc workspace, sửa file và chạy kiểm tra. Sau mỗi công việc, hãy xem file đã thay đổi, kết quả kiểm tra và phần so sánh trước khi chấp nhận."
   },
   {
-    avatar: "T",
-    speaker: "TEACHER",
-    role: "LUẬT ĐẦU TIÊN",
-    title: "ĐỌC TRƯỚC KHI SỬA",
-    text: "Nhiệm vụ đầu tiên sẽ rất nhỏ: yêu cầu Codex quan sát workspace mà không thay đổi gì. Bạn sẽ thấy cách cộng tác an toàn trước khi chúng ta hỏi về công việc của bạn."
+    title: "LUẬT ĐẦU TIÊN: ĐỌC TRƯỚC KHI SỬA",
+    text: "Khi trở lại Codex, bài thực hành đầu tiên chỉ cho phép đọc. Bạn sẽ thấy Codex kiểm tra đúng workspace mà không thay đổi bất kỳ file nào."
   }
 ];
 
 const cockpitSteps = [
   {
-    view: "chat",
-    kicker: "NƠI BẠN BẮT ĐẦU",
-    title: "Trò chuyện bằng ngôn ngữ bình thường",
-    description: "Bạn không cần prompt hoàn hảo. Teacher sẽ giải thích, hỏi từng câu một và giúp bạn biến ý tưởng thành yêu cầu rõ ràng."
+    view: "prompt",
+    image: "images/codex-app-interface.webp",
+    alt: "Ảnh giao diện Codex chính thức, đánh dấu phần yêu cầu của người dùng",
+    kicker: "NƠI BẠN GIAO VIỆC",
+    title: "Viết yêu cầu bằng ngôn ngữ bình thường",
+    description: "Hãy nói mục tiêu, bối cảnh và điều bạn muốn Codex kiểm tra. Bạn không cần viết lệnh kỹ thuật hay một prompt hoàn hảo."
   },
   {
-    view: "workspace",
-    kicker: "NGUỒN SỰ THẬT",
-    title: "Workspace là thư mục dự án đang mở",
-    description: "Khóa học, ứng dụng ContentPilot và artifact của bạn cùng nằm ở đây. Codex đọc những file này để hiểu bối cảnh trước khi hành động."
+    view: "progress",
+    image: "images/codex-app-interface.webp",
+    alt: "Ảnh giao diện Codex chính thức, đánh dấu phần báo cáo tiến độ và bằng chứng",
+    kicker: "NƠI CODEX BÁO CÁO",
+    title: "Theo dõi tiến độ và bằng chứng",
+    description: "Codex cho biết nó đã đọc file nào, đang làm gì và đã kiểm tra kết quả ra sao. Đây là nơi bạn phát hiện sớm khi công việc đi sai hướng."
   },
   {
-    view: "approval",
-    kicker: "ĐIỂM DỪNG AN TOÀN",
-    title: "Approval cho bạn quyền nói có hoặc không",
-    description: "Khi Codex muốn sửa file, cài dependency hoặc chạm hệ thống bên ngoài, hãy xem phạm vi rồi mới cho phép. Approval không phải lỗi."
+    view: "review",
+    image: "images/codex-app-interface.webp",
+    alt: "Ảnh giao diện Codex chính thức, đánh dấu bảng review các file thay đổi",
+    kicker: "NƠI BẠN KIỂM TRA",
+    title: "Xem các file đã thay đổi",
+    description: "Sau khi Codex sửa code, khu vực Review cho thấy chính xác file nào đã đổi. Bạn có thể yêu cầu giải thích, kiểm tra thêm hoặc chỉnh lại."
   },
   {
-    view: "changes",
-    kicker: "BẰNG CHỨNG THAY ĐỔI",
-    title: "Changes và diff cho thấy điều gì đã đổi",
-    description: "Bạn không cần đọc mọi dòng. Hãy kiểm tra đúng file, đúng phạm vi và yêu cầu test hoặc quan sát giao diện trước khi chấp nhận."
+    view: "terminal",
+    image: "images/codex-terminal-interface.webp",
+    alt: "Ảnh giao diện terminal tích hợp chính thức trong Codex",
+    kicker: "NƠI LỆNH THẬT CHẠY",
+    title: "Terminal nằm ngay trong Codex",
+    description: "Terminal hiển thị thư mục, lệnh và kết quả thật. Trong khóa học, bạn sẽ được giải thích trước khi một lệnh có thể thay đổi workspace hoặc hệ thống."
   }
 ];
 
 const progressByScreen = {
-  start: { width: 20, label: "CỔNG KHỞI HÀNH", count: "01 / 05" },
-  story: { width: 40, label: "GẶP ĐỘI CỦA BẠN", count: "02 / 05" },
-  map: { width: 60, label: "BẢN ĐỒ HÀNH TRÌNH", count: "03 / 05" },
-  cockpit: { width: 80, label: "PHÒNG ĐIỀU KHIỂN", count: "04 / 05" },
-  complete: { width: 100, label: "CHECKPOINT ĐÃ MỞ", count: "05 / 05" }
+  start: { width: 20, label: "BẮT ĐẦU", count: "01 / 05" },
+  story: { width: 40, label: "THÔNG TIN CẦN BIẾT", count: "02 / 05" },
+  map: { width: 60, label: "NỘI DUNG KHÓA HỌC", count: "03 / 05" },
+  cockpit: { width: 80, label: "GIAO DIỆN CODEX", count: "04 / 05" },
+  complete: { width: 100, label: "TRỞ LẠI CODEX", count: "05 / 05" }
 };
 
 const screens = Array.from(document.querySelectorAll("[data-screen]"));
@@ -72,11 +68,9 @@ const progressLabel = document.querySelector("#progressLabel");
 const progressCount = document.querySelector("#progressCount");
 const startButton = document.querySelector("#startButton");
 const storyTitle = document.querySelector("#storyTitle");
-const speakerAvatar = document.querySelector("#speakerAvatar");
-const speakerRole = document.querySelector("#speakerRole");
-const speakerName = document.querySelector("#speakerName");
 const storyCounter = document.querySelector("#storyCounter");
 const storyText = document.querySelector("#storyText");
+const visualOnlyNote = document.querySelector(".visual-only-note");
 const storyPrevious = document.querySelector("#storyPrevious");
 const storyNext = document.querySelector("#storyNext");
 const cockpitButtons = Array.from(document.querySelectorAll("[data-cockpit-step]"));
@@ -85,7 +79,8 @@ const cockpitKicker = document.querySelector("#cockpitKicker");
 const cockpitStepTitle = document.querySelector("#cockpitStepTitle");
 const cockpitDescription = document.querySelector("#cockpitDescription");
 const cockpitNext = document.querySelector("#cockpitNext");
-const codexMockup = document.querySelector("#codexMockup");
+const realScreen = document.querySelector("#realScreen");
+const codexScreenshot = document.querySelector("#codexScreenshot");
 
 let currentScreen = "start";
 let storyIndex = 0;
@@ -112,7 +107,7 @@ function saveState() {
       })
     );
   } catch {
-    // The experience still works when local storage is blocked.
+    // The visual map still works when local storage is blocked.
   }
 }
 
@@ -146,14 +141,12 @@ function openScreen(screenName, shouldSave = true) {
 function renderStory() {
   const beat = story[storyIndex];
   storyTitle.textContent = beat.title;
-  speakerAvatar.textContent = beat.avatar;
-  speakerRole.textContent = beat.role;
-  speakerName.textContent = beat.speaker;
   storyCounter.textContent = `${String(storyIndex + 1).padStart(2, "0")} / 04`;
   storyText.textContent = beat.text;
+  visualOnlyNote.hidden = storyIndex !== 0;
   storyPrevious.disabled = storyIndex === 0;
   storyNext.querySelector("span").textContent =
-    storyIndex === story.length - 1 ? "MỞ BẢN ĐỒ" : "TIẾP TỤC";
+    storyIndex === story.length - 1 ? "XEM NỘI DUNG KHÓA HỌC" : "TIẾP TỤC";
   saveState();
 }
 
@@ -176,13 +169,15 @@ function renderCockpit() {
     button.setAttribute("aria-current", isActive ? "step" : "false");
   });
 
-  codexMockup.dataset.view = step.view;
+  realScreen.dataset.view = step.view;
+  codexScreenshot.src = step.image;
+  codexScreenshot.alt = step.alt;
   cockpitCounter.textContent = `${String(cockpitIndex + 1).padStart(2, "0")} / 04`;
   cockpitKicker.textContent = step.kicker;
   cockpitStepTitle.textContent = step.title;
   cockpitDescription.textContent = step.description;
   cockpitNext.querySelector("span").textContent =
-    cockpitIndex === cockpitSteps.length - 1 ? "NHẬN NHIỆM VỤ" : "TIẾP THEO";
+    cockpitIndex === cockpitSteps.length - 1 ? "TRỞ LẠI CODEX" : "TIẾP THEO";
   saveState();
 }
 
@@ -204,7 +199,7 @@ function resetState() {
   savedState = null;
   storyIndex = 0;
   cockpitIndex = 0;
-  startButton.querySelector("span").textContent = "BẮT ĐẦU CHUYẾN ĐI";
+  startButton.querySelector("span").textContent = "BẮT ĐẦU";
   openScreen("start");
 }
 
@@ -267,8 +262,8 @@ document.addEventListener("keydown", (event) => {
 
 if (savedState?.screen && savedState.screen !== "start") {
   startButton.querySelector("span").textContent = savedState.completed
-    ? "MỞ LẠI CHECKPOINT"
-    : "TIẾP TỤC CHUYẾN ĐI";
+    ? "XEM LẠI PHẦN GIỚI THIỆU"
+    : "TIẾP TỤC";
 }
 
 screens.forEach((screen) => {

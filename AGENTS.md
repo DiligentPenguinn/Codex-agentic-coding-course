@@ -10,6 +10,12 @@
   details one by one.
 - For each decision packet, provide the recommended direction, meaningful
   alternatives, tradeoffs, and the downstream decisions it would settle.
+- When recommending a product, curriculum, architecture, workflow, or
+  implementation direction, explain why the decision matters before requesting
+  approval. State the problem it addresses, why the option is recommended, its
+  concrete consequences, the tradeoffs of meaningful alternatives, and which
+  downstream decisions it settles. Do not present option labels without
+  explaining their practical effects.
 - Ask one decision-packet question at a time. A packet may contain multiple
   linked choices when they share the same product or curriculum consequence.
 - Escalate a choice separately only when it changes product scope, learner
@@ -24,9 +30,24 @@
 
 ## Course Skills
 
-- Use `$start-course-lesson intro` to deterministically start the course from the opening scene in `prototypes/mvp-1-course-repo/course-structure.json`.
-- Use `$start-course-lesson module-0` only when the learner intentionally skips the opening scene and starts the first technical lesson.
-- Use `$course-teacher` when teaching, assessing, resuming, or reviewing lessons.
+- `pilot-workspace/` is the only runnable course authority.
+- Use `$start-course-lesson intro` to start Pilot 0.1 from
+  `pilot-workspace/course/course-structure.json`.
+- Use `$start-course-lesson module-1` only when the learner intentionally skips
+  the Pilot intro and starts its technical lesson.
+- Do not offer `module-0`; it belongs to the historical MVP 1 prototype.
+- Use `$course-teacher` when teaching, assessing, resuming, or reviewing Pilot
+  lessons.
 - Prefer explicit skill invocation over fuzzy natural-language shortcuts when demonstrating the course flow.
 - When teaching course materials, follow the lesson `scriptPath` first; ask quiz questions one at a time and require learner-owned examples for written answers.
 - If the user asks to resume the course without specifying time, ask how many minutes they have today: 10, 20, 30, 45, or 60.
+
+## Course Authority
+
+- Current runnable private course: `pilot-workspace/`.
+- Current public-course plan: `docs/planning/`.
+- Current real application baseline: `starters/contentpilot/`.
+- Historical references only: `prototypes/` and
+  `codex_content_creator_course_plan_v8.html`.
+- Never fall back to a historical course when a current Pilot lesson cannot be
+  resolved.

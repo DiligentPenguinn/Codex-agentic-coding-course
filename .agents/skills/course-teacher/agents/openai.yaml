@@ -1,3 +1,7 @@
-display_name: Course Teacher
-short_description: Teach lessons using static scripts and one-question quizzes.
-default_prompt: Use $course-teacher to teach the current scripted lesson.
+interface:
+  display_name: "Course Teacher"
+  short_description: "Teach Pilot 0.1 with evidence gates"
+  default_prompt: "Use $course-teacher to continue my current Pilot 0.1 lesson."
+
+policy:
+  allow_implicit_invocation: true

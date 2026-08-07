@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "intro",
-  "title": "Readiness gate — Phần mở đầu",
+  "title": "Kiểm tra sẵn sàng — Phần mở đầu",
   "passingScore": 1,
   "delivery": {
     "mode": "one-question-at-a-time",
@@ -13,7 +13,7 @@
     {
       "id": "intro-q1",
       "type": "short-answer",
-      "prompt": "Với workflow của bạn, điều gì làm một batch 5 gói nội dung đủ sẵn sàng để bạn duyệt?",
+      "prompt": "Trong quy trình của bạn, để 5 bộ nội dung sẵn sàng cho bạn duyệt, mỗi bộ cần đáp ứng tiêu chí cụ thể nào?",
       "expectedSignals": [
         "Có ít nhất một tiêu chí quan sát được",
         "Gắn với audience hoặc platform của Learner",
@@ -23,13 +23,12 @@
     {
       "id": "intro-q2",
       "type": "short-answer",
-      "prompt": "Vì sao chỉ chạy dữ liệu mô phỏng chưa đủ để chứng minh ContentPilot tốt nghiệp?",
+      "prompt": "Vì sao chỉ chạy dữ liệu mô phỏng chưa đủ để chứng minh ContentPilot hoạt động trọn quy trình với AI thật?",
       "expectedSignals": [
-        "Nhận ra graduation cần một lần chạy API thật",
-        "Phân biệt học hoặc troubleshooting với bằng chứng end-to-end",
+        "Nhận ra khóa học yêu cầu một lần chạy API thật",
+        "Phân biệt dữ liệu dùng để học hoặc xử lý lỗi với bằng chứng chạy trọn quy trình",
         "Giải thích bằng lời riêng"
       ]
     }
   ]
 }
-

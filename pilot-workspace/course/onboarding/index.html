@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0874df">
-    <title>Lời gọi xây ContentPilot — Codex Content Builder Academy</title>
+    <meta name="theme-color" content="#096fda">
+    <title>Bắt đầu với ContentPilot — Codex Content Builder Academy</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <div class="game-shell">
       <header class="game-hud">
-        <a class="game-brand" href="#start" data-reset aria-label="Chơi lại từ đầu">
+        <a class="game-brand" href="#start" data-reset aria-label="Xem lại từ đầu">
           <span class="brand-gem" aria-hidden="true"></span>
           <span>
             <strong>CODEX ACADEMY</strong>
@@ -18,13 +18,13 @@
           </span>
         </a>
 
-        <div class="quest-progress" aria-label="Tiến độ chuyến mở đầu">
-          <span id="progressLabel">CỔNG KHỞI HÀNH</span>
+        <div class="quest-progress" aria-label="Tiến độ phần giới thiệu">
+          <span id="progressLabel">BẮT ĐẦU</span>
           <div class="pixel-track"><span id="progressBar"></span></div>
           <b id="progressCount">01 / 05</b>
         </div>
 
-        <button class="hud-button" type="button" data-reset>CHƠI LẠI</button>
+        <button class="hud-button" type="button" data-reset>XEM LẠI</button>
       </header>
 
       <main>
@@ -33,48 +33,58 @@
           <div class="sky-vignette" aria-hidden="true"></div>
 
           <div class="hero-copy">
-            <p class="pixel-label">NHIỆM VỤ MỚI ĐÃ MỞ</p>
-            <h1>LỜI GỌI XÂY<br><span>CONTENTPILOT</span></h1>
+            <p class="pixel-label">PHẦN GIỚI THIỆU · 3 PHÚT</p>
+            <h1>BẮT ĐẦU VỚI<br><span>CONTENTPILOT</span></h1>
             <p class="hero-lede">
-              Một chuyến phiêu lưu thực hành dành cho người làm nội dung —
+              Hiểu sản phẩm bạn sẽ xây và cách làm việc trong Codex —
               không cần biết lập trình trước.
             </p>
             <button class="pixel-button pixel-button-primary" id="startButton" type="button">
-              <span>BẮT ĐẦU CHUYẾN ĐI</span><b aria-hidden="true">▶</b>
+              <span>BẮT ĐẦU</span><b aria-hidden="true">▶</b>
             </button>
           </div>
 
           <aside class="quest-card">
-            <span class="card-kicker">THẺ NHIỆM VỤ</span>
-            <strong>Biến workflow nội dung rời rạc thành một công cụ bạn có thể kiểm soát.</strong>
+            <span class="card-kicker">BẠN SẼ BIẾT</span>
+            <strong>Khóa học xây gì, bạn quyết định điều gì và công việc thật diễn ra ở đâu.</strong>
             <div class="quest-stats">
               <span><small>THỜI GIAN</small><b>~ 3 PHÚT</b></span>
-              <span><small>ĐỘ KHÓ</small><b>NGƯỜI MỚI</b></span>
+              <span><small>CHẾ ĐỘ</small><b>CHỈ HƯỚNG DẪN</b></span>
             </div>
           </aside>
 
           <p class="key-hint">NHẤN <kbd>→</kbd> ĐỂ TIẾP TỤC</p>
         </section>
 
-        <section class="screen screen-dialogue" data-screen="story" aria-labelledby="storyTitle">
+        <section class="screen screen-briefing" data-screen="story" aria-labelledby="storyTitle">
           <div class="room-scene" aria-hidden="true"></div>
           <div class="room-vignette" aria-hidden="true"></div>
 
           <div class="mission-badge">
-            <span>CHƯƠNG 0</span>
-            <strong id="storyTitle" tabindex="-1">TÍN HIỆU ĐẦU TIÊN</strong>
+            <span>PHẦN GIỚI THIỆU</span>
+            <strong>TRƯỚC KHI LÀM VIỆC TRONG CODEX</strong>
           </div>
 
-          <article class="dialogue-box" aria-live="polite">
+          <article class="briefing-card" aria-live="polite">
             <header>
-              <span class="speaker-avatar" id="speakerAvatar" aria-hidden="true">T</span>
+              <span class="narrator-mark" aria-hidden="true">◆</span>
               <div>
-                <small id="speakerRole">NGƯỜI DẪN ĐƯỜNG</small>
-                <h2 id="speakerName">TEACHER</h2>
+                <small>THÔNG TIN CẦN BIẾT</small>
+                <h2 id="storyTitle" tabindex="-1">HAI KHÔNG GIAN, HAI MỤC ĐÍCH</h2>
               </div>
               <b id="storyCounter">01 / 04</b>
             </header>
+
             <p id="storyText"></p>
+
+            <div class="visual-only-note">
+              <span aria-hidden="true">i</span>
+              <p>
+                Trang HTML này chỉ giải thích bằng hình ảnh. Nó không thể đọc,
+                sửa hoặc chạy bất kỳ thứ gì trong workspace của bạn.
+              </p>
+            </div>
+
             <footer>
               <button class="pixel-button pixel-button-quiet" id="storyPrevious" type="button">
                 ◀ TRƯỚC
@@ -90,114 +100,103 @@
           <div class="map-clouds" aria-hidden="true"></div>
           <div class="map-layout">
             <div class="map-intro">
-              <p class="pixel-label">BẢN ĐỒ HÀNH TRÌNH</p>
-              <h2 id="mapTitle" tabindex="-1">BẠN SẼ XÂY<br>MỘT WORKFLOW THẬT</h2>
+              <p class="pixel-label">NỘI DUNG KHÓA HỌC</p>
+              <h2 id="mapTitle" tabindex="-1">BẠN SẼ XÂY<br>MỘT QUY TRÌNH THẬT</h2>
               <p>
-                Không học code để nhớ cú pháp. Bạn học cách giao việc, kiểm tra
-                bằng chứng và giữ quyền quyết định khi Codex xây cùng bạn.
+                Bạn không học code để ghi nhớ cú pháp. Bạn học cách giao việc
+                rõ ràng, kiểm tra bằng chứng và giữ quyền quyết định khi Codex
+                xây công cụ cùng bạn.
               </p>
             </div>
 
-            <ol class="world-map" aria-label="Sáu chặng của khóa học">
+            <ol class="world-map" aria-label="Sáu phần của khóa học">
               <li class="is-live">
                 <span class="map-node">01</span>
                 <div><small>PILOT 0.1</small><strong>Làm việc an toàn với Codex</strong></div>
               </li>
               <li>
                 <span class="map-node">02</span>
-                <div><small>CHẶNG 2</small><strong>Dữ liệu thương hiệu</strong></div>
+                <div><small>MODULE 2</small><strong>Dữ liệu thương hiệu</strong></div>
               </li>
               <li>
                 <span class="map-node">03</span>
-                <div><small>CHẶNG 3</small><strong>Nghiên cứu có nguồn</strong></div>
+                <div><small>MODULE 3</small><strong>Nghiên cứu có nguồn</strong></div>
               </li>
               <li>
                 <span class="map-node">04</span>
-                <div><small>CHẶNG 4</small><strong>10 ý tưởng → chọn 5</strong></div>
+                <div><small>MODULE 4</small><strong>10 ý tưởng → chọn 5</strong></div>
               </li>
               <li>
                 <span class="map-node">05</span>
-                <div><small>CHẶNG 5</small><strong>5 gói nội dung</strong></div>
+                <div><small>MODULE 5</small><strong>5 bộ nội dung</strong></div>
               </li>
               <li class="is-future">
                 <span class="map-node">★</span>
-                <div><small>ĐÍCH ĐẾN</small><strong>Duyệt, lưu và xuất</strong></div>
+                <div><small>MODULE 6</small><strong>Duyệt, lưu và xuất</strong></div>
               </li>
             </ol>
           </div>
 
           <div class="map-footer">
-            <p><span>!</span> Workspace này hiện gồm phần mở đầu và Module 1. Các chặng sau đang được xây dựng.</p>
+            <p><span>!</span> Pilot hiện chỉ gồm phần giới thiệu và Module 1. Các module sau chưa có trong workspace này.</p>
             <button class="pixel-button pixel-button-primary" id="mapNext" type="button">
-              <span>VÀO PHÒNG ĐIỀU KHIỂN</span><b aria-hidden="true">▶</b>
+              <span>XEM GIAO DIỆN CODEX</span><b aria-hidden="true">▶</b>
             </button>
           </div>
         </section>
 
         <section class="screen screen-cockpit" data-screen="cockpit" aria-labelledby="cockpitTitle">
-          <div class="room-scene" aria-hidden="true"></div>
-          <div class="cockpit-shade" aria-hidden="true"></div>
+          <div class="cockpit-backdrop" aria-hidden="true"></div>
 
           <div class="cockpit-title">
-            <p class="pixel-label">HƯỚNG DẪN NHANH</p>
-            <h2 id="cockpitTitle" tabindex="-1">BỐN THỨ CẦN BIẾT TRONG CODEX</h2>
+            <p class="pixel-label">ẢNH GIAO DIỆN THẬT</p>
+            <h2 id="cockpitTitle" tabindex="-1">BỐN NƠI BẠN SẼ DÙNG TRONG CODEX</h2>
+            <p>Chọn từng mục để xem vị trí của nó trên giao diện.</p>
           </div>
 
           <div class="codex-console">
             <nav aria-label="Các khu vực chính trong Codex">
               <button type="button" data-cockpit-step="0">
-                <span>01</span><strong>TRÒ CHUYỆN</strong>
+                <span>01</span><strong>YÊU CẦU</strong>
               </button>
               <button type="button" data-cockpit-step="1">
-                <span>02</span><strong>WORKSPACE</strong>
+                <span>02</span><strong>TIẾN ĐỘ</strong>
               </button>
               <button type="button" data-cockpit-step="2">
-                <span>03</span><strong>APPROVAL</strong>
+                <span>03</span><strong>REVIEW</strong>
               </button>
               <button type="button" data-cockpit-step="3">
-                <span>04</span><strong>CHANGES</strong>
+                <span>04</span><strong>TERMINAL</strong>
               </button>
             </nav>
 
             <div class="console-screen">
-              <div class="console-bar">
-                <span>CONTENTPILOT / CODEX</span>
-                <b id="cockpitCounter">01 / 04</b>
-              </div>
-
-              <div class="codex-mockup" id="codexMockup" data-view="chat" aria-hidden="true">
-                <aside>
-                  <small>WORKSPACE</small>
-                  <b>▾ pilot-workspace</b>
-                  <span>course</span>
-                  <span>contentpilot</span>
-                  <span>artifacts</span>
-                </aside>
-                <div class="mock-thread">
-                  <div class="mock-message">
-                    <i>T</i><p>Teacher chỉ dẫn từng bước và hỏi một câu mỗi lần.</p>
-                  </div>
-                  <div class="mock-message is-executor">
-                    <i>E</i><p>Executor đọc file, sửa code và báo bằng chứng.</p>
-                  </div>
-                  <div class="mock-approval">
-                    <b>APPROVAL REQUIRED</b>
-                    <p>Xem phạm vi trước khi cho phép thay đổi.</p>
-                  </div>
-                  <div class="mock-composer">Nhập bằng ngôn ngữ bình thường… <b>↑</b></div>
+              <figure class="real-screen" id="realScreen" data-view="prompt">
+                <div class="screen-toolbar">
+                  <span>CODEX · GIAO DIỆN THAM KHẢO</span>
+                  <b id="cockpitCounter">01 / 04</b>
                 </div>
-                <aside class="mock-changes">
-                  <small>CHANGES</small>
-                  <b>2 files changed</b>
-                  <span class="minus">− before</span>
-                  <span class="plus">+ after</span>
-                </aside>
-              </div>
+                <div class="image-stage">
+                  <img
+                    id="codexScreenshot"
+                    src="images/codex-app-interface.webp"
+                    alt="Ảnh giao diện Codex chính thức với cuộc trò chuyện và bảng review thay đổi"
+                  >
+                  <span class="screen-hotspot" aria-hidden="true"></span>
+                </div>
+                <figcaption>
+                  Ảnh sản phẩm chính thức từ OpenAI. Giao diện của bạn có thể khác đôi chút theo phiên bản.
+                </figcaption>
+              </figure>
 
               <article class="console-copy" aria-live="polite">
-                <span id="cockpitKicker">NƠI BẠN BẮT ĐẦU</span>
-                <h3 id="cockpitStepTitle">Trò chuyện bằng ngôn ngữ bình thường</h3>
+                <span id="cockpitKicker">NƠI BẠN GIAO VIỆC</span>
+                <h3 id="cockpitStepTitle">Viết yêu cầu bằng ngôn ngữ bình thường</h3>
                 <p id="cockpitDescription"></p>
+                <div class="reality-check">
+                  <span aria-hidden="true">↗</span>
+                  <p><strong>Việc thật diễn ra ở đâu?</strong> Trong task Codex bạn đang mở, không phải trong trang này.</p>
+                </div>
                 <button class="pixel-button pixel-button-primary" id="cockpitNext" type="button">
                   <span>TIẾP THEO</span><b aria-hidden="true">▶</b>
                 </button>
@@ -212,22 +211,27 @@
 
           <div class="complete-panel">
             <span class="victory-icon" aria-hidden="true">✓</span>
-            <p class="pixel-label">CHECKPOINT ĐÃ MỞ</p>
-            <h2 id="completeTitle" tabindex="-1">BẠN ĐÃ SẴN SÀNG CHO NHIỆM VỤ ĐẦU TIÊN</h2>
+            <p class="pixel-label">PHẦN GIỚI THIỆU ĐÃ XONG</p>
+            <h2 id="completeTitle" tabindex="-1">BÂY GIỜ, HÃY TRỞ LẠI CODEX</h2>
             <p>
-              Quay lại cuộc trò chuyện. Teacher sẽ dẫn bạn thử một hành động
-              chỉ đọc — Codex quan sát workspace nhưng không sửa file nào.
+              Không có lệnh nào vừa được chạy và không có file nào vừa được sửa.
+              Bài thực hành đầu tiên sẽ bắt đầu trong task Codex đang mở.
             </p>
 
+            <div class="handoff-route" aria-label="Hai bước chuyển tiếp">
+              <span><b>1</b> Đóng hoặc thu nhỏ trang HTML này.</span>
+              <span><b>2</b> Dán câu bên dưới vào task Codex.</span>
+            </div>
+
             <div class="return-code">
-              <small>GỬI CHO TEACHER</small>
-              <code id="returnText">Tôi đã hoàn thành chuyến mở đầu. Tôi sẵn sàng thử nhiệm vụ chỉ đọc.</code>
+              <small>GỬI TRONG CODEX</small>
+              <code id="returnText">Tôi đã xem xong phần giới thiệu. Hãy bắt đầu bài thực hành chỉ đọc trong Codex.</code>
               <button class="pixel-button pixel-button-primary" id="copyReturnText" type="button">
                 <span>SAO CHÉP CÂU TRẢ LỜI</span>
               </button>
             </div>
 
-            <button class="text-button" type="button" data-reset>Chơi lại chuyến mở đầu</button>
+            <button class="text-button" type="button" data-reset>Xem lại phần giới thiệu</button>
           </div>
         </section>
       </main>
@@ -235,8 +239,8 @@
 
     <noscript>
       <div class="noscript">
-        Trình duyệt cần bật JavaScript để chạy chuyến mở đầu. Bạn vẫn có thể
-        quay lại Codex và nói: “Tôi đã sẵn sàng”.
+        Trình duyệt cần bật JavaScript để xem phần giới thiệu. Bạn vẫn có thể
+        quay lại Codex và nói: “Hãy bắt đầu bài thực hành chỉ đọc”.
       </div>
     </noscript>
     <script src="app.js"></script>
