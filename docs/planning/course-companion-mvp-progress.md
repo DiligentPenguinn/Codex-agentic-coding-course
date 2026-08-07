@@ -1,9 +1,9 @@
 # Course Companion MVP Plan and Progress Tracker
 
-**Decision locked:** 6 August 2026
+**Decision locked:** 6 August 2026; Home Base interaction corrected 7 August 2026
 **Owner:** Triết
-**Current phase:** Increment 6 and refreshed clean self-test copy verified; ready for Triết's personal walkthrough
-**Current decision:** Use the pixel Home Base as the real product hub around the focused lesson and floating Hương
+**Current phase:** Unified Home Base correction verified; ready for Triết's personal walkthrough
+**Current decision:** Home Base is the roadmap; the current stage opens the focused lesson, while Hương remains a subordinate corner companion
 
 ## Product decision
 
@@ -16,10 +16,29 @@ desktop-window behavior, learner journey, local progress, resume behavior, and
 Teacher chat history. Teacher intelligence, Codex lifecycle events, and evidence
 detection will initially come through clearly labelled fixture adapters.
 
-The complete app now opens into a pixel Home Base with explicit access to the
-roadmap, current lesson, Hương, saved progress, and settings. The focused lesson
-remains a separate, distraction-limited scene, while the same Hương workspace is
-available both inside the full application and through the floating window.
+The complete app now opens into a pixel Home Base whose main content is the
+roadmap. The highlighted current stage is the lesson entry point; lesson and
+Teacher are not separate primary-navigation destinations. The focused lesson
+remains a distraction-limited scene, while Hương stays available as a compact
+corner companion that expands into a right-docked overlay. Saved progress and
+settings remain quiet header utilities.
+
+### Home Base interaction correction — 7 August 2026
+
+The first production Home Base exposed Home Base, roadmap, lesson, Hương,
+progress, and settings as six equal tabs. User review rejected that hierarchy
+because it fragmented one learning environment into artificial destinations and
+made Hương visually dominant.
+
+The accepted correction is:
+
+- Home Base directly renders the Pilot roadmap;
+- the current unlocked stage is visually highlighted and opens the focused
+  lesson when selected;
+- the lesson returns to the same roadmap-first Home Base;
+- Hương sits in the bottom-right corner and expands into a right-docked overlay,
+  never a primary tab; and
+- progress and settings remain subordinate utility controls in the header.
 
 The app becomes eligible for an external learner test only after those fixture
 adapters are replaced by live Teacher and Codex integrations and the integration
@@ -67,8 +86,8 @@ not validate live Teacher quality or real Codex observation.
 Launch Course Companion
   -> load saved progress
   -> welcome a new learner or offer exact resume
-  -> open the pixel Home Base and choose a destination
-  -> inspect the Pilot roadmap, progress, Hương, or settings
+  -> open the roadmap-first pixel Home Base
+  -> identify and select the highlighted current stage
   -> play an interactive character-led lesson scene
   -> present the current practice mission
   -> minimize the main window to the floating Teacher character
@@ -89,8 +108,10 @@ ends only through an explicit Quit action.
 - A production package at `course-companion/`.
 - Electron, React, and TypeScript.
 - A full learning window.
-- A pixel Home Base with working navigation to roadmap, lesson, Hương, progress,
-  and settings.
+- A pixel Home Base that directly presents the roadmap and opens the lesson from
+  its highlighted current stage.
+- A subordinate corner Hương overlay plus working progress and settings
+  utilities.
 - A roadmap that distinguishes the active Pilot from locked future modules.
 - A progress surface backed by the saved learner state.
 - A real setting for the floating companion's always-on-top behavior.
@@ -407,11 +428,12 @@ refreshed clean self-test copy passes the same complete Electron journey.
 
 ## Increment 6 verification record — 7 August 2026
 
-- Product shell: new start and resume now open Home Base instead of dropping
-  directly into one lesson scene.
-- Required destinations: Home Base, Lộ trình, Bài học, Hương, Tiến trình, and
-  Cài đặt are visible in one stable navigation bar.
-- Shared Teacher behavior: the full-app Hương workspace and floating panel use
+- Product shell: new start and resume open a roadmap-first Home Base instead of
+  dropping directly into one lesson scene.
+- Interaction hierarchy: the former six-destination navigation bar is removed;
+  the highlighted roadmap stage opens the lesson, while progress and settings
+  remain header utilities.
+- Shared Teacher behavior: the right-docked Hương overlay and floating panel use
   the same chat, practice, checkpoint, and persistence component.
 - Real setting: `companionAlwaysOnTop` is validated, migrated from the old
   mode-only settings file, persisted atomically, and applied to the native
@@ -419,13 +441,13 @@ refreshed clean self-test copy passes the same complete Electron journey.
 - Honesty: Teacher and Codex remain visibly labelled as local fixtures; the
   settings surface does not imply a live connection.
 - Static and unit verification: typecheck and lint passed; 21/21 tests passed.
-- Desktop lifecycle smoke: the complete real-Electron journey passed across
-  Home Base, roadmap, embedded Hương, settings, lesson progression, all six
+- Desktop lifecycle smoke: the complete real-Electron journey passed across the
+  roadmap-first Home Base, current-stage lesson entry, corner Hương, settings, all six
   practice fixtures, floating Hương, reset, quit, and restart persistence.
-- Visual inspection: desktop captures show a restrained pixel product shell
-  over the established room; the 390px Home Base uses full-width stacked rows
-  with no horizontal overflow.
-- Clean-copy rehearsal: the committed source was exported without `.git`,
+- Visual inspection: desktop captures show the roadmap as the dominant Home Base
+  content and Hương at the right edge; the 390px Home Base uses full-width
+  roadmap rows with no horizontal overflow.
+- Prior clean-copy rehearsal: the pre-correction committed source was exported without `.git`,
   dependencies were installed from the lockfile, lint and 21/21 tests passed,
   and the complete Electron smoke passed from
   `codex-content-creator-course-self-test-2026-08-07-home-base/`.
@@ -442,7 +464,7 @@ progress.
 | Production location | **Locked** | The real package is `course-companion/`; prototypes remain references. |
 | Desktop shell | **Verified with MVP pixel renderer** | Electron lifecycle, security, real-app visual inspection, and narrow-width inspection pass. |
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
-| Complete app shell | **Verified** | Home Base, roadmap, lesson, embedded Hương, progress, and working settings pass in source and the refreshed clean copy. |
+| Complete app shell | **Verified** | Roadmap-first Home Base, current-stage lesson entry, corner Hương overlay, progress, and working settings pass in the real Electron smoke. |
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
 | Fixture practice loop | **Verified** | Six honest fixture states, evidence reflection, debrief, persistence, and real-app visual inspection pass. |
@@ -464,7 +486,7 @@ progress.
 | P8 | Reset and last-known-good recovery work without manually editing state files. | Pass |
 | P9 | The renderer has no unrestricted Node.js, filesystem, credential, or shell access. | Pass |
 | P10 | Typecheck, lint, tests, production build, and clean-copy rehearsal pass. | Pass |
-| P11 | Home Base exposes roadmap, lesson, Hương, progress, and working settings without bypassing the focused lesson. | Pass |
+| P11 | Home Base directly shows the roadmap, opens the focused lesson from the highlighted current stage, and keeps Hương plus utilities subordinate. | Pass |
 
 The personal-test MVP is complete only when P1–P11 pass. Passing source checks
 without verifying the desktop window lifecycle is insufficient.

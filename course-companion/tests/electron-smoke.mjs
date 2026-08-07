@@ -114,6 +114,12 @@ try {
   await firstWindows.learningPage
     .getByRole('heading', { name: 'Hành trình học của bạn' })
     .waitFor()
+  assert.equal(
+    await firstWindows.learningPage.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(),
+    0
+  )
+  assert.equal(await firstWindows.learningPage.getByRole('button', { name: 'Bài học', exact: true }).count(), 0)
+  await firstWindows.learningPage.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
   await capture(firstWindows.learningPage, 'home-base.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
@@ -130,14 +136,8 @@ try {
     await capture(firstWindows.learningPage, 'home-base-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await firstWindows.learningPage.getByRole('button', { name: /LỘ TRÌNH/ }).click()
   await firstWindows.learningPage
-    .getByRole('heading', { name: 'Biết mình đang ở đâu và điều gì đến tiếp theo' })
-    .waitFor()
-  await capture(firstWindows.learningPage, 'roadmap.png')
-  await firstWindows.learningPage.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
-  await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục bài học hiện tại' })
+    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
     .click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
@@ -166,12 +166,13 @@ try {
     .getByRole('heading', { name: 'Bắt đầu hành trình ContentPilot' })
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu và mở Home Base' }).click()
-  await learningPage.getByRole('button', { name: 'Hương', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).click()
   await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
-  await learningPage
-    .getByLabel('Hương, giáo viên đồng hành')
-    .getByRole('button', { name: 'Về Home Base' })
-    .click()
+  const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()
+  assert.ok(teacherBounds)
+  assert.ok(teacherBounds.x > 1180 / 2)
+  await capture(learningPage, 'teacher-overlay.png')
+  await learningPage.locator('.pixel-teacher-overlay .pixel-panel-minimize').click()
   await learningPage.getByRole('button', { name: 'Cài đặt', exact: true }).click()
   await capture(learningPage, 'settings.png')
   const alwaysOnTopSwitch = learningPage.getByRole('switch', {
@@ -190,7 +191,10 @@ try {
     (windows) => companionWindow(windows)?.alwaysOnTop === true,
     'Expected Settings to restore always-on-top for the Teacher companion'
   )
-  await learningPage.getByRole('button', { name: 'Bài học', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Về Home Base' }).click()
+  await learningPage
+    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
+    .click()
   await learningPage
     .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
     .click()
@@ -366,7 +370,7 @@ try {
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: Home Base, roadmap, embedded Teacher, settings, journey resume/reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
+    'Electron smoke: roadmap-first Home Base, current-stage lesson entry, corner Teacher overlay, settings, journey resume/reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

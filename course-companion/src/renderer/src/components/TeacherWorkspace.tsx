@@ -295,7 +295,7 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       <footer>
         <button className="pixel-panel-quit" type="button" onClick={embedded ? onClose : () => void window.courseCompanion?.quitApp()}>
-          {embedded ? 'Về Home Base' : 'Thoát ứng dụng'}
+          {embedded ? 'Đóng Hương' : 'Thoát ứng dụng'}
         </button>
         <button className="pixel-panel-primary" type="button" onClick={onOpenLesson}>
           Mở bài học
