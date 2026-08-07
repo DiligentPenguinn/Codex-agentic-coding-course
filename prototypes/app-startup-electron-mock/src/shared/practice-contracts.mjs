@@ -1,6 +1,8 @@
 import path from "node:path";
 
 const FORBIDDEN_KEY = /^(access.?token|refresh.?token|api.?key|authorization|auth.?url|environment|env|reasoning)$/i;
+const SAFE_CONTRACT_ID = /^[a-z][a-z0-9-]*$/;
+const COMPLETION_AUTHORITIES = new Set(["machine", "teacher"]);
 const MAX_SUMMARY = 2_000;
 const MAX_CHANGED_FILES = 50;
 const MAX_TEACHER_MESSAGE = 4_000;
@@ -83,8 +85,38 @@ function parseMissionContent(value, label, additionalKeys = []) {
   return content;
 }
 
+export function parsePracticeDefinition(input) {
+  const value = objectWithKeys(
+    input,
+    ["id", "version", "objective", "expectedOutcome", "steps"],
+    "Practice definition",
+  );
+  rejectForbiddenKeys(value);
+  for (const key of ["id", "version", "objective", "expectedOutcome"]) {
+    requiredString(value[key], `Practice definition.${key}`, 1_000);
+  }
+  if (!SAFE_CONTRACT_ID.test(value.id)) throw new TypeError("Practice definition.id is invalid.");
+  if (!Array.isArray(value.steps) || value.steps.length === 0 || value.steps.length > 20) {
+    throw new TypeError("Practice definition.steps must contain between 1 and 20 steps.");
+  }
+  const ids = new Set();
+  const steps = value.steps.map((inputStep, index) => {
+    const step = objectWithKeys(inputStep, ["id", "title", "completionAuthority"], `Practice step ${index}`);
+    requiredString(step.id, `Practice step ${index}.id`, 120);
+    requiredString(step.title, `Practice step ${index}.title`, 500);
+    if (!SAFE_CONTRACT_ID.test(step.id)) throw new TypeError(`Practice step ${index}.id is invalid.`);
+    if (ids.has(step.id)) throw new TypeError(`Duplicate Practice step id: ${step.id}.`);
+    ids.add(step.id);
+    if (!COMPLETION_AUTHORITIES.has(step.completionAuthority)) {
+      throw new TypeError(`Practice step ${index}.completionAuthority must be machine or teacher.`);
+    }
+    return structuredClone(step);
+  });
+  return { ...structuredClone(value), steps };
+}
+
 export function parsePracticeMissionFixture(input) {
-  const value = objectWithKeys(input, ["schemaVersion", "courseRunId", "lessonId", "missionId", "checkpointId", "fixtureMetadata", "content", "workspace"], "Practice mission fixture");
+  const value = objectWithKeys(input, ["schemaVersion", "courseRunId", "lessonId", "missionId", "checkpointId", "fixtureMetadata", "content", "practiceDefinition", "workspace"], "Practice mission fixture");
   rejectForbiddenKeys(value);
   schemaVersion(value);
   for (const key of ["courseRunId", "lessonId", "missionId", "checkpointId"]) requiredString(value[key], key);
@@ -95,6 +127,10 @@ export function parsePracticeMissionFixture(input) {
   if (metadata.productionApproved !== false) throw new TypeError("productionApproved must equal false.");
   requiredString(metadata.source, "fixtureMetadata.source");
   parseMissionContent(value.content, "content");
+  if (value.practiceDefinition !== undefined) {
+    const definition = parsePracticeDefinition(value.practiceDefinition);
+    if (definition.id !== value.missionId) throw new TypeError("Practice definition.id must match missionId.");
+  }
   const workspace = objectWithKeys(value.workspace, ["exercisePath"], "workspace");
   requiredString(workspace.exercisePath, "workspace.exercisePath", 1_000);
   if (path.isAbsolute(workspace.exercisePath)) throw new TypeError("exercisePath must be repository-relative.");
@@ -102,7 +138,7 @@ export function parsePracticeMissionFixture(input) {
 }
 
 export function parsePracticeStartRequest(input) {
-  const value = objectWithKeys(input, ["schemaVersion", "courseRunId", "lessonId", "missionId", "checkpointId", "content", "workspace"], "Practice start request");
+  const value = objectWithKeys(input, ["schemaVersion", "courseRunId", "lessonId", "missionId", "checkpointId", "content", "practiceDefinition", "workspace"], "Practice start request");
   rejectForbiddenKeys(value);
   schemaVersion(value);
   for (const key of ["courseRunId", "lessonId", "missionId", "checkpointId"]) requiredString(value[key], key);
@@ -110,6 +146,10 @@ export function parsePracticeStartRequest(input) {
   parseMissionContent(content, "Practice start content", ["kind", "owner"]);
   for (const key of ["kind", "owner"]) requiredString(content[key], `content.${key}`, 1_000);
   if (content.kind !== "mock-adaptation" || content.owner !== "Triết") throw new TypeError("Practice start content must remain a Triết-sourced mock adaptation.");
+  if (value.practiceDefinition !== undefined) {
+    const definition = parsePracticeDefinition(value.practiceDefinition);
+    if (definition.id !== value.missionId) throw new TypeError("Practice definition.id must match missionId.");
+  }
   const workspace = objectWithKeys(value.workspace, ["expectedRepositoryRoot", "exercisePath"], "Practice start workspace");
   if (!path.isAbsolute(workspace.expectedRepositoryRoot)) throw new TypeError("expectedRepositoryRoot must be absolute.");
   requiredString(workspace.exercisePath, "workspace.exercisePath", 1_000);

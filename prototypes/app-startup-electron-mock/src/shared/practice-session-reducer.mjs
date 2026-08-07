@@ -131,3 +131,58 @@ export function reducePracticeSession(session, event) {
       return session;
   }
 }
+
+function canonicalTimestamp(value, label) {
+  if (typeof value !== "string" || Number.isNaN(Date.parse(value)) || new Date(value).toISOString() !== value) {
+    throw new TypeError(`${label} must be an ISO timestamp.`);
+  }
+  return value;
+}
+
+export function completePracticeStep(checklist, evidence) {
+  if (!Array.isArray(checklist) || !evidence || typeof evidence !== "object" || Array.isArray(evidence)) {
+    throw new TypeError("Practice checklist and completion evidence are required.");
+  }
+  const currentIndex = checklist.findIndex((step) => step?.status === "next");
+  if (currentIndex < 0 || checklist[currentIndex]?.stepId !== evidence.stepId) {
+    throw new TypeError("Only the current next step can be completed.");
+  }
+  const current = checklist[currentIndex];
+  let completion;
+  if (current.completionAuthority === "machine") {
+    if (evidence.source !== "bound-executor-chat") {
+      throw new TypeError("Machine-authority completion cannot use learner assertion.");
+    }
+    if (evidence.freshness !== "fresh") throw new TypeError("Machine completion evidence must be fresh.");
+    if (typeof evidence.cursor !== "string" || evidence.cursor.trim() === "") {
+      throw new TypeError("Machine completion requires a bound-chat cursor.");
+    }
+    completion = {
+      source: "bound-executor-chat",
+      cursor: evidence.cursor,
+      observedAt: canonicalTimestamp(evidence.observedAt, "Machine completion observedAt"),
+    };
+  } else if (current.completionAuthority === "teacher") {
+    if (evidence.source !== "teacher-assessment") {
+      throw new TypeError("Teacher-authority completion requires Teacher assessment.");
+    }
+    if (typeof evidence.messageId !== "string" || evidence.messageId.trim() === "") {
+      throw new TypeError("Teacher completion requires a messageId.");
+    }
+    completion = {
+      source: "teacher-assessment",
+      messageId: evidence.messageId,
+      assessedAt: canonicalTimestamp(evidence.assessedAt, "Teacher completion assessedAt"),
+    };
+  } else {
+    throw new TypeError("Practice step has invalid completion authority.");
+  }
+
+  return checklist.map((step, index) => {
+    if (index === currentIndex) return { ...structuredClone(step), status: "completed", completion };
+    if (index === currentIndex + 1 && step.status === "remaining") {
+      return { ...structuredClone(step), status: "next", completion: null };
+    }
+    return structuredClone(step);
+  });
+}

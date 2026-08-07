@@ -19,6 +19,7 @@ export async function loadPracticeStartRequest({ fixturePath, repositoryRoot, fs
     missionId: fixture.missionId,
     checkpointId: fixture.checkpointId,
     content: { ...fixture.content, kind: fixture.fixtureMetadata.contentKind, owner: fixture.fixtureMetadata.sourceOwner },
+    ...(fixture.practiceDefinition ? { practiceDefinition: fixture.practiceDefinition } : {}),
     workspace: { expectedRepositoryRoot: root, exercisePath: fixture.workspace.exercisePath },
   });
 }

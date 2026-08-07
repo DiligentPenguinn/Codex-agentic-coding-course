@@ -38,6 +38,24 @@
       "structured inspection report"
     ]
   },
+  "practiceDefinition": {
+    "id": "module-0-read-only-inspection-awareness-fixture",
+    "version": "mock-2",
+    "objective": "Kiểm tra repository mà chưa thay đổi tệp.",
+    "expectedOutcome": "Có báo cáo ngắn, có cấu trúc để quyết định bước tiếp theo.",
+    "steps": [
+      {
+        "id": "inspect",
+        "title": "Yêu cầu Executor kiểm tra ở chế độ chỉ đọc",
+        "completionAuthority": "machine"
+      },
+      {
+        "id": "review",
+        "title": "Đọc báo cáo và giải thích bước tiếp theo",
+        "completionAuthority": "teacher"
+      }
+    ]
+  },
   "workspace": {
     "exercisePath": "prototypes/mvp-1-course-repo/app-scaffold/contentpilot-lite"
   }

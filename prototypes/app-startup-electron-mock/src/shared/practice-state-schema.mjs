@@ -1,6 +1,7 @@
 import {
   parseActivitySnapshot,
   parseExecutorBinding,
+  parsePracticeDefinition,
   parsePracticeStartRequest,
   parseTeacherChatMessage,
 } from "./practice-contracts.mjs";
@@ -150,4 +151,294 @@ export function parsePracticeState(input) {
     teacherChat: state.teacherChat.map(parseTeacherChatMessage).slice(-40),
     updatedAt,
   };
+}
+
+const WORKSPACE_STATE_KEYS = new Set([
+  "schemaVersion", "activeRun", "archivedRuns", "pendingTransition",
+  "presentation", "teacherChat", "updatedAt",
+]);
+const WORKSPACE_PRESENTATION_KEYS = new Set([
+  "mode", "activePanel", "teacherScrollTop", "progressScrollTop",
+  "mainBounds", "bubbleBounds", "popoverBounds",
+]);
+const RUN_KEYS = new Set([
+  "runId", "definitionId", "definitionVersion", "status", "startRequest",
+  "binding", "bindingGeneration", "checklist", "createdAt", "updatedAt",
+]);
+const CHECKLIST_KEYS = new Set([
+  "stepId", "completionAuthority", "status", "completion",
+]);
+const ARCHIVED_RUN_KEYS = new Set([
+  "runId", "definitionId", "definitionVersion", "threadId", "displayName",
+  "archivedAt", "handoffHash",
+]);
+const TRANSITION_KEYS = new Set([
+  "id", "sourceRunId", "sourceBindingGeneration", "mode", "stage",
+  "targetChat", "handoffHash", "attachmentReceipt", "createdAt", "updatedAt",
+]);
+const ATTACHMENT_RECEIPT_KEYS = new Set(["marker", "hash", "attachedAt", "visible"]);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const RUN_STATUSES = new Set(["preparing", "active", "paused"]);
+const CHECKLIST_STATUSES = new Set(["completed", "next", "remaining"]);
+const TRANSITION_STAGES = new Set([
+  "prepared", "target-created", "handoff-prepared", "attached", "verified",
+]);
+
+function boundedString(value, label, maximum = 1_000) {
+  if (typeof value !== "string" || value.trim() === "" || [...value].length > maximum) {
+    throw new TypeError(`${label} must be a non-empty bounded string.`);
+  }
+  return value;
+}
+
+function nonNegativeInteger(value, label) {
+  if (!Number.isSafeInteger(value) || value < 0) throw new TypeError(`${label} must be a non-negative integer.`);
+  return value;
+}
+
+function parseChecklistCompletion(value, authority) {
+  const completion = plainObject(value, "Practice checklist completion");
+  if (authority === "machine") {
+    exactKeys(completion, new Set(["source", "cursor", "observedAt"]), "Practice machine completion");
+    if (completion.source !== "bound-executor-chat") throw new TypeError("Machine completion must come from the bound Executor chat.");
+    boundedString(completion.cursor, "Machine completion cursor", 500);
+    isoTimestamp(completion.observedAt, "Machine completion observedAt");
+    return structuredClone(completion);
+  }
+  exactKeys(completion, new Set(["source", "messageId", "assessedAt"]), "Practice Teacher completion");
+  if (completion.source !== "teacher-assessment") throw new TypeError("Teacher completion must come from Teacher assessment.");
+  boundedString(completion.messageId, "Teacher completion messageId", 500);
+  isoTimestamp(completion.assessedAt, "Teacher completion assessedAt");
+  return structuredClone(completion);
+}
+
+function parsePracticeChecklist(value) {
+  if (!Array.isArray(value) || value.length === 0 || value.length > 20) {
+    throw new TypeError("Practice checklist must contain between 1 and 20 steps.");
+  }
+  const stepIds = new Set();
+  const checklist = value.map((inputStep, index) => {
+    const step = plainObject(inputStep, `Practice checklist step ${index}`);
+    exactKeys(step, CHECKLIST_KEYS, "Practice checklist step");
+    boundedString(step.stepId, `Practice checklist step ${index}.stepId`, 120);
+    if (stepIds.has(step.stepId)) throw new TypeError(`Duplicate Practice checklist step: ${step.stepId}.`);
+    stepIds.add(step.stepId);
+    if (!new Set(["machine", "teacher"]).has(step.completionAuthority)) {
+      throw new TypeError("Invalid Practice checklist completionAuthority.");
+    }
+    if (!CHECKLIST_STATUSES.has(step.status)) throw new TypeError("Invalid Practice checklist status.");
+    const completion = step.status === "completed"
+      ? parseChecklistCompletion(step.completion, step.completionAuthority)
+      : step.completion === null
+        ? null
+        : (() => { throw new TypeError("Only completed Practice steps may carry completion evidence."); })();
+    return { ...structuredClone(step), completion };
+  });
+
+  const incomplete = checklist.filter((step) => step.status !== "completed");
+  if (incomplete.length > 0 && incomplete.filter((step) => step.status === "next").length !== 1) {
+    throw new TypeError("An incomplete Practice checklist must have exactly one next step.");
+  }
+  let phase = "completed";
+  for (const step of checklist) {
+    if (phase === "completed" && step.status === "completed") continue;
+    if (phase === "completed" && step.status === "next") {
+      phase = "remaining";
+      continue;
+    }
+    if (phase === "remaining" && step.status === "remaining") continue;
+    throw new TypeError("Practice checklist steps must remain ordered.");
+  }
+  return checklist;
+}
+
+function parsePracticeRun(value) {
+  if (value === null) return null;
+  const run = plainObject(value, "Practice active run");
+  exactKeys(run, RUN_KEYS, "Practice active run");
+  if (!UUID.test(run.runId ?? "")) throw new TypeError("Practice runId must be a UUID.");
+  boundedString(run.definitionId, "Practice definitionId", 200);
+  boundedString(run.definitionVersion, "Practice definitionVersion", 100);
+  if (!RUN_STATUSES.has(run.status)) throw new TypeError("Invalid Practice run status.");
+  if (!Number.isSafeInteger(run.bindingGeneration) || run.bindingGeneration < 0) {
+    throw new TypeError("Practice bindingGeneration must be a non-negative integer.");
+  }
+  const startRequest = parsePracticeStartRequest(run.startRequest);
+  if (startRequest.missionId !== run.definitionId) throw new TypeError("Practice run definitionId must match its mission.");
+  const binding = run.binding === null ? null : parseExecutorBinding(run.binding);
+  if (binding && binding.sessionId !== run.runId) throw new TypeError("Practice binding must identify the active run.");
+  if (["active", "paused"].includes(run.status) && !binding) throw new TypeError("Active Practice run requires an Executor binding.");
+  return {
+    ...structuredClone(run),
+    startRequest,
+    binding,
+    checklist: parsePracticeChecklist(run.checklist),
+    createdAt: isoTimestamp(run.createdAt, "Practice run createdAt"),
+    updatedAt: isoTimestamp(run.updatedAt, "Practice run updatedAt"),
+  };
+}
+
+function parseArchivedRuns(value) {
+  if (!Array.isArray(value) || value.length > 40) throw new TypeError("Archived Practice receipts cannot exceed 40 items.");
+  const ids = new Set();
+  return value.map((inputReceipt) => {
+    const receipt = plainObject(inputReceipt, "Archived Practice receipt");
+    exactKeys(receipt, ARCHIVED_RUN_KEYS, "Archived Practice receipt");
+    if (!UUID.test(receipt.runId ?? "")) throw new TypeError("Archived Practice runId must be a UUID.");
+    if (ids.has(receipt.runId)) throw new TypeError(`Duplicate archived Practice run: ${receipt.runId}.`);
+    ids.add(receipt.runId);
+    for (const key of ["definitionId", "definitionVersion", "threadId", "displayName"]) {
+      boundedString(receipt[key], `Archived Practice ${key}`, 500);
+    }
+    if (receipt.handoffHash !== null) boundedString(receipt.handoffHash, "Archived Practice handoffHash", 200);
+    return { ...structuredClone(receipt), archivedAt: isoTimestamp(receipt.archivedAt, "Archived Practice archivedAt") };
+  });
+}
+
+function parseAttachmentReceipt(value) {
+  if (value === null) return null;
+  const receipt = plainObject(value, "Practice attachment receipt");
+  exactKeys(receipt, ATTACHMENT_RECEIPT_KEYS, "Practice attachment receipt");
+  boundedString(receipt.marker, "Practice attachment marker", 500);
+  boundedString(receipt.hash, "Practice attachment hash", 200);
+  if (receipt.visible !== true) throw new TypeError("Practice attachment receipt must be visibly verified.");
+  return { ...structuredClone(receipt), attachedAt: isoTimestamp(receipt.attachedAt, "Practice attachment attachedAt") };
+}
+
+function parsePendingTransition(value, activeRun) {
+  if (value === null) return null;
+  const transition = plainObject(value, "Practice pending transition");
+  exactKeys(transition, TRANSITION_KEYS, "Practice pending transition");
+  if (!UUID.test(transition.id ?? "")) throw new TypeError("Practice transition id must be a UUID.");
+  if (!new Set(["fresh", "selective"]).has(transition.mode)) throw new TypeError("Invalid Practice transition mode.");
+  if (!TRANSITION_STAGES.has(transition.stage)) throw new TypeError("Invalid Practice transition stage.");
+  if (transition.sourceRunId === null) {
+    if (transition.sourceBindingGeneration !== null) throw new TypeError("A first Practice transition has no source binding generation.");
+  } else {
+    if (!activeRun || transition.sourceRunId !== activeRun.runId) throw new TypeError("Pending transition must reference the exact active run.");
+    if (transition.sourceBindingGeneration !== activeRun.bindingGeneration) throw new TypeError("Pending transition must reference the exact binding generation.");
+  }
+  const targetChat = transition.targetChat === null ? null : parseExecutorBinding(transition.targetChat);
+  if (transition.handoffHash !== null) boundedString(transition.handoffHash, "Practice transition handoffHash", 200);
+  const attachmentReceipt = parseAttachmentReceipt(transition.attachmentReceipt);
+  if (attachmentReceipt && transition.handoffHash !== attachmentReceipt.hash) {
+    throw new TypeError("Practice attachment receipt hash must match the handoff hash.");
+  }
+  return {
+    ...structuredClone(transition),
+    targetChat,
+    attachmentReceipt,
+    createdAt: isoTimestamp(transition.createdAt, "Practice transition createdAt"),
+    updatedAt: isoTimestamp(transition.updatedAt, "Practice transition updatedAt"),
+  };
+}
+
+export function createDefaultPracticeWorkspaceState(clock = () => new Date()) {
+  return {
+    schemaVersion: 2,
+    activeRun: null,
+    archivedRuns: [],
+    pendingTransition: null,
+    presentation: {
+      mode: "full",
+      activePanel: "teacher",
+      teacherScrollTop: 0,
+      progressScrollTop: 0,
+      mainBounds: null,
+      bubbleBounds: null,
+      popoverBounds: null,
+    },
+    teacherChat: [],
+    updatedAt: clock().toISOString(),
+  };
+}
+
+export function parsePracticeWorkspaceState(input) {
+  const state = plainObject(input, "Practice workspace state");
+  rejectForbiddenState(state, "practiceWorkspaceState");
+  exactKeys(state, WORKSPACE_STATE_KEYS, "Practice workspace");
+  if (state.schemaVersion !== 2) throw new TypeError("Practice workspace schemaVersion must equal 2.");
+  const updatedAt = isoTimestamp(state.updatedAt, "Practice workspace updatedAt");
+  const activeRun = parsePracticeRun(state.activeRun);
+  const archivedRuns = parseArchivedRuns(state.archivedRuns);
+  if (activeRun && archivedRuns.some((receipt) => receipt.runId === activeRun.runId)) {
+    throw new TypeError("The active Practice run cannot also be archived.");
+  }
+  const presentation = plainObject(state.presentation, "Practice workspace presentation");
+  exactKeys(presentation, WORKSPACE_PRESENTATION_KEYS, "Practice workspace presentation");
+  if (!MODES.has(presentation.mode)) throw new TypeError("Invalid Practice workspace mode.");
+  if (!new Set(["teacher", "progress"]).has(presentation.activePanel)) throw new TypeError("Invalid Practice workspace panel.");
+  for (const key of ["teacherScrollTop", "progressScrollTop"]) nonNegativeInteger(presentation[key], key);
+  if (!Array.isArray(state.teacherChat)) throw new TypeError("Teacher chat must be an array.");
+  return {
+    schemaVersion: 2,
+    activeRun,
+    archivedRuns,
+    pendingTransition: parsePendingTransition(state.pendingTransition, activeRun),
+    presentation: {
+      mode: presentation.mode,
+      activePanel: presentation.activePanel,
+      teacherScrollTop: presentation.teacherScrollTop,
+      progressScrollTop: presentation.progressScrollTop,
+      mainBounds: parseBounds(presentation.mainBounds, "mainBounds"),
+      bubbleBounds: parseBounds(presentation.bubbleBounds, "bubbleBounds"),
+      popoverBounds: parseBounds(presentation.popoverBounds, "popoverBounds"),
+    },
+    teacherChat: state.teacherChat.map(parseTeacherChatMessage).slice(-40),
+    updatedAt,
+  };
+}
+
+export function migrateLegacyPracticeState(input, inputDefinition, clock = () => new Date()) {
+  const legacy = parsePracticeState(input);
+  const definition = parsePracticeDefinition(inputDefinition);
+  const fallbackTimestamp = clock().toISOString();
+  const migrated = createDefaultPracticeWorkspaceState(() => new Date(legacy.updatedAt ?? fallbackTimestamp));
+  migrated.presentation = {
+    mode: legacy.presentation.mode,
+    activePanel: legacy.presentation.lastFullTab === "teacher" ? "teacher" : "progress",
+    teacherScrollTop: 0,
+    progressScrollTop: 0,
+    mainBounds: legacy.presentation.mainBounds,
+    bubbleBounds: legacy.presentation.bubbleBounds,
+    popoverBounds: legacy.presentation.popoverBounds,
+  };
+  migrated.teacherChat = structuredClone(legacy.teacherChat);
+  migrated.updatedAt = legacy.updatedAt;
+  if (!legacy.activeSession) return parsePracticeWorkspaceState(migrated);
+  if (legacy.activeSession.startRequest.missionId !== definition.id) {
+    throw new TypeError("Legacy Practice mission does not match the supplied definition.");
+  }
+  if (!UUID.test(legacy.activeSession.sessionId)) {
+    throw new TypeError("Legacy Practice sessionId must be a UUID before migration.");
+  }
+  const binding = legacy.activeSession.binding === null
+    ? null
+    : parseExecutorBinding(legacy.activeSession.binding);
+  if (binding && binding.sessionId !== legacy.activeSession.sessionId) {
+    throw new TypeError("Legacy Practice binding must identify the exact session.");
+  }
+  const status = legacy.activeSession.lifecycle === "paused"
+    ? "paused"
+    : binding
+      ? "active"
+      : "preparing";
+  migrated.activeRun = {
+    runId: legacy.activeSession.sessionId,
+    definitionId: definition.id,
+    definitionVersion: definition.version,
+    status,
+    startRequest: structuredClone(legacy.activeSession.startRequest),
+    binding,
+    bindingGeneration: binding ? 1 : 0,
+    checklist: definition.steps.map((step, index) => ({
+      stepId: step.id,
+      completionAuthority: step.completionAuthority,
+      status: index === 0 ? "next" : "remaining",
+      completion: null,
+    })),
+    createdAt: legacy.activeSession.updatedAt,
+    updatedAt: legacy.activeSession.updatedAt,
+  };
+  return parsePracticeWorkspaceState(migrated);
 }
