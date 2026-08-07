@@ -22,10 +22,13 @@ The current app proves:
 - a floating Teacher chat with checkpoint-aware scripted replies;
 - persistent `teacher-chat.jsonl` history and companion window mode;
 - visible fixture labels that never present scripted replies as live Teacher
-  intelligence.
+  intelligence;
+- an Electron-owned `PracticeAdapter` with started, approval-required, success,
+  stale-evidence, offline, and error fixtures;
+- visible fixture evidence plus hidden developer scenario controls; and
+- a complete Module 1 evidence-reflection and debrief finish.
 
-Adapter-driven practice fixtures and live Teacher/Codex integration belong to
-later increments.
+Live Teacher inference and live Codex observation belong to later increments.
 
 Learner progress is stored by Electron in the operating system's application
 data directory. It is not stored in browser `localStorage` or inside the
@@ -34,6 +37,10 @@ repository.
 The current Teacher adapter is deliberately deterministic and fixture-backed.
 The expanded panel labels this state as **MÔ PHỎNG** and **CHƯA KẾT NỐI TEACHER
 LIVE**.
+
+The practice adapter follows the same honesty rule. Every simulated lifecycle
+event has `source: "fixture"`, a correlation ID, and a visible **MÔ PHỎNG**
+label. A fixture success is never presented as evidence from a live Codex task.
 
 ## Run locally
 

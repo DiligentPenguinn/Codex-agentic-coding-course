@@ -2,11 +2,13 @@ import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'node:path'
 import type {
   CompanionMode,
+  PracticeFixtureRequest,
   ProgressUpdate,
   RuntimeInfo,
   TeacherSendRequest
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
+import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
   FixtureTeacherAdapter,
   isTeacherSendRequest,
@@ -23,6 +25,7 @@ let companionWindow: BrowserWindow | null = null
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
 const progressRepository = new ProgressRepository(app.getPath('userData'))
+const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
 
@@ -143,6 +146,16 @@ function registerIpcHandlers(): void {
     conversation: await teacherAdapter.loadConversation()
   }))
 
+  ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
+
+  ipcMain.handle(
+    'course:emit-practice-fixture',
+    (_event, request: PracticeFixtureRequest) => {
+      if (!isPracticeFixtureRequest(request)) throw new Error('Invalid practice fixture request')
+      return practiceAdapter.emitFixture(request)
+    }
+  )
+
   ipcMain.handle(
     'course:send-teacher-message',
     async (_event, request: TeacherSendRequest) => {
@@ -169,6 +182,7 @@ function registerIpcHandlers(): void {
     companionWindow?.hide()
     mainWindow?.show()
     mainWindow?.focus()
+    mainWindow?.webContents.send('course:learning-window-shown')
   })
 
   ipcMain.handle('course:hide-learning-window', () => {

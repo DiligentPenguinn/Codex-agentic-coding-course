@@ -58,6 +58,64 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
+  it('migrates a schema-v1 save to schema v2 without losing journey progress', async () => {
+    const directory = await temporaryDirectory()
+    const oldProgress = {
+      ...introStart,
+      schemaVersion: 1,
+      courseVersion: '0.1.0',
+      startedAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:05:00.000Z'
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(oldProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    const repository = new ProgressRepository(directory)
+    const result = await repository.load()
+
+    expect(result).toMatchObject({
+      status: 'returning',
+      progress: {
+        schemaVersion: 2,
+        sceneId: 'intro-visual-onboarding',
+        practice: { missionId: 'm1-verifiable-brief', status: 'idle' }
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(migrated.schemaVersion).toBe(2)
+    expect(migrated.startedAt).toBe(oldProgress.startedAt)
+  })
+
+  it('serializes overlapping saves so atomic temporary files cannot collide', async () => {
+    const repository = new ProgressRepository(await temporaryDirectory())
+    await repository.save(introStart)
+
+    await Promise.all([
+      repository.save({
+        currentLessonId: 'intro',
+        checkpointId: 'intro-first-safe-win',
+        sceneId: 'intro-first-safe-win',
+        completedCheckpointIds: ['intro-visual-onboarding'],
+        decisions: {}
+      }),
+      repository.save({
+        currentLessonId: 'intro',
+        checkpointId: 'intro-time-budget',
+        sceneId: 'intro-time-budget',
+        completedCheckpointIds: ['intro-visual-onboarding', 'intro-first-safe-win'],
+        decisions: { timeBudget: '30' }
+      })
+    ])
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: { sceneId: 'intro-time-budget' }
+    })
+  })
+
   it('recovers the last known-good state when the primary file is damaged', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)

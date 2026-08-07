@@ -15,6 +15,8 @@ import {
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
+  type PracticeEvent,
+  type PracticeState,
   type ProgressLoadResult,
   type ProgressUpdate,
   type SceneId
@@ -38,7 +40,17 @@ const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-1-concept': 'm1-inspect',
   'module-1-brief-choice': 'm1-brief',
   'module-1-weak-brief': 'm1-brief',
-  'module-1-success': 'm1-plan-approval'
+  'module-1-success': 'm1-plan-approval',
+  'module-1-reflection': 'm1-review',
+  'module-1-debrief': 'm1-mastery',
+  'module-1-complete': 'm1-complete'
+}
+
+export function defaultPracticeState(): PracticeState {
+  return {
+    missionId: 'm1-verifiable-brief',
+    status: 'idle'
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -70,6 +82,37 @@ function decisionsAreValid(value: unknown): value is Record<string, string> {
   )
 }
 
+function isPracticeEvidence(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    value.viewport === '390px' &&
+    value.changedScope === 'onboarding CSS' &&
+    typeof value.horizontalOverflow === 'string' &&
+    isIsoDate(value.observedAt) &&
+    (value.freshness === 'current' || value.freshness === 'stale')
+  )
+}
+
+function isPracticeEvent(value: unknown): value is PracticeEvent {
+  if (!isRecord(value)) return false
+  if (typeof value.id !== 'string' || value.id.length < 1 || value.id.length > 160) return false
+  if (value.missionId !== 'm1-verifiable-brief') return false
+  if (!['started', 'approval_required', 'success', 'stale', 'offline', 'error'].includes(String(value.scenario))) return false
+  if (!['active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
+  if (value.source !== 'fixture') return false
+  if (typeof value.correlationId !== 'string' || value.correlationId.length < 1 || value.correlationId.length > 160) return false
+  if (!isIsoDate(value.timestamp)) return false
+  if (typeof value.summary !== 'string' || value.summary.length > 500) return false
+  return value.evidence === undefined || isPracticeEvidence(value.evidence)
+}
+
+export function isPracticeState(value: unknown): value is PracticeState {
+  if (!isRecord(value) || value.missionId !== 'm1-verifiable-brief') return false
+  if (!['idle', 'active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
+  if (value.status === 'idle') return value.latestEvent === undefined
+  return isPracticeEvent(value.latestEvent) && value.latestEvent.status === value.status
+}
+
 export function isProgressUpdate(value: unknown): value is ProgressUpdate {
   if (!isRecord(value)) return false
   if (!isLessonId(value.currentLessonId)) return false
@@ -89,14 +132,52 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   if (value.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION) return false
   if (value.courseVersion !== COURSE_VERSION) return false
   if (!isIsoDate(value.startedAt) || !isIsoDate(value.updatedAt)) return false
+  const practice = value.practice
   if (!isProgressUpdate(value)) return false
-  return true
+  return isPracticeState(practice)
+}
+
+function migrateLearnerProgress(value: unknown): LearnerProgress | null {
+  if (!isRecord(value)) return null
+  const raw = value as Record<string, unknown>
+  const schemaVersion = raw.schemaVersion
+  const courseVersion = raw.courseVersion
+  const practice = raw.practice
+  const startedAt = raw.startedAt
+  const updatedAt = raw.updatedAt
+  if (courseVersion !== COURSE_VERSION) return null
+  if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
+  if (!isProgressUpdate(raw)) return null
+  const update: ProgressUpdate = {
+    currentLessonId: raw.currentLessonId,
+    checkpointId: raw.checkpointId,
+    sceneId: raw.sceneId,
+    completedCheckpointIds: raw.completedCheckpointIds,
+    decisions: raw.decisions
+  }
+
+  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isPracticeState(practice)) {
+    return raw as unknown as LearnerProgress
+  }
+
+  if (schemaVersion === 1 && practice === undefined) {
+    return {
+      ...update,
+      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
+      courseVersion: COURSE_VERSION,
+      practice: defaultPracticeState(),
+      startedAt,
+      updatedAt
+    }
+  }
+
+  return null
 }
 
 type ReadResult =
   | { status: 'missing' }
   | { status: 'invalid' }
-  | { status: 'valid'; progress: LearnerProgress }
+  | { status: 'valid'; progress: LearnerProgress; migrated: boolean }
 
 export class ProgressRepository {
   private readonly statePath: string
@@ -104,6 +185,7 @@ export class ProgressRepository {
   private readonly backupPath: string
   private readonly backupTempPath: string
   private readonly activityPath: string
+  private operationQueue: Promise<void> = Promise.resolve()
 
   constructor(
     private readonly dataDirectory: string,
@@ -116,9 +198,18 @@ export class ProgressRepository {
     this.activityPath = join(dataDirectory, 'activity-log.jsonl')
   }
 
-  async load(): Promise<ProgressLoadResult> {
+  load(): Promise<ProgressLoadResult> {
+    return this.runExclusive(() => this.loadUnlocked())
+  }
+
+  private async loadUnlocked(): Promise<ProgressLoadResult> {
     const primary = await this.readProgress(this.statePath)
     if (primary.status === 'valid') {
+      if (primary.migrated) {
+        await this.writeAtomic(this.statePath, this.stateTempPath, primary.progress)
+        await this.writeAtomic(this.backupPath, this.backupTempPath, primary.progress)
+        await this.appendActivity('progress_migrated', primary.progress)
+      }
       return { status: 'returning', progress: primary.progress }
     }
 
@@ -139,17 +230,21 @@ export class ProgressRepository {
     }
   }
 
-  async save(update: ProgressUpdate): Promise<LearnerProgress> {
+  save(update: ProgressUpdate): Promise<LearnerProgress> {
     if (!isProgressUpdate(update)) {
-      throw new Error('Invalid learner progress update')
+      return Promise.reject(new Error('Invalid learner progress update'))
     }
+    return this.runExclusive(() => this.saveUnlocked(update))
+  }
 
+  private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
+      practice: current.status === 'valid' ? current.progress.practice : defaultPracticeState(),
       startedAt: current.status === 'valid' ? current.progress.startedAt : timestamp,
       updatedAt: timestamp
     }
@@ -169,21 +264,66 @@ export class ProgressRepository {
     return progress
   }
 
-  async reset(): Promise<void> {
-    await Promise.all([
-      rm(this.statePath, { force: true }),
-      rm(this.stateTempPath, { force: true }),
-      rm(this.backupPath, { force: true }),
-      rm(this.backupTempPath, { force: true }),
-      rm(this.activityPath, { force: true })
-    ])
+  async loadPracticeState(): Promise<PracticeState> {
+    const result = await this.load()
+    if (result.status === 'new') return defaultPracticeState()
+    if (result.status === 'reset-required') throw new Error(result.reason)
+    return result.progress.practice
+  }
+
+  savePractice(practice: PracticeState): Promise<PracticeState> {
+    if (!isPracticeState(practice)) return Promise.reject(new Error('Invalid practice state'))
+    return this.runExclusive(() => this.savePracticeUnlocked(practice))
+  }
+
+  private async savePracticeUnlocked(practice: PracticeState): Promise<PracticeState> {
+    const current = await this.readProgress(this.statePath)
+    if (current.status !== 'valid') {
+      throw new Error('Learner progress is required before practice can start')
+    }
+
+    const progress: LearnerProgress = {
+      ...current.progress,
+      practice,
+      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
+      updatedAt: this.now().toISOString()
+    }
+    await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+    await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+    await this.appendActivity(
+      practice.latestEvent ? `practice_fixture_${practice.latestEvent.scenario}` : 'practice_reset',
+      progress
+    )
+    return practice
+  }
+
+  reset(): Promise<void> {
+    return this.runExclusive(async () => {
+      await Promise.all([
+        rm(this.statePath, { force: true }),
+        rm(this.stateTempPath, { force: true }),
+        rm(this.backupPath, { force: true }),
+        rm(this.backupTempPath, { force: true }),
+        rm(this.activityPath, { force: true })
+      ])
+    })
+  }
+
+  private runExclusive<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.operationQueue.then(operation, operation)
+    this.operationQueue = result.then(
+      () => undefined,
+      () => undefined
+    )
+    return result
   }
 
   private async readProgress(path: string): Promise<ReadResult> {
     try {
       const parsed: unknown = JSON.parse(await readFile(path, 'utf8'))
-      return isLearnerProgress(parsed)
-        ? { status: 'valid', progress: parsed }
+      const progress = migrateLearnerProgress(parsed)
+      return progress
+        ? { status: 'valid', progress, migrated: isRecord(parsed) && parsed.schemaVersion === 1 }
         : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }

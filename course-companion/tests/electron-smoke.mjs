@@ -195,12 +195,45 @@ try {
     )
     .waitFor()
 
+  await companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
+  await companionPage.getByText('CHƯA BẮT ĐẦU · MÔ PHỎNG', { exact: true }).waitFor()
+  await companionPage.getByText('DEV · TÌNH HUỐNG MÔ PHỎNG', { exact: true }).click()
+
+  const fixtureScenarios = [
+    ['Bắt đầu', 'ĐANG THỰC HIỆN · MÔ PHỎNG'],
+    ['Cần phê duyệt', 'CẦN PHÊ DUYỆT · MÔ PHỎNG'],
+    ['Bằng chứng cũ', 'BẰNG CHỨNG CŨ · MÔ PHỎNG'],
+    ['Mất kết nối', 'MẤT KẾT NỐI · MÔ PHỎNG'],
+    ['Lỗi', 'LƯỢT CHẠY LỖI · MÔ PHỎNG'],
+    ['Hoàn thành', 'ĐÃ HOÀN THÀNH · MÔ PHỎNG']
+  ]
+  for (const [buttonName, statusText] of fixtureScenarios) {
+    await companionPage.getByRole('button', { name: buttonName, exact: true }).click()
+    await companionPage.getByText(statusText, { exact: true }).waitFor()
+  }
+  await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
+  await companionPage.getByText('BẰNG CHỨNG MỚI · MÔ PHỎNG', { exact: true }).waitFor()
+
   await companionPage.getByRole('button', { name: 'Mở lại bài học' }).click()
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
     'Expected the learning window to restore and hide the companion'
   )
+
+  await learningPage.getByText('Đọc bằng chứng trước khi kết luận', { exact: true }).waitFor()
+  assert.equal(
+    await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
+    0
+  )
+  await learningPage
+    .getByRole('button', { name: 'Bằng chứng mới và khớp đúng tiêu chí' })
+    .click()
+  await learningPage
+    .getByText('Khép vòng yêu cầu → hành động → bằng chứng', { exact: true })
+    .waitFor()
+  await learningPage.getByRole('button', { name: 'Hoàn thành Module 1' }).click()
+  await learningPage.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
     const learning = BrowserWindow.getAllWindows().find((window) =>
@@ -224,9 +257,12 @@ try {
   const persisted = JSON.parse(
     await readFile(join(userDataDirectory, 'learner-state.json'), 'utf8')
   )
-  assert.equal(persisted.sceneId, 'module-1-success')
-  assert.equal(persisted.checkpointId, 'm1-plan-approval')
+  assert.equal(persisted.sceneId, 'module-1-complete')
+  assert.equal(persisted.checkpointId, 'm1-complete')
   assert.equal(persisted.decisions.timeBudget, '30')
+  assert.equal(persisted.decisions.evidenceReview, 'current-and-matches')
+  assert.equal(persisted.practice.status, 'completed')
+  assert.equal(persisted.practice.latestEvent.source, 'fixture')
 
   const persistedChat = (await readFile(join(userDataDirectory, 'teacher-chat.jsonl'), 'utf8'))
     .trim()
@@ -261,12 +297,16 @@ try {
       { exact: true }
     )
     .waitFor()
+  await historyWindows.companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
+  await historyWindows.companionPage
+    .getByText('ĐÃ HOÀN THÀNH · MÔ PHỎNG', { exact: true })
+    .waitFor()
   await historyWindows.companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await chatHistoryLaunch.waitForEvent('close')
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: journey resume, reset, persisted Module 1 checkpoint, fixture chat, focus, expanded mode, history relaunch, security, and companion lifecycle passed'
+    'Electron smoke: journey resume, reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

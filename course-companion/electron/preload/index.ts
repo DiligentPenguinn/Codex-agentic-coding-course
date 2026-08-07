@@ -4,6 +4,8 @@ import type {
   CompanionState,
   CourseCompanionApi,
   LearnerProgress,
+  PracticeFixtureRequest,
+  PracticeState,
   ProgressLoadResult,
   ProgressUpdate,
   RuntimeInfo,
@@ -22,6 +24,15 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:load-companion-state') as Promise<CompanionState>,
   sendTeacherMessage: (request: TeacherSendRequest) =>
     ipcRenderer.invoke('course:send-teacher-message', request) as Promise<TeacherSendResult>,
+  loadPracticeState: () =>
+    ipcRenderer.invoke('course:load-practice-state') as Promise<PracticeState>,
+  emitPracticeFixture: (request: PracticeFixtureRequest) =>
+    ipcRenderer.invoke('course:emit-practice-fixture', request) as Promise<PracticeState>,
+  onLearningWindowShown: (callback: () => void) => {
+    const listener = () => callback()
+    ipcRenderer.on('course:learning-window-shown', listener)
+    return () => ipcRenderer.removeListener('course:learning-window-shown', listener)
+  },
   showLearningWindow: () => ipcRenderer.invoke('course:show-learning-window') as Promise<void>,
   hideLearningWindow: () => ipcRenderer.invoke('course:hide-learning-window') as Promise<void>,
   setCompanionMode: (mode: CompanionMode) =>

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import type {
   CompanionMode,
   CompanionState,
+  PracticeScenario,
+  PracticeState,
   TeacherContext,
   TeacherMessage,
   TeacherSendRequest,
@@ -39,6 +41,30 @@ function formatTime(timestamp: string): string {
   })
 }
 
+const emptyPractice: PracticeState = {
+  missionId: 'm1-verifiable-brief',
+  status: 'idle'
+}
+
+const practiceLabels: Record<PracticeState['status'], { eyebrow: string; title: string }> = {
+  idle: { eyebrow: 'CHƯA BẮT ĐẦU', title: 'Chờ một lượt thực hành' },
+  active: { eyebrow: 'ĐANG THỰC HIỆN', title: 'Codex mô phỏng đang làm việc' },
+  approval_required: { eyebrow: 'CẦN PHÊ DUYỆT', title: 'Kế hoạch đang chờ bạn' },
+  completed: { eyebrow: 'ĐÃ HOÀN THÀNH', title: 'Có bằng chứng mới để duyệt' },
+  stale: { eyebrow: 'BẰNG CHỨNG CŨ', title: 'Chưa đủ để kết luận' },
+  offline: { eyebrow: 'MẤT KẾT NỐI', title: 'Không có sự kiện mới' },
+  error: { eyebrow: 'LƯỢT CHẠY LỖI', title: 'Chưa tạo được bằng chứng' }
+}
+
+const scenarioControls: Array<{ scenario: PracticeScenario; label: string }> = [
+  { scenario: 'started', label: 'Bắt đầu' },
+  { scenario: 'approval_required', label: 'Cần phê duyệt' },
+  { scenario: 'success', label: 'Hoàn thành' },
+  { scenario: 'stale', label: 'Bằng chứng cũ' },
+  { scenario: 'offline', label: 'Mất kết nối' },
+  { scenario: 'error', label: 'Lỗi' }
+]
+
 export function CompanionWindow() {
   const [mode, setMode] = useState<CompanionMode | null>(null)
   const [messages, setMessages] = useState<TeacherMessage[]>([])
@@ -47,8 +73,12 @@ export function CompanionWindow() {
   const [busy, setBusy] = useState(false)
   const [recovered, setRecovered] = useState(false)
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState<'chat' | 'practice'>('chat')
+  const [practice, setPractice] = useState<PracticeState>(emptyPractice)
+  const [practiceBusy, setPracticeBusy] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
+  const practiceRef = useRef<HTMLElement>(null)
 
   const refreshContext = useCallback(async () => {
     const progressResult = await window.courseCompanion?.loadProgress()
@@ -72,6 +102,11 @@ export function CompanionWindow() {
         setMode(state.mode)
         setMessages(state.conversation.messages)
         setRecovered(state.conversation.recovered)
+        setPractice(
+          window.courseCompanion
+            ? await window.courseCompanion.loadPracticeState()
+            : emptyPractice
+        )
         await refreshContext()
       } catch {
         setMode('compact')
@@ -83,8 +118,8 @@ export function CompanionWindow() {
   }, [refreshContext])
 
   useEffect(() => {
-    if (mode === 'expanded') composerRef.current?.focus()
-  }, [mode])
+    if (mode === 'expanded' && activeTab === 'chat') composerRef.current?.focus()
+  }, [activeTab, mode])
 
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ block: 'end' })
@@ -104,6 +139,23 @@ export function CompanionWindow() {
   const restoreLearningWindow = async () => {
     await changeMode('compact')
     await window.courseCompanion?.showLearningWindow()
+  }
+
+  const emitPracticeFixture = async (scenario: PracticeScenario) => {
+    if (practiceBusy) return
+    setPracticeBusy(true)
+    setError('')
+    try {
+      const next = window.courseCompanion
+        ? await window.courseCompanion.emitPracticeFixture({ scenario })
+        : emptyPractice
+      setPractice(next)
+      requestAnimationFrame(() => practiceRef.current?.scrollTo({ top: 0 }))
+    } catch {
+      setError('Không thể lưu tình huống mô phỏng. Hãy mở bài học trước khi thử lại.')
+    } finally {
+      setPracticeBusy(false)
+    }
   }
 
   const sendMessage = async () => {
@@ -190,47 +242,114 @@ export function CompanionWindow() {
           <strong>{context?.checkpointId ?? 'Chưa bắt đầu bài học'}</strong>
         </div>
 
-        <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Hương">
-          {messages.length === 0 ? (
-            <div className="pixel-chat-empty">
-              <strong>Chưa có tin nhắn</strong>
-              <span>Hỏi Hương điều bạn cần kiểm tra ở checkpoint này.</span>
-            </div>
-          ) : (
-            messages.map((message) => (
-              <article className={`pixel-chat-message is-${message.role}`} key={message.id}>
-                <header>
-                  <strong>{message.role === 'teacher' ? 'Hương' : 'Bạn'}</strong>
-                  {message.source === 'fixture' ? <span>MÔ PHỎNG</span> : null}
-                  <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
-                </header>
-                <p>{message.content}</p>
-              </article>
-            ))
-          )}
-          <div ref={messageEndRef} />
+        <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Hương">
+          <button
+            aria-selected={activeTab === 'chat'}
+            className={activeTab === 'chat' ? 'is-active' : ''}
+            onClick={() => setActiveTab('chat')}
+            role="tab"
+            type="button"
+          >
+            HỎI HƯƠNG
+          </button>
+          <button
+            aria-selected={activeTab === 'practice'}
+            className={activeTab === 'practice' ? 'is-active' : ''}
+            onClick={() => setActiveTab('practice')}
+            role="tab"
+            type="button"
+          >
+            THỰC HÀNH
+          </button>
         </div>
 
-        {recovered ? <div className="pixel-chat-warning">Một dòng lịch sử hỏng đã được bỏ qua.</div> : null}
-        {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
+        {activeTab === 'chat' ? (
+          <>
+            <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Hương">
+              {messages.length === 0 ? (
+                <div className="pixel-chat-empty">
+                  <strong>Chưa có tin nhắn</strong>
+                  <span>Hỏi Hương điều bạn cần kiểm tra ở checkpoint này.</span>
+                </div>
+              ) : (
+                messages.map((message) => (
+                  <article className={`pixel-chat-message is-${message.role}`} key={message.id}>
+                    <header>
+                      <strong>{message.role === 'teacher' ? 'Hương' : 'Bạn'}</strong>
+                      {message.source === 'fixture' ? <span>MÔ PHỎNG</span> : null}
+                      <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
+                    </header>
+                    <p>{message.content}</p>
+                  </article>
+                ))
+              )}
+              <div ref={messageEndRef} />
+            </div>
 
-        <form className="pixel-chat-composer" onSubmit={submit}>
-          <textarea
-            ref={composerRef}
-            aria-label="Nhắn cho Hương"
-            maxLength={2000}
-            placeholder="Hỏi Hương về bước hiện tại…"
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            onKeyDown={handleComposerKeyDown}
-          />
-          <div>
-            <small>Enter để gửi · Shift+Enter xuống dòng</small>
-            <button type="submit" disabled={busy || draft.trim().length === 0}>
-              {busy ? 'ĐANG GỬI…' : 'GỬI'}
-            </button>
-          </div>
-        </form>
+            {recovered ? <div className="pixel-chat-warning">Một dòng lịch sử hỏng đã được bỏ qua.</div> : null}
+
+            <form className="pixel-chat-composer" onSubmit={submit}>
+              <textarea
+                ref={composerRef}
+                aria-label="Nhắn cho Hương"
+                maxLength={2000}
+                placeholder="Hỏi Hương về bước hiện tại…"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={handleComposerKeyDown}
+              />
+              <div>
+                <small>Enter để gửi · Shift+Enter xuống dòng</small>
+                <button type="submit" disabled={busy || draft.trim().length === 0}>
+                  {busy ? 'ĐANG GỬI…' : 'GỬI'}
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+            <div className={`pixel-practice-status is-${practice.status}`}>
+              <span>{practiceLabels[practice.status].eyebrow} · MÔ PHỎNG</span>
+              <strong>{practiceLabels[practice.status].title}</strong>
+              <p>{practice.latestEvent?.summary ?? 'Mở điều khiển dành cho nhà phát triển để phát một sự kiện cục bộ.'}</p>
+              {practice.latestEvent ? (
+                <small>
+                  FIXTURE · {formatTime(practice.latestEvent.timestamp)} · {practice.latestEvent.correlationId}
+                </small>
+              ) : null}
+            </div>
+
+            {practice.latestEvent?.evidence ? (
+              <div className="pixel-practice-evidence">
+                <div><span>VIEWPORT</span><strong>{practice.latestEvent.evidence.viewport}</strong></div>
+                <div><span>PHẠM VI</span><strong>{practice.latestEvent.evidence.changedScope}</strong></div>
+                <div><span>TRÀN NGANG</span><strong>{practice.latestEvent.evidence.horizontalOverflow}</strong></div>
+                <small>
+                  {practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · MÔ PHỎNG
+                </small>
+              </div>
+            ) : null}
+
+            <details className="pixel-practice-dev">
+              <summary>DEV · TÌNH HUỐNG MÔ PHỎNG</summary>
+              <p>Các nút này tạo sự kiện cục bộ; không quan sát Codex thật.</p>
+              <div>
+                {scenarioControls.map((control) => (
+                  <button
+                    disabled={practiceBusy}
+                    key={control.scenario}
+                    onClick={() => void emitPracticeFixture(control.scenario)}
+                    type="button"
+                  >
+                    {control.label}
+                  </button>
+                ))}
+              </div>
+            </details>
+          </section>
+        )}
+
+        {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
 
         <footer>
           <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>

@@ -1,7 +1,8 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  type PracticeState,
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
@@ -252,7 +253,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-orient',
     step: 1,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Nhận ra rủi ro của một yêu cầu mơ hồ',
@@ -275,7 +276,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-orient',
     step: 1,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Nhận ra rủi ro của một yêu cầu mơ hồ',
@@ -295,7 +296,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-inspect',
     step: 2,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Tìm ba phần giúp yêu cầu có thể kiểm chứng',
@@ -315,7 +316,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-brief',
     step: 3,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Chọn yêu cầu có giới hạn và bằng chứng rõ ràng',
@@ -339,7 +340,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-brief',
     step: 3,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Chọn yêu cầu có giới hạn và bằng chứng rõ ràng',
@@ -359,7 +360,7 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'module-1',
     checkpointId: 'm1-plan-approval',
     step: 4,
-    totalSteps: 4,
+    totalSteps: 7,
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Mang yêu cầu đã kiểm chứng sang Codex',
@@ -377,6 +378,74 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'Xem lại từ đầu', next: 'module-1-opening' },
       { label: 'Thu nhỏ để thực hành', action: 'practice', primary: true }
     ]
+  },
+  'module-1-reflection': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-review',
+    step: 5,
+    totalSteps: 7,
+    lessonLabel: 'BÀI HỌC CHÍNH',
+    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
+    objective: 'Đọc bằng chứng trước khi kết luận',
+    panelLabel: 'BẰNG CHỨNG MÔ PHỎNG',
+    panelStatus: 'MỚI · KHỚP TIÊU CHÍ',
+    tone: 'good',
+    request: 'Viewport 390px · chỉ CSS onboarding · không phát hiện tràn ngang.',
+    evidence: [
+      { label: 'VIEWPORT', value: '390px', ready: true },
+      { label: 'PHẠM VI', value: 'CSS onboarding', ready: true },
+      { label: 'TRÀN NGANG', value: 'Không phát hiện', ready: true }
+    ],
+    dialogue: 'Sự kiện này là mô phỏng, nhưng cách duyệt là thật: kết luận nào dựa trực tiếp trên bằng chứng vừa nhận?',
+    choices: [
+      { label: 'Chỉ cần trạng thái “hoàn thành”', next: 'module-1-reflection', danger: true },
+      {
+        label: 'Bằng chứng mới và khớp đúng tiêu chí',
+        next: 'module-1-debrief',
+        primary: true,
+        decision: { key: 'evidenceReview', value: 'current-and-matches' }
+      }
+    ]
+  },
+  'module-1-debrief': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-mastery',
+    step: 6,
+    totalSteps: 7,
+    lessonLabel: 'BÀI HỌC CHÍNH',
+    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
+    objective: 'Khép vòng yêu cầu → hành động → bằng chứng',
+    panelLabel: 'VÒNG KIỂM CHỨNG',
+    panelStatus: 'ĐÃ KHÉP KÍN',
+    tone: 'good',
+    request: 'Mục tiêu cụ thể → phạm vi giới hạn → tiêu chí quan sát được → bằng chứng mới.',
+    evidence: [
+      { label: 'YÊU CẦU', value: 'Có thể kiểm tra', ready: true },
+      { label: 'HÀNH ĐỘNG', value: 'Trong phạm vi', ready: true },
+      { label: 'KẾT LUẬN', value: 'Dựa trên bằng chứng', ready: true }
+    ],
+    dialogue: 'Bạn không duyệt vì Codex nói “xong”. Bạn duyệt vì bằng chứng mới trả lời đúng điều kiện đã đặt ra từ đầu.',
+    choices: [{ label: 'Hoàn thành Module 1', next: 'module-1-complete', primary: true }]
+  },
+  'module-1-complete': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-complete',
+    step: 7,
+    totalSteps: 7,
+    lessonLabel: 'BÀI HỌC CHÍNH',
+    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
+    objective: 'Module 1 đã hoàn thành',
+    panelLabel: 'PILOT 0.1',
+    panelStatus: 'HOÀN THÀNH',
+    tone: 'good',
+    request: 'Bạn đã đi hết vòng MVP: viết yêu cầu, quan sát sự kiện và duyệt bằng chứng.',
+    evidence: [
+      { label: 'MỤC TIÊU', value: 'Cụ thể', ready: true },
+      { label: 'PHẠM VI', value: 'Giới hạn', ready: true },
+      { label: 'BẰNG CHỨNG', value: 'Đã duyệt', ready: true }
+    ],
+    dialogue: 'Đây là điểm kết thúc có chủ ý của Pilot 0.1. Module 2 chưa nằm trong MVP hiện tại.',
+    choices: [{ label: 'Thu nhỏ về Hương', action: 'practice', primary: true }]
   }
 }
 
@@ -394,12 +463,17 @@ function initialUpdate(): ProgressUpdate {
   }
 }
 
+function emptyPracticeState(): PracticeState {
+  return { missionId: 'm1-verifiable-brief', status: 'idle' }
+}
+
 function previewProgress(update: ProgressUpdate, previous?: LearnerProgress): LearnerProgress {
   const timestamp = new Date().toISOString()
   return {
     ...update,
     schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
     courseVersion: COURSE_VERSION,
+    practice: previous?.practice ?? emptyPracticeState(),
     startedAt: previous?.startedAt ?? timestamp,
     updatedAt: timestamp
   }
@@ -493,6 +567,30 @@ export function LearningWindow() {
   const [recovered, setRecovered] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
+
+  const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
+    if (current.sceneId !== 'module-1-success' || current.practice.status !== 'completed') return current
+    if (practiceAdvanceRef.current) return practiceAdvanceRef.current
+    const completed = new Set(current.completedCheckpointIds)
+    completed.add('m1-plan-approval')
+    const update: ProgressUpdate = {
+      currentLessonId: 'module-1',
+      checkpointId: 'm1-review',
+      sceneId: 'module-1-reflection',
+      completedCheckpointIds: [...completed],
+      decisions: current.decisions
+    }
+    const advance = window.courseCompanion
+      ? window.courseCompanion.saveProgress(update)
+      : Promise.resolve(previewProgress(update, current))
+    practiceAdvanceRef.current = advance
+    try {
+      return await advance
+    } finally {
+      practiceAdvanceRef.current = null
+    }
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -514,7 +612,8 @@ export function LearningWindow() {
           return
         }
 
-        setProgress(loadResult.progress)
+        const loadedProgress = await advanceFromCompletedPractice(loadResult.progress)
+        setProgress(loadedProgress)
         setRecovered(loadResult.status === 'recovered')
         setView('resume')
       } catch {
@@ -525,6 +624,29 @@ export function LearningWindow() {
 
     void load()
   }, [])
+
+  useEffect(() => {
+    const refreshAfterPractice = async () => {
+      if (!window.courseCompanion) return
+      const loadResult = await window.courseCompanion.loadProgress()
+      if (loadResult.status !== 'returning' && loadResult.status !== 'recovered') return
+      const updated = await advanceFromCompletedPractice(loadResult.progress)
+      setProgress(updated)
+    }
+    const refreshWhenVisible = () => {
+      if (!document.hidden) void refreshAfterPractice()
+    }
+    window.addEventListener('focus', refreshAfterPractice)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+    const unsubscribe = window.courseCompanion?.onLearningWindowShown(() => {
+      void refreshAfterPractice()
+    })
+    return () => {
+      window.removeEventListener('focus', refreshAfterPractice)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+      unsubscribe?.()
+    }
+  })
 
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
     const saved = window.courseCompanion

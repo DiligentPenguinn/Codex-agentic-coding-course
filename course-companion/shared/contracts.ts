@@ -7,7 +7,7 @@ export type RuntimeInfo = {
 export type CompanionMode = 'compact' | 'expanded'
 
 export const COURSE_VERSION = '0.1.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 1
+export const LEARNER_STATE_SCHEMA_VERSION = 2
 
 export const checkpointIds = [
   'intro-visual-onboarding',
@@ -46,12 +46,64 @@ export const sceneIds = [
   'module-1-concept',
   'module-1-brief-choice',
   'module-1-weak-brief',
-  'module-1-success'
+  'module-1-success',
+  'module-1-reflection',
+  'module-1-debrief',
+  'module-1-complete'
 ] as const
 
 export type LessonId = 'intro' | 'module-1'
 export type CheckpointId = (typeof checkpointIds)[number]
 export type SceneId = (typeof sceneIds)[number]
+
+export const practiceScenarios = [
+  'started',
+  'approval_required',
+  'success',
+  'stale',
+  'offline',
+  'error'
+] as const
+
+export type PracticeScenario = (typeof practiceScenarios)[number]
+export type PracticeStatus =
+  | 'idle'
+  | 'active'
+  | 'approval_required'
+  | 'completed'
+  | 'stale'
+  | 'offline'
+  | 'error'
+
+export type PracticeEvidence = {
+  viewport: string
+  changedScope: string
+  horizontalOverflow: string
+  observedAt: string
+  freshness: 'current' | 'stale'
+}
+
+export type PracticeEvent = {
+  id: string
+  missionId: 'm1-verifiable-brief'
+  scenario: PracticeScenario
+  status: Exclude<PracticeStatus, 'idle'>
+  source: 'fixture'
+  correlationId: string
+  timestamp: string
+  summary: string
+  evidence?: PracticeEvidence
+}
+
+export type PracticeState = {
+  missionId: 'm1-verifiable-brief'
+  status: PracticeStatus
+  latestEvent?: PracticeEvent
+}
+
+export type PracticeFixtureRequest = {
+  scenario: PracticeScenario
+}
 
 export type LearnerProgress = {
   schemaVersion: typeof LEARNER_STATE_SCHEMA_VERSION
@@ -61,6 +113,7 @@ export type LearnerProgress = {
   sceneId: SceneId
   completedCheckpointIds: CheckpointId[]
   decisions: Record<string, string>
+  practice: PracticeState
   startedAt: string
   updatedAt: string
 }
@@ -121,6 +174,11 @@ export type TeacherAdapter = {
   reset: () => Promise<void>
 }
 
+export type PracticeAdapter = {
+  loadState: () => Promise<PracticeState>
+  emitFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
+}
+
 export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
@@ -128,6 +186,9 @@ export type CourseCompanionApi = {
   resetProgress: () => Promise<void>
   loadCompanionState: () => Promise<CompanionState>
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
+  loadPracticeState: () => Promise<PracticeState>
+  emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
+  onLearningWindowShown: (callback: () => void) => () => void
   showLearningWindow: () => Promise<void>
   hideLearningWindow: () => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>

@@ -2,7 +2,7 @@
 
 **Decision locked:** 6 August 2026
 **Owner:** Triết
-**Current phase:** Increment 3 floating Teacher chat verified; Increment 4 awaits approval
+**Current phase:** Increment 4 adapter-driven practice loop verified; Increment 5 awaits approval
 **Current decision:** Build a real fixture-backed desktop app for personal testing before live Teacher/Codex integration
 
 ## Product decision
@@ -221,6 +221,14 @@ journey, chat, and companion setting together.
   loop.
 - Ensure no fixture state is presented as live Codex evidence.
 
+**Status: Verified on macOS, 7 August 2026.** The Electron-owned practice
+adapter persists six explicit fixture scenarios: started, approval-required,
+success, stale evidence, offline, and error. The expanded Hương panel separates
+chat from practice, keeps the developer controls inside a disclosure, and
+returns the viewport to the newly emitted result. Fixture success restores the
+learning window into evidence reflection, debrief, and the deliberate Pilot 0.1
+finish. Live Teacher inference and live Codex observation remain excluded.
+
 ### Increment 5 — Self-test release candidate
 
 - Pass typecheck, lint, automated tests, and production build.
@@ -303,6 +311,35 @@ journey, chat, and companion setting together.
 - Deliberately absent: live Teacher inference, streamed responses, practice
   lifecycle fixtures, and Codex observation.
 
+## Increment 4 verification record — 7 August 2026
+
+- State contract: learner state schema v2 adds the practice mission, normalized
+  lifecycle event, fixture source, correlation ID, evidence freshness, and
+  current practice status. Valid schema-v1 saves migrate without losing the
+  learner's journey.
+- Persistence safety: overlapping progress writes are serialized before the
+  atomic temporary-file rename, preventing duplicate restore signals from
+  colliding on macOS.
+- Scenario coverage: started, approval-required, success, stale evidence,
+  offline, and error all persist through the same typed `PracticeAdapter`.
+- Honesty: every practice result shows **MÔ PHỎNG**; developer controls state
+  that they create local events and do not observe real Codex work.
+- Learning loop: a successful fixture restores Module 1 at evidence reflection,
+  records the learner's evidence decision, plays the debrief, and persists
+  `m1-complete` as the explicit Pilot 0.1 endpoint.
+- Static and unit verification: typecheck and lint passed; 19/19 tests passed
+  across window placement, progress, schema migration, concurrent-save safety,
+  Teacher fixtures, and practice fixtures.
+- Desktop lifecycle smoke: three real Electron launches exercised reset,
+  journey progression, all six scenarios, chat, restore, reflection, debrief,
+  Module 1 completion, explicit Quit, and relaunch persistence.
+- Real-app visual inspection: the 380×520 practice panel kept the focused pixel
+  identity, displayed current evidence without horizontal clipping, kept the
+  developer matrix scrollable, and returned the scroll position to each new
+  status.
+- Deliberately absent: live Teacher inference, live Codex lifecycle events,
+  automatic real-work evidence detection, and external learner validation.
+
 ## Progress snapshot
 
 Do not convert these gates into one percentage. A locked decision, implemented
@@ -317,7 +354,7 @@ progress.
 | Focused pixel scene | **Production migration verified** | The real Electron renderer contains the interactive vague-request, consequence, verifiable-brief, practice, and floating-Hương states. |
 | Journey and state | **Verified** | New start, Intro-to-Module-1 transition, exact relaunch resume, recovery, and reset pass in the real Electron app. |
 | Floating Teacher | **Fixture chat verified** | Compact/expanded mode, checkpoint context, keyboard flow, reset, and chat persistence pass across real app restarts. |
-| Fixture practice loop | **Not started** | Requires adapter-driven success and failure scenarios. |
+| Fixture practice loop | **Verified** | Six honest fixture states, evidence reflection, debrief, persistence, and real-app visual inspection pass. |
 | Personal self-test gate | **In progress** | P1–P5, P8, and P9 pass; P7 is partial and the remaining checks depend on Increments 4–5. |
 | Live integration gate | **Deferred** | Belongs after the personal-test MVP and collaborator integration. |
 | External learner evidence | **Blocked by design** | Do not invite a tester until the live integration gate passes. |
