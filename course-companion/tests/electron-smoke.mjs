@@ -201,6 +201,7 @@ try {
   await capture(learningPage, 'teacher-overlay.png')
   await learningPage.locator('.pixel-teacher-overlay .pixel-panel-minimize').click()
   await learningPage.getByRole('button', { name: 'Cài đặt', exact: true }).click()
+  assert.equal(await learningPage.getByRole('button', { name: 'Thu nhỏ', exact: true }).count(), 0)
   await capture(learningPage, 'settings.png')
   const alwaysOnTopSwitch = learningPage.getByRole('switch', {
     name: 'Luôn ở phía trên cửa sổ khác'
@@ -218,7 +219,7 @@ try {
     (windows) => companionWindow(windows)?.alwaysOnTop === true,
     'Expected Settings to restore always-on-top for the Teacher companion'
   )
-  await learningPage.getByRole('button', { name: 'Về Home Base' }).click()
+  await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage
     .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
     .click()
@@ -246,7 +247,7 @@ try {
       name: 'C · Nút chính rộng 100% ở 390px; chỉ sửa CSS; không tràn ngang'
     })
     .click()
-  await learningPage.getByRole('button', { name: 'Thu nhỏ để thực hành' }).click()
+  await learningPage.getByRole('button', { name: 'Sang Codex để thực hành' }).click()
 
   const minimized = await waitForSnapshot(
     resumedLaunch,
@@ -325,6 +326,8 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Hoàn thành Module 1' }).click()
   await learningPage.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
+  await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
+  await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
     const learning = BrowserWindow.getAllWindows().find((window) =>

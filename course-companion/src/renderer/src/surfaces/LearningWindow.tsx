@@ -28,7 +28,7 @@ type Choice = {
   next?: SceneId
   primary?: boolean
   danger?: boolean
-  action?: 'practice'
+  action?: 'practice' | 'home'
   decision?: { key: string; value: string }
 }
 
@@ -379,7 +379,7 @@ const scenes: Record<SceneId, SceneContent> = {
     dialogue: 'Tốt. Bạn đã làm rõ điều gì được phép thay đổi và cách kiểm chứng kết quả. Bây giờ có thể chuyển sang thực hành trong Codex.',
     choices: [
       { label: 'Xem lại từ đầu', next: 'module-1-opening' },
-      { label: 'Thu nhỏ để thực hành', action: 'practice', primary: true }
+      { label: 'Sang Codex để thực hành', action: 'practice', primary: true }
     ]
   },
   'module-1-reflection': {
@@ -448,7 +448,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'BẰNG CHỨNG', value: 'Đã duyệt', ready: true }
     ],
     dialogue: 'Đây là điểm kết thúc có chủ ý của Pilot 0.1. Module 2 chưa nằm trong MVP hiện tại.',
-    choices: [{ label: 'Thu nhỏ về Hương', action: 'practice', primary: true }]
+    choices: [{ label: 'Về Home Base', action: 'home', primary: true }]
   }
 }
 
@@ -623,7 +623,6 @@ type PixelAppShellProps = {
   onNavigate: (destination: AppDestination) => void
   onOpenTeacher: () => void
   onCloseTeacher: () => void
-  onMinimize: () => void
   onQuit: () => void
   onReset: () => void
   onSettingsChange: (alwaysOnTop: boolean) => void
@@ -638,7 +637,6 @@ function PixelAppShell({
   onNavigate,
   onOpenTeacher,
   onCloseTeacher,
-  onMinimize,
   onQuit,
   onReset,
   onSettingsChange
@@ -687,7 +685,6 @@ function PixelAppShell({
             type="button"
             onClick={() => onNavigate('settings')}
           >Cài đặt</button>
-          <button type="button" onClick={onMinimize}>Thu nhỏ</button>
           <button type="button" onClick={onQuit}>Thoát · v{runtime?.appVersion ?? '…'}</button>
         </div>
       </header>
@@ -974,6 +971,11 @@ export function LearningWindow() {
 
   const choose = async (choice: Choice) => {
     if (!progress || busy) return
+    if (choice.action === 'home') {
+      setTeacherOpen(false)
+      setDestination('home')
+      return
+    }
     if (choice.action === 'practice') {
       await minimizeToTeacher()
       return
@@ -1057,7 +1059,6 @@ export function LearningWindow() {
         }}
         onOpenTeacher={() => setTeacherOpen(true)}
         onCloseTeacher={() => setTeacherOpen(false)}
-        onMinimize={() => void minimizeToTeacher()}
         onQuit={() => void window.courseCompanion?.quitApp()}
         onReset={() => void reset()}
         onSettingsChange={(alwaysOnTop) => void updateAppSettings(alwaysOnTop)}
