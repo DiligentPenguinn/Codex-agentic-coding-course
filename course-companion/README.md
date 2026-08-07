@@ -42,7 +42,22 @@ The practice adapter follows the same honesty rule. Every simulated lifecycle
 event has `source: "fixture"`, a correlation ID, and a visible **MÔ PHỎNG**
 label. A fixture success is never presented as evidence from a live Codex task.
 
-## Run locally
+## Start on macOS
+
+From the repository root, double-click `start-course.command` in Finder or run:
+
+```bash
+./start-course.command
+```
+
+The launcher checks for Node.js 22+ and npm. On the first run, or after the
+lockfile changes, it shows the exact local preparation plan and waits for
+permission before running `npm ci` and verifying the pinned Electron runtime
+inside `course-companion/`. It then builds and opens this Electron application.
+It does not install a global Codex tool or claim that the fixture Teacher is
+live.
+
+## Run in development
 
 ```bash
 npm install
@@ -59,4 +74,8 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm run test:electron
 ```
+
+To exercise the root macOS launcher and the complete Electron journey together,
+run `./start-course.command --smoke`.
