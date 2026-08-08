@@ -137,6 +137,18 @@ try {
   assert.equal(typography.regularLoaded, true)
   assert.equal(typography.boldLoaded, true)
   assert.equal(await firstWindows.learningPage.locator('.pixel-app-current').count(), 0)
+  const teacherAnimation = await firstWindows.learningPage
+    .locator('.pixel-home-teacher img')
+    .evaluate((element) => globalThis.getComputedStyle(element).animationName)
+  assert.match(teacherAnimation, /pixel-teacher-idle/)
+  await firstWindows.learningPage.emulateMedia({ reducedMotion: 'reduce' })
+  assert.equal(
+    await firstWindows.learningPage
+      .locator('.pixel-home-teacher img')
+      .evaluate((element) => globalThis.getComputedStyle(element).animationName),
+    'none'
+  )
+  await firstWindows.learningPage.emulateMedia({ reducedMotion: 'no-preference' })
   assert.equal(
     await firstWindows.learningPage.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(),
     0
@@ -193,7 +205,7 @@ try {
     .getByRole('heading', { name: 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy' })
     .waitFor()
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
-  await learningPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).click()
+  await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
   await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
   const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()
   assert.ok(teacherBounds)
@@ -258,7 +270,7 @@ try {
   assert.equal(companionWindow(minimized)?.bounds.height, 188)
 
   await companionPage
-    .getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' })
+    .getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' })
     .click()
   const expanded = await waitForSnapshot(
     resumedLaunch,
@@ -270,7 +282,7 @@ try {
   await companionPage
     .getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true })
     .waitFor()
-  const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Hương' })
+  const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Triết' })
   assert.equal(
     await composer.evaluate((element) => element === element.ownerDocument.activeElement),
     true
@@ -342,7 +354,7 @@ try {
   )
 
   await companionPage
-    .getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' })
+    .getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' })
     .click()
   await companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await resumedLaunch.waitForEvent('close')

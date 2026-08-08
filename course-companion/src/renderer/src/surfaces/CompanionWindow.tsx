@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CompanionMode, CompanionState } from '../../../../shared/contracts'
-import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 export function CompanionWindow() {
@@ -36,7 +36,7 @@ export function CompanionWindow() {
   }
 
   if (mode === null) {
-    return <main className="pixel-companion-surface" aria-label="Đang tải Hương" />
+    return <main className="pixel-companion-surface" aria-label="Đang tải Triết" />
   }
 
   if (mode === 'compact') {
@@ -45,11 +45,11 @@ export function CompanionWindow() {
         <button
           className="pixel-teacher-launcher"
           type="button"
-          aria-label="Mở Hương, giáo viên đồng hành"
+          aria-label="Mở Triết, giáo viên đồng hành"
           onClick={() => void changeMode('expanded')}
         >
           <img src={teacherImage} alt="" />
-          <span>HƯƠNG</span>
+          <span>TRIẾT</span>
         </button>
       </main>
     )

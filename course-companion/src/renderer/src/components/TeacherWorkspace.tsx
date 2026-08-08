@@ -8,7 +8,7 @@ import type {
   TeacherSendRequest,
   TeacherSendResult
 } from '../../../../shared/contracts'
-import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import teacherImage from '../assets/teacher-triet.png'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -178,19 +178,21 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
   }
 
   return (
-    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Hương, giáo viên đồng hành">
+    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Triết, giáo viên đồng hành">
       <header>
         <div className="pixel-teacher-identity">
-          <img src={teacherImage} alt="" />
+          <span className="pixel-teacher-portrait-frame" aria-hidden="true">
+            <img src={teacherImage} alt="" />
+          </span>
           <div>
             <small>TEACHER · MÔ PHỎNG</small>
-            <strong>Hương</strong>
+            <strong>Triết</strong>
           </div>
         </div>
         <button
           className="pixel-panel-minimize"
           type="button"
-          aria-label={embedded ? 'Đóng Hương' : 'Thu nhỏ Hương'}
+          aria-label={embedded ? 'Đóng Triết' : 'Thu nhỏ Triết'}
           onClick={onClose}
         >
           {embedded ? '×' : '—'}
@@ -207,9 +209,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
         <strong>{context?.checkpointId ?? 'Chưa bắt đầu bài học'}</strong>
       </div>
 
-      <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Hương">
+      <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
         <button aria-selected={activeTab === 'chat'} className={activeTab === 'chat' ? 'is-active' : ''} onClick={() => setActiveTab('chat')} role="tab" type="button">
-          HỎI HƯƠNG
+          HỎI TRIẾT
         </button>
         <button aria-selected={activeTab === 'practice'} className={activeTab === 'practice' ? 'is-active' : ''} onClick={() => setActiveTab('practice')} role="tab" type="button">
           THỰC HÀNH
@@ -218,17 +220,17 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       {activeTab === 'chat' ? (
         <>
-          <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Hương">
+          <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Triết">
             {messages.length === 0 ? (
               <div className="pixel-chat-empty">
                 <strong>Chưa có tin nhắn</strong>
-                <span>Hỏi Hương điều bạn cần kiểm tra ở checkpoint này.</span>
+                <span>Hỏi Triết điều bạn cần kiểm tra ở checkpoint này.</span>
               </div>
             ) : (
               messages.map((message) => (
                 <article className={`pixel-chat-message is-${message.role}`} key={message.id}>
                   <header>
-                    <strong>{message.role === 'teacher' ? 'Hương' : 'Bạn'}</strong>
+                    <strong>{message.role === 'teacher' ? 'Triết' : 'Bạn'}</strong>
                     {message.source === 'fixture' ? <span>MÔ PHỎNG</span> : null}
                     <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
                   </header>
@@ -244,9 +246,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
           <form className="pixel-chat-composer" onSubmit={submit}>
             <textarea
               ref={composerRef}
-              aria-label="Nhắn cho Hương"
+              aria-label="Nhắn cho Triết"
               maxLength={2000}
-              placeholder="Hỏi Hương về bước hiện tại…"
+              placeholder="Hỏi Triết về bước hiện tại…"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleComposerKeyDown}
@@ -295,7 +297,7 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       <footer>
         <button className="pixel-panel-quit" type="button" onClick={embedded ? onClose : () => void window.courseCompanion?.quitApp()}>
-          {embedded ? 'Đóng Hương' : 'Thoát ứng dụng'}
+          {embedded ? 'Đóng Triết' : 'Thoát ứng dụng'}
         </button>
         <button className="pixel-panel-primary" type="button" onClick={onOpenLesson}>
           Mở bài học

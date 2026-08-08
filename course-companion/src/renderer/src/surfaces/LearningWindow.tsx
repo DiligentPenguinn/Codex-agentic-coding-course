@@ -14,7 +14,7 @@ import {
   type SceneId
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
-import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 type EvidenceItem = {
@@ -65,7 +65,7 @@ const scenes: Record<SceneId, SceneContent> = {
     evidence: [
       { label: 'SẢN PHẨM', value: 'ContentPilot' },
       { label: 'NƠI THỰC HÀNH', value: 'Codex' },
-      { label: 'NGƯỜI DẪN ĐƯỜNG', value: 'Hương' }
+      { label: 'NGƯỜI DẪN ĐƯỜNG', value: 'Triết' }
     ],
     dialogue: 'Chào bạn. Trước khi sửa bất kỳ tệp nào, mình sẽ giúp bạn phân biệt ứng dụng đang học, ứng dụng sẽ xây và nơi Codex làm việc.',
     choices: [{ label: 'Bắt đầu bằng một vòng chỉ đọc', next: 'intro-first-safe-win', primary: true }]
@@ -538,7 +538,7 @@ function EntryScreen({
     <main className="pixel-learning-shell pixel-entry-shell">
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
       <div className="pixel-entry-brand">CONTENT BUILDER ACADEMY · PILOT 0.1</div>
-      <img className="pixel-entry-teacher" src={teacherImage} alt="Hương, giáo viên đồng hành" />
+      <img className="pixel-entry-teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
       <section className="pixel-entry-panel" aria-live="polite">
         <small>{recovered ? 'ĐÃ KHÔI PHỤC BẢN LƯU GẦN NHẤT' : isWelcome ? 'HÀNH TRÌNH MỚI' : 'CHECKPOINT ĐÃ LƯU'}</small>
         <h1>{title}</h1>
@@ -608,7 +608,7 @@ type TeacherOverlayProps = {
 
 function TeacherOverlay({ onClose, onOpenLesson }: TeacherOverlayProps) {
   return (
-    <aside className="pixel-teacher-overlay" aria-label="Hương, giáo viên đồng hành">
+    <aside className="pixel-teacher-overlay" aria-label="Triết, giáo viên đồng hành">
       <TeacherWorkspace embedded onClose={onClose} onOpenLesson={onOpenLesson} />
     </aside>
   )
@@ -730,9 +730,9 @@ function PixelAppShell({
             </div>
           </div>
 
-          <button className="pixel-home-teacher" type="button" onClick={onOpenTeacher} aria-label="Mở Hương, giáo viên đồng hành">
+          <button className="pixel-home-teacher" type="button" onClick={onOpenTeacher} aria-label="Mở Triết, giáo viên đồng hành">
             <img src={teacherImage} alt="" />
-            <span><small>TEACHER</small><strong>Hương</strong><em>Hỏi khi cần</em></span>
+            <span><small>TEACHER</small><strong>Triết</strong><em>Hỏi khi cần</em></span>
           </button>
         </section>
       ) : destination === 'lesson' ? null : (
@@ -784,7 +784,7 @@ function PixelAppShell({
           {destination === 'settings' ? (
             <div className="pixel-settings">
               <section>
-                <div><small>HƯƠNG NỔI</small><h2>Luôn ở phía trên cửa sổ khác</h2><p>Tắt tùy chọn này nếu Hương che khuất công việc trong Codex.</p></div>
+                <div><small>TRIẾT NỔI</small><h2>Luôn ở phía trên cửa sổ khác</h2><p>Tắt tùy chọn này nếu Triết che khuất công việc trong Codex.</p></div>
                 <button
                   aria-label="Luôn ở phía trên cửa sổ khác"
                   aria-checked={settings.companionAlwaysOnTop}
@@ -965,7 +965,7 @@ export function LearningWindow() {
         : { ...appSettings, companionAlwaysOnTop }
       setAppSettings(saved)
     } catch {
-      setError('Không thể lưu cài đặt Hương nổi.')
+      setError('Không thể lưu cài đặt Triết nổi.')
     }
   }
 
@@ -1086,7 +1086,7 @@ export function LearningWindow() {
           <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></div>
         </div>
         <div className="pixel-hud-actions">
-          <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI HƯƠNG</button>
+          <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
             THOÁT · v{runtime?.appVersion ?? '…'}
           </button>
@@ -1094,7 +1094,7 @@ export function LearningWindow() {
       </header>
 
       <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
-      <img className="pixel-teacher-character" src={teacherImage} alt="Hương, giáo viên đồng hành" />
+      <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />
 
       <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
         <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
@@ -1103,7 +1103,7 @@ export function LearningWindow() {
       </aside>
 
       <section className={`pixel-dialogue${scene.choices.length > 3 ? ' has-many-choices' : ''}`} aria-labelledby="teacherName">
-        <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Hương</strong></div>
+        <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.dialogue}</p>
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         <div className="pixel-choices">
