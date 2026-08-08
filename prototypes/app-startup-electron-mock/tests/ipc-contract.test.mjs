@@ -289,6 +289,7 @@ test("unit script preserves setup coverage and includes Practice tests in order"
     "tests/teacher-context-broker.test.mjs",
     "tests/teacher-adapter.test.mjs",
     "tests/teacher-probe.test.mjs",
+    "tests/visible-transfer-probe.test.mjs",
     "tests/practice-orchestrator.test.mjs",
     "tests/practice-ipc-contract.test.mjs",
     "tests/practice-workspace-ipc.test.mjs",

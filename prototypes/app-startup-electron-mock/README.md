@@ -254,6 +254,7 @@ From `prototypes\app-startup-electron-mock`:
 npm ci
 npx --no-install install-electron --no
 npm run probe:teacher
+npm run probe:visible-transfer
 npm run check
 ```
 
@@ -263,8 +264,16 @@ local fake App Server. It exercises setup, the same-window Practice transition,
 the bound-task-only awareness boundary, Teacher chat, compact mode, and restart
 revalidation. `npm run probe:teacher` separately validates the installed App
 Server's advertised default model and one terminal Teacher response without
-printing private response content. Passing these gates still does not prove the
-physical-drag or visible-desktop checkpoints.
+printing private response content. `npm run probe:visible-transfer` generates
+the installed experimental protocol schema into a temporary directory, verifies
+the exact persistent-thread, read-with-turns, and model-visible injection fields,
+then creates three bounded persistent tasks named `CBA transfer probe` (source,
+decoy, and target). It transfers one attributed summary into only the target,
+proves the source history is unchanged and the decoy is excluded, and prints the
+target task ID, name, and handoff marker for visual inspection. The probe leaves
+those three tasks visible; archive them only after completing the checkpoint.
+Passing these gates still does not prove the physical-drag or visible-desktop
+checkpoints.
 
 ## Real Codex desktop checkpoint
 
@@ -288,23 +297,29 @@ the real path:
 7. Under normal local conditions, confirm Practice Mode shows **Working** and
    then **Response ready** within 10 seconds.
 8. Create a second Codex task with visibly different decoy activity.
-9. Ask the Teacher in English and Vietnamese what the bound Executor was asked,
+9. Run `npm run probe:visible-transfer`, open the printed `TARGET_THREAD_ID` in
+   Codex, and confirm the target visibly contains `BỐI CẢNH ĐƯỢC CHUYỂN CÓ CHỌN
+   LỌC`, the printed `HANDOFF_MARKER`, and the source task attribution. Confirm
+   the source contains only its original bounded probe item and the decoy item
+   appears only in the decoy task. If any item is absent, selective transfer is
+   unavailable and must remain disabled; fresh switching may remain enabled.
+10. Ask the Teacher in English and Vietnamese what the bound Executor was asked,
    which constraints it
    followed, what it reported, and whether files changed.
-10. Confirm the Teacher reports only the bound task, accurately describes its
+11. Confirm the Teacher reports only the bound task, accurately describes its
    prompt and report, confirms that the Executor followed the read-only/no-edit
    constraints, confirms that observed changed files were exactly zero, and
    omits the decoy. A nonzero observed changed-file result must fail acceptance,
    even when the Teacher reports it accurately.
-11. Confirm **Compact to Teacher** hides the main window and shows one 72×72
+12. Confirm **Compact to Teacher** hides the main window and shows one 72×72
     bubble. Physically drag it using the visible grip, reopen quick chat, and
     confirm **Expand Practice** restores the Teacher tab.
-12. Disconnect or stop the App Server and confirm Practice Mode discloses stale
+13. Disconnect or stop the App Server and confirm Practice Mode discloses stale
     or disconnected state without claiming current awareness.
-13. Restart through `.\start-course.cmd` and confirm the concise returning path;
+14. Restart through `.\start-course.cmd` and confirm the concise returning path;
     the mission, verified task, and bounded
     Teacher chat return only after binding revalidation.
-14. Inspect the UI, logs/output, and persisted state. Confirm that no
+15. Inspect the UI, logs/output, and persisted state. Confirm that no
     credentials, authentication URLs, raw protocol messages or payloads,
     environment variables, hidden reasoning, or unrelated-task/decoy content
     appeared. Record pass/fail only; do not record private values or content.
