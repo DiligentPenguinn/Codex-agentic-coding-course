@@ -160,6 +160,17 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
     return raw as unknown as LearnerProgress
   }
 
+  if (schemaVersion === 2 && isPracticeState(practice)) {
+    return {
+      ...update,
+      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
+      courseVersion: COURSE_VERSION,
+      practice,
+      startedAt,
+      updatedAt
+    }
+  }
+
   if (schemaVersion === 1 && practice === undefined) {
     return {
       ...update,
@@ -323,7 +334,7 @@ export class ProgressRepository {
       const parsed: unknown = JSON.parse(await readFile(path, 'utf8'))
       const progress = migrateLearnerProgress(parsed)
       return progress
-        ? { status: 'valid', progress, migrated: isRecord(parsed) && parsed.schemaVersion === 1 }
+        ? { status: 'valid', progress, migrated: isRecord(parsed) && parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION }
         : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }

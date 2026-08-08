@@ -6,6 +6,9 @@ import type {
   CompanionState,
   CourseCompanionApi,
   LearnerProgress,
+  PracticePanelUpdate,
+  PracticeStartRequest,
+  PracticeWorkspaceView,
   PracticeFixtureRequest,
   PracticeState,
   ProgressLoadResult,
@@ -30,6 +33,18 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:load-practice-state') as Promise<PracticeState>,
   emitPracticeFixture: (request: PracticeFixtureRequest) =>
     ipcRenderer.invoke('course:emit-practice-fixture', request) as Promise<PracticeState>,
+  loadPracticeWorkspace: () =>
+    ipcRenderer.invoke('course:load-practice-workspace') as Promise<PracticeWorkspaceView>,
+  startPractice: (request: PracticeStartRequest) =>
+    ipcRenderer.invoke('course:start-practice', request) as Promise<PracticeWorkspaceView>,
+  resumePractice: () =>
+    ipcRenderer.invoke('course:resume-practice') as Promise<PracticeWorkspaceView>,
+  retryPracticeSwitch: () =>
+    ipcRenderer.invoke('course:retry-practice-switch') as Promise<PracticeWorkspaceView>,
+  cancelPracticeSwitch: () =>
+    ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
+  selectPracticePanel: (update: PracticePanelUpdate) =>
+    ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   onLearningWindowShown: (callback: () => void) => {
     const listener = () => callback()
     ipcRenderer.on('course:learning-window-shown', listener)

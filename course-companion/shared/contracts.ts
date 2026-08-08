@@ -14,7 +14,7 @@ export type AppSettings = {
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
 export const COURSE_VERSION = '0.1.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 2
+export const LEARNER_STATE_SCHEMA_VERSION = 3
 
 export const checkpointIds = [
   'intro-visual-onboarding',
@@ -175,6 +175,64 @@ export type CompanionState = {
   conversation: TeacherConversation
 }
 
+export type PracticePanel = 'teacher' | 'progress'
+export type PracticeStepStatus = 'completed' | 'current' | 'upcoming'
+
+export type PracticeChecklistStep = {
+  id: string
+  title: string
+  status: PracticeStepStatus
+}
+
+export type PracticeWorkspaceView = {
+  schemaVersion: 1
+  phase: 'brief' | 'switching' | 'active' | 'error'
+  objective: string
+  expectedOutcome: string
+  checklist: PracticeChecklistStep[]
+  activePractice?: {
+    runId: string
+    executorChatName: string
+    startedAt: string
+  }
+  transition?: {
+    stage: 'creating-target' | 'target-created'
+    label: string
+    canCancel: boolean
+    canRetry: boolean
+  }
+  presentation: {
+    fullPanel: PracticePanel
+    compactPanel: PracticePanel
+  }
+  capabilities: {
+    canStartNew: boolean
+    canResume: boolean
+    selectiveTransferAvailable: false
+    selectiveTransferReason: string
+  }
+  error?: string
+}
+
+export type PracticeStartRequest = {
+  transfer: boolean
+}
+
+export type PracticePanelUpdate = {
+  surface: 'full' | 'compact'
+  panel: PracticePanel
+}
+
+export type PracticeWorkspaceAdapter = {
+  loadWorkspace: () => Promise<PracticeWorkspaceView>
+  startNew: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
+  resume: () => Promise<PracticeWorkspaceView>
+  retry: () => Promise<PracticeWorkspaceView>
+  cancel: () => Promise<PracticeWorkspaceView>
+  selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
+  reset: () => Promise<void>
+}
+
 export type TeacherAdapter = {
   loadConversation: () => Promise<TeacherConversation>
   sendMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
@@ -196,6 +254,12 @@ export type CourseCompanionApi = {
   loadPracticeState: () => Promise<PracticeState>
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
   onLearningWindowShown: (callback: () => void) => () => void
+  loadPracticeWorkspace: () => Promise<PracticeWorkspaceView>
+  startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
+  resumePractice: () => Promise<PracticeWorkspaceView>
+  retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
+  cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
+  selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
   showLearningWindow: () => Promise<void>

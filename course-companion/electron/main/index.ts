@@ -1,14 +1,20 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
-import { join } from 'node:path'
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
+import { join, resolve } from 'node:path'
 import type {
   CompanionMode,
   AppSettingsUpdate,
   PracticeFixtureRequest,
+  PracticePanelUpdate,
+  PracticeStartRequest,
   ProgressUpdate,
   RuntimeInfo,
   TeacherSendRequest
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
+import { CodexAppServerClient } from './codex-app-server-client'
+import { ExecutorChatCoordinator } from './executor-chat-coordinator'
+import { PracticeCoordinator } from './practice-coordinator'
+import { PracticeRunRepository } from './practice-run-repository'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
   FixtureTeacherAdapter,
@@ -32,6 +38,29 @@ const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
 
+const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
+const appServerClient = new CodexAppServerClient()
+let appServerStart: Promise<void> | null = null
+
+async function ensureAppServer(): Promise<void> {
+  if (!appServerStart) {
+    appServerStart = appServerClient.start().catch((error: unknown) => {
+      appServerStart = null
+      throw error
+    })
+  }
+  await appServerStart
+}
+
+const appServerGateway = {
+  async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+    await ensureAppServer()
+    return appServerClient.request(method, params)
+  }
+}
+const workspaceRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const executorChatCoordinator = new ExecutorChatCoordinator(appServerGateway, workspaceRoot, (url) => shell.openExternal(url))
+const practiceCoordinator = new PracticeCoordinator(practiceRunRepository, executorChatCoordinator)
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')
 }
@@ -124,6 +153,30 @@ function positionCompanion(mode: CompanionMode, show = true): void {
   if (show) companionWindow.showInactive()
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isPracticeStartRequest(value: unknown): value is PracticeStartRequest {
+  return isRecord(value) && Object.keys(value).length === 1 && typeof value.transfer === 'boolean'
+}
+
+function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
+  return (
+    isRecord(value) &&
+    Object.keys(value).length === 2 &&
+    (value.surface === 'full' || value.surface === 'compact') &&
+    (value.panel === 'teacher' || value.panel === 'progress')
+  )
+}
+
+async function enterPracticeCompanion(): Promise<void> {
+  companionMode = 'compact'
+  await teacherRepository.saveMode(companionMode)
+  mainWindow?.hide()
+  positionCompanion(companionMode)
+}
+
 function registerIpcHandlers(): void {
   ipcMain.handle('course:get-runtime-info', (): RuntimeInfo => ({
     appVersion: app.getVersion(),
@@ -139,7 +192,7 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:reset-progress', async () => {
-    await Promise.all([progressRepository.reset(), teacherAdapter.reset()])
+    await Promise.all([progressRepository.reset(), teacherAdapter.reset(), practiceCoordinator.reset()])
     companionMode = 'compact'
     companionAlwaysOnTop = true
     companionWindow?.setAlwaysOnTop(true, 'floating')
@@ -154,6 +207,34 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
 
   ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
+
+  ipcMain.handle('course:load-practice-workspace', () => practiceCoordinator.loadWorkspace())
+
+  ipcMain.handle('course:start-practice', async (_event, request: PracticeStartRequest) => {
+    if (!isPracticeStartRequest(request)) throw new Error('Invalid Practice start request')
+    const view = await practiceCoordinator.startNew(request)
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:resume-practice', async () => {
+    const view = await practiceCoordinator.resume()
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:retry-practice-switch', async () => {
+    const view = await practiceCoordinator.retry()
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:cancel-practice-switch', () => practiceCoordinator.cancel())
+
+  ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
+    if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
+    return practiceCoordinator.selectPanel(update)
+  })
 
   ipcMain.handle('course:save-app-settings', async (_event, update: AppSettingsUpdate) => {
     if (!isAppSettingsUpdate(update)) throw new Error('Invalid app settings update')
@@ -221,6 +302,7 @@ function registerIpcHandlers(): void {
 
 app.on('before-quit', () => {
   isQuitting = true
+  void appServerClient.stop()
 })
 
 app.on('activate', () => {
