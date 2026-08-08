@@ -109,7 +109,7 @@ try {
   assert.equal(companionWindow(initial)?.alwaysOnTop, true)
 
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu và mở Home Base' })
+    .getByRole('button', { name: 'Cùng bắt đầu nhé' })
     .click()
   await firstWindows.learningPage
     .getByRole('heading', { name: 'Lộ trình khóa học' })
@@ -190,9 +190,9 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Xóa và bắt đầu lại' }).click()
   await learningPage
-    .getByRole('heading', { name: 'Bắt đầu hành trình ContentPilot' })
+    .getByRole('heading', { name: 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy' })
     .waitFor()
-  await learningPage.getByRole('button', { name: 'Bắt đầu và mở Home Base' }).click()
+  await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).click()
   await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
   const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()

@@ -522,12 +522,12 @@ function EntryScreen({
   const isWelcome = mode === 'welcome'
   const isConfirm = mode === 'reset-confirm' || mode === 'reset-required'
   const title = isWelcome
-    ? 'Bắt đầu hành trình ContentPilot'
+    ? 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy'
     : isConfirm
       ? 'Bắt đầu lại từ đầu?'
       : 'Tiếp tục đúng nơi bạn dừng lại'
   const description = isWelcome
-    ? 'Hương sẽ dẫn bạn qua phần giới thiệu, lưu từng checkpoint và đưa bạn vào Module 1.'
+    ? 'Khoá học này sẽ giúp bạn biết cách sử dụng Coding agent để tạo ra những công cụ hữu ích cho công việc. Chúng mình sẽ không chỉ dạy cho bạn lý thuyết, mà sẽ đồng hành cùng bạn để xây dựng một ứng dụng thực tế.'
     : mode === 'reset-required'
       ? 'Tiến trình hiện tại và bản khôi phục đều không đọc được. Bạn có thể xóa dữ liệu hỏng để bắt đầu an toàn.'
       : isConfirm
@@ -561,7 +561,7 @@ function EntryScreen({
             </button>
           ) : null}
           <button type="button" className="pixel-entry-primary" disabled={busy} onClick={onPrimary}>
-            {busy ? 'Đang lưu…' : isWelcome ? 'Bắt đầu và mở Home Base' : isConfirm ? 'Xóa và bắt đầu lại' : 'Mở Course Companion'}
+            {busy ? 'Đang lưu…' : isWelcome ? 'Cùng bắt đầu nhé' : isConfirm ? 'Xóa và bắt đầu lại' : 'Mở Course Companion'}
           </button>
         </div>
       </section>
