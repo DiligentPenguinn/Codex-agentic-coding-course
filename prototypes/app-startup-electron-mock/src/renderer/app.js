@@ -13,6 +13,7 @@ import {
   getPracticeWorkspaceLoadingLabel,
 } from "./practice-workspace-state.mjs";
 
+const SELECTIVE_TRANSFER_AVAILABLE = false;
 const courseSetup = window.courseSetup;
 const practice = window.practice;
 let state = createInitialOnboardingState();
@@ -633,7 +634,7 @@ function renderPracticeWorkspace() {
 
   const dialog = document.querySelector("#transfer-dialog");
   dialog.querySelector('[data-workspace-action="transfer-selective"]').disabled =
-    !workspace?.activeRun?.executorChatName || !ready;
+    !SELECTIVE_TRANSFER_AVAILABLE || !workspace?.activeRun?.executorChatName || !ready;
   dialog.querySelector('[data-workspace-action="transfer-fresh"]').disabled = !ready;
 
   if (workspaceState.transferDialogOpen && !dialog.open) dialog.showModal();
@@ -852,7 +853,9 @@ document.addEventListener("click", async (event) => {
   if (workspaceAction === "resume") await workspaceController.resumeActive();
   if (workspaceAction === "retry-switch") await workspaceController.retrySwitch();
   if (workspaceAction === "cancel-switch") await workspaceController.cancelSwitch();
-  if (workspaceAction === "transfer-selective") await workspaceController.startNew(true);
+  if (workspaceAction === "transfer-selective" && SELECTIVE_TRANSFER_AVAILABLE) {
+    await workspaceController.startNew(true);
+  }
   if (workspaceAction === "transfer-fresh") await workspaceController.startNew(false);
   if (workspaceAction === "close-transfer") workspaceController.closeTransferDialog();
   if (workspaceAction) return;

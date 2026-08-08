@@ -1088,6 +1088,8 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /id="practice-loading"[^>]*aria-live="polite"/);
   assert.match(html, /<dialog id="transfer-dialog"/);
   assert.match(html, /Chuyển ngữ cảnh có chọn lọc/);
+  assert.match(html, /Tạm thời không khả dụng/);
+  assert.match(script, /const SELECTIVE_TRANSFER_AVAILABLE = false/);
   assert.match(html, /id="course-practice-error"[^>]*role="alert"/);
   assert.match(html, /id="practice-shell"[^>]*data-screen="practice"/);
   assert.match(html, /class="practice-header"/);

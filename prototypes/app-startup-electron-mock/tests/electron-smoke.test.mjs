@@ -400,7 +400,11 @@ test("completes startup and proves the bound-task Practice flow", {
     name: "Bạn muốn mang theo điều gì?",
   });
   await transferDialog.waitFor();
-  await transferDialog.getByRole("button", { name: /Chuyển ngữ cảnh có chọn lọc/ }).waitFor();
+  const selectiveTransfer = transferDialog.getByRole("button", {
+    name: /Chuyển ngữ cảnh có chọn lọc/,
+  });
+  await selectiveTransfer.waitFor();
+  assert.equal(await selectiveTransfer.isDisabled(), true);
   await transferDialog.getByRole("button", { name: /Bắt đầu hoàn toàn mới/ }).waitFor();
   await transferDialog.getByRole("button", { name: "Hủy" }).click();
 
