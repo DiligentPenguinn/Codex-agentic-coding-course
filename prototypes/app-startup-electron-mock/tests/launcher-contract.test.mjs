@@ -70,7 +70,9 @@ test("root launcher defers the shared first-run presentation until Node is missi
       && source.indexOf("startup-first-run.txt") < source.indexOf("Required: Node.js 22 or newer"),
     "the shared first-run presentation must precede the Node permission path",
   );
-  assert.match(setupSource, /Setup complete — opening Course\./);
+  assert.match(setupSource, /Setup complete — opening Course Companion\./);
+  assert.match(setupSource, /"course-companion"/);
+  assert.doesNotMatch(setupSource, /app-startup-electron-mock/);
   assert.doesNotMatch(
     `${source}\n${presentation}\n${setupSource}`,
     /ChatGPT|access.?token|refresh.?token|api.?key|teaching question/i,
@@ -113,14 +115,18 @@ test("returning startup prints one line, skips approval, and launches immediatel
     detect: async () => readyReport({ privateCredential: "MUST_NOT_PRINT" }),
     buildPlan: () => [],
     execute: async () => { executeCalls += 1; },
-    launch: async () => { launchCalls += 1; return 0; },
+    launch: async (options) => {
+      launchCalls += 1;
+      assert.equal(options.root, path.join(repositoryRoot, "course-companion"));
+      return 0;
+    },
     output: { write: (value) => writes.push(value) },
     readFirstRun: async () => "FIRST RUN MUST NOT PRINT",
   });
 
   assert.equal(executeCalls, 0);
   assert.equal(launchCalls, 1);
-  assert.equal(writes.join(""), "Setup complete — opening Course.\n");
+  assert.equal(writes.join(""), "Setup complete — opening Course Companion.\n");
   assert.doesNotMatch(writes.join(""), /FIRST RUN|credential|MUST_NOT_PRINT/i);
 });
 
@@ -141,7 +147,29 @@ test("first-run presentation appears once before a non-empty plan asks approval"
 
   assert.equal(order.filter((value) => value === "FIRST_RUN_PRESENTATION\n").length, 1);
   assert.ok(order.indexOf("FIRST_RUN_PRESENTATION\n") < order.indexOf("approval"));
-  assert.equal(order.at(-1), "Setup complete — opening Course.\n");
+  assert.equal(order.at(-1), "Setup complete — opening Course Companion.\n");
+});
+
+test("does not launch when Codex App Server is still unavailable after preparation", async () => {
+  let launchCalls = 0;
+  await assert.rejects(
+    main({
+      detect: async () => readyReport({ appServerAvailable: false }),
+      buildPlan: () => [{ id: "codex-cli" }],
+      execute: async () => undefined,
+      launch: async () => {
+        launchCalls += 1;
+        return 0;
+      },
+      output: { write: () => undefined },
+      readFirstRun: async () => "FIRST RUN\n",
+    }),
+    (error) => (
+      error.code === "INSTALL_FAILED"
+      && error.actionId === "codex-cli"
+    ),
+  );
+  assert.equal(launchCalls, 0);
 });
 
 test("declining a simulated missing Node install exits without winget", async () => {

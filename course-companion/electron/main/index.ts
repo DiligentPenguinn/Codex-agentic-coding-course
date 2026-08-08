@@ -23,6 +23,7 @@ import {
   TeacherChatRepository
 } from './teacher-fixture'
 import { getCompanionBounds } from './window-layout'
+import { TestCodexGateway } from './test-codex-gateway'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
   app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
@@ -39,6 +40,8 @@ const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
+const workspaceRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const appServerClient = new CodexAppServerClient()
 let appServerStart: Promise<void> | null = null
 
@@ -52,14 +55,18 @@ async function ensureAppServer(): Promise<void> {
   await appServerStart
 }
 
-const appServerGateway = {
-  async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
-    await ensureAppServer()
-    return appServerClient.request(method, params)
-  }
-}
-const workspaceRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
-const executorChatCoordinator = new ExecutorChatCoordinator(appServerGateway, workspaceRoot, (url) => shell.openExternal(url))
+const appServerGateway = useTestCodexGateway
+  ? new TestCodexGateway(workspaceRoot)
+  : {
+      async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        await ensureAppServer()
+        return appServerClient.request(method, params)
+      }
+    }
+const openExecutorChat = useTestCodexGateway
+  ? async (): Promise<void> => undefined
+  : (url: string): Promise<void> => shell.openExternal(url)
+const executorChatCoordinator = new ExecutorChatCoordinator(appServerGateway, workspaceRoot, openExecutorChat)
 const practiceCoordinator = new PracticeCoordinator(practiceRunRepository, executorChatCoordinator)
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')

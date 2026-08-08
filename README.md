@@ -8,9 +8,9 @@ content idea, follow the guided workflow, and turn it into a working tool.
 
 > [!NOTE]
 > **Early access:** guided startup is available for Windows and macOS. The
-> course is still evolving, and the current macOS Course Companion uses clearly
-> labelled fixture Teacher and practice responses rather than live Codex
-> observation.
+> same Course Companion now opens on both platforms. Its Teacher replies and
+> evidence events remain clearly labelled fixtures; creating and reopening the
+> dedicated Codex Practice chat uses the local Codex App Server.
 
 ## What you will learn
 
@@ -75,7 +75,8 @@ After cloning, you can also double-click `start-course.command` in Finder.
 2. The launcher checks whether the required tools are ready.
 3. If local dependencies are needed, you see what will run before it runs.
 4. **Nothing is installed unless you approve it.**
-5. The course application opens and restores local progress when available.
+5. The shared Course Companion opens with fresh app-owned local state and
+   restores that state on later launches.
 6. You continue into the current early-access learning experience.
 
 You can safely decline an installation. The launcher will stop and explain the
@@ -85,17 +86,16 @@ next manual step.
 
 - The Windows setup path uses Codex's official ChatGPT login flow and does not
   read or store your password or authentication tokens.
-- The current macOS Course Companion does not connect to a live Teacher or
-  observe live Codex tasks; its simulated responses are labelled in the app.
+- Course Companion does not yet connect to a live Teacher or derive progress
+  from live Codex activity; simulated replies and evidence remain labelled in
+  the app.
 - Non-secret setup and learning progress stay on your computer.
 - The application checks the available local state when you reopen it.
 
 ## Need help?
 
-- For Windows setup and recovery, see the
-  [startup help guide](prototypes/app-startup-electron-mock/README.md).
-- For macOS startup, verification, and current limitations, see the
-  [Course Companion guide](course-companion/README.md).
+For Windows and macOS startup, verification, Practice behavior, and current
+limitations, see the [Course Companion guide](course-companion/README.md).
 
 ## For contributors
 
@@ -110,7 +110,8 @@ need to read them to begin.
 - [Pilot 0.1 workspace](pilot-workspace/START_HERE.md) is the runnable
   Codex-native course authority for `intro`, `module-1`, and `resume`.
 - [Course Companion](course-companion/README.md) is the implemented desktop-app
-  package; its Teacher and practice adapters are currently fixture-backed.
+  package shared by Windows and macOS; its Teacher and evidence adapters are
+  currently fixture-backed.
 - [ContentPilot learner starter](starters/contentpilot/README.md) is the
   validated application baseline that learners extend.
 - [Planning handoff](docs/planning/content-automation-course-handoff.md) and its
@@ -126,6 +127,7 @@ prototype curricula.
 
 ### Historical references
 
+- [Windows startup prototype](prototypes/app-startup-electron-mock/README.md)
 - [Windows startup mock technical design](docs/superpowers/specs/2026-07-30-electron-startup-mock-design.md)
 - [MVP 0.5 pedagogy kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md)
 - [MVP 1 course repository prototype](prototypes/mvp-1-course-repo/README.vi.md)

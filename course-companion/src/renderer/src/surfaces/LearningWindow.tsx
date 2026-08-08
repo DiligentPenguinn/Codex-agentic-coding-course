@@ -15,6 +15,7 @@ import {
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
 import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 type EvidenceItem = {
@@ -604,11 +605,12 @@ const decisionValues: Record<string, string> = {
 type TeacherOverlayProps = {
   onClose: () => void
   onOpenLesson: () => void
+  practiceMode?: boolean
 }
 
-function TeacherOverlay({ onClose, onOpenLesson }: TeacherOverlayProps) {
+function TeacherOverlay({ onClose, onOpenLesson, practiceMode = false }: TeacherOverlayProps) {
   return (
-    <aside className="pixel-teacher-overlay" aria-label="Hương, giáo viên đồng hành">
+    <aside className={'pixel-teacher-overlay' + (practiceMode ? ' is-practice-full' : '')} aria-label="Hương, giáo viên đồng hành">
       <TeacherWorkspace embedded onClose={onClose} onOpenLesson={onOpenLesson} />
     </aside>
   )
@@ -825,6 +827,8 @@ export function LearningWindow() {
   const [error, setError] = useState('')
   const [destination, setDestination] = useState<AppDestination>('home')
   const [teacherOpen, setTeacherOpen] = useState(false)
+  const [practiceBriefOpen, setPracticeBriefOpen] = useState(false)
+  const [practiceFullOpen, setPracticeFullOpen] = useState(false)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
@@ -901,6 +905,12 @@ export function LearningWindow() {
     document.addEventListener('visibilitychange', refreshWhenVisible)
     const unsubscribe = window.courseCompanion?.onLearningWindowShown(() => {
       void refreshAfterPractice()
+      void window.courseCompanion?.loadPracticeWorkspace().then((workspace) => {
+        if (!workspace.activePractice) return
+        setPracticeBriefOpen(false)
+        setPracticeFullOpen(true)
+        setTeacherOpen(true)
+      })
     })
     return () => {
       window.removeEventListener('focus', refreshAfterPractice)
@@ -952,11 +962,6 @@ export function LearningWindow() {
     }
   }
 
-  const minimizeToTeacher = async () => {
-    await window.courseCompanion?.setCompanionMode('compact')
-    await window.courseCompanion?.hideLearningWindow()
-  }
-
   const updateAppSettings = async (companionAlwaysOnTop: boolean) => {
     setError('')
     try {
@@ -977,7 +982,9 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
-      await minimizeToTeacher()
+      setTeacherOpen(false)
+      setPracticeFullOpen(false)
+      setPracticeBriefOpen(true)
       return
     }
     if (!choice.next) return
@@ -1121,8 +1128,19 @@ export function LearningWindow() {
         </div>
       </section>
 
+      {practiceBriefOpen ? (
+        <PracticeBrief onClose={() => setPracticeBriefOpen(false)} />
+      ) : null}
+
       {teacherOpen ? (
-        <TeacherOverlay onClose={() => setTeacherOpen(false)} onOpenLesson={() => setTeacherOpen(false)} />
+        <TeacherOverlay
+          practiceMode={practiceFullOpen}
+          onClose={() => {
+            setTeacherOpen(false)
+            setPracticeFullOpen(false)
+          }}
+          onOpenLesson={() => setPracticeFullOpen(false)}
+        />
       ) : null}
     </main>
   )

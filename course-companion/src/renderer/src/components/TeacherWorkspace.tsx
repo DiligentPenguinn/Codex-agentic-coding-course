@@ -3,12 +3,14 @@ import type {
   CompanionState,
   PracticeScenario,
   PracticeState,
+  PracticeWorkspaceView,
   TeacherContext,
   TeacherMessage,
   TeacherSendRequest,
   TeacherSendResult
 } from '../../../../shared/contracts'
 import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import { PracticeProgress } from './PracticeProgress'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -77,8 +79,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
   const [busy, setBusy] = useState(false)
   const [recovered, setRecovered] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'chat' | 'practice'>('chat')
+  const [activeTab, setActiveTab] = useState<'teacher' | 'progress'>('teacher')
   const [practice, setPractice] = useState<PracticeState>(emptyPractice)
+  const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [practiceBusy, setPracticeBusy] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
@@ -103,8 +106,13 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
         const state: CompanionState = window.courseCompanion
           ? await window.courseCompanion.loadCompanionState()
           : { mode: 'compact', conversation: { messages: [], recovered: false } }
+        const loadedWorkspace = await window.courseCompanion?.loadPracticeWorkspace()
         setMessages(state.conversation.messages)
         setRecovered(state.conversation.recovered)
+        setWorkspace(loadedWorkspace ?? null)
+        if (loadedWorkspace) {
+          setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
+        }
         setPractice(
           window.courseCompanion
             ? await window.courseCompanion.loadPracticeState()
@@ -117,12 +125,25 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
     }
 
     void load()
-  }, [refreshContext])
+  }, [embedded, refreshContext])
 
   useEffect(() => {
-    if (activeTab === 'chat') composerRef.current?.focus()
+    if (activeTab === 'teacher') composerRef.current?.focus()
   }, [activeTab])
 
+
+  const selectTab = async (next: 'teacher' | 'progress') => {
+    setActiveTab(next)
+    if (!window.courseCompanion) return
+    try {
+      setWorkspace(await window.courseCompanion.selectPracticePanel({
+        surface: embedded ? 'full' : 'compact',
+        panel: next
+      }))
+    } catch {
+      setError('Không thể lưu tab Practice hiện tại.')
+    }
+  }
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ block: 'end' })
   }, [messages])
@@ -208,15 +229,15 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
       </div>
 
       <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Hương">
-        <button aria-selected={activeTab === 'chat'} className={activeTab === 'chat' ? 'is-active' : ''} onClick={() => setActiveTab('chat')} role="tab" type="button">
-          HỎI HƯƠNG
+        <button aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
+          TEACHER
         </button>
-        <button aria-selected={activeTab === 'practice'} className={activeTab === 'practice' ? 'is-active' : ''} onClick={() => setActiveTab('practice')} role="tab" type="button">
-          THỰC HÀNH
+        <button aria-selected={activeTab === 'progress'} className={activeTab === 'progress' ? 'is-active' : ''} onClick={() => void selectTab('progress')} role="tab" type="button">
+          TIẾN ĐỘ
         </button>
       </div>
 
-      {activeTab === 'chat' ? (
+      {activeTab === 'teacher' ? (
         <>
           <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Hương">
             {messages.length === 0 ? (
@@ -261,26 +282,32 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
         </>
       ) : (
         <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
-          <div className={`pixel-practice-status is-${practice.status}`}>
-            <span>{practiceLabels[practice.status].eyebrow} · MÔ PHỎNG</span>
-            <strong>{practiceLabels[practice.status].title}</strong>
+          {workspace ? (
+            <PracticeProgress workspace={workspace} compact={!embedded} />
+          ) : (
+            <div className="pixel-practice-status"><strong>Đang đọc tiến độ Practice…</strong></div>
+          )}
+
+          <details className="pixel-practice-fixture-evidence">
+            <summary>DEV · BẰNG CHỨNG MÔ PHỎNG</summary>
+            <div className={`pixel-practice-status is-${practice.status}`}>
+              <span>{practiceLabels[practice.status].eyebrow} · MÔ PHỎNG</span>
+              <strong>{practiceLabels[practice.status].title}</strong>
+            </div>
             <p>{practice.latestEvent?.summary ?? 'Mở điều khiển dành cho nhà phát triển để phát một sự kiện cục bộ.'}</p>
             {practice.latestEvent ? <small>FIXTURE · {formatTime(practice.latestEvent.timestamp)} · {practice.latestEvent.correlationId}</small> : null}
-          </div>
 
-          {practice.latestEvent?.evidence ? (
-            <div className="pixel-practice-evidence">
-              <div><span>VIEWPORT</span><strong>{practice.latestEvent.evidence.viewport}</strong></div>
-              <div><span>PHẠM VI</span><strong>{practice.latestEvent.evidence.changedScope}</strong></div>
-              <div><span>TRÀN NGANG</span><strong>{practice.latestEvent.evidence.horizontalOverflow}</strong></div>
-              <small>{practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · MÔ PHỎNG</small>
-            </div>
-          ) : null}
+            {practice.latestEvent?.evidence ? (
+              <div className="pixel-practice-evidence">
+                <div><span>VIEWPORT</span><strong>{practice.latestEvent.evidence.viewport}</strong></div>
+                <div><span>PHẠM VI</span><strong>{practice.latestEvent.evidence.changedScope}</strong></div>
+                <div><span>TRÀN NGANG</span><strong>{practice.latestEvent.evidence.horizontalOverflow}</strong></div>
+                <small>{practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · MÔ PHỎNG</small>
+              </div>
+            ) : null}
 
-          <details className="pixel-practice-dev">
-            <summary>DEV · TÌNH HUỐNG MÔ PHỎNG</summary>
-            <p>Các nút này tạo sự kiện cục bộ; không quan sát Codex thật.</p>
-            <div>
+            <p>Các nút dưới đây tạo sự kiện cục bộ; không quan sát Codex thật.</p>
+            <div className="pixel-practice-dev-controls">
               {scenarioControls.map((control) => (
                 <button disabled={practiceBusy} key={control.scenario} onClick={() => void emitPracticeFixture(control.scenario)} type="button">
                   {control.label}
