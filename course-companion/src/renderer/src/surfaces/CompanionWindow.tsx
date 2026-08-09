@@ -12,16 +12,18 @@ export function CompanionWindow() {
       try {
         const state: CompanionState = window.courseCompanion
           ? await window.courseCompanion.loadCompanionState()
-          : { mode: 'compact', conversation: { messages: [], recovered: false } }
+          : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
         setMode(state.mode)
       } catch {
         setMode('compact')
       }
     }
+    const unsubscribeMode = window.courseCompanion?.onCompanionModeChanged(setMode)
 
     void load()
     return () => {
       if (clickTimer.current) clearTimeout(clickTimer.current)
+      unsubscribeMode?.()
     }
   }, [])
 
@@ -34,9 +36,12 @@ export function CompanionWindow() {
     }
   }
 
-  const restoreLearningWindow = async () => {
-    await changeMode('compact')
-    await window.courseCompanion?.showLearningWindow()
+  const showFullTeacher = async () => {
+    try {
+      await window.courseCompanion?.showFullTeacher()
+    } catch {
+      setMode('compact')
+    }
   }
 
   const openQuickTeacher = () => {
@@ -52,7 +57,7 @@ export function CompanionWindow() {
       clearTimeout(clickTimer.current)
       clickTimer.current = null
     }
-    void restoreLearningWindow()
+    void showFullTeacher()
   }
   if (mode === null) {
     return <main className="pixel-companion-surface" aria-label="Đang tải Hương" />
@@ -79,7 +84,7 @@ export function CompanionWindow() {
     <main className="pixel-companion-surface pixel-companion-surface--expanded">
       <TeacherWorkspace
         onClose={() => void changeMode('compact')}
-        onOpenLesson={() => void restoreLearningWindow()}
+        onExpand={() => void showFullTeacher()}
       />
     </main>
   )

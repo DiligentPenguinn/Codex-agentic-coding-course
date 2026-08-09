@@ -177,27 +177,35 @@ export class PracticeRunRepository {
   }
 
   load(): Promise<PracticeWorkspaceRecord> {
-    return this.runExclusive(async () => {
-      try {
-        const parsed: unknown = JSON.parse(await readFile(this.statePath, 'utf8'))
-        if (isPracticeWorkspaceRecord(parsed)) return structuredClone(parsed)
-        await this.quarantine()
-      } catch (error) {
-        if (isRecord(error) && error.code !== 'ENOENT') await this.quarantine()
-      }
-      return defaultPracticeWorkspaceRecord()
-    })
+    return this.runExclusive(() => this.loadDirect())
   }
 
   save(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
     if (!isPracticeWorkspaceRecord(record)) {
       return Promise.reject(new Error('Invalid Practice workspace record'))
     }
+    return this.runExclusive(() => this.saveDirect(record))
+  }
+
+  advanceChecklist(
+    runId: string,
+    currentStepId: 'build-and-verify' | 'review-evidence',
+    updatedAt: string
+  ): Promise<PracticeWorkspaceRecord> {
     return this.runExclusive(async () => {
-      await mkdir(this.dataDirectory, { recursive: true })
-      await writeFile(this.temporaryPath, `${JSON.stringify(record, null, 2)}\n`, 'utf8')
-      await rename(this.temporaryPath, this.statePath)
-      return structuredClone(record)
+      const record = await this.loadDirect()
+      if (!record.activeRun || record.activeRun.runId !== runId) return record
+      const targetIndex = record.activeRun.checklist.findIndex((step) => step.id === currentStepId)
+      const currentIndex = record.activeRun.checklist.findIndex((step) => step.status === 'current')
+      if (targetIndex < 0 || currentIndex < 0 || currentIndex >= targetIndex) return record
+      const checklist = record.activeRun.checklist.map((step, index) => ({
+        ...step,
+        status: index < targetIndex ? 'completed' as const : index === targetIndex ? 'current' as const : 'upcoming' as const
+      }))
+      return this.saveDirect({
+        ...record,
+        activeRun: { ...record.activeRun, checklist, updatedAt }
+      })
     })
   }
 
@@ -209,6 +217,25 @@ export class PracticeRunRepository {
         rm(this.corruptPath, { force: true })
       ])
     })
+  }
+
+  private async loadDirect(): Promise<PracticeWorkspaceRecord> {
+    try {
+      const parsed: unknown = JSON.parse(await readFile(this.statePath, 'utf8'))
+      if (isPracticeWorkspaceRecord(parsed)) return structuredClone(parsed)
+      await this.quarantine()
+    } catch (error) {
+      if (isRecord(error) && error.code !== 'ENOENT') await this.quarantine()
+    }
+    return defaultPracticeWorkspaceRecord()
+  }
+
+  private async saveDirect(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
+    if (!isPracticeWorkspaceRecord(record)) throw new Error('Invalid Practice workspace record')
+    await mkdir(this.dataDirectory, { recursive: true })
+    await writeFile(this.temporaryPath, JSON.stringify(record, null, 2) + '\n', 'utf8')
+    await rename(this.temporaryPath, this.statePath)
+    return structuredClone(record)
   }
 
   private runExclusive<T>(operation: () => Promise<T>): Promise<T> {

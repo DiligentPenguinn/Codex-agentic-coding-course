@@ -45,7 +45,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly repository: PracticeRunRepository,
     private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'openTarget'>,
     private readonly now: () => Date = () => new Date(),
-    private readonly createId: () => string = randomUUID
+    private readonly createId: () => string = randomUUID,
+    private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>
   ) {}
 
   async loadWorkspace(): Promise<PracticeWorkspaceView> {
@@ -87,7 +88,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         this.lastError = 'Không thể tạo Executor chat mới. Practice cũ vẫn được giữ nguyên.'
         throw new Error(this.lastError)
       }
-      await this.openTarget(targetBinding)
+      await this.openTarget(targetBinding, true)
       return this.toView(committed)
     })
   }
@@ -98,7 +99,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       if (!record.activeRun || record.pendingTransition) {
         throw new Error('Không có Practice đang hoạt động để tiếp tục.')
       }
-      await this.openTarget(record.activeRun.binding)
+      await this.openTarget(record.activeRun.binding, false)
       return this.toView(record)
     })
   }
@@ -110,7 +111,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       if (!transition) throw new Error('Không có lần chuyển nào để thử lại.')
       if (transition.stage === 'target-created' && transition.targetBinding) {
         const committed = await this.commitTarget(record)
-        await this.openTarget(transition.targetBinding)
+        await this.openTarget(transition.targetBinding, true)
         return this.toView(committed)
       }
       const targetBinding = await this.executor.createTarget(transition.targetRunId)
@@ -119,7 +120,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         pendingTransition: { ...transition, stage: 'target-created', targetBinding }
       })
       const committed = await this.commitTarget(targetCreated)
-      await this.openTarget(targetBinding)
+      await this.openTarget(targetBinding, true)
       return this.toView(committed)
     })
   }
@@ -159,8 +160,9 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     return running
   }
 
-  private async openTarget(binding: PracticeRunRecord['binding']): Promise<void> {
+  private async openTarget(binding: PracticeRunRecord['binding'], captureBaseline: boolean): Promise<void> {
     try {
+      await this.prepareExecutor?.(binding, captureBaseline)
       await this.executor.openTarget(binding)
       this.lastError = ''
     } catch {

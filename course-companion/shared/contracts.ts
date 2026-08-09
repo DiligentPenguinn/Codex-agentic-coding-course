@@ -146,13 +146,29 @@ export type TeacherContext = {
   sceneId: SceneId
 }
 
+export type TeacherConnectionState = 'simulated' | 'connecting' | 'ready' | 'live' | 'stale' | 'offline'
+export type TeacherContextFreshness = 'unavailable' | 'fresh' | 'stale' | 'disconnected'
+export type TeacherMemoryStatus = 'ready' | 'pending'
+export type TeacherDeliveryStatus = 'pending' | 'delivered' | 'failed'
+
+export type TeacherRuntimeView = {
+  connection: TeacherConnectionState
+  memory: TeacherMemoryStatus
+  observedAt?: string
+  contextFreshness?: TeacherContextFreshness
+  error?: string
+}
+
 export type TeacherMessage = {
+  schemaVersion?: 1
   id: string
   role: 'learner' | 'teacher'
-  source: 'learner' | 'fixture'
+  source: 'learner' | 'fixture' | 'live'
   content: string
   timestamp: string
   checkpointId?: CheckpointId
+  practiceRunId?: string
+  deliveryStatus?: TeacherDeliveryStatus
 }
 
 export type TeacherConversation = {
@@ -173,6 +189,79 @@ export type TeacherSendResult = {
 export type CompanionState = {
   mode: CompanionMode
   conversation: TeacherConversation
+  teacher: TeacherRuntimeView
+}
+
+export type ExecutorActivityStatus =
+  | 'ready'
+  | 'working'
+  | 'waiting-for-learner'
+  | 'response-ready'
+  | 'stale'
+  | 'disconnected'
+
+export type WorkspaceEvidenceBaseline = {
+  schemaVersion: 1
+  capturedAt: string
+  gitAvailable: boolean
+  entries: Record<string, string>
+}
+
+export type ExecutorActivitySnapshot = {
+  schemaVersion: 1
+  runId: string
+  threadId: string
+  status: ExecutorActivityStatus
+  cursor: string
+  learnerPrompts: string[]
+  executorResponses: string[]
+  approvalEvents: string[]
+  changedFiles: string[]
+  verificationEvidence: string[]
+  reportedChangedFiles: string[]
+  reportedVerificationEvidence: string[]
+  workspaceConfirmedChangedFiles: string[]
+  observedAt: string
+  workspaceBaseline: WorkspaceEvidenceBaseline | null
+}
+
+export type PracticeLearningSignal = {
+  text: string
+  basis: 'observed' | 'inferred'
+  sourceRunId: string
+}
+
+export type PracticeRunSummary = {
+  schemaVersion: 1
+  practiceId: string
+  runId: string
+  attempt: number
+  outcome: 'completed' | 'replaced' | 'abandoned' | 'error'
+  objective: string
+  approach: string
+  learnerDecisions: string[]
+  approvals: string[]
+  changedFiles: string[]
+  verificationEvidence: string[]
+  learningSignals: PracticeLearningSignal[]
+  unresolvedIssues: string[]
+  nextAttemptGuidance: string[]
+  startedAt: string
+  endedAt: string
+  summarizedAt: string
+  sourceDigest: string
+  model: string
+  freshness: 'current' | 'stale'
+  quality: 'live' | 'pending-refinement'
+}
+
+export type TeacherMemoryDocument = {
+  schemaVersion: 1
+  learnerDecisions: string[]
+  learningSignals: PracticeLearningSignal[]
+  unresolvedNeeds: PracticeLearningSignal[]
+  practiceSummaries: Record<string, PracticeRunSummary[]>
+  updatedAt: string
 }
 
 export type PracticePanel = 'teacher' | 'progress'
@@ -253,7 +342,8 @@ export type CourseCompanionApi = {
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
   loadPracticeState: () => Promise<PracticeState>
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
-  onLearningWindowShown: (callback: () => void) => () => void
+  onFullTeacherRequested: (callback: () => void) => () => void
+  onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => () => void
   loadPracticeWorkspace: () => Promise<PracticeWorkspaceView>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: () => Promise<PracticeWorkspaceView>
@@ -262,8 +352,8 @@ export type CourseCompanionApi = {
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
-  showLearningWindow: () => Promise<void>
-  hideLearningWindow: () => Promise<void>
+  showFullTeacher: () => Promise<void>
+  minimizeFullTeacher: () => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>
   quitApp: () => Promise<void>
 }

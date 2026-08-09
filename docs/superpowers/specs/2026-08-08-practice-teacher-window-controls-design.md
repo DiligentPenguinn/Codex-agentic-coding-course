@@ -1,8 +1,15 @@
 # Practice Teacher Window Controls Design
 
-**Status:** Design approved; written specification pending user review  
+**Status:** Approved for implementation
 **Date:** 8 August 2026  
 **Implementation target:** `course-companion/`
+
+## Follow-up UI regression fixes
+
+- The full Practice Teacher surface must cover the complete renderer viewport with an opaque background. The lesson remains mounted so closing Teacher can restore it unchanged, but no lesson content may remain visible while full Teacher is open.
+- The Teacher message log owns its scroll position. It scrolls directly to its end after messages load or change and whenever the learner returns from the Progress tab; it must not call `scrollIntoView`, which can move ancestor containers instead of only the chat log.
+- The windowed Teacher keeps its existing size and visual treatment. Scroll containment prevents wheel or touch gestures at the edge of the message history from leaking into the underlying surface.
+
 
 ## Goal
 

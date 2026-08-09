@@ -45,17 +45,22 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
   selectPracticePanel: (update: PracticePanelUpdate) =>
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
-  onLearningWindowShown: (callback: () => void) => {
+  onFullTeacherRequested: (callback: () => void) => {
     const listener = () => callback()
-    ipcRenderer.on('course:learning-window-shown', listener)
-    return () => ipcRenderer.removeListener('course:learning-window-shown', listener)
+    ipcRenderer.on('course:full-teacher-requested', listener)
+    return () => ipcRenderer.removeListener('course:full-teacher-requested', listener)
+  },
+  onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, mode: CompanionMode) => callback(mode)
+    ipcRenderer.on('course:companion-mode-changed', listener)
+    return () => ipcRenderer.removeListener('course:companion-mode-changed', listener)
   },
   loadAppSettings: () =>
     ipcRenderer.invoke('course:load-app-settings') as Promise<AppSettings>,
   saveAppSettings: (update: AppSettingsUpdate) =>
     ipcRenderer.invoke('course:save-app-settings', update) as Promise<AppSettings>,
-  showLearningWindow: () => ipcRenderer.invoke('course:show-learning-window') as Promise<void>,
-  hideLearningWindow: () => ipcRenderer.invoke('course:hide-learning-window') as Promise<void>,
+  showFullTeacher: () => ipcRenderer.invoke('course:show-full-teacher') as Promise<void>,
+  minimizeFullTeacher: () => ipcRenderer.invoke('course:minimize-full-teacher') as Promise<void>,
   setCompanionMode: (mode: CompanionMode) =>
     ipcRenderer.invoke('course:set-companion-mode', mode) as Promise<void>,
   quitApp: () => ipcRenderer.invoke('course:quit') as Promise<void>

@@ -604,14 +604,14 @@ const decisionValues: Record<string, string> = {
 
 type TeacherOverlayProps = {
   onClose: () => void
-  onOpenLesson: () => void
+  onMinimizeToBubble?: () => void
   practiceMode?: boolean
 }
 
-function TeacherOverlay({ onClose, onOpenLesson, practiceMode = false }: TeacherOverlayProps) {
+function TeacherOverlay({ onClose, onMinimizeToBubble, practiceMode = false }: TeacherOverlayProps) {
   return (
     <aside className={'pixel-teacher-overlay' + (practiceMode ? ' is-practice-full' : '')} aria-label="Hương, giáo viên đồng hành">
-      <TeacherWorkspace embedded onClose={onClose} onOpenLesson={onOpenLesson} />
+      <TeacherWorkspace embedded fullScreen={practiceMode} onClose={onClose} onMinimizeToBubble={onMinimizeToBubble} />
     </aside>
   )
 }
@@ -812,7 +812,7 @@ function PixelAppShell({
       )}
 
       {teacherOpen ? (
-        <TeacherOverlay onClose={onCloseTeacher} onOpenLesson={() => onNavigate('lesson')} />
+        <TeacherOverlay onClose={onCloseTeacher} />
       ) : null}
     </main>
   )
@@ -855,6 +855,14 @@ export function LearningWindow() {
     }
   }
 
+  const refreshAfterPractice = async () => {
+    if (!window.courseCompanion) return
+    const loadResult = await window.courseCompanion.loadProgress()
+    if (loadResult.status !== 'returning' && loadResult.status !== 'recovered') return
+    const updated = await advanceFromCompletedPractice(loadResult.progress)
+    setProgress(updated)
+  }
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -891,30 +899,12 @@ export function LearningWindow() {
   }, [])
 
   useEffect(() => {
-    const refreshAfterPractice = async () => {
-      if (!window.courseCompanion) return
-      const loadResult = await window.courseCompanion.loadProgress()
-      if (loadResult.status !== 'returning' && loadResult.status !== 'recovered') return
-      const updated = await advanceFromCompletedPractice(loadResult.progress)
-      setProgress(updated)
-    }
-    const refreshWhenVisible = () => {
-      if (!document.hidden) void refreshAfterPractice()
-    }
-    window.addEventListener('focus', refreshAfterPractice)
-    document.addEventListener('visibilitychange', refreshWhenVisible)
-    const unsubscribe = window.courseCompanion?.onLearningWindowShown(() => {
-      void refreshAfterPractice()
-      void window.courseCompanion?.loadPracticeWorkspace().then((workspace) => {
-        if (!workspace.activePractice) return
-        setPracticeBriefOpen(false)
-        setPracticeFullOpen(true)
-        setTeacherOpen(true)
-      })
+    const unsubscribe = window.courseCompanion?.onFullTeacherRequested(() => {
+      setPracticeBriefOpen(false)
+      setPracticeFullOpen(true)
+      setTeacherOpen(true)
     })
     return () => {
-      window.removeEventListener('focus', refreshAfterPractice)
-      document.removeEventListener('visibilitychange', refreshWhenVisible)
       unsubscribe?.()
     }
   })
@@ -1136,10 +1126,16 @@ export function LearningWindow() {
         <TeacherOverlay
           practiceMode={practiceFullOpen}
           onClose={() => {
+            const returningToLesson = practiceFullOpen
             setTeacherOpen(false)
             setPracticeFullOpen(false)
+            if (returningToLesson) void refreshAfterPractice()
           }}
-          onOpenLesson={() => setPracticeFullOpen(false)}
+          onMinimizeToBubble={() => {
+            setTeacherOpen(false)
+            setPracticeFullOpen(false)
+            void window.courseCompanion?.minimizeFullTeacher()
+          }}
         />
       ) : null}
     </main>

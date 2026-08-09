@@ -4,16 +4,44 @@ import readline from 'node:readline'
 type PendingRequest = {
   resolve: (value: unknown) => void
   reject: (error: Error) => void
+  timeout: ReturnType<typeof setTimeout>
 }
 
 type JsonRpcMessage = {
-  id?: number
+  id?: number | string
   result?: unknown
   error?: unknown
+  method?: string
+  params?: unknown
 }
 
-function typedError(code: string, message: string): Error & { code: string } {
-  return Object.assign(new Error(message), { code })
+export type CodexNotification = { method: string; params?: unknown }
+export type CodexConnectionState = 'connecting' | 'connected' | 'disconnected'
+export type CodexNotificationListener = (notification: CodexNotification) => void
+export type CodexConnectionListener = (state: CodexConnectionState) => void
+
+export type CodexClientError = Error & { code: string; detail?: string }
+
+function record(value: unknown): Record<string, unknown> | null {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null
+}
+
+function safeRpcDetail(value: unknown): string | undefined {
+  const item = record(value)
+  const raw = typeof item?.message === 'string' ? item.message : ''
+  if (!raw) return undefined
+  const redacted = raw
+    .replace(/[A-Za-z]:[\\/][^\s"']+/g, '<path>')
+    .replace(/(?:bearer|token|api[_-]?key)\s*[:=]?\s*[^\s,;]+/gi, '<credential>')
+    .replaceAll(/\s+/g, ' ')
+    .trim()
+  return [...redacted].slice(0, 300).join('')
+}
+
+function typedError(code: string, message: string, detail?: string): CodexClientError {
+  return Object.assign(new Error(detail ? `${message}: ${detail}` : message), { code, detail })
 }
 
 export class CodexAppServerClient {
@@ -22,9 +50,13 @@ export class CodexAppServerClient {
   private initialized = false
   private nextId = 1
   private pending = new Map<number, PendingRequest>()
+  private notificationListeners = new Set<CodexNotificationListener>()
+  private connectionListeners = new Set<CodexConnectionListener>()
+  private connectionState: CodexConnectionState = 'disconnected'
 
   async start(): Promise<void> {
     if (this.process) throw typedError('APP_SERVER_ALREADY_STARTED', 'Codex App Server is already running')
+    this.setConnectionState('connecting')
     const child = spawn('codex', ['app-server'], {
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true
@@ -45,10 +77,22 @@ export class CodexAppServerClient {
       })
       this.write({ method: 'initialized', params: {} })
       this.initialized = true
+      this.setConnectionState('connected')
     } catch (error) {
       await this.stop()
       throw error
     }
+  }
+
+  onNotification(listener: CodexNotificationListener): () => void {
+    this.notificationListeners.add(listener)
+    return () => this.notificationListeners.delete(listener)
+  }
+
+  onConnectionState(listener: CodexConnectionListener): () => void {
+    this.connectionListeners.add(listener)
+    listener(this.connectionState)
+    return () => this.connectionListeners.delete(listener)
   }
 
   request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
@@ -67,6 +111,7 @@ export class CodexAppServerClient {
     this.lines?.close()
     this.lines = null
     this.rejectPending(typedError('APP_SERVER_STOPPED', 'Codex App Server stopped'))
+    this.setConnectionState('disconnected')
     if (child) {
       child.stdin.end()
       if (child.exitCode === null) child.kill()
@@ -76,11 +121,16 @@ export class CodexAppServerClient {
   private rawRequest(method: string, params: Record<string, unknown>): Promise<unknown> {
     const id = this.nextId++
     return new Promise((resolve, reject) => {
-      this.pending.set(id, { resolve, reject })
+      const timeout = setTimeout(() => {
+        if (!this.pending.delete(id)) return
+        reject(typedError('APP_SERVER_REQUEST_TIMEOUT', `Codex App Server request timed out: ${method}`))
+      }, 30_000)
+      this.pending.set(id, { resolve, reject, timeout })
       try {
         this.write({ id, method, params })
       } catch {
         this.pending.delete(id)
+        clearTimeout(timeout)
         reject(typedError('APP_SERVER_WRITE_FAILED', `Could not send App Server request: ${method}`))
       }
     })
@@ -100,15 +150,39 @@ export class CodexAppServerClient {
     } catch {
       return
     }
-    if (!Number.isSafeInteger(message.id)) return
-    const id = Number(message.id)
-    const pending = this.pending.get(id)
-    if (!pending) return
-    this.pending.delete(id)
-    if (message.error !== undefined) {
-      pending.reject(typedError('APP_SERVER_REQUEST_FAILED', 'Codex App Server request failed'))
-    } else {
-      pending.resolve(message.result)
+    if (typeof message.method === 'string' && message.method.length <= 200) {
+      const notification = { method: message.method, params: message.params }
+      if (typeof message.id === 'string' || Number.isSafeInteger(message.id)) {
+        try {
+          this.write({
+            id: message.id,
+            error: { code: -32601, message: 'Course Companion does not permit App Server callbacks' }
+          })
+        } catch {
+          // A disconnected transport will reject the active turn separately.
+        }
+      }
+      for (const listener of this.notificationListeners) {
+        try {
+          listener(notification)
+        } catch {
+          // Notification consumers are isolated from the App Server transport.
+        }
+      }
+      return
+    }
+    if (Number.isSafeInteger(message.id)) {
+      const id = Number(message.id)
+      const pending = this.pending.get(id)
+      if (!pending) return
+      this.pending.delete(id)
+      clearTimeout(pending.timeout)
+      if (message.error !== undefined) {
+        pending.reject(typedError('APP_SERVER_REQUEST_FAILED', 'Codex App Server request failed', safeRpcDetail(message.error)))
+      } else {
+        pending.resolve(message.result)
+      }
+      return
     }
   }
 
@@ -119,10 +193,26 @@ export class CodexAppServerClient {
     this.lines?.close()
     this.lines = null
     this.rejectPending(typedError('APP_SERVER_EXITED', 'Codex App Server exited unexpectedly'))
+    this.setConnectionState('disconnected')
+  }
+
+  private setConnectionState(state: CodexConnectionState): void {
+    if (this.connectionState === state) return
+    this.connectionState = state
+    for (const listener of this.connectionListeners) {
+      try {
+        listener(state)
+      } catch {
+        // Connection consumers are isolated from the App Server transport.
+      }
+    }
   }
 
   private rejectPending(error: Error): void {
-    for (const request of this.pending.values()) request.reject(error)
+    for (const request of this.pending.values()) {
+      clearTimeout(request.timeout)
+      request.reject(error)
+    }
     this.pending.clear()
   }
 }

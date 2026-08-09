@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
+import { mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import type {
   CompanionMode,
@@ -12,16 +13,20 @@ import type {
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
 import { CodexAppServerClient } from './codex-app-server-client'
+import { ExecutorActivityObserver } from './executor-activity-observer'
+import { ExecutorActivityRepository } from './executor-activity-repository'
 import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
 import { PracticeRunRepository } from './practice-run-repository'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
-  FixtureTeacherAdapter,
   isAppSettingsUpdate,
   isTeacherSendRequest,
   TeacherChatRepository
 } from './teacher-fixture'
+import { RealTeacherAdapter } from './real-teacher-adapter'
+import { TeacherMemoryRepository } from './teacher-memory-repository'
+import { TeacherService } from './teacher-service'
 import { getCompanionBounds } from './window-layout'
 import { TestCodexGateway } from './test-codex-gateway'
 
@@ -37,11 +42,11 @@ let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
-const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
 const workspaceRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
+const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()
 let appServerStart: Promise<void> | null = null
 
@@ -61,13 +66,53 @@ const appServerGateway = useTestCodexGateway
       async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
         await ensureAppServer()
         return appServerClient.request(method, params)
+      },
+      onNotification(listener: Parameters<CodexAppServerClient['onNotification']>[0]) {
+        return appServerClient.onNotification(listener)
+      },
+      onConnectionState(listener: Parameters<CodexAppServerClient['onConnectionState']>[0]) {
+        return appServerClient.onConnectionState(listener)
       }
     }
 const openExecutorChat = useTestCodexGateway
   ? async (): Promise<void> => undefined
   : (url: string): Promise<void> => shell.openExternal(url)
 const executorChatCoordinator = new ExecutorChatCoordinator(appServerGateway, workspaceRoot, openExecutorChat)
-const practiceCoordinator = new PracticeCoordinator(practiceRunRepository, executorChatCoordinator)
+const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
+const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
+const practiceCoordinator = new PracticeCoordinator(
+  practiceRunRepository,
+  executorChatCoordinator,
+  undefined,
+  undefined,
+  (binding, captureBaseline) => activityObserver.bind(binding, { captureBaseline }).then(() => undefined)
+)
+const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
+const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
+mkdirSync(teacherRuntimeDirectory, { recursive: true })
+const realTeacherAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const realTeacherSummaryAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const teacherService = new TeacherService(
+  teacherRepository,
+  progressRepository,
+  practiceRunRepository,
+  activityRepository,
+  activityObserver,
+  memoryRepository,
+  realTeacherSummaryAdapter,
+  realTeacherAdapter,
+  useTestCodexGateway && !presentTestTeacherAsLive
+)
+const removeTeacherConnection = appServerGateway.onConnectionState((state) => {
+  if (state === 'disconnected') {
+    appServerStart = null
+    void realTeacherAdapter.resetTransport()
+    void realTeacherSummaryAdapter.resetTransport()
+  }
+  teacherService.onConnectionState(state)
+})
+
+
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')
 }
@@ -140,9 +185,10 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
     }
   })
 
-  window.setAlwaysOnTop(companionAlwaysOnTop, 'floating')
+  applyCompanionTopmost(window)
   window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false })
 
+  window.on('show', () => applyCompanionTopmost(window))
   window.on('close', (event) => {
     if (isQuitting) return
     event.preventDefault()
@@ -152,12 +198,26 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   return window
 }
 
+function applyCompanionTopmost(target: BrowserWindow | null = companionWindow): void {
+  if (!target) return
+  if (!companionAlwaysOnTop) {
+    target.setAlwaysOnTop(false)
+    return
+  }
+  target.setAlwaysOnTop(true, 'screen-saver')
+  if (target.isVisible()) target.moveTop()
+}
+
 function positionCompanion(mode: CompanionMode, show = true): void {
   if (!companionWindow) return
 
   const display = screen.getDisplayMatching(companionWindow.getBounds())
   companionWindow.setBounds(getCompanionBounds(display.workArea, mode), true)
-  if (show) companionWindow.showInactive()
+  applyCompanionTopmost()
+  if (show) {
+    companionWindow.showInactive()
+    applyCompanionTopmost()
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -181,6 +241,7 @@ async function enterPracticeCompanion(): Promise<void> {
   companionMode = 'compact'
   await teacherRepository.saveMode(companionMode)
   mainWindow?.hide()
+  companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
   positionCompanion(companionMode)
 }
 
@@ -199,17 +260,17 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:reset-progress', async () => {
-    await Promise.all([progressRepository.reset(), teacherAdapter.reset(), practiceCoordinator.reset()])
+    await Promise.all([progressRepository.reset(), teacherService.reset(), practiceCoordinator.reset()])
     companionMode = 'compact'
     companionAlwaysOnTop = true
-    companionWindow?.setAlwaysOnTop(true, 'floating')
+    applyCompanionTopmost()
     positionCompanion(companionMode, false)
   })
 
-  ipcMain.handle('course:load-companion-state', async () => ({
-    mode: companionMode,
-    conversation: await teacherAdapter.loadConversation()
-  }))
+  ipcMain.handle('course:load-companion-state', async () => {
+    if (!useTestCodexGateway) await ensureAppServer().catch(() => undefined)
+    return teacherService.loadState(companionMode)
+  })
 
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
 
@@ -218,8 +279,13 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:load-practice-workspace', () => practiceCoordinator.loadWorkspace())
 
   ipcMain.handle('course:start-practice', async (_event, request: PracticeStartRequest) => {
+    const previousRun = (await practiceRunRepository.load()).activeRun
     if (!isPracticeStartRequest(request)) throw new Error('Invalid Practice start request')
     const view = await practiceCoordinator.startNew(request)
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (previousRun && previousRun.runId !== activeRun?.runId) {
+      void teacherService.summarizeReplacedRun(previousRun)
+    }
     await enterPracticeCompanion()
     return view
   })
@@ -246,7 +312,7 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:save-app-settings', async (_event, update: AppSettingsUpdate) => {
     if (!isAppSettingsUpdate(update)) throw new Error('Invalid app settings update')
     companionAlwaysOnTop = update.companionAlwaysOnTop
-    companionWindow?.setAlwaysOnTop(companionAlwaysOnTop, companionAlwaysOnTop ? 'floating' : 'normal')
+    applyCompanionTopmost()
     return teacherRepository.saveSettings({
       companionMode,
       companionAlwaysOnTop
@@ -265,34 +331,26 @@ function registerIpcHandlers(): void {
     'course:send-teacher-message',
     async (_event, request: TeacherSendRequest) => {
       if (!isTeacherSendRequest(request)) throw new Error('Invalid teacher message request')
-      const progressResult = await progressRepository.load()
-      const progress =
-        progressResult.status === 'returning' || progressResult.status === 'recovered'
-          ? progressResult.progress
-          : undefined
-      return teacherAdapter.sendMessage({
-        content: request.content,
-        context: progress
-          ? {
-              lessonId: progress.currentLessonId,
-              checkpointId: progress.checkpointId,
-              sceneId: progress.sceneId
-            }
-          : undefined
-      })
+      return teacherService.sendMessage({ content: request.content })
     }
   )
 
-  ipcMain.handle('course:show-learning-window', () => {
-    companionWindow?.hide()
+  ipcMain.handle('course:show-full-teacher', async () => {
+    companionMode = 'compact'
+    await teacherRepository.saveMode(companionMode)
     mainWindow?.show()
     mainWindow?.focus()
-    mainWindow?.webContents.send('course:learning-window-shown')
+    mainWindow?.webContents.send('course:full-teacher-requested')
+    companionWindow?.hide()
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
   })
 
-  ipcMain.handle('course:hide-learning-window', () => {
+  ipcMain.handle('course:minimize-full-teacher', async () => {
+    companionMode = 'compact'
+    await teacherRepository.saveMode(companionMode)
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
+    positionCompanion(companionMode)
     mainWindow?.hide()
-    companionWindow?.showInactive()
   })
 
   ipcMain.handle('course:set-companion-mode', async (_event, mode: CompanionMode) => {
@@ -301,6 +359,7 @@ function registerIpcHandlers(): void {
     }
     companionMode = mode
     positionCompanion(companionMode)
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
     await teacherRepository.saveMode(companionMode)
   })
 
@@ -310,6 +369,8 @@ function registerIpcHandlers(): void {
 app.on('before-quit', () => {
   isQuitting = true
   void appServerClient.stop()
+  removeTeacherConnection()
+  void teacherService.dispose()
 })
 
 app.on('activate', () => {

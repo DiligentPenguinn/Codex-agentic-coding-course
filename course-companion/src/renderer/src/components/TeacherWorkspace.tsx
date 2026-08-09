@@ -6,6 +6,7 @@ import type {
   PracticeWorkspaceView,
   TeacherContext,
   TeacherMessage,
+  TeacherRuntimeView,
   TeacherSendRequest,
   TeacherSendResult
 } from '../../../../shared/contracts'
@@ -14,8 +15,10 @@ import { PracticeProgress } from './PracticeProgress'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
+  fullScreen?: boolean
   onClose: () => void
-  onOpenLesson: () => void
+  onExpand?: () => void
+  onMinimizeToBubble?: () => void
 }
 
 function previewReply(request: TeacherSendRequest): TeacherSendResult {
@@ -72,10 +75,31 @@ const scenarioControls: Array<{ scenario: PracticeScenario; label: string }> = [
   { scenario: 'error', label: 'Lỗi' }
 ]
 
-export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: TeacherWorkspaceProps) {
+const TEACHER_DRAFT_KEY = 'course-companion:teacher-draft'
+
+function loadTeacherDraft(): string {
+  try {
+    return window.localStorage.getItem(TEACHER_DRAFT_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function TeacherWorkspace({
+  embedded = false,
+  fullScreen = false,
+  onClose,
+  onExpand,
+  onMinimizeToBubble
+}: TeacherWorkspaceProps) {
   const [messages, setMessages] = useState<TeacherMessage[]>([])
+  const [teacherRuntime, setTeacherRuntime] = useState<TeacherRuntimeView>({
+    connection: window.courseCompanion ? 'connecting' : 'simulated',
+    memory: 'ready',
+    contextFreshness: 'unavailable'
+  })
   const [context, setContext] = useState<TeacherContext | undefined>()
-  const [draft, setDraft] = useState('')
+  const [draft, setDraft] = useState(loadTeacherDraft)
   const [busy, setBusy] = useState(false)
   const [recovered, setRecovered] = useState(false)
   const [error, setError] = useState('')
@@ -105,10 +129,11 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
       try {
         const state: CompanionState = window.courseCompanion
           ? await window.courseCompanion.loadCompanionState()
-          : { mode: 'compact', conversation: { messages: [], recovered: false } }
+          : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
         const loadedWorkspace = await window.courseCompanion?.loadPracticeWorkspace()
         setMessages(state.conversation.messages)
         setRecovered(state.conversation.recovered)
+        setTeacherRuntime(state.teacher)
         setWorkspace(loadedWorkspace ?? null)
         if (loadedWorkspace) {
           setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
@@ -128,8 +153,25 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
   }, [embedded, refreshContext])
 
   useEffect(() => {
-    if (activeTab === 'teacher') composerRef.current?.focus()
-  }, [activeTab])
+    if (activeTab !== 'teacher' || busy) return
+    const frame = requestAnimationFrame(() => composerRef.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [activeTab, busy])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(TEACHER_DRAFT_KEY, draft)
+    } catch {
+      // Draft persistence is best-effort; the in-memory draft remains available.
+    }
+  }, [draft])
+  useEffect(() => {
+    const syncDraft = (event: StorageEvent) => {
+      if (event.key === TEACHER_DRAFT_KEY) setDraft(event.newValue ?? '')
+    }
+    window.addEventListener('storage', syncDraft)
+    return () => window.removeEventListener('storage', syncDraft)
+  }, [])
 
 
   const selectTab = async (next: 'teacher' | 'progress') => {
@@ -145,8 +187,15 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
     }
   }
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ block: 'end' })
-  }, [messages])
+    if (activeTab !== 'teacher') return
+
+    const frame = requestAnimationFrame(() => {
+      const chatLog = messageEndRef.current?.parentElement
+      if (chatLog) chatLog.scrollTop = chatLog.scrollHeight
+    })
+
+    return () => cancelAnimationFrame(frame)
+  }, [activeTab, messages])
 
   const emitPracticeFixture = async (scenario: PracticeScenario) => {
     if (practiceBusy) return
@@ -165,24 +214,43 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
     }
   }
 
-  const sendMessage = async () => {
-    const content = draft.trim()
+  const sendMessage = async (contentOverride?: string) => {
+    const content = (contentOverride ?? draft).trim()
     if (!content || busy) return
 
     setBusy(true)
     setError('')
     try {
       const request: TeacherSendRequest = { content, context }
-      const result = window.courseCompanion
-        ? await window.courseCompanion.sendTeacherMessage(request)
-        : previewReply(request)
-      setMessages((current) => [...current, result.learnerMessage, result.teacherMessage])
-      setDraft('')
+      if (window.courseCompanion) {
+        await window.courseCompanion.sendTeacherMessage(request)
+        const state = await window.courseCompanion.loadCompanionState()
+        setMessages(state.conversation.messages)
+        setRecovered(state.conversation.recovered)
+        setTeacherRuntime(state.teacher)
+      } else {
+        const result = previewReply(request)
+        setMessages((current) => [...current, result.learnerMessage, result.teacherMessage])
+      }
+      setDraft((current) => current.trim() === content ? '' : current)
     } catch {
-      setError('Tin nhắn chưa được lưu. Hãy thử gửi lại.')
+      let runtimeError = ''
+      if (window.courseCompanion) {
+        try {
+          const state = await window.courseCompanion.loadCompanionState()
+          setMessages(state.conversation.messages)
+          setRecovered(state.conversation.recovered)
+          setTeacherRuntime(state.teacher)
+          runtimeError = state.teacher.error ?? ''
+        } catch {
+          // Keep the existing view if the local state cannot be reloaded.
+        }
+      }
+      if (!runtimeError) {
+        setError('Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i H\u01b0\u01a1ng. Tin nh\u1eafn \u0111\u00e3 \u0111\u01b0\u1ee3c l\u01b0u \u0111\u1ec3 b\u1ea1n th\u1eed l\u1ea1i.')
+      }
     } finally {
       setBusy(false)
-      composerRef.current?.focus()
     }
   }
 
@@ -198,29 +266,98 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
     }
   }
 
+  const teacherStatus: Record<TeacherRuntimeView['connection'], { label: string; strong: string; detail: string }> = {
+    simulated: {
+      label: 'TEACHER \u00b7 M\u00d4 PH\u1eceNG',
+      strong: 'TEACHER M\u00d4 PH\u1eceNG',
+      detail: 'Ph\u1ea3n h\u1ed3i hi\u1ec7n t\u1ea1i d\u00f9ng k\u1ecbch b\u1ea3n c\u1ee5c b\u1ed9.'
+    },
+    connecting: {
+      label: 'TEACHER \u00b7 \u0110ANG K\u1ebeT N\u1ed0I',
+      strong: '\u0110ANG K\u1ebeT N\u1ed0I H\u01af\u01a0NG',
+      detail: '\u0110ang kh\u00f4i ph\u1ee5c ng\u1eef c\u1ea3nh Practice.'
+    },
+    ready: {
+      label: 'TEACHER · SẴN SÀNG',
+      strong: 'HƯƠNG ĐÃ SẴN SÀNG',
+      detail: 'Đã kết nối. Hương sẽ nhận ngữ cảnh Practice khi bạn gửi tin nhắn.'
+    },
+    live: {
+      label: 'TEACHER \u00b7 LIVE',
+      strong: 'H\u01af\u01a0NG \u0110ANG TR\u1ef0C TUY\u1ebeN',
+      detail: 'H\u01b0\u01a1ng \u0111ang d\u00f9ng ng\u1eef c\u1ea3nh Practice v\u00e0 ho\u1ea1t \u0111\u1ed9ng Executor hi\u1ec7n t\u1ea1i.'
+    },
+    stale: {
+      label: 'TEACHER \u00b7 NG\u1eee C\u1ea2NH C\u0168',
+      strong: 'NG\u1eee C\u1ea2NH EXECUTOR \u0110\u00c3 C\u0168',
+      detail: 'H\u01b0\u01a1ng v\u1eabn c\u00f3 th\u1ec3 tr\u1ea3 l\u1eddi, nh\u01b0ng s\u1ef1 ki\u1ec7n Executor m\u1edbi nh\u1ea5t ch\u01b0a \u0111\u01b0\u1ee3c x\u00e1c nh\u1eadn.'
+    },
+    offline: {
+      label: 'TEACHER \u00b7 NGO\u1ea0I TUY\u1ebeN',
+      strong: 'KH\u00d4NG TH\u1ec2 K\u1ebeT N\u1ed0I H\u01af\u01a0NG',
+      detail: 'Tin nh\u1eafn s\u1ebd \u0111\u01b0\u1ee3c l\u01b0u c\u1ee5c b\u1ed9 \u0111\u1ec3 b\u1ea1n th\u1eed l\u1ea1i.'
+    }
+  }
+  const currentTeacherStatus = teacherStatus[teacherRuntime.connection]
+  const contextFreshnessNote = teacherRuntime.contextFreshness === 'stale'
+    ? 'Ngữ cảnh Executor đã cũ.'
+    : teacherRuntime.contextFreshness === 'disconnected'
+      ? 'Mất kết nối với ngữ cảnh Executor; Hương vẫn có thể trả lời từ dữ liệu đã lưu.'
+      : ''
+  const teacherStatusDetail = teacherRuntime.error ?? [
+    currentTeacherStatus.detail,
+    contextFreshnessNote,
+    teacherRuntime.memory === 'pending' ? 'Trí nhớ lượt trước đang chờ tinh chỉnh.' : ''
+  ].filter(Boolean).join(' · ')
+
   return (
     <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Hương, giáo viên đồng hành">
       <header>
         <div className="pixel-teacher-identity">
           <img src={teacherImage} alt="" />
           <div>
-            <small>TEACHER · MÔ PHỎNG</small>
+            <small>{currentTeacherStatus.label}</small>
             <strong>Hương</strong>
           </div>
         </div>
-        <button
-          className="pixel-panel-minimize"
-          type="button"
-          aria-label={embedded ? 'Đóng Hương' : 'Thu nhỏ Hương'}
-          onClick={onClose}
-        >
-          {embedded ? '×' : '—'}
-        </button>
+        <div className="pixel-panel-controls">
+          {!embedded && onExpand ? (
+            <button
+              className="pixel-panel-control"
+              type="button"
+              aria-label="Mở Hương toàn màn hình"
+              title="Mở toàn màn hình"
+              onClick={onExpand}
+            >
+              <span aria-hidden="true">⛶</span>
+            </button>
+          ) : null}
+          {fullScreen && onMinimizeToBubble ? (
+            <button
+              className="pixel-panel-control"
+              type="button"
+              aria-label="Thu nhỏ Hương thành bong bóng"
+              title="Thu nhỏ thành bong bóng"
+              onClick={onMinimizeToBubble}
+            >
+              <span aria-hidden="true">—</span>
+            </button>
+          ) : null}
+          <button
+            className="pixel-panel-control"
+            type="button"
+            aria-label={embedded ? 'Đóng Hương' : 'Thu nhỏ Hương'}
+            title={embedded ? 'Đóng Hương' : 'Thu nhỏ thành bong bóng'}
+            onClick={onClose}
+          >
+            {embedded ? '×' : '—'}
+          </button>
+        </div>
       </header>
 
-      <div className="pixel-fixture-notice">
-        <strong>CHƯA KẾT NỐI TEACHER LIVE</strong>
-        <span>Phản hồi hiện tại dùng kịch bản cục bộ.</span>
+      <div className={`pixel-fixture-notice is-${teacherRuntime.connection}`} role={teacherRuntime.error ? 'alert' : 'status'} aria-live="polite">
+        <strong>{currentTeacherStatus.strong}</strong>
+        <span>{teacherStatusDetail}</span>
       </div>
 
       <div className="pixel-chat-context">
@@ -251,8 +388,15 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
                   <header>
                     <strong>{message.role === 'teacher' ? 'Hương' : 'Bạn'}</strong>
                     {message.source === 'fixture' ? <span>MÔ PHỎNG</span> : null}
+                    {message.source === 'live' ? <span>LIVE</span> : null}
+                    {message.deliveryStatus === 'failed' ? <span>CHƯA GỬI</span> : null}
                     <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
                   </header>
+                  {message.deliveryStatus === 'failed' ? (
+                    <button className="pixel-chat-retry" disabled={busy} onClick={() => void sendMessage(message.content)} type="button">
+                      Thử lại
+                    </button>
+                  ) : null}
                   <p>{message.content}</p>
                 </article>
               ))
@@ -264,6 +408,7 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
           <form className="pixel-chat-composer" onSubmit={submit}>
             <textarea
+              disabled={busy}
               ref={composerRef}
               aria-label="Nhắn cho Hương"
               maxLength={2000}
@@ -320,14 +465,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
 
-      <footer>
-        <button className="pixel-panel-quit" type="button" onClick={embedded ? onClose : () => void window.courseCompanion?.quitApp()}>
-          {embedded ? 'Đóng Hương' : 'Thoát ứng dụng'}
-        </button>
-        <button className="pixel-panel-primary" type="button" onClick={onOpenLesson}>
-          Mở bài học
-        </button>
-      </footer>
+      {!embedded ? <footer>
+        <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>Thoát ứng dụng</button>
+      </footer> : null}
     </section>
   )
 }

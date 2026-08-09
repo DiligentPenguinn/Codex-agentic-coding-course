@@ -62,14 +62,26 @@ function isTeacherContext(value: unknown): value is TeacherContext {
 
 function isTeacherMessage(value: unknown): value is TeacherMessage {
   if (!isRecord(value)) return false
+  if (value.schemaVersion !== undefined && value.schemaVersion !== 1) return false
   if (typeof value.id !== 'string' || value.id.length < 1 || value.id.length > 100) return false
   if (value.role !== 'learner' && value.role !== 'teacher') return false
-  if (value.source !== 'learner' && value.source !== 'fixture') return false
+  if (value.source !== 'learner' && value.source !== 'fixture' && value.source !== 'live') return false
   if (value.role === 'learner' && value.source !== 'learner') return false
-  if (value.role === 'teacher' && value.source !== 'fixture') return false
+  if (value.role === 'teacher' && value.source !== 'fixture' && value.source !== 'live') return false
   if (typeof value.content !== 'string' || value.content.length < 1 || value.content.length > MAX_MESSAGE_LENGTH) return false
   if (typeof value.timestamp !== 'string' || Number.isNaN(Date.parse(value.timestamp))) return false
-  return value.checkpointId === undefined || isCheckpointId(value.checkpointId)
+  if (value.checkpointId !== undefined && !isCheckpointId(value.checkpointId)) return false
+  if (
+    value.practiceRunId !== undefined &&
+    (typeof value.practiceRunId !== 'string' || value.practiceRunId.length < 1 || value.practiceRunId.length > 100)
+  ) return false
+  if (
+    value.deliveryStatus !== undefined &&
+    value.deliveryStatus !== 'pending' &&
+    value.deliveryStatus !== 'delivered' &&
+    value.deliveryStatus !== 'failed'
+  ) return false
+  return true
 }
 
 export function isTeacherSendRequest(value: unknown): value is TeacherSendRequest {
@@ -127,7 +139,9 @@ export class TeacherChatRepository {
         }
       }
 
-      return { messages: messages.slice(-MAX_LOADED_MESSAGES), recovered }
+      const latestById = new Map(messages.map((message) => [message.id, message]))
+      const deduplicated = [...latestById.values()].sort((left, right) => left.timestamp.localeCompare(right.timestamp))
+      return { messages: deduplicated.slice(-MAX_LOADED_MESSAGES), recovered }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') {
         return { messages: [], recovered: false }

@@ -25,7 +25,10 @@ async function launchCourseCompanion() {
     env: {
       ...process.env,
       COURSE_COMPANION_USER_DATA_DIR: userDataDirectory,
-      COURSE_COMPANION_FAKE_CODEX: '1'
+      COURSE_COMPANION_FAKE_CODEX: '1',
+      COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE: '1',
+      COURSE_COMPANION_FAKE_EXECUTOR_SILENT_RESULT: '1',
+      COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE: '1'
     }
   })
 }
@@ -195,12 +198,12 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu và mở Home Base' }).click()
   await learningPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).click()
-  await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
+  await learningPage.getByText('HƯƠNG ĐÃ SẴN SÀNG', { exact: true }).waitFor()
   const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()
   assert.ok(teacherBounds)
   assert.ok(teacherBounds.x > 1180 / 2)
   await capture(learningPage, 'teacher-overlay.png')
-  await learningPage.locator('.pixel-teacher-overlay .pixel-panel-minimize').click()
+  await learningPage.locator('.pixel-teacher-overlay').getByRole('button', { name: 'Đóng Hương' }).click()
   await learningPage.getByRole('button', { name: 'Cài đặt', exact: true }).click()
   assert.equal(await learningPage.getByRole('button', { name: 'Thu nhỏ', exact: true }).count(), 0)
   await capture(learningPage, 'settings.png')
@@ -249,6 +252,17 @@ try {
     })
     .click()
   await learningPage.getByRole('button', { name: 'Sang Codex để thực hành' }).click()
+  await companionPage.evaluate(() => globalThis.courseCompanion?.setCompanionMode('expanded'))
+  await waitForSnapshot(
+    resumedLaunch,
+    (windows) => companionWindow(windows)?.bounds.width === 380,
+    'Expected the regression setup to leave the companion renderer expanded'
+  )
+  await resumedLaunch.evaluate(({ BrowserWindow }) => {
+    const companion = BrowserWindow.getAllWindows().find((window) => window.webContents.getURL().includes('#/companion'))
+    companion?.hide()
+  })
+
   await learningPage
     .getByRole('heading', { name: 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.' })
     .waitFor()
@@ -265,6 +279,11 @@ try {
   )
   assert.equal(companionWindow(minimized)?.bounds.width, 72)
   assert.equal(companionWindow(minimized)?.bounds.height, 72)
+  await capture(companionPage, 'practice-bubble-first-start.png')
+  assert.equal(await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).count(), 1)
+  assert.equal(await companionPage.locator('.pixel-teacher-panel').count(), 0)
+  assert.equal(await companionPage.locator('.pixel-companion-surface--compact').count(), 1)
+
 
   await companionPage
     .getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' })
@@ -275,13 +294,38 @@ try {
     'Expected the initial Practice bubble to open the full Teacher workspace on double-click'
   )
   await learningPage.locator('.pixel-teacher-overlay.is-practice-full').waitFor()
-  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Mở bài học' }).click()
+  assert.equal(
+    await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Mở bài học' }).count(),
+    0
+  )
+  await learningPage.getByRole('button', { name: 'Thu nhỏ Hương thành bong bóng' }).click()
+  const minimizedFromFull = await waitForSnapshot(
+    resumedLaunch,
+    (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
+    'Expected full Teacher minimize to return directly to the bubble'
+  )
+  assert.equal(companionWindow(minimizedFromFull)?.bounds.width, 72)
+  assert.equal(companionWindow(minimizedFromFull)?.bounds.height, 72)
+  assert.equal(companionWindow(minimizedFromFull)?.alwaysOnTop, true)
+  await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).dblclick()
+  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').waitFor()
+  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Đóng Hương' }).click()
   await learningPage.getByRole('button', { name: 'Sang Codex để thực hành' }).click()
   await learningPage.getByRole('button', { name: 'Bắt đầu Practice mới' }).click()
   await learningPage.getByRole('heading', { name: 'Bắt đầu một Practice mới?' }).waitFor()
   const selectiveTransfer = learningPage.getByRole('button', { name: /Chuyển ngữ cảnh có chọn lọc/ })
   assert.equal(await selectiveTransfer.isDisabled(), true)
   await learningPage.getByRole('button', { name: 'Hủy', exact: true }).click()
+  await companionPage.evaluate(() => globalThis.courseCompanion?.setCompanionMode('expanded'))
+  await waitForSnapshot(
+    resumedLaunch,
+    (windows) => companionWindow(windows)?.bounds.width === 380,
+    'Expected the Resume regression setup to leave the companion renderer expanded'
+  )
+  await resumedLaunch.evaluate(({ BrowserWindow }) => {
+    const companion = BrowserWindow.getAllWindows().find((window) => window.webContents.getURL().includes('#/companion'))
+    companion?.hide()
+  })
   await learningPage.getByRole('button', { name: 'Tiếp tục Practice' }).click()
   const resumedPractice = await waitForSnapshot(
     resumedLaunch,
@@ -291,6 +335,10 @@ try {
   assert.equal(companionWindow(resumedPractice)?.bounds.width, 72)
   assert.equal(companionWindow(resumedPractice)?.bounds.height, 72)
 
+  await capture(companionPage, 'practice-bubble-resume.png')
+  assert.equal(await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).count(), 1)
+  assert.equal(await companionPage.locator('.pixel-teacher-panel').count(), 0)
+  assert.equal(await companionPage.locator('.pixel-companion-surface--compact').count(), 1)
   await companionPage
     .getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' })
     .click()
@@ -302,7 +350,7 @@ try {
   assert.equal(companionWindow(expanded)?.bounds.height, 520)
 
   await companionPage
-    .getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true })
+    .getByText('HƯƠNG ĐÃ SẴN SÀNG', { exact: true })
     .waitFor()
   const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Hương' })
   assert.equal(
@@ -311,15 +359,31 @@ try {
   )
   await composer.fill('Tôi cần kiểm tra gì trước khi duyệt?')
   await composer.press('Enter')
+  await companionPage.getByText('CHƯA GỬI', { exact: true }).waitFor()
+  await companionPage.getByText('TEACHER · SẴN SÀNG', { exact: true }).waitFor()
+  await companionPage.getByText(/Không thể hoàn tất bước turn-protocol của Hương/).waitFor()
+  await companionPage.getByRole('button', { name: 'Thử lại', exact: true }).click()
+  await companionPage.getByText('LIVE', { exact: true }).waitFor()
+  assert.equal(await companionPage.getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true }).count(), 1)
   await companionPage
-    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
+    .getByText(/Executor báo đã thay đổi: starters\/contentpilot\/app\/globals\.css/)
     .waitFor()
-  await companionPage
-    .getByText(
-      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
-      { exact: true }
-    )
-    .waitFor()
+  await companionPage.getByText(/chưa xác nhận độc lập thay đổi tệp/).waitFor()
+  await companionPage.getByText(/chưa được Course Companion chạy lại/).waitFor()
+
+  await companionPage.addStyleTag({
+    content: '.pixel-chat-log { flex: 0 0 90px !important; min-height: 90px !important; max-height: 90px !important; } .pixel-chat-message { min-height: 80px; }'
+  })
+  const windowedChatLog = companionPage.locator('.pixel-chat-log')
+  await windowedChatLog.evaluate((element) => { element.scrollTop = 0 })
+  await companionPage.getByRole('tab').nth(1).click()
+  await companionPage.getByRole('tab').first().click()
+  await companionPage.waitForFunction(() => {
+    const chatLog = globalThis.document.querySelector('.pixel-chat-log')
+    return chatLog instanceof globalThis.HTMLElement
+      && chatLog.scrollHeight > chatLog.clientHeight
+      && Math.abs(chatLog.scrollHeight - chatLog.clientHeight - chatLog.scrollTop) <= 1
+  })
 
   await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
   await companionPage.getByText('Mở Executor chat riêng cho Practice', { exact: true }).waitFor()
@@ -340,28 +404,72 @@ try {
   await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
   await companionPage.getByText('BẰNG CHỨNG MỚI · MÔ PHỎNG', { exact: true }).waitFor()
 
-  await companionPage.getByRole('button', { name: 'Thu nhỏ Hương' }).click()
-  await waitForSnapshot(
-    resumedLaunch,
-    (windows) => companionWindow(windows)?.bounds.width === 72,
-    'Expected the expanded Teacher companion to collapse back into its bubble'
-  )
-  await companionPage
-    .getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' })
-    .dblclick()
+  await companionPage.getByRole('tab', { name: 'TEACHER' }).click()
+  const compactDraft = 'Bản nháp từ cửa sổ thu gọn'
+  await composer.fill(compactDraft)
+  await companionPage.getByRole('button', { name: 'Mở Hương toàn màn hình' }).click()
+
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
-    'Expected a double-click on the Teacher bubble to open the full Teacher workspace'
+    'Expected the explicit expand control to open the full Teacher workspace'
   )
   await learningPage.locator('.pixel-teacher-overlay.is-practice-full').waitFor()
+  const fullTeacher = learningPage.locator('.pixel-teacher-overlay.is-practice-full')
+  const fullComposer = fullTeacher.getByRole('textbox', { name: 'Nhắn cho Hương' })
+  await fullComposer.waitFor()
+  assert.equal(await fullComposer.inputValue(), compactDraft)
+  await fullComposer.fill('Bản nháp được sửa ở toàn màn hình')
+  const fullTeacherMetrics = await fullTeacher.evaluate((element) => {
+    const bounds = element.getBoundingClientRect()
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      viewportWidth: globalThis.innerWidth,
+      viewportHeight: globalThis.innerHeight,
+      backgroundColor: globalThis.getComputedStyle(element).backgroundColor
+    }
+  })
+  assert.equal(fullTeacherMetrics.x, 0)
+  assert.equal(fullTeacherMetrics.y, 0)
+  assert.ok(Math.abs(fullTeacherMetrics.width - fullTeacherMetrics.viewportWidth) <= 1)
+  assert.ok(Math.abs(fullTeacherMetrics.height - fullTeacherMetrics.viewportHeight) <= 1)
+  assert.equal(fullTeacherMetrics.backgroundColor, 'rgb(8, 15, 34)')
+  await capture(learningPage, 'teacher-fullscreen-opaque.png')
+
   await learningPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
   await learningPage.getByText('Mở Executor chat riêng cho Practice', { exact: true }).waitFor()
-  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Mở bài học' }).click()
+  await learningPage.getByRole('button', { name: 'Thu nhỏ Hương thành bong bóng' }).click()
+  const minimizedAgain = await waitForSnapshot(
+    resumedLaunch,
+    (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
+    'Expected full Teacher to minimize directly to the bubble'
+  )
+  assert.equal(companionWindow(minimizedAgain)?.bounds.width, 72)
+  assert.equal(companionWindow(minimizedAgain)?.bounds.height, 72)
+  assert.equal(companionWindow(minimizedAgain)?.alwaysOnTop, true)
+  await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).click()
+  await waitForSnapshot(
+    resumedLaunch,
+    (windows) => companionWindow(windows)?.bounds.width === 380,
+    'Expected the Teacher companion to reopen for reverse draft synchronization'
+  )
+  assert.equal(
+    await companionPage.getByRole('textbox', { name: 'Nhắn cho Hương' }).inputValue(),
+    'Bản nháp được sửa ở toàn màn hình'
+  )
+  await companionPage.getByRole('button', { name: 'Thu nhỏ Hương', exact: true }).click()
+  await waitForSnapshot(resumedLaunch, (windows) => companionWindow(windows)?.bounds.width === 72, 'Expected Teacher to return to bubble')
+  await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).dblclick()
+  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').waitFor()
+  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Đóng Hương' }).click()
+
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
-    'Expected the learning window to restore and hide the companion'
+    'Expected closing full Teacher to reveal the unchanged lesson'
   )
 
   await learningPage.getByText('Đọc bằng chứng trước khi kết luận', { exact: true }).waitFor()
@@ -413,8 +521,13 @@ try {
     .trim()
     .split('\n')
     .map((line) => JSON.parse(line))
-  assert.equal(persistedChat.length, 2)
-  assert.equal(persistedChat[1].source, 'fixture')
+  assert.equal(persistedChat.length, 5)
+  assert.equal(persistedChat[0].deliveryStatus, 'pending')
+  assert.equal(persistedChat[1].deliveryStatus, 'failed')
+  assert.equal(persistedChat[2].deliveryStatus, 'pending')
+  assert.equal(persistedChat[3].deliveryStatus, 'delivered')
+  assert.equal(new Set(persistedChat.slice(0, 4).map((message) => message.id)).size, 1)
+  assert.equal(persistedChat[4].source, 'live')
 
   chatHistoryLaunch = await launchCourseCompanion()
   const historyWindows = await loadWindows(chatHistoryLaunch)
@@ -442,19 +555,17 @@ try {
     'Expected the expanded Teacher chat mode to survive a full restart'
   )
   assert.equal(companionWindow(restoredChat)?.bounds.height, 520)
-  const restoredProgressTab = historyWindows.companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' })
-  await restoredProgressTab.waitFor()
-  assert.equal(await restoredProgressTab.getAttribute('aria-selected'), 'true')
-  await historyWindows.companionPage.getByRole('tab', { name: 'TEACHER' }).click()
+  const restoredTeacherTab = historyWindows.companionPage.getByRole('tab', { name: 'TEACHER' })
+  await restoredTeacherTab.waitFor()
+  assert.equal(await restoredTeacherTab.getAttribute('aria-selected'), 'true')
   await historyWindows.companionPage
     .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
     .waitFor()
   await historyWindows.companionPage
-    .getByText(
-      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
-      { exact: true }
-    )
+    .getByText(/Executor báo đã thay đổi: starters\/contentpilot\/app\/globals\.css/)
     .waitFor()
+  await historyWindows.companionPage.getByText(/chưa xác nhận độc lập thay đổi tệp/).waitFor()
+  await historyWindows.companionPage.getByText(/chưa được Course Companion chạy lại/).waitFor()
   await historyWindows.companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
   await historyWindows.companionPage.getByText('DEV · BẰNG CHỨNG MÔ PHỎNG', { exact: true }).click()
   await historyWindows.companionPage

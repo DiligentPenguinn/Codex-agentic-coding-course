@@ -80,4 +80,33 @@ describe('PracticeRunRepository', () => {
 
     await expect(repository.save(record)).rejects.toThrow('Invalid Practice workspace record')
   })
+  it('advances the active checklist conservatively and never moves it backward', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    const record = activeRecord()
+    if (!record.activeRun) throw new Error('fixture missing active run')
+    record.activeRun.checklist = [
+      { id: 'review-objective', title: 'Review objective', status: 'completed' },
+      { id: 'open-executor', title: 'Open Executor', status: 'current' },
+      { id: 'build-and-verify', title: 'Build', status: 'upcoming' },
+      { id: 'review-evidence', title: 'Review evidence', status: 'upcoming' }
+    ]
+    await repository.save(record)
+
+    const advanced = await repository.advanceChecklist(
+      'run-1',
+      'review-evidence',
+      '2026-08-09T00:00:00.000Z'
+    )
+    expect(advanced.activeRun?.checklist.map((step) => step.status)).toEqual([
+      'completed', 'completed', 'completed', 'current'
+    ])
+
+    const unchanged = await repository.advanceChecklist(
+      'run-1',
+      'build-and-verify',
+      '2026-08-09T00:00:01.000Z'
+    )
+    expect(unchanged.activeRun?.checklist).toEqual(advanced.activeRun?.checklist)
+  })
+
 })

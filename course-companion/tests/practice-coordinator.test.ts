@@ -60,7 +60,10 @@ describe('PracticeCoordinator', () => {
       repository,
       testHarness.executor,
       () => new Date('2026-08-08T00:00:00.000Z'),
-      testHarness.createId
+      testHarness.createId,
+      async (binding, captureBaseline) => {
+        testHarness.calls.push('prepare:' + binding.threadId + ':' + captureBaseline)
+      }
     )
 
     const first = await coordinator.startNew({ transfer: false })
@@ -83,9 +86,12 @@ describe('PracticeCoordinator', () => {
     expect(stored.pendingTransition).toBeNull()
     expect(testHarness.calls).toEqual([
       'create:run-1',
+      'prepare:thread-1:true',
       'open:thread-1',
+      'prepare:thread-1:false',
       'open:thread-1',
       'create:run-2',
+      'prepare:thread-2:true',
       'open:thread-2'
     ])
   })
