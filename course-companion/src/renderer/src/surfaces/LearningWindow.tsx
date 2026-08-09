@@ -47,6 +47,7 @@ type SceneContent = {
   evidence: EvidenceItem[]
   dialogue: string
   choices: Choice[]
+  showPanel?: boolean
 }
 
 const scenes: Record<SceneId, SceneContent> = {
@@ -68,7 +69,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'KÊNH', value: 'Facebook' }
     ],
     dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
-    choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }]
+    choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }],
+    showPanel: false
   },
   'intro-course-overview-2': {
     lessonId: 'intro',
@@ -88,7 +90,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'QUYẾT ĐỊNH', value: 'Bạn duyệt nội dung' }
     ],
     dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
-    choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }]
+    choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }],
+    showPanel: false
   },
   'intro-learning-method': {
     lessonId: 'intro',
@@ -108,7 +111,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'KỸ NĂNG', value: 'Xây ứng dụng với AI' }
     ],
     dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
-    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', primary: true }]
+    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', primary: true }],
+    showPanel: false
   },
   'intro-first-safe-win': {
     lessonId: 'intro',
@@ -1136,11 +1140,13 @@ export function LearningWindow() {
       <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
       <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />
 
-      <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
-        <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
-        <div className="pixel-request"><p>{scene.request}</p></div>
-        <EvidenceGrid items={scene.evidence} />
-      </aside>
+      {scene.showPanel === false ? null : (
+        <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
+          <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
+          <div className="pixel-request"><p>{scene.request}</p></div>
+          <EvidenceGrid items={scene.evidence} />
+        </aside>
+      )}
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>

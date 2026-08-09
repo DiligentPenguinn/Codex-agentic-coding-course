@@ -177,6 +177,7 @@ try {
   await firstWindows.learningPage
     .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   const desktopContinueButton = await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
     .boundingBox()
@@ -192,8 +193,9 @@ try {
     .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
-    .getByText('TRANG 2/2', { exact: true })
+    .getByRole('button', { name: 'Bắt đầu khóa học' })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu khóa học' })
@@ -201,6 +203,7 @@ try {
   await firstWindows.learningPage
     .getByText('Bạn sẽ học như thế nào?', { exact: true })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
@@ -289,6 +292,7 @@ try {
   await learningPage
     .getByRole('button', { name: 'Bắt đầu', exact: true })
     .click()
+  assert.equal(await learningPage.locator('.pixel-consequence').count(), 1)
 
   await learningPage.getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' }).click()
   await learningPage.getByRole('button', { name: '30 phút' }).click()
