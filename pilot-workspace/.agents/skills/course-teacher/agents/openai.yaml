@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use $course-teacher to continue my current agentic coding lesson."
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
