@@ -1142,7 +1142,7 @@ export function LearningWindow() {
         <EvidenceGrid items={scene.evidence} />
       </aside>
 
-      <section className={`pixel-dialogue${scene.choices.length > 3 ? ' has-many-choices' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.dialogue}</p>
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}

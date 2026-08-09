@@ -177,6 +177,16 @@ try {
   await firstWindows.learningPage
     .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
     .waitFor()
+  const desktopContinueButton = await firstWindows.learningPage
+    .getByRole('button', { name: 'Tiếp tục' })
+    .boundingBox()
+  const desktopChoiceArea = await firstWindows.learningPage
+    .locator('.pixel-choices')
+    .boundingBox()
+  assert.ok(desktopContinueButton)
+  assert.ok(desktopChoiceArea)
+  assert.ok(desktopContinueButton.width <= 240)
+  assert.ok(Math.abs((desktopContinueButton.x + desktopContinueButton.width) - (desktopChoiceArea.x + desktopChoiceArea.width)) <= 1)
   await capture(firstWindows.learningPage, 'lesson-progress.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
@@ -204,6 +214,15 @@ try {
     })
     assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
     assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
+    const narrowStartButton = await firstWindows.learningPage
+      .getByRole('button', { name: 'Bắt đầu', exact: true })
+      .boundingBox()
+    const narrowChoiceArea = await firstWindows.learningPage
+      .locator('.pixel-choices')
+      .boundingBox()
+    assert.ok(narrowStartButton)
+    assert.ok(narrowChoiceArea)
+    assert.ok(Math.abs(narrowStartButton.width - narrowChoiceArea.width) <= 1)
     await capture(firstWindows.learningPage, 'course-introduction-page-3-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }

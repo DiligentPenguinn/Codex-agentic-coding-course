@@ -290,6 +290,15 @@ button:focus-visible {
 .pixel-choice.is-danger { border-color: var(--pixel-danger); }
 .pixel-choice:disabled { cursor: wait; opacity: 0.72; }
 
+.pixel-dialogue.has-single-choice .pixel-choices {
+  align-items: flex-end;
+}
+
+.pixel-dialogue.has-single-choice .pixel-choice {
+  width: min(240px, 100%);
+  text-align: center;
+}
+
 .pixel-dialogue.has-many-choices {
   min-height: 350px;
 }
@@ -1195,6 +1204,7 @@ button:focus-visible {
   .pixel-speaker img { display: block; }
   .pixel-dialogue > p { min-height: 62px; font-size: 15px; }
   .pixel-choice { width: 100%; min-height: 42px; }
+  .pixel-dialogue.has-single-choice .pixel-choice { width: 100%; }
   .pixel-dialogue.has-many-choices { min-height: 0; }
   .pixel-entry-brand { top: 14px; left: 14px; right: 14px; font-size: 7px; }
   .pixel-entry-teacher { bottom: 38vh; left: 50%; width: 210px; height: 48vh; transform: translateX(-50%); }
