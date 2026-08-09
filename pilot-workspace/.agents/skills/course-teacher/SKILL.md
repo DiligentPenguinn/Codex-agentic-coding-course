@@ -1,6 +1,6 @@
 ---
 name: course-teacher
-description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.1 inside its downloaded workspace. Use for the opening lesson or Module 1, including learner-owned quest cards, safe repository inspection, bounded briefs, approval gates, diff review, verification, one-question-at-a-time quizzes, and local progress checkpoints.
+description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.1 inside its downloaded workspace. Use for the opening lesson or Module 1, including learner-owned quest cards, planning conversations, PRDs, implementation plans, one-question-at-a-time quizzes, and local progress checkpoints.
 ---
 
 # Course Teacher
@@ -69,18 +69,26 @@ and return to Teacher mode after evidence is produced.
 
 ## Module 1 execution
 
-- Work inside `contentpilot/`.
-- Establish a passing baseline before edits.
-- The build lab may edit only `contentpilot/app/page.tsx` and
-  `contentpilot/app/globals.css`.
-- Updating learner-specific durable guidance is a separate approved edit to
-  `contentpilot/AGENTS.md`.
-- Do not add product features, dependencies, API calls, generated content, or
-  external services.
-- After an edit, inspect every changed file, run `npm run check`, and verify
-  desktop plus narrow mobile behavior with no horizontal overflow.
-- If automated checks pass but the manual acceptance test fails, do not accept
-  the change.
+- Treat ContentPilot as a product idea being planned from scratch. Do not assume
+  the Learner knows how to build an app or understands the existing codebase.
+- Do not ask for data preparation, repo inspection, technology choices,
+  dependency installation, code edits, UI work, tests, or debugging.
+- Start with why planning matters, then introduce the one-sentence ContentPilot
+  brief from the lesson script.
+- When gathering PRD requirements, let the coding agent interview the Learner
+  one question per turn. Do not add a persona section.
+- Require the Learner to make and explain product decisions. The agent may
+  organize and clarify those decisions but must not silently decide on the
+  Learner's behalf.
+- Draft in the conversation first. Write `artifacts/PRD.md` or
+  `artifacts/implementation-plan.md` only after the Learner explicitly approves
+  that document and authorizes saving it.
+- Use `artifacts/PRD.md` as the only product-scope source for the implementation
+  plan. The plan may name proposed components or files, but must explain them in
+  beginner-friendly language and must not contain implementation code.
+- Before the planning-package checkpoint, verify requirement-to-step alignment,
+  out-of-scope exclusions, Done When checks, both artifact files, and explicit
+  Learner approval.
 
 ## Quiz behavior
 
@@ -94,7 +102,8 @@ and return to Teacher mode after evidence is produced.
 
 ## Completion
 
-Do not mark a lesson complete until its artifact and mastery gate exist. Use:
+Do not mark a lesson complete until all of its required artifacts and mastery
+gate exist. Use:
 
 ```bash
 node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesson-id>
@@ -102,4 +111,3 @@ node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesso
 
 Pilot completion means intro and Module 1 are complete. Do not imply the later
 five modules are already present in this workspace.
-

@@ -28,14 +28,16 @@
 
 ## Practice-project boundaries
 
-- Work inside `contentpilot/` during Module 1.
-- Preserve a passing baseline.
-- Do not add authentication, deployment, billing, a cloud database, publishing,
-  analytics, or generated content in the current lesson.
+- Module 1 plans ContentPilot from scratch and stops before implementation.
+- During Module 1, only create `artifacts/PRD.md` and
+  `artifacts/implementation-plan.md`, after explicit Learner approval.
+- Do not inspect or edit `contentpilot/`, prepare data, choose technologies,
+  install dependencies, or write code in Module 1.
+- Keep authentication, deployment, billing, a cloud database and publishing out
+  of scope unless a later lesson explicitly introduces them.
 - Never expose or commit an API key.
-- Review every changed file and run `npm run check` after an approved edit.
-- For interface changes, verify desktop and narrow mobile behavior and confirm
-  there is no horizontal overflow.
+- Review every artifact after an approved write and keep the implementation
+  plan aligned with the approved PRD.
 
 ## Decision scope
 

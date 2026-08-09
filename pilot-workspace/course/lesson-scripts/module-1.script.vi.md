@@ -1,123 +1,147 @@
-# Kịch bản — Đọc dự án, giao việc và kiểm chứng thay đổi
+# Kịch bản — Giao tiếp hiệu quả với coding agent: Planning và PRD
 
-## Bước 1 — Hiểu mục tiêu Module 1 (`m1-orient`)
+## Bước 1 — Hiểu vì sao planning quan trọng (`m1-why-planning`)
 
-Teacher nói: "Module này dạy một vòng agentic coding có thể dùng cho nhiều dự
-án: đọc codebase, giao một việc có phạm vi, duyệt kế hoạch và kiểm chứng thay
-đổi. ContentPilot là nơi chúng ta thực hành vòng đó bằng một thay đổi thật."
+Teacher nói: "Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây
+sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng
+tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một
+ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn
+thời gian hơn nhiều so với planning kỹ ngay từ đầu."
 
-Teacher nói: "Trong ứng dụng này, `app/page.tsx` thường chứa nội dung màn hình
-và `app/globals.css` thường chứa cách trình bày. Đây chỉ là định hướng ban đầu;
-Codex vẫn phải đọc file để xác nhận. Bạn dự đoán file nào sẽ ảnh hưởng trực
-tiếp hơn đến chiều rộng của nút trên màn hình hẹp?"
+Teacher nói: "Planning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng
+và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định
+chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng
+vấn đề trước khi viết code. Theo bạn, dấu hiệu nào cho thấy một yêu cầu nên được
+planning trước?"
 
-[Dừng chờ Learner. Đây là dự đoán; không chấm đúng sai. Sau câu trả lời,
-checkpoint `m1-orient`.]
+[Dừng chờ Learner nêu ít nhất một dấu hiệu bằng lời của họ. Dùng ví dụ ngoài
+ContentPilot nếu cần repair. Sau khi đạt, lưu checkpoint `m1-why-planning`.]
 
-## Bước 2 — Kiểm tra trạng thái ban đầu (`m1-baseline`)
+## Bước 2 — Chuyển ý tưởng ContentPilot thành bài toán planning (`m1-contentpilot-brief`)
 
-Teacher nói: "Bây giờ Codex sẽ chỉ đọc `contentpilot/README.md` và
-`contentpilot/package.json` để tìm đúng lệnh cài đặt, chạy ứng dụng và kiểm tra.
-Trạng thái trước khi sửa được gọi là baseline. Chúng ta cần baseline để biết lỗi
-nào đã có sẵn và lỗi nào xuất hiện sau thay đổi."
+Teacher nói: "Bây giờ ta áp dụng planning vào dự án thực hành. ContentPilot là
+công cụ giúp người sáng tạo phân tích các bài viết hiện có trên profile — hoặc
+một profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý tưởng nội dung có khả
+năng bắt kịp xu hướng. Đây mới là ý tưởng một câu, chưa phải kế hoạch."
 
-[Executor inspect read-only. Báo lệnh và yêu cầu Learner xác nhận trước khi cài
-dependency vì install có network và thay đổi `node_modules`. Nếu dependency đã
-có, không cài lại.]
+Teacher nói: "Bạn không cần chuẩn bị dữ liệu, biết code hay chọn công nghệ.
+Việc đầu tiên là làm rõ sản phẩm cần làm gì. Trong ý tưởng một câu này, điều gì
+bạn thấy cần quyết định rõ hơn trước khi xây?"
 
-Teacher nói: "Codex sẽ kiểm tra hai bằng chứng: ứng dụng có khởi động được không
-và `npm run check` có đạt không. Trước khi chạy, bạn dự đoán kết quả sẽ đạt hay
-báo lỗi? Đây chỉ là dự đoán, không chấm đúng sai."
+[Dừng chờ Learner nêu một điểm chưa rõ liên quan đến workflow, input, output,
+phạm vi hoặc dấu hiệu hoàn thành. Không dẫn sang persona. Sau khi đạt, lưu
+checkpoint `m1-contentpilot-brief`.]
 
-[Dừng chờ Learner. Sau đó chạy lệnh đã ghi trong repo. Khi baseline pass,
-checkpoint `m1-baseline`. Nếu fail, chẩn đoán và sửa baseline trước build lab.]
+## Bước 3 — Phân biệt PRD và implementation plan (`m1-prd-concept`)
 
-## Bước 3 — Đọc và kiểm tra cấu trúc dự án (`m1-inspect`)
+Teacher nói: "PRD, viết tắt của Product Requirements Document, mô tả chúng ta
+đang xây sản phẩm gì, phạm vi phiên bản đầu tiên và làm sao biết sản phẩm đáp ứng
+yêu cầu. Implementation plan mô tả coding agent sẽ biến PRD đã duyệt thành các
+bước xây dựng như thế nào. Nói ngắn gọn: PRD là ‘xây cái gì’; implementation
+plan là ‘xây như thế nào’."
 
-Teacher nói: "Bước này là chỉ đọc. Yêu cầu gửi cho Codex cần có bốn phần: mục
-tiêu, file hoặc thư mục được đọc, điều không được làm và bằng chứng cần trả về.
-Hãy viết yêu cầu bằng lời của bạn để Codex kiểm tra điểm vào của ứng dụng, CSS,
-hướng dẫn dự án và những chức năng ContentPilot chưa có."
+Teacher nói: "Module này sẽ tạo cả hai tài liệu nhưng dừng trước khi code. Nếu
+một câu nói ‘phiên bản đầu chưa tự động đăng bài’, theo bạn câu đó thuộc PRD hay
+implementation plan? Vì sao?"
 
-[Dừng chờ Learner. Dùng hint ladder; không đưa prompt hoàn chỉnh trước khi
-Learner thử. Khi đạt, Executor chạy prompt nguyên văn trong cùng thread hoặc
-sub-agent nếu Learner yêu cầu. Review báo cáo, rồi checkpoint `m1-inspect`.]
+[Dừng chờ Learner. Cần nhận ra đây là quyết định phạm vi sản phẩm, nên thuộc
+PRD. Cho repair bằng tình huống tương tự khác nếu cần. Sau khi đạt, lưu
+checkpoint `m1-prd-concept`.]
 
-## Bước 4 — Chọn hướng dẫn dùng lâu dài (`m1-guidance`)
+## Bước 4 — Viết prompt để coding agent phỏng vấn (`m1-prd-interview`)
 
-Teacher nói: "Phiếu định hướng có những thông tin Codex nên nhớ trong nhiều
-công việc, chẳng hạn đối tượng, nền tảng, ngôn ngữ, giới hạn và cách kiểm tra.
-Các ý này có thể kết hợp. Bạn muốn lưu những ý nào vào `AGENTS.md` để không phải
-nhắc lại mỗi lần? Mình khuyến nghị lưu đối tượng, nền tảng chính và nguyên tắc
-kiểm chứng; mục tiêu của một thay đổi riêng nên để trong bản mô tả công việc."
+Teacher nói: "Thay vì cố tự viết toàn bộ PRD ngay, bạn có thể yêu cầu coding
+agent phỏng vấn mình từng câu một. Một prompt tốt ở đây cần nêu: mục tiêu là làm
+rõ PRD cho ContentPilot; bối cảnh là ý tưởng một câu vừa có; agent chỉ hỏi một
+câu mỗi lượt; PRD phải đủ tám phần; dùng ngôn ngữ dành cho người mới; chưa bàn
+code; và chỉ soạn bản nháp khi đã đủ thông tin."
 
-[Dừng chờ Learner. Cần audience/platform hoặc ngôn ngữ, boundaries và
-verification. Sau đó đề xuất một patch nhỏ vào `contentpilot/AGENTS.md`, chờ
-approval rồi mới edit. Checkpoint `m1-guidance`.]
+Teacher nói: "Hãy viết prompt đó bằng lời của bạn để gửi cho coding agent."
 
-## Bước 5 — Viết bản mô tả công việc (`m1-brief`)
+[Mở Assessment State. Dừng chờ Learner tự viết. Dùng hint ladder, không đưa
+prompt hoàn chỉnh trước khi Learner thử. Prompt đạt khi có mục tiêu, bối cảnh,
+quy trình một câu mỗi lượt, output PRD một trang, tám phần bắt buộc và ràng buộc
+chưa code/không persona. Sau khi đạt, chuyển ngắn sang Executor và dùng nguyên
+văn prompt của Learner. Executor hỏi đúng một câu mỗi lượt; không tự trả lời
+thay Learner. Tiếp tục cho tới khi đủ thông tin, rồi đưa bản nháp PRD. Lưu
+checkpoint `m1-prd-interview`.]
 
-Teacher nói: "Bản mô tả công việc giúp Codex biết chính xác được làm gì và khi
-nào được xem là xong. Bài thực hành này chỉ được sửa `app/page.tsx` và
-`app/globals.css`. Hãy viết bằng lời của bạn năm phần: mục tiêu, phạm vi, ràng
-buộc, điều không làm và dấu hiệu hoàn thành có thể quan sát."
+## Bước 5 — Review, duyệt và lưu PRD (`m1-prd-approved`)
 
-[Dừng chờ Learner. Brief phải giữ route `/setup`, mobile action full-width với
-tap target ít nhất 54px và mũi tên ở mép phải, desktop giữ content-width, không
-overflow, không sửa file khác. Không đưa nguyên brief hoàn chỉnh trước khi
-Learner thử. Khi đạt, checkpoint `m1-brief`.]
+Teacher nói: "Trước khi duyệt PRD, hãy kiểm tra: có đủ ý tưởng, core workflow,
+input, output, phạm vi phiên bản 1, ngoài phạm vi, Done When và câu hỏi còn mở
+không; Done When có quan sát và kiểm tra được không; tài liệu có tránh chi tiết
+code không. Bạn muốn duyệt, yêu cầu điều chỉnh hay từ chối bản nháp này?"
 
-## Bước 6 — Xem và duyệt kế hoạch (`m1-plan-approval`)
+[Dừng chờ quyết định. Nếu Learner yêu cầu sửa, Executor chỉ sửa nội dung được
+nêu rồi quay lại review. Không chấp nhận một PRD có câu hỏi quan trọng bị giấu
+trong giả định. Khi nội dung đạt, yêu cầu Learner dùng lời rõ ràng “Duyệt và lưu
+PRD” để cho phép tạo `artifacts/PRD.md` từ mẫu
+`artifacts/PRD.template.md`. Kiểm tra file sau khi ghi. Lưu checkpoint
+`m1-prd-approved`.]
 
-Teacher nói: "Codex sẽ đề xuất kế hoạch trước khi sửa. Khi đọc kế hoạch, hãy
-kiểm tra bốn phần: file nào sẽ đổi, thay đổi gì, rủi ro nào có thể xảy ra và kết
-quả sẽ được kiểm chứng ra sao. Sau khi xem, bạn chỉ cần nói rõ: duyệt, yêu cầu
-điều chỉnh hoặc từ chối."
+## Bước 6 — Tạo implementation plan từ PRD (`m1-implementation-plan`)
 
-[Executor inspect hai file và đề xuất plan, chưa edit. Dừng chờ Learner quyết
-định. Chỉ khi approved mới checkpoint `m1-plan-approval`.]
+Teacher nói: "Bây giờ PRD đã là nguồn duy nhất cho phạm vi sản phẩm. Coding
+agent sẽ đọc PRD và đề xuất implementation plan bằng ngôn ngữ dễ hiểu. Mỗi bước
+phải có mục tiêu, thành phần hoặc file dự kiến, kết quả quan sát được và cách
+kiểm tra. Plan cũng phải nêu phụ thuộc, giả định, rủi ro, quyết định kỹ thuật còn
+mở và kiểm tra toàn bộ luồng. Chưa viết code."
 
-## Bước 7 — Thực hiện thay đổi (`m1-build`)
+Teacher nói: "Hãy viết yêu cầu của bạn để coding agent tạo plan từ
+`artifacts/PRD.md` mà không mở rộng phạm vi."
 
-[Executor thực hiện đúng brief đã duyệt. Không mở rộng scope. Sau edit, báo file
-đã đổi nhưng chưa tuyên bố hoàn thành.]
+[Mở Assessment State. Dừng chờ Learner tự viết. Prompt đạt khi chỉ định PRD là
+nguồn, yêu cầu các trường bắt buộc của plan, ngôn ngữ cho người mới, traceability
+và ràng buộc chưa code. Dùng hint ladder nếu cần. Sau khi đạt, Executor đọc PRD
+và đưa bản nháp plan trong hội thoại; chưa lưu file. Lưu checkpoint
+`m1-implementation-plan`.]
 
-Teacher nói: "Thay đổi đã được thực hiện trong phạm vi đã duyệt. Trước khi xem
-kết quả kiểm tra, bạn dự đoán rủi ro nào cần chú ý nhất: kiểm tra code báo lỗi,
-giao diện máy tính bị ảnh hưởng, màn hình hẹp bị tràn ngang hay đường dẫn nút bị
-sai? Đây là dự đoán để chọn nơi kiểm tra trước, không phải câu hỏi đúng sai."
+## Bước 7 — Kiểm tra PRD và plan có khớp nhau (`m1-alignment-review`)
 
-[Dừng chờ Learner. Sau đó chạy `npm run check` và kiểm tra UI desktop/mobile.
-Checkpoint `m1-build` khi evidence đã có.]
+Teacher nói: "Một plan có vẻ chi tiết vẫn có thể sai nếu nó xây thiếu hoặc tự
+thêm tính năng. Hãy kiểm tra bốn điều: mọi yêu cầu trong phạm vi PRD đều có bước
+tương ứng; mọi bước đều truy ngược về PRD; nội dung ngoài phạm vi không quay trở
+lại; và mỗi Done When đều trở thành một phép kiểm tra trong plan."
 
-## Bước 8 — Kiểm tra bằng chứng và quyết định (`m1-review`)
+Teacher nói: "Hãy chọn một mục Done When trong PRD và chỉ ra bước cùng cách
+kiểm tra tương ứng trong plan."
 
-Teacher nói: "Hãy kiểm tra ba lớp bằng chứng: phần so sánh thay đổi có đúng phạm
-vi không, kiểm tra tự động có đạt không và giao diện trên máy tính lẫn màn hình
-hẹp có đúng yêu cầu không. Sau đó, hãy chọn chấp nhận hoặc yêu cầu sửa và nêu
-một lý do."
+[Dừng chờ Learner tự đối chiếu một mapping cụ thể. Nếu phát hiện lệch, yêu cầu
+Learner quyết định sửa PRD hay sửa plan; không âm thầm chọn thay. Khi cả bốn điều
+đạt, lưu checkpoint `m1-alignment-review`.]
 
-Teacher nói: "Bằng chứng nào trong ba lớp trên khiến bạn tin kết quả này, và
-bằng chứng nào còn thiếu nếu bạn chưa muốn chấp nhận?"
+## Bước 8 — Duyệt planning package (`m1-planning-package`)
 
-[Dừng chờ Learner. Ghi evidence vào `artifacts/module-1-evidence.md` sau khi
-Learner cho phép. Khi quyết định có bằng chứng, checkpoint `m1-review`.]
+Teacher nói: "Planning package chỉ hoàn thành khi cả PRD và implementation plan
+đều rõ, khớp nhau và do bạn quyết định. Nếu plan hiện tại đúng ý, hãy trả lời
+‘Duyệt và lưu implementation plan’, đồng thời nêu một quyết định phạm vi bạn có
+thể giải thích bằng lời của mình."
+
+[Dừng chờ Learner. Chỉ sau lời duyệt rõ ràng mới tạo
+`artifacts/implementation-plan.md` từ mẫu
+`artifacts/implementation-plan.template.md`. Kiểm tra cả hai artifact tồn tại,
+không rỗng, có trạng thái đã duyệt và không chứa code triển khai. Khi Learner
+giải thích được một quyết định phạm vi, lưu checkpoint `m1-planning-package`.]
 
 ## Bước 9 — Kiểm tra cuối Module 1 (`m1-mastery`)
 
-Teacher nói: "Phần kiểm tra cuối giúp bạn áp dụng quy trình vừa học vào tình
-huống khác. Có năm câu ngắn về đọc dự án, phê duyệt rủi ro, tiêu chí hoàn thành,
-kiểm tra giao diện và hướng dẫn dùng lâu dài. Mình sẽ hỏi từng câu một."
+Teacher nói: "Phần kiểm tra cuối giúp bạn phân biệt planning, PRD và
+implementation plan trong những tình huống mới. Mình sẽ hỏi từng câu một; một
+số câu yêu cầu bạn dùng chính planning package vừa tạo."
 
-[Dùng `course/quizzes/module-1.quiz.json`. Khi pass, checkpoint `m1-mastery`.]
+[Dùng `course/quizzes/module-1.quiz.json`. Khi pass theo
+`course/pedagogy/rubrics/mastery-rubric.vi.md`, lưu checkpoint `m1-mastery`.]
 
 ## Bước 10 — Hoàn thành Module 1 (`m1-complete`)
 
-Teacher nói: "Bạn đã hoàn thành vòng agentic coding đầu tiên. Nút mobile chỉ là
-bài thực hành; kỹ năng bạn vừa học là đọc dự án, mô tả công việc, duyệt kế
-hoạch, giới hạn thực thi, kiểm chứng và tự quyết định chấp nhận. Hãy nêu một
-thay đổi nhỏ trong dự án khác mà bạn có thể áp dụng cùng quy trình."
+Teacher nói: "Bạn đã biến một ý tưởng một câu thành hai tài liệu đủ rõ để coding
+agent bắt đầu xây mà chưa cần bạn biết lập trình. PRD giữ sản phẩm đi đúng hướng;
+implementation plan biến hướng đó thành các bước có thể thực hiện và kiểm tra.
+Ở module tiếp theo, hai tài liệu này sẽ là điểm xuất phát cho implementation và
+debugging."
 
-[Dừng chờ Learner nêu một tình huống chuyển giao và ít nhất một bằng chứng cần
-kiểm tra. Sau đó đánh dấu Module 1 complete và checkpoint `m1-complete`. Không
-hứa Module 2 đã có trong workspace này.]
+[Xác nhận lại hai artifact và mastery gate. Chạy lệnh complete; hard gate trong
+state helper sẽ từ chối nếu thiếu hoặc rỗng một artifact. Chỉ sau khi lệnh thành
+công mới thông báo hoàn thành. Không tuyên bố Module 2 đã có trong workspace
+nếu course map chưa chứa module đó.]

@@ -26,9 +26,10 @@ cách đọc một codebase, giao việc có phạm vi, cho phép hành động,
 kiểm tra bằng chứng và phục hồi khi kết quả chưa đạt.
 
 Khi hoàn thành toàn bộ khóa học, dự án thực hành này sẽ trở thành một ứng dụng
-cục bộ. Ứng dụng nhận dữ liệu thương hiệu, đề xuất 10 ý tưởng, giúp bạn chọn 5
-ý tưởng rồi tạo 5 bộ nội dung để duyệt, lưu và xuất. Mỗi mốc sản phẩm là một
-tình huống để luyện kỹ năng agentic coding có thể dùng cho dự án khác.
+giúp người sáng tạo phân tích các bài viết hiện có trên profile — hoặc một
+profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý tưởng nội dung có khả năng
+bắt kịp xu hướng. Mỗi mốc sản phẩm là một tình huống để luyện kỹ năng agentic
+coding có thể dùng cho dự án khác.
 
 Để chứng minh một tích hợp AI hoạt động thật, bạn cần chạy OpenAI API thật ít
 nhất một lần. Dữ liệu mô phỏng chỉ dùng để học hoặc xử lý lỗi. Phần hiện tại

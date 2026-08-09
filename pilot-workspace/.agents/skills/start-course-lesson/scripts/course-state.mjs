@@ -30,6 +30,41 @@ function findModule(courseMap, lessonId) {
   return courseMap.modules.find((module) => module.id === lessonId);
 }
 
+function artifactPathsFor(module) {
+  if (Array.isArray(module.artifactPaths)) return module.artifactPaths;
+  return module.artifactPath ? [module.artifactPath] : [];
+}
+
+async function validateArtifacts(module) {
+  const missingArtifacts = [];
+  const emptyArtifacts = [];
+
+  for (const artifactPath of artifactPathsFor(module)) {
+    try {
+      const content = await readFile(resolve(workspaceRoot, artifactPath), "utf8");
+      if (content.trim().length === 0) emptyArtifacts.push(artifactPath);
+    } catch (error) {
+      if (error?.code === "ENOENT") {
+        missingArtifacts.push(artifactPath);
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  if (missingArtifacts.length > 0 || emptyArtifacts.length > 0) {
+    const problems = [
+      missingArtifacts.length > 0
+        ? `missing artifacts: ${missingArtifacts.join(", ")}`
+        : null,
+      emptyArtifacts.length > 0
+        ? `empty artifacts: ${emptyArtifacts.join(", ")}`
+        : null
+    ].filter(Boolean);
+    throw new Error(`Artifact gate failed for ${module.id}; ${problems.join("; ")}`);
+  }
+}
+
 function defaultState(courseMap, lessonId) {
   const module = findModule(courseMap, lessonId);
   return {
@@ -42,7 +77,8 @@ function defaultState(courseMap, lessonId) {
     timeBudgetMinutes: null,
     artifacts: {
       questCardPath: "artifacts/quest-card.md",
-      module1EvidencePath: "artifacts/module-1-evidence.md"
+      module1PrdPath: "artifacts/PRD.md",
+      module1ImplementationPlanPath: "artifacts/implementation-plan.md"
     },
     updatedAt: null
   };
@@ -86,6 +122,10 @@ async function main() {
       return fail(`Unknown checkpoint for ${lessonId}: ${beatId ?? "(missing)"}`);
     }
 
+    if (beatId === module.artifactGateCheckpoint) {
+      await validateArtifacts(module);
+    }
+
     const minutes = minutesText === undefined ? undefined : Number(minutesText);
     if (
       minutes !== undefined &&
@@ -126,6 +166,8 @@ async function main() {
         `Cannot complete ${lessonId}; missing checkpoints: ${missingCheckpoints.join(", ")}`
       );
     }
+
+    await validateArtifacts(module);
 
     const completedLessonIds = Array.from(
       new Set([...(state.completedLessonIds ?? []), lessonId])

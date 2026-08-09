@@ -32,31 +32,19 @@ cần cài thêm skill toàn cục hoặc sao chép một prompt dài.
 
 ## Trước khi vào Module 1
 
-- Node.js 20.19 trở lên
-- npm 10.9 trở lên
-- Codex có thể đọc workspace này
-
-Bạn chỉ cần cài các gói phụ thuộc khi Teacher giải thích mục đích và dẫn đến
-bước đó:
-
-```bash
-cd contentpilot
-npm install
-```
-
-Bạn chưa cần OpenAI API key trong phần học hiện tại. Khi một bài sau cần dùng
-API thật, khóa học sẽ giải thích mục đích, ước tính chi phí và chờ bạn quyết
-định trước khi chạy.
+Bạn không cần chuẩn bị dữ liệu, biết lập trình, chọn công nghệ, cài gói phụ
+thuộc hoặc có OpenAI API key. Module 1 bắt đầu từ cách giao tiếp với coding
+agent: hiểu vì sao cần planning, làm rõ ý tưởng ContentPilot, viết PRD và tạo
+implementation plan trước khi code.
 
 ## Bạn sẽ luyện những gì?
 
 - Bắt đầu và tiếp tục bài học đúng chỗ.
-- Đọc dự án và kiểm tra giả định trước khi yêu cầu thay đổi.
-- Biến một yêu cầu mơ hồ thành bản mô tả công việc có phạm vi và tiêu chí rõ.
-- Cho phép một thay đổi nhỏ sau khi hiểu kế hoạch và rủi ro.
-- Xem phần so sánh thay đổi (`diff`), kết quả kiểm tra và giao diện thực tế
-  trước khi chấp nhận.
-- Áp dụng lại cùng quy trình cho một dự án khác, không chỉ ContentPilot.
+- Nhận biết khi nào nên planning trước khi code.
+- Dùng coding agent để làm rõ một ý tưởng sản phẩm còn mơ hồ.
+- Viết và duyệt một PRD một trang có phạm vi cùng tiêu chí rõ ràng.
+- Chuyển PRD thành implementation plan theo từng bước có cách kiểm tra.
+- Phát hiện khi plan xây thiếu hoặc tự mở rộng ngoài PRD.
 
 Workspace này hiện có phần giới thiệu và bài học đầu tiên. Các phần tiếp theo
 sẽ tiếp tục dùng ContentPilot để luyện những kỹ năng agentic coding nâng cao

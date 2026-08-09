@@ -1,69 +1,68 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Làm việc an toàn với Codex",
+  "title": "Kiểm tra cuối Module 1 — Planning, PRD và implementation plan",
   "passingScore": 0.8,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
     "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
-    "antiCopyPolicy": "Câu tự luận phải dùng tình huống mới hoặc chi tiết riêng."
+    "antiCopyPolicy": "Câu tự luận phải dùng tình huống mới hoặc chi tiết trong artifact của Learner."
   },
   "questions": [
     {
       "id": "m1-q1",
       "type": "multiple-choice",
-      "prompt": "Bạn chưa biết vì sao trang thiết lập không lưu dữ liệu. Bước đầu nào giúp bạn kiểm tra nguyên nhân rõ ràng và an toàn nhất?",
+      "prompt": "Tình huống nào nên được planning trước khi yêu cầu coding agent viết code?",
       "choices": [
-        "Yêu cầu Codex sửa mọi file liên quan cho đến khi hoạt động.",
-        "Yêu cầu Codex chỉ đọc route thiết lập, phần lưu trữ và bài kiểm tra liên quan; sau đó báo giả thuyết, bằng chứng và bước tiếp theo.",
-        "Cài thêm database để tránh lỗi.",
-        "Deploy app rồi thử trên production."
+        "Đổi một lỗi chính tả đã xác định rõ trong một nút.",
+        "Xây từ đầu một ứng dụng có nhiều luồng và còn vài quyết định sản phẩm chưa rõ.",
+        "Đổi tên một file tạm chưa được dùng.",
+        "Thay một mã màu đã có giá trị cụ thể."
       ],
       "answerIndex": 1,
       "requiresRationale": true,
-      "rationalePrompt": "Nêu một loại bằng chứng mà lựa chọn này phải trả về."
+      "rationalePrompt": "Nêu một dấu hiệu trong tình huống này khiến planning có ích."
     },
     {
       "id": "m1-q2",
       "type": "classification",
-      "prompt": "Phân loại từng hành động sau: đọc file trên máy; sửa CSS; chạy npm install; xóa thư mục dữ liệu; đưa ứng dụng lên môi trường công khai. Hành động nào cần bạn phê duyệt trước?",
+      "prompt": "Phân loại hai nội dung sau vào PRD hoặc implementation plan: (A) phiên bản đầu chưa tự động đăng bài; (B) bước kiểm tra từ input mẫu đến danh sách ý tưởng đầu ra.",
       "expectedSignals": [
-        "Đọc file local là read-only",
-        "Sửa CSS cần phê duyệt edit",
-        "npm install cần phê duyệt network hoặc dependency change",
-        "Xóa data là destructive",
-        "Deploy là external side effect"
+        "A thuộc PRD vì xác định ngoài phạm vi sản phẩm",
+        "B thuộc implementation plan vì mô tả bước kiểm tra triển khai",
+        "Giải thích được khác biệt giữa xây cái gì và xây như thế nào"
       ]
     },
     {
       "id": "m1-q3",
       "type": "short-answer",
-      "prompt": "Viết hai dấu hiệu hoàn thành có thể kiểm chứng cho một cải tiến nhỏ trong dự án khác. Không dùng lại ContentPilot hoặc bài tập nút trên màn hình hẹp.",
+      "prompt": "Trong một sản phẩm khác do bạn chọn, hãy viết lại tiêu chí mơ hồ ‘ứng dụng hoạt động tốt’ thành một Done When cụ thể và kiểm tra được.",
       "expectedSignals": [
-        "Mỗi tiêu chí có nơi hoặc cách kiểm tra",
-        "Mỗi tiêu chí có dấu hiệu pass quan sát được",
-        "Có bối cảnh mới ngoài ContentPilot do Learner chọn"
+        "Có bối cảnh mới do Learner chọn",
+        "Nêu kết quả có thể quan sát",
+        "Nêu điều kiện hoặc cách xác nhận pass"
       ]
     },
     {
       "id": "m1-q4",
       "type": "short-answer",
-      "prompt": "Khi kiểm tra tự động đạt nhưng giao diện trên màn hình hẹp vẫn không đúng yêu cầu, bạn nên chấp nhận hay yêu cầu sửa? Giải thích bằng một câu.",
+      "prompt": "PRD ghi đăng nhập nằm ngoài phạm vi, nhưng implementation plan lại có bước xây màn hình đăng nhập. Bạn sẽ xử lý điểm lệch này thế nào trước khi duyệt?",
       "expectedSignals": [
-        "Không chấp nhận chỉ vì kiểm tra tự động đạt",
-        "Dùng bằng chứng quan sát giao diện",
-        "Yêu cầu sửa hoặc điều tra trước khi chấp nhận"
+        "Không duyệt plan đang lệch",
+        "Loại bước đăng nhập hoặc chủ động sửa và duyệt lại phạm vi PRD",
+        "Không để coding agent tự mở rộng phạm vi"
       ]
     },
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Nêu một hướng dẫn nên lưu lâu dài trong AGENTS.md và một yêu cầu chỉ nên nằm trong bản mô tả của một công việc.",
+      "prompt": "Chọn một quyết định phạm vi trong `artifacts/PRD.md` của bạn. Nêu bước tương ứng trong `artifacts/implementation-plan.md` và bằng chứng sẽ dùng để kiểm tra nó.",
       "expectedSignals": [
-        "AGENTS.md chứa hướng dẫn bền vững",
-        "Task brief chứa mục tiêu hoặc phạm vi cụ thể của một thay đổi",
-        "Giải thích bằng ví dụ"
+        "Tham chiếu một quyết định thật trong PRD của Learner",
+        "Chỉ ra bước tương ứng trong plan",
+        "Nêu bằng chứng kiểm tra cụ thể",
+        "Giải thích bằng lời của Learner"
       ]
     }
   ]

@@ -127,9 +127,9 @@ câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 ## Bước 9 — Chuyển sang Module 1 (`intro-complete`)
 
 Teacher nói: "Bạn đã có đích đến, dự án thực hành và quyền quyết định rõ ràng.
-Module 1 sẽ dùng chính workspace này để luyện một quy trình đầy đủ: đọc dự án,
-viết bản mô tả công việc, duyệt kế hoạch, sửa giao diện, xem phần thay đổi và
-kiểm chứng kết quả. Quy trình này không phụ thuộc vào ContentPilot."
+Module 1 sẽ bắt đầu từ cách giao tiếp với coding agent: hiểu vì sao planning
+quan trọng, biến ý tưởng ContentPilot thành PRD một trang và chuyển PRD đã duyệt
+thành implementation plan. Bạn chưa cần biết code hoặc chuẩn bị dữ liệu."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

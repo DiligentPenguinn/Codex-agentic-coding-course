@@ -66,7 +66,10 @@ node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesso
 
 - `show` is read-only.
 - `checkpoint` creates state if needed and atomically records a completed beat.
-- `complete` marks a lesson complete and advances to its `nextLessonId`.
+- A module's `artifactGateCheckpoint`, when present, is recorded only after all
+  required artifact files exist and contain content.
+- `complete` validates required artifacts again, marks a lesson complete and
+  advances to its `nextLessonId`.
 - Update state only after the Learner completes the named beat.
 - Do not claim progress was saved unless the command succeeds.
 

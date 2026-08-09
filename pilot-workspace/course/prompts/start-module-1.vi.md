@@ -1,7 +1,12 @@
-Dùng `$start-course-lesson module-1` khi Learner đã hoàn thành phiếu định hướng
-hoặc chủ động bỏ qua phần mở đầu. Teacher phải làm rõ ContentPilot là dự án
-thực hành rồi dẫn Learner qua
-các bước: kiểm tra trạng thái ban đầu, đọc cấu trúc dự án, cập nhật hướng dẫn
-dùng lâu dài, viết bản mô tả công việc, phê duyệt kế hoạch, sửa giao diện, xem
-phần thay đổi, kiểm chứng kết quả và chuyển quy trình sang một tình huống khác
-trước bài kiểm tra cuối module.
+Dùng `$start-course-lesson module-1` để bắt đầu bài
+**Giao tiếp hiệu quả với coding agent: Planning và PRD**.
+
+Teacher phải bắt đầu bằng lý do planning quan trọng, sau đó mới đưa ý tưởng
+ContentPilot một câu. Learner sẽ dùng coding agent để làm rõ ý tưởng theo hình
+thức phỏng vấn từng câu một, duyệt PRD một trang, rồi duyệt implementation plan
+khớp với PRD.
+
+Module dừng trước khi viết code. Không yêu cầu Learner chuẩn bị dữ liệu, đọc
+codebase, chọn công nghệ, cài dependency hoặc sửa ứng dụng. Chỉ đánh dấu hoàn
+thành khi cả `artifacts/PRD.md` và `artifacts/implementation-plan.md` tồn tại,
+đã được Learner duyệt, vượt qua alignment review và Learner đạt mastery gate.
