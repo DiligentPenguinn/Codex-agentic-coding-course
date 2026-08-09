@@ -189,13 +189,13 @@ try {
     .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu khóa học' })
+    .getByRole('button', { name: 'Tiếp tục' })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu khóa học' })
+    .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu', exact: true })
@@ -259,7 +259,7 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
-  await learningPage.getByRole('button', { name: 'Bắt đầu khóa học' }).click()
+  await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
   await learningPage.getByRole('button', { name: 'Bắt đầu', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()

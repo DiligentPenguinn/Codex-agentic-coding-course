@@ -93,7 +93,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'QUYẾT ĐỊNH', value: 'Bạn duyệt nội dung' }
     ],
     dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
-    choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }],
+    choices: [{ label: 'Tiếp tục', next: 'intro-learning-method', primary: true }],
     showTitle: false,
     showPanel: false
   },
