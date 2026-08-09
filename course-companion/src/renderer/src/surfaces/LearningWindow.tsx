@@ -746,11 +746,11 @@ function PixelAppShell({
             <div className="pixel-roadmap" aria-label="Lộ trình học">
               {introComplete ? (
                 <article className="is-complete">
-                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Làm quen với Course Companion và quyền quyết định</strong><p>Đã hoàn thành</p></div><em>HOÀN THÀNH</em>
+                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Giới thiệu khóa học</strong><p>Đã hoàn thành</p></div><em>HOÀN THÀNH</em>
                 </article>
               ) : (
                 <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Làm quen với Course Companion và quyền quyết định</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Giới thiệu khóa học</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               )}
               {progress.currentLessonId === 'module-1' ? (
