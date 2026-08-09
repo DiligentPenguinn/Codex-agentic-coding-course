@@ -513,7 +513,7 @@ function EntryScreen({
       ? 'Bắt đầu lại từ đầu?'
       : 'Tiếp tục đúng nơi bạn dừng lại'
   const description = isWelcome
-    ? 'Bạn sẽ học cách làm việc cùng coding agent để biến một ý tưởng thành công cụ có thể chạy và kiểm chứng. ContentPilot là dự án thực hành đầu tiên; kỹ năng bạn học có thể dùng cho nhiều sản phẩm khác.'
+    ? 'Khoá học này sẽ giúp bạn biết cách sử dụng Coding agent để tạo ra những công cụ hữu ích cho công việc. Chúng mình sẽ không chỉ dạy cho bạn lý thuyết, mà sẽ đồng hành cùng bạn để xây dựng một ứng dụng thực tế.'
     : mode === 'reset-required'
       ? 'Tiến trình hiện tại và bản khôi phục đều không đọc được. Bạn có thể xóa dữ liệu hỏng để bắt đầu an toàn.'
       : isConfirm
