@@ -86,6 +86,64 @@ async function loadWindows(electronApp) {
   return { learningPage, companionPage }
 }
 
+async function verifyHomeBase(page) {
+  await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
+  await page.getByText('TIẾN ĐỘ TOÀN KHÓA', { exact: true }).waitFor()
+  await page.getByText('BẠN ĐANG Ở ĐÂY', { exact: true }).waitFor()
+  assert.equal(
+    await page
+      .getByText('Chọn chặng có nhãn “Bạn đang ở đây” để tiếp tục học.', { exact: true })
+      .count(),
+    0
+  )
+  const typography = await page.evaluate(async () => {
+    await globalThis.document.fonts.ready
+    const heading = globalThis.document.querySelector('#homeBaseTitle')
+    return {
+      body: globalThis.getComputedStyle(globalThis.document.body).fontFamily,
+      heading: heading ? globalThis.getComputedStyle(heading).fontFamily : '',
+      regularLoaded: globalThis.document.fonts.check('400 16px "Be Vietnam Pro"', 'Tiếng Việt có dấu'),
+      boldLoaded: globalThis.document.fonts.check('800 16px "Be Vietnam Pro"', 'Lộ trình khóa học')
+    }
+  })
+  assert.match(typography.body, /Be Vietnam Pro/)
+  assert.match(typography.heading, /Be Vietnam Pro/)
+  assert.equal(typography.regularLoaded, true)
+  assert.equal(typography.boldLoaded, true)
+  assert.equal(await page.locator('.pixel-app-current').count(), 0)
+  const teacherAnimation = await page
+    .locator('.pixel-home-teacher img')
+    .evaluate((element) => globalThis.getComputedStyle(element).animationName)
+  assert.match(teacherAnimation, /pixel-teacher-idle/)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  assert.equal(
+    await page
+      .locator('.pixel-home-teacher img')
+      .evaluate((element) => globalThis.getComputedStyle(element).animationName),
+    'none'
+  )
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  assert.equal(await page.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(), 0)
+  assert.equal(await page.getByRole('button', { name: 'Bài học', exact: true }).count(), 0)
+  await page.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
+  await capture(page, 'home-base.png')
+  if (screenshotDirectory) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const narrowWidths = await page.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(narrowWidths.body, narrowWidths.viewport)
+    assert.equal(narrowWidths.document, narrowWidths.viewport)
+    await capture(page, 'home-base-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+}
+
 let firstLaunch
 let resumedLaunch
 let chatHistoryLaunch
@@ -110,69 +168,6 @@ try {
 
   await firstWindows.learningPage
     .getByRole('button', { name: 'Cùng bắt đầu nhé' })
-    .click()
-  await firstWindows.learningPage
-    .getByRole('heading', { name: 'Lộ trình khóa học' })
-    .waitFor()
-  await firstWindows.learningPage.getByText('TIẾN ĐỘ TOÀN KHÓA', { exact: true }).waitFor()
-  await firstWindows.learningPage.getByText('BẠN ĐANG Ở ĐÂY', { exact: true }).waitFor()
-  assert.equal(
-    await firstWindows.learningPage
-      .getByText('Chọn chặng có nhãn “Bạn đang ở đây” để tiếp tục học.', { exact: true })
-      .count(),
-    0
-  )
-  const typography = await firstWindows.learningPage.evaluate(async () => {
-    await globalThis.document.fonts.ready
-    const heading = globalThis.document.querySelector('#homeBaseTitle')
-    return {
-      body: globalThis.getComputedStyle(globalThis.document.body).fontFamily,
-      heading: heading ? globalThis.getComputedStyle(heading).fontFamily : '',
-      regularLoaded: globalThis.document.fonts.check('400 16px "Be Vietnam Pro"', 'Tiếng Việt có dấu'),
-      boldLoaded: globalThis.document.fonts.check('800 16px "Be Vietnam Pro"', 'Lộ trình khóa học')
-    }
-  })
-  assert.match(typography.body, /Be Vietnam Pro/)
-  assert.match(typography.heading, /Be Vietnam Pro/)
-  assert.equal(typography.regularLoaded, true)
-  assert.equal(typography.boldLoaded, true)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-app-current').count(), 0)
-  const teacherAnimation = await firstWindows.learningPage
-    .locator('.pixel-home-teacher img')
-    .evaluate((element) => globalThis.getComputedStyle(element).animationName)
-  assert.match(teacherAnimation, /pixel-teacher-idle/)
-  await firstWindows.learningPage.emulateMedia({ reducedMotion: 'reduce' })
-  assert.equal(
-    await firstWindows.learningPage
-      .locator('.pixel-home-teacher img')
-      .evaluate((element) => globalThis.getComputedStyle(element).animationName),
-    'none'
-  )
-  await firstWindows.learningPage.emulateMedia({ reducedMotion: 'no-preference' })
-  assert.equal(
-    await firstWindows.learningPage.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(),
-    0
-  )
-  assert.equal(await firstWindows.learningPage.getByRole('button', { name: 'Bài học', exact: true }).count(), 0)
-  await firstWindows.learningPage.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
-  await capture(firstWindows.learningPage, 'home-base.png')
-  if (screenshotDirectory) {
-    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
-    const narrowWidths = await firstWindows.learningPage.evaluate(() => {
-      const browserDocument = globalThis.document
-      return {
-        body: browserDocument.body.scrollWidth,
-        document: browserDocument.documentElement.scrollWidth,
-        viewport: globalThis.innerWidth
-      }
-    })
-    assert.equal(narrowWidths.body, narrowWidths.viewport)
-    assert.equal(narrowWidths.document, narrowWidths.viewport)
-    await capture(firstWindows.learningPage, 'home-base-390px.png')
-    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
-  }
-  await firstWindows.learningPage
-    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
     .click()
   await firstWindows.learningPage
     .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
@@ -232,6 +227,16 @@ try {
     await capture(firstWindows.learningPage, 'course-introduction-page-3-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
+    .click()
+  await verifyHomeBase(firstWindows.learningPage)
+  await firstWindows.learningPage
+    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
+    .click()
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' })
+    .waitFor()
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -242,7 +247,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText(/Bạn sẽ học như thế nào\?/)
+    .getByText(/Thực hiện vòng cộng tác chỉ đọc đầu tiên/)
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -253,6 +258,10 @@ try {
     .getByRole('heading', { name: 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy' })
     .waitFor()
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
+  await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu khóa học' }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu', exact: true }).click()
+  await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
   await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
   const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()
@@ -282,18 +291,6 @@ try {
   await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage
     .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
-    .click()
-  await learningPage
-    .getByRole('button', { name: 'Tiếp tục' })
-    .click()
-  await learningPage
-    .getByRole('button', { name: 'Bắt đầu khóa học' })
-    .click()
-  await learningPage
-    .getByRole('button', { name: 'Bắt đầu', exact: true })
-    .waitFor()
-  await learningPage
-    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .click()
   await learningPage
     .getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' })

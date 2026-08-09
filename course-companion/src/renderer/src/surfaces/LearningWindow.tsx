@@ -29,6 +29,7 @@ type Choice = {
   primary?: boolean
   danger?: boolean
   action?: 'practice' | 'home'
+  afterSave?: 'home'
   decision?: { key: string; value: string }
 }
 
@@ -114,7 +115,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'KỸ NĂNG', value: 'Xây ứng dụng với AI' }
     ],
     dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
-    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', primary: true }],
+    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false
   },
@@ -971,7 +972,7 @@ export function LearningWindow() {
     try {
       await persist(initialUpdate())
       setRecovered(false)
-      setDestination('home')
+      setDestination('lesson')
       setTeacherOpen(false)
       setView('app')
     } catch {
@@ -1050,6 +1051,10 @@ export function LearningWindow() {
         completedCheckpointIds: [...completed],
         decisions
       })
+      if (choice.afterSave === 'home') {
+        setTeacherOpen(false)
+        setDestination('home')
+      }
     } catch {
       setError('Không thể lưu checkpoint này. Hãy thử lại trước khi tiếp tục.')
     } finally {
