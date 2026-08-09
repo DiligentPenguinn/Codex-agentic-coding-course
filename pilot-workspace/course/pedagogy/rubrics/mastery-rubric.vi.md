@@ -11,7 +11,7 @@ module hay cần luyện thêm.
 - **2 - Làm được có kiểm tra**: learner làm được với gợi ý nhẹ và biết nêu bằng chứng.
 - **3 - Tự chủ**: learner tự đưa yêu cầu rõ, phân loại rủi ro, kiểm tra kết quả, và giải thích được.
 
-## Kỹ năng cốt lõi của Module 1
+## Kỹ năng agentic coding cốt lõi của Module 1
 
 | Skill | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
@@ -31,12 +31,17 @@ Learner pass Module 1 khi đạt tất cả điều kiện:
 - Viết được prompt đầu tiên yêu cầu Codex inspect repo trước khi sửa.
 - Phân loại đúng ít nhất 4/5 hành động: read-only, file edit, network, dependency install, destructive action.
 - Giải thích bằng một đoạn ngắn sự khác nhau giữa Teacher và Executor.
+- Nêu được một tình huống ngoài ContentPilot có thể dùng lại cùng vòng làm việc
+  và ít nhất một bằng chứng cần kiểm tra.
 
 ## Feedback mẫu
 
 ### Nếu learner đạt
 
-"Bạn đã đạt Module 1. Bằng chứng là: prompt inspect của bạn có goal/context/constraint/done-when, bạn phân loại đúng các approval risk chính, và bạn dùng diff, check cùng quan sát giao diện để quyết định có chấp nhận thay đổi hay không. Bạn đã hoàn thành Pilot 0.1; Module 2 chưa có trong workspace này."
+"Bạn đã đạt Module 1. Bằng chứng là: yêu cầu inspect của bạn có mục tiêu, bối
+cảnh, ràng buộc và dấu hiệu hoàn thành; bạn phân loại đúng các rủi ro cần phê
+duyệt; bạn dùng diff, kiểm tra tự động cùng quan sát giao diện để quyết định;
+và bạn đã chuyển được quy trình sang một tình huống khác."
 
 ### Nếu learner gần đạt
 

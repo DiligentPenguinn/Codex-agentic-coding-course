@@ -125,7 +125,7 @@ async function verifyHomeBase(page) {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   assert.equal(await page.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(), 0)
   assert.equal(await page.getByRole('button', { name: 'Bài học', exact: true }).count(), 0)
-  await page.getByText('ĐÃ KHÓA', { exact: true }).first().waitFor()
+  await page.getByText('SẮP TỚI', { exact: true }).first().waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -247,7 +247,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText(/Thực hiện vòng cộng tác chỉ đọc đầu tiên/)
+    .getByText(/Thực hiện vòng agentic coding chỉ đọc đầu tiên/)
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -255,7 +255,7 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Xóa và bắt đầu lại' }).click()
   await learningPage
-    .getByRole('heading', { name: 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy' })
+    .getByRole('heading', { name: 'Chào mừng bạn đến với Vibecoding 101' })
     .waitFor()
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
@@ -263,7 +263,7 @@ try {
   await learningPage.getByRole('button', { name: 'Bắt đầu', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
-  await learningPage.getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true }).waitFor()
+  await learningPage.getByText('PHẢN HỒI LUYỆN TẬP', { exact: true }).waitFor()
   const teacherBounds = await learningPage.locator('.pixel-teacher-overlay').boundingBox()
   assert.ok(teacherBounds)
   assert.ok(teacherBounds.x > 1180 / 2)
@@ -307,7 +307,7 @@ try {
   await learningPage
     .getByRole('button', { name: 'Kết quả đáp ứng dấu hiệu hoàn thành đã định trước' })
     .click()
-  await learningPage.getByRole('button', { name: 'Bắt đầu Module 1' }).click()
+  await learningPage.getByRole('button', { name: 'Vào bài học đầu tiên' }).click()
 
   await learningPage
     .getByRole('button', { name: 'Kết quả sẽ khó đoán và khó kiểm tra' })
@@ -338,9 +338,7 @@ try {
   )
   assert.equal(companionWindow(expanded)?.bounds.height, 520)
 
-  await companionPage
-    .getByText('CHƯA KẾT NỐI TEACHER LIVE', { exact: true })
-    .waitFor()
+  await companionPage.getByText('PHẢN HỒI LUYỆN TẬP', { exact: true }).waitFor()
   const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Triết' })
   assert.equal(
     await composer.evaluate((element) => element === element.ownerDocument.activeElement),
@@ -359,23 +357,23 @@ try {
     .waitFor()
 
   await companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
-  await companionPage.getByText('CHƯA BẮT ĐẦU · MÔ PHỎNG', { exact: true }).waitFor()
-  await companionPage.getByText('DEV · TÌNH HUỐNG MÔ PHỎNG', { exact: true }).click()
+  await companionPage.getByText('CHƯA BẮT ĐẦU · LUYỆN TẬP', { exact: true }).waitFor()
+  await companionPage.getByText('CÁC TÌNH HUỐNG LUYỆN TẬP', { exact: true }).click()
 
   const fixtureScenarios = [
-    ['Bắt đầu', 'ĐANG THỰC HIỆN · MÔ PHỎNG'],
-    ['Cần phê duyệt', 'CẦN PHÊ DUYỆT · MÔ PHỎNG'],
-    ['Bằng chứng cũ', 'BẰNG CHỨNG CŨ · MÔ PHỎNG'],
-    ['Mất kết nối', 'MẤT KẾT NỐI · MÔ PHỎNG'],
-    ['Lỗi', 'LƯỢT CHẠY LỖI · MÔ PHỎNG'],
-    ['Hoàn thành', 'ĐÃ HOÀN THÀNH · MÔ PHỎNG']
+    ['Bắt đầu', 'ĐANG THỰC HIỆN · LUYỆN TẬP'],
+    ['Cần phê duyệt', 'CẦN PHÊ DUYỆT · LUYỆN TẬP'],
+    ['Bằng chứng cũ', 'BẰNG CHỨNG CŨ · LUYỆN TẬP'],
+    ['Mất kết nối', 'MẤT KẾT NỐI · LUYỆN TẬP'],
+    ['Lỗi', 'LƯỢT CHẠY LỖI · LUYỆN TẬP'],
+    ['Hoàn thành', 'ĐÃ HOÀN THÀNH · LUYỆN TẬP']
   ]
   for (const [buttonName, statusText] of fixtureScenarios) {
     await companionPage.getByRole('button', { name: buttonName, exact: true }).click()
     await companionPage.getByText(statusText, { exact: true }).waitFor()
   }
   await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
-  await companionPage.getByText('BẰNG CHỨNG MỚI · MÔ PHỎNG', { exact: true }).waitFor()
+  await companionPage.getByText('BẰNG CHỨNG MỚI · BÀI LUYỆN TẬP', { exact: true }).waitFor()
 
   await companionPage.getByRole('button', { name: 'Mở bài học' }).click()
   await waitForSnapshot(
@@ -464,7 +462,7 @@ try {
     .waitFor()
   await historyWindows.companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
   await historyWindows.companionPage
-    .getByText('ĐÃ HOÀN THÀNH · MÔ PHỎNG', { exact: true })
+    .getByText('ĐÃ HOÀN THÀNH · LUYỆN TẬP', { exact: true })
     .waitFor()
   await historyWindows.companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await chatHistoryLaunch.waitForEvent('close')

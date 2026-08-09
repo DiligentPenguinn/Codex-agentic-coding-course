@@ -1,7 +1,9 @@
 # Module 1 — Giới thiệu khóa học: nội dung và tiến độ
 
 **Cập nhật:** 9 tháng 8 năm 2026
-**Trạng thái:** Ba trang giới thiệu đã được duyệt và đưa vào Course Companion; phần khái niệm và bài tập tiếp theo vẫn đang được lập kế hoạch.
+**Trạng thái:** Ba trang giới thiệu được giữ nguyên theo quyết định ngày 9 tháng
+8 năm 2026. Từ màn hình tiếp theo, curriculum và copy chuyển sang cấu trúc
+kỹ năng agentic coding trước, ContentPilot là dự án thực hành.
 
 ## Định vị đã chốt
 
@@ -10,6 +12,9 @@
 - Nội dung và bài tập phải giúp người học hình thành kỹ năng xây ứng dụng với coding agent có thể áp dụng cho những sản phẩm khác.
 - Tên module hiện tại là **Module 1 — Giới thiệu khóa học**.
 - Không thêm một trang lộ trình riêng sau phần giới thiệu. Sau ba trang mở đầu, người học đi thẳng vào concept đầu tiên.
+- Ngoại lệ đã chốt: không sửa nội dung, thứ tự hoặc nút của ba trang mở đầu bên
+  dưới. Việc định vị skill-first bắt đầu ở màn hình kế tiếp và được củng cố ở
+  lộ trình, bài học, quiz và đánh giá tốt nghiệp.
 
 ## Trang 1 — Đã duyệt và đã triển khai
 
@@ -53,21 +58,30 @@
 
 > Bắt đầu
 
-## Khái niệm tiếp theo — Nội dung đã duyệt, chưa triển khai
+## Khái niệm tiếp theo — Hướng nội dung skill-first
 
-> Đầu tiên, bạn cần xem coding agent như là một kỹ sư làm việc dưới trướng bạn. Để làm việc hiệu quả với họ thì bạn cần biết cách giao tiếp tốt.
+> Coding agent là người cộng tác có thể đọc dự án, lập kế hoạch, sửa file và
+> chạy kiểm tra. Bạn giữ mục tiêu, phạm vi, quyết định quan trọng và tiêu chí để
+> biết công việc đã thực sự hoàn thành.
 >
-> Prompt là lời bạn dùng để giao việc cho coding agent. Prompt engineering là cách bạn viết và cải thiện lời giao việc đó để agent hiểu mục tiêu, tuân thủ yêu cầu và tạo ra kết quả có thể kiểm tra.
+> Một yêu cầu tốt không cần dùng từ kỹ thuật phức tạp. Nó cần nói rõ vấn đề,
+> bối cảnh, phạm vi, điều không được làm và bằng chứng bạn muốn xem. Với thay đổi
+> phức tạp, hãy để agent đọc và đề xuất kế hoạch trước khi cho phép sửa.
 
-Nguồn tham khảo chính thức: [Prompt engineering — OpenAI API](https://developers.openai.com/api/docs/guides/prompt-engineering).
+Nguồn tham khảo chính thức:
+
+- [OpenAI Codex prompting](https://learn.chatgpt.com/docs/prompting)
+- [Anthropic — Agentic coding and persistent returns to expertise](https://www.anthropic.com/research/claude-code-expertise)
+- [Google Gemini CLI — Plan mode](https://developers.googleblog.com/plan-mode-now-available-in-gemini-cli/)
+- [DeepLearning.AI — Spec-Driven Development with Coding Agents](https://www.deeplearning.ai/courses/spec-driven-development-with-coding-agents/)
 
 ## Điểm resume
 
-Tiếp tục bằng việc chốt **tiêu đề của trang giới thiệu khái niệm**. Đề xuất đang chờ duyệt là:
-
-> Cách làm việc với coding agent
-
-Sau khi chốt tiêu đề, tiếp tục lập kế hoạch từng phần của prompt engineering, rồi mới thiết kế bài tập áp dụng. Không bắt đầu lập kế hoạch Module 2 cho tới khi toàn bộ Module 1 được triển khai và người dùng đã kiểm tra.
+Tiếp tục từ bài học **Giao việc để coding agent có thể kiểm chứng**. Bài học dùng
+vòng `hiểu vấn đề → giới hạn phạm vi → giao việc → đọc bằng chứng → quyết định`
+và yêu cầu người học chuyển vòng này sang một dự án khác trước khi hoàn thành.
+Không bắt đầu Module 2 cho tới khi toàn bộ Module 1 được triển khai và người
+dùng đã kiểm tra.
 
 ## Ghi chú triển khai
 

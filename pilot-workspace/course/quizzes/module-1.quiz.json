@@ -39,11 +39,11 @@
     {
       "id": "m1-q3",
       "type": "short-answer",
-      "prompt": "Viết hai dấu hiệu hoàn thành có thể kiểm chứng cho một cải tiến nhỏ khác trong ContentPilot. Không dùng lại bài tập nút trên màn hình hẹp.",
+      "prompt": "Viết hai dấu hiệu hoàn thành có thể kiểm chứng cho một cải tiến nhỏ trong dự án khác. Không dùng lại ContentPilot hoặc bài tập nút trên màn hình hẹp.",
       "expectedSignals": [
         "Mỗi tiêu chí có nơi hoặc cách kiểm tra",
         "Mỗi tiêu chí có dấu hiệu pass quan sát được",
-        "Có bối cảnh mới do Learner chọn"
+        "Có bối cảnh mới ngoài ContentPilot do Learner chọn"
       ]
     },
     {

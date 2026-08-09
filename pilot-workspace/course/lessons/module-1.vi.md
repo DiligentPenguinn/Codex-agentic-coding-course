@@ -1,21 +1,22 @@
-# Module 1 — Thiết lập dự án và làm việc an toàn với Codex
+# Module 1 — Đọc dự án, giao việc và kiểm chứng thay đổi
 
 ## Kết quả
 
 Sau khoảng 70 phút, bạn có thể:
 
-- chạy ứng dụng ContentPilot ban đầu rồi đọc và kiểm tra cấu trúc của nó,
+- đọc và chạy một codebase có sẵn trước khi yêu cầu thay đổi,
 - phân biệt hướng dẫn dùng lâu dài với yêu cầu chỉ dùng cho một công việc,
 - viết bản mô tả công việc có phạm vi và tiêu chí hoàn thành,
 - xem và duyệt kế hoạch trước khi Codex sửa file,
 - xem phần so sánh thay đổi (`diff`), chạy kiểm tra và quan sát giao diện, và
 - giải thích vì sao thay đổi an toàn để chấp nhận.
 
-## Ứng dụng dùng để thực hành
+## Dự án dùng để thực hành
 
-Ứng dụng nằm trong `contentpilot/`. Trạng thái ban đầu (`baseline`) là một ứng
-dụng chạy được nhưng chưa có quy trình tạo nội dung. Module này không thêm AI,
-nghiên cứu, tạo bản nháp, đăng bài hoặc kết nối hệ thống bên ngoài.
+Bạn sẽ luyện các kỹ năng trên trong ứng dụng ContentPilot tại `contentpilot/`.
+Trạng thái ban đầu (`baseline`) là một ứng dụng chạy được nhưng chưa có quy
+trình tạo nội dung. Bài học này không thêm AI, nghiên cứu, tạo bản nháp, đăng
+bài hoặc kết nối hệ thống bên ngoài.
 
 ## Bài thực hành chỉnh sửa giao diện
 
@@ -53,3 +54,9 @@ Module hoàn thành khi:
 - bạn phân biệt đúng hành động chỉ đọc, sửa file, dùng mạng hoặc cài đặt, xóa dữ
   liệu và xuất bản ra bên ngoài, và
 - bạn giải thích được vì sao bằng chứng đủ để chấp nhận thay đổi.
+
+## Dấu hiệu kỹ năng có thể chuyển giao
+
+Bạn có thể áp dụng lại vòng `đọc → mô tả → duyệt kế hoạch → thực thi → kiểm
+chứng` cho một thay đổi nhỏ trong dự án khác và nêu bằng chứng cần xem trước
+khi chấp nhận.

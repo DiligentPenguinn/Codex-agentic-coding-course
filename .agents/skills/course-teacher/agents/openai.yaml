@@ -1,7 +1,7 @@
 interface:
   display_name: "Course Teacher"
-  short_description: "Teach Pilot 0.1 with evidence gates"
-  default_prompt: "Use $course-teacher to continue my current Pilot 0.1 lesson."
+  short_description: "Teach agentic coding through guided practice"
+  default_prompt: "Use $course-teacher to continue my current agentic coding lesson."
 
 policy:
   allow_implicit_invocation: true

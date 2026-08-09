@@ -23,10 +23,10 @@
     {
       "id": "intro-q2",
       "type": "short-answer",
-      "prompt": "Vì sao chỉ chạy dữ liệu mô phỏng chưa đủ để chứng minh ContentPilot hoạt động trọn quy trình với AI thật?",
+      "prompt": "Vì sao dữ liệu mô phỏng chưa đủ để chứng minh một ứng dụng đã tích hợp AI thật?",
       "expectedSignals": [
-        "Nhận ra khóa học yêu cầu một lần chạy API thật",
-        "Phân biệt dữ liệu dùng để học hoặc xử lý lỗi với bằng chứng chạy trọn quy trình",
+        "Nhận ra cần ít nhất một lần chạy API thật để kiểm chứng tích hợp",
+        "Phân biệt dữ liệu dùng để học hoặc xử lý lỗi với bằng chứng từ hệ thống thật",
         "Giải thích bằng lời riêng"
       ]
     }

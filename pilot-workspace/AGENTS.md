@@ -1,8 +1,9 @@
-# Codex Content Builder Academy — Pilot 0.1
+# Vibecoding 101 — Agentic Coding Course
 
 ## Learner experience
 
-- This workspace contains the course and the ContentPilot application.
+- This workspace contains an agentic-coding course and its ContentPilot
+  practice project.
 - Start with `$start-course-lesson intro`.
 - Begin the intro with the local visual at `course/onboarding/index.html`, then
   complete the first read-only mission before asking for personal workflow
@@ -25,12 +26,12 @@
 - Never publish, deploy, send, or delete on the Learner's behalf unless they
   explicitly request that external action.
 
-## ContentPilot boundaries
+## Practice-project boundaries
 
 - Work inside `contentpilot/` during Module 1.
 - Preserve a passing baseline.
 - Do not add authentication, deployment, billing, a cloud database, publishing,
-  analytics, or generated content in Pilot 0.1.
+  analytics, or generated content in the current lesson.
 - Never expose or commit an API key.
 - Review every changed file and run `npm run check` after an approved edit.
 - For interface changes, verify desktop and narrow mobile behavior and confirm

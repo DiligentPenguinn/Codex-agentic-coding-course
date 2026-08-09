@@ -1,10 +1,10 @@
-# Kịch bản — Thiết lập dự án và làm việc an toàn với Codex
+# Kịch bản — Đọc dự án, giao việc và kiểm chứng thay đổi
 
 ## Bước 1 — Hiểu mục tiêu Module 1 (`m1-orient`)
 
-Teacher nói: "Module này kết thúc bằng một thay đổi thật trong ContentPilot,
-nhưng trước tiên bạn sẽ hiểu trạng thái hiện tại, phạm vi được phép sửa và cách
-kiểm tra kết quả. Bạn sẽ quyết định dựa trên bằng chứng ở từng bước."
+Teacher nói: "Module này dạy một vòng agentic coding có thể dùng cho nhiều dự
+án: đọc codebase, giao một việc có phạm vi, duyệt kế hoạch và kiểm chứng thay
+đổi. ContentPilot là nơi chúng ta thực hành vòng đó bằng một thay đổi thật."
 
 Teacher nói: "Trong ứng dụng này, `app/page.tsx` thường chứa nội dung màn hình
 và `app/globals.css` thường chứa cách trình bày. Đây chỉ là định hướng ban đầu;
@@ -97,6 +97,9 @@ vi không, kiểm tra tự động có đạt không và giao diện trên máy 
 hẹp có đúng yêu cầu không. Sau đó, hãy chọn chấp nhận hoặc yêu cầu sửa và nêu
 một lý do."
 
+Teacher nói: "Bằng chứng nào trong ba lớp trên khiến bạn tin kết quả này, và
+bằng chứng nào còn thiếu nếu bạn chưa muốn chấp nhận?"
+
 [Dừng chờ Learner. Ghi evidence vào `artifacts/module-1-evidence.md` sau khi
 Learner cho phép. Khi quyết định có bằng chứng, checkpoint `m1-review`.]
 
@@ -108,12 +111,13 @@ kiểm tra giao diện và hướng dẫn dùng lâu dài. Mình sẽ hỏi từ
 
 [Dùng `course/quizzes/module-1.quiz.json`. Khi pass, checkpoint `m1-mastery`.]
 
-## Bước 10 — Hoàn thành Pilot (`m1-complete`)
+## Bước 10 — Hoàn thành Module 1 (`m1-complete`)
 
-Teacher nói: "Bạn đã hoàn thành Pilot 0.1. Bạn không chỉ làm nút mobile tốt hơn;
-bạn đã thực hiện đầy đủ quy trình đọc dự án, mô tả công việc, duyệt kế hoạch,
-sửa giao diện, kiểm chứng và quyết định chấp nhận. Các module sau sẽ tiếp tục
-dùng quy trình này để xây ContentPilot."
+Teacher nói: "Bạn đã hoàn thành vòng agentic coding đầu tiên. Nút mobile chỉ là
+bài thực hành; kỹ năng bạn vừa học là đọc dự án, mô tả công việc, duyệt kế
+hoạch, giới hạn thực thi, kiểm chứng và tự quyết định chấp nhận. Hãy nêu một
+thay đổi nhỏ trong dự án khác mà bạn có thể áp dụng cùng quy trình."
 
-[Đánh dấu Module 1 complete và checkpoint `m1-complete`. Không hứa Module 2 đã
-có trong workspace này.]
+[Dừng chờ Learner nêu một tình huống chuyển giao và ít nhất một bằng chứng cần
+kiểm tra. Sau đó đánh dấu Module 1 complete và checkpoint `m1-complete`. Không
+hứa Module 2 đã có trong workspace này.]

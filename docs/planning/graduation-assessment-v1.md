@@ -1,4 +1,4 @@
-# ContentPilot Graduation Assessment v1
+# Agentic Coding Graduation Assessment v1 — ContentPilot Evidence Project
 
 **Status:** Locked assessment contract  
 **Decision:** Evidence-gated portfolio defense  
@@ -7,15 +7,16 @@
 
 ## Purpose
 
-Graduation proves that the learner can use Codex to build, inspect, and operate
-a real content workflow. It does not reward a polished demonstration that hides
-missing data, mock output, unsafe key handling, unsupported claims, or weak
-learner judgment.
+Graduation proves that the learner can direct a coding agent through a real,
+multi-step software project: frame the problem, preserve context, specify and
+approve work, use tools safely, inspect evidence, recover from failure, and
+defend the result. ContentPilot supplies the project evidence; completing its
+feature checklist alone does not prove agentic-coding mastery.
 
 The assessment combines:
 
 1. non-negotiable evidence gates,
-2. a human-reviewed mastery rubric,
+2. a human-reviewed agentic-coding mastery rubric,
 3. a short learner defense, and
 4. targeted resubmission when only part of the submission is weak.
 
@@ -31,6 +32,8 @@ Related source-of-truth contracts:
 - Automated checks prove structure, counts, references, and safety boundaries.
 - Human review judges usefulness, evidence reasoning, voice, visuals, and
   learner ownership.
+- Product completeness is necessary practice evidence, but transferable
+  agentic-coding skill remains the primary learning outcome.
 - A high rubric score cannot compensate for a failed evidence gate.
 - Generated content is not accepted merely because its schema is valid.
 - Learners may repair the failed part of a submission without repeating valid
@@ -81,7 +84,7 @@ Every gate must pass.
 | G8. Human review | All 5 packages have a recorded learner review decision and are approved only after review | Automated |
 | G9. Durable output | The immutable archive reopens and the export bundle contains final copy, selected image, source notes, and suggested date for every package | Automated plus reviewer |
 | G10. Recovery evidence | One failed, rejected, or deliberately revised phase demonstrates a bounded rerun without destroying unrelated accepted work | Automated plus learner defense |
-| G11. Learner ownership | The learner explains one consequential decision, one revision or recovery, and one remaining limitation using evidence from the submitted run | Reviewer |
+| G11. Learner ownership | The learner explains one consequential decision, one revision or recovery, one remaining limitation, and how the same reasoning transfers to another software task | Reviewer |
 | G12. Integrity | The submission does not copy competitor wording or layouts, misrepresent sources, conceal mock output, or use unapproved likeness material | Reviewer |
 
 The verification script reports each gate separately. It never reduces the
@@ -98,12 +101,12 @@ Each dimension receives one score:
 
 | Dimension | What the reviewer judges |
 |---|---|
-| R1. Audience and platform fit | The batch addresses the saved audience, business goal, primary platform, and cadence rather than producing generic content |
-| R2. Evidence and anti-copy reasoning | Claims are supported, patterns are derived transparently, uncertainty is handled, and competitor expression is not copied |
-| R3. Voice and copy usefulness | The five packages reflect the submitted voice evidence, differ meaningfully, and are realistically review-ready |
-| R4. Visual judgment and consent | Visual choices support each package, variants are meaningfully different, and source or likeness permissions are respected |
-| R5. Review and revision quality | The learner identifies weaknesses, makes a consequential revision, and explains why the approved result is better |
-| R6. Technical ownership and recovery | The learner can trace artifacts, interpret checks and failures, protect secrets, and explain the bounded recovery path |
+| R1. Problem framing and scope | The learner names the real user problem, observable outcome, allowed scope, constraints, non-goals, and decisions that stay with the human |
+| R2. Context, specification, and plan | The learner separates durable from task-specific context, defines inspectable output contracts, and reviews files, operations, risks, and verification before execution |
+| R3. Tool, source, and safety judgment | The learner chooses tools deliberately, handles source quality and uncertainty, protects secrets and consent, and pauses at network, destructive, costly, or external-action boundaries |
+| R4. Evidence review and recovery | The learner traces fresh artifacts, diffs, checks, logs, and interface behavior; rejects unsupported completion claims; and performs a bounded recovery without losing valid work |
+| R5. Product usefulness and human judgment | The final ContentPilot batch fits the saved audience and platform, uses evidence without copying, preserves learner edits, and is genuinely review-ready |
+| R6. Transfer and technical ownership | The learner can explain the system, defend a consequential decision and limitation, then apply the same agentic-coding loop to a different software task |
 
 ## Passing rule
 
@@ -112,9 +115,10 @@ A submission passes only when:
 1. all 12 evidence gates pass,
 2. the rubric total is at least **18 of 24**,
 3. no rubric dimension scores below **2**,
-4. R2 Evidence and anti-copy reasoning scores at least **3**,
-5. R6 Technical ownership and recovery scores at least **3**, and
-6. the learner completes the defense in their own words.
+4. R2 Context, specification, and plan scores at least **3**,
+5. R4 Evidence review and recovery scores at least **3**,
+6. R6 Transfer and technical ownership scores at least **3**, and
+7. the learner completes the defense in their own words.
 
 This allows one bounded developing area while preventing strong presentation
 from masking weak evidence or unsafe technical ownership.
@@ -123,14 +127,17 @@ from masking weak evidence or unsafe technical ownership.
 
 The Teacher asks one question at a time. The defense covers:
 
-1. Which product or audience decision most shaped the final batch?
-2. Which evidence changed or rejected an initial idea?
-3. What did the learner revise or recover, and what improved?
-4. What limitation remains, and what would the learner change next?
+1. Which problem, scope boundary, or human decision most shaped the work?
+2. Which context or specification detail prevented the agent from guessing?
+3. Which evidence changed the learner's conclusion or caused a revision?
+4. What failed, how was the recovery bounded, and which valid work was preserved?
+5. What limitation remains?
+6. How would the learner apply the same loop to a different software task?
 
 Each answer must reference the learner's own run, package, source, artifact, or
-verification result. Repeating course language without a concrete example does
-not satisfy G11.
+verification result. The transfer answer must include a new task, a boundary,
+and at least one observable completion signal. Repeating course language
+without a concrete example does not satisfy G11.
 
 ## Targeted resubmission
 
@@ -179,5 +186,6 @@ assessment never rewrites generated artifacts or approval history.
 ## Completion definition
 
 The learner graduates only after the latest assessment result passes. The
-course may celebrate rubric strengths, but it must state failed gates and
-required resubmission plainly when the submission does not yet pass.
+completion message leads with the agentic-coding skills demonstrated, then uses
+ContentPilot artifacts as evidence. When a submission needs more work, the
+course states the missing evidence and smallest next step in plain language.

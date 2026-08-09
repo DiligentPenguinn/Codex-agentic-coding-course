@@ -1,54 +1,61 @@
-# Content Builder Academy
+# Vibecoding 101
 
-> Turn your content ideas into working AI tools.
+> Học cách làm việc cùng coding agent để biến ý tưởng thành phần mềm có thể chạy
+> và kiểm chứng.
 
-Welcome to **Content Builder Academy**—a hands-on course where you learn Codex
-by building something useful. You do not need to be a developer. Bring a
-content idea, follow the guided workflow, and turn it into a working tool.
+Chào mừng bạn đến với khóa học agentic coding dành cho người chưa có nền tảng
+lập trình. Bạn sẽ học cách hiểu một codebase, giao việc rõ ràng, kiểm soát phạm
+vi, duyệt kế hoạch và kiểm chứng kết quả khi làm việc cùng Codex.
+
+ContentPilot là dự án thực hành xuyên suốt. Bạn sẽ xây ứng dụng này từng phần
+để tạo bằng chứng cho kỹ năng, nhưng mục tiêu khóa học là giúp bạn áp dụng cùng
+quy trình cho những sản phẩm khác.
 
 > [!NOTE]
-> **Early access:** guided startup is available for Windows and macOS. The
-> course is still evolving, and the current macOS Course Companion uses clearly
-> labelled fixture Teacher and practice responses rather than live Codex
-> observation.
+> **Về chế độ luyện tập:** Course Companion hiện dùng kịch bản lưu trên máy cho
+> phản hồi của Teacher và các tình huống thực hành. Ứng dụng sẽ nói rõ khi dữ
+> liệu chưa đến trực tiếp từ Codex.
 
-## What you will learn
+## Bạn sẽ học được gì?
 
-- **Build by doing.** Learn Codex through a real project instead of a long
-  series of lectures.
-- **Turn an idea into a tool.** Start with a content challenge and develop a
-  practical app around it.
-- **Work with an AI Teacher.** Get guidance, feedback, and help when you are
-  stuck.
-- **Stay in control.** Learn how to review plans and approve changes safely.
-- **Reuse the workflow.** Apply the same process to future content projects.
+- **Hiểu trước khi sửa.** Đọc dự án và kiểm tra giả định trước khi yêu cầu thay
+  đổi.
+- **Giao việc có thể kiểm chứng.** Nêu mục tiêu, bối cảnh, phạm vi, ràng buộc và
+  dấu hiệu hoàn thành.
+- **Giữ quyền quyết định.** Xem kế hoạch, nhận diện rủi ro và chỉ cho phép hành
+  động khi đã hiểu tác động.
+- **Đọc bằng chứng.** Kiểm tra file, phần thay đổi, log, test và giao diện thay
+  vì chỉ tin câu “đã xong”.
+- **Sửa sai có kiểm soát.** Chẩn đoán từ bằng chứng và chạy lại đúng phần bị lỗi
+  mà không làm mất công việc đã đạt.
+- **Chuyển giao kỹ năng.** Dùng cùng quy trình cho một dự án khác ngoài
+  ContentPilot.
 
-## Is this course for you?
+## Khóa học này phù hợp với ai?
 
-Content Builder Academy is designed for marketers, creators, and curious
-builders who want to make useful software with AI—even if they have never
-written code before.
+Khóa học được thiết kế cho marketer, creator, product builder và những người
+muốn tự tạo công cụ hữu ích cùng AI, kể cả khi chưa từng viết code.
 
-You will feel at home here if you prefer learning through small, practical
-steps and want to finish with something you can actually use.
+Bạn sẽ phù hợp nếu thích học qua từng bước nhỏ, muốn hiểu mình đang giao gì cho
+coding agent và muốn kết thúc với một ứng dụng thật có thể tự kiểm tra.
 
-## Before you start
+## Trước khi bắt đầu
 
-For the current early-access experience, you need:
+Bạn cần:
 
-- a Windows or macOS computer;
+- máy tính Windows hoặc macOS;
 - [Git](https://git-scm.com/downloads);
-- a ChatGPT account with access to Codex;
-- an internet connection; and
-- on macOS, Node.js 22 or newer.
+- tài khoản ChatGPT có quyền dùng Codex;
+- kết nối internet; và
+- Node.js 22 trở lên nếu dùng macOS.
 
-**No coding experience is required.** The launcher checks the other tools it
-needs and explains anything missing before making changes.
+**Bạn không cần có kinh nghiệm lập trình.** Trình khởi động sẽ kiểm tra công cụ
+cần thiết và giải thích phần còn thiếu trước khi thực hiện thay đổi.
 
-## Start the course on Windows
+## Bắt đầu trên Windows
 
-Open **Command Prompt** or **PowerShell** in the folder where you want to keep
-the course. Run these commands one at a time:
+Mở **Command Prompt** hoặc **PowerShell** trong thư mục bạn muốn lưu khóa học.
+Chạy lần lượt:
 
 ```bat
 git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
@@ -56,10 +63,9 @@ cd codex-content-creator-course
 .\start-course.cmd
 ```
 
-## Start the course on macOS
+## Bắt đầu trên macOS
 
-Open **Terminal** in the folder where you want to keep the course. Run these
-commands one at a time:
+Mở **Terminal** trong thư mục bạn muốn lưu khóa học. Chạy lần lượt:
 
 ```bash
 git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
@@ -67,35 +73,34 @@ cd codex-content-creator-course
 ./start-course.command
 ```
 
-After cloning, you can also double-click `start-course.command` in Finder.
+Sau khi tải repository, bạn cũng có thể nhấp đúp `start-course.command` trong
+Finder.
 
-## What happens next?
+## Sau đó sẽ diễn ra như thế nào?
 
-1. You receive a quick welcome and an explanation of the setup process.
-2. The launcher checks whether the required tools are ready.
-3. If local dependencies are needed, you see what will run before it runs.
-4. **Nothing is installed unless you approve it.**
-5. The course application opens and restores local progress when available.
-6. You continue into the current early-access learning experience.
+1. Bạn nhận lời chào và phần giải thích ngắn về quá trình chuẩn bị.
+2. Trình khởi động kiểm tra các công cụ cần thiết.
+3. Nếu cần cài gói phụ thuộc, bạn sẽ thấy lệnh và mục đích trước khi chạy.
+4. **Không có gì được cài nếu bạn chưa đồng ý.**
+5. Course Companion mở và khôi phục tiến độ đã lưu trên máy nếu có.
+6. Bạn bắt đầu bài học và dự án thực hành tại đúng bước đang học.
 
-You can safely decline an installation. The launcher will stop and explain the
-next manual step.
+Bạn có thể từ chối cài đặt. Trình khởi động sẽ dừng và giải thích bước tiếp theo
+bạn có thể tự thực hiện.
 
-## Your account and progress
+## Tài khoản và tiến độ
 
-- The Windows setup path uses Codex's official ChatGPT login flow and does not
-  read or store your password or authentication tokens.
-- The current macOS Course Companion does not connect to a live Teacher or
-  observe live Codex tasks; its simulated responses are labelled in the app.
-- Non-secret setup and learning progress stay on your computer.
-- The application checks the available local state when you reopen it.
+- Luồng thiết lập Windows dùng trang đăng nhập ChatGPT chính thức của Codex và
+  không đọc hoặc lưu mật khẩu hay token đăng nhập của bạn.
+- Course Companion trên macOS hiện dùng chế độ luyện tập và chưa quan sát trực
+  tiếp task Codex; ứng dụng ghi rõ nguồn của phản hồi.
+- Cấu hình không chứa bí mật và tiến độ học được lưu trên máy của bạn.
+- Khi mở lại, ứng dụng kiểm tra bản lưu và đưa bạn về đúng bước đang học.
 
-## Need help?
+## Khi cần trợ giúp
 
-- For Windows setup and recovery, see the
-  [startup help guide](prototypes/app-startup-electron-mock/README.md).
-- For macOS startup, verification, and current limitations, see the
-  [Course Companion guide](course-companion/README.md).
+- Với Windows, xem [hướng dẫn khởi động và xử lý lỗi](prototypes/app-startup-electron-mock/README.md).
+- Với macOS, xem [hướng dẫn Course Companion](course-companion/README.md).
 
 ## For contributors
 

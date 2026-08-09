@@ -2,7 +2,8 @@
 
 This is the production desktop-app package for the learner-facing Course
 Companion. It is intentionally separate from the historical HTML prototypes and
-from ContentPilot, the application learners build during the course.
+from ContentPilot, the practice application learners use to demonstrate
+agentic-coding skills during the course.
 
 ## Implemented scope
 
@@ -21,11 +22,11 @@ The current app proves:
 - confirmed reset and damaged-state recovery behavior;
 - a floating Teacher chat with checkpoint-aware scripted replies;
 - persistent `teacher-chat.jsonl` history and companion window mode;
-- visible fixture labels that never present scripted replies as live Teacher
-  intelligence;
+- learner-friendly practice-mode labels that never present scripted replies as
+  live Teacher intelligence;
 - an Electron-owned `PracticeAdapter` with started, approval-required, success,
   stale-evidence, offline, and error fixtures;
-- visible fixture evidence plus hidden developer scenario controls; and
+- visible practice evidence plus expandable local scenario controls; and
 - a complete Module 1 evidence-reflection and debrief finish.
 
 Live Teacher inference and live Codex observation belong to later increments.
@@ -35,12 +36,13 @@ data directory. It is not stored in browser `localStorage` or inside the
 repository.
 
 The current Teacher adapter is deliberately deterministic and fixture-backed.
-The expanded panel labels this state as **MÔ PHỎNG** and **CHƯA KẾT NỐI TEACHER
-LIVE**.
+The expanded panel describes this honestly in learner-facing language as
+**PHẢN HỒI LUYỆN TẬP** and explains that it is not connected directly to Codex.
 
 The practice adapter follows the same honesty rule. Every simulated lifecycle
-event has `source: "fixture"`, a correlation ID, and a visible **MÔ PHỎNG**
-label. A fixture success is never presented as evidence from a live Codex task.
+event has `source: "fixture"` and a correlation ID for internal traceability;
+the learner sees a clear **LUYỆN TẬP** label. Practice success is never
+presented as evidence from a live Codex task.
 
 ## Start on macOS
 
@@ -54,8 +56,8 @@ The launcher checks for Node.js 22+ and npm. On the first run, or after the
 lockfile changes, it shows the exact local preparation plan and waits for
 permission before running `npm ci` and verifying the pinned Electron runtime
 inside `course-companion/`. It then builds and opens this Electron application.
-It does not install a global Codex tool or claim that the fixture Teacher is
-live.
+It does not install a global Codex tool or claim that the practice Teacher is
+connected directly to Codex.
 
 ## Run in development
 

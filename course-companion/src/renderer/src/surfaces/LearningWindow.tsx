@@ -125,15 +125,15 @@ const scenes: Record<SceneId, SceneContent> = {
     step: 2,
     totalSteps: 9,
     lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Kiểm tra bằng chứng trước khi thay đổi',
-    objective: 'Thực hiện vòng cộng tác chỉ đọc đầu tiên',
+    mission: 'Đọc dự án trước khi thay đổi',
+    objective: 'Thực hiện vòng agentic coding chỉ đọc đầu tiên',
     panelLabel: 'BA BẰNG CHỨNG',
     panelStatus: 'KHÔNG SỬA TỆP',
     tone: 'neutral',
-    request: 'Một báo cáo chỉ đọc cần xác nhận đúng dự án, đúng phạm vi Pilot và đúng các tệp nguồn đã đọc.',
+    request: 'Một báo cáo chỉ đọc cần xác nhận đúng dự án thực hành, đúng phần học hiện tại và đúng các tệp nguồn đã đọc.',
     evidence: [
       { label: 'DỰ ÁN', value: 'ContentPilot', ready: true },
-      { label: 'PHẠM VI', value: 'Intro + Module 1', ready: true },
+      { label: 'PHẦN HỌC', value: 'Giới thiệu + bài đầu tiên', ready: true },
       { label: 'HÀNH ĐỘNG', value: 'Chỉ đọc', ready: true }
     ],
     dialogue: 'Bạn muốn kiểm tra tín hiệu nào trước? Các lựa chọn đều đúng; điều quan trọng là dự đoán bằng chứng trước khi Codex hành động.',
@@ -175,11 +175,11 @@ const scenes: Record<SceneId, SceneContent> = {
     totalSteps: 9,
     lessonLabel: 'PHẦN GIỚI THIỆU',
     mission: 'Giữ quyền quyết định của con người',
-    objective: 'Hiểu sản phẩm cuối khóa',
+    objective: 'Hiểu vai trò của dự án thực hành',
     panelLabel: 'CONTENTPILOT',
     panelStatus: 'BẠN DUYỆT CUỐI',
     tone: 'good',
-    request: 'ContentPilot tạo ý tưởng và bản nháp; người học vẫn chọn ý tưởng, kiểm tra thông tin và quyết định xuất bản.',
+    request: 'ContentPilot là nơi luyện kỹ năng; bạn vẫn giữ mục tiêu, kiểm tra thông tin và quyết định điều gì được chấp nhận hoặc xuất bản.',
     evidence: [
       { label: 'ĐẦU VÀO', value: 'Dữ liệu thương hiệu' },
       { label: 'ĐẦU RA', value: '5 bộ nội dung' },
@@ -231,7 +231,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'FACEBOOK', value: 'Cộng đồng' },
       { label: 'INSTAGRAM', value: 'Hình ảnh' }
     ],
-    dialogue: 'Nếu Pilot chỉ tối ưu cho một nền tảng trước, bạn chọn nền tảng nào?',
+    dialogue: 'Nếu dự án thực hành chỉ tối ưu cho một nền tảng trước, bạn chọn nền tảng nào?',
     choices: [
       { label: 'LinkedIn', next: 'intro-quest-card', primary: true, decision: { key: 'platform', value: 'linkedin' } },
       { label: 'Facebook', next: 'intro-quest-card', decision: { key: 'platform', value: 'facebook' } },
@@ -247,7 +247,7 @@ const scenes: Record<SceneId, SceneContent> = {
     mission: 'Kết tinh định hướng cá nhân',
     objective: 'Chuẩn bị phiếu định hướng',
     panelLabel: 'PHIẾU ĐỊNH HƯỚNG',
-    panelStatus: 'BẢN MVP ĐÃ LƯU',
+    panelStatus: 'ĐÃ LƯU TRÊN MÁY',
     tone: 'good',
     request: 'Ứng dụng đã ghi thời lượng, quyền kiểm soát, ngữ cảnh thực hành và nền tảng bạn chọn vào tiến trình cục bộ.',
     evidence: [
@@ -265,7 +265,7 @@ const scenes: Record<SceneId, SceneContent> = {
     totalSteps: 9,
     lessonLabel: 'PHẦN GIỚI THIỆU',
     mission: 'Kiểm tra một nguyên tắc cốt lõi',
-    objective: 'Sẵn sàng chuyển sang Module 1',
+    objective: 'Sẵn sàng vào bài học đầu tiên',
     panelLabel: 'CÂU KIỂM TRA',
     panelStatus: 'CHỌN BẰNG CHỨNG',
     tone: 'neutral',
@@ -292,14 +292,14 @@ const scenes: Record<SceneId, SceneContent> = {
     panelLabel: 'CHECKPOINT',
     panelStatus: 'INTRO HOÀN THÀNH',
     tone: 'good',
-    request: 'Bạn đã có đích đến, phạm vi Pilot và quyền quyết định rõ ràng. Tiến trình này sẽ còn nguyên sau khi thoát ứng dụng.',
+    request: 'Bạn đã có đích đến, bối cảnh thực hành và quyền quyết định rõ ràng. Tiến trình này sẽ còn nguyên sau khi thoát ứng dụng.',
     evidence: [
       { label: 'ĐỊNH HƯỚNG', value: 'Đã lưu', ready: true },
       { label: 'QUYỀN DUYỆT', value: 'Đã chọn', ready: true },
       { label: 'BÀI TIẾP THEO', value: 'Module 1', ready: true }
     ],
-    dialogue: 'Module 1 bắt đầu bằng cách nhận ra rủi ro của một yêu cầu mơ hồ trước khi gửi nó cho Codex.',
-    choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-opening', primary: true }]
+    dialogue: 'Bài học đầu tiên bắt đầu bằng cách nhận ra rủi ro của một yêu cầu mơ hồ trước khi gửi nó cho Codex.',
+    choices: [{ label: 'Vào bài học đầu tiên', next: 'module-1-opening', primary: true }]
   },
   'module-1-opening': {
     lessonId: 'module-1',
@@ -448,7 +448,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'PHẠM VI', value: 'CSS onboarding', ready: true },
       { label: 'TRÀN NGANG', value: 'Không phát hiện', ready: true }
     ],
-    dialogue: 'Sự kiện này là mô phỏng, nhưng cách duyệt là thật: kết luận nào dựa trực tiếp trên bằng chứng vừa nhận?',
+    dialogue: 'Đây là dữ liệu luyện tập, nhưng cách duyệt là thật: bằng chứng nào khiến bạn tin kết luận này?',
     choices: [
       { label: 'Chỉ cần trạng thái “hoàn thành”', next: 'module-1-reflection', danger: true },
       {
@@ -487,16 +487,16 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonLabel: 'BÀI HỌC CHÍNH',
     mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
     objective: 'Module 1 đã hoàn thành',
-    panelLabel: 'PILOT 0.1',
-    panelStatus: 'HOÀN THÀNH',
+    panelLabel: 'KỸ NĂNG CỐT LÕI',
+    panelStatus: 'ĐÃ HOÀN THÀNH',
     tone: 'good',
-    request: 'Bạn đã đi hết vòng MVP: viết yêu cầu, quan sát sự kiện và duyệt bằng chứng.',
+    request: 'Bạn đã đi hết vòng: hiểu vấn đề, giới hạn phạm vi, giao việc và duyệt bằng chứng.',
     evidence: [
       { label: 'MỤC TIÊU', value: 'Cụ thể', ready: true },
       { label: 'PHẠM VI', value: 'Giới hạn', ready: true },
       { label: 'BẰNG CHỨNG', value: 'Đã duyệt', ready: true }
     ],
-    dialogue: 'Đây là điểm kết thúc có chủ ý của Pilot 0.1. Module 2 chưa nằm trong MVP hiện tại.',
+    dialogue: 'Nút mobile chỉ là bài thực hành. Kỹ năng bạn vừa học có thể dùng lại cho một thay đổi nhỏ trong bất kỳ dự án nào.',
     choices: [{ label: 'Về Home Base', action: 'home', primary: true }]
   }
 }
@@ -571,12 +571,12 @@ function EntryScreen({
   const isWelcome = mode === 'welcome'
   const isConfirm = mode === 'reset-confirm' || mode === 'reset-required'
   const title = isWelcome
-    ? 'Chào mừng bạn đã đến với Vibecoding 101 by Triết and Duy'
+    ? 'Chào mừng bạn đến với Vibecoding 101'
     : isConfirm
       ? 'Bắt đầu lại từ đầu?'
       : 'Tiếp tục đúng nơi bạn dừng lại'
   const description = isWelcome
-    ? 'Khoá học này sẽ giúp bạn biết cách sử dụng Coding agent để tạo ra những công cụ hữu ích cho công việc. Chúng mình sẽ không chỉ dạy cho bạn lý thuyết, mà sẽ đồng hành cùng bạn để xây dựng một ứng dụng thực tế.'
+    ? 'Bạn sẽ học cách làm việc cùng coding agent để biến một ý tưởng thành công cụ có thể chạy và kiểm chứng. ContentPilot là dự án thực hành đầu tiên; kỹ năng bạn học có thể dùng cho nhiều sản phẩm khác.'
     : mode === 'reset-required'
       ? 'Tiến trình hiện tại và bản khôi phục đều không đọc được. Bạn có thể xóa dữ liệu hỏng để bắt đầu an toàn.'
       : isConfirm
@@ -586,7 +586,7 @@ function EntryScreen({
   return (
     <main className="pixel-learning-shell pixel-entry-shell">
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
-      <div className="pixel-entry-brand">CONTENT BUILDER ACADEMY · PILOT 0.1</div>
+      <div className="pixel-entry-brand">VIBECODING 101 · TRIẾT &amp; DUY</div>
       <img className="pixel-entry-teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
       <section className="pixel-entry-panel" aria-live="polite">
         <small>{recovered ? 'ĐÃ KHÔI PHỤC BẢN LƯU GẦN NHẤT' : isWelcome ? 'HÀNH TRÌNH MỚI' : 'CHECKPOINT ĐÃ LƯU'}</small>
@@ -619,11 +619,11 @@ function EntryScreen({
 }
 
 const futureModules = [
-  'Thiết lập thương hiệu và giọng viết',
-  'Nghiên cứu có bằng chứng',
-  'Tạo và chọn ý tưởng',
-  'Phát triển nội dung',
-  'Kiểm tra và bàn giao'
+  'Giữ bối cảnh và tích hợp AI an toàn',
+  'Dùng công cụ và đánh giá bằng chứng',
+  'Chia nhỏ việc và kiểm soát đầu ra',
+  'Làm việc đa phương thức và giữ quyền duyệt',
+  'Chẩn đoán lỗi và chứng minh kết quả'
 ]
 
 const decisionLabels: Record<string, string> = {
@@ -719,7 +719,7 @@ function PixelAppShell({
       <header className="pixel-app-header">
         <button className="pixel-app-brand" type="button" onClick={() => onNavigate('home')}>
           <span>C</span>
-          <span><strong>CONTENT BUILDER ACADEMY</strong><small>COURSE COMPANION · PILOT 0.1</small></span>
+          <span><strong>VIBECODING 101</strong><small>COURSE COMPANION · TRIẾT &amp; DUY</small></span>
         </button>
         <div className="pixel-app-actions">
           <button
@@ -764,16 +764,16 @@ function PixelAppShell({
               )}
               {progress.currentLessonId === 'module-1' ? (
                 <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                  <span>01</span><div><small>MODULE 1</small><strong>Viết yêu cầu để Codex có thể kiểm chứng</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                  <span>01</span><div><small>MODULE 1</small><strong>Giao việc để coding agent có thể kiểm chứng</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               ) : (
                 <article>
-                  <span>01</span><div><small>MODULE 1</small><strong>Viết yêu cầu để Codex có thể kiểm chứng</strong><p>Mở sau phần giới thiệu</p></div><em>TIẾP THEO</em>
+                  <span>01</span><div><small>MODULE 1</small><strong>Giao việc để coding agent có thể kiểm chứng</strong><p>Mở sau phần giới thiệu</p></div><em>TIẾP THEO</em>
                 </article>
               )}
               {futureModules.map((title, index) => (
                 <article className="is-locked" key={title}>
-                  <span>{String(index + 2).padStart(2, '0')}</span><div><small>MODULE {index + 2}</small><strong>{title}</strong><p>Ngoài phạm vi Pilot 0.1</p></div><em>ĐÃ KHÓA</em>
+                  <span>{String(index + 2).padStart(2, '0')}</span><div><small>MODULE {index + 2}</small><strong>{title}</strong><p>Sẽ mở trong phần học tiếp theo</p></div><em>SẮP TỚI</em>
                 </article>
               ))}
             </div>
@@ -800,7 +800,7 @@ function PixelAppShell({
               <section className="pixel-progress-summary">
                 <div><small>CHECKPOINT</small><strong>{completed.size}/{checkpointIds.length}</strong><span>Đã ghi nhận</span></div>
                 <div><small>BÀI HIỆN TẠI</small><strong>{scene.step}/{scene.totalSteps}</strong><span>{scene.lessonLabel}</span></div>
-                <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Mô phỏng đã lưu' : 'Chưa có sự kiện'}</span></div>
+                <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Bài luyện tập đã lưu' : 'Chưa có kết quả'}</span></div>
               </section>
               <section className="pixel-progress-detail">
                 <div>
@@ -822,7 +822,7 @@ function PixelAppShell({
               </section>
               {practice.latestEvent?.evidence ? (
                 <section className="pixel-evidence-receipt">
-                  <small>BẰNG CHỨNG THỰC HÀNH · MÔ PHỎNG</small>
+                  <small>BẰNG CHỨNG TỪ BÀI LUYỆN TẬP</small>
                   <strong>{practice.latestEvent.summary}</strong>
                   <div><span>Viewport {practice.latestEvent.evidence.viewport}</span><span>{practice.latestEvent.evidence.changedScope}</span><span>{practice.latestEvent.evidence.horizontalOverflow}</span></div>
                 </section>
@@ -844,8 +844,8 @@ function PixelAppShell({
                 ><span>{settings.companionAlwaysOnTop ? 'BẬT' : 'TẮT'}</span></button>
               </section>
               <section>
-                <div><small>KẾT NỐI</small><h2>Teacher và Codex</h2><p>Ứng dụng hiện chỉ dùng phản hồi và sự kiện mô phỏng cục bộ.</p></div>
-                <strong className="pixel-settings-status">MÔ PHỎNG · CHƯA LIVE</strong>
+                <div><small>KẾT NỐI</small><h2>Teacher và Codex</h2><p>Phần luyện tập hiện dùng kịch bản cục bộ và chưa quan sát trực tiếp Codex.</p></div>
+                <strong className="pixel-settings-status">CHẾ ĐỘ LUYỆN TẬP</strong>
               </section>
               <section className="is-danger-zone">
                 <div><small>DỮ LIỆU CỤC BỘ</small><h2>Xóa hành trình và bắt đầu lại</h2><p>Xóa checkpoint, quyết định, chat, thực hành và cài đặt trên máy này.</p></div>
@@ -1131,7 +1131,7 @@ export function LearningWindow() {
           setDestination('home')
         }}>
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
-          <span><strong>CONTENT BUILDER ACADEMY</strong><small>VỀ HOME BASE</small></span>
+          <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
         <div className="pixel-mission-meta" aria-label={`Bước ${scene.step} trên ${scene.totalSteps}`}>
           <span>BÀI HỌC HIỆN TẠI · BƯỚC {scene.step}/{scene.totalSteps}</span>
