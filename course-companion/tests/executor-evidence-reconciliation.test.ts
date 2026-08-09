@@ -55,6 +55,8 @@ class SilentDesktopGateway {
 class ReconciledWorkspace implements WorkspaceEvidenceProvider {
   captureCalls = 0
   reportedPaths: string[] = []
+  confirmReportedChange = true
+  failReconciliation = false
 
   async capture(_workspaceRoot: string, capturedAt: string) {
     this.captureCalls += 1
@@ -62,15 +64,21 @@ class ReconciledWorkspace implements WorkspaceEvidenceProvider {
       schemaVersion: 1 as const,
       capturedAt,
       gitAvailable: true,
+      head: null,
       entries: { 'preexisting.css': 'file:before' }
     }
   }
 
   async reconcile(_workspaceRoot: string, _baseline: unknown, reportedPaths: string[] = []) {
+    if (this.failReconciliation) throw new Error('Git temporarily unavailable')
     this.reportedPaths = reportedPaths
-    return reportedPaths.includes('starters/contentpilot/app/globals.css')
-      ? ['starters/contentpilot/app/globals.css']
-      : []
+    return {
+      committedReportedFilesSinceRunStart: [],
+      changedSinceBaseline: this.confirmReportedChange && reportedPaths.includes('starters/contentpilot/app/globals.css')
+        ? ['starters/contentpilot/app/globals.css']
+        : [],
+      currentlyDirtyReportedFiles: []
+    }
   }
 }
 
@@ -193,5 +201,104 @@ describe('Executor evidence reconciliation', () => {
       workspaceConfirmedChangedFiles: [],
       workspaceBaseline: null
     })
+  })
+
+  it('does not treat negated, reviewed-only, or planned paths as changed', () => {
+    const snapshot = reduceExecutorActivity(
+      initialActivity(binding, () => new Date(timestamp)),
+      {
+        method: 'item/completed',
+        params: {
+          threadId: binding.threadId,
+          turnId: 'turn-negation',
+          item: {
+            id: 'final-negation',
+            type: 'agentMessage',
+            phase: 'final_answer',
+            text: [
+              '**Changed**',
+              '- No files changed; only reviewed `src/reviewed.ts`.',
+              '- Planned update to `src/planned.ts`.',
+              '- `src/not-changed.ts` was not changed.',
+              '- `src/passive-not.ts` has not been updated.',
+              '- `src/future.ts` will be updated next.',
+              '- Updated `src/actual.ts`.',
+              '- `src/path-only.ts`'
+            ].join('\n')
+          }
+        }
+      },
+      binding,
+      () => new Date(timestamp)
+    )
+
+    expect(snapshot.reportedChangedFiles).toEqual(['src/actual.ts', 'src/path-only.ts'])
+  })
+
+  it('keeps an in-progress thread in working state during refresh', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-working-'))
+    directories.push(directory)
+    const gateway = new SilentDesktopGateway()
+    gateway.turns = [{
+      id: 'active-turn',
+      status: 'inProgress',
+      items: [{
+        id: 'premature-final',
+        type: 'agentMessage',
+        phase: 'final_answer',
+        text: '**Changed**\n- Updated src/in-progress.ts.'
+      }]
+    }]
+    const observer = new ExecutorActivityObserver(
+      gateway,
+      new ExecutorActivityRepository(directory),
+      () => new Date(timestamp),
+      new ReconciledWorkspace()
+    )
+
+    const snapshot = await observer.bind(binding)
+    expect(snapshot.status).toBe('working')
+    expect(snapshot.reportedChangedFiles).toEqual(['src/in-progress.ts'])
+    observer.dispose()
+  })
+
+  it('preserves prior confirmation and marks context stale when Git reconciliation fails', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-git-failure-'))
+    directories.push(directory)
+    const gateway = new SilentDesktopGateway()
+    gateway.turns = [silentDesktopTurn]
+    const workspace = new ReconciledWorkspace()
+    const observer = new ExecutorActivityObserver(
+      gateway,
+      new ExecutorActivityRepository(directory),
+      () => new Date(timestamp),
+      workspace
+    )
+
+    expect((await observer.bind(binding)).workspaceConfirmedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
+    workspace.failReconciliation = true
+    const stale = await observer.refresh()
+    expect(stale?.workspaceConfirmedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
+    expect(stale?.status).toBe('stale')
+    observer.dispose()
+  })
+
+  it('clears workspace confirmation after reconciliation no longer finds the change', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-reverted-'))
+    directories.push(directory)
+    const gateway = new SilentDesktopGateway()
+    gateway.turns = [silentDesktopTurn]
+    const workspace = new ReconciledWorkspace()
+    const observer = new ExecutorActivityObserver(
+      gateway,
+      new ExecutorActivityRepository(directory),
+      () => new Date(timestamp),
+      workspace
+    )
+
+    expect((await observer.bind(binding)).workspaceConfirmedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
+    workspace.confirmReportedChange = false
+    expect((await observer.refresh())?.workspaceConfirmedChangedFiles).toEqual([])
+    observer.dispose()
   })
 })

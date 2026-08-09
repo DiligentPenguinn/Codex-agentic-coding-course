@@ -19,6 +19,7 @@ function validBaseline(value: unknown): boolean {
   if (value === null) return true
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.gitAvailable !== 'boolean') return false
   if (typeof value.capturedAt !== 'string' || Number.isNaN(Date.parse(value.capturedAt))) return false
+  if (value.head !== undefined && value.head !== null && (typeof value.head !== 'string' || !/^[0-9a-f]{40,64}$/i.test(value.head))) return false
   if (!isRecord(value.entries) || Object.keys(value.entries).length > 500) return false
   return Object.entries(value.entries).every(([path, signature]) => (
     path.length > 0 && path.length <= 500 && typeof signature === 'string' && signature.length <= 200
@@ -37,20 +38,29 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   const reportedChangedFiles = value.reportedChangedFiles ?? []
   const reportedVerificationEvidence = value.reportedVerificationEvidence ?? []
   const workspaceConfirmedChangedFiles = value.workspaceConfirmedChangedFiles ?? []
-  const workspaceBaseline = value.workspaceBaseline ?? null
+  const workspaceCommittedReportedFilesSinceRunStart = value.workspaceCommittedReportedFilesSinceRunStart ?? []
+  const workspaceCurrentlyDirtyReportedFiles = value.workspaceCurrentlyDirtyReportedFiles ?? []
+  const rawWorkspaceBaseline = value.workspaceBaseline ?? null
+  const workspaceBaseline = isRecord(rawWorkspaceBaseline) && rawWorkspaceBaseline.head === undefined
+    ? { ...rawWorkspaceBaseline, head: null }
+    : rawWorkspaceBaseline
   if (!isStringArray(reportedChangedFiles, 100) || !isStringArray(reportedVerificationEvidence, 100)) return null
-  if (!isStringArray(workspaceConfirmedChangedFiles, 100) || !validBaseline(workspaceBaseline)) return null
+  if (!isStringArray(workspaceConfirmedChangedFiles, 100) || !isStringArray(workspaceCommittedReportedFilesSinceRunStart, 100)) return null
+  if (!isStringArray(workspaceCurrentlyDirtyReportedFiles, 100)) return null
+  if (!validBaseline(workspaceBaseline)) return null
   return {
-    ...(value as Omit<ExecutorActivitySnapshot, 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceBaseline'>),
+    ...(value as Omit<ExecutorActivitySnapshot, 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline'>),
     reportedChangedFiles,
     reportedVerificationEvidence,
     workspaceConfirmedChangedFiles,
+    workspaceCommittedReportedFilesSinceRunStart,
+    workspaceCurrentlyDirtyReportedFiles,
     workspaceBaseline: workspaceBaseline as ExecutorActivitySnapshot['workspaceBaseline']
   }
 }
 
 export function isExecutorActivitySnapshot(value: unknown): value is ExecutorActivitySnapshot {
-  if (!isRecord(value) || value.reportedChangedFiles === undefined || value.workspaceBaseline === undefined) return false
+  if (!isRecord(value) || value.reportedChangedFiles === undefined || value.workspaceCommittedReportedFilesSinceRunStart === undefined || value.workspaceCurrentlyDirtyReportedFiles === undefined || value.workspaceBaseline === undefined) return false
   return normalizeSnapshot(value) !== null
 }
 

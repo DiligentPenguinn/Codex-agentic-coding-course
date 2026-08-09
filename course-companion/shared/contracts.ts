@@ -204,7 +204,14 @@ export type WorkspaceEvidenceBaseline = {
   schemaVersion: 1
   capturedAt: string
   gitAvailable: boolean
+  head: string | null
   entries: Record<string, string>
+}
+
+export type WorkspaceEvidenceReconciliation = {
+  changedSinceBaseline: string[]
+  committedReportedFilesSinceRunStart: string[]
+  currentlyDirtyReportedFiles: string[]
 }
 
 export type ExecutorActivitySnapshot = {
@@ -221,6 +228,8 @@ export type ExecutorActivitySnapshot = {
   reportedChangedFiles: string[]
   reportedVerificationEvidence: string[]
   workspaceConfirmedChangedFiles: string[]
+  workspaceCommittedReportedFilesSinceRunStart: string[]
+  workspaceCurrentlyDirtyReportedFiles: string[]
   observedAt: string
   workspaceBaseline: WorkspaceEvidenceBaseline | null
 }

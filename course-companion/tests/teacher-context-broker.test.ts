@@ -55,6 +55,8 @@ const activity: ExecutorActivitySnapshot = {
   reportedChangedFiles: [],
   reportedVerificationEvidence: [],
   workspaceConfirmedChangedFiles: [],
+  workspaceCommittedReportedFilesSinceRunStart: [],
+  workspaceCurrentlyDirtyReportedFiles: [],
   observedAt: timestamp,
   workspaceBaseline: null
 }

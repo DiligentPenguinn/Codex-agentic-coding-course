@@ -45,6 +45,22 @@ function textContent(item: Record<string, unknown>): string {
   return bounded(content.map((entry) => record(entry)).filter(Boolean).filter((entry) => entry?.type === 'text').map((entry) => entry?.text).join(' '))
 }
 
+function deniesChangedFileClaim(line: string): boolean {
+  const normalized = line.toLowerCase().replace(/[’]/g, "'")
+  return (
+    /\bno files? (?:were )?(?:changed|updated|modified)\b/.test(normalized)
+    || /\b(?:did|does|was|were|is|are|have|has) not (?:been )?(?:change|changed|modify|modified|update|updated)\b/.test(normalized)
+    || /\bnot (?:been )?(?:changed|updated|modified)\b/.test(normalized)
+    || /\b(?:didn't|doesn't|wasn't|weren't|isn't|aren't|haven't|hasn't)\b.*\b(?:change|changed|modify|modified|update|updated)\b/.test(normalized)
+    || /\bwithout changing\b/.test(normalized)
+    || /\bunchanged\b/.test(normalized)
+    || /\b(?:only|just|merely) (?:reviewed|inspected|read|opened)\b/.test(normalized)
+    || /\b(?:reviewed|inspected|read|opened)\b.*\bonly\b/.test(normalized)
+    || /^[-*]?\s*(?:planned|proposed|intended|future|next)\b/.test(normalized)
+    || /\b(?:plan(?:ned)?|propose(?:d)?|intend(?:ed)?|will|would)\b.*\b(?:change|changed|modify|modified|update|updated|create|created|add|added|delete|deleted|remove|removed|rename|renamed|move|moved)\b/.test(normalized)
+  )
+}
+
 function reportFacts(text: string, workspaceRoot: string): { changedFiles: string[]; evidence: string[] } {
   const changedFiles: string[] = []
   const evidence: string[] = []
@@ -63,8 +79,9 @@ function reportFacts(text: string, workspaceRoot: string): { changedFiles: strin
     }
     if (/^#{1,6}\s/.test(line) || /^\*\*[^*]+\*\*$/.test(line)) section = null
 
-    const changedLine = section === 'changed' || /\b(?:changed|updated|modified)\s+files?\b/i.test(line)
-    if (changedLine) {
+    const pathOnlyChangedLine = section === 'changed' && /^[-*]\s*(?:`[^`\r\n]{1,500}`|[A-Za-z]:[\\/][^\s"'<>|]{1,500}|(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+\.[A-Za-z0-9]{1,16})(?:[.,;:]?)$/.test(line)
+    const changedLine = pathOnlyChangedLine || /\b(?:changed|updated|modified|created|added|deleted|removed|renamed|moved)\b/i.test(line)
+    if (changedLine && !deniesChangedFileClaim(line)) {
       const candidates = [
         ...line.matchAll(/`([^`\r\n]{1,500})`/g),
         ...line.matchAll(/([A-Za-z]:[\\/][^\s`"'<>|]{1,500}|(?:[A-Za-z0-9_.-]+[\\/])+[A-Za-z0-9_.-]+\.[A-Za-z0-9]{1,16}(?::\d+(?::\d+)?)?)/g)
@@ -111,6 +128,8 @@ export function initialActivity(
     reportedChangedFiles: [],
     reportedVerificationEvidence: [],
     workspaceConfirmedChangedFiles: [],
+    workspaceCommittedReportedFilesSinceRunStart: [],
+    workspaceCurrentlyDirtyReportedFiles: [],
     observedAt: now().toISOString(),
     workspaceBaseline
   }
@@ -188,6 +207,8 @@ function mergeActivity(
     reportedChangedFiles: mergeUnique(previous.reportedChangedFiles, projected.reportedChangedFiles, 100),
     reportedVerificationEvidence: mergeUnique(previous.reportedVerificationEvidence, projected.reportedVerificationEvidence, 100),
     workspaceConfirmedChangedFiles: mergeUnique(previous.workspaceConfirmedChangedFiles, projected.workspaceConfirmedChangedFiles, 100),
+    workspaceCommittedReportedFilesSinceRunStart: mergeUnique(previous.workspaceCommittedReportedFilesSinceRunStart, projected.workspaceCommittedReportedFilesSinceRunStart, 100),
+    workspaceCurrentlyDirtyReportedFiles: mergeUnique(previous.workspaceCurrentlyDirtyReportedFiles, projected.workspaceCurrentlyDirtyReportedFiles, 100),
     workspaceBaseline: previous.workspaceBaseline ?? projected.workspaceBaseline
   }
 }
@@ -253,17 +274,35 @@ export class ExecutorActivityObserver {
         for (const item of Array.isArray(turn.items) ? turn.items : []) {
           rebuilt = reduceExecutorActivity(rebuilt, { method: 'item/completed', params: { threadId: binding.threadId, turnId: turn.id, item } }, binding, this.now)
         }
-        rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/completed', params: { threadId: binding.threadId, turn } }, binding, this.now)
+        if (turn.status === 'completed' || turn.status === 'failed' || turn.status === 'interrupted') {
+          rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/completed', params: { threadId: binding.threadId, turn } }, binding, this.now)
+        } else if (turn.status === 'inProgress') {
+          rebuilt = { ...rebuilt, status: 'working', observedAt: this.now().toISOString() }
+        }
       }
       const merged = mergeActivity(previous, rebuilt)
-      const confirmed = await this.workspaceEvidence.reconcile(
-        binding.workspaceRoot,
-        merged.workspaceBaseline,
-        merged.reportedChangedFiles
-      )
-      const reconciled = {
-        ...merged,
-        workspaceConfirmedChangedFiles: mergeUnique(merged.workspaceConfirmedChangedFiles, confirmed, 100)
+      let reconciled: ExecutorActivitySnapshot
+      try {
+        const reconciliation = await this.workspaceEvidence.reconcile(
+          binding.workspaceRoot,
+          merged.workspaceBaseline,
+          merged.reportedChangedFiles,
+          binding.createdAt
+        )
+        reconciled = {
+          ...merged,
+          workspaceConfirmedChangedFiles: [...new Set(reconciliation.changedSinceBaseline)].slice(-100),
+          workspaceCommittedReportedFilesSinceRunStart: [...new Set(reconciliation.committedReportedFilesSinceRunStart)].slice(-100),
+          workspaceCurrentlyDirtyReportedFiles: [...new Set(reconciliation.currentlyDirtyReportedFiles)].slice(-100)
+        }
+      } catch {
+        reconciled = {
+          ...merged,
+          status: 'stale',
+          workspaceConfirmedChangedFiles: previous.workspaceConfirmedChangedFiles,
+          workspaceCommittedReportedFilesSinceRunStart: previous.workspaceCommittedReportedFilesSinceRunStart,
+          workspaceCurrentlyDirtyReportedFiles: previous.workspaceCurrentlyDirtyReportedFiles
+        }
       }
       if (!this.disposed && generation === this.generation) this.snapshot = await this.repository.save(reconciled)
     } catch {

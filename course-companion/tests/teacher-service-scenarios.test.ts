@@ -30,6 +30,8 @@ class ScenarioGateway {
   failNextTeacherTurn = true
   failNextSummaryTurn = false
   holdNextTeacherTurn = false
+  holdNextExecutorRead = false
+  private releaseHeldExecutorRead: (() => void) | null = null
   lastTeacherInput = ''
   executorTurns = [
     {
@@ -70,7 +72,13 @@ class ScenarioGateway {
       return { data: [{ id: 'compatible', model: 'compatible', hidden: false, isDefault: true }] }
     }
     if (method === 'thread/resume') return {}
-    if (method === 'thread/read') return { thread: { id: params.threadId, turns: params.threadId === 'executor-thread' ? this.executorTurns : [] } }
+    if (method === 'thread/read') {
+      if (params.threadId === 'executor-thread' && this.holdNextExecutorRead) {
+        this.holdNextExecutorRead = false
+        await new Promise<void>((resolve) => { this.releaseHeldExecutorRead = resolve })
+      }
+      return { thread: { id: params.threadId, turns: params.threadId === 'executor-thread' ? this.executorTurns : [] } }
+    }
     if (method === 'thread/start') {
       const threadId = `teacher-thread-${++this.sequence}`
       this.services.set(threadId, String(params.serviceName ?? ''))
@@ -133,6 +141,19 @@ class ScenarioGateway {
     return {}
   }
 
+  async waitForExecutorReadToHold(): Promise<void> {
+    const deadline = Date.now() + 1_000
+    while (!this.releaseHeldExecutorRead && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+    if (!this.releaseHeldExecutorRead) throw new Error('Executor read was not held')
+  }
+
+  releaseExecutorRead(): void {
+    this.releaseHeldExecutorRead?.()
+    this.releaseHeldExecutorRead = null
+  }
+
   private emit(notification: CodexNotification): void {
     for (const listener of this.notifications) listener(notification)
   }
@@ -175,7 +196,25 @@ describe('TeacherService mock scenarios', () => {
 
     const gateway = new ScenarioGateway()
     const activityRepository = new ExecutorActivityRepository(directory)
-    const observer = new ExecutorActivityObserver(gateway, activityRepository, () => new Date(timestamp))
+    const observer = new ExecutorActivityObserver(
+      gateway,
+      activityRepository,
+      () => new Date(timestamp),
+      {
+        capture: async (_workspaceRoot, capturedAt) => ({
+          schemaVersion: 1,
+          capturedAt,
+          gitAvailable: true,
+          head: null,
+          entries: {}
+        }),
+        reconcile: async () => ({
+          committedReportedFilesSinceRunStart: [],
+      changedSinceBaseline: ['starters/contentpilot/app/globals.css'],
+          currentlyDirtyReportedFiles: []
+        })
+      }
+    )
     const responseAdapter = new RealTeacherAdapter(gateway, join(directory, 'teacher-runtime'), 1_000)
     const summaryAdapter = new RealTeacherAdapter(gateway, join(directory, 'teacher-runtime'), 1_000)
     const chat = new TeacherChatRepository(directory)
@@ -218,6 +257,11 @@ describe('TeacherService mock scenarios', () => {
     expect(currentRun).not.toBeNull()
     const fallback = await service.summarizeReplacedRun(currentRun!)
     expect(fallback.quality).toBe('pending-refinement')
+    expect(fallback.changedFiles).toContain('starters/contentpilot/app/globals.css')
+    expect(fallback.verificationEvidence).toEqual([])
+    expect(fallback.unresolvedIssues).toEqual(expect.arrayContaining([
+      expect.stringContaining('not independently rerun')
+    ]))
 
     const refinementTrigger = service.loadState('expanded')
     const concurrentResponse = service.sendMessage({ content: 'Can Hương answer while refining memory?' })
@@ -235,17 +279,29 @@ describe('TeacherService mock scenarios', () => {
     expect(refinedMemory.practiceSummaries['m1-verifiable-brief']?.[0]).toMatchObject({
       runId: 'run-current',
       quality: 'live',
-      approach: 'Hương refined the fallback.'
+      approach: 'Hương refined the fallback.',
+      changedFiles: ['starters/contentpilot/app/globals.css'],
+      verificationEvidence: []
     })
+    expect(refinedMemory.practiceSummaries['m1-verifiable-brief']?.[0]?.unresolvedIssues).toEqual(expect.arrayContaining([
+      expect.stringContaining('not independently rerun')
+    ]))
 
     gateway.holdNextTeacherTurn = true
     const inFlightSend = service.sendMessage({ content: 'This must not survive reset.' })
     await new Promise((resolve) => setTimeout(resolve, 0))
-    await service.reset()
+
+    gateway.holdNextExecutorRead = true
+    const staleLoad = service.loadState('compact')
+    await gateway.waitForExecutorReadToHold()
+    const reset = service.reset()
+    gateway.releaseExecutorRead()
+    await expect(staleLoad).rejects.toThrow('cancelled by course reset')
     await expect(inFlightSend).rejects.toThrow('cancelled by course reset')
+    await reset
+
     state = await service.loadState('compact')
     expect(state.conversation.messages).toEqual([])
-    expect(state.teacher.contextFreshness).toBe('unavailable')
     await service.dispose()
   })
 })

@@ -96,6 +96,8 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
         reportedChangedFiles: compactStrings(input.activity.reportedChangedFiles, 12, 200),
         reportedVerificationEvidence: compactStrings(input.activity.reportedVerificationEvidence, 6, 400),
         workspaceConfirmedChangedFiles: compactStrings(input.activity.workspaceConfirmedChangedFiles, 12, 200),
+        workspaceCommittedReportedFilesSinceRunStart: compactStrings(input.activity.workspaceCommittedReportedFilesSinceRunStart, 12, 200),
+        workspaceCurrentlyDirtyReportedFiles: compactStrings(input.activity.workspaceCurrentlyDirtyReportedFiles, 12, 200),
         workspaceBaseline: null
       }
     : null
@@ -170,7 +172,7 @@ export function buildTeacherTurnInput(
     JSON.stringify(context.recentChat.map(({ role, content, timestamp, source }) => ({ role, content, timestamp, source }))),
     'CURRENT_LEARNER_MESSAGE',
     learnerMessage,
-    'Answer only from this context. Disclose stale or disconnected Executor context. Distinguish observed structured evidence, Executor-reported results, and workspace-confirmed changed files. Executor-reported verification was not independently rerun by Course Companion. Do not claim to have used tools.'
+    'Answer only from this context. Disclose stale or disconnected Executor context. Distinguish observed structured evidence, Executor-reported results, files proven changed since the Practice baseline, reported files committed after the Practice began, and legacy files that are merely currently dirty and match the report. Legacy current dirt does not prove this Practice caused the change. Executor-reported verification was not independently rerun by Course Companion. Do not claim to have used tools.'
   ].join('\n')
 }
 

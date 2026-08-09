@@ -72,20 +72,24 @@ export class TeacherService {
   }
 
   async loadState(mode: CompanionMode): Promise<CompanionState> {
+    const generation = this.generation
     const [loadedConversation, memory, activityState] = await Promise.all([
       this.chatRepository.loadConversation(),
       this.memoryRepository.load(),
       this.refreshActiveActivity()
     ])
+    if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
     const activity = activityState.activity
     let conversation = loadedConversation
     const abandoned = conversation.messages.filter((message) => (
       message.deliveryStatus === 'pending' && !this.activeMessageIds.has(message.id)
     ))
     if (abandoned.length > 0) {
+      if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
       await this.chatRepository.append(abandoned.map((message) => ({ ...message, deliveryStatus: 'failed' as const })))
       conversation = await this.chatRepository.loadConversation()
     }
+    if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
     if (this.memoryRepository.hasPending(memory)) {
       this.runtime.memory = 'pending'
       if (this.runtime.connection === 'ready' || this.runtime.connection === 'live') void this.refinePendingSummaries()
@@ -110,7 +114,7 @@ export class TeacherService {
       : await this.activityObserver.bind(workspace.activeRun.binding)
     this.boundRunId = workspace.activeRun.runId
     if (activity) {
-      const hasConfirmedChange = activity.changedFiles.length > 0 || activity.workspaceConfirmedChangedFiles.length > 0
+      const hasConfirmedChange = activity.changedFiles.length > 0 || activity.workspaceConfirmedChangedFiles.length > 0 || activity.workspaceCommittedReportedFilesSinceRunStart.length > 0
       const hasExecutorActivity = activity.learnerPrompts.length > 0 || activity.executorResponses.length > 0
       const target = hasConfirmedChange ? 'review-evidence' as const : hasExecutorActivity ? 'build-and-verify' as const : null
       if (target) {
@@ -270,13 +274,13 @@ export class TeacherService {
         approach: proposal.approach,
         learnerDecisions: proposal.learnerDecisions,
         approvals: proposal.approvals,
-        changedFiles: proposal.changedFiles,
-        verificationEvidence: proposal.verificationEvidence,
+        changedFiles: groundedChangedFiles(activity),
+        verificationEvidence: groundedVerificationEvidence(activity),
         learningSignals: [
           ...proposal.strengths.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: run.runId })),
           ...proposal.mistakes.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: run.runId }))
         ],
-        unresolvedIssues: proposal.unresolvedIssues,
+        unresolvedIssues: groundedUnresolvedIssues(proposal.unresolvedIssues, activity),
         nextAttemptGuidance: proposal.nextAttemptGuidance,
         summarizedAt: this.now().toISOString(),
         model: 'codex-default',
@@ -292,13 +296,12 @@ export class TeacherService {
         approach: activity?.learnerPrompts.at(-1) ?? 'Chưa ghi nhận được cách tiếp cận.',
         learnerDecisions: [],
         approvals: activity?.approvalEvents ?? [],
-        changedFiles: [...new Set([...(activity?.changedFiles ?? []), ...(activity?.workspaceConfirmedChangedFiles ?? [])])],
-        verificationEvidence: activity?.verificationEvidence ?? [],
+        changedFiles: groundedChangedFiles(activity),
+        verificationEvidence: groundedVerificationEvidence(activity),
         learningSignals: [],
-        unresolvedIssues: [
-          'Cần Hương hoàn thiện bản tóm tắt khi kết nối được khôi phục.',
-          ...(activity?.reportedVerificationEvidence ?? []).slice(-4).map((item) => 'Executor báo cáo, chưa được chạy lại độc lập: ' + item)
-        ],
+        unresolvedIssues: groundedUnresolvedIssues([
+          'Cần Hương hoàn thiện bản tóm tắt khi kết nối được khôi phục.'
+        ], activity),
         nextAttemptGuidance: [],
         summarizedAt: this.now().toISOString(),
         model: 'fallback',
@@ -342,13 +345,13 @@ export class TeacherService {
             approach: proposal.approach,
             learnerDecisions: proposal.learnerDecisions,
             approvals: proposal.approvals,
-            changedFiles: proposal.changedFiles,
-            verificationEvidence: proposal.verificationEvidence,
+            changedFiles: groundedChangedFiles(activity),
+            verificationEvidence: groundedVerificationEvidence(activity),
             learningSignals: [
               ...proposal.strengths.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: summary.runId })),
               ...proposal.mistakes.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: summary.runId }))
             ],
-            unresolvedIssues: proposal.unresolvedIssues,
+            unresolvedIssues: groundedUnresolvedIssues(proposal.unresolvedIssues, activity),
             nextAttemptGuidance: proposal.nextAttemptGuidance,
             summarizedAt: this.now().toISOString(),
             model: 'codex-default',
@@ -399,12 +402,43 @@ export class TeacherService {
   }
 }
 
+function groundedChangedFiles(
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set([
+    ...(activity?.changedFiles ?? []),
+    ...(activity?.workspaceConfirmedChangedFiles ?? []),
+    ...(activity?.workspaceCommittedReportedFilesSinceRunStart ?? [])
+  ])]
+}
+
+function groundedVerificationEvidence(
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set(activity?.verificationEvidence ?? [])]
+}
+
+function groundedUnresolvedIssues(
+  proposed: string[],
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set([
+    ...proposed,
+    ...(activity?.reportedVerificationEvidence ?? []).map((item) => (
+      'Executor-reported verification, not independently rerun: ' + item
+    )),
+    ...(activity?.workspaceCurrentlyDirtyReportedFiles ?? []).map((item) => (
+      'Currently dirty and report-matching, but not attributable without a Practice baseline: ' + item
+    ))
+  ])]
+}
+
 function validateProposal(
   proposal: RunSummaryProposal,
   activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
 ): void {
   const subset = (values: string[], allowed: string[]) => values.every((value) => allowed.includes(value))
-  const allowedFiles = [...new Set([...(activity?.changedFiles ?? []), ...(activity?.workspaceConfirmedChangedFiles ?? [])])]
+  const allowedFiles = [...new Set([...(activity?.changedFiles ?? []), ...(activity?.workspaceConfirmedChangedFiles ?? []), ...(activity?.workspaceCommittedReportedFilesSinceRunStart ?? [])])]
   if (!subset(proposal.changedFiles, allowedFiles)) throw new Error('Teacher summary introduced an unknown file')
   if (!subset(proposal.approvals, activity?.approvalEvents ?? [])) throw new Error('Teacher summary introduced an unknown approval')
   if (!subset(proposal.verificationEvidence, activity?.verificationEvidence ?? [])) throw new Error('Teacher summary introduced unknown evidence')

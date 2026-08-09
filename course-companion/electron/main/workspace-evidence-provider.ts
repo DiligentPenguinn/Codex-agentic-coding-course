@@ -86,7 +86,7 @@ function parseNullPaths(output: Buffer, workspaceRoot: string): string[] {
   return [...new Set(
     output.toString('utf8')
       .split('\0')
-      .map((path) => containedRelativePath(path, workspaceRoot))
+      .map((path) => containedRelativePath(path.trim(), workspaceRoot))
       .filter((path): path is string => Boolean(path))
   )].slice(0, MAX_DIRTY_PATHS)
 }
@@ -122,6 +122,25 @@ async function changedFromHead(workspaceRoot: string, head: string): Promise<str
   )
 }
 
+async function committedPathsSince(
+  workspaceRoot: string,
+  runStartedAt: string | undefined,
+  reportedPaths: string[]
+): Promise<string[]> {
+  if (!runStartedAt || Number.isNaN(Date.parse(runStartedAt)) || reportedPaths.length === 0) return []
+  const output = await gitOutput(workspaceRoot, [
+    'log',
+    '--since=' + runStartedAt,
+    '--name-only',
+    '-z',
+    '--format=',
+    '--',
+    ...reportedPaths.slice(0, 100)
+  ])
+  const reported = new Set(reportedPaths)
+  return parseNullPaths(output, workspaceRoot).filter((path) => reported.has(path)).slice(0, 100)
+}
+
 async function snapshotEntries(workspaceRoot: string): Promise<Record<string, string>> {
   const paths = await gitStatus(workspaceRoot)
   const signatures = await Promise.all(paths.map(async (path) => [path, await contentSignature(workspaceRoot, path)] as const))
@@ -133,7 +152,8 @@ export type WorkspaceEvidenceProvider = {
   reconcile: (
     workspaceRoot: string,
     baseline: WorkspaceEvidenceBaseline | null,
-    reportedPaths?: string[]
+    reportedPaths?: string[],
+    runStartedAt?: string
   ) => Promise<WorkspaceEvidenceReconciliation>
 }
 
@@ -159,26 +179,23 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
   async reconcile(
     workspaceRoot: string,
     baseline: WorkspaceEvidenceBaseline | null,
-    reportedPaths: string[] = []
+    reportedPaths: string[] = [],
+    runStartedAt?: string
   ): Promise<WorkspaceEvidenceReconciliation> {
-    const empty = { changedSinceBaseline: [], currentlyDirtyReportedFiles: [] }
-    if (baseline && !baseline.gitAvailable) return empty
+    if (baseline && !baseline.gitAvailable) throw new Error('Workspace Git evidence is unavailable')
 
-    let current: Record<string, string>
-    try {
-      current = await snapshotEntries(workspaceRoot)
-    } catch {
-      return empty
-    }
+    const current = await snapshotEntries(workspaceRoot)
 
     const reported = new Set(
       reportedPaths
-        .map((path) => containedRelativePath(path, workspaceRoot))
+        .map((path) => containedRelativePath(path.trim(), workspaceRoot))
         .filter((path): path is string => Boolean(path))
     )
     if (!baseline) {
+      const normalizedReported = [...reported]
       return {
         changedSinceBaseline: [],
+        committedReportedFilesSinceRunStart: await committedPathsSince(workspaceRoot, runStartedAt, normalizedReported),
         currentlyDirtyReportedFiles: Object.keys(current)
           .filter((path) => reported.has(path))
           .slice(0, 100)
@@ -187,11 +204,7 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
 
     const candidatePaths = new Set(Object.keys(current))
     if (baseline.head) {
-      try {
-        for (const path of await changedFromHead(workspaceRoot, baseline.head)) candidatePaths.add(path)
-      } catch {
-        // Current dirty state remains useful when the baseline commit is no longer available.
-      }
+      for (const path of await changedFromHead(workspaceRoot, baseline.head)) candidatePaths.add(path)
     }
 
     const changedSinceBaseline: string[] = []
@@ -206,6 +219,6 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
         changedSinceBaseline.push(path)
       }
     }
-    return { changedSinceBaseline, currentlyDirtyReportedFiles: [] }
+    return { changedSinceBaseline, committedReportedFilesSinceRunStart: [], currentlyDirtyReportedFiles: [] }
   }
 }

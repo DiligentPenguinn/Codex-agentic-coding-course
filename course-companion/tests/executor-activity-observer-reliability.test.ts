@@ -55,7 +55,17 @@ describe('ExecutorActivityObserver reliability', () => {
     const observer = new ExecutorActivityObserver(
       gateway,
       new ExecutorActivityRepository(directory),
-      () => new Date('2026-08-09T00:00:00.000Z')
+      () => new Date('2026-08-09T00:00:00.000Z'),
+      {
+        capture: async (_workspaceRoot, capturedAt) => ({
+          schemaVersion: 1, capturedAt, gitAvailable: true, head: null, entries: {}
+        }),
+        reconcile: async () => ({
+          changedSinceBaseline: [],
+          committedReportedFilesSinceRunStart: [],
+          currentlyDirtyReportedFiles: []
+        })
+      }
     )
     const binding: ExecutorChatBinding = {
       runId: 'run-current',
