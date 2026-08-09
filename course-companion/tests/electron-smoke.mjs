@@ -177,6 +177,7 @@ try {
   await firstWindows.learningPage
     .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   const desktopContinueButton = await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
@@ -195,14 +196,16 @@ try {
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu khóa học' })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu khóa học' })
     .click()
   await firstWindows.learningPage
-    .getByText('Bạn sẽ học như thế nào?', { exact: true })
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
@@ -239,7 +242,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText('Bạn sẽ học như thế nào?', { exact: true })
+    .getByText(/Bạn sẽ học như thế nào\?/)
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -287,11 +290,15 @@ try {
     .getByRole('button', { name: 'Bắt đầu khóa học' })
     .click()
   await learningPage
-    .getByText('Bạn sẽ học như thế nào?', { exact: true })
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .waitFor()
   await learningPage
     .getByRole('button', { name: 'Bắt đầu', exact: true })
     .click()
+  await learningPage
+    .getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' })
+    .waitFor()
+  assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 1)
 
   await learningPage.getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' }).click()

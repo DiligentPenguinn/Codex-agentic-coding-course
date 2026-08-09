@@ -47,6 +47,7 @@ type SceneContent = {
   evidence: EvidenceItem[]
   dialogue: string
   choices: Choice[]
+  showTitle?: boolean
   showPanel?: boolean
 }
 
@@ -70,6 +71,7 @@ const scenes: Record<SceneId, SceneContent> = {
     ],
     dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
     choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }],
+    showTitle: false,
     showPanel: false
   },
   'intro-course-overview-2': {
@@ -91,6 +93,7 @@ const scenes: Record<SceneId, SceneContent> = {
     ],
     dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
     choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }],
+    showTitle: false,
     showPanel: false
   },
   'intro-learning-method': {
@@ -112,6 +115,7 @@ const scenes: Record<SceneId, SceneContent> = {
     ],
     dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
     choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', primary: true }],
+    showTitle: false,
     showPanel: false
   },
   'intro-first-safe-win': {
@@ -1137,7 +1141,9 @@ export function LearningWindow() {
         </div>
       </header>
 
-      <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
+      {scene.showTitle === false ? null : (
+        <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
+      )}
       <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />
 
       {scene.showPanel === false ? null : (
