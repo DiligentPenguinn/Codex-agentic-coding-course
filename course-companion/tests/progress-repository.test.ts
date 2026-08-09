@@ -27,6 +27,14 @@ const introStart: ProgressUpdate = {
   decisions: {}
 }
 
+const moduleOneStart: ProgressUpdate = {
+  currentLessonId: 'module-1',
+  checkpointId: 'm1-why-planning',
+  sceneId: 'module-1-why-planning',
+  completedCheckpointIds: ['intro-visual-onboarding'],
+  decisions: { planningApproach: 'plan-first' }
+}
+
 describe('ProgressRepository', () => {
   it('reports a new journey when no local state exists', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
@@ -44,13 +52,7 @@ describe('ProgressRepository', () => {
     const repository = new ProgressRepository(directory, () => timestamps.shift() ?? new Date())
 
     const started = await repository.save(introStart)
-    const resumed = await repository.save({
-      currentLessonId: 'intro',
-      checkpointId: 'intro-first-safe-win',
-      sceneId: 'intro-first-safe-win',
-      completedCheckpointIds: ['intro-visual-onboarding'],
-      decisions: { firstEvidence: 'project-and-scope' }
-    })
+    const resumed = await repository.save(moduleOneStart)
 
     expect(resumed.startedAt).toBe(started.startedAt)
     await expect(repository.load()).resolves.toEqual({ status: 'returning', progress: resumed })
@@ -58,7 +60,7 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
-  it('resumes an exact page inside the multi-page course introduction', async () => {
+  it('resumes an exact page inside the opening introduction', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     await repository.save(introStart)
 
@@ -76,12 +78,17 @@ describe('ProgressRepository', () => {
     })
   })
 
-  it('migrates a schema-v1 save to schema v2 without losing journey progress', async () => {
+  it('migrates schema-v2 Module 0 progress to the new Module 1 opening', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {
-      ...introStart,
-      schemaVersion: 1,
+      schemaVersion: 2,
       courseVersion: '0.1.0',
+      currentLessonId: 'intro',
+      checkpointId: 'intro-time-budget',
+      sceneId: 'intro-time-budget',
+      completedCheckpointIds: ['intro-visual-onboarding', 'intro-first-safe-win'],
+      decisions: { timeBudget: '30' },
+      practice: { missionId: 'm1-verifiable-brief', status: 'idle' },
       startedAt: '2026-08-06T10:00:00.000Z',
       updatedAt: '2026-08-06T10:05:00.000Z'
     }
@@ -97,40 +104,50 @@ describe('ProgressRepository', () => {
     expect(result).toMatchObject({
       status: 'returning',
       progress: {
-        schemaVersion: 2,
-        sceneId: 'intro-visual-onboarding',
-        practice: { missionId: 'm1-verifiable-brief', status: 'idle' }
+        schemaVersion: 3,
+        currentLessonId: 'module-1',
+        checkpointId: 'm1-why-planning',
+        sceneId: 'module-1-why-planning',
+        completedCheckpointIds: ['intro-visual-onboarding'],
+        practice: { missionId: 'm1-planning-package', status: 'idle' }
       }
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
-    expect(migrated.schemaVersion).toBe(2)
+    expect(migrated.schemaVersion).toBe(3)
     expect(migrated.startedAt).toBe(oldProgress.startedAt)
   })
 
   it('serializes overlapping saves so atomic temporary files cannot collide', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
-    await repository.save(introStart)
+    await repository.save(moduleOneStart)
 
     await Promise.all([
       repository.save({
-        currentLessonId: 'intro',
-        checkpointId: 'intro-first-safe-win',
-        sceneId: 'intro-first-safe-win',
-        completedCheckpointIds: ['intro-visual-onboarding'],
-        decisions: {}
+        currentLessonId: 'module-1',
+        checkpointId: 'm1-contentpilot-brief',
+        sceneId: 'module-1-contentpilot-brief',
+        completedCheckpointIds: ['intro-visual-onboarding', 'm1-why-planning'],
+        decisions: { planningApproach: 'plan-first' }
       }),
       repository.save({
-        currentLessonId: 'intro',
-        checkpointId: 'intro-time-budget',
-        sceneId: 'intro-time-budget',
-        completedCheckpointIds: ['intro-visual-onboarding', 'intro-first-safe-win'],
-        decisions: { timeBudget: '30' }
+        currentLessonId: 'module-1',
+        checkpointId: 'm1-prd-concept',
+        sceneId: 'module-1-prd-concept',
+        completedCheckpointIds: [
+          'intro-visual-onboarding',
+          'm1-why-planning',
+          'm1-contentpilot-brief'
+        ],
+        decisions: {
+          planningApproach: 'plan-first',
+          clarificationFocus: 'product-requirements'
+        }
       })
     ])
 
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
-      progress: { sceneId: 'intro-time-budget' }
+      progress: { sceneId: 'module-1-prd-concept' }
     })
   })
 
@@ -140,9 +157,9 @@ describe('ProgressRepository', () => {
     const first = await repository.save(introStart)
     await repository.save({
       currentLessonId: 'intro',
-      checkpointId: 'intro-first-safe-win',
-      sceneId: 'intro-first-safe-win',
-      completedCheckpointIds: ['intro-visual-onboarding'],
+      checkpointId: 'intro-visual-onboarding',
+      sceneId: 'intro-course-overview-2',
+      completedCheckpointIds: [],
       decisions: {}
     })
     await writeFile(join(directory, 'learner-state.json'), '{damaged', 'utf8')

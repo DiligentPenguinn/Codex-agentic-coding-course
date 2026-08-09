@@ -82,20 +82,29 @@ export function isTeacherSendRequest(value: unknown): value is TeacherSendReques
 
 function replyFor(context?: TeacherContext): string {
   if (!context) {
-    return 'Hãy bắt đầu phần giới thiệu trước. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
+    return 'Hãy mở Module 1 trước. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
   }
 
-  if (context.checkpointId === 'm1-plan-approval') {
-    return 'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.'
+  if (context.checkpointId === 'm1-prd-interview') {
+    return 'Prompt phỏng vấn nên có mục tiêu, bối cảnh, cách hỏi một câu mỗi lượt, output PRD một trang và ràng buộc chưa viết code.'
   }
-  if (context.checkpointId === 'm1-brief') {
-    return 'Hãy kiểm tra yêu cầu của bạn có đủ mục tiêu, phạm vi và bằng chứng. Nếu một phần vẫn phải đoán, hãy làm rõ trước khi gửi.'
+  if (context.checkpointId === 'm1-prd-approved') {
+    return 'Trước khi duyệt, hãy kiểm tra PRD có đủ tám phần, Done When quan sát được và không lẫn chi tiết implementation.'
+  }
+  if (context.checkpointId === 'm1-implementation-plan') {
+    return 'Mỗi bước trong implementation plan cần có mục tiêu, thành phần hoặc tệp, kết quả quan sát được, cách kiểm tra và yêu cầu PRD liên quan.'
+  }
+  if (
+    context.checkpointId === 'm1-alignment-review' ||
+    context.checkpointId === 'm1-planning-package'
+  ) {
+    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.'
   }
   if (context.lessonId === 'module-1') {
-    return 'Ở Module 1, ưu tiên bằng chứng trước hành động: đọc đúng tệp, giới hạn phạm vi và nói rõ dấu hiệu hoàn thành.'
+    return 'Ở Module 1, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'
   }
 
-  return 'Ở phần giới thiệu, hãy giữ lựa chọn gắn với công việc thật của bạn. Tiến trình đã lưu checkpoint này để bạn có thể quay lại sau.'
+  return 'Phần giới thiệu chỉ giúp bạn hiểu dự án thực hành. Sau đó Course Companion sẽ đưa bạn thẳng vào Module 1.'
 }
 
 export class TeacherChatRepository {

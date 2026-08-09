@@ -29,28 +29,26 @@ const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'intro-visual-onboarding': 'intro-visual-onboarding',
   'intro-course-overview-2': 'intro-visual-onboarding',
   'intro-learning-method': 'intro-visual-onboarding',
-  'intro-first-safe-win': 'intro-first-safe-win',
-  'intro-time-budget': 'intro-time-budget',
-  'intro-graduation': 'intro-graduation',
-  'intro-problem': 'intro-problem',
-  'intro-platform': 'intro-platform',
-  'intro-quest-card': 'intro-quest-card',
-  'intro-readiness': 'intro-readiness',
-  'intro-complete': 'intro-complete',
-  'module-1-opening': 'm1-orient',
-  'module-1-bad-consequence': 'm1-orient',
-  'module-1-concept': 'm1-inspect',
-  'module-1-brief-choice': 'm1-brief',
-  'module-1-weak-brief': 'm1-brief',
-  'module-1-success': 'm1-plan-approval',
-  'module-1-reflection': 'm1-review',
-  'module-1-debrief': 'm1-mastery',
+  'module-1-why-planning': 'm1-why-planning',
+  'module-1-planning-cost': 'm1-why-planning',
+  'module-1-contentpilot-brief': 'm1-contentpilot-brief',
+  'module-1-implementation-too-soon': 'm1-contentpilot-brief',
+  'module-1-prd-concept': 'm1-prd-concept',
+  'module-1-prd-misclassification': 'm1-prd-concept',
+  'module-1-prd-interview': 'm1-prd-interview',
+  'module-1-prd-approved': 'm1-prd-approved',
+  'module-1-implementation-plan': 'm1-implementation-plan',
+  'module-1-alignment-review': 'm1-alignment-review',
+  'module-1-alignment-mismatch': 'm1-alignment-review',
+  'module-1-planning-package': 'm1-planning-package',
+  'module-1-mastery': 'm1-mastery',
+  'module-1-mastery-repair': 'm1-mastery',
   'module-1-complete': 'm1-complete'
 }
 
 export function defaultPracticeState(): PracticeState {
   return {
-    missionId: 'm1-verifiable-brief',
+    missionId: 'm1-planning-package',
     status: 'idle'
   }
 }
@@ -87,9 +85,9 @@ function decisionsAreValid(value: unknown): value is Record<string, string> {
 function isPracticeEvidence(value: unknown): boolean {
   return (
     isRecord(value) &&
-    value.viewport === '390px' &&
-    value.changedScope === 'onboarding CSS' &&
-    typeof value.horizontalOverflow === 'string' &&
+    value.prdArtifact === 'PRD.md · đã duyệt' &&
+    value.implementationPlanArtifact === 'implementation-plan.md · đã duyệt' &&
+    typeof value.alignment === 'string' &&
     isIsoDate(value.observedAt) &&
     (value.freshness === 'current' || value.freshness === 'stale')
   )
@@ -98,7 +96,7 @@ function isPracticeEvidence(value: unknown): boolean {
 function isPracticeEvent(value: unknown): value is PracticeEvent {
   if (!isRecord(value)) return false
   if (typeof value.id !== 'string' || value.id.length < 1 || value.id.length > 160) return false
-  if (value.missionId !== 'm1-verifiable-brief') return false
+  if (value.missionId !== 'm1-planning-package') return false
   if (!['started', 'approval_required', 'success', 'stale', 'offline', 'error'].includes(String(value.scenario))) return false
   if (!['active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
   if (value.source !== 'fixture') return false
@@ -109,7 +107,7 @@ function isPracticeEvent(value: unknown): value is PracticeEvent {
 }
 
 export function isPracticeState(value: unknown): value is PracticeState {
-  if (!isRecord(value) || value.missionId !== 'm1-verifiable-brief') return false
+  if (!isRecord(value) || value.missionId !== 'm1-planning-package') return false
   if (!['idle', 'active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
   if (value.status === 'idle') return value.latestEvent === undefined
   return isPracticeEvent(value.latestEvent) && value.latestEvent.status === value.status
@@ -149,20 +147,37 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   const updatedAt = raw.updatedAt
   if (courseVersion !== COURSE_VERSION) return null
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
-  if (!isProgressUpdate(raw)) return null
-  const update: ProgressUpdate = {
-    currentLessonId: raw.currentLessonId,
-    checkpointId: raw.checkpointId,
-    sceneId: raw.sceneId,
-    completedCheckpointIds: raw.completedCheckpointIds,
-    decisions: raw.decisions
-  }
 
-  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isPracticeState(practice)) {
+  if (
+    schemaVersion === LEARNER_STATE_SCHEMA_VERSION &&
+    isProgressUpdate(raw) &&
+    isPracticeState(practice)
+  ) {
     return raw as unknown as LearnerProgress
   }
 
-  if (schemaVersion === 1 && practice === undefined) {
+  if ((schemaVersion === 1 || schemaVersion === 2) && decisionsAreValid(raw.decisions)) {
+    const oldSceneId = typeof raw.sceneId === 'string' ? raw.sceneId : ''
+    const resumeOnboarding = [
+      'intro-visual-onboarding',
+      'intro-course-overview-2',
+      'intro-learning-method'
+    ].includes(oldSceneId)
+    const update: ProgressUpdate = resumeOnboarding
+      ? {
+          currentLessonId: 'intro',
+          checkpointId: 'intro-visual-onboarding',
+          sceneId: oldSceneId as ProgressUpdate['sceneId'],
+          completedCheckpointIds: [],
+          decisions: raw.decisions
+        }
+      : {
+          currentLessonId: 'module-1',
+          checkpointId: 'm1-why-planning',
+          sceneId: 'module-1-why-planning',
+          completedCheckpointIds: ['intro-visual-onboarding'],
+          decisions: raw.decisions
+        }
     return {
       ...update,
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
@@ -325,7 +340,12 @@ export class ProgressRepository {
       const parsed: unknown = JSON.parse(await readFile(path, 'utf8'))
       const progress = migrateLearnerProgress(parsed)
       return progress
-        ? { status: 'valid', progress, migrated: isRecord(parsed) && parsed.schemaVersion === 1 }
+        ? {
+            status: 'valid',
+            progress,
+            migrated:
+              isRecord(parsed) && parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION
+          }
         : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }

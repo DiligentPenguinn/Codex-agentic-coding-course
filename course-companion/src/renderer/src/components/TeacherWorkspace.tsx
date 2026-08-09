@@ -47,7 +47,7 @@ function formatTime(timestamp: string): string {
 }
 
 const emptyPractice: PracticeState = {
-  missionId: 'm1-verifiable-brief',
+  missionId: 'm1-planning-package',
   status: 'idle'
 }
 
@@ -272,9 +272,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
           {practice.latestEvent?.evidence ? (
             <div className="pixel-practice-evidence">
-              <div><span>VIEWPORT</span><strong>{practice.latestEvent.evidence.viewport}</strong></div>
-              <div><span>PHẠM VI</span><strong>{practice.latestEvent.evidence.changedScope}</strong></div>
-              <div><span>TRÀN NGANG</span><strong>{practice.latestEvent.evidence.horizontalOverflow}</strong></div>
+              <div><span>PRD</span><strong>{practice.latestEvent.evidence.prdArtifact}</strong></div>
+              <div><span>IMPLEMENTATION PLAN</span><strong>{practice.latestEvent.evidence.implementationPlanArtifact}</strong></div>
+              <div><span>ALIGNMENT</span><strong>{practice.latestEvent.evidence.alignment}</strong></div>
               <small>{practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · BÀI LUYỆN TẬP</small>
             </div>
           ) : null}

@@ -14,26 +14,18 @@ export type AppSettings = {
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
 export const COURSE_VERSION = '0.1.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 2
+export const LEARNER_STATE_SCHEMA_VERSION = 3
 
 export const checkpointIds = [
   'intro-visual-onboarding',
-  'intro-first-safe-win',
-  'intro-time-budget',
-  'intro-graduation',
-  'intro-problem',
-  'intro-platform',
-  'intro-quest-card',
-  'intro-readiness',
-  'intro-complete',
-  'm1-orient',
-  'm1-baseline',
-  'm1-inspect',
-  'm1-guidance',
-  'm1-brief',
-  'm1-plan-approval',
-  'm1-build',
-  'm1-review',
+  'm1-why-planning',
+  'm1-contentpilot-brief',
+  'm1-prd-concept',
+  'm1-prd-interview',
+  'm1-prd-approved',
+  'm1-implementation-plan',
+  'm1-alignment-review',
+  'm1-planning-package',
   'm1-mastery',
   'm1-complete'
 ] as const
@@ -42,22 +34,20 @@ export const sceneIds = [
   'intro-visual-onboarding',
   'intro-course-overview-2',
   'intro-learning-method',
-  'intro-first-safe-win',
-  'intro-time-budget',
-  'intro-graduation',
-  'intro-problem',
-  'intro-platform',
-  'intro-quest-card',
-  'intro-readiness',
-  'intro-complete',
-  'module-1-opening',
-  'module-1-bad-consequence',
-  'module-1-concept',
-  'module-1-brief-choice',
-  'module-1-weak-brief',
-  'module-1-success',
-  'module-1-reflection',
-  'module-1-debrief',
+  'module-1-why-planning',
+  'module-1-planning-cost',
+  'module-1-contentpilot-brief',
+  'module-1-implementation-too-soon',
+  'module-1-prd-concept',
+  'module-1-prd-misclassification',
+  'module-1-prd-interview',
+  'module-1-prd-approved',
+  'module-1-implementation-plan',
+  'module-1-alignment-review',
+  'module-1-alignment-mismatch',
+  'module-1-planning-package',
+  'module-1-mastery',
+  'module-1-mastery-repair',
   'module-1-complete'
 ] as const
 
@@ -85,16 +75,16 @@ export type PracticeStatus =
   | 'error'
 
 export type PracticeEvidence = {
-  viewport: string
-  changedScope: string
-  horizontalOverflow: string
+  prdArtifact: string
+  implementationPlanArtifact: string
+  alignment: string
   observedAt: string
   freshness: 'current' | 'stale'
 }
 
 export type PracticeEvent = {
   id: string
-  missionId: 'm1-verifiable-brief'
+  missionId: 'm1-planning-package'
   scenario: PracticeScenario
   status: Exclude<PracticeStatus, 'idle'>
   source: 'fixture'
@@ -105,7 +95,7 @@ export type PracticeEvent = {
 }
 
 export type PracticeState = {
-  missionId: 'm1-verifiable-brief'
+  missionId: 'm1-planning-package'
   status: PracticeStatus
   latestEvent?: PracticeEvent
 }

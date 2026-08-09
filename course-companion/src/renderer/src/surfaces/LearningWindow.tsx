@@ -57,8 +57,8 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'intro',
     checkpointId: 'intro-visual-onboarding',
     step: 1,
-    totalSteps: 9,
-    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    totalSteps: 1,
+    lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
     objective: 'Bạn sẽ xây gì trong khóa học này?',
     panelLabel: 'CONTENTPILOT',
@@ -67,10 +67,10 @@ const scenes: Record<SceneId, SceneContent> = {
     request: 'Ứng dụng bạn sẽ xây trong khóa học',
     evidence: [
       { label: 'ỨNG DỤNG', value: 'ContentPilot' },
-      { label: 'QUÁ TRÌNH', value: 'Sáng tạo nội dung' },
-      { label: 'KÊNH', value: 'Facebook' }
+      { label: 'ĐẦU VÀO', value: 'Bài viết hoặc profile mẫu' },
+      { label: 'ĐẦU RA', value: 'Ý tưởng nội dung' }
     ],
-    dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
+    dialogue: 'Trong khóa học này, bạn sẽ xây ContentPilot: một ứng dụng phân tích các bài viết hiện có trên profile — hoặc profile mẫu nếu chưa có dữ liệu — rồi đề xuất ý tưởng nội dung có khả năng bắt kịp xu hướng.',
     choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }],
     showTitle: false,
     showPanel: false
@@ -79,20 +79,20 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'intro',
     checkpointId: 'intro-visual-onboarding',
     step: 1,
-    totalSteps: 9,
-    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    totalSteps: 1,
+    lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
-    objective: 'Bạn sẽ xây gì trong khóa học này?',
-    panelLabel: 'CONTENTPILOT',
-    panelStatus: 'TRANG 2/2',
+    objective: 'Bạn sẽ học như thế nào?',
+    panelLabel: 'CÁCH HỌC',
+    panelStatus: 'XÂY TỪNG PHẦN',
     tone: 'neutral',
-    request: 'Từ thông tin thương hiệu đến nội dung chờ bạn duyệt',
+    request: 'Học agentic coding thông qua một dự án thực tế',
     evidence: [
-      { label: 'NGHIÊN CỨU', value: 'Thông tin đang trending' },
-      { label: 'SÁNG TẠO', value: 'Nội dung và hình ảnh' },
-      { label: 'QUYẾT ĐỊNH', value: 'Bạn duyệt nội dung' }
+      { label: 'DỰ ÁN', value: 'ContentPilot' },
+      { label: 'CÁCH HỌC', value: 'Từng quyết định nhỏ' },
+      { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn' }
     ],
-    dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
+    dialogue: 'Bạn không nhận một ứng dụng hoàn chỉnh để điền dữ liệu. Bạn sẽ bắt đầu từ ý tưởng, học cách giao tiếp với coding agent rồi tự xây từng phần của sản phẩm.',
     choices: [{ label: 'Tiếp tục', next: 'intro-learning-method', primary: true }],
     showTitle: false,
     showPanel: false
@@ -101,406 +101,343 @@ const scenes: Record<SceneId, SceneContent> = {
     lessonId: 'intro',
     checkpointId: 'intro-visual-onboarding',
     step: 1,
-    totalSteps: 9,
-    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    totalSteps: 1,
+    lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
-    objective: 'Bạn sẽ học như thế nào?',
-    panelLabel: 'CÁCH HỌC',
-    panelStatus: 'XÂY TỪNG PHẦN',
+    objective: 'Bắt đầu từ planning, chưa cần biết code',
+    panelLabel: 'MODULE 1',
+    panelStatus: 'PLANNING TRƯỚC CODE',
     tone: 'neutral',
-    request: 'Học agentic coding thông qua một dự án thực tế',
+    request: 'Ý tưởng → PRD → implementation plan',
     evidence: [
-      { label: 'DỰ ÁN THỰC HÀNH', value: 'ContentPilot' },
-      { label: 'CÁCH HỌC', value: 'Xây từng phần' },
-      { label: 'KỸ NĂNG', value: 'Xây ứng dụng với AI' }
+      { label: 'KIẾN THỨC CODE', value: 'Chưa cần' },
+      { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
+      { label: 'KẾT QUẢ', value: 'Planning package' }
     ],
-    dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
-    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', afterSave: 'home', primary: true }],
+    dialogue: 'Module 1 bắt đầu bằng cách planning với coding agent. Bạn sẽ tạo PRD và implementation plan trước khi viết bất kỳ dòng code nào.',
+    choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-why-planning', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false
   },
-  'intro-first-safe-win': {
-    lessonId: 'intro',
-    checkpointId: 'intro-first-safe-win',
+  'module-1-why-planning': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-why-planning',
+    step: 1,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Planning trước khi code',
+    objective: 'Vì sao planning giúp bạn tiết kiệm thời gian?',
+    panelLabel: 'Ý TƯỞNG BAN ĐẦU',
+    panelStatus: 'CÒN NHIỀU ĐIỂM MƠ HỒ',
+    tone: 'neutral',
+    request: '“Hãy xây cho tôi một ứng dụng tạo ý tưởng nội dung.”',
+    evidence: [
+      { label: 'WORKFLOW', value: 'Chưa rõ' },
+      { label: 'PHẠM VI V1', value: 'Chưa rõ' },
+      { label: 'DONE WHEN', value: 'Chưa có' }
+    ],
+    dialogue: 'Cũng giống như con người, một kế hoạch kỹ càng trước khi xây giúp coding agent tránh những sai lầm ngớ ngẩn. Bạn sẽ làm gì trước?',
+    choices: [
+      { label: 'Bắt đầu code để tiết kiệm thời gian', next: 'module-1-planning-cost', danger: true },
+      { label: 'Làm rõ kế hoạch trước khi code', next: 'module-1-contentpilot-brief', primary: true, decision: { key: 'planningApproach', value: 'plan-first' } }
+    ]
+  },
+  'module-1-planning-cost': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-why-planning',
+    step: 1,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Planning trước khi code',
+    objective: 'Thấy chi phí của việc đi sai hướng',
+    panelLabel: 'KẾT QUẢ GIẢ ĐỊNH',
+    panelStatus: 'XÂY NHANH · SAI HƯỚNG',
+    tone: 'bad',
+    request: 'Agent xây nhiều màn hình nhưng workflow, input và output đều khác điều bạn mong muốn.',
+    evidence: [
+      { label: 'CODE', value: 'Đã có nhiều' },
+      { label: 'SẢN PHẨM', value: 'Không vừa ý' },
+      { label: 'VIỆC TIẾP THEO', value: 'Debug và làm lại' }
+    ],
+    dialogue: 'Planning tưởng chừng tốn thời gian, nhưng sửa một ứng dụng đã đi sai hướng thường tốn công hơn nhiều. Hãy quay lại làm rõ kế hoạch.',
+    choices: [{ label: 'Planning trước khi code', next: 'module-1-contentpilot-brief', primary: true, decision: { key: 'planningApproach', value: 'plan-first' } }]
+  },
+  'module-1-contentpilot-brief': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-contentpilot-brief',
     step: 2,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Đọc dự án trước khi thay đổi',
-    objective: 'Thực hiện vòng agentic coding chỉ đọc đầu tiên',
-    panelLabel: 'BA BẰNG CHỨNG',
-    panelStatus: 'KHÔNG SỬA TỆP',
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Làm rõ ý tưởng ContentPilot',
+    objective: 'Tách ý tưởng khỏi kế hoạch triển khai',
+    panelLabel: 'Ý TƯỞNG CONTENTPILOT',
+    panelStatus: 'MỘT CÂU KHỞI ĐẦU',
     tone: 'neutral',
-    request: 'Một báo cáo chỉ đọc cần xác nhận đúng dự án thực hành, đúng phần học hiện tại và đúng các tệp nguồn đã đọc.',
+    request: 'Phân tích bài viết hiện có trên profile — hoặc profile mẫu — rồi đề xuất ý tưởng có khả năng bắt kịp xu hướng.',
     evidence: [
-      { label: 'DỰ ÁN', value: 'ContentPilot', ready: true },
-      { label: 'PHẦN HỌC', value: 'Giới thiệu + bài đầu tiên', ready: true },
-      { label: 'HÀNH ĐỘNG', value: 'Chỉ đọc', ready: true }
+      { label: 'INPUT', value: 'Cần làm rõ' },
+      { label: 'OUTPUT', value: 'Cần làm rõ' },
+      { label: 'PHẠM VI V1', value: 'Cần quyết định' }
     ],
-    dialogue: 'Bạn muốn kiểm tra tín hiệu nào trước? Các lựa chọn đều đúng; điều quan trọng là dự đoán bằng chứng trước khi Codex hành động.',
+    dialogue: 'Đây mới là ý tưởng, chưa phải kế hoạch. Điều gì nên được làm rõ trước?',
     choices: [
-      { label: 'Đúng dự án và phạm vi', next: 'intro-time-budget', decision: { key: 'firstEvidence', value: 'project-and-scope' } },
-      { label: 'Đúng các tệp nguồn đã đọc', next: 'intro-time-budget', primary: true, decision: { key: 'firstEvidence', value: 'source-files' } }
+      { label: 'Framework, database và thư viện', next: 'module-1-implementation-too-soon', danger: true },
+      { label: 'Workflow, input, output và phạm vi V1', next: 'module-1-prd-concept', primary: true, decision: { key: 'clarificationFocus', value: 'product-requirements' } }
     ]
   },
-  'intro-time-budget': {
-    lessonId: 'intro',
-    checkpointId: 'intro-time-budget',
+  'module-1-implementation-too-soon': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-contentpilot-brief',
+    step: 2,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Làm rõ ý tưởng ContentPilot',
+    objective: 'Chưa vội chọn cách xây',
+    panelLabel: 'QUYẾT ĐỊNH QUÁ SỚM',
+    panelStatus: 'BIẾT CÁCH XÂY · CHƯA BIẾT XÂY GÌ',
+    tone: 'bad',
+    request: 'Chọn công nghệ không thể thay thế quyết định về sản phẩm cần tạo ra kết quả gì.',
+    evidence: [
+      { label: 'WORKFLOW', value: 'Vẫn chưa rõ' },
+      { label: 'OUTPUT', value: 'Vẫn chưa rõ' },
+      { label: 'DONE WHEN', value: 'Vẫn chưa có' }
+    ],
+    dialogue: 'Ở Module 1, bạn chỉ cần quyết định sản phẩm cần làm gì. Coding agent sẽ đề xuất cách xây ở implementation plan sau.',
+    choices: [{ label: 'Làm rõ yêu cầu sản phẩm', next: 'module-1-prd-concept', primary: true, decision: { key: 'clarificationFocus', value: 'product-requirements' } }]
+  },
+  'module-1-prd-concept': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
     step: 3,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Chọn nhịp học phù hợp',
-    objective: 'Đặt thời lượng học hôm nay',
-    panelLabel: 'NHỊP HỌC',
-    panelStatus: 'CHỌN MỘT MỐC',
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Phân biệt PRD và implementation plan',
+    objective: 'Biết tài liệu nào trả lời câu hỏi nào',
+    panelLabel: 'HAI TÀI LIỆU',
+    panelStatus: 'XÂY GÌ · XÂY NHƯ THẾ NÀO',
     tone: 'neutral',
-    request: 'Tiến trình sẽ được lưu sau mỗi quyết định để bạn có thể thoát ứng dụng và quay lại đúng chỗ.',
+    request: 'PRD giữ quyết định sản phẩm. Implementation plan chuyển PRD đã duyệt thành các bước xây dựng.',
     evidence: [
-      { label: 'NGẮN', value: '10–20 phút' },
-      { label: 'TIÊU CHUẨN', value: '30 phút' },
-      { label: 'SÂU', value: '45–60 phút' }
+      { label: 'PRD', value: 'Xây cái gì?' },
+      { label: 'PLAN', value: 'Xây như thế nào?' },
+      { label: 'THỨ TỰ', value: 'PRD trước' }
     ],
-    dialogue: 'Hôm nay bạn có bao nhiêu phút?',
+    dialogue: 'Câu “Phiên bản đầu chưa tự động đăng bài” thuộc tài liệu nào?',
     choices: [
-      { label: '10 phút', next: 'intro-graduation', decision: { key: 'timeBudget', value: '10' } },
-      { label: '20 phút', next: 'intro-graduation', decision: { key: 'timeBudget', value: '20' } },
-      { label: '30 phút', next: 'intro-graduation', primary: true, decision: { key: 'timeBudget', value: '30' } },
-      { label: '45 phút', next: 'intro-graduation', decision: { key: 'timeBudget', value: '45' } },
-      { label: '60 phút', next: 'intro-graduation', decision: { key: 'timeBudget', value: '60' } }
+      { label: 'Implementation plan', next: 'module-1-prd-misclassification', danger: true },
+      { label: 'PRD · Đây là quyết định phạm vi', next: 'module-1-prd-interview', primary: true, decision: { key: 'prdClassification', value: 'scope-in-prd' } }
     ]
   },
-  'intro-graduation': {
-    lessonId: 'intro',
-    checkpointId: 'intro-graduation',
-    step: 4,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Giữ quyền quyết định của con người',
-    objective: 'Hiểu vai trò của dự án thực hành',
-    panelLabel: 'CONTENTPILOT',
-    panelStatus: 'BẠN DUYỆT CUỐI',
-    tone: 'good',
-    request: 'ContentPilot là nơi luyện kỹ năng; bạn vẫn giữ mục tiêu, kiểm tra thông tin và quyết định điều gì được chấp nhận hoặc xuất bản.',
+  'module-1-prd-misclassification': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
+    step: 3,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Phân biệt PRD và implementation plan',
+    objective: 'Đưa quyết định phạm vi về đúng tài liệu',
+    panelLabel: 'PHÂN LOẠI CHƯA ĐÚNG',
+    panelStatus: 'ĐÂY LÀ PHẠM VI SẢN PHẨM',
+    tone: 'bad',
+    request: '“Chưa tự động đăng bài” mô tả điều phiên bản đầu chủ động không làm, không phải một bước kỹ thuật.',
     evidence: [
-      { label: 'ĐẦU VÀO', value: 'Dữ liệu thương hiệu' },
-      { label: 'ĐẦU RA', value: '5 bộ nội dung' },
+      { label: 'LOẠI QUYẾT ĐỊNH', value: 'Ngoài phạm vi' },
+      { label: 'TÀI LIỆU', value: 'PRD', ready: true },
+      { label: 'LÝ DO', value: 'Xác định xây gì' }
+    ],
+    dialogue: 'Hãy ghi quyết định này trong phần ngoài phạm vi của PRD.',
+    choices: [{ label: 'Đưa vào PRD', next: 'module-1-prd-interview', primary: true, decision: { key: 'prdClassification', value: 'scope-in-prd' } }]
+  },
+  'module-1-prd-interview': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-interview',
+    step: 4,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Prompt để coding agent phỏng vấn',
+    objective: 'Giữ quyền quyết định trong cuộc hội thoại',
+    panelLabel: 'PROMPT PLANNING',
+    panelStatus: '5 PHẦN CẦN CÓ',
+    tone: 'neutral',
+    request: 'Mục tiêu · bối cảnh · hỏi một câu mỗi lượt · output PRD một trang · chưa viết code.',
+    evidence: [
+      { label: 'CÁCH HỎI', value: 'Một câu mỗi lượt', ready: true },
+      { label: 'OUTPUT', value: 'PRD một trang', ready: true },
+      { label: 'RANH GIỚI', value: 'Chưa code', ready: true }
+    ],
+    dialogue: 'Agent giúp đặt câu hỏi và tổ chức câu trả lời; bạn vẫn là người quyết định. Hãy dùng cấu trúc này để bắt đầu cuộc phỏng vấn PRD.',
+    choices: [{ label: 'Phỏng vấn tôi từng câu một', next: 'module-1-prd-approved', primary: true, decision: { key: 'promptMethod', value: 'one-question-at-a-time' } }]
+  },
+  'module-1-prd-approved': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-approved',
+    step: 5,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Review và duyệt PRD',
+    objective: 'Biết một PRD tốt trông như thế nào',
+    panelLabel: 'PRD MỘT TRANG',
+    panelStatus: '8 PHẦN ĐÃ REVIEW',
+    tone: 'good',
+    request: 'Ý tưởng · workflow · input · output · phạm vi V1 · ngoài phạm vi · Done When · câu hỏi còn mở.',
+    evidence: [
+      { label: 'DONE WHEN', value: 'Kiểm tra được', ready: true },
+      { label: 'CHI TIẾT CODE', value: 'Không có', ready: true },
       { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn', ready: true }
     ],
-    dialogue: 'Bạn muốn trực tiếp giữ quyết định nào trong quy trình?',
-    choices: [
-      { label: 'Duyệt nội dung và thông tin', next: 'intro-problem', primary: true, decision: { key: 'humanControl', value: 'content-review' } },
-      { label: 'Quyết định xuất bản', next: 'intro-problem', decision: { key: 'humanControl', value: 'publishing' } }
-    ]
+    dialogue: 'PRD tốt đủ rõ để giữ sản phẩm đi đúng hướng nhưng chưa quyết định cách viết code. Hãy duyệt sau khi bạn đã kiểm tra đủ tám phần.',
+    choices: [{ label: 'Duyệt PRD đã review', next: 'module-1-implementation-plan', primary: true, decision: { key: 'prdApproval', value: 'reviewed-eight-sections' } }]
   },
-  'intro-problem': {
-    lessonId: 'intro',
-    checkpointId: 'intro-problem',
-    step: 5,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Gắn khóa học với một việc thật',
-    objective: 'Chọn vấn đề nội dung hằng tuần',
-    panelLabel: 'TÌNH HUỐNG THỰC HÀNH',
-    panelStatus: 'MỘT VẤN ĐỀ CỤ THỂ',
-    tone: 'neutral',
-    request: 'Chọn một việc lặp lại đang tốn thời gian, khó nhất quán hoặc thường bị kẹt ở khâu duyệt.',
-    evidence: [
-      { label: 'TẦN SUẤT', value: 'Hằng tuần' },
-      { label: 'NÚT THẮT', value: 'Tạo hoặc duyệt' },
-      { label: 'NGỮ CẢNH', value: 'Thật hoặc mẫu' }
-    ],
-    dialogue: 'Hãy chọn ngữ cảnh khởi đầu. Bạn sẽ bổ sung mô tả chi tiết khi hoàn thiện phiếu định hướng.',
-    choices: [
-      { label: 'Dùng quy trình nội dung thật của tôi', next: 'intro-platform', primary: true, decision: { key: 'practiceContext', value: 'real-work' } },
-      { label: 'Tạm dùng thương hiệu mẫu Mộc Học', next: 'intro-platform', decision: { key: 'practiceContext', value: 'moc-hoc' } }
-    ]
-  },
-  'intro-platform': {
-    lessonId: 'intro',
-    checkpointId: 'intro-platform',
+  'module-1-implementation-plan': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-implementation-plan',
     step: 6,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Thu hẹp đầu ra đầu tiên',
-    objective: 'Chọn nền tảng nội dung chính',
-    panelLabel: 'MỘT NỀN TẢNG TRƯỚC',
-    panelStatus: 'GIỮ PHẠM VI HẸP',
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Tạo implementation plan từ PRD',
+    objective: 'Chia cách xây thành các bước có thể kiểm tra',
+    panelLabel: 'MỖI BƯỚC TRONG PLAN',
+    panelStatus: '4 TRƯỜNG BẮT BUỘC',
     tone: 'neutral',
-    request: 'Một nền tảng rõ ràng giúp tiêu chí về độ dài, giọng điệu và định dạng có thể kiểm tra.',
+    request: 'Mục tiêu · thành phần hoặc tệp · kết quả quan sát được · cách kiểm tra.',
     evidence: [
-      { label: 'LINKEDIN', value: 'Chuyên nghiệp' },
-      { label: 'FACEBOOK', value: 'Cộng đồng' },
-      { label: 'INSTAGRAM', value: 'Hình ảnh' }
+      { label: 'NGUỒN PHẠM VI', value: 'PRD đã duyệt', ready: true },
+      { label: 'THỨ TỰ', value: 'Bước nhỏ, có phụ thuộc' },
+      { label: 'CODE', value: 'Chưa viết' }
     ],
-    dialogue: 'Nếu dự án thực hành chỉ tối ưu cho một nền tảng trước, bạn chọn nền tảng nào?',
-    choices: [
-      { label: 'LinkedIn', next: 'intro-quest-card', primary: true, decision: { key: 'platform', value: 'linkedin' } },
-      { label: 'Facebook', next: 'intro-quest-card', decision: { key: 'platform', value: 'facebook' } },
-      { label: 'Instagram', next: 'intro-quest-card', decision: { key: 'platform', value: 'instagram' } }
-    ]
+    dialogue: 'Bạn chưa cần biết tên tệp. Coding agent phải đề xuất và giải thích bằng ngôn ngữ dành cho người mới.',
+    choices: [{ label: 'Tạo plan có kết quả và cách kiểm tra', next: 'module-1-alignment-review', primary: true, decision: { key: 'planStructure', value: 'observable-and-verifiable' } }]
   },
-  'intro-quest-card': {
-    lessonId: 'intro',
-    checkpointId: 'intro-quest-card',
+  'module-1-alignment-review': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-alignment-review',
     step: 7,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Kết tinh định hướng cá nhân',
-    objective: 'Chuẩn bị phiếu định hướng',
-    panelLabel: 'PHIẾU ĐỊNH HƯỚNG',
-    panelStatus: 'ĐÃ LƯU TRÊN MÁY',
-    tone: 'good',
-    request: 'Ứng dụng đã ghi thời lượng, quyền kiểm soát, ngữ cảnh thực hành và nền tảng bạn chọn vào tiến trình cục bộ.',
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Đối chiếu PRD và implementation plan',
+    objective: 'Phát hiện scope creep trước khi code',
+    panelLabel: 'ALIGNMENT REVIEW',
+    panelStatus: 'PHÁT HIỆN MỘT ĐIỂM LỆCH',
+    tone: 'neutral',
+    request: 'PRD: chưa tự động đăng bài. Plan: Bước 6 — tự động đăng bài lên Facebook.',
     evidence: [
-      { label: 'ĐỐI TƯỢNG', value: 'Do bạn xác định', ready: true },
-      { label: 'NỀN TẢNG', value: 'Đã chọn', ready: true },
-      { label: 'TIÊU CHÍ DUYỆT', value: 'Cần kiểm chứng' }
+      { label: 'PRD', value: 'Ngoài phạm vi' },
+      { label: 'PLAN', value: 'Đang thêm vào' },
+      { label: 'KẾT LUẬN', value: 'Chưa khớp' }
     ],
-    dialogue: 'Ở đây ta xác nhận cấu trúc cần có. Nội dung chi tiết sẽ được viết bằng tình huống và tiêu chí của chính bạn.',
-    choices: [{ label: 'Kiểm tra mức sẵn sàng', next: 'intro-readiness', primary: true }]
+    dialogue: 'Bạn sẽ xử lý điểm lệch này thế nào trước khi duyệt planning package?',
+    choices: [
+      { label: 'Giữ lại vì agent đã đề xuất', next: 'module-1-alignment-mismatch', danger: true },
+      { label: 'Loại bước đăng bài khỏi plan', next: 'module-1-planning-package', primary: true, decision: { key: 'alignmentDecision', value: 'remove-scope-creep' } }
+    ]
   },
-  'intro-readiness': {
-    lessonId: 'intro',
-    checkpointId: 'intro-readiness',
+  'module-1-alignment-mismatch': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-alignment-review',
+    step: 7,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Đối chiếu PRD và implementation plan',
+    objective: 'Không để agent tự mở rộng phạm vi',
+    panelLabel: 'SCOPE CREEP',
+    panelStatus: 'PLAN KHÔNG CÒN THEO PRD',
+    tone: 'bad',
+    request: 'Một đề xuất kỹ thuật không tự động trở thành yêu cầu sản phẩm đã được duyệt.',
+    evidence: [
+      { label: 'NGUỒN PHẠM VI', value: 'PRD' },
+      { label: 'BƯỚC THỪA', value: 'Tự động đăng bài' },
+      { label: 'HÀNH ĐỘNG', value: 'Loại hoặc sửa PRD' }
+    ],
+    dialogue: 'Nếu muốn thêm đăng bài, bạn phải sửa và duyệt lại PRD. Với phạm vi hiện tại, hãy loại bước đó khỏi plan.',
+    choices: [{ label: 'Loại scope creep', next: 'module-1-planning-package', primary: true, decision: { key: 'alignmentDecision', value: 'remove-scope-creep' } }]
+  },
+  'module-1-planning-package': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-planning-package',
     step: 8,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Kiểm tra một nguyên tắc cốt lõi',
-    objective: 'Sẵn sàng vào bài học đầu tiên',
-    panelLabel: 'CÂU KIỂM TRA',
-    panelStatus: 'CHỌN BẰNG CHỨNG',
-    tone: 'neutral',
-    request: 'Tiêu chí nào giúp bạn biết một thay đổi của Codex đã thực sự hoàn thành?',
-    evidence: [
-      { label: 'CẢM GIÁC', value: '“Trông đẹp hơn”' },
-      { label: 'BẰNG CHỨNG', value: 'Quan sát hoặc đo được' },
-      { label: 'PHẠM VI', value: 'Tệp được phép sửa' }
-    ],
-    dialogue: 'Hãy chọn câu trả lời có thể kiểm chứng sau khi Codex hoàn thành.',
-    choices: [
-      { label: 'Codex nói rằng công việc đã xong', next: 'intro-readiness', danger: true },
-      { label: 'Kết quả đáp ứng dấu hiệu hoàn thành đã định trước', next: 'intro-complete', primary: true, decision: { key: 'readiness', value: 'passed' } }
-    ]
-  },
-  'intro-complete': {
-    lessonId: 'intro',
-    checkpointId: 'intro-complete',
-    step: 9,
-    totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Chuyển sang quy trình an toàn',
-    objective: 'Hoàn thành phần giới thiệu',
-    panelLabel: 'CHECKPOINT',
-    panelStatus: 'INTRO HOÀN THÀNH',
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Hoàn thiện planning package',
+    objective: 'Tạo hai artifact trước khi implementation',
+    panelLabel: 'CHECKPOINT BẮT BUỘC',
+    panelStatus: 'CHỜ THỰC HÀNH TRONG CODEX',
     tone: 'good',
-    request: 'Bạn đã có đích đến, bối cảnh thực hành và quyền quyết định rõ ràng. Tiến trình này sẽ còn nguyên sau khi thoát ứng dụng.',
+    request: 'Planning package = PRD.md đã duyệt + implementation-plan.md đã duyệt và khớp PRD.',
     evidence: [
-      { label: 'ĐỊNH HƯỚNG', value: 'Đã lưu', ready: true },
-      { label: 'QUYỀN DUYỆT', value: 'Đã chọn', ready: true },
-      { label: 'BÀI TIẾP THEO', value: 'Module 1', ready: true }
+      { label: 'PRD.md', value: 'Cần tạo' },
+      { label: 'IMPLEMENTATION PLAN', value: 'Cần tạo' },
+      { label: 'CODE', value: 'Chưa bắt đầu', ready: true }
     ],
-    dialogue: 'Bài học đầu tiên bắt đầu bằng cách nhận ra rủi ro của một yêu cầu mơ hồ trước khi gửi nó cho Codex.',
-    choices: [{ label: 'Vào bài học đầu tiên', next: 'module-1-opening', primary: true }]
-  },
-  'module-1-opening': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-orient',
-    step: 1,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Nhận ra rủi ro của một yêu cầu mơ hồ',
-    panelLabel: 'YÊU CẦU TỪ NGƯỜI DÙNG',
-    panelStatus: 'CHƯA GỬI',
-    tone: 'neutral',
-    request: '“Làm phần giới thiệu đẹp hơn.”',
-    evidence: [
-      { label: 'MỤC TIÊU', value: 'Chưa rõ' },
-      { label: 'PHẠM VI', value: 'Chưa giới hạn' },
-      { label: 'BẰNG CHỨNG', value: 'Chưa có' }
-    ],
-    dialogue: 'Bạn vừa nhận một yêu cầu: “Làm phần giới thiệu đẹp hơn.” Nếu gửi ngay cho Codex, điều gì có thể xảy ra?',
+    dialogue: 'Bây giờ hãy sang Codex để tạo planning package. Course Companion sẽ chờ bằng chứng mô phỏng của cả hai artifact.',
     choices: [
-      { label: 'Codex sẽ tự hiểu đúng ý', next: 'module-1-bad-consequence', danger: true },
-      { label: 'Kết quả sẽ khó đoán và khó kiểm tra', next: 'module-1-concept', primary: true }
+      { label: 'Xem lại từ đầu', next: 'module-1-why-planning' },
+      { label: 'Sang Codex tạo planning package', action: 'practice', primary: true }
     ]
   },
-  'module-1-bad-consequence': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-orient',
-    step: 1,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Nhận ra rủi ro của một yêu cầu mơ hồ',
-    panelLabel: 'KẾT QUẢ GIẢ ĐỊNH',
-    panelStatus: 'KHÓ KIỂM CHỨNG',
-    tone: 'bad',
-    request: 'Codex thay bố cục, màu sắc và năm tệp—nhưng không biết thay đổi nào thực sự giải quyết vấn đề.',
-    evidence: [
-      { label: 'TỆP THAY ĐỔI', value: '5 tệp' },
-      { label: 'LÝ DO', value: 'Không rõ' },
-      { label: 'DONE-WHEN', value: 'Không có' }
-    ],
-    dialogue: 'Codex có thể làm rất nhiều, nhưng bạn không có tiêu chuẩn để biết kết quả có đúng hay không. Hãy làm rõ yêu cầu trước khi gửi.',
-    choices: [{ label: 'Làm rõ yêu cầu', next: 'module-1-concept', primary: true }]
-  },
-  'module-1-concept': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-inspect',
-    step: 2,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Tìm ba phần giúp yêu cầu có thể kiểm chứng',
-    panelLabel: 'BA Ô CÒN THIẾU',
-    panelStatus: '0/3 SẴN SÀNG',
-    tone: 'neutral',
-    request: 'Một yêu cầu an toàn cần nói rõ thay đổi gì, được phép chạm vào đâu và bằng chứng nào xác nhận đã xong.',
-    evidence: [
-      { label: 'MỤC TIÊU', value: 'Thay đổi gì?' },
-      { label: 'PHẠM VI', value: 'Được sửa đâu?' },
-      { label: 'BẰNG CHỨNG', value: 'Xong khi nào?' }
-    ],
-    dialogue: 'Ba phần cần có là mục tiêu, phạm vi và bằng chứng. Bây giờ hãy chọn yêu cầu mà bạn có thể kiểm tra sau khi Codex hoàn thành.',
-    choices: [{ label: 'Chọn một yêu cầu', next: 'module-1-brief-choice', primary: true }]
-  },
-  'module-1-brief-choice': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-brief',
-    step: 3,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Chọn yêu cầu có giới hạn và bằng chứng rõ ràng',
-    panelLabel: 'BA Ô CẦN KIỂM TRA',
-    panelStatus: 'CHỌN MỘT YÊU CẦU',
-    tone: 'neutral',
-    request: 'Bạn sẽ gửi yêu cầu nào cho Codex?',
-    evidence: [
-      { label: 'MỤC TIÊU', value: 'Cụ thể?' },
-      { label: 'PHẠM VI', value: 'Giới hạn?' },
-      { label: 'BẰNG CHỨNG', value: 'Đo được?' }
-    ],
-    dialogue: 'Bạn sẽ gửi yêu cầu nào cho Codex?',
-    choices: [
-      { label: 'A · Làm giao diện đẹp và hiện đại hơn', next: 'module-1-weak-brief', danger: true },
-      { label: 'B · Tự quyết định mọi thứ cần sửa', next: 'module-1-weak-brief', danger: true },
-      { label: 'C · Nút chính rộng 100% ở 390px; chỉ sửa CSS; không tràn ngang', next: 'module-1-success', primary: true }
-    ]
-  },
-  'module-1-weak-brief': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-brief',
-    step: 3,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Chọn yêu cầu có giới hạn và bằng chứng rõ ràng',
-    panelLabel: 'YÊU CẦU VẪN CÒN MƠ HỒ',
-    panelStatus: '1/3 SẴN SÀNG',
-    tone: 'bad',
-    request: 'Có ý định thay đổi, nhưng phạm vi và bằng chứng vẫn do Codex tự đoán.',
-    evidence: [
-      { label: 'MỤC TIÊU', value: 'Còn chủ quan' },
-      { label: 'PHẠM VI', value: 'Không giới hạn' },
-      { label: 'BẰNG CHỨNG', value: 'Không đo được' }
-    ],
-    dialogue: '“Đẹp” và “mọi thứ cần sửa” không tạo ra một điểm kiểm tra. Hãy chọn lại một yêu cầu có giới hạn rõ ràng.',
-    choices: [{ label: 'Chọn lại', next: 'module-1-brief-choice', primary: true }]
-  },
-  'module-1-success': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-plan-approval',
-    step: 4,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Mang yêu cầu đã kiểm chứng sang Codex',
-    panelLabel: 'YÊU CẦU ĐÃ SẴN SÀNG',
-    panelStatus: '3/3 SẴN SÀNG',
-    tone: 'good',
-    request: '“Ở 390px, làm nút chính rộng 100%. Chỉ sửa CSS của onboarding. Xong khi không có tràn ngang.”',
-    evidence: [
-      { label: 'MỤC TIÊU', value: 'Nút dễ chạm', ready: true },
-      { label: 'PHẠM VI', value: 'Một tệp CSS', ready: true },
-      { label: 'BẰNG CHỨNG', value: '390px, không tràn', ready: true }
-    ],
-    dialogue: 'Tốt. Bạn đã làm rõ điều gì được phép thay đổi và cách kiểm chứng kết quả. Bây giờ có thể chuyển sang thực hành trong Codex.',
-    choices: [
-      { label: 'Xem lại từ đầu', next: 'module-1-opening' },
-      { label: 'Sang Codex để thực hành', action: 'practice', primary: true }
-    ]
-  },
-  'module-1-reflection': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-review',
-    step: 5,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Đọc bằng chứng trước khi kết luận',
-    panelLabel: 'BẰNG CHỨNG MÔ PHỎNG',
-    panelStatus: 'MỚI · KHỚP TIÊU CHÍ',
-    tone: 'good',
-    request: 'Viewport 390px · chỉ CSS onboarding · không phát hiện tràn ngang.',
-    evidence: [
-      { label: 'VIEWPORT', value: '390px', ready: true },
-      { label: 'PHẠM VI', value: 'CSS onboarding', ready: true },
-      { label: 'TRÀN NGANG', value: 'Không phát hiện', ready: true }
-    ],
-    dialogue: 'Đây là dữ liệu luyện tập, nhưng cách duyệt là thật: bằng chứng nào khiến bạn tin kết luận này?',
-    choices: [
-      { label: 'Chỉ cần trạng thái “hoàn thành”', next: 'module-1-reflection', danger: true },
-      {
-        label: 'Bằng chứng mới và khớp đúng tiêu chí',
-        next: 'module-1-debrief',
-        primary: true,
-        decision: { key: 'evidenceReview', value: 'current-and-matches' }
-      }
-    ]
-  },
-  'module-1-debrief': {
+  'module-1-mastery': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 6,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
-    objective: 'Khép vòng yêu cầu → hành động → bằng chứng',
-    panelLabel: 'VÒNG KIỂM CHỨNG',
-    panelStatus: 'ĐÃ KHÉP KÍN',
+    step: 9,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Kiểm tra planning package',
+    objective: 'Chọn bằng chứng đủ để qua Module 1',
+    panelLabel: 'BẰNG CHỨNG MÔ PHỎNG',
+    panelStatus: '2 ARTIFACT · ĐÃ ALIGN',
     tone: 'good',
-    request: 'Mục tiêu cụ thể → phạm vi giới hạn → tiêu chí quan sát được → bằng chứng mới.',
+    request: 'PRD.md đã duyệt · implementation-plan.md đã duyệt · mọi Done When có cách kiểm tra tương ứng.',
     evidence: [
-      { label: 'YÊU CẦU', value: 'Có thể kiểm tra', ready: true },
-      { label: 'HÀNH ĐỘNG', value: 'Trong phạm vi', ready: true },
-      { label: 'KẾT LUẬN', value: 'Dựa trên bằng chứng', ready: true }
+      { label: 'PRD', value: 'Đã duyệt', ready: true },
+      { label: 'PLAN', value: 'Đã duyệt', ready: true },
+      { label: 'ALIGNMENT', value: 'Khớp', ready: true }
     ],
-    dialogue: 'Bạn không duyệt vì Codex nói “xong”. Bạn duyệt vì bằng chứng mới trả lời đúng điều kiện đã đặt ra từ đầu.',
-    choices: [{ label: 'Hoàn thành Module 1', next: 'module-1-complete', primary: true }]
+    dialogue: 'Điều gì chứng minh planning package này đã sẵn sàng cho implementation?',
+    choices: [
+      { label: 'Coding agent nói rằng đã xong', next: 'module-1-mastery-repair', danger: true },
+      { label: 'Hai artifact tồn tại, đã duyệt và khớp nhau', next: 'module-1-complete', primary: true, decision: { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' } }
+    ]
+  },
+  'module-1-mastery-repair': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-mastery',
+    step: 9,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Kiểm tra planning package',
+    objective: 'Dựa vào artifact thay vì lời khẳng định',
+    panelLabel: 'BẰNG CHỨNG CHƯA ĐỦ',
+    panelStatus: 'LỜI NÓI KHÔNG PHẢI CHECKPOINT',
+    tone: 'bad',
+    request: 'Trạng thái “đã xong” không chứng minh PRD và plan tồn tại, được duyệt hoặc khớp nhau.',
+    evidence: [
+      { label: 'ARTIFACT', value: 'Cần kiểm tra' },
+      { label: 'PHÊ DUYỆT', value: 'Cần xác nhận' },
+      { label: 'ALIGNMENT', value: 'Cần đối chiếu' }
+    ],
+    dialogue: 'Hãy quay lại bằng chứng có thể quan sát: hai artifact, trạng thái duyệt và mapping giữa PRD với plan.',
+    choices: [{ label: 'Duyệt bằng artifact và alignment', next: 'module-1-complete', primary: true, decision: { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' } }]
   },
   'module-1-complete': {
     lessonId: 'module-1',
     checkpointId: 'm1-complete',
-    step: 7,
-    totalSteps: 7,
-    lessonLabel: 'BÀI HỌC CHÍNH',
-    mission: 'Viết yêu cầu để Codex có thể kiểm chứng',
+    step: 10,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Planning trước implementation',
     objective: 'Module 1 đã hoàn thành',
-    panelLabel: 'KỸ NĂNG CỐT LÕI',
-    panelStatus: 'ĐÃ HOÀN THÀNH',
+    panelLabel: 'PLANNING PACKAGE',
+    panelStatus: 'SẴN SÀNG CHO MODULE 2',
     tone: 'good',
-    request: 'Bạn đã đi hết vòng: hiểu vấn đề, giới hạn phạm vi, giao việc và duyệt bằng chứng.',
+    request: 'Bạn đã biến một ý tưởng một câu thành PRD và implementation plan đủ rõ để bắt đầu xây.',
     evidence: [
-      { label: 'MỤC TIÊU', value: 'Cụ thể', ready: true },
-      { label: 'PHẠM VI', value: 'Giới hạn', ready: true },
-      { label: 'BẰNG CHỨNG', value: 'Đã duyệt', ready: true }
+      { label: 'PRD', value: 'Đã duyệt', ready: true },
+      { label: 'PLAN', value: 'Đã duyệt', ready: true },
+      { label: 'BƯỚC TIẾP', value: 'Implementation & debugging', ready: true }
     ],
-    dialogue: 'Nút mobile chỉ là bài thực hành. Kỹ năng bạn vừa học có thể dùng lại cho một thay đổi nhỏ trong bất kỳ dự án nào.',
+    dialogue: 'Ở Module 2, hai tài liệu này sẽ là điểm xuất phát cho implementation và debugging. Module 1 dừng ở đây, trước khi viết code.',
     choices: [{ label: 'Về Home Base', action: 'home', primary: true }]
   }
 }
-
 type View = 'loading' | 'welcome' | 'resume' | 'app' | 'reset-confirm' | 'reset-required' | 'error'
 type AppDestination = 'home' | 'lesson' | 'progress' | 'settings'
 
@@ -517,7 +454,7 @@ function initialUpdate(): ProgressUpdate {
 }
 
 function emptyPracticeState(): PracticeState {
-  return { missionId: 'm1-verifiable-brief', status: 'idle' }
+  return { missionId: 'm1-planning-package', status: 'idle' }
 }
 
 const defaultAppSettings: AppSettings = {
@@ -619,7 +556,7 @@ function EntryScreen({
 }
 
 const futureModules = [
-  'Giữ bối cảnh và tích hợp AI an toàn',
+  'Implementation và debugging',
   'Dùng công cụ và đánh giá bằng chứng',
   'Chia nhỏ việc và kiểm soát đầu ra',
   'Làm việc đa phương thức và giữ quyền duyệt',
@@ -627,27 +564,25 @@ const futureModules = [
 ]
 
 const decisionLabels: Record<string, string> = {
-  firstEvidence: 'Bằng chứng đầu tiên',
-  timeBudget: 'Thời lượng học',
-  humanControl: 'Quyền kiểm soát',
-  practiceContext: 'Ngữ cảnh thực hành',
-  platform: 'Nền tảng',
-  readiness: 'Mức sẵn sàng',
-  evidenceReview: 'Cách duyệt bằng chứng'
+  planningApproach: 'Cách bắt đầu',
+  clarificationFocus: 'Điều cần làm rõ',
+  prdClassification: 'Phân loại yêu cầu',
+  promptMethod: 'Cách phỏng vấn',
+  prdApproval: 'Duyệt PRD',
+  planStructure: 'Cấu trúc plan',
+  alignmentDecision: 'Xử lý scope creep',
+  masteryEvidence: 'Bằng chứng hoàn thành'
 }
 
 const decisionValues: Record<string, string> = {
-  'project-and-scope': 'Dự án và phạm vi',
-  'source-files': 'Các tệp nguồn',
-  'content-review': 'Duyệt nội dung và thông tin',
-  publishing: 'Quyết định xuất bản',
-  'real-work': 'Công việc thật',
-  'moc-hoc': 'Thương hiệu mẫu Mộc Học',
-  linkedin: 'LinkedIn',
-  facebook: 'Facebook',
-  instagram: 'Instagram',
-  passed: 'Đã sẵn sàng',
-  'current-and-matches': 'Bằng chứng mới và khớp tiêu chí'
+  'plan-first': 'Planning trước khi code',
+  'product-requirements': 'Workflow, input, output và phạm vi V1',
+  'scope-in-prd': 'Quyết định phạm vi thuộc PRD',
+  'one-question-at-a-time': 'Một câu hỏi mỗi lượt',
+  'reviewed-eight-sections': 'Đã review đủ tám phần',
+  'observable-and-verifiable': 'Có kết quả và cách kiểm tra',
+  'remove-scope-creep': 'Loại nội dung ngoài PRD',
+  'artifacts-approved-and-aligned': 'Hai artifact đã duyệt và khớp nhau'
 }
 
 type TeacherOverlayProps = {
@@ -693,11 +628,10 @@ function PixelAppShell({
   const [confirmReset, setConfirmReset] = useState(false)
   const scene = scenes[progress.sceneId]
   const completed = new Set(progress.completedCheckpointIds)
-  if (progress.sceneId === 'intro-complete' || progress.sceneId === 'module-1-complete') {
+  if (progress.sceneId === 'module-1-complete') {
     completed.add(progress.checkpointId)
   }
   const progressPercent = Math.round((completed.size / checkpointIds.length) * 100)
-  const introComplete = progress.currentLessonId === 'module-1' || completed.has('intro-complete')
   const moduleOneComplete = progress.sceneId === 'module-1-complete'
   const practice = progress.practice
 
@@ -753,24 +687,9 @@ function PixelAppShell({
             </div>
 
             <div className="pixel-roadmap" aria-label="Lộ trình học">
-              {introComplete ? (
-                <article className="is-complete">
-                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Giới thiệu khóa học</strong><p>Đã hoàn thành</p></div><em>HOÀN THÀNH</em>
-                </article>
-              ) : (
-                <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>00</span><div><small>PHẦN GIỚI THIỆU</small><strong>Giới thiệu khóa học</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
-                </button>
-              )}
-              {progress.currentLessonId === 'module-1' ? (
-                <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                  <span>01</span><div><small>MODULE 1</small><strong>Giao việc để coding agent có thể kiểm chứng</strong><p>{scene.objective}</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
-                </button>
-              ) : (
-                <article>
-                  <span>01</span><div><small>MODULE 1</small><strong>Giao việc để coding agent có thể kiểm chứng</strong><p>Mở sau phần giới thiệu</p></div><em>TIẾP THEO</em>
-                </article>
-              )}
+              <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
+                <span>01</span><div><small>MODULE 1</small><strong>Giao tiếp hiệu quả với coding agent: Planning và PRD</strong><p>{scene.objective}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
+              </button>
               {futureModules.map((title, index) => (
                 <article className="is-locked" key={title}>
                   <span>{String(index + 2).padStart(2, '0')}</span><div><small>MODULE {index + 2}</small><strong>{title}</strong><p>Sẽ mở trong phần học tiếp theo</p></div><em>SẮP TỚI</em>
@@ -824,7 +743,7 @@ function PixelAppShell({
                 <section className="pixel-evidence-receipt">
                   <small>BẰNG CHỨNG TỪ BÀI LUYỆN TẬP</small>
                   <strong>{practice.latestEvent.summary}</strong>
-                  <div><span>Viewport {practice.latestEvent.evidence.viewport}</span><span>{practice.latestEvent.evidence.changedScope}</span><span>{practice.latestEvent.evidence.horizontalOverflow}</span></div>
+                  <div><span>{practice.latestEvent.evidence.prdArtifact}</span><span>{practice.latestEvent.evidence.implementationPlanArtifact}</span><span>{practice.latestEvent.evidence.alignment}</span></div>
                 </section>
               ) : null}
             </div>
@@ -878,14 +797,14 @@ export function LearningWindow() {
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
-    if (current.sceneId !== 'module-1-success' || current.practice.status !== 'completed') return current
+    if (current.sceneId !== 'module-1-planning-package' || current.practice.status !== 'completed') return current
     if (practiceAdvanceRef.current) return practiceAdvanceRef.current
     const completed = new Set(current.completedCheckpointIds)
-    completed.add('m1-plan-approval')
+    completed.add('m1-planning-package')
     const update: ProgressUpdate = {
       currentLessonId: 'module-1',
-      checkpointId: 'm1-review',
-      sceneId: 'module-1-reflection',
+      checkpointId: 'm1-mastery',
+      sceneId: 'module-1-mastery',
       completedCheckpointIds: [...completed],
       decisions: current.decisions
     }
@@ -1075,7 +994,7 @@ export function LearningWindow() {
         busy={busy}
         onPrimary={() => {
           if (view === 'resume') {
-            setDestination('home')
+            setDestination(progress?.currentLessonId === 'intro' ? 'lesson' : 'home')
             setTeacherOpen(false)
             setView('app')
             return

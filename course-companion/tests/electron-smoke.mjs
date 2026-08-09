@@ -126,6 +126,11 @@ async function verifyHomeBase(page) {
   assert.equal(await page.getByRole('navigation', { name: 'Điều hướng Course Companion' }).count(), 0)
   assert.equal(await page.getByRole('button', { name: 'Bài học', exact: true }).count(), 0)
   await page.getByText('SẮP TỚI', { exact: true }).first().waitFor()
+  assert.equal(await page.getByText('00', { exact: true }).count(), 0)
+  assert.equal(await page.getByText('Giới thiệu khóa học', { exact: true }).count(), 0)
+  await page
+    .getByText('Giao tiếp hiệu quả với coding agent: Planning và PRD', { exact: true })
+    .waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -170,7 +175,7 @@ try {
     .getByRole('button', { name: 'Cùng bắt đầu nhé' })
     .click()
   await firstWindows.learningPage
-    .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/9', { exact: true })
+    .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/1', { exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
@@ -198,7 +203,7 @@ try {
     .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu', exact: true })
+    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
@@ -216,7 +221,7 @@ try {
     assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
     assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
     const narrowStartButton = await firstWindows.learningPage
-      .getByRole('button', { name: 'Bắt đầu', exact: true })
+      .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
       .boundingBox()
     const narrowChoiceArea = await firstWindows.learningPage
       .locator('.pixel-choices')
@@ -228,15 +233,31 @@ try {
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu', exact: true })
+    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .click()
   await verifyHomeBase(firstWindows.learningPage)
   await firstWindows.learningPage
-    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
+    .getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' })
+    .getByRole('button', { name: 'Làm rõ kế hoạch trước khi code' })
     .waitFor()
+  await capture(firstWindows.learningPage, 'module-1-planning.png')
+  if (screenshotDirectory) {
+    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+    const moduleOneNarrowWidths = await firstWindows.learningPage.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(moduleOneNarrowWidths.body, moduleOneNarrowWidths.viewport)
+    assert.equal(moduleOneNarrowWidths.document, moduleOneNarrowWidths.viewport)
+    await capture(firstWindows.learningPage, 'module-1-planning-390px.png')
+    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -247,7 +268,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText(/Thực hiện vòng agentic coding chỉ đọc đầu tiên/)
+    .getByText(/Vì sao planning giúp bạn tiết kiệm thời gian/)
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -260,7 +281,7 @@ try {
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
-  await learningPage.getByRole('button', { name: 'Bắt đầu', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu Module 1', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
   await learningPage.getByText('PHẢN HỒI LUYỆN TẬP', { exact: true }).waitFor()
@@ -290,35 +311,34 @@ try {
   )
   await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage
-    .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
+    .getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ })
     .click()
   await learningPage
-    .getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' })
+    .getByRole('button', { name: 'Làm rõ kế hoạch trước khi code' })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 1)
 
-  await learningPage.getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' }).click()
-  await learningPage.getByRole('button', { name: '30 phút' }).click()
-  await learningPage.getByRole('button', { name: 'Duyệt nội dung và thông tin' }).click()
-  await learningPage.getByRole('button', { name: 'Tạm dùng thương hiệu mẫu Mộc Học' }).click()
-  await learningPage.getByRole('button', { name: 'LinkedIn' }).click()
-  await learningPage.getByRole('button', { name: 'Kiểm tra mức sẵn sàng' }).click()
+  await learningPage.getByRole('button', { name: 'Làm rõ kế hoạch trước khi code' }).click()
   await learningPage
-    .getByRole('button', { name: 'Kết quả đáp ứng dấu hiệu hoàn thành đã định trước' })
+    .getByRole('button', { name: 'Workflow, input, output và phạm vi V1' })
     .click()
-  await learningPage.getByRole('button', { name: 'Vào bài học đầu tiên' }).click()
-
   await learningPage
-    .getByRole('button', { name: 'Kết quả sẽ khó đoán và khó kiểm tra' })
+    .getByRole('button', { name: 'PRD · Đây là quyết định phạm vi' })
     .click()
-  await learningPage.getByRole('button', { name: 'Chọn một yêu cầu' }).click()
   await learningPage
-    .getByRole('button', {
-      name: 'C · Nút chính rộng 100% ở 390px; chỉ sửa CSS; không tràn ngang'
-    })
+    .getByRole('button', { name: 'Phỏng vấn tôi từng câu một' })
     .click()
-  await learningPage.getByRole('button', { name: 'Sang Codex để thực hành' }).click()
+  await learningPage.getByRole('button', { name: 'Duyệt PRD đã review' }).click()
+  await learningPage
+    .getByRole('button', { name: 'Tạo plan có kết quả và cách kiểm tra' })
+    .click()
+  await learningPage
+    .getByRole('button', { name: 'Loại bước đăng bài khỏi plan' })
+    .click()
+  await learningPage
+    .getByRole('button', { name: 'Sang Codex tạo planning package' })
+    .click()
 
   const minimized = await waitForSnapshot(
     resumedLaunch,
@@ -351,7 +371,7 @@ try {
     .waitFor()
   await companionPage
     .getByText(
-      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
+      'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.',
       { exact: true }
     )
     .waitFor()
@@ -372,7 +392,7 @@ try {
     await companionPage.getByRole('button', { name: buttonName, exact: true }).click()
     await companionPage.getByText(statusText, { exact: true }).waitFor()
   }
-  await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
+  await companionPage.getByText('Khớp PRD', { exact: true }).waitFor()
   await companionPage.getByText('BẰNG CHỨNG MỚI · BÀI LUYỆN TẬP', { exact: true }).waitFor()
 
   await companionPage.getByRole('button', { name: 'Mở bài học' }).click()
@@ -382,18 +402,14 @@ try {
     'Expected the learning window to restore and hide the companion'
   )
 
-  await learningPage.getByText('Đọc bằng chứng trước khi kết luận', { exact: true }).waitFor()
+  await learningPage.getByText('Kiểm tra planning package', { exact: true }).waitFor()
   assert.equal(
     await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
     0
   )
   await learningPage
-    .getByRole('button', { name: 'Bằng chứng mới và khớp đúng tiêu chí' })
+    .getByRole('button', { name: 'Hai artifact tồn tại, đã duyệt và khớp nhau' })
     .click()
-  await learningPage
-    .getByText('Khép vòng yêu cầu → hành động → bằng chứng', { exact: true })
-    .waitFor()
-  await learningPage.getByRole('button', { name: 'Hoàn thành Module 1' }).click()
   await learningPage.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
@@ -422,8 +438,8 @@ try {
   )
   assert.equal(persisted.sceneId, 'module-1-complete')
   assert.equal(persisted.checkpointId, 'm1-complete')
-  assert.equal(persisted.decisions.timeBudget, '30')
-  assert.equal(persisted.decisions.evidenceReview, 'current-and-matches')
+  assert.equal(persisted.decisions.planningApproach, 'plan-first')
+  assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
   assert.equal(persisted.practice.status, 'completed')
   assert.equal(persisted.practice.latestEvent.source, 'fixture')
 
@@ -456,7 +472,7 @@ try {
     .waitFor()
   await historyWindows.companionPage
     .getByText(
-      'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.',
+      'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.',
       { exact: true }
     )
     .waitFor()
@@ -469,7 +485,7 @@ try {
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: roadmap-first Home Base, current-stage lesson entry, corner Teacher overlay, settings, journey resume/reset, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
+    'Electron smoke: Module 0 removal, planning-first Module 1, roadmap entry, Teacher overlay, settings, journey resume/reset, planning-package fixtures, mastery, persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

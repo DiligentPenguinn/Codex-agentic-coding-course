@@ -22,9 +22,18 @@ afterEach(async () => {
 
 const practiceCheckpoint: ProgressUpdate = {
   currentLessonId: 'module-1',
-  checkpointId: 'm1-plan-approval',
-  sceneId: 'module-1-success',
-  completedCheckpointIds: ['m1-brief'],
+  checkpointId: 'm1-planning-package',
+  sceneId: 'module-1-planning-package',
+  completedCheckpointIds: [
+    'intro-visual-onboarding',
+    'm1-why-planning',
+    'm1-contentpilot-brief',
+    'm1-prd-concept',
+    'm1-prd-interview',
+    'm1-prd-approved',
+    'm1-implementation-plan',
+    'm1-alignment-review'
+  ],
   decisions: {}
 }
 
@@ -51,7 +60,7 @@ describe('FixturePracticeAdapter', () => {
       expect(state.latestEvent).toMatchObject({
         scenario,
         source: 'fixture',
-        missionId: 'm1-verifiable-brief'
+        missionId: 'm1-planning-package'
       })
       await expect(adapter.loadState()).resolves.toEqual(state)
     }
@@ -69,9 +78,9 @@ describe('FixturePracticeAdapter', () => {
     const stale = await adapter.emitFixture({ scenario: 'stale' })
 
     expect(success.latestEvent?.evidence).toMatchObject({
-      viewport: '390px',
-      changedScope: 'onboarding CSS',
-      horizontalOverflow: 'Không phát hiện',
+      prdArtifact: 'PRD.md · đã duyệt',
+      implementationPlanArtifact: 'implementation-plan.md · đã duyệt',
+      alignment: 'Khớp PRD',
       freshness: 'current'
     })
     expect(stale.latestEvent?.evidence?.freshness).toBe('stale')
