@@ -27,6 +27,8 @@ const sceneSet = new Set<string>(sceneIds)
 
 const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'intro-visual-onboarding': 'intro-visual-onboarding',
+  'intro-course-overview-2': 'intro-visual-onboarding',
+  'intro-learning-method': 'intro-visual-onboarding',
   'intro-first-safe-win': 'intro-first-safe-win',
   'intro-time-budget': 'intro-time-budget',
   'intro-graduation': 'intro-graduation',

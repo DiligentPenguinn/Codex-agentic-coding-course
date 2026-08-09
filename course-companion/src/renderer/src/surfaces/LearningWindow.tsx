@@ -55,20 +55,60 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'intro-visual-onboarding',
     step: 1,
     totalSteps: 9,
-    lessonLabel: 'PHẦN GIỚI THIỆU',
-    mission: 'Hiểu mình đang xây gì và làm việc ở đâu',
-    objective: 'Bắt đầu đúng sản phẩm, đúng workspace',
-    panelLabel: 'ĐÍCH ĐẾN PILOT',
-    panelStatus: 'INTRO + MODULE 1',
+    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    mission: 'Giới thiệu khóa học',
+    objective: 'Bạn sẽ xây gì trong khóa học này?',
+    panelLabel: 'CONTENTPILOT',
+    panelStatus: 'TRANG 1/2',
     tone: 'neutral',
-    request: 'Bạn sẽ xây ContentPilot trong khóa học; Course Companion chỉ dẫn đường và lưu hành trình học.',
+    request: 'Ứng dụng bạn sẽ xây trong khóa học',
     evidence: [
-      { label: 'SẢN PHẨM', value: 'ContentPilot' },
-      { label: 'NƠI THỰC HÀNH', value: 'Codex' },
-      { label: 'NGƯỜI DẪN ĐƯỜNG', value: 'Triết' }
+      { label: 'ỨNG DỤNG', value: 'ContentPilot' },
+      { label: 'QUÁ TRÌNH', value: 'Sáng tạo nội dung' },
+      { label: 'KÊNH', value: 'Facebook' }
     ],
-    dialogue: 'Chào bạn. Trước khi sửa bất kỳ tệp nào, mình sẽ giúp bạn phân biệt ứng dụng đang học, ứng dụng sẽ xây và nơi Codex làm việc.',
-    choices: [{ label: 'Bắt đầu bằng một vòng chỉ đọc', next: 'intro-first-safe-win', primary: true }]
+    dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
+    choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }]
+  },
+  'intro-course-overview-2': {
+    lessonId: 'intro',
+    checkpointId: 'intro-visual-onboarding',
+    step: 1,
+    totalSteps: 9,
+    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    mission: 'Giới thiệu khóa học',
+    objective: 'Bạn sẽ xây gì trong khóa học này?',
+    panelLabel: 'CONTENTPILOT',
+    panelStatus: 'TRANG 2/2',
+    tone: 'neutral',
+    request: 'Từ thông tin thương hiệu đến nội dung chờ bạn duyệt',
+    evidence: [
+      { label: 'NGHIÊN CỨU', value: 'Thông tin đang trending' },
+      { label: 'SÁNG TẠO', value: 'Nội dung và hình ảnh' },
+      { label: 'QUYẾT ĐỊNH', value: 'Bạn duyệt nội dung' }
+    ],
+    dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
+    choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }]
+  },
+  'intro-learning-method': {
+    lessonId: 'intro',
+    checkpointId: 'intro-visual-onboarding',
+    step: 1,
+    totalSteps: 9,
+    lessonLabel: 'MODULE 1 · GIỚI THIỆU KHÓA HỌC',
+    mission: 'Giới thiệu khóa học',
+    objective: 'Bạn sẽ học như thế nào?',
+    panelLabel: 'CÁCH HỌC',
+    panelStatus: 'XÂY TỪNG PHẦN',
+    tone: 'neutral',
+    request: 'Học agentic coding thông qua một dự án thực tế',
+    evidence: [
+      { label: 'DỰ ÁN THỰC HÀNH', value: 'ContentPilot' },
+      { label: 'CÁCH HỌC', value: 'Xây từng phần' },
+      { label: 'KỸ NĂNG', value: 'Xây ứng dụng với AI' }
+    ],
+    dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
+    choices: [{ label: 'Bắt đầu', next: 'intro-first-safe-win', primary: true }]
   },
   'intro-first-safe-win': {
     lessonId: 'intro',

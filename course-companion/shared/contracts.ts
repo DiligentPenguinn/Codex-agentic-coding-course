@@ -40,6 +40,8 @@ export const checkpointIds = [
 
 export const sceneIds = [
   'intro-visual-onboarding',
+  'intro-course-overview-2',
+  'intro-learning-method',
   'intro-first-safe-win',
   'intro-time-budget',
   'intro-graduation',

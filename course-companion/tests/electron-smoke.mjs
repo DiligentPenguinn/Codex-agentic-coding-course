@@ -179,11 +179,34 @@ try {
     .waitFor()
   await capture(firstWindows.learningPage, 'lesson-progress.png')
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
+    .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
-    .getByText('Thực hiện vòng cộng tác chỉ đọc đầu tiên', { exact: true })
+    .getByText('TRANG 2/2', { exact: true })
     .waitFor()
+  await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Bắt đầu khóa học' })
+    .click()
+  await firstWindows.learningPage
+    .getByText('Bạn sẽ học như thế nào?', { exact: true })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
+  if (screenshotDirectory) {
+    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+    const introductionNarrowWidths = await firstWindows.learningPage.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
+    assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
+    await capture(firstWindows.learningPage, 'course-introduction-page-3-390px.png')
+    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -194,7 +217,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText('Kiểm tra bằng chứng trước khi thay đổi', { exact: true })
+    .getByText('Bạn sẽ học như thế nào?', { exact: true })
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -236,7 +259,16 @@ try {
     .getByRole('button', { name: /PHẦN GIỚI THIỆU.*MỞ BÀI HỌC/ })
     .click()
   await learningPage
-    .getByRole('button', { name: 'Bắt đầu bằng một vòng chỉ đọc' })
+    .getByRole('button', { name: 'Tiếp tục' })
+    .click()
+  await learningPage
+    .getByRole('button', { name: 'Bắt đầu khóa học' })
+    .click()
+  await learningPage
+    .getByText('Bạn sẽ học như thế nào?', { exact: true })
+    .waitFor()
+  await learningPage
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .click()
 
   await learningPage.getByRole('button', { name: 'Đúng các tệp nguồn đã đọc' }).click()

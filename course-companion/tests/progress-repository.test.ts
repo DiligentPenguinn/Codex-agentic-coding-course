@@ -58,6 +58,24 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
+  it('resumes an exact page inside the multi-page course introduction', async () => {
+    const repository = new ProgressRepository(await temporaryDirectory())
+    await repository.save(introStart)
+
+    const overviewPageTwo = await repository.save({
+      currentLessonId: 'intro',
+      checkpointId: 'intro-visual-onboarding',
+      sceneId: 'intro-course-overview-2',
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+
+    await expect(repository.load()).resolves.toEqual({
+      status: 'returning',
+      progress: overviewPageTwo
+    })
+  })
+
   it('migrates a schema-v1 save to schema v2 without losing journey progress', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {
