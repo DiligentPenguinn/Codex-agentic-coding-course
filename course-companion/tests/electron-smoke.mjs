@@ -1,12 +1,19 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { appendFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
 import { _electron as electron } from 'playwright-core'
+import {
+  createDisposablePracticeWorkspace,
+  fingerprintTree
+} from './support/disposable-practice-workspace.mjs'
 
 const mainEntry = join(process.cwd(), 'out/main/index.js')
 const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electron-'))
+const repositoryRoot = resolve(process.cwd(), '..')
+const practiceWorkspace = await createDisposablePracticeWorkspace({ repositoryRoot })
+const canonicalStarterFingerprint = await fingerprintTree(practiceWorkspace.canonicalStarter)
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
 
 async function capture(page, filename) {
@@ -25,6 +32,7 @@ async function launchCourseCompanion() {
     env: {
       ...process.env,
       COURSE_COMPANION_USER_DATA_DIR: userDataDirectory,
+      COURSE_COMPANION_WORKSPACE_ROOT: practiceWorkspace.root,
       COURSE_COMPANION_FAKE_CODEX: '1',
       COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE: '1',
       COURSE_COMPANION_FAKE_EXECUTOR_SILENT_RESULT: '1',
@@ -270,6 +278,7 @@ try {
     .locator('.practice-brief-card')
     .getByText('Một thay đổi CSS đúng phạm vi, có bằng chứng ở viewport 390px và không gây tràn ngang.', { exact: true })
     .waitFor()
+  await capture(learningPage, 'practice-brief.png')
   await learningPage.getByRole('button', { name: 'Bắt đầu Practice mới' }).click()
 
   const minimized = await waitForSnapshot(
@@ -349,6 +358,10 @@ try {
   )
   assert.equal(companionWindow(expanded)?.bounds.height, 520)
 
+  await appendFile(
+    join(practiceWorkspace.starterRoot, 'app', 'globals.css'),
+    '\n/* Developer-only Electron smoke evidence. */\n'
+  )
   await companionPage
     .getByText('HƯƠNG ĐÃ SẴN SÀNG', { exact: true })
     .waitFor()
@@ -361,15 +374,17 @@ try {
   await composer.press('Enter')
   await companionPage.getByText('CHƯA GỬI', { exact: true }).waitFor()
   await companionPage.getByText('TEACHER · SẴN SÀNG', { exact: true }).waitFor()
-  await companionPage.getByText(/Không thể hoàn tất bước turn-protocol của Hương/).waitFor()
+  await companionPage.getByText(/Hương tạm thời chưa thể phản hồi/).waitFor()
+  await capture(companionPage, 'teacher-error-recovery.png')
   await companionPage.getByRole('button', { name: 'Thử lại', exact: true }).click()
   await companionPage.getByText('LIVE', { exact: true }).waitFor()
   assert.equal(await companionPage.getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true }).count(), 1)
   await companionPage
     .getByText(/Executor báo đã thay đổi: starters\/contentpilot\/app\/globals\.css/)
     .waitFor()
-  await companionPage.getByText(/chưa xác nhận độc lập thay đổi tệp/).waitFor()
+  await companionPage.getByText(/Workspace xác nhận tệp đang thay đổi: starters\/contentpilot\/app\/globals\.css/).waitFor()
   await companionPage.getByText(/chưa được Course Companion chạy lại/).waitFor()
+  await capture(companionPage, 'teacher-compact-chat.png')
 
   await companionPage.addStyleTag({
     content: '.pixel-chat-log { flex: 0 0 90px !important; min-height: 90px !important; max-height: 90px !important; } .pixel-chat-message { min-height: 80px; }'
@@ -403,6 +418,28 @@ try {
   }
   await companionPage.getByText('Không phát hiện', { exact: true }).waitFor()
   await companionPage.getByText('BẰNG CHỨNG MỚI · MÔ PHỎNG', { exact: true }).waitFor()
+  await capture(companionPage, 'teacher-compact-progress.png')
+
+  const reviewProgressButton = companionPage.getByRole('button', {
+    name: 'Yêu cầu Hương duyệt tiến độ'
+  })
+  await reviewProgressButton.waitFor()
+  assert.equal(await reviewProgressButton.getAttribute('title'), 'Yêu cầu Hương duyệt tiến độ')
+  await reviewProgressButton.click()
+  const returnToCourseButton = companionPage.getByRole('button', { name: 'Quay lại khóa học', exact: true })
+  await returnToCourseButton.waitFor()
+  const reviewedWorkspace = await companionPage.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
+  assert.equal(reviewedWorkspace?.review?.status, 'passed')
+  assert.equal(reviewedWorkspace?.review?.canReturn, true)
+  await capture(companionPage, 'practice-review-passed-compact.png')
+  assert.equal(
+    await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).getAttribute('aria-selected'),
+    'true'
+  )
+  assert.equal(
+    await companionPage.getByText('Không thể duyệt tiến độ Practice. Hãy thử lại.', { exact: true }).count(),
+    0
+  )
 
   await companionPage.getByRole('tab', { name: 'TEACHER' }).click()
   const compactDraft = 'Bản nháp từ cửa sổ thu gọn'
@@ -464,12 +501,18 @@ try {
   await waitForSnapshot(resumedLaunch, (windows) => companionWindow(windows)?.bounds.width === 72, 'Expected Teacher to return to bubble')
   await companionPage.getByRole('button', { name: 'Mở Hương, giáo viên đồng hành' }).dblclick()
   await learningPage.locator('.pixel-teacher-overlay.is-practice-full').waitFor()
-  await learningPage.locator('.pixel-teacher-overlay.is-practice-full').getByRole('button', { name: 'Đóng Hương' }).click()
+  const passedPracticeTeacher = learningPage.locator('.pixel-teacher-overlay.is-practice-full')
+  await passedPracticeTeacher.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
+  const fullReturnButton = passedPracticeTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true })
+  await fullReturnButton.waitFor()
+  await capture(learningPage, 'practice-review-passed-full.png')
+  await fullReturnButton.click()
+  await learningPage.evaluate(() => globalThis.courseCompanion?.returnPassedPractice())
 
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
-    'Expected closing full Teacher to reveal the unchanged lesson'
+    'Expected returning from a passed Practice to reveal the destination lesson'
   )
 
   await learningPage.getByText('Đọc bằng chứng trước khi kết luận', { exact: true }).waitFor()
@@ -477,6 +520,7 @@ try {
     await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
     0
   )
+  await capture(learningPage, 'practice-reflection.png')
   await learningPage
     .getByRole('button', { name: 'Bằng chứng mới và khớp đúng tiêu chí' })
     .click()
@@ -485,8 +529,17 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Hoàn thành Module 1' }).click()
   await learningPage.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-complete.png')
   await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
+
+  const firstPracticeRun = await companionPage.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
+  const secondPracticeRun = await companionPage.evaluate(() => globalThis.courseCompanion?.startPractice({ transfer: false }))
+  assert.ok(firstPracticeRun?.activePractice)
+  assert.ok(secondPracticeRun?.activePractice)
+  assert.notEqual(secondPracticeRun.activePractice.runId, firstPracticeRun.activePractice.runId)
+  const freshTeacherState = await companionPage.evaluate(() => globalThis.courseCompanion?.loadCompanionState())
+  assert.deepEqual(freshTeacherState?.conversation.messages, [])
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
     const learning = BrowserWindow.getAllWindows().find((window) =>
@@ -521,13 +574,16 @@ try {
     .trim()
     .split('\n')
     .map((line) => JSON.parse(line))
-  assert.equal(persistedChat.length, 5)
+  assert.equal(persistedChat.length, 6)
   assert.equal(persistedChat[0].deliveryStatus, 'pending')
   assert.equal(persistedChat[1].deliveryStatus, 'failed')
   assert.equal(persistedChat[2].deliveryStatus, 'pending')
   assert.equal(persistedChat[3].deliveryStatus, 'delivered')
   assert.equal(new Set(persistedChat.slice(0, 4).map((message) => message.id)).size, 1)
   assert.equal(persistedChat[4].source, 'live')
+  assert.equal(persistedChat[5].role, 'teacher')
+  assert.equal(persistedChat[5].source, 'live')
+  assert.equal(typeof persistedChat[5].practiceRunId, 'string')
 
   chatHistoryLaunch = await launchCourseCompanion()
   const historyWindows = await loadWindows(chatHistoryLaunch)
@@ -558,14 +614,14 @@ try {
   const restoredTeacherTab = historyWindows.companionPage.getByRole('tab', { name: 'TEACHER' })
   await restoredTeacherTab.waitFor()
   assert.equal(await restoredTeacherTab.getAttribute('aria-selected'), 'true')
-  await historyWindows.companionPage
-    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
-    .waitFor()
-  await historyWindows.companionPage
-    .getByText(/Executor báo đã thay đổi: starters\/contentpilot\/app\/globals\.css/)
-    .waitFor()
-  await historyWindows.companionPage.getByText(/chưa xác nhận độc lập thay đổi tệp/).waitFor()
-  await historyWindows.companionPage.getByText(/chưa được Course Companion chạy lại/).waitFor()
+  assert.equal(
+    await historyWindows.companionPage.getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true }).count(),
+    0
+  )
+  assert.equal(
+    await historyWindows.companionPage.getByText(/Executor báo đã thay đổi: starters\/contentpilot\/app\/globals\.css/).count(),
+    0
+  )
   await historyWindows.companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
   await historyWindows.companionPage.getByText('DEV · BẰNG CHỨNG MÔ PHỎNG', { exact: true }).click()
   await historyWindows.companionPage
@@ -574,13 +630,18 @@ try {
   await historyWindows.companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await chatHistoryLaunch.waitForEvent('close')
   chatHistoryLaunch = undefined
+  assert.equal(
+    await fingerprintTree(practiceWorkspace.canonicalStarter),
+    canonicalStarterFingerprint
+  )
 
   console.log(
-    'Electron smoke: roadmap-first Home Base, Practice start/resume/switch dialog, compact and full Teacher surfaces, settings, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
+    'Electron smoke: roadmap-first Home Base, Practice start/resume/switch dialog, fresh per-run Teacher sessions, compact and full Teacher surfaces, settings, all practice fixtures, evidence reflection, Module 1 completion, fixture chat, focus, relaunch persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)
   await resumedLaunch?.close().catch(() => undefined)
   await chatHistoryLaunch?.close().catch(() => undefined)
   await rm(userDataDirectory, { recursive: true, force: true })
+  await practiceWorkspace.cleanup()
 }

@@ -107,6 +107,8 @@ export function TeacherWorkspace({
   const [practice, setPractice] = useState<PracticeState>(emptyPractice)
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [practiceBusy, setPracticeBusy] = useState(false)
+  const [reviewBusy, setReviewBusy] = useState(false)
+  const [returnBusy, setReturnBusy] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
@@ -214,6 +216,44 @@ export function TeacherWorkspace({
     }
   }
 
+  const reviewProgress = async () => {
+    if (reviewBusy || !window.courseCompanion) return
+    setReviewBusy(true)
+    setError('')
+    try {
+      const reviewed = await window.courseCompanion.reviewPractice()
+      setMessages((current) => current.some((message) => message.id === reviewed.teacherMessage.id)
+        ? current
+        : [...current, reviewed.teacherMessage])
+      setWorkspace(reviewed.workspace)
+      setActiveTab('progress')
+      try {
+        const selected = await window.courseCompanion.selectPracticePanel({
+          surface: embedded ? 'full' : 'compact',
+          panel: 'progress'
+        })
+        setWorkspace(selected)
+      } catch {
+        // The review result is authoritative even if persisting the selected tab fails.
+      }
+    } catch {
+      setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
+    } finally {
+      setReviewBusy(false)
+    }
+  }
+
+  const returnToCourse = async () => {
+    if (returnBusy || !window.courseCompanion) return
+    setReturnBusy(true)
+    setError('')
+    try {
+      await window.courseCompanion.returnPassedPractice()
+    } catch {
+      setError('Kh\u00f4ng th\u1ec3 quay l\u1ea1i kh\u00f3a h\u1ecdc. K\u1ebft qu\u1ea3 \u0111\u1ea1t v\u1eabn \u0111\u01b0\u1ee3c l\u01b0u; h\u00e3y th\u1eed l\u1ea1i.')
+      setReturnBusy(false)
+    }
+  }
   const sendMessage = async (contentOverride?: string) => {
     const content = (contentOverride ?? draft).trim()
     if (!content || busy) return
@@ -321,6 +361,41 @@ export function TeacherWorkspace({
           </div>
         </div>
         <div className="pixel-panel-controls">
+          {workspace?.activePractice && workspace.review?.canReview ? (
+            <button
+              className={'pixel-panel-control pixel-panel-control--review' + (reviewBusy ? ' is-busy' : '')}
+              type="button"
+              aria-label="Yêu cầu Hương duyệt tiến độ"
+              title="Yêu cầu Hương duyệt tiến độ"
+              aria-busy={reviewBusy}
+              disabled={reviewBusy}
+              onClick={() => void reviewProgress()}
+            >
+              <span className="pixel-review-control-visual" aria-hidden="true">
+                <svg className="pixel-review-control-icon" viewBox="0 0 24 24">
+                  <path d="M9 5h6M9 3h6v4H9zM7 5H5v16h14V5h-2M8 13l2.5 2.5L16 10" />
+                </svg>
+                {reviewBusy ? <span className="pixel-review-spinner" /> : null}
+              </span>
+            </button>
+          ) : null}
+          {workspace?.review?.canReturn ? (
+            <button
+              className="pixel-panel-control pixel-panel-control--return"
+              type="button"
+              aria-label="Quay lại khóa học nhanh"
+              title="Quay lại khóa học nhanh"
+              aria-busy={returnBusy}
+              disabled={returnBusy}
+              onClick={() => void returnToCourse()}
+            >
+              {returnBusy ? <span className="pixel-control-spinner" aria-hidden="true" /> : (
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5zM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5A2.5 2.5 0 0 1 20 21.5zM17 10h4m-2-2 2 2-2 2" />
+                </svg>
+              )}
+            </button>
+          ) : null}
           {!embedded && onExpand ? (
             <button
               className="pixel-panel-control"
@@ -428,7 +503,12 @@ export function TeacherWorkspace({
       ) : (
         <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
           {workspace ? (
-            <PracticeProgress workspace={workspace} compact={!embedded} />
+            <PracticeProgress
+              workspace={workspace}
+              compact={!embedded}
+              returnBusy={returnBusy}
+              onReturn={() => void returnToCourse()}
+            />
           ) : (
             <div className="pixel-practice-status"><strong>Đang đọc tiến độ Practice…</strong></div>
           )}

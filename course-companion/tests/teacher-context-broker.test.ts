@@ -15,12 +15,14 @@ const timestamp = '2026-08-08T00:00:00.000Z'
 const progress: LearnerProgress = {
   schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
   courseVersion: COURSE_VERSION,
+  courseRunId: 'course-run-1',
   currentLessonId: 'module-1',
   checkpointId: 'm1-plan-approval',
   sceneId: 'module-1-brief-choice',
   completedCheckpointIds: ['m1-orient'],
   decisions: { evidence: 'viewport-and-typecheck' },
   practice: { missionId: 'm1-verifiable-brief', status: 'active' },
+  practiceCompletions: [],
   startedAt: timestamp,
   updatedAt: timestamp
 }

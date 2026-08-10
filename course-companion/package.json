@@ -13,7 +13,7 @@
     "typecheck": "tsc --build --pretty false",
     "lint": "eslint .",
     "test": "vitest run && npm run test:startup",
-    "test:startup": "node --test tests/macos-startup.test.mjs",
+    "test:startup": "node --test tests/disposable-practice-workspace.test.mjs tests/macos-startup.test.mjs",
     "test:electron": "npm run build && node tests/electron-smoke.mjs"
   },
   "devDependencies": {

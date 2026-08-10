@@ -37,13 +37,31 @@ function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
     : 'Đang xác nhận Executor chat mới…'
 }
 
+function safeCreationError(error: unknown): string {
+  const message = error instanceof Error ? error.message : ''
+  if (message === 'Codex could not read the Executor chat after creation') {
+    return 'Executor chat đã được tạo nhưng Codex chưa đọc lại được dữ liệu đã lưu. Hãy thử lại.'
+  }
+  if (message === 'Invalid Executor chat binding') {
+    return 'Executor chat đã lưu không còn hợp lệ. Hãy hủy lần chuyển này và bắt đầu lại.'
+  }
+  if (message === 'Codex Executor bootstrap did not close') {
+    return 'Course Companion chưa bàn giao được Executor chat cho Codex desktop. Hãy thử lại.'
+  }
+  if (message === 'Codex did not create the Executor chat' ||
+      message === 'Codex created an invalid Executor chat') {
+    return 'Codex App Server không trả về một Executor chat hợp lệ. Hãy thử lại.'
+  }
+  return 'Không thể tạo Executor chat mới. Practice cũ vẫn được giữ nguyên.'
+}
+
 export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   private busy: Promise<PracticeWorkspaceView> | null = null
   private lastError = ''
 
   constructor(
     private readonly repository: PracticeRunRepository,
-    private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'openTarget'>,
+    private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'prepareTarget' | 'openTarget'>,
     private readonly now: () => Date = () => new Date(),
     private readonly createId: () => string = randomUUID,
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>
@@ -51,10 +69,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
 
   async loadWorkspace(): Promise<PracticeWorkspaceView> {
     const record = await this.repository.load()
-    if (record.pendingTransition?.stage === 'target-created') {
-      return this.toView(await this.commitTarget(record))
-    }
-    if (record.pendingTransition) {
+    if (record.pendingTransition && !this.lastError) {
       this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
     }
     return this.toView(record)
@@ -83,10 +98,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           ...pending,
           pendingTransition: { ...transition, stage: 'target-created', targetBinding }
         })
+        await this.executor.prepareTarget(targetBinding)
         committed = await this.commitTarget(targetCreated)
-      } catch {
-        this.lastError = 'Không thể tạo Executor chat mới. Practice cũ vẫn được giữ nguyên.'
-        throw new Error(this.lastError)
+      } catch (error) {
+        this.lastError = safeCreationError(error)
+        throw new Error(this.lastError, { cause: error })
       }
       await this.openTarget(targetBinding, true)
       return this.toView(committed)
@@ -110,16 +126,36 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       const transition = record.pendingTransition
       if (!transition) throw new Error('Không có lần chuyển nào để thử lại.')
       if (transition.stage === 'target-created' && transition.targetBinding) {
-        const committed = await this.commitTarget(record)
+        let committed
+        try {
+          await this.executor.prepareTarget(transition.targetBinding)
+          committed = await this.commitTarget(record)
+        } catch (error) {
+          this.lastError = safeCreationError(error)
+          throw new Error(this.lastError, { cause: error })
+        }
         await this.openTarget(transition.targetBinding, true)
         return this.toView(committed)
       }
-      const targetBinding = await this.executor.createTarget(transition.targetRunId)
+      let targetBinding
+      try {
+        targetBinding = await this.executor.createTarget(transition.targetRunId)
+      } catch (error) {
+        this.lastError = safeCreationError(error)
+        throw new Error(this.lastError, { cause: error })
+      }
       const targetCreated = await this.repository.save({
         ...record,
         pendingTransition: { ...transition, stage: 'target-created', targetBinding }
       })
-      const committed = await this.commitTarget(targetCreated)
+      let committed
+      try {
+        await this.executor.prepareTarget(targetBinding)
+        committed = await this.commitTarget(targetCreated)
+      } catch (error) {
+        this.lastError = safeCreationError(error)
+        throw new Error(this.lastError, { cause: error })
+      }
       await this.openTarget(targetBinding, true)
       return this.toView(committed)
     })
@@ -128,9 +164,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   cancel(): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       const record = await this.repository.load()
-      if (record.pendingTransition?.stage !== 'creating-target') {
-        throw new Error('Không thể hủy ở giai đoạn này.')
-      }
+      if (!record.pendingTransition) throw new Error('Không có lần chuyển nào để hủy.')
       this.lastError = ''
       return this.toView(await this.repository.save({ ...record, pendingTransition: null }))
     })
@@ -138,11 +172,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
 
   selectPanel(update: PracticePanelUpdate): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
-      const record = await this.repository.load()
-      const presentation = update.surface === 'full'
-        ? { ...record.presentation, fullPanel: update.panel }
-        : { ...record.presentation, compactPanel: update.panel }
-      return this.toView(await this.repository.save({ ...record, presentation }))
+      return this.toView(await this.repository.selectPanel(update.surface, update.panel))
     })
   }
 
@@ -182,6 +212,9 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     const activeRun: PracticeRunRecord = {
       runId: transition.targetRunId,
       generation,
+      practiceId: 'm1-verifiable-brief',
+      practiceVersion: '1.0.0',
+      reviewStatus: 'not-reviewed',
       status: 'active',
       binding: transition.targetBinding,
       startedAt: transition.startedAt,
@@ -217,6 +250,15 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       objective,
       expectedOutcome,
       checklist: structuredClone(record.activeRun?.checklist ?? initialChecklist()),
+      review: {
+        status: record.activeRun?.reviewStatus ?? 'not-reviewed',
+        canReview: Boolean(record.activeRun && !transition),
+        canReturn: Boolean(record.activeRun?.reviewStatus === 'passed' && record.activeRun.completion),
+        ...(record.activeRun?.reviewResult
+          ? { result: structuredClone(record.activeRun.reviewResult) }
+          : {})
+      },
+      ...(record.activeRun?.completion ? { completion: structuredClone(record.activeRun.completion) } : {}),
       ...(record.activeRun
         ? {
             activePractice: {
@@ -231,7 +273,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
             transition: {
               stage: transition.stage,
               label: transitionLabel(transition.stage),
-              canCancel: transition.stage === 'creating-target',
+              canCancel: true,
               canRetry: true
             }
           }

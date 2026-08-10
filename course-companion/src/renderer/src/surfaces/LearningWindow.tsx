@@ -484,7 +484,9 @@ function previewProgress(update: ProgressUpdate, previous?: LearnerProgress): Le
     schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
     courseVersion: COURSE_VERSION,
     practice: previous?.practice ?? emptyPracticeState(),
+    courseRunId: previous?.courseRunId ?? `preview-${Date.now()}`,
     startedAt: previous?.startedAt ?? timestamp,
+    practiceCompletions: previous?.practiceCompletions ?? [],
     updatedAt: timestamp
   }
 }
@@ -909,6 +911,25 @@ export function LearningWindow() {
     }
   })
 
+  useEffect(() => {
+    const unsubscribe = window.courseCompanion?.onPracticeReturned(() => {
+      void (async () => {
+        try {
+          const loadResult = await window.courseCompanion?.loadProgress()
+          if (!loadResult || (loadResult.status !== 'returning' && loadResult.status !== 'recovered')) return
+          setProgress(loadResult.progress)
+          setPracticeBriefOpen(false)
+          setPracticeFullOpen(false)
+          setTeacherOpen(false)
+          setDestination('lesson')
+          setView('app')
+        } catch {
+          setError('Kh\u00f4ng th\u1ec3 kh\u00f4i ph\u1ee5c b\u00e0i h\u1ecdc sau Practice. K\u1ebft qu\u1ea3 \u0111\u1ea1t v\u1eabn \u0111\u01b0\u1ee3c l\u01b0u.')
+        }
+      })()
+    })
+    return () => unsubscribe?.()
+  }, [])
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
     const saved = window.courseCompanion
       ? await window.courseCompanion.saveProgress(update)

@@ -15,7 +15,7 @@ function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
-function bounded(value: unknown, maximum = 2_000): string {
+function bounded(value: unknown, maximum = 4_000): string {
   const normalized = typeof value === 'string' ? value.replaceAll(/\s+/g, ' ').trim() : ''
   const points = [...normalized]
   return points.length <= maximum ? normalized : `${points.slice(0, maximum - 1).join('')}…`
@@ -73,7 +73,8 @@ function reportFacts(text: string, workspaceRoot: string): { changedFiles: strin
       section = 'changed'
       continue
     }
-    if (/^(verification|validation|checks?|evidence)$/.test(heading)) {
+    if (/^(verification|validation|checks?|evidence)$/.test(heading)
+      || (/\b390\s*px\b/.test(heading) && /\b(?:audit|viewport|overflow)\b/.test(heading))) {
       section = 'verification'
       continue
     }
@@ -261,7 +262,6 @@ export class ExecutorActivityObserver {
   private async refreshDirect(binding: ExecutorChatBinding, generation: number): Promise<ExecutorActivitySnapshot> {
     const previous = this.snapshot ?? await this.repository.load(binding.runId) ?? initialActivity(binding, this.now)
     try {
-      await this.client.request('thread/resume', { threadId: binding.threadId })
       const result = record(await this.client.request('thread/read', { threadId: binding.threadId, includeTurns: true }))
       const thread = record(result?.thread)
       if (!thread || thread.id !== binding.threadId) throw new Error('Executor thread verification failed')

@@ -7,6 +7,8 @@ import type {
   CourseCompanionApi,
   LearnerProgress,
   PracticePanelUpdate,
+  PracticeCompletionReceipt,
+  PracticeReviewResponse,
   PracticeStartRequest,
   PracticeWorkspaceView,
   PracticeFixtureRequest,
@@ -45,6 +47,16 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
   selectPracticePanel: (update: PracticePanelUpdate) =>
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
+  reviewPractice: () =>
+    ipcRenderer.invoke('course:review-practice') as Promise<PracticeReviewResponse>,
+  returnPassedPractice: () =>
+    ipcRenderer.invoke('course:return-passed-practice') as Promise<PracticeCompletionReceipt>,
+  onPracticeReturned: (callback: (receipt: PracticeCompletionReceipt) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, receipt: PracticeCompletionReceipt) =>
+      callback(receipt)
+    ipcRenderer.on('course:practice-returned', listener)
+    return () => ipcRenderer.removeListener('course:practice-returned', listener)
+  },
   onFullTeacherRequested: (callback: () => void) => {
     const listener = () => callback()
     ipcRenderer.on('course:full-teacher-requested', listener)

@@ -29,6 +29,9 @@ function activeRecord(): PracticeWorkspaceRecord {
       runId: 'run-1',
       generation: 1,
       status: 'active',
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      reviewStatus: 'not-reviewed',
       binding: {
         runId: 'run-1',
         threadId: 'thread-1',
@@ -80,6 +83,28 @@ describe('PracticeRunRepository', () => {
 
     await expect(repository.save(record)).rejects.toThrow('Invalid Practice workspace record')
   })
+
+  it('updates panel selection atomically without replacing active review state', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    await repository.save(activeRecord())
+    await repository.beginReview({
+      runId: 'run-1',
+      generation: 1,
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      updatedAt: '2026-08-09T00:00:00.000Z'
+    })
+
+    const selected = await repository.selectPanel('compact', 'progress')
+
+    expect(selected.presentation.compactPanel).toBe('progress')
+    expect(selected.activeRun?.reviewStatus).toBe('reviewing')
+    await expect(repository.load()).resolves.toMatchObject({
+      activeRun: { reviewStatus: 'reviewing' },
+      presentation: { compactPanel: 'progress' }
+    })
+  })
+
   it('advances the active checklist conservatively and never moves it backward', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory())
     const record = activeRecord()
@@ -109,4 +134,67 @@ describe('PracticeRunRepository', () => {
     expect(unchanged.activeRun?.checklist).toEqual(advanced.activeRun?.checklist)
   })
 
+  it('persists one authoritative review and ignores a stale generation', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    await repository.save(activeRecord())
+    const result = {
+      schemaVersion: 1 as const,
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      runId: 'run-1',
+      verdict: 'passed' as const,
+      criteria: [],
+      summary: 'Passed.',
+      reviewedAt: '2026-08-09T00:00:00.000Z',
+      sourceDigest: 'a'.repeat(64)
+    }
+    const checklist = [
+      { id: 'review', title: 'Review objective', status: 'completed' as const },
+      { id: 'open', title: 'Open Executor chat', status: 'completed' as const }
+    ]
+    const completion = {
+      schemaVersion: 1 as const,
+      courseRunId: 'course-run-1',
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      runId: 'run-1',
+      checkpointId: 'm1-plan-approval' as const,
+      status: 'completed' as const,
+      completedAt: '2026-08-09T00:00:00.000Z',
+      evidenceSummary: 'Passed.',
+      masterySummary: 'Complete.',
+      destination: {
+        lessonId: 'module-1' as const,
+        checkpointId: 'm1-review' as const,
+        sceneId: 'module-1-reflection' as const
+      }
+    }
+
+    const saved = await repository.saveReview({
+      runId: 'run-1',
+      generation: 1,
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      result,
+      checklist,
+      completion,
+      updatedAt: result.reviewedAt
+    })
+    expect(saved.activeRun).toMatchObject({
+      reviewStatus: 'passed',
+      completion: { runId: 'run-1' }
+    })
+
+    const stale = await repository.saveReview({
+      runId: 'run-1',
+      generation: 2,
+      practiceId: 'generic-practice',
+      practiceVersion: '1.0.0',
+      result: { ...result, sourceDigest: 'b'.repeat(64) },
+      checklist,
+      completion,
+      updatedAt: '2026-08-09T00:01:00.000Z'
+    })
+    expect(stale.activeRun?.reviewResult?.sourceDigest).toBe('a'.repeat(64))
+  })
 })

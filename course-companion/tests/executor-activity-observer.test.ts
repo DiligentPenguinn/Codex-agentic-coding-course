@@ -16,6 +16,39 @@ const binding: ExecutorChatBinding = {
 const now = () => new Date('2026-08-08T00:00:01.000Z')
 
 describe('Executor activity projection', () => {
+  it('captures every row under a 390px viewport audit heading as structured evidence', () => {
+    const report = [
+      '### 390px viewport audit',
+      '| Route | innerWidth | scrollWidth | overflowingElements |',
+      '| --- | ---: | ---: | ---: |',
+      '| / | 390 | 390 | 0 |',
+      '| /setup | 390 | 390 | 0 |',
+      '| /workflow | 390 | 390 | 0 |',
+      '| /review | 390 | 390 | 0 |'
+    ].join('\n')
+
+    const result = reduceExecutorActivity(
+      initialActivity(binding, now),
+      {
+        method: 'item/completed',
+        params: {
+          threadId: binding.threadId,
+          turnId: 'turn-audit',
+          item: { type: 'agentMessage', phase: 'final_answer', text: report }
+        }
+      },
+      binding,
+      now
+    )
+
+    expect(result.reportedVerificationEvidence).toEqual(expect.arrayContaining([
+      '| / | 390 | 390 | 0 |',
+      '| /setup | 390 | 390 | 0 |',
+      '| /workflow | 390 | 390 | 0 |',
+      '| /review | 390 | 390 | 0 |'
+    ]))
+  })
+
   it('ignores events from every thread except the bound Practice thread', () => {
     const snapshot = initialActivity(binding, now)
     const result = reduceExecutorActivity(

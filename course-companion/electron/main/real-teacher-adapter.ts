@@ -76,7 +76,7 @@ function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : null
 }
 
-function bounded(value: string, maximum = 2_000): string {
+function bounded(value: string, maximum = 16_000): string {
   const points = [...value.trim()]
   return points.length <= maximum ? points.join('') : `${points.slice(0, maximum - 1).join('')}…`
 }

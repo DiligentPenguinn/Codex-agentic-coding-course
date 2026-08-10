@@ -14,7 +14,7 @@ export type AppSettings = {
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
 export const COURSE_VERSION = '0.1.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 3
+export const LEARNER_STATE_SCHEMA_VERSION = 4
 
 export const checkpointIds = [
   'intro-visual-onboarding',
@@ -115,12 +115,14 @@ export type PracticeFixtureRequest = {
 export type LearnerProgress = {
   schemaVersion: typeof LEARNER_STATE_SCHEMA_VERSION
   courseVersion: typeof COURSE_VERSION
+  courseRunId: string
   currentLessonId: LessonId
   checkpointId: CheckpointId
   sceneId: SceneId
   completedCheckpointIds: CheckpointId[]
   decisions: Record<string, string>
   practice: PracticeState
+  practiceCompletions: PracticeCompletionReceipt[]
   startedAt: string
   updatedAt: string
 }
@@ -275,6 +277,86 @@ export type TeacherMemoryDocument = {
 
 export type PracticePanel = 'teacher' | 'progress'
 export type PracticeStepStatus = 'completed' | 'current' | 'upcoming'
+export type PracticeReviewStatus = 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
+
+export type PracticeEvidenceKind =
+  | 'bound-thread-activity'
+  | 'workspace-confirmed-change'
+  | 'executor-reported-verification'
+  | 'learner-decision'
+  | 'artifact'
+  | 'teacher-assessment'
+
+export type PracticeChecklistDefinition = {
+  id: string
+  title: string
+}
+
+export type PracticeCriterionDefinition = {
+  id: string
+  description: string
+  required: boolean
+  checklistStepId: string
+  acceptedEvidence: PracticeEvidenceKind[]
+  assertion: string
+  freshness: 'fresh' | 'any'
+}
+
+export type PracticeDefinition = {
+  schemaVersion: 1
+  practiceId: string
+  version: string
+  checkpointId: CheckpointId
+  objective: string
+  expectedOutcome: string
+  checklist: PracticeChecklistDefinition[]
+  criteria: PracticeCriterionDefinition[]
+  completionDestination: {
+    lessonId: LessonId
+    checkpointId: CheckpointId
+    sceneId: SceneId
+  }
+}
+
+export type PracticeEvidenceReference = {
+  id: string
+  kind: PracticeEvidenceKind
+  text: string
+  freshness: 'fresh' | 'stale'
+}
+
+export type PracticeCriterionReview = {
+  criterionId: string
+  status: 'satisfied' | 'unsatisfied' | 'unverifiable'
+  evidenceRefs: string[]
+  explanation: string
+}
+
+export type PracticeReviewResult = {
+  schemaVersion: 1
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  verdict: 'needs-work' | 'passed'
+  criteria: PracticeCriterionReview[]
+  summary: string
+  reviewedAt: string
+  sourceDigest: string
+}
+
+export type PracticeCompletionReceipt = {
+  schemaVersion: 1
+  courseRunId: string
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  checkpointId: CheckpointId
+  status: 'completed'
+  completedAt: string
+  evidenceSummary: string
+  masterySummary: string
+  destination: PracticeDefinition['completionDestination']
+}
 
 export type PracticeChecklistStep = {
   id: string
@@ -288,6 +370,14 @@ export type PracticeWorkspaceView = {
   objective: string
   expectedOutcome: string
   checklist: PracticeChecklistStep[]
+  review?: {
+    status: PracticeReviewStatus
+    canReview: boolean
+    canReturn: boolean
+    result?: PracticeReviewResult
+  }
+  completion?: PracticeCompletionReceipt
+
   activePractice?: {
     runId: string
     executorChatName: string
@@ -342,6 +432,11 @@ export type PracticeAdapter = {
   emitFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
 }
 
+export type PracticeReviewResponse = {
+  workspace: PracticeWorkspaceView
+  teacherMessage: TeacherMessage
+}
+
 export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
@@ -359,6 +454,11 @@ export type CourseCompanionApi = {
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
+  reviewPractice: () => Promise<PracticeReviewResponse>
+  returnPassedPractice: () => Promise<PracticeCompletionReceipt>
+  onPracticeReturned: (
+    callback: (receipt: PracticeCompletionReceipt) => void
+  ) => () => void
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
   showFullTeacher: () => Promise<void>

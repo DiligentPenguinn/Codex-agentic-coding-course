@@ -239,7 +239,7 @@ describe('TeacherService mock scenarios', () => {
     let state = await service.loadState('expanded')
     const failed = state.conversation.messages.find((message) => message.role === 'learner')
     expect(failed?.deliveryStatus).toBe('failed')
-    expect(state.teacher.error).toContain('turn-protocol')
+    expect(state.teacher.error).toBe('Hương tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.')
     expect(gateway.lastTeacherInput).toContain('reportedChangedFiles')
     expect(gateway.lastTeacherInput).toContain('starters/contentpilot/app/globals.css')
     expect(gateway.lastTeacherInput).toContain('hasHorizontalOverflow: false')

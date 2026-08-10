@@ -3,6 +3,7 @@ import type {
   CompanionMode,
   CompanionState,
   PracticeRunSummary,
+  TeacherConversation,
   TeacherMessage,
   TeacherRuntimeView,
   TeacherSendRequest,
@@ -22,9 +23,19 @@ import { TeacherMemoryRepository } from './teacher-memory-repository'
 const PRACTICE_ID = 'm1-verifiable-brief'
 const OBJECTIVE = 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.'
 
+export function conversationForRun(conversation: TeacherConversation, runId: string | null): TeacherConversation {
+  return {
+    ...conversation,
+    messages: conversation.messages.filter((message) => (
+      runId ? message.practiceRunId === runId : message.practiceRunId === undefined
+    ))
+  }
+}
+
 export class TeacherService {
   private runtime: TeacherRuntimeView
   private boundRunId: string | null = null
+  private responseRunId: string | null = null
   private transportStarted = false
   private refinement: Promise<void> | null = null
   private readonly activeMessageIds = new Set<string>()
@@ -80,14 +91,15 @@ export class TeacherService {
     ])
     if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
     const activity = activityState.activity
-    let conversation = loadedConversation
+    const activeRunId = activityState.activeRun?.runId ?? null
+    let conversation = conversationForRun(loadedConversation, activeRunId)
     const abandoned = conversation.messages.filter((message) => (
       message.deliveryStatus === 'pending' && !this.activeMessageIds.has(message.id)
     ))
     if (abandoned.length > 0) {
       if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
       await this.chatRepository.append(abandoned.map((message) => ({ ...message, deliveryStatus: 'failed' as const })))
-      conversation = await this.chatRepository.loadConversation()
+      conversation = conversationForRun(await this.chatRepository.loadConversation(), activeRunId)
     }
     if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
     if (this.memoryRepository.hasPending(memory)) {
@@ -370,8 +382,24 @@ export class TeacherService {
     return this.refinement
   }
 
+  async activatePracticeRun(runId: string): Promise<void> {
+    if (!runId || this.responseRunId === runId) return
+    this.responseRunId = runId
+    this.generation += 1
+    await this.inference.resetTransport(true)
+    await Promise.allSettled([...this.activeSends])
+    this.runtime = {
+      ...this.runtime,
+      connection: this.simulated
+        ? 'simulated'
+        : this.transportState === 'connected' ? 'ready' : this.transportStarted ? 'offline' : 'connecting',
+      error: undefined
+    }
+  }
+
   async reset(): Promise<void> {
     this.boundRunId = null
+    this.responseRunId = null
     this.generation += 1
     await Promise.all([
       this.inference.resetTransport(true),
@@ -454,5 +482,5 @@ function teacherFailureMessage(error: unknown): string {
   if (error.code === 'TEACHER_MODEL_UNAVAILABLE' || /newer version|upgrade/i.test(error.message)) {
     return 'Codex hiện tại không có model tương thích cho Hương. Hãy cập nhật Codex rồi thử lại.'
   }
-  return `Không thể hoàn tất bước ${error.stage} của Hương (${error.code}). Tin nhắn đã được lưu; hãy thử lại.`
+  return 'Hương tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.'
 }

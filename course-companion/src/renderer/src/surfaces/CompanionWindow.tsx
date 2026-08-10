@@ -70,11 +70,13 @@ export function CompanionWindow() {
           className="pixel-teacher-launcher"
           type="button"
           aria-label="Mở Hương, giáo viên đồng hành"
+          aria-description="Nhấp một lần để mở nhanh. Nhấp đúp để mở toàn màn hình."
+          title="Nhấp một lần để mở nhanh · Nhấp đúp để mở toàn màn hình"
           onClick={openQuickTeacher}
           onDoubleClick={openFullTeacher}
         >
           <img src={teacherImage} alt="" />
-          <span>HƯƠNG</span>
+          <span>MỞ</span>
         </button>
       </main>
     )

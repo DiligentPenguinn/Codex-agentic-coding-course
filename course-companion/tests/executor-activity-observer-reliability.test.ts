@@ -19,6 +19,7 @@ afterEach(async () => {
 class ObservationGateway {
   private notification: ((value: CodexNotification) => void) | null = null
   private connection: ((value: CodexConnectionState) => void) | null = null
+  readonly methods: string[] = []
 
   onNotification(listener: (value: CodexNotification) => void): () => void {
     this.notification = listener
@@ -31,7 +32,7 @@ class ObservationGateway {
   }
 
   async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
-    if (method === 'thread/resume') return {}
+    this.methods.push(method)
     if (method === 'thread/read') {
       return { thread: { id: params.threadId, turns: [] } }
     }
@@ -76,6 +77,8 @@ describe('ExecutorActivityObserver reliability', () => {
     }
 
     await observer.bind(binding)
+    expect(gateway.methods).toContain('thread/read')
+    expect(gateway.methods).not.toContain('thread/resume')
     gateway.emit({
       method: 'item/completed',
       params: {

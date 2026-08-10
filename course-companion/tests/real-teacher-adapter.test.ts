@@ -10,7 +10,10 @@ class InferenceClient {
   private listener: ((notification: CodexNotification) => void) | null = null
   private sequence = 0
 
-  constructor(private readonly forbidden = false) {}
+  constructor(
+    private readonly forbidden = false,
+    private readonly answer = 'Grounded answer'
+  ) {}
 
   onNotification(listener: (notification: CodexNotification) => void): () => void {
     this.listener = listener
@@ -53,7 +56,7 @@ class InferenceClient {
           id: 'answer-1',
           type: 'agentMessage',
           phase: null,
-          text: 'Grounded answer'
+          text: this.answer
         }
         this.listener?.({ method: 'item/completed', params: { threadId, turnId, item } })
         this.listener?.({
@@ -93,6 +96,14 @@ describe('RealTeacherAdapter', () => {
     await adapter.dispose()
   })
 
+  it('preserves structured final answers longer than 2,000 characters', async () => {
+    const answer = JSON.stringify({ summary: 'x'.repeat(3_000) })
+    const client = new InferenceClient(false, answer)
+    const adapter = new RealTeacherAdapter(client, 'D:\\course', 1_000)
+
+    await expect(adapter.respond('return structured JSON')).resolves.toBe(answer)
+    await adapter.dispose()
+  })
   it('interrupts and rejects a Teacher turn that tries to use a tool', async () => {
     const client = new InferenceClient(true)
     const adapter = new RealTeacherAdapter(client, 'D:\\course', 1_000)

@@ -58,7 +58,7 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
-  it('migrates a schema-v1 save to schema v3 without losing journey progress', async () => {
+  it('migrates a schema-v1 save to schema v4 without losing journey progress', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {
       ...introStart,
@@ -79,13 +79,17 @@ describe('ProgressRepository', () => {
     expect(result).toMatchObject({
       status: 'returning',
       progress: {
-        schemaVersion: 3,
+        schemaVersion: 4,
+        courseRunId: expect.stringMatching(/^course-/),
+        practiceCompletions: [],
         sceneId: 'intro-visual-onboarding',
         practice: { missionId: 'm1-verifiable-brief', status: 'idle' }
       }
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
-    expect(migrated.schemaVersion).toBe(3)
+    expect(migrated.schemaVersion).toBe(4)
+    expect(migrated.courseRunId).toMatch(/^course-/)
+    expect(migrated.practiceCompletions).toEqual([])
     expect(migrated.startedAt).toBe(oldProgress.startedAt)
   })
 

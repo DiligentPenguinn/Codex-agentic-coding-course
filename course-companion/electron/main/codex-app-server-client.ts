@@ -22,6 +22,9 @@ export type CodexConnectionListener = (state: CodexConnectionState) => void
 
 export type CodexClientError = Error & { code: string; detail?: string }
 
+const APP_SERVER_STOP_GRACE_MS = 1_000
+const APP_SERVER_STOP_TIMEOUT_MS = 5_000
+
 function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -112,10 +115,44 @@ export class CodexAppServerClient {
     this.lines = null
     this.rejectPending(typedError('APP_SERVER_STOPPED', 'Codex App Server stopped'))
     this.setConnectionState('disconnected')
-    if (child) {
-      child.stdin.end()
-      if (child.exitCode === null) child.kill()
-    }
+    if (!child || child.exitCode !== null) return
+    await new Promise<void>((resolve, reject) => {
+      let settled = false
+      const forceKill = setTimeout(() => {
+        if (!settled && child.exitCode === null) child.kill()
+      }, APP_SERVER_STOP_GRACE_MS)
+      const timeout = setTimeout(() => {
+        cleanup()
+        reject(typedError(
+          'APP_SERVER_STOP_TIMEOUT',
+          'Codex App Server did not stop in time'
+        ))
+      }, APP_SERVER_STOP_TIMEOUT_MS)
+      const cleanup = (): void => {
+        if (settled) return
+        settled = true
+        clearTimeout(timeout)
+        clearTimeout(forceKill)
+        child.off('exit', finish)
+        child.off('close', finish)
+      }
+      const finish = (): void => {
+        if (settled) return
+        cleanup()
+        resolve()
+      }
+      child.once('exit', finish)
+      child.once('close', finish)
+      if (child.exitCode !== null) {
+        finish()
+        return
+      }
+      try {
+        child.stdin.end()
+      } catch {
+        // The exit/error listeners above remain the source of truth for ownership release.
+      }
+    })
   }
 
   private rawRequest(method: string, params: Record<string, unknown>): Promise<unknown> {

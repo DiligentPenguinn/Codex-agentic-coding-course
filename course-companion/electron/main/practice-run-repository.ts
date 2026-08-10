@@ -1,6 +1,10 @@
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { PracticeChecklistStep, PracticePanel } from '../../shared/contracts'
+import type {
+  PracticeCompletionReceipt,
+  PracticeReviewResult
+} from '../../shared/contracts'
 
 export type ExecutorChatBinding = {
   runId: string
@@ -18,6 +22,11 @@ export type PracticeRunRecord = {
   startedAt: string
   updatedAt: string
   checklist: PracticeChecklistStep[]
+  practiceId?: string
+  practiceVersion?: string
+  reviewStatus?: 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
+  reviewResult?: PracticeReviewResult
+  completion?: PracticeCompletionReceipt
 }
 
 export type ArchivedPracticeReceipt = {
@@ -96,6 +105,35 @@ function isChecklist(value: unknown): value is PracticeChecklistStep[] {
   }
   return current <= 1
 }
+function isReviewResult(value: unknown): value is PracticeReviewResult {
+  if (!isRecord(value)) return false
+  return value.schemaVersion === 1
+    && ID.test(String(value.practiceId))
+    && typeof value.practiceVersion === 'string'
+    && ID.test(String(value.runId))
+    && (value.verdict === 'needs-work' || value.verdict === 'passed')
+    && Array.isArray(value.criteria)
+    && typeof value.summary === 'string'
+    && value.summary.length <= 1500
+    && isIso(value.reviewedAt)
+    && /^[a-f0-9]{64}$/.test(String(value.sourceDigest))
+}
+
+function isCompletion(value: unknown): value is PracticeCompletionReceipt {
+  if (!isRecord(value)) return false
+  const destination = isRecord(value.destination) ? value.destination : null
+  return value.schemaVersion === 1
+    && ID.test(String(value.courseRunId))
+    && ID.test(String(value.practiceId))
+    && typeof value.practiceVersion === 'string'
+    && ID.test(String(value.runId))
+    && typeof value.checkpointId === 'string'
+    && value.status === 'completed'
+    && isIso(value.completedAt)
+    && typeof value.evidenceSummary === 'string'
+    && typeof value.masterySummary === 'string'
+    && Boolean(destination)
+}
 
 function isRun(value: unknown): value is PracticeRunRecord {
   if (!isRecord(value)) return false
@@ -108,6 +146,23 @@ function isRun(value: unknown): value is PracticeRunRecord {
     value.binding.runId === value.runId &&
     isIso(value.startedAt) &&
     isIso(value.updatedAt) &&
+    (value.practiceId === undefined || ID.test(String(value.practiceId))) &&
+    (value.practiceVersion === undefined
+      || (typeof value.practiceVersion === 'string' && value.practiceVersion.length <= 40)) &&
+    (value.reviewStatus === undefined
+      || ['not-reviewed', 'reviewing', 'needs-work', 'passed'].includes(String(value.reviewStatus))) &&
+    (value.reviewResult === undefined || isReviewResult(value.reviewResult)) &&
+    (value.completion === undefined || isCompletion(value.completion)) &&
+    (value.reviewResult === undefined || (
+      value.practiceId === value.reviewResult.practiceId
+      && value.practiceVersion === value.reviewResult.practiceVersion
+      && value.runId === value.reviewResult.runId
+    )) &&
+    (value.completion === undefined || (
+      value.practiceId === value.completion.practiceId
+      && value.practiceVersion === value.completion.practiceVersion
+      && value.runId === value.completion.runId
+    )) &&
     isChecklist(value.checklist)
   )
 }
@@ -147,6 +202,23 @@ export function defaultPracticeWorkspaceRecord(): PracticeWorkspaceRecord {
   }
 }
 
+function normalizeWorkspaceRecord(record: PracticeWorkspaceRecord, recoverInterruptedReview: boolean): PracticeWorkspaceRecord {
+  if (!record.activeRun) return record
+  const active = record.activeRun
+  const reviewStatus = recoverInterruptedReview && active.reviewStatus === 'reviewing'
+    ? active.reviewResult?.verdict ?? 'not-reviewed'
+    : active.reviewStatus ?? active.reviewResult?.verdict ?? 'not-reviewed'
+  return {
+    ...record,
+    activeRun: {
+      ...active,
+      practiceId: active.practiceId ?? 'm1-verifiable-brief',
+      practiceVersion: active.practiceVersion ?? '1.0.0',
+      reviewStatus
+    }
+  }
+}
+
 export function isPracticeWorkspaceRecord(value: unknown): value is PracticeWorkspaceRecord {
   if (!isRecord(value) || value.schemaVersion !== 1) return false
   if (value.activeRun !== null && !isRun(value.activeRun)) return false
@@ -169,6 +241,7 @@ export class PracticeRunRepository {
   private readonly temporaryPath: string
   private readonly corruptPath: string
   private queue: Promise<void> = Promise.resolve()
+  private initialized = false
 
   constructor(private readonly dataDirectory: string) {
     this.statePath = join(dataDirectory, 'practice-runs.json')
@@ -185,6 +258,19 @@ export class PracticeRunRepository {
       return Promise.reject(new Error('Invalid Practice workspace record'))
     }
     return this.runExclusive(() => this.saveDirect(record))
+  }
+
+  selectPanel(surface: 'full' | 'compact', panel: PracticePanel): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const presentation = surface === 'full'
+        ? { ...record.presentation, fullPanel: panel }
+        : { ...record.presentation, compactPanel: panel }
+      return this.saveDirect({
+        ...record,
+        presentation
+      })
+    })
   }
 
   advanceChecklist(
@@ -209,6 +295,95 @@ export class PracticeRunRepository {
     })
   }
 
+  beginReview(input: {
+    runId: string
+    generation: number
+    practiceId: string
+    practiceVersion: string
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!active
+        || active.runId !== input.runId
+        || active.generation !== input.generation
+        || active.practiceId !== input.practiceId
+        || active.practiceVersion !== input.practiceVersion) return record
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          reviewStatus: 'reviewing',
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  clearReviewing(input: {
+    runId: string
+    generation: number
+    practiceId: string
+    practiceVersion: string
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!active
+        || active.runId !== input.runId
+        || active.generation !== input.generation
+        || active.practiceId !== input.practiceId
+        || active.practiceVersion !== input.practiceVersion
+        || active.reviewStatus !== 'reviewing') return record
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          reviewStatus: active.reviewResult?.verdict ?? 'not-reviewed',
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  saveReview(input: {
+    runId: string
+    generation: number
+    practiceId: string
+    practiceVersion: string
+    result: PracticeReviewResult
+    checklist: PracticeChecklistStep[]
+    completion?: PracticeCompletionReceipt
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!active
+        || active.runId !== input.runId
+        || active.generation !== input.generation
+        || (active.practiceId !== undefined && active.practiceId !== input.practiceId)
+        || (active.practiceVersion !== undefined && active.practiceVersion !== input.practiceVersion)) {
+        return record
+      }
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          practiceId: input.practiceId,
+          practiceVersion: input.practiceVersion,
+          reviewStatus: input.result.verdict,
+          reviewResult: structuredClone(input.result),
+          checklist: structuredClone(input.checklist),
+          ...((active.completion ?? input.completion)
+            ? { completion: structuredClone(active.completion ?? input.completion!) } : {}),
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
   reset(): Promise<void> {
     return this.runExclusive(async () => {
       await Promise.all([
@@ -221,8 +396,16 @@ export class PracticeRunRepository {
 
   private async loadDirect(): Promise<PracticeWorkspaceRecord> {
     try {
+      const recoverInterruptedReview = !this.initialized
+      this.initialized = true
       const parsed: unknown = JSON.parse(await readFile(this.statePath, 'utf8'))
-      if (isPracticeWorkspaceRecord(parsed)) return structuredClone(parsed)
+      if (isPracticeWorkspaceRecord(parsed)) {
+        const normalized = normalizeWorkspaceRecord(parsed, recoverInterruptedReview)
+        if (JSON.stringify(normalized) !== JSON.stringify(parsed)) {
+          return this.saveDirect(normalized)
+        }
+        return structuredClone(normalized)
+      }
       await this.quarantine()
     } catch (error) {
       if (isRecord(error) && error.code !== 'ENOENT') await this.quarantine()
@@ -232,6 +415,7 @@ export class PracticeRunRepository {
 
   private async saveDirect(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
     if (!isPracticeWorkspaceRecord(record)) throw new Error('Invalid Practice workspace record')
+    this.initialized = true
     await mkdir(this.dataDirectory, { recursive: true })
     await writeFile(this.temporaryPath, JSON.stringify(record, null, 2) + '\n', 'utf8')
     await rename(this.temporaryPath, this.statePath)

@@ -62,6 +62,10 @@ export class TestCodexGateway implements CodexRequestClient {
       }
     }
 
+    if (method === 'thread/list') {
+      return { data: [...this.threads.values()] }
+    }
+
     const threadId = typeof params.threadId === 'string' ? params.threadId : ''
     const thread = this.threads.get(threadId)
     if (!thread) throw new Error(`Unknown smoke-test thread: ${threadId}`)
@@ -73,7 +77,8 @@ export class TestCodexGateway implements CodexRequestClient {
     if (method === 'thread/read') {
       const reads = (this.threadReads.get(threadId) ?? 0) + 1
       this.threadReads.set(threadId, reads)
-      if (this.silentExecutorResult && !thread.ephemeral && reads >= 2 && thread.turns.length === 0) {
+      if (this.silentExecutorResult && !thread.ephemeral && reads >= 2 &&
+        !thread.turns.some((turn) => turn.id === 'executor-turn-silent-desktop')) {
         thread.turns.push(silentExecutorTurn())
       }
       return { thread }
@@ -98,8 +103,10 @@ export class TestCodexGateway implements CodexRequestClient {
       }
       const input = Array.isArray(params.input) ? params.input : []
       const text = input.map((item) => typeof item === 'object' && item && 'text' in item ? String(item.text) : '').join('\n')
-      const answer = thread.serviceName === 'content_builder_academy_teacher_memory'
-        ? summaryAnswer(text) || JSON.stringify({
+      const answer = thread.serviceName === 'content_builder_academy_practice'
+        ? 'Sẵn sàng nhận brief từ người học.'
+        : thread.serviceName === 'content_builder_academy_teacher_memory'
+          ? summaryAnswer(text) || JSON.stringify({
             approach: '\u0110\u00e3 th\u1ef1c hi\u1ec7n m\u1ed9t l\u01b0\u1ee3t Practice c\u00f3 ph\u1ea1m vi.',
             learnerDecisions: [],
             strengths: ['\u0110\u00e3 y\u00eau c\u1ea7u b\u1eb1ng ch\u1ee9ng tr\u01b0\u1edbc khi k\u1ebft lu\u1eadn.'],
@@ -109,10 +116,15 @@ export class TestCodexGateway implements CodexRequestClient {
             verificationEvidence: [],
             unresolvedIssues: [],
             nextAttemptGuidance: ['Ti\u1ebfp t\u1ee5c ki\u1ec3m tra ph\u1ea1m vi v\u00e0 b\u1eb1ng ch\u1ee9ng.']
-          })
-        : teacherAnswer(text)
+            })
+          : teacherAnswer(text)
+      const userItem = {
+        id: `user-${turnId}`,
+        type: 'userMessage',
+        content: [{ type: 'text', text }]
+      }
       const item = { id: `message-${turnId}`, type: 'agentMessage', phase: 'final_answer', text: answer }
-      const turn = { id: turnId, status: 'completed', items: [item] }
+      const turn = { id: turnId, status: 'completed', items: [userItem, item] }
       thread.turns.push(turn)
       queueMicrotask(() => {
         this.emit({ method: 'item/completed', params: { threadId, turnId, item } })

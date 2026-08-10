@@ -73,7 +73,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
       setWorkspace(next)
       setSwitchOpen(false)
     } catch {
-      setError('Không thể tạo Executor chat mới. Practice hiện tại vẫn được giữ nguyên.')
+      setError('')
       await load()
     } finally {
       setBusy(false)
@@ -107,7 +107,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
         setWorkspace(await window.courseCompanion.retryPracticeSwitch())
       }
     } catch {
-      setError('Lần thử lại chưa thành công. Practice cũ vẫn được giữ nguyên.')
+      setError('')
       await load()
     } finally {
       setBusy(false)

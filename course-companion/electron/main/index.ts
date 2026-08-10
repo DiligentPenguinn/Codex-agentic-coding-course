@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
-import { mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import type {
   CompanionMode,
@@ -7,6 +7,7 @@ import type {
   PracticeFixtureRequest,
   PracticePanelUpdate,
   PracticeStartRequest,
+  PracticeCompletionReceipt,
   ProgressUpdate,
   RuntimeInfo,
   TeacherSendRequest
@@ -18,6 +19,12 @@ import { ExecutorActivityRepository } from './executor-activity-repository'
 import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
 import { PracticeRunRepository } from './practice-run-repository'
+import { PracticeDefinitionRepository } from './practice-definition-repository'
+import {
+  DeterministicPracticeReviewEvaluator,
+  LivePracticeReviewEvaluator
+} from './practice-review-evaluator'
+import { PracticeReviewService } from './practice-review-service'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
   isAppSettingsUpdate,
@@ -38,6 +45,23 @@ let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
+let pendingPracticeReturn: Promise<PracticeCompletionReceipt> | null = null
+
+function practiceDefinitionsDirectory(): string {
+  const override = process.env.COURSE_COMPANION_PRACTICE_DEFINITIONS_DIR
+  if (override) return resolve(override)
+  const candidates = [
+    join(app.getAppPath(), 'content', 'practices'),
+    join(process.resourcesPath, 'content', 'practices'),
+    resolve(app.getAppPath(), '..', '..', 'content', 'practices')
+  ]
+  return candidates.find((candidate) => existsSync(candidate)) ??
+    join(app.getAppPath(), 'content', 'practices')
+}
+
+const practiceDefinitionRepository = new PracticeDefinitionRepository(
+  practiceDefinitionsDirectory()
+)
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
@@ -49,6 +73,8 @@ const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()
 let appServerStart: Promise<void> | null = null
+const executorBootstrapClient = new CodexAppServerClient()
+let executorBootstrapStart: Promise<void> | null = null
 
 async function ensureAppServer(): Promise<void> {
   if (!appServerStart) {
@@ -58,6 +84,23 @@ async function ensureAppServer(): Promise<void> {
     })
   }
   await appServerStart
+}
+
+async function ensureExecutorBootstrap(): Promise<void> {
+  if (!executorBootstrapStart) {
+    executorBootstrapStart = executorBootstrapClient.start().catch((error: unknown) => {
+      executorBootstrapStart = null
+      throw error
+    })
+  }
+  await executorBootstrapStart
+}
+
+async function closeExecutorBootstrap(): Promise<void> {
+  const starting = executorBootstrapStart
+  executorBootstrapStart = null
+  if (starting) await starting.catch(() => undefined)
+  await executorBootstrapClient.stop()
 }
 
 const appServerGateway = useTestCodexGateway
@@ -74,10 +117,28 @@ const appServerGateway = useTestCodexGateway
         return appServerClient.onConnectionState(listener)
       }
     }
+const executorBootstrapGateway = useTestCodexGateway
+  ? {
+      request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        return appServerGateway.request(method, params)
+      },
+      async close(): Promise<void> {}
+    }
+  : {
+      async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        await ensureExecutorBootstrap()
+        return executorBootstrapClient.request(method, params)
+      },
+      close: closeExecutorBootstrap
+    }
 const openExecutorChat = useTestCodexGateway
   ? async (): Promise<void> => undefined
   : (url: string): Promise<void> => shell.openExternal(url)
-const executorChatCoordinator = new ExecutorChatCoordinator(appServerGateway, workspaceRoot, openExecutorChat)
+const executorChatCoordinator = new ExecutorChatCoordinator(
+  executorBootstrapGateway,
+  workspaceRoot,
+  openExecutorChat
+)
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
 const practiceCoordinator = new PracticeCoordinator(
@@ -92,6 +153,20 @@ const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
 mkdirSync(teacherRuntimeDirectory, { recursive: true })
 const realTeacherAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
 const realTeacherSummaryAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const realTeacherReviewAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const practiceReviewEvaluator = useTestCodexGateway
+  ? new DeterministicPracticeReviewEvaluator()
+  : new LivePracticeReviewEvaluator(realTeacherReviewAdapter)
+const practiceReviewService = new PracticeReviewService(
+  practiceDefinitionRepository,
+  practiceRunRepository,
+  practiceCoordinator,
+  progressRepository,
+  activityObserver,
+  practiceReviewEvaluator,
+  teacherRepository,
+  useTestCodexGateway && !presentTestTeacherAsLive
+)
 const teacherService = new TeacherService(
   teacherRepository,
   progressRepository,
@@ -108,6 +183,7 @@ const removeTeacherConnection = appServerGateway.onConnectionState((state) => {
     appServerStart = null
     void realTeacherAdapter.resetTransport()
     void realTeacherSummaryAdapter.resetTransport()
+    void realTeacherReviewAdapter.resetTransport()
   }
   teacherService.onConnectionState(state)
 })
@@ -283,6 +359,7 @@ function registerIpcHandlers(): void {
     if (!isPracticeStartRequest(request)) throw new Error('Invalid Practice start request')
     const view = await practiceCoordinator.startNew(request)
     const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
     if (previousRun && previousRun.runId !== activeRun?.runId) {
       void teacherService.summarizeReplacedRun(previousRun)
     }
@@ -292,12 +369,20 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle('course:resume-practice', async () => {
     const view = await practiceCoordinator.resume()
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
     await enterPracticeCompanion()
     return view
   })
 
   ipcMain.handle('course:retry-practice-switch', async () => {
+    const previousRun = (await practiceRunRepository.load()).activeRun
     const view = await practiceCoordinator.retry()
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
+    if (previousRun && previousRun.runId !== activeRun?.runId) {
+      void teacherService.summarizeReplacedRun(previousRun)
+    }
     await enterPracticeCompanion()
     return view
   })
@@ -307,6 +392,26 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
     if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
     return practiceCoordinator.selectPanel(update)
+  })
+  ipcMain.handle('course:review-practice', async () => {
+    if (!useTestCodexGateway) await ensureAppServer()
+    return practiceReviewService.review()
+  })
+
+  ipcMain.handle('course:return-passed-practice', async () => {
+    if (pendingPracticeReturn) return pendingPracticeReturn
+    const operation = (async () => {
+      const receipt = await practiceReviewService.returnPassedPractice()
+      mainWindow?.show()
+      mainWindow?.focus()
+      companionWindow?.hide()
+      mainWindow?.webContents.send('course:practice-returned', receipt)
+      return receipt
+    })().finally(() => {
+      if (pendingPracticeReturn === operation) pendingPracticeReturn = null
+    })
+    pendingPracticeReturn = operation
+    return operation
   })
 
   ipcMain.handle('course:save-app-settings', async (_event, update: AppSettingsUpdate) => {
@@ -369,8 +474,10 @@ function registerIpcHandlers(): void {
 app.on('before-quit', () => {
   isQuitting = true
   void appServerClient.stop()
+  void closeExecutorBootstrap()
   removeTeacherConnection()
   void teacherService.dispose()
+  void realTeacherReviewAdapter.dispose()
 })
 
 app.on('activate', () => {

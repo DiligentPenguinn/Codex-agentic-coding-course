@@ -28,3 +28,6 @@ node_modules/
 course-companion/node_modules/
 course-companion/out/
 course-companion/*.tsbuildinfo
+
+# Optional retained artifacts from developer-only Practice rehearsals.
+.practice-test-artifacts/

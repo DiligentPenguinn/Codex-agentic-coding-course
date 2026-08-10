@@ -30,6 +30,7 @@ const binding: ExecutorChatBinding = {
 class SilentDesktopGateway {
   private listeners = new Set<(notification: CodexNotification) => void>()
   turns: unknown[] = []
+  methods: string[] = []
 
   onNotification(listener: (notification: CodexNotification) => void): () => void {
     this.listeners.add(listener)
@@ -42,7 +43,7 @@ class SilentDesktopGateway {
   }
 
   async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
-    if (method === 'thread/resume') return {}
+    this.methods.push(method)
     if (method === 'thread/read') return { thread: { id: params.threadId, turns: this.turns } }
     return {}
   }
@@ -128,6 +129,7 @@ describe('Executor evidence reconciliation', () => {
 
     gateway.turns = [silentDesktopTurn]
     const refreshed = await observer.refresh()
+    expect(gateway.methods).not.toContain('thread/resume')
     expect(refreshed?.executorResponses.at(-1)).toContain('hasHorizontalOverflow: false')
     expect(refreshed?.reportedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
     expect(refreshed?.reportedVerificationEvidence).toEqual(expect.arrayContaining([

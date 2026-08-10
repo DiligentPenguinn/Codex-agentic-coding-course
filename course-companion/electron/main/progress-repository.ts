@@ -15,6 +15,7 @@ import {
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
+  type PracticeCompletionReceipt,
   type PracticeEvent,
   type PracticeState,
   type ProgressLoadResult,
@@ -24,6 +25,7 @@ import {
 
 const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
+const SAFE_ID = /^[A-Za-z0-9_-]{1,160}$/
 
 const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'intro-visual-onboarding': 'intro-visual-onboarding',
@@ -71,6 +73,40 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 
 function isSceneId(value: unknown): value is SceneId {
   return typeof value === 'string' && sceneSet.has(value)
+}
+
+export function isPracticeCompletionReceipt(value: unknown): value is PracticeCompletionReceipt {
+  if (!isRecord(value) || value.schemaVersion !== 1 || value.status !== 'completed') return false
+  const destination = value.destination
+  return SAFE_ID.test(String(value.courseRunId))
+    && SAFE_ID.test(String(value.practiceId))
+    && typeof value.practiceVersion === 'string'
+    && value.practiceVersion.length > 0
+    && value.practiceVersion.length <= 40
+    && SAFE_ID.test(String(value.runId))
+    && isCheckpointId(value.checkpointId)
+    && isIsoDate(value.completedAt)
+    && typeof value.evidenceSummary === 'string'
+    && value.evidenceSummary.length > 0
+    && value.evidenceSummary.length <= 1500
+    && typeof value.masterySummary === 'string'
+    && value.masterySummary.length > 0
+    && value.masterySummary.length <= 1500
+    && isRecord(destination)
+    && isLessonId(destination.lessonId)
+    && isCheckpointId(destination.checkpointId)
+    && isSceneId(destination.sceneId)
+    && sceneCheckpoint[destination.sceneId] === destination.checkpointId
+    && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
+      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-')))
+}
+
+function completionKey(receipt: PracticeCompletionReceipt): string {
+  return `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
+}
+
+function courseRunId(startedAt: string): string {
+  return `course-${startedAt.replace(/[^0-9]/g, '').slice(0, 17)}`
 }
 
 function decisionsAreValid(value: unknown): value is Record<string, string> {
@@ -131,7 +167,12 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   if (!isRecord(value)) return false
   if (value.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION) return false
   if (value.courseVersion !== COURSE_VERSION) return false
+  if (!SAFE_ID.test(String(value.courseRunId))) return false
   if (!isIsoDate(value.startedAt) || !isIsoDate(value.updatedAt)) return false
+  if (!Array.isArray(value.practiceCompletions)
+    || value.practiceCompletions.length > 100
+    || !value.practiceCompletions.every(isPracticeCompletionReceipt)
+    || new Set(value.practiceCompletions.map(completionKey)).size !== value.practiceCompletions.length) return false
   const practice = value.practice
   if (!isProgressUpdate(value)) return false
   return isPracticeState(practice)
@@ -156,17 +197,19 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
     decisions: raw.decisions
   }
 
-  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isPracticeState(practice)) {
+  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isLearnerProgress(raw)) {
     return raw as unknown as LearnerProgress
   }
 
-  if (schemaVersion === 2 && isPracticeState(practice)) {
+  if ((schemaVersion === 2 || schemaVersion === 3) && isPracticeState(practice)) {
     return {
       ...update,
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
       practice,
+      courseRunId: courseRunId(startedAt),
       startedAt,
+      practiceCompletions: [],
       updatedAt
     }
   }
@@ -177,7 +220,9 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
       practice: defaultPracticeState(),
+      courseRunId: courseRunId(startedAt),
       startedAt,
+      practiceCompletions: [],
       updatedAt
     }
   }
@@ -256,7 +301,11 @@ export class ProgressRepository {
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
       practice: current.status === 'valid' ? current.progress.practice : defaultPracticeState(),
+      courseRunId: current.status === 'valid'
+        ? current.progress.courseRunId
+        : courseRunId(timestamp),
       startedAt: current.status === 'valid' ? current.progress.startedAt : timestamp,
+      practiceCompletions: current.status === 'valid' ? current.progress.practiceCompletions : [],
       updatedAt: timestamp
     }
 
@@ -285,6 +334,73 @@ export class ProgressRepository {
   savePractice(practice: PracticeState): Promise<PracticeState> {
     if (!isPracticeState(practice)) return Promise.reject(new Error('Invalid practice state'))
     return this.runExclusive(() => this.savePracticeUnlocked(practice))
+  }
+
+  recordPracticeCompletion(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const key = completionKey(receipt)
+      if (current.progress.practiceCompletions.some((item) => completionKey(item) === key)) {
+        return current.progress
+      }
+      const progress: LearnerProgress = {
+        ...current.progress,
+        practiceCompletions: [...current.progress.practiceCompletions, structuredClone(receipt)].slice(-100),
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_completion_recorded', progress)
+      return progress
+    })
+  }
+
+  returnFromPractice(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const stored = current.progress.practiceCompletions.find((item) =>
+        completionKey(item) === completionKey(receipt))
+      if (!stored || JSON.stringify(stored) !== JSON.stringify(receipt)) {
+        throw new Error('Practice completion receipt is not authoritative')
+      }
+      if (current.progress.completedCheckpointIds.includes(receipt.checkpointId)
+        && current.progress.checkpointId !== receipt.checkpointId) {
+        return current.progress
+      }
+      if (current.progress.checkpointId !== receipt.checkpointId) {
+        throw new Error('Practice completion does not match the current course checkpoint')
+      }
+      const completedCheckpointIds = [...new Set([
+        ...current.progress.completedCheckpointIds,
+        receipt.checkpointId
+      ])]
+      const progress: LearnerProgress = {
+        ...current.progress,
+        currentLessonId: receipt.destination.lessonId,
+        checkpointId: receipt.destination.checkpointId,
+        sceneId: receipt.destination.sceneId,
+        completedCheckpointIds,
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_return_applied', progress)
+      return progress
+    })
   }
 
   private async savePracticeUnlocked(practice: PracticeState): Promise<PracticeState> {
