@@ -69,11 +69,11 @@ describe('Course module assessment banks', () => {
     expect(introduction?.lessons).toHaveLength(1)
     expect(moduleOne?.kind).toBe('module')
     expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
-      'Hiểu Codex và chọn model',
-      'Quyền hành động và phê duyệt',
-      'Thiết lập hướng dẫn bền vững với AGENTS.md',
-      'Dùng Skills và hoàn tất checklist',
-      'Kiểm tra và hoàn thành Module 1'
+      'Codex và coding agent',
+      'Harness Engineering và Harness của Codex',
+      'Approval và quyền truy cập an toàn',
+      'Model và mức suy luận',
+      'Nộp cấu hình để Triết duyệt'
     ])
     expect(moduleTwo?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Khi nào cần planning',
@@ -132,6 +132,7 @@ describe('Course module assessment banks', () => {
       'developers.openai.com',
       'docs.github.com',
       'learn.chatgpt.com',
+      'openai.com',
       'microsoft.github.io',
       'www.freecodecamp.org',
       'www.atlassian.com'

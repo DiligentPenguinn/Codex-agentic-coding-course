@@ -3,10 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Hướng dẫn trực quan cho Module 1: Bắt đầu làm việc với Codex."
-    />
+    <meta name="description" content="Hướng dẫn trực quan cho Module 1: Bắt đầu làm việc với Codex." />
     <title>Bắt đầu làm việc với Codex</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -20,175 +17,136 @@
           <h1>Bắt đầu làm việc với Codex</h1>
         </div>
         <div class="progress-wrap" aria-label="Tiến độ phần minh họa">
-          <span id="progressText">1 / 5</span>
-          <div class="progress-track" aria-hidden="true">
-            <span id="progressBar"></span>
-          </div>
+          <span id="progressText">1 / 8</span>
+          <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
         </div>
       </header>
 
       <nav class="steps" aria-label="Các phần">
-        <button class="step is-active" type="button" data-step="0">
-          <span>01</span> Codex
-        </button>
-        <button class="step" type="button" data-step="1">
-          <span>02</span> Quyền
-        </button>
-        <button class="step" type="button" data-step="2">
-          <span>03</span> Model
-        </button>
-        <button class="step" type="button" data-step="3">
-          <span>04</span> Chỉ dẫn
-        </button>
-        <button class="step" type="button" data-step="4">
-          <span>05</span> Skills
-        </button>
+        <button class="step is-active" type="button" data-step="0"><span>01</span> Codex</button>
+        <button class="step" type="button" data-step="1"><span>02</span> Harness</button>
+        <button class="step" type="button" data-step="2"><span>03</span> Codex Harness</button>
+        <button class="step" type="button" data-step="3"><span>04</span> Approval</button>
+        <button class="step" type="button" data-step="4"><span>05</span> Model</button>
+        <button class="step" type="button" data-step="5"><span>06</span> Reasoning</button>
+        <button class="step" type="button" data-step="6"><span>07</span> Cấu hình</button>
+        <button class="step" type="button" data-step="7"><span>08</span> Practice</button>
       </nav>
 
       <section class="stage" aria-live="polite">
         <article class="panel is-active" data-panel="0">
           <div class="copy">
-            <p class="kicker">Bắt đầu từ vai trò</p>
-            <h2>Codex làm việc cùng dự án, không chỉ trả lời câu hỏi</h2>
-            <p>
-              Codex là <strong>coding agent</strong> của OpenAI. Hãy hình dung Codex
-              như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án.
-            </p>
+            <p class="kicker">Coding agent của OpenAI</p>
+            <h2>Codex giúp bạn thực hiện công việc liên quan đến code</h2>
+            <p>Codex có thể giúp tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại. Bạn chưa cần biết lập trình để bắt đầu.</p>
             <div class="definition">
-              <span>Thuật ngữ</span>
-              <p>
-                <strong>Để bắt đầu:</strong> giao mục tiêu rõ ràng, cung cấp đủ bối
-                cảnh và nêu cách bạn sẽ kiểm tra kết quả.
-              </p>
+              <span>Điểm cần nhớ</span>
+              <p>Codex không chỉ trả lời. Khi được bạn cho phép, Codex có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả.</p>
             </div>
           </div>
           <figure class="media-frame">
-            <img
-              src="../onboarding/images/codex-app-interface.webp"
-              alt="Ảnh giao diện Codex với vùng trao đổi và khu vực theo dõi công việc"
-            />
-            <figcaption>Giao diện Codex trong ứng dụng ChatGPT trên máy tính.</figcaption>
+            <img src="../onboarding/images/codex-app-interface.webp" alt="Giao diện Codex với vùng trao đổi và khu vực theo dõi công việc" />
+            <figcaption>Bạn giao mục tiêu; Codex làm việc trong dự án; bạn duyệt kết quả.</figcaption>
           </figure>
         </article>
 
-        <article class="panel" data-panel="1" hidden>
-          <div class="copy">
-            <p class="kicker">Bạn giữ quyền quyết định</p>
-            <h2>Codex dừng lại khi cần bạn phê duyệt</h2>
-            <p>
-              Sandbox giới hạn nơi Codex có thể thao tác. Phê duyệt là lúc Codex
-              dừng lại để bạn xem xét một hành động trước khi tiếp tục.
-            </p>
-            <div class="permission-map" aria-label="Các yếu tố cần kiểm tra trước khi phê duyệt">
-              <div class="permission-node">Yêu cầu hành động</div>
-              <div class="permission-grid">
-                <span>Mục đích</span>
-                <span>Nguồn truy cập</span>
-                <span>Phạm vi thay đổi</span>
-                <span>Rủi ro</span>
-              </div>
-            </div>
-            <p class="note">
-              Khuyến nghị cho người mới: bắt đầu với <strong>Ask for approval</strong>,
-              nghĩa là Codex hỏi bạn trước khi vượt qua ranh giới hiện tại.
-            </p>
-          </div>
-          <figure class="media-frame terminal-frame">
-            <img
-              src="../onboarding/images/codex-terminal-interface.webp"
-              alt="Ảnh terminal tích hợp trong Codex đang hiển thị lệnh và kết quả"
-            />
-            <figcaption>Terminal cho thấy lệnh Codex chạy và kết quả trả về.</figcaption>
-          </figure>
-        </article>
-
-        <article class="panel" data-panel="2" hidden>
+        <article class="panel is-wide" data-panel="1" hidden>
           <div class="copy full-copy">
-            <p class="kicker">Chọn theo tác vụ</p>
-            <h2>Model là hệ thống AI xử lý yêu cầu</h2>
-            <p>
-              Giữ thiết lập mặc định nếu bạn chưa chắc. Chỉ đổi model hoặc mức
-              suy luận khi công việc thật cho thấy bạn cần nhanh hơn hoặc cần
-              phân tích sâu hơn. Mức suy luận là lượng công sức model dành cho
-              việc phân tích trước khi trả lời.
-            </p>
+            <p class="kicker">Trước khi đi sâu vào Codex</p>
+            <h2>Harness Engineering là thiết kế môi trường để agent làm việc ổn định</h2>
+            <p>Hãy hình dung model là bộ não. Harness là nơi làm việc, công cụ, quy tắc an toàn và vòng phản hồi quanh bộ não đó.</p>
           </div>
-          <div class="model-grid">
-            <article>
-              <p class="model-name">Sol</p>
-              <h3>Phức tạp, còn mơ hồ</h3>
-              <p>Làm rõ sản phẩm, nghiên cứu sâu hoặc xem xét nhiều đánh đổi.</p>
-            </article>
-            <article>
-              <p class="model-name">Terra</p>
-              <h3>Công việc hằng ngày</h3>
-              <p>Thực hiện yêu cầu đã rõ và dùng công cụ trong dự án.</p>
-            </article>
-            <article>
-              <p class="model-name">Luna</p>
-              <h3>Cụ thể, lặp lại</h3>
-              <p>Chuyển đổi hoặc sắp xếp đầu vào theo tiêu chí rõ ràng.</p>
-            </article>
+          <div class="model-grid harness-grid">
+            <article><p class="model-name">Nơi làm việc</p><h3>Workspace</h3><p>Dự án và những tệp agent được phép dùng.</p></article>
+            <article><p class="model-name">Khả năng</p><h3>Công cụ</h3><p>Đọc, sửa, chạy lệnh và kiểm tra kết quả.</p></article>
+            <article><p class="model-name">Ranh giới</p><h3>Quy tắc và phản hồi</h3><p>Chỉ dẫn, sandbox, approval, test và diff.</p></article>
           </div>
-          <p class="source-note">
-            Tên model có thể thay đổi theo tài khoản và thời điểm. Kiểm tra lựa
-            chọn đang hiện dưới vùng nhập yêu cầu của bạn.
-          </p>
+        </article>
+
+        <article class="panel is-wide" data-panel="2" hidden>
+          <div class="copy full-copy">
+            <p class="kicker">Harness của Codex</p>
+            <h2>Model không làm việc một mình</h2>
+            <p>Codex kết hợp model với workspace, terminal, công cụ đọc và sửa tệp, chỉ dẫn dự án, sandbox, approval cùng các bước kiểm tra.</p>
+          </div>
+          <div class="instruction-flow harness-flow">
+            <article><span class="flow-label">Bộ não</span><h3>Model</h3><p>Hiểu yêu cầu và suy luận.</p></article>
+            <div class="flow-plus" aria-hidden="true">+</div>
+            <article><span class="flow-label">Môi trường</span><h3>Harness</h3><p>Cho model nơi hành động và giới hạn cần tuân theo.</p></article>
+            <div class="flow-equals" aria-hidden="true">→</div>
+            <article class="flow-result"><span class="flow-label">Kết quả</span><h3>Coding agent</h3><p>Thực hiện công việc rồi đưa bằng chứng để bạn duyệt.</p></article>
+          </div>
+          <p class="note centered">Khi Codex làm chưa tốt, hãy xem cả model lẫn harness đang thiếu điều gì.</p>
         </article>
 
         <article class="panel" data-panel="3" hidden>
-          <div class="copy full-copy">
-            <p class="kicker">Bối cảnh dùng lại</p>
-            <h2>Prompt và <code>AGENTS.md</code> có hai nhiệm vụ khác nhau</h2>
+          <div class="copy">
+            <p class="kicker">Bạn giữ quyền quyết định</p>
+            <h2>Người mới không nên bật Full access</h2>
+            <p><strong>Approve for me</strong> giữ nhịp làm việc nhưng vẫn dừng ở hành động bị phát hiện là có rủi ro. <strong>Full access</strong> gỡ bỏ các ranh giới bảo vệ thông thường.</p>
+            <p class="note">Khuyến nghị của khóa học: chọn <strong>Approve for me</strong> và để <strong>Full access</strong> tắt.</p>
           </div>
-          <div class="instruction-flow">
-            <article>
-              <span class="flow-label">Task hiện tại</span>
-              <h3>Prompt</h3>
-              <p>“Hãy giúp tôi làm rõ yêu cầu cho tính năng này.”</p>
-            </article>
-            <div class="flow-plus" aria-hidden="true">+</div>
-            <article>
-              <span class="flow-label">Nhiều task</span>
-              <h3><code>AGENTS.md</code></h3>
-              <p>“Giải thích thuật ngữ trước khi yêu cầu Learner sử dụng.”</p>
-            </article>
-            <div class="flow-equals" aria-hidden="true">→</div>
-            <article class="flow-result">
-              <span class="flow-label">Cách làm việc</span>
-              <h3>Đúng mục tiêu, đúng quy tắc</h3>
-              <p>Codex dùng cả yêu cầu hiện tại và chỉ dẫn lâu dài.</p>
-            </article>
-          </div>
-          <p class="note centered">
-            Trong module này, bạn chỉ sửa khối <strong>Learner-editable preferences</strong>.
-          </p>
+          <figure class="media-frame">
+            <img src="./images/approval-menu.png" alt="Menu approval của Codex với Approve for me được chọn và Full access ở phía dưới" />
+            <figcaption>Course Companion không tự đổi thiết lập này. Bạn sẽ cài thật trong Practice.</figcaption>
+          </figure>
         </article>
 
-        <article class="panel" data-panel="4" hidden>
+        <article class="panel is-wide" data-panel="4" hidden>
+          <div class="copy full-copy">
+            <p class="kicker">Chọn theo loại công việc</p>
+            <h2>Sol, Terra và Luna phục vụ ba nhu cầu khác nhau</h2>
+          </div>
+          <div class="model-grid">
+            <article><p class="model-name">Sol</p><h3>Phức tạp, còn mơ hồ</h3><p>Kiến trúc ứng dụng, nghiên cứu sâu hoặc nhiều đánh đổi.</p></article>
+            <article><p class="model-name">Terra</p><h3>Công việc hằng ngày</h3><p>Sửa tính năng, kiểm tra lỗi hoặc dùng nhiều công cụ.</p></article>
+            <article><p class="model-name">Luna</p><h3>Rõ và lặp lại</h3><p>Phân loại, trích xuất, chuyển đổi hoặc tóm tắt có cấu trúc.</p></article>
+          </div>
+          <p class="source-note">Tên model không phải cấp độ người học phải vượt qua. Hãy chọn theo độ khó, độ rõ và chi phí của công việc.</p>
+        </article>
+
+        <article class="panel" data-panel="5" hidden>
           <div class="copy">
-            <p class="kicker">Quy trình có thể gọi lại</p>
-            <h2>Skill hướng dẫn Codex làm một loại công việc</h2>
-            <p>
-              Mỗi Skill có một tệp <code>SKILL.md</code>. Bạn có thể gọi trực
-              tiếp bằng dấu <code>$</code> để biết rõ quy trình nào đang được dùng.
-            </p>
-            <div class="skill-call">
-              <code>$start-course-lesson resume</code>
-              <span>tìm đúng bài và tiến độ cần tiếp tục</span>
+            <p class="kicker">Reasoning effort</p>
+            <h2>Điều chỉnh lượng công sức dành cho suy luận</h2>
+            <p>Light dành cho việc nhỏ. Medium cân bằng tốc độ và độ sâu. High phù hợp với việc nhiều bước. Extra High và Ultra dành cho nhiệm vụ rất khó.</p>
+            <p class="note">Không cần dùng Extra High hoặc Ultra cho Module 1. Chúng mất thêm thời gian và usage nhưng không mang lại lợi ích tương xứng cho bài thiết lập.</p>
+          </div>
+          <figure class="media-frame">
+            <img src="./images/reasoning-levels.png" alt="Menu Effort của Codex với High được chọn và các mức Extra High, Ultra ở phía dưới" />
+            <figcaption>Khóa học dùng High; người mới chưa cần Extra High hoặc Ultra.</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel" data-panel="6" hidden>
+          <div class="copy">
+            <p class="kicker">Cấu hình ContentPilot</p>
+            <h2>Chốt một thiết lập cụ thể cho dự án này</h2>
+            <div class="permission-grid setup-grid">
+              <span>Model · 5.6 Sol</span><span>Effort · High</span><span>Speed · Standard</span><span>Approval · Approve for me</span><span>Full access · Tắt</span>
             </div>
-            <p class="note">
-              Không cần cài thêm Skill trong MVP. Các module sau chỉ bổ sung
-              Skill khi tác vụ thật sự cần.
-            </p>
+            <p class="note">Đây là cấu hình khóa học đề xuất, không phải thiết lập mặc định của mọi tài khoản Codex.</p>
+          </div>
+          <figure class="media-frame">
+            <img src="./images/model-settings.png" alt="Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard" />
+            <figcaption>Ba mục cần xuất hiện trong ảnh cấu hình đầu tiên.</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel" data-panel="7" hidden>
+          <div class="copy">
+            <p class="kicker">Practice cuối Module 1</p>
+            <h2>Nộp cấu hình để Triết duyệt</h2>
+            <p>Trong task Executor do Course Companion mở, đính kèm một ảnh Model, Effort, Speed và một ảnh Approval, Full access.</p>
+            <div class="skill-call"><code>Verification</code><span>Executor phải báo cáo đủ năm mục và cảnh báo nếu có điểm chưa khớp.</span></div>
           </div>
           <div class="finish-card">
             <span class="finish-mark" aria-hidden="true">✓</span>
-            <p class="kicker">Quay lại Codex</p>
-            <h3>Bắt đầu áp dụng vào task thật</h3>
-            <p>Gửi câu sau trong task đang học:</p>
+            <p class="kicker">Quay lại Course Companion</p>
+            <h3>Yêu cầu Triết duyệt tiến độ</h3>
+            <p>Triết chỉ xác nhận đạt khi bằng chứng đến từ đúng task và còn mới.</p>
             <button class="copy-line" id="copyLine" type="button">
-              <span>Tôi đã xem xong hướng dẫn thiết lập Codex.</span>
+              <span>Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt. Báo cáo dưới tiêu đề Verification.</span>
               <small id="copyStatus">Sao chép</small>
             </button>
           </div>
@@ -196,29 +154,22 @@
       </section>
 
       <footer class="actions">
-        <button class="secondary" id="backButton" type="button" disabled>
-          Quay lại
-        </button>
-        <p id="stepHint">Hiểu vai trò của Codex trước khi thiết lập.</p>
-        <button class="primary" id="nextButton" type="button">
-          Tiếp tục
-        </button>
+        <button class="secondary" id="backButton" type="button" disabled>Quay lại</button>
+        <p id="stepHint">Hiểu Codex trước khi đi vào thiết lập.</p>
+        <button class="primary" id="nextButton" type="button">Tiếp tục</button>
       </footer>
 
       <details class="sources">
         <summary>Nguồn tham khảo</summary>
         <ul>
-          <li><a href="https://learn.chatgpt.com/docs/quickstart">OpenAI Docs — Quickstart</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/app">OpenAI Docs — Codex app</a></li>
+          <li><a href="https://openai.com/vi-VN/index/harness-engineering/">OpenAI — Harness Engineering</a></li>
+          <li><a href="https://viblo.asia/p/agent-harness-la-gi-tai-sao-ai-agent-can-harness-de-hoat-dong-hieu-qua-bA468BMMLKv">Viblo — Agent Harness là gì?</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/sandboxing">OpenAI Docs — Sandboxing and approvals</a></li>
           <li><a href="https://learn.chatgpt.com/docs/models">OpenAI Docs — Models</a></li>
-          <li><a href="https://learn.chatgpt.com/docs/permission-modes">OpenAI Docs — Permissions</a></li>
-          <li><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">OpenAI Docs — AGENTS.md</a></li>
-          <li><a href="https://learn.chatgpt.com/docs/build-skills">OpenAI Docs — Build skills</a></li>
           <li><a href="https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/">FreeCodeCamp — The Codex Handbook</a></li>
         </ul>
-        <p>
-          Hai ảnh giao diện lấy từ trang giới thiệu Codex chính thức của OpenAI;
-          chi tiết được ghi tại <code>course/onboarding/images/SOURCES.md</code>.
-        </p>
+        <p>Ảnh menu do tác giả khóa học cung cấp. Chi tiết được ghi tại <code>course/codex-setup/images/SOURCES.md</code>.</p>
       </details>
     </main>
 

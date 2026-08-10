@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Bắt đầu làm việc với Codex",
+  "title": "Ngân hàng câu hỏi sửa sai — Thiết lập Codex",
   "passingScore": 4,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
-    "feedbackTiming": "Hiện lời giải và nguồn sau khi Learner trả lời từng câu.",
+    "feedbackTiming": "Chỉ dùng sau khi Learner đã trả lời hoặc Practice cho thấy một phần chưa hiểu.",
     "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
     "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học."
   },
@@ -14,85 +14,85 @@
     {
       "id": "m1-q1",
       "type": "multiple-choice",
-      "prompt": "Điểm nào phân biệt Codex với một cuộc trò chuyện chỉ trả lời bằng văn bản?",
+      "prompt": "Điểm nào mô tả đúng nhất một coding agent?",
       "choices": [
-        "Codex là sản phẩm dành cho quy trình agentic coding, không chỉ là một model trả lời văn bản.",
-        "Codex luôn được quyền truy cập toàn bộ máy tính.",
-        "Codex không cần biết mục tiêu của người dùng.",
-        "Codex chỉ hoạt động khi có OpenAI API key."
+        "Một trợ lý có thể dùng công cụ và làm việc với dự án để thực hiện yêu cầu liên quan đến code.",
+        "Một chatbot chỉ trả lời câu hỏi bằng văn bản.",
+        "Một model luôn có toàn quyền trên máy tính.",
+        "Một trình soạn thảo chỉ dùng để viết code thủ công."
       ],
       "answerIndex": 0,
-      "explanation": "Codex kết hợp model với một quy trình có tệp, công cụ, phê duyệt và kiểm tra. Người dùng vẫn quyết định mục tiêu và phạm vi hành động.",
+      "explanation": "Codex là coding agent: model được đặt trong một môi trường có dự án, công cụ và các ranh giới hành động.",
       "source": {
-        "label": "FreeCodeCamp — The Codex Handbook",
-        "url": "https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/",
-        "basis": "The Codex Handbook phân biệt Codex với một model hoặc chatbot và mô tả Codex như sản phẩm dành cho quy trình agentic coding."
+        "label": "OpenAI Docs — Codex app",
+        "url": "https://learn.chatgpt.com/docs/app",
+        "basis": "Tài liệu giới thiệu Codex như coding agent của OpenAI có thể thực hiện công việc trong dự án."
       }
     },
     {
       "id": "m1-q2",
       "type": "multiple-choice",
-      "prompt": "Bạn chưa chắc nên chọn model nào cho lần đầu học. Cách bắt đầu nào phù hợp nhất?",
+      "prompt": "Nếu model được ví như bộ não, đâu là ví dụ về harness?",
       "choices": [
-        "Giữ model và mức suy luận mặc định, rồi điều chỉnh khi công việc thật cho thấy cần thiết.",
-        "Luôn chọn mức suy luận cao nhất cho mọi việc.",
-        "Chọn ngẫu nhiên một model khác sau mỗi câu hỏi.",
-        "Dừng học cho đến khi nhớ toàn bộ danh sách model."
+        "Workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi.",
+        "Chỉ tên của model đang được chọn.",
+        "Chỉ câu trả lời cuối cùng của agent.",
+        "Chỉ tốc độ kết nối Internet."
       ],
       "answerIndex": 0,
-      "explanation": "OpenAI khuyên bắt đầu với thiết lập mặc định và tăng mức suy luận khi công việc cần thêm planning hoặc phân tích.",
+      "explanation": "Harness là hệ thống bao quanh model để agent có nơi hành động, quy tắc cần tuân theo và tín hiệu kiểm tra kết quả.",
       "source": {
-        "label": "OpenAI Docs — Models",
-        "url": "https://learn.chatgpt.com/docs/models",
-        "basis": "Hướng dẫn khuyên bắt đầu với model được đề xuất và mức suy luận mặc định, sau đó điều chỉnh theo tác vụ."
+        "label": "OpenAI — Harness Engineering",
+        "url": "https://openai.com/vi-VN/index/harness-engineering/",
+        "basis": "Bài viết mô tả công cụ, kiến thức dự án, rào chắn và vòng phản hồi giúp agent làm việc ổn định."
       }
     },
     {
       "id": "m1-q3",
       "type": "multiple-choice",
-      "prompt": "Codex xin phép truy cập Internet để tải một gói mới. Bạn nên làm gì trước?",
+      "prompt": "Thiết lập approval nào được khóa học khuyên dùng cho người mới?",
       "choices": [
-        "Đọc lý do, nguồn sẽ truy cập và phạm vi thay đổi rồi mới quyết định.",
-        "Luôn đồng ý vì Codex đã đưa ra yêu cầu.",
-        "Luôn từ chối mọi yêu cầu mà không đọc.",
-        "Bắt đầu một task mới để yêu cầu biến mất."
+        "Approve for me và không bật Full access.",
+        "Full access cho mọi dự án.",
+        "Tắt toàn bộ sandbox.",
+        "Luôn duyệt mọi yêu cầu mà không đọc."
       ],
       "answerIndex": 0,
-      "explanation": "Phê duyệt là điểm người dùng xem xét một hành động vượt qua ranh giới hiện tại. Quyết định cần dựa trên mục đích và tác động của hành động.",
+      "explanation": "Approve for me giữ nhịp làm việc nhưng vẫn dừng ở hành động bị phát hiện là có rủi ro. Full access gỡ bỏ các ranh giới bảo vệ thông thường.",
       "source": {
-        "label": "OpenAI Docs — Agent approvals & security",
-        "url": "https://learn.chatgpt.com/docs/agent-approvals-security",
-        "basis": "Tài liệu giải thích sandbox giới hạn khả năng kỹ thuật, còn approval policy quyết định khi nào Codex phải dừng để hỏi."
+        "label": "OpenAI Docs — Sandboxing and approvals",
+        "url": "https://learn.chatgpt.com/docs/sandboxing",
+        "basis": "Tài liệu phân biệt sandbox với approval policy và mô tả Full access là chế độ không còn ranh giới tệp hoặc mạng thông thường."
       }
     },
     {
       "id": "m1-q4",
       "type": "short-answer",
-      "prompt": "Hãy nêu một chỉ dẫn nên đặt trong `AGENTS.md` và một yêu cầu chỉ nên đặt trong prompt của task hiện tại. Giải thích vì sao.",
+      "prompt": "Hãy nêu một tác vụ phù hợp với Sol và một tác vụ phù hợp với Luna. Giải thích điểm khác nhau.",
       "expectedSignals": [
-        "Chỉ dẫn trong AGENTS.md có tính lâu dài hoặc áp dụng cho nhiều task của dự án",
-        "Yêu cầu trong prompt gắn với mục tiêu cụ thể của task hiện tại",
-        "Có lời giải thích bằng ngôn ngữ của Learner"
+        "Sol được gắn với công việc phức tạp, mơ hồ hoặc có nhiều đánh đổi",
+        "Luna được gắn với công việc rõ, lặp lại hoặc có đầu ra cố định",
+        "Có ví dụ cụ thể bằng lời của Learner"
       ],
       "source": {
-        "label": "OpenAI Docs — Custom instructions with AGENTS.md",
-        "url": "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
-        "basis": "AGENTS.md cung cấp chỉ dẫn và bối cảnh lâu dài cho dự án; prompt giữ mục tiêu của lần làm việc hiện tại."
+        "label": "OpenAI Docs — Models",
+        "url": "https://learn.chatgpt.com/docs/models",
+        "basis": "Tài liệu phân biệt Sol cho việc phức tạp với Luna cho tác vụ rõ, lặp lại và cần chi phí thấp."
       }
     },
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Loại công việc nào đáng đóng gói thành Skill? Hãy đưa một ví dụ không trùng với hai Skill của khóa học.",
+      "prompt": "Vì sao khóa học dùng High nhưng không khuyên người mới chọn Extra High hoặc Ultra cho ContentPilot?",
       "expectedSignals": [
-        "Công việc là một quy trình có thể lặp lại",
-        "Ví dụ có đầu vào, các bước hoặc đầu ra tương đối ổn định",
-        "Không mô tả mọi chỉ dẫn dự án như một Skill"
+        "High đủ cho công việc nhiều bước của dự án thực hành",
+        "Extra High hoặc Ultra dùng nhiều thời gian hay usage hơn",
+        "Nêu nguyên tắc dùng mức thấp nhất vẫn tạo ra kết quả đạt yêu cầu"
       ],
       "source": {
-        "label": "OpenAI Docs — Build skills",
-        "url": "https://learn.chatgpt.com/docs/build-skills",
-        "basis": "Skill đóng gói hướng dẫn, tài nguyên và script tùy chọn để thực hiện một quy trình có thể tái sử dụng."
+        "label": "OpenAI Docs — Models",
+        "url": "https://learn.chatgpt.com/docs/models",
+        "basis": "Tài liệu khuyên dùng mức reasoning thấp nhất vẫn tạo ra kết quả đạt yêu cầu và dành mức rất cao cho nhiệm vụ thật sự khó."
       }
     }
   ]

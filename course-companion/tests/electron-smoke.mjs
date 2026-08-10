@@ -59,7 +59,7 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
-    'Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động.'
+    'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
   )
   assert.equal(await page.getByText('pilot-workspace/', { exact: true }).count(), 0)
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
@@ -84,13 +84,20 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 
-  await page.getByRole('button', { name: 'Tiếp tục chọn thiết lập ban đầu', exact: true }).click()
-  await page.getByRole('button', { name: 'Giữ thiết lập được đề xuất', exact: true }).click()
-  await page.getByRole('button', { name: 'Tôi sẽ xem xét trước khi phê duyệt', exact: true }).click()
-  await page.getByRole('button', { name: 'Phân biệt AGENTS.md và prompt', exact: true }).click()
-  await page.getByRole('button', { name: 'Đưa vào checklist thiết lập', exact: true }).click()
-  await page.getByText('CHECKLIST THIẾT LẬP', { exact: true }).waitFor()
-  await capture(page, 'module-1-codex-setup-checklist.png')
+  await page.getByRole('button', { name: 'Codex có thể làm gì trong dự án?', exact: true }).click()
+  await page.getByRole('button', { name: 'Tìm hiểu môi trường quanh Codex', exact: true }).click()
+  await page.getByRole('button', { name: 'Harness là gì?', exact: true }).click()
+  await page.getByRole('button', { name: 'Xem harness của Codex', exact: true }).click()
+  await page.getByRole('button', { name: 'Khi kết quả chưa tốt thì sao?', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục đến quyền truy cập', exact: true }).click()
+  await page.getByRole('button', { name: 'Xem thiết lập khuyên dùng', exact: true }).click()
+  await page.getByRole('button', { name: 'Dùng thiết lập an toàn này', exact: true }).click()
+  await page.getByRole('button', { name: 'Xem ví dụ dùng từng model', exact: true }).click()
+  await page.getByRole('button', { name: 'Tìm hiểu reasoning effort', exact: true }).click()
+  await page.getByRole('button', { name: 'Chốt cấu hình ContentPilot', exact: true }).click()
+  await page.getByRole('button', { name: 'Dùng cấu hình này cho ContentPilot', exact: true }).click()
+  await page.getByText('PRACTICE · 2 ẢNH', { exact: true }).waitFor()
+  await capture(page, 'module-1-codex-setup-practice.png')
 
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -108,11 +115,29 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 
-  await page.getByRole('button', { name: 'Bắt đầu kiểm tra Module 1', exact: true }).click()
-  await page.getByRole('button', { name: 'Bắt đầu câu 1', exact: true }).click()
-  await answerAssessmentGroup(page, 'setup-final-assessment')
-  await page.getByText('Bạn đạt 5/5 câu.', { exact: false }).waitFor()
-  await capture(page, 'module-1-codex-setup-summary.png')
+  await page.getByRole('button', { name: 'Sang Codex nộp cấu hình', exact: true }).click()
+
+  // The production return is owned by the verified Practice workflow in PR #4.
+  // This smoke fixture injects the same destination after a simulated passing receipt.
+  await page.evaluate(async () => {
+    const result = await globalThis.courseCompanion.loadProgress()
+    if (result.status !== 'returning' && result.status !== 'recovered') {
+      throw new Error('Expected saved Module 1 progress before simulated Practice return')
+    }
+    const current = result.progress
+    await globalThis.courseCompanion.saveProgress({
+      currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-assessment',
+      checkpointId: 'm1-mastery',
+      sceneId: 'module-1-mastery',
+      sceneHistory: [...current.sceneHistory, current.sceneId],
+      completedCheckpointIds: [...new Set([...current.completedCheckpointIds, 'm1-setup-checklist'])],
+      decisions: current.decisions
+    })
+    await globalThis.courseCompanion.showLearningWindow()
+  })
+  await page.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
+  await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Hoàn thành Module 1', exact: true }).click()
   await page.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
   await page.getByRole('button', { name: 'Mở Module 2', exact: true }).click()
@@ -349,7 +374,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Module 1 bắt đầu bằng phần làm quen ngắn với Codex. Sau đó, bạn sẽ chọn model, hiểu cách phê duyệt hành động và phân biệt vai trò của AGENTS.md với Skill trước khi chuyển sang planning cho ContentPilot.'
+    'Module 1 bắt đầu bằng Codex và coding agent. Sau đó, bạn sẽ hiểu Harness Engineering, chọn quyền truy cập an toàn, tìm hiểu model và reasoning effort rồi nộp cấu hình thật để Triết duyệt.'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {

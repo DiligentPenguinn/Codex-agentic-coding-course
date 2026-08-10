@@ -20,10 +20,11 @@ import courseStructure from '../../../../../pilot-workspace/course/course-struct
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
+import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
+import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
+import m1ReasoningLevelsImage from '../../../../../pilot-workspace/course/codex-setup/images/reasoning-levels.png'
 import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
-import m1PermissionsImage from '../assets/lesson-visuals/m1-workspace-permissions.webp'
 import m1AgentsGuidanceImage from '../assets/lesson-visuals/m1-agents-guidance.webp'
-import m1SkillsImage from '../assets/lesson-visuals/m1-skills-and-checklist.webp'
 import m1AssessmentImage from '../assets/lesson-visuals/m1-assessment.webp'
 import m2WhenToPlanImage from '../assets/lesson-visuals/m2-when-to-plan.webp'
 import m2ProductRequirementsImage from '../assets/lesson-visuals/m2-product-requirements.webp'
@@ -195,13 +196,13 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     panelLabel: 'MODULE 1',
     panelStatus: 'THIẾT LẬP CODEX',
     tone: 'neutral',
-    request: 'Codex → model → quyền hành động → AGENTS.md → Skill',
+    request: 'Codex → Harness Engineering → approval → model → reasoning → Practice',
     evidence: [
       { label: 'KIẾN THỨC CODE', value: 'Chưa cần' },
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
-      { label: 'KẾT QUẢ', value: 'Checklist thiết lập Codex' }
+      { label: 'KẾT QUẢ', value: 'Cấu hình được Triết duyệt' }
     ],
-    dialogue: 'Module 1 bắt đầu bằng phần làm quen ngắn với Codex. Sau đó, bạn sẽ chọn model, hiểu cách phê duyệt hành động và phân biệt vai trò của AGENTS.md với Skill trước khi chuyển sang planning cho ContentPilot.',
+    dialogue: 'Module 1 bắt đầu bằng Codex và coding agent. Sau đó, bạn sẽ hiểu Harness Engineering, chọn quyền truy cập an toàn, tìm hiểu model và reasoning effort rồi nộp cấu hình thật để Triết duyệt.',
     choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false
@@ -210,150 +211,287 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 8,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với Codex',
-    objective: 'Codex là gì?',
+    objective: 'Codex là coding agent của OpenAI',
     panelLabel: 'CODING AGENT',
     panelStatus: 'LÀM VIỆC CÙNG BẠN',
     tone: 'neutral',
     request: 'Codex là coding agent của OpenAI.',
     evidence: [
       { label: 'VAI TRÒ', value: 'Coding agent' },
-      { label: 'BẠN GIAO', value: 'Mục tiêu và bối cảnh' },
-      { label: 'BẠN GIỮ', value: 'Quyền quyết định' }
+      { label: 'TẠO', value: 'Ứng dụng và website' },
+      { label: 'TỰ ĐỘNG HÓA', value: 'Việc lặp lại' }
     ],
-    dialogue: 'Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động.',
-    choices: [{ label: 'Tiếp tục chọn thiết lập ban đầu', next: 'module-1-model-choice', primary: true }]
+    dialogue: 'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.',
+    choices: [{ label: 'Codex có thể làm gì trong dự án?', next: 'module-1-codex-examples', primary: true }]
   },
-  'module-1-model-choice': {
+  'module-1-codex-examples': {
     lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 8,
+    checkpointId: 'm1-codex-orientation',
+    step: 1,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Chọn điểm bắt đầu phù hợp',
-    objective: 'Bạn sẽ bắt đầu với thiết lập model nào?',
-    panelLabel: 'MODEL VÀ MỨC SUY LUẬN',
-    panelStatus: 'CÓ THỂ ĐIỀU CHỈNH SAU',
+    mission: 'Codex và coding agent',
+    objective: 'Codex không chỉ đưa ra câu trả lời',
+    panelLabel: 'MỘT VÒNG LÀM VIỆC',
+    panelStatus: 'MỤC TIÊU → HÀNH ĐỘNG → KIỂM TRA',
     tone: 'neutral',
-    request: 'Khi chưa chắc, giữ thiết lập được đề xuất là điểm bắt đầu an toàn.',
+    request: 'Bạn giao mục tiêu; Codex làm việc trong dự án; bạn duyệt kết quả.',
     evidence: [
-      { label: 'ĐỀ XUẤT', value: 'Giữ mặc định' },
-      { label: 'ĐIỀU CHỈNH', value: 'Khi tác vụ thật cần' },
-      { label: 'MỤC TIÊU', value: 'Học workflow trước' }
+      { label: 'ĐỌC', value: 'Tệp và bối cảnh' },
+      { label: 'LÀM', value: 'Dùng công cụ và lệnh' },
+      { label: 'BÁO CÁO', value: 'Thay đổi và kiểm tra' }
     ],
-    dialogue: 'Bạn không cần ghi nhớ toàn bộ danh sách model trước khi bắt đầu. Hãy chọn một điểm khởi đầu, quan sát chất lượng và thời gian xử lý, rồi điều chỉnh theo công việc thật.',
-    choices: [
-      { label: 'Giữ thiết lập được đề xuất', next: 'module-1-permissions', primary: true, decision: { key: 'modelChoice', value: 'recommended-default' } },
-      { label: 'Dùng thiết lập mình đã chọn', next: 'module-1-permissions', decision: { key: 'modelChoice', value: 'learner-selected' } }
-    ]
+    dialogue: 'Khi được bạn cho phép, Codex có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả. Bạn vẫn là người đặt mục tiêu, chọn phạm vi và duyệt kết quả cuối cùng.',
+    choices: [{ label: 'Tìm hiểu môi trường quanh Codex', next: 'module-1-agents-guidance', primary: true }]
+  },
+  'module-1-agents-guidance': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-guidance',
+    step: 2,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Harness Engineering',
+    objective: 'Vì sao agent cần một môi trường làm việc?',
+    panelLabel: 'HARNESS ENGINEERING',
+    panelStatus: 'CON NGƯỜI ĐỊNH HƯỚNG · AGENT THỰC THI',
+    tone: 'neutral',
+    request: 'Thiết kế môi trường, công cụ và vòng phản hồi để agent làm việc ổn định.',
+    evidence: [
+      { label: 'Ý ĐỊNH', value: 'Được mô tả rõ' },
+      { label: 'CÔNG CỤ', value: 'Đủ để hành động' },
+      { label: 'PHẢN HỒI', value: 'Biết đúng hay sai' }
+    ],
+    dialogue: 'Trước khi đi sâu vào Codex, bạn nên biết Harness Engineering. Đây là cách thiết kế môi trường xung quanh một AI agent để nó có thể làm việc ổn định. Con người định hướng, còn agent thực thi trong môi trường đó.',
+    choices: [{ label: 'Harness là gì?', next: 'module-1-harness-intro', primary: true }]
+  },
+  'module-1-harness-intro': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-guidance',
+    step: 2,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Harness Engineering',
+    objective: 'Model là bộ não; harness là môi trường quanh nó',
+    panelLabel: 'MỘT HARNESS',
+    panelStatus: 'NƠI LÀM VIỆC + CÔNG CỤ + QUY TẮC + PHẢN HỒI',
+    tone: 'neutral',
+    request: 'Harness cho model nơi để hành động, điều cần tuân theo và cách biết kết quả có đạt hay không.',
+    evidence: [
+      { label: 'NƠI LÀM VIỆC', value: 'Workspace' },
+      { label: 'RANH GIỚI', value: 'Quy tắc an toàn' },
+      { label: 'KIỂM TRA', value: 'Test và diff' }
+    ],
+    dialogue: 'Hãy hình dung model là bộ não. Harness là nơi làm việc, công cụ, quy tắc an toàn và vòng phản hồi quanh bộ não đó. Không có harness, model có thể giải thích cách làm nhưng thiếu nơi để hành động và kiểm tra.',
+    choices: [{ label: 'Xem harness của Codex', next: 'module-1-harness-codex', primary: true }]
+  },
+  'module-1-harness-codex': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-guidance',
+    step: 2,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Harness Engineering',
+    objective: 'Harness của Codex gồm những gì?',
+    panelLabel: 'CODEX HARNESS',
+    panelStatus: 'MODEL KHÔNG LÀM VIỆC MỘT MÌNH',
+    tone: 'neutral',
+    request: 'Codex kết hợp model với một hệ thống để hành động và kiểm tra.',
+    evidence: [
+      { label: 'DỰ ÁN', value: 'Workspace và tệp' },
+      { label: 'HÀNH ĐỘNG', value: 'Terminal và công cụ' },
+      { label: 'AN TOÀN', value: 'Sandbox và approval' }
+    ],
+    dialogue: 'Harness của Codex gồm workspace, terminal, công cụ đọc và sửa tệp, chỉ dẫn của dự án, sandbox, approval, diff và các bước kiểm tra. Những phần này biến khả năng suy luận của model thành một quy trình làm việc có ranh giới.',
+    choices: [{ label: 'Khi kết quả chưa tốt thì sao?', next: 'module-1-skills', primary: true }]
+  },
+  'module-1-skills': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-skills',
+    step: 2,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Harness Engineering',
+    objective: 'Không phải lỗi nào cũng cần đổi model',
+    panelLabel: 'VÒNG PHẢN HỒI',
+    panelStatus: 'TÌM PHẦN HARNESS CÒN THIẾU',
+    tone: 'neutral',
+    request: 'Xem lại bối cảnh, công cụ, ranh giới và cách kiểm tra trước khi kết luận model không đủ tốt.',
+    evidence: [
+      { label: 'BỐI CẢNH', value: 'Agent đã biết đủ chưa?' },
+      { label: 'CÔNG CỤ', value: 'Có thể hành động không?' },
+      { label: 'PHẢN HỒI', value: 'Có biết kết quả sai không?' }
+    ],
+    dialogue: 'Nếu Codex làm chưa tốt, ta không chỉ đổi model. Ta còn xem harness có thiếu bối cảnh, công cụ, giới hạn hoặc cách kiểm tra nào không. Đây là tư duy cốt lõi của Harness Engineering.',
+    choices: [{ label: 'Tiếp tục đến quyền truy cập', next: 'module-1-permissions', primary: true }]
   },
   'module-1-permissions': {
     lessonId: 'module-1',
     checkpointId: 'm1-permissions',
     step: 3,
-    totalSteps: 8,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Quyền hành động và phê duyệt',
-    objective: 'Bạn kiểm tra gì trước khi phê duyệt?',
-    panelLabel: 'PHÊ DUYỆT',
-    panelStatus: 'BẠN GIỮ QUYỀN QUYẾT ĐỊNH',
+    objective: 'Sandbox và approval khác nhau thế nào?',
+    panelLabel: 'RANH GIỚI VÀ QUYẾT ĐỊNH',
+    panelStatus: 'SANDBOX ≠ APPROVAL',
     tone: 'neutral',
-    request: 'Đọc mục đích, nguồn truy cập và phạm vi thay đổi trước khi đồng ý.',
+    request: 'Sandbox giới hạn khả năng kỹ thuật; approval quyết định khi nào Codex phải dừng để hỏi.',
     evidence: [
-      { label: 'MỤC ĐÍCH', value: 'Vì sao cần hành động?' },
-      { label: 'NGUỒN', value: 'Sẽ truy cập đâu?' },
-      { label: 'TÁC ĐỘNG', value: 'Sẽ thay đổi gì?' }
+      { label: 'ASK FOR APPROVAL', value: 'Hỏi thường xuyên hơn' },
+      { label: 'APPROVE FOR ME', value: 'Dừng ở hành động rủi ro' },
+      { label: 'FULL ACCESS', value: 'Gỡ ranh giới bảo vệ' }
     ],
-    dialogue: 'Sandbox giới hạn nơi Codex có thể thao tác. Phê duyệt là điểm Codex dừng lại để bạn xem xét một hành động vượt qua ranh giới hiện tại.',
-    choices: [{ label: 'Tôi sẽ xem xét trước khi phê duyệt', next: 'module-1-agents-guidance', primary: true, decision: { key: 'approvalApproach', value: 'review-purpose-source-impact' } }]
+    dialogue: 'Sandbox là ranh giới kỹ thuật giới hạn những gì Codex có thể truy cập. Approval là lúc Codex phải dừng để bạn quyết định. Tự động duyệt không làm thay đổi ranh giới sandbox.',
+    choices: [{ label: 'Xem thiết lập khuyên dùng', next: 'module-1-approval-choice', primary: true }]
   },
-  'module-1-agents-guidance': {
+  'module-1-approval-choice': {
     lessonId: 'module-1',
-    checkpointId: 'm1-agents-guidance',
+    checkpointId: 'm1-permissions',
+    step: 3,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Approval và quyền truy cập',
+    objective: 'Người mới không nên bật Full access',
+    panelLabel: 'CẤU HÌNH AN TOÀN',
+    panelStatus: 'APPROVE FOR ME · FULL ACCESS TẮT',
+    tone: 'neutral',
+    request: 'Course Companion chỉ ghi lại lựa chọn; bạn sẽ cài thật trong Codex ở phần Practice.',
+    evidence: [
+      { label: 'NHỊP LÀM VIỆC', value: 'Ít bị ngắt quãng' },
+      { label: 'HÀNH ĐỘNG RỦI RO', value: 'Vẫn dừng lại' },
+      { label: 'FULL ACCESS', value: 'Không bật' }
+    ],
+    dialogue: 'Khóa học khuyên người mới dùng Approve for me và không bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
+    choices: [{ label: 'Dùng thiết lập an toàn này', next: 'module-1-model-choice', primary: true, decision: { key: 'approvalApproach', value: 'approve-for-me-no-full-access' } }]
+  },
+  'module-1-model-choice': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-model-choice',
     step: 4,
-    totalSteps: 8,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Thiết lập hướng dẫn bền vững',
-    objective: 'Khi nào dùng AGENTS.md?',
-    panelLabel: 'HAI LỚP HƯỚNG DẪN',
-    panelStatus: 'BỀN VỮNG VÀ THEO TASK',
+    mission: 'Model và mức suy luận',
+    objective: 'Ba dòng model phục vụ ba nhu cầu',
+    panelLabel: 'SOL · TERRA · LUNA',
+    panelStatus: 'CHỌN THEO CÔNG VIỆC',
     tone: 'neutral',
-    request: 'AGENTS.md giữ quy tắc dự án; prompt giữ mục tiêu của task hiện tại.',
+    request: 'Tên model không phải cấp độ người học phải vượt qua.',
     evidence: [
-      { label: 'AGENTS.MD', value: 'Áp dụng qua nhiều task' },
-      { label: 'PROMPT', value: 'Mục tiêu lần làm việc này' },
-      { label: 'VÍ DỤ', value: 'Ngôn ngữ và cách kiểm tra' }
+      { label: 'SOL', value: 'Phức tạp hoặc mơ hồ' },
+      { label: 'TERRA', value: 'Công việc hằng ngày' },
+      { label: 'LUNA', value: 'Rõ và lặp lại' }
     ],
-    dialogue: 'Codex đọc AGENTS.md trước khi làm việc. Hãy đặt vào đó những chỉ dẫn cần được giữ ổn định trong dự án, còn yêu cầu chỉ dùng một lần nên nằm trong prompt của task.',
-    choices: [{ label: 'Phân biệt AGENTS.md và prompt', next: 'module-1-skills', primary: true, decision: { key: 'guidanceBoundary', value: 'durable-vs-task-specific' } }]
+    dialogue: 'Sol là dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ. Terra cân bằng cho công việc hằng ngày. Luna nhanh và tiết kiệm cho yêu cầu rõ, lặp lại hoặc có đầu ra cố định.',
+    choices: [{ label: 'Xem ví dụ dùng từng model', next: 'module-1-model-use-cases', primary: true }]
   },
-  'module-1-skills': {
+  'module-1-model-use-cases': {
     lessonId: 'module-1',
-    checkpointId: 'm1-skills',
-    step: 5,
-    totalSteps: 8,
+    checkpointId: 'm1-model-choice',
+    step: 4,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Nhận biết và gọi Skill',
-    objective: 'Công việc nào phù hợp để đóng gói thành Skill?',
-    panelLabel: 'QUY TRÌNH CÓ THỂ TÁI SỬ DỤNG',
-    panelStatus: 'ĐẦU VÀO VÀ ĐẦU RA RÕ',
+    mission: 'Model và mức suy luận',
+    objective: 'Chọn model theo độ rõ và độ khó',
+    panelLabel: 'VÍ DỤ CONTENTPILOT',
+    panelStatus: 'MỘT DỰ ÁN · NHIỀU LOẠI VIỆC',
     tone: 'neutral',
-    request: 'Skill phù hợp với một quy trình lặp lại, không phải mọi quy tắc của dự án.',
+    request: 'Dùng model mạnh hơn khi công việc có nhiều điều chưa rõ; dùng model gọn hơn khi đầu ra đã cố định.',
     evidence: [
-      { label: 'LẶP LẠI', value: 'Dùng cho nhiều lần' },
-      { label: 'QUY TRÌNH', value: 'Các bước tương đối ổn định' },
-      { label: 'VÍ DỤ', value: 'start-course-lesson' }
+      { label: 'SOL', value: 'Thiết kế luồng ứng dụng' },
+      { label: 'TERRA', value: 'Sửa một tính năng đã rõ' },
+      { label: 'LUNA', value: 'Phân loại danh sách nội dung' }
     ],
-    dialogue: 'Bạn đã dùng Skill start-course-lesson để bắt đầu khóa học. Course Teacher là Skill khác giúp giữ nhịp dạy, đánh giá và tiếp tục đúng checkpoint.',
-    choices: [{ label: 'Đưa vào checklist thiết lập', next: 'module-1-setup-checklist', primary: true, decision: { key: 'skillBoundary', value: 'repeatable-workflow' } }]
+    dialogue: 'Với ContentPilot, Sol phù hợp khi ta còn phải quyết định kiến trúc và luồng sử dụng. Terra phù hợp khi sửa một tính năng đã có yêu cầu rõ. Luna phù hợp khi chuyển đổi hoặc phân loại một danh sách theo tiêu chí cố định.',
+    choices: [{ label: 'Tìm hiểu reasoning effort', next: 'module-1-reasoning-effort', primary: true }]
+  },
+  'module-1-reasoning-effort': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-model-choice',
+    step: 4,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Model và mức suy luận',
+    objective: 'Reasoning effort thay đổi điều gì?',
+    panelLabel: 'LIGHT → MEDIUM → HIGH',
+    panelStatus: 'DÙNG MỨC THẤP NHẤT VẪN ĐẠT YÊU CẦU',
+    tone: 'neutral',
+    request: 'Mức cao hơn dành thêm công sức cho phân tích nhưng thường chậm và tốn usage hơn.',
+    evidence: [
+      { label: 'LIGHT', value: 'Việc nhỏ và rõ' },
+      { label: 'MEDIUM', value: 'Cân bằng' },
+      { label: 'HIGH', value: 'Nhiều bước, cần kiểm tra' }
+    ],
+    dialogue: 'Extra High và Ultra dành cho nhiệm vụ rất khó nên thường quá nặng với người mới. Ultra có thể chia việc cho nhiều subagent. Hãy hình dung subagent như các trợ lý phụ, mỗi người xử lý một phần. Bạn chưa cần cơ chế này cho ContentPilot.',
+    choices: [{ label: 'Chốt cấu hình ContentPilot', next: 'module-1-project-setup', primary: true }]
+  },
+  'module-1-project-setup': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-model-choice',
+    step: 4,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Model và mức suy luận',
+    objective: 'Cấu hình khóa học đề xuất cho ContentPilot',
+    panelLabel: 'CẤU HÌNH CONTENTPILOT',
+    panelStatus: '5.6 SOL · HIGH · STANDARD',
+    tone: 'good',
+    request: 'Đây là cấu hình dành riêng cho dự án thực hành, không phải mặc định của mọi tài khoản.',
+    evidence: [
+      { label: 'MODEL', value: '5.6 Sol', ready: true },
+      { label: 'EFFORT', value: 'High', ready: true },
+      { label: 'SPEED', value: 'Standard', ready: true }
+    ],
+    dialogue: 'Khóa học chọn 5.6 Sol, High và Standard cho ContentPilot. Sol cùng High tạo thêm khoảng trống khi yêu cầu còn mới. Standard tránh đánh đổi thêm usage để lấy tốc độ.',
+    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-setup-checklist': {
     lessonId: 'module-1',
     checkpointId: 'm1-setup-checklist',
-    step: 6,
-    totalSteps: 8,
+    step: 5,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Hoàn tất checklist thiết lập',
-    objective: 'Môi trường làm việc đã đủ rõ để tiếp tục',
-    panelLabel: 'CHECKLIST THIẾT LẬP',
-    panelStatus: 'SẴN SÀNG KIỂM TRA',
-    tone: 'good',
-    request: 'Checklist ghi lại ranh giới làm việc và các lựa chọn bạn vừa xác nhận.',
+    mission: 'Nộp cấu hình để Triết duyệt',
+    objective: 'Chứng minh cấu hình thật trong Codex',
+    panelLabel: 'PRACTICE · 2 ẢNH',
+    panelStatus: 'TRIẾT DUYỆT BẰNG CHỨNG',
+    tone: 'neutral',
+    request: 'Task Executor sẽ kiểm tra ảnh và báo cáo dưới tiêu đề Verification.',
     evidence: [
-      { label: 'CODEX', value: 'Đã hiểu vai trò', ready: true },
-      { label: 'QUYỀN', value: 'Sẽ xem xét trước', ready: true },
-      { label: 'HƯỚNG DẪN', value: 'AGENTS.md và Skill', ready: true }
+      { label: 'ẢNH 1', value: 'Model, Effort, Speed' },
+      { label: 'ẢNH 2', value: 'Approval, Full access' },
+      { label: 'KẾT QUẢ', value: 'Đúng task và còn mới' }
     ],
-    dialogue: 'Bạn đã hiểu vai trò của Codex, cách bắt đầu với model và cách xem xét phê duyệt. Bạn cũng đã phân biệt prompt, AGENTS.md với Skill. Tiếp theo là năm câu kiểm tra ngắn.',
-    choices: [{ label: 'Bắt đầu kiểm tra Module 1', next: 'module-1-mastery', primary: true, decision: { key: 'setupChecklist', value: 'reviewed-in-companion' } }]
+    dialogue: 'Course Companion sẽ mở một task Executor riêng. Trong task đó, hãy đính kèm hai ảnh cấu hình và yêu cầu Executor chỉ quan sát, không thay đổi cài đặt. Sau khi có báo cáo đủ năm mục, quay lại và yêu cầu Triết duyệt tiến độ.',
+    choices: [{ label: 'Sang Codex nộp cấu hình', action: 'practice', primary: true }]
   },
   'module-1-mastery': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 7,
-    totalSteps: 8,
+    step: 6,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Kiểm tra thiết lập Codex',
-    objective: 'Sẵn sàng cho năm câu kiểm tra?',
-    panelLabel: 'KIỂM TRA CUỐI MODULE',
-    panelStatus: 'CẦN ĐẠT 4/5',
-    tone: 'neutral',
-    request: 'Trả lời từng câu; lời giải và nguồn hiện sau mỗi câu.',
+    mission: 'Triết đã duyệt cấu hình',
+    objective: 'Bằng chứng thiết lập đã đạt',
+    panelLabel: 'KẾT QUẢ PRACTICE',
+    panelStatus: 'ĐÃ ĐẠT',
+    tone: 'good',
+    request: 'Kết quả được lưu từ đúng task Executor, không dựa trên lời tự xác nhận.',
     evidence: [
-      { label: 'SỐ CÂU', value: '5' },
-      { label: 'MỐC ĐẠT', value: '4/5' },
-      { label: 'NHỊP', value: 'Một câu mỗi lượt' }
+      { label: 'MODEL', value: '5.6 Sol · High', ready: true },
+      { label: 'SPEED', value: 'Standard', ready: true },
+      { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Phần kiểm tra bao quát Codex, model, quyền truy cập, AGENTS.md và Skill. Với câu trả lời ngắn, bạn sẽ tự đối chiếu bằng tiêu chí sau khi trả lời.',
-    choices: [{ label: 'Bắt đầu câu 1', next: 'module-1-final-1', primary: true }]
+    dialogue: 'Triết đã đối chiếu đủ năm thiết lập. Bằng chứng đến từ đúng task và còn mới. Bạn đã có cấu hình an toàn để bắt đầu dự án ContentPilot.',
+    choices: [{ label: 'Hoàn thành Module 1', next: 'module-1-complete', primary: true, decision: { key: 'setupMastery', value: 'teacher-reviewed-setup' } }]
   },
   'module-1-complete': {
     lessonId: 'module-1',
     checkpointId: 'm1-complete',
-    step: 8,
-    totalSteps: 8,
+    step: 7,
+    totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Sẵn sàng làm việc với Codex',
     objective: 'Module 1 đã hoàn thành',
@@ -362,8 +500,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     tone: 'good',
     request: 'Bạn đã có ranh giới làm việc rõ trước khi bắt đầu planning.',
     evidence: [
-      { label: 'CODEX', value: 'Đã hiểu vai trò', ready: true },
-      { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn', ready: true },
+      { label: 'CODEX', value: 'Coding agent và harness', ready: true },
+      { label: 'CẤU HÌNH', value: 'Đã được Triết duyệt', ready: true },
       { label: 'BƯỚC TIẾP', value: 'Planning, PRD và prompt', ready: true }
     ],
     dialogue: 'Module 2 sẽ dùng nền tảng này để biến ý tưởng ContentPilot thành PRD và implementation plan trước khi viết code.',
@@ -1011,22 +1149,22 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
     source: 'Ảnh chụp từ Codex'
   },
   'm1-workspace-permissions': {
-    image: m1PermissionsImage,
-    alt: 'Tài liệu OpenAI hiển thị các chế độ quyền và lựa chọn hỏi trước khi phê duyệt',
-    caption: 'Chế độ quyền xác định lúc nào Codex phải dừng để bạn phê duyệt.',
-    source: 'OpenAI Docs'
+    image: m1ApprovalMenuImage,
+    alt: 'Menu approval của Codex hiển thị Ask for approval, Approve for me và Full access',
+    caption: 'Khóa học khuyên người mới dùng Approve for me và không bật Full access.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
   },
   'm1-agents-guidance': {
     image: m1AgentsGuidanceImage,
-    alt: 'Tài liệu OpenAI giải thích cách Codex đọc hướng dẫn trong tệp AGENTS.md',
-    caption: 'Tệp AGENTS.md lưu hướng dẫn mà Codex đọc trước khi bắt đầu công việc.',
+    alt: 'Tài liệu OpenAI minh họa một lớp chỉ dẫn mà Codex dùng khi làm việc trong dự án',
+    caption: 'Chỉ dẫn dự án là một phần của harness giúp Codex làm việc ổn định.',
     source: 'OpenAI Docs'
   },
   'm1-skills-and-checklist': {
-    image: m1SkillsImage,
-    alt: 'Tài liệu OpenAI giới thiệu Skills như những quy trình có thể dùng lại',
-    caption: 'Skills đóng gói quy trình để Codex có thể dùng lại cho đúng loại nhiệm vụ.',
-    source: 'OpenAI Docs'
+    image: m1ModelSettingsImage,
+    alt: 'Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard',
+    caption: 'Cấu hình model, reasoning effort và speed được chọn ngay trong Codex.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
   },
   'm1-assessment': {
     image: m1AssessmentImage,
@@ -1072,6 +1210,15 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
   }
 }
 
+const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
+  'module-1-reasoning-effort': {
+    image: m1ReasoningLevelsImage,
+    alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra',
+    caption: 'Khóa học dùng High; Extra High và Ultra thường quá nặng cho người mới.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+  }
+}
+
 const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   'intro-overview': [
     ['intro-visual-onboarding'],
@@ -1080,22 +1227,27 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   ],
   'm1-understand-codex': [
     ['module-1-codex-orientation'],
-    ['module-1-model-choice']
+    ['module-1-codex-examples']
   ],
-  'm1-workspace-permissions': [['module-1-permissions']],
-  'm1-agents-guidance': [['module-1-agents-guidance']],
+  'm1-workspace-permissions': [
+    ['module-1-permissions'],
+    ['module-1-approval-choice']
+  ],
+  'm1-agents-guidance': [
+    ['module-1-agents-guidance'],
+    ['module-1-harness-intro'],
+    ['module-1-harness-codex'],
+    ['module-1-skills']
+  ],
   'm1-skills-and-checklist': [
-    ['module-1-skills'],
-    ['module-1-setup-checklist']
+    ['module-1-model-choice'],
+    ['module-1-model-use-cases'],
+    ['module-1-reasoning-effort'],
+    ['module-1-project-setup']
   ],
   'm1-assessment': [
+    ['module-1-setup-checklist'],
     ['module-1-mastery'],
-    ['module-1-final-1'],
-    ['module-1-final-2'],
-    ['module-1-final-3'],
-    ['module-1-final-4'],
-    ['module-1-final-5'],
-    ['module-1-final-summary'],
     ['module-1-complete']
   ],
   'm2-when-to-plan': [
@@ -1397,8 +1549,8 @@ const futureModules = [
 ]
 
 const decisionLabels: Record<string, string> = {
-  modelChoice: 'Thiết lập model',
-  approvalApproach: 'Cách phê duyệt',
+  modelChoice: 'Cấu hình ContentPilot',
+  approvalApproach: 'Thiết lập approval',
   guidanceBoundary: 'Ranh giới hướng dẫn',
   skillBoundary: 'Cách dùng Skill',
   setupChecklist: 'Checklist thiết lập',
@@ -1415,6 +1567,9 @@ const decisionLabels: Record<string, string> = {
 }
 
 const decisionValues: Record<string, string> = {
+  'sol-high-standard': '5.6 Sol · High · Standard',
+  'approve-for-me-no-full-access': 'Approve for me · Full access tắt',
+  'teacher-reviewed-setup': 'Triết đã duyệt bằng chứng cấu hình',
   'recommended-default': 'Giữ thiết lập được đề xuất',
   'learner-selected': 'Dùng thiết lập do người học chọn',
   'review-purpose-source-impact': 'Xem mục đích, nguồn và tác động trước khi duyệt',
@@ -2051,9 +2206,9 @@ export function LearningWindow() {
     ? Math.ceil(finalAssessment.questions.length * (finalAssessment.passingScore ?? 0.8))
     : 0
   const finalPassed = finalCorrectCount >= finalPassingCount
-  const lessonVisual = learningPosition.page === 1
+  const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
-    : undefined
+    : undefined)
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
   const usesPairedLessonNavigation = !isReviewing

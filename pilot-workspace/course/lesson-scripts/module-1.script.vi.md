@@ -1,134 +1,110 @@
 # Kịch bản — Module 1: Bắt đầu làm việc với Codex
 
-## Bước 1 — Làm quen với Codex (`m1-codex-orientation`)
+## Bước 1 — Codex và coding agent (`m1-codex-orientation`)
 
-Teacher nói: "Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của
-OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn
-làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn
-giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động."
+Teacher nói: "Codex là coding agent của OpenAI. Trong bài này, bạn chỉ cần hiểu
+coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo
+ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại."
 
-Teacher nói: "Tiếp theo, bạn sẽ xem một phần minh họa khoảng 5 phút về model,
-quyền phê duyệt, `AGENTS.md` và Skill."
+Teacher nói: "Codex không chỉ trả lời. Khi được bạn cho phép, Codex có thể đọc
+tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả. Bạn vẫn là người đặt mục tiêu,
+chọn phạm vi và duyệt kết quả cuối cùng."
 
 [Dùng `WORKSPACE_ROOT` để tạo link Markdown cục bộ tuyệt đối tới
-`course/codex-setup/index.html` với nhãn **Mở hướng dẫn thiết lập Codex**. Không
-chạy server và không yêu cầu cài dependency.]
+`course/codex-setup/index.html` với nhãn **Mở phần giới thiệu Codex**. Không chạy
+server và không yêu cầu cài dependency.]
 
-Teacher nói: "Trang minh họa không thay đổi tệp nào. Hãy xem đến bước cuối,
-rồi quay lại task này và gửi câu xác nhận mà trang đã chuẩn bị."
-
-[Dừng chờ Learner. Chỉ đạt khi Learner xác nhận đã xem xong. Sau đó hỏi một
-câu: "Nếu xem Codex như một lập trình viên mới đang làm quen với dự án, bạn cần
-nói rõ điều gì trước khi giao việc?" Cần ít nhất một ý đúng như mục tiêu, bối
-cảnh, phạm vi hành động hoặc cách kiểm tra kết quả. Khi đạt, checkpoint
+[Dừng chờ Learner xem hai trang đầu. Sau đó hỏi: "Coding agent khác một chatbot
+chỉ trả lời ở điểm nào?" Đạt khi Learner nêu được ít nhất một khả năng hành động
+như đọc tệp, dùng công cụ, chạy lệnh hoặc kiểm tra kết quả. Checkpoint
 `m1-codex-orientation`.]
 
-## Bước 2 — Chọn model làm điểm bắt đầu (`m1-model-choice`)
+## Bước 2 — Harness Engineering (`m1-agents-guidance`, `m1-skills`)
 
-Teacher nói: "Model là hệ thống AI xử lý yêu cầu. Sol phù hợp với công việc
-phức tạp, Terra phù hợp với công việc hằng ngày, còn Luna phù hợp với việc cụ
-thể và lặp lại. OpenAI khuyên bắt đầu với thiết lập mặc định nếu bạn chưa chắc.
-Mức suy luận cao hơn có thể giúp việc khó, nhưng thường mất thêm thời gian."
+Teacher nói: "Trước khi đi sâu vào Codex, ta cần hiểu Harness Engineering. Đây
+là cách thiết kế môi trường xung quanh agent để nó có thể làm việc ổn định. Con
+người định hướng, còn agent thực thi trong môi trường đó."
 
-Teacher nói: "Bạn muốn giữ thiết lập mặc định hay chọn một model và mức suy
-luận khác cho khóa học hôm nay? Mình khuyến nghị giữ mặc định trong lần thử
-MVP này."
+Teacher nói: "Hãy hình dung model là bộ não. Harness là nơi làm việc, công cụ,
+quy tắc an toàn và vòng phản hồi quanh bộ não đó. Trong Codex, harness gồm
+workspace, terminal, công cụ đọc và sửa tệp, chỉ dẫn dự án, sandbox, approval,
+diff và các bước kiểm tra."
 
-[Dừng chờ Learner. Chấp nhận giữ mặc định hoặc một lựa chọn có lý do. Không
-yêu cầu model không xuất hiện trong giao diện của Learner. Ghi lựa chọn để dùng
-trong checklist. Khi đạt, checkpoint `m1-model-choice`.]
+Teacher nói: "Nếu Codex làm chưa tốt, ta không chỉ đổi model. Ta còn xem harness
+có thiếu bối cảnh, công cụ, giới hạn hoặc cách kiểm tra nào không."
 
-## Bước 3 — Hiểu quyền truy cập (`m1-permissions`)
+[Dừng chờ Learner. Hỏi một câu: "Nếu model là bộ não, hãy nêu hai phần thuộc
+harness của Codex." Đạt khi Learner nêu đúng hai thành phần. Checkpoint
+`m1-agents-guidance`, sau đó `m1-skills`.]
 
-Teacher nói: "Sandbox là ranh giới kỹ thuật giới hạn nơi Codex có thể thao tác.
-Phê duyệt là lúc Codex dừng lại để bạn quyết định có cho phép hành động hay
-không. Với người mới, chế độ Ask for approval — nghĩa là hỏi trước khi hành
-động — là điểm bắt đầu phù hợp."
+## Bước 3 — Approval và quyền truy cập (`m1-permissions`)
 
-Teacher nói: "Nếu Codex xin truy cập Internet để tải một gói mới, bạn cần kiểm
-tra điều gì trước khi đồng ý? Hãy nêu một điều cụ thể."
+Teacher nói: "Sandbox là ranh giới kỹ thuật. Approval là lúc Codex phải dừng để
+bạn quyết định. Ask for approval hỏi thường xuyên hơn. Approve for me tự xử lý
+hành động thông thường nhưng vẫn dừng ở hành động có rủi ro. Full access gỡ bỏ
+các ranh giới bảo vệ thông thường."
 
-[Mở Assessment State dạng practice. Dừng chờ Learner. Đạt khi Learner nêu được
-ít nhất một yếu tố: lý do cần mạng, gói hoặc nguồn sẽ tải, phạm vi thay đổi, chi
-phí, dữ liệu gửi đi hoặc phương án không cần mạng. Không buộc Learner thay đổi
-chế độ quyền truy cập. Khi đạt, checkpoint `m1-permissions`.]
+Teacher nói: "Khóa học khuyên người mới dùng Approve for me và không bật Full
+access. Course Companion chỉ ghi lại lựa chọn này; bạn sẽ cài thật trong Codex
+ở phần Practice."
 
-## Bước 4 — Cá nhân hóa phần được phép sửa trong `AGENTS.md` (`m1-agents-guidance`)
+[Hiện ảnh `course/codex-setup/images/approval-menu.png`. Dừng chờ Learner xác
+nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
+`approvalApproach=approve-for-me-no-full-access`. Checkpoint `m1-permissions`.]
 
-Teacher nói: "Prompt cho biết task hiện tại cần làm gì. `AGENTS.md` giữ cách
-dự án luôn muốn Codex làm việc. Tệp của khóa học đã có một khối mang tên
-`Learner-editable preferences`; chỉ khối đó được phép sửa trong bước này."
+## Bước 4 — Model và reasoning effort (`m1-model-choice`)
 
-[Đọc riêng khối `## Learner-editable preferences` trong `AGENTS.md` và báo nội
-dung hiện tại. Không sửa tệp.]
+Teacher nói: "Sol là dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ. Terra cân
+bằng cho công việc hằng ngày. Luna nhanh và tiết kiệm cho yêu cầu rõ, lặp lại
+hoặc có đầu ra cố định."
 
-Teacher nói: "Bạn muốn giữ hay thay đổi ngôn ngữ giải thích, mức chi tiết hoặc
-cách Codex giải thích thuật ngữ? Hãy chọn một thay đổi hữu ích nhất. Mình
-khuyến nghị giữ tiếng Việt và yêu cầu giải thích thuật ngữ trước khi dùng."
+Teacher nói: "Reasoning effort là lượng công sức model dành cho phân tích. Light
+phù hợp việc nhỏ. Medium cân bằng tốc độ và độ sâu. High phù hợp việc nhiều
+bước. Extra High và Ultra dành cho nhiệm vụ rất khó, nên thường quá nặng với
+người mới."
 
-[Dừng chờ Learner. Nếu Learner muốn thay đổi, làm rõ đúng một lựa chọn mỗi lượt.
-Sau khi đủ thông tin, đưa bản xem trước chỉ cho khối Learner-editable. Nêu rõ
-file được phép sửa là `AGENTS.md`, không thay đổi phần khác và sẽ kiểm tra diff.
-Xin phê duyệt trước khi viết.]
+Teacher nói: "Ultra có thể chia việc cho nhiều subagent. Hãy hình dung đó là
+một nhóm trợ lý phụ, mỗi người xử lý một phần. Bạn chưa cần dùng cơ chế này cho
+ContentPilot."
 
-[Sau phê duyệt, chỉ sửa khối Learner-editable. Đọc `git diff -- AGENTS.md` và
-báo bằng chứng rằng không có phần khác thay đổi. Nếu Learner chọn giữ nguyên,
-ghi lại lựa chọn đó mà không tạo thay đổi giả. Sau đó checkpoint
-`m1-agents-guidance`.]
+Teacher nói: "Cấu hình khóa học đề xuất là 5.6 Sol, High, Standard và Approve
+for me; Full access để tắt. Đây là cấu hình của khóa học, không phải thiết lập
+mặc định của mọi tài khoản Codex."
 
-Teacher nói: "Codex nạp `AGENTS.md` khi bắt đầu task. Để kiểm tra khả năng tiếp
-tục, hãy mở một task Codex mới cho khóa học và nhập
-`$start-course-lesson resume`. Task là một cuộc làm việc riêng trong Codex."
+[Hiện lần lượt `model-settings.png` và `reasoning-levels.png`. Ghi quyết định
+`modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
 
-[Dừng. Learner có thể tiếp tục ngay trong task hiện tại nếu không muốn đổi task
-trong lần thử MVP. Khi resume, bắt đầu ở Bước 5 và không hỏi lại các lựa chọn đã
-lưu trong state.]
+## Bước 5 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
-## Bước 5 — Nhận biết và gọi Skill (`m1-skills`)
+Teacher nói: "Bây giờ bạn sẽ cài cấu hình thật và nộp bằng chứng. Course
+Companion sẽ mở một task Executor riêng trong Codex."
 
-Teacher nói: "Skill là hướng dẫn cho một quy trình có thể dùng lại. Bạn vừa gọi
-`start-course-lesson` bằng cách gõ tên Skill sau dấu `$`. Khóa học còn có
-`course-teacher`, là Skill giữ nhịp dạy và đánh giá của khóa học."
+Teacher nói: "Trong task đó, hãy đính kèm hai ảnh: một ảnh Model, Effort và
+Speed; một ảnh Approval cùng trạng thái Full access. Sau đó gửi yêu cầu sau:"
 
-Teacher nói: "Hãy giải thích bằng lời của bạn: một quy tắc lâu dài nên nằm
-trong `AGENTS.md`, còn loại công việc nào phù hợp để đóng gói thành Skill?"
+> Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt.
+> Báo cáo dưới tiêu đề `Verification`, gồm Model, Effort, Speed, Approval và
+> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình khóa học đề xuất.
 
-[Mở Assessment State dạng short answer. Dừng chờ Learner. Đạt khi phân biệt
-được quy tắc dự án với quy trình lặp lại. Cho hint nếu Learner chỉ nhắc lại định
-nghĩa. Không yêu cầu cài thêm Skill. Khi đạt, checkpoint `m1-skills`.]
+[Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
+Checkpoint `m1-setup-checklist` khi task đã mở và có hoạt động mới.]
 
-## Bước 6 — Tạo checklist thiết lập (`m1-setup-checklist`)
+## Bước 6 — Triết duyệt bằng chứng (`m1-mastery`)
 
-Teacher nói: "Bây giờ mình sẽ tổng hợp bằng chứng thiết lập vào một checklist.
-Checklist ghi cách bạn đang dùng Codex, mục tiêu đầu tiên, cách kiểm tra kết
-quả, lựa chọn model, quyền truy cập, chỉ dẫn Learner và hai Skill đã xác nhận.
-Đây là bằng chứng để bạn xem lại, không phải một chứng nhận tự động."
+[Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu bằng chứng theo
+Practice definition. Không nhận lời tự xác nhận thay cho báo cáo từ đúng task.
+Nếu thiếu hoặc sai một mục, nêu đúng mục cần sửa và cho nộp lại.]
 
-[Đọc `artifacts/codex-setup-checklist.template.md`. Dùng thông tin Learner đã
-cung cấp để soạn bản xem trước trong cuộc trò chuyện. Không tự suy đoán cách
-dùng Codex, model hoặc chế độ quyền chưa được Learner xác nhận.]
+Teacher nói khi đạt: "Mình đã duyệt đủ năm mục: 5.6 Sol, High, Standard,
+Approve for me và Full access đang tắt. Bằng chứng đến từ đúng task và còn mới."
 
-[Dừng chờ Learner duyệt. Sau phê duyệt, tạo
-`artifacts/codex-setup-checklist.md`, đọc lại tệp và checkpoint
-`m1-setup-checklist`. Artifact gate phải thành công.]
+[Lưu kết quả đạt và checkpoint `m1-mastery`.]
 
-## Bước 7 — Kiểm tra cuối module (`m1-mastery`)
+## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
 
-Teacher nói: "Thiết lập đã có bằng chứng. Tiếp theo là 5 câu kiểm tra ngắn về
-Codex, model, quyền truy cập, `AGENTS.md` và Skill. Mình sẽ hỏi từng câu một.
-Bạn cần đạt ít nhất 4/5 câu."
-
-[Dùng `course/quizzes/module-1.quiz.json`. Mở Assessment State cho từng câu.
-Không hiện đáp án hoặc căn cứ trước khi Learner trả lời. Nếu Learner đạt 4/5,
-checkpoint `m1-mastery`. Nếu chưa đạt, chỉ dạy lại phần còn thiếu rồi dùng câu
-sửa chữa tương đương; không lặp nguyên đáp án.]
-
-## Bước 8 — Hoàn thành và chuyển sang Module 2 (`m1-complete`)
-
-Teacher nói: "Bạn đã sẵn sàng bắt đầu làm việc với Codex: hiểu vai trò của
-coding agent, biết xem xét phê duyệt, có chỉ dẫn lâu dài và biết cách gọi Skill.
-Module 2 sẽ dùng nền tảng này để biến ý tưởng ContentPilot thành PRD và
-implementation plan."
+Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
+hơn, bạn hiểu model là bộ não còn harness là môi trường giúp coding agent hành
+động và kiểm tra kết quả."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-2`."
 

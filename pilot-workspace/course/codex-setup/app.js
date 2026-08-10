@@ -9,11 +9,14 @@ const copyLine = document.querySelector("#copyLine");
 const copyStatus = document.querySelector("#copyStatus");
 
 const hints = [
-  "Hiểu vai trò của Codex trước khi thiết lập.",
-  "Hiểu quyền quyết định và cách phê duyệt hành động.",
-  "Chọn model theo công việc, không theo tên gọi.",
-  "Tách mục tiêu của task khỏi chỉ dẫn lâu dài.",
-  "Gọi Skill khi bạn cần một quy trình có thể dùng lại."
+  "Hiểu Codex trước khi đi vào thiết lập.",
+  "Nhận biết model và harness giữ hai vai trò khác nhau.",
+  "Nhìn toàn bộ môi trường làm việc quanh model.",
+  "Giữ Full access tắt khi bạn còn mới.",
+  "Chọn model theo loại công việc.",
+  "Dùng mức reasoning vừa đủ cho nhiệm vụ.",
+  "Chốt cấu hình dành riêng cho ContentPilot.",
+  "Nộp bằng chứng thật để Triết duyệt."
 ];
 
 let currentStep = 0;
@@ -56,7 +59,7 @@ nextButton.addEventListener("click", () => {
 });
 
 copyLine.addEventListener("click", async () => {
-  const message = "Tôi đã xem xong hướng dẫn thiết lập Codex.";
+  const message = "Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt. Báo cáo dưới tiêu đề Verification, gồm Model, Effort, Speed, Approval và trạng thái Full access.";
   try {
     await navigator.clipboard.writeText(message);
     copyStatus.textContent = "Đã sao chép";

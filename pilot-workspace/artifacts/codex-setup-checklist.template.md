@@ -1,35 +1,25 @@
-# Checklist thiết lập Codex
+# Phiếu nộp cấu hình Codex
 
-## Cách tôi dùng Codex
+> Mẫu tham khảo cho bản ghi sau khi Triết duyệt Practice. Learner không cần tự
+> điền phiếu này để được tính là hoàn thành.
 
-- Cách tôi đang dùng Codex (ứng dụng trên máy tính hoặc dòng lệnh):
-- Mục tiêu đầu tiên tôi muốn giao:
-- Kết quả tôi sẽ kiểm tra:
+## Cấu hình đã duyệt
 
-## Model
+- Model: 5.6 Sol
+- Effort: High
+- Speed: Standard
+- Approval: Approve for me
+- Full access: Tắt
 
-- Model hoặc thiết lập đã chọn:
-- Mức suy luận:
-- Lý do chọn:
+## Bằng chứng
 
-## Quyền truy cập
+- Task Executor được liên kết:
+- Ảnh Model, Effort và Speed:
+- Ảnh Approval và Full access:
+- Thời điểm Executor kiểm tra:
 
-- Chế độ phê duyệt đang dùng hoặc đã xác nhận:
-- Một hành động tôi luôn muốn xem trước:
+## Kết quả của Triết
 
-## Chỉ dẫn lâu dài
-
-- Phần Learner được phép sửa trong `AGENTS.md`:
-- Lựa chọn của tôi:
-- Bằng chứng chỉ phần được phép đã thay đổi:
-
-## Skills
-
-- Skill bắt đầu hoặc tiếp tục bài học:
-- Skill giữ cách Teacher hướng dẫn:
-- Khi nào tôi sẽ tìm thêm một Skill:
-
-## Xác nhận
-
-- [ ] Tôi đã xem và duyệt nội dung checklist này.
-- [ ] Tôi có thể giải thích sự khác nhau giữa prompt, `AGENTS.md` và Skill.
+- Trạng thái: Chưa duyệt / Cần sửa / Đã đạt
+- Mục cần sửa, nếu có:
+- Mã bản ghi hoàn thành:

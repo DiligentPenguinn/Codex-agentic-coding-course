@@ -53,7 +53,7 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 function isTeacherContext(value: unknown): value is TeacherContext {
   return (
     isRecord(value) &&
-    (value.lessonId === 'intro' || value.lessonId === 'module-2') &&
+    (value.lessonId === 'intro' || value.lessonId === 'module-1' || value.lessonId === 'module-2') &&
     isCheckpointId(value.checkpointId) &&
     typeof value.sceneId === 'string' &&
     sceneSet.has(value.sceneId)
@@ -85,17 +85,20 @@ function replyFor(context?: TeacherContext): string {
     return 'Hãy mở chặng có nhãn “Bạn đang ở đây”. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
   }
 
-  if (context.checkpointId === 'm1-codex-orientation' || context.checkpointId === 'm1-model-choice') {
-    return 'Trước hết, hãy xem Codex như một lập trình viên mới cần mục tiêu và bối cảnh rõ ràng. Sau đó, bạn có thể chọn một thiết lập model làm điểm bắt đầu và điều chỉnh khi công việc thật cho thêm bằng chứng.'
+  if (context.checkpointId === 'm1-codex-orientation') {
+    return 'Codex là coding agent của OpenAI. Nó có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả trong phạm vi bạn cho phép.'
+  }
+  if (context.checkpointId === 'm1-model-choice') {
+    return 'Cấu hình khóa học đề xuất cho ContentPilot là 5.6 Sol, High và Standard. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
   if (context.checkpointId === 'm1-permissions') {
-    return 'Trước khi phê duyệt, hãy kiểm tra mục đích, nguồn truy cập và phạm vi thay đổi của hành động Codex đang đề nghị.'
+    return 'Người mới nên dùng Approve for me và không bật Full access. Bạn sẽ cài thật rồi nộp ảnh trong Practice.'
   }
-  if (context.checkpointId === 'm1-agents-guidance') {
-    return 'AGENTS.md phù hợp với chỉ dẫn bền vững của dự án; prompt phù hợp với mục tiêu riêng của task hiện tại.'
+  if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
+    return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
   }
-  if (context.checkpointId === 'm1-skills' || context.checkpointId === 'm1-setup-checklist') {
-    return 'Skill nên đóng gói một quy trình có thể tái sử dụng. Hãy giữ quy tắc chung của dự án trong AGENTS.md và ghi lựa chọn setup vào checklist.'
+  if (context.checkpointId === 'm1-setup-checklist') {
+    return 'Hãy nộp hai ảnh trong đúng task Executor: một ảnh Model, Effort và Speed; một ảnh Approval cùng trạng thái Full access.'
   }
 
   if (context.checkpointId === 'm2-prd-interview') {

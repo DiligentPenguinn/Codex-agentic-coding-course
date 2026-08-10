@@ -10,14 +10,22 @@ thích tiếng Việt nằm trong giao diện Course Companion, không được 
 - `m1-understand-codex.webp`: ảnh chụp giao diện Codex do tác giả khóa học
   cung cấp. Ảnh được cắt theo tỉ lệ 16:9 để vừa khung minh hoạ.
 
+Ba ảnh menu đang dùng cho các trang approval, model và reasoning nằm tại
+`pilot-workspace/course/codex-setup/images/`. Đây là ảnh tác giả khóa học cung
+cấp; Course Companion dùng chung để nội dung minh họa và Practice không lệch
+nhau.
+
 ## Ảnh chính thức của OpenAI
 
-- `m1-workspace-permissions.webp`: ảnh chụp phần Permission modes tại
-  <https://learn.chatgpt.com/docs/permission-modes>.
-- `m1-agents-guidance.webp`: ảnh chụp phần hướng dẫn `AGENTS.md` tại
-  <https://learn.chatgpt.com/docs/agent-configuration/agents-md>.
-- `m1-skills-and-checklist.webp`: ảnh chụp phần Skills & Plugins tại
-  <https://learn.chatgpt.com/docs/skills-and-plugins>.
+- `m1-workspace-permissions.webp`: ảnh tham khảo cũ của phần Permission modes
+  tại <https://learn.chatgpt.com/docs/permission-modes>. Course Companion hiện
+  dùng ảnh menu do tác giả khóa học cung cấp.
+- `m1-agents-guidance.webp`: ảnh chụp phần hướng dẫn dự án tại
+  <https://learn.chatgpt.com/docs/agent-configuration/agents-md>. Bài Harness
+  dùng ảnh này để minh họa một lớp chỉ dẫn trong môi trường Codex.
+- `m1-skills-and-checklist.webp`: ảnh tham khảo cũ của phần Skills & Plugins tại
+  <https://learn.chatgpt.com/docs/skills-and-plugins>. Tệp được giữ để không làm
+  hỏng bản build cũ nhưng không còn là ảnh chính của Module 1.
 - `m1-assessment.webp` và `m2-when-to-plan.webp`: khung hình từ video
   `proactive-teammate-v2.mp4` trên trang
   <https://learn.chatgpt.com/docs/app>.

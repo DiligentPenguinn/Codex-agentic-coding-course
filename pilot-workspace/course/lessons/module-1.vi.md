@@ -1,182 +1,151 @@
 # Module 1 — Bắt đầu làm việc với Codex
 
-## Bạn sẽ chuẩn bị gì trước khi giao việc?
-
-Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới
-đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc
-thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định
-phạm vi hành động.
-
-Module này giúp bạn chuẩn bị những yếu tố đó. Bạn chưa cần biết lập trình hoặc
-cài thêm công cụ từ Internet.
-
-## Kết quả của module
-
-Trong khoảng 50 phút, bạn sẽ:
-
-- hiểu Codex là gì và phân biệt Codex với một cuộc trò chuyện thông thường,
-- hiểu task và terminal trong môi trường làm việc,
-- chọn model cùng mức suy luận phù hợp với một công việc,
-- hiểu vì sao Codex có thể dừng lại để xin phép,
-- đọc và cá nhân hóa phần được phép sửa trong `AGENTS.md`,
-- hiểu Skill là gì và gọi một Skill đã có trong khóa học, và
-- tạo `artifacts/codex-setup-checklist.md` để chứng minh thiết lập đã sẵn sàng.
-
 ## Codex là gì?
 
-Codex là sản phẩm dành cho quy trình agentic coding, không chỉ là tên của một
-model. Codex kết hợp model với tệp, công cụ, phê duyệt và bước xem xét kết quả.
+Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding
+agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng
+dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.
 
-Bạn có thể hình dung Codex như một lập trình viên mới đang được hướng dẫn làm
-quen với dự án. Cách nhìn này nhắc bạn cung cấp mục tiêu, bối cảnh, giới hạn và
-cách kiểm tra kết quả trước khi giao việc.
+Codex không chỉ đưa ra câu trả lời. Khi được bạn cho phép, Codex có thể đọc tệp,
+dùng công cụ, chạy lệnh và kiểm tra kết quả trong một workspace. Bạn vẫn là
+người đặt mục tiêu, chọn phạm vi và duyệt kết quả cuối cùng.
 
-Bạn có thể dùng Codex trong ứng dụng ChatGPT trên máy tính, dòng lệnh hoặc tiện
-ích trong trình soạn thảo mã. Khóa học dùng Codex trong ứng dụng ChatGPT trên
-máy tính vì Learner có thể xem cuộc trao đổi, tệp thay đổi và terminal trong
-cùng một nơi.
+[OpenAI Docs — Codex app](https://learn.chatgpt.com/docs/app) giới thiệu Codex
+là coding agent của OpenAI. [The Codex Handbook của
+FreeCodeCamp](https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/)
+phân biệt Codex với một chatbot chỉ trả lời bằng văn bản.
 
-[OpenAI Docs](https://developers.openai.com/) giới thiệu Codex là coding agent
-của OpenAI. [The Codex Handbook của FreeCodeCamp](https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/)
-phân biệt Codex với một chatbot hoặc model đơn lẻ. Bài viết cũng đề xuất cách
-nhìn Codex như một lập trình viên đang được hướng dẫn làm quen với dự án.
+## Trước Codex: Harness Engineering
 
-### Task là gì?
+Harness Engineering là cách thiết kế môi trường xung quanh một AI agent để nó
+có thể làm việc ổn định. OpenAI mô tả sự thay đổi vai trò như sau: con người
+định hướng, còn agent thực thi. Công việc của đội ngũ là làm rõ ý định, xây
+công cụ và tạo vòng phản hồi để agent biết kết quả có đạt hay không.
 
-Task là một cuộc làm việc với Codex có mục tiêu và bối cảnh riêng. Trong giao
-diện, task có thể trông giống một cuộc trò chuyện. Điểm khác biệt là Codex có
-thể dùng tệp và công cụ liên quan để thực hiện công việc.
+### Harness là gì?
 
-### Terminal là gì?
+Bạn có thể hình dung model là bộ não, còn harness là toàn bộ môi trường giúp bộ
+não đó làm việc:
 
-Terminal là nơi chạy các lệnh bằng văn bản. Codex có thể dùng terminal để xem
-cấu trúc dự án hoặc chạy kiểm tra. Bạn không cần nhớ lệnh ngay từ đầu; điều
-quan trọng là đọc lệnh Codex định chạy và xem kết quả nó báo lại.
+- workspace chứa dự án,
+- công cụ để đọc, sửa và chạy code,
+- chỉ dẫn và giới hạn cần tuân theo,
+- sandbox cùng cơ chế approval,
+- bài kiểm tra, diff và báo cáo để phản hồi kết quả.
 
-## Model và mức suy luận
+Không có harness, model có thể giải thích cách làm nhưng thiếu nơi để hành động
+và kiểm tra. Harness biến khả năng suy luận thành một quy trình làm việc có
+ranh giới.
 
-Model là hệ thống AI xử lý yêu cầu của bạn. Codex hiện cung cấp ba model GPT-5.6
-được đề xuất cho các kiểu công việc khác nhau:
+### Harness của Codex
 
-| Model | Phù hợp nhất khi | Ví dụ trong khóa học |
+Trong Codex, model không làm việc một mình. Codex kết hợp model với workspace,
+terminal, công cụ đọc và sửa tệp, chỉ dẫn của dự án, sandbox, approval và các
+bước kiểm tra. Khi một kết quả chưa tốt, ta không chỉ đổi model. Ta cũng xem
+harness còn thiếu bối cảnh, công cụ, giới hạn hay phản hồi nào.
+
+Khái niệm này dựa trên [bài Harness Engineering bằng tiếng Việt của
+OpenAI](https://openai.com/vi-VN/index/harness-engineering/). [Bài giải thích
+nhập môn trên Viblo](https://viblo.asia/p/agent-harness-la-gi-tai-sao-ai-agent-can-harness-de-hoat-dong-hieu-qua-bA468BMMLKv)
+được dùng để diễn đạt các thành phần của harness theo cách gần gũi hơn.
+
+## Approval: Codex được phép làm đến đâu?
+
+Sandbox là ranh giới kỹ thuật giới hạn những gì Codex có thể truy cập. Approval
+là thời điểm Codex phải dừng để bạn quyết định.
+
+Trong menu approval của Codex:
+
+- **Ask for approval** hỏi trước khi sửa tệp bên ngoài hoặc dùng Internet.
+- **Approve for me** tự xử lý hành động thông thường nhưng vẫn dừng ở hành động
+  bị phát hiện là có rủi ro.
+- **Full access** mở quyền truy cập Internet và tệp trên máy tính mà không giữ
+  các ranh giới bảo vệ thông thường.
+
+Khóa học khuyên người mới dùng **Approve for me** và không bật **Full access**.
+Thiết lập này giúp quá trình học ít bị ngắt quãng nhưng vẫn giữ lớp bảo vệ cho
+những hành động có rủi ro. Tự động duyệt không làm thay đổi ranh giới sandbox.
+
+[OpenAI Docs — Sandboxing and approvals](https://learn.chatgpt.com/docs/sandboxing)
+giải thích sự khác nhau giữa ranh giới truy cập và chính sách xin phép.
+
+## Model: chọn theo loại công việc
+
+Codex hiện có ba dòng model GPT-5.6:
+
+| Model | Điểm mạnh | Ví dụ phù hợp |
 |---|---|---|
-| **Sol** | Công việc phức tạp hoặc còn nhiều điều chưa rõ | Làm rõ một ý tưởng sản phẩm và xem xét nhiều đánh đổi |
-| **Terra** | Công việc hằng ngày cần suy luận và dùng công cụ | Sửa một phần ứng dụng theo yêu cầu đã được duyệt |
-| **Luna** | Công việc cụ thể, lặp lại và có đầu ra rõ | Chuyển một danh sách đã duyệt sang một định dạng khác |
+| **Sol** | Dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý nhiều đánh đổi |
+| **Terra** | Dòng cân bằng cho công việc hằng ngày | Sửa một tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ |
+| **Luna** | Dòng nhanh và tiết kiệm cho yêu cầu rõ | Phân loại, trích xuất, chuyển đổi hoặc tạo tóm tắt có cấu trúc |
 
-Nếu chưa chắc nên chọn gì, hãy giữ thiết lập mặc định. OpenAI hiện khuyên bắt
-đầu với Sol và mức suy luận trung bình. Những model bạn thấy trong giao diện có
-thể khác theo tài khoản, môi trường làm việc hoặc thời điểm sử dụng.
+Tên model không phải cấp độ mà người học phải vượt qua. Bạn chọn model theo độ
+khó, độ rõ của yêu cầu và chi phí chấp nhận được.
 
-Mức suy luận cho biết model dành bao nhiêu công sức cho việc phân tích trước
-khi trả lời. Mức cao hơn có thể phù hợp với việc khó, nhưng thường chậm hơn.
-Hãy bắt đầu với mức mặc định và chỉ tăng khi công việc cần thêm planning hoặc
-kiểm tra.
+## Reasoning effort: model dành bao nhiêu công sức để suy luận?
 
-[OpenAI Docs — Models](https://learn.chatgpt.com/docs/models) là nguồn hiện hành
-cho tên model, cách chọn và mức suy luận. Module này chỉ giúp bạn chọn điểm bắt
-đầu; nó không yêu cầu ghi nhớ toàn bộ danh sách.
+Reasoning effort điều chỉnh lượng công sức model dành cho việc phân tích trước
+khi trả lời:
 
-## Quyền truy cập và phê duyệt
+- **Light** phù hợp với việc nhỏ và đã rõ.
+- **Medium** cân bằng tốc độ với độ sâu.
+- **High** phù hợp với việc có nhiều bước hoặc cần kiểm tra kỹ.
+- **Extra High** và **Ultra** dành cho những nhiệm vụ rất khó. Chúng mất nhiều
+  thời gian và usage hơn.
 
-Quyền truy cập xác định Codex có thể làm gì với tệp, lệnh và Internet. Sandbox
-là ranh giới kỹ thuật giới hạn nơi Codex có thể thao tác. Phê duyệt là bước
-Codex dừng lại để bạn quyết định có cho phép một hành động hay không.
+Ultra có thể chia việc cho nhiều subagent. Hãy hình dung subagent như các thành
+viên phụ trong một nhóm: mỗi người xử lý một phần rồi tổng hợp lại. Người mới
+chưa cần dùng cách này cho ContentPilot.
 
-Với người mới, thiết lập **Ask for approval** là điểm bắt đầu phù hợp. Codex có
-có thể làm việc trong phạm vi hiện tại nhưng sẽ dừng trước những hành động cần
-bạn quyết định.
+Khóa học không khuyên dùng Extra High hoặc Ultra trong Module 1. Chúng quá nặng
+so với bài thiết lập ban đầu. [OpenAI Docs — Models](https://learn.chatgpt.com/docs/models)
+khuyên dùng mức thấp nhất vẫn tạo ra kết quả đạt yêu cầu.
 
-Bạn vẫn cần đọc yêu cầu phê duyệt. Không chấp nhận một hành động nếu chưa hiểu
-nó sẽ thay đổi gì. Những việc như truy cập mạng, sửa tệp ngoài dự án, xóa
-dữ liệu hoặc xuất bản ra bên ngoài cần được xem xét riêng.
+## Cấu hình khóa học đề xuất cho ContentPilot
 
-[OpenAI Docs — Permissions](https://learn.chatgpt.com/docs/permission-modes) và
-[Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)
-giải thích cách sandbox và phê duyệt phối hợp với nhau.
+Đây là cấu hình dành riêng cho dự án thực hành của khóa học, không phải tuyên
+bố về thiết lập mặc định của mọi tài khoản Codex:
 
-## `AGENTS.md` là gì?
+- Model: **5.6 Sol**
+- Effort: **High**
+- Speed: **Standard**
+- Approval: **Approve for me**
+- Full access: **Tắt**
 
-`AGENTS.md` là tệp chứa chỉ dẫn lâu dài cho Codex. Codex đọc tệp này trước khi
-bắt đầu công việc. Nhờ đó, bạn không phải lặp lại những yêu cầu chung trong mỗi
-task.
+Sol và High cho người học thêm khoảng trống khi yêu cầu còn mới. Standard tránh
+đánh đổi thêm usage để lấy tốc độ. Approve for me giữ nhịp học, còn việc tắt
+Full access giữ ranh giới an toàn.
 
-Ví dụ, `AGENTS.md` của khóa học cho Codex biết:
+## Practice cuối Module 1
 
-- dạy bằng tiếng Việt có dấu,
-- hỏi một câu chính mỗi lượt,
-- không sửa tệp khi Learner chưa duyệt phạm vi, và
-- không tự xuất bản hoặc xóa dữ liệu.
+Bạn sẽ mở một task Executor riêng trong Codex và nộp hai ảnh:
 
-Prompt của task vẫn giữ mục tiêu riêng cho lần làm việc hiện tại. Nói ngắn gọn:
+1. Ảnh hiển thị Model, Effort và Speed.
+2. Ảnh hiển thị Approval và trạng thái Full access.
 
-- prompt cho biết **lần này cần làm gì**,
-- `AGENTS.md` cho biết **dự án luôn muốn làm việc như thế nào**.
+Trong task đó, gửi yêu cầu:
 
-Trong module này, bạn chỉ được sửa phần `Learner-editable preferences` trong
-`AGENTS.md`. Các quy tắc còn lại bảo vệ luồng học và không thuộc phạm vi chỉnh
-sửa.
+> Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt.
+> Báo cáo dưới tiêu đề `Verification`, gồm Model, Effort, Speed, Approval và
+> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình khóa học đề xuất.
 
-Codex đọc chuỗi chỉ dẫn khi bắt đầu một task mới. Vì vậy, sau khi sửa
-`AGENTS.md`, bạn sẽ mở một task mới cho cùng dự án và dùng
-`$start-course-lesson resume` để tiếp tục. Đây là cách kiểm tra chỉ dẫn có thể
-được dùng lại qua nhiều task.
-
-[OpenAI Docs — AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
-giải thích phạm vi toàn cục, phạm vi dự án và thứ tự Codex nạp chỉ dẫn.
-
-## Skill là gì?
-
-Skill là một thư mục chứa hướng dẫn cho một quy trình có thể dùng lại. Tệp
-chính của mỗi Skill có tên `SKILL.md`. Skill có thể kèm theo tài liệu, mẫu hoặc
-script nếu quy trình cần chúng.
-
-Khóa học này đã có hai Skill trong `.agents/skills/`:
-
-- `start-course-lesson` tìm bài học và tiến độ cần tiếp tục,
-- `course-teacher` hướng dẫn cách dạy, hỏi và đánh giá từng bước.
-
-Khi bạn gõ `$start-course-lesson`, bạn gọi Skill bằng tên. Đây được gọi là gọi
-trực tiếp. Codex cũng có thể tự chọn Skill khi yêu cầu khớp với phần mô tả,
-nhưng khóa học ưu tiên gọi trực tiếp để bạn thấy rõ quy trình nào đang được sử
-dụng.
-
-Không phải công việc nào cũng cần Skill. Lệnh kiểm tra có sẵn hoặc một chỉ dẫn
-ngắn trong prompt thường đã đủ cho việc nhỏ. Các module sau chỉ giới thiệu thêm
-Skill khi tác vụ thật sự cần đến.
-
-[OpenAI Docs — Build skills](https://learn.chatgpt.com/docs/build-skills) giải
-thích cấu trúc Skill, cách gọi trực tiếp và vị trí `.agents/skills` trong dự án.
-
-## Bài thực hành thiết lập
-
-Bạn sẽ hoàn thành bốn việc theo hướng dẫn của Teacher:
-
-1. Ghi cách bạn đang dùng Codex, mục tiêu đầu tiên và kết quả bạn sẽ kiểm tra.
-2. Ghi model cùng mức suy luận bạn chọn làm điểm bắt đầu.
-3. Duyệt một thay đổi nhỏ trong phần Learner được phép sửa của `AGENTS.md`.
-4. Xác nhận hai Skill của khóa học và tạo checklist thiết lập.
-
-Checklist dùng mẫu `artifacts/codex-setup-checklist.template.md`. Teacher chỉ
-được tạo tệp hoàn chỉnh sau khi bạn xem và duyệt nội dung.
+Sau đó, quay lại Course Companion và chọn **Yêu cầu Triết duyệt tiến độ**.
+Triết chỉ xác nhận đạt khi bằng chứng đến từ đúng task, còn mới và đủ năm mục.
+Nếu chưa đạt, Triết chỉ rõ mục cần sửa để bạn nộp lại.
 
 ## Tiêu chí hoàn thành
 
 Bạn hoàn thành Module 1 khi:
 
-- giải thích Codex cần mục tiêu, bối cảnh và phạm vi hành động rõ ràng,
-- giải thích vì sao model mặc định là điểm bắt đầu hợp lý,
-- phân biệt sandbox với bước phê duyệt,
-- phân biệt prompt với `AGENTS.md`,
-- giải thích Skill dùng cho loại công việc nào,
-- phần Learner được phép sửa trong `AGENTS.md` phản ánh lựa chọn của bạn,
-- `artifacts/codex-setup-checklist.md` tồn tại và có nội dung do bạn duyệt, và
-- bạn đạt ít nhất 4/5 câu kiểm tra cuối module.
+- mô tả được Codex là coding agent của OpenAI,
+- giải thích được model và harness giữ hai vai trò khác nhau,
+- chọn Approve for me và không bật Full access,
+- dùng cấu hình Sol, High và Standard cho ContentPilot,
+- nộp đủ hai ảnh trong đúng task Executor, và
+- được Triết duyệt bằng chứng.
 
-## Nguồn và lựa chọn sư phạm
+## Nguồn và lựa chọn của khóa học
 
-Các mô tả về Codex, model, quyền truy cập, `AGENTS.md` và Skill dựa trên nguồn
-được liên kết tại từng phần. Cách ví von “lập trình viên mới đang được hướng dẫn
-làm quen với dự án” được chuyển thể từ The Codex Handbook. Việc dùng một checklist,
-yêu cầu 4/5 câu đúng và giới hạn chỉnh sửa vào một khối trong `AGENTS.md` là lựa
-chọn sư phạm của khóa học.
+Khái niệm Codex, Harness Engineering, approval, model và reasoning effort dựa
+trên các nguồn được liên kết tại từng phần. Việc chọn Sol, High, Standard và
+Approve for me là lựa chọn sư phạm của khóa học cho dự án ContentPilot.
