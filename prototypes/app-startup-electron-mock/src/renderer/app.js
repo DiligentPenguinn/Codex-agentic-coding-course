@@ -7,6 +7,10 @@ import {
   createPracticeRendererController,
   getPracticeActionPolicy,
 } from "./practice-state.mjs";
+import {
+  resizeTeacherComposer,
+  shouldSubmitTeacherComposer,
+} from "./teacher-composer.mjs";
 
 const courseSetup = window.courseSetup;
 const practice = window.practice;
@@ -387,6 +391,7 @@ function renderTeacherComposer() {
   if (composer.value !== practiceState.teacherDraft) {
     composer.value = practiceState.teacherDraft;
   }
+  resizeTeacherComposer(composer);
   const sending = practiceState.busyAction === "teacher";
   const send = document.querySelector("#teacher-send");
   send.textContent = sending ? "Sending…" : "Send";
@@ -660,7 +665,17 @@ document.querySelector("#fixture-form").addEventListener("input", (event) => {
 });
 
 document.querySelector("#teacher-message").addEventListener("input", (event) => {
+  resizeTeacherComposer(event.target);
   practiceController.changeTeacherDraft(event.target.value);
+});
+
+document.querySelector("#teacher-message").addEventListener("keydown", (event) => {
+  if (
+    !shouldSubmitTeacherComposer(event)
+    || !getPracticeActionPolicy(practiceController.getState()).canSendTeacherMessage
+  ) return;
+  event.preventDefault();
+  void practiceController.sendTeacherMessage();
 });
 
 document.querySelector("#teacher-form").addEventListener("submit", async (event) => {

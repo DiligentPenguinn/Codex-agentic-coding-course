@@ -71,6 +71,11 @@ const FAILURES = Object.freeze({
     message: "Quick chat could not be opened.",
     recoveryAction: "Expand Practice and retry.",
   },
+  [CHANNELS.PRACTICE_TOGGLE_QUICK_CHAT]: {
+    code: "PRACTICE_QUICK_CHAT_TOGGLE_FAILED",
+    message: "Quick chat could not be toggled.",
+    recoveryAction: "Expand Practice and retry.",
+  },
   [CHANNELS.PRACTICE_CLOSE_QUICK_CHAT]: {
     code: "PRACTICE_QUICK_CHAT_CLOSE_FAILED",
     message: "Quick chat could not be closed.",
@@ -200,6 +205,7 @@ export function registerPracticeIpcHandlers({
     [CHANNELS.PRACTICE_RETRY, () => orchestrator.retryObservation()],
     [CHANNELS.PRACTICE_COMPACT, () => windowActions.compact()],
     [CHANNELS.PRACTICE_OPEN_QUICK_CHAT, () => windowActions.openQuickChat()],
+    [CHANNELS.PRACTICE_TOGGLE_QUICK_CHAT, () => windowActions.toggleQuickChat()],
     [CHANNELS.PRACTICE_CLOSE_QUICK_CHAT, () => windowActions.closeQuickChat()],
     [CHANNELS.PRACTICE_EXPAND, () => windowActions.expandTeacher()],
     [CHANNELS.PRACTICE_PAUSE, () => orchestrator.pause()],

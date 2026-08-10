@@ -37,6 +37,7 @@ const PRACTICE_CHANNELS = Object.freeze({
   PRACTICE_SELECT_TAB: "practice:select-tab",
   PRACTICE_COMPACT: "practice:compact",
   PRACTICE_OPEN_QUICK_CHAT: "practice:open-quick-chat",
+  PRACTICE_TOGGLE_QUICK_CHAT: "practice:toggle-quick-chat",
   PRACTICE_CLOSE_QUICK_CHAT: "practice:close-quick-chat",
   PRACTICE_EXPAND: "practice:expand",
   PRACTICE_PAUSE: "practice:pause",
@@ -107,6 +108,7 @@ function createDependencies({ failure } = {}) {
   const windowActions = {
     compact: operation("windowActions", "compact", { operation: "compact" }),
     openQuickChat: operation("windowActions", "openQuickChat", { operation: "openQuickChat" }),
+    toggleQuickChat: operation("windowActions", "toggleQuickChat", { operation: "toggleQuickChat" }),
     closeQuickChat: operation("windowActions", "closeQuickChat", { operation: "closeQuickChat" }),
     expandTeacher: operation("windowActions", "expandTeacher", { operation: "expandTeacher" }),
     openBubbleMenu: operation("windowActions", "openBubbleMenu", { operation: "openBubbleMenu" }),
@@ -175,6 +177,7 @@ test("routes each invoke channel to exactly one named operation", async () => {
     [PRACTICE_CHANNELS.PRACTICE_SELECT_TAB, { tab: "teacher" }, "orchestrator", "selectTab", ["teacher"]],
     [PRACTICE_CHANNELS.PRACTICE_COMPACT, undefined, "windowActions", "compact", []],
     [PRACTICE_CHANNELS.PRACTICE_OPEN_QUICK_CHAT, undefined, "windowActions", "openQuickChat", []],
+    [PRACTICE_CHANNELS.PRACTICE_TOGGLE_QUICK_CHAT, undefined, "windowActions", "toggleQuickChat", []],
     [PRACTICE_CHANNELS.PRACTICE_CLOSE_QUICK_CHAT, undefined, "windowActions", "closeQuickChat", []],
     [PRACTICE_CHANNELS.PRACTICE_EXPAND, undefined, "windowActions", "expandTeacher", []],
     [PRACTICE_CHANNELS.PRACTICE_PAUSE, undefined, "orchestrator", "pause", []],
@@ -379,15 +382,15 @@ test("bubble preload exposes only its five least-privilege methods", async () =>
   assert.deepEqual([...runtime.exposed.keys()], ["practiceBubble"]);
   const bridge = runtime.exposed.get("practiceBubble");
   assert.deepEqual(Object.keys(bridge).sort(), [
-    "expand", "getState", "onStateChanged", "openMenu", "openQuickChat",
+    "expand", "getState", "onStateChanged", "openMenu", "toggleQuickChat",
   ]);
   await bridge.getState();
-  await bridge.openQuickChat();
+  await bridge.toggleQuickChat();
   await bridge.expand();
   await bridge.openMenu();
   assert.deepEqual(runtime.invocations, [
     ["practice:get-bubble-state"],
-    ["practice:open-quick-chat"],
+    ["practice:toggle-quick-chat"],
     ["practice:expand"],
     ["practice:bubble-menu"],
   ]);

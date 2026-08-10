@@ -78,6 +78,17 @@ const envelope = {
     checkpointId: "executor-awareness",
     contentVersion: "mock-1",
   },
+  mission: {
+    title: "Inspect ContentPilot Lite safely",
+    description: "Inspect the fixture before proposing changes.",
+    learningOutcomes: ["Write a bounded inspection prompt"],
+    instructions: ["Open the dedicated task", "Write your own prompt"],
+    allowedActions: ["Read files", "Summarize findings"],
+    prohibitedActions: ["Edit files", "Use the network"],
+    expectedEvidence: ["A structured inspection report"],
+    contentKind: "mock-adaptation",
+    contentVersion: "mock-1",
+  },
   executor: { threadId: "thr-bound", status: "response-ready", activity },
   freshness: { observedAt: "2026-08-03T00:00:02.000Z", state: "fresh" },
   privacy: { scope: "bound-thread-only", redactionsApplied: true },
@@ -228,4 +239,18 @@ test("all parsers reject unknown fields at every contract object boundary", () =
   assert.throws(() => parseActivitySnapshot({ ...activity, extra: true }), /Unknown Activity snapshot field/);
   assert.throws(() => parseTeacherContextEnvelope({ ...envelope, course: { ...envelope.course, extra: true } }), /Unknown course field/);
   assert.throws(() => parseTeacherContextEnvelope({ ...envelope, privacy: { ...envelope.privacy, extra: true } }), /Unknown privacy field/);
+});
+
+test("parseTeacherContextEnvelope preserves a complete bounded mission snapshot", () => {
+  const parsed = parseTeacherContextEnvelope(envelope);
+  assert.deepEqual(parsed.mission, envelope.mission);
+
+  for (const invalid of [
+    { ...envelope, mission: { ...envelope.mission, extra: true } },
+    { ...envelope, mission: { ...envelope.mission, title: "" } },
+    { ...envelope, mission: { ...envelope.mission, allowedActions: [] } },
+    (() => { const { mission, ...withoutMission } = envelope; return withoutMission; })(),
+  ]) {
+    assert.throws(() => parseTeacherContextEnvelope(invalid), /Teacher mission|Teacher envelope/);
+  }
 });

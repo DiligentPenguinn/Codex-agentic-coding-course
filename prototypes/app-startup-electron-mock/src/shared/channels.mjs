@@ -22,6 +22,7 @@ export const CHANNELS = Object.freeze({
   PRACTICE_SELECT_TAB: "practice:select-tab",
   PRACTICE_COMPACT: "practice:compact",
   PRACTICE_OPEN_QUICK_CHAT: "practice:open-quick-chat",
+  PRACTICE_TOGGLE_QUICK_CHAT: "practice:toggle-quick-chat",
   PRACTICE_CLOSE_QUICK_CHAT: "practice:close-quick-chat",
   PRACTICE_EXPAND: "practice:expand",
   PRACTICE_PAUSE: "practice:pause",

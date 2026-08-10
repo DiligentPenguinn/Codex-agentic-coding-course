@@ -7,6 +7,10 @@ import {
   reducePracticeRenderer,
 } from "../src/renderer/practice-state.mjs";
 import * as practiceRendererModule from "../src/renderer/practice-state.mjs";
+import {
+  resizeTeacherComposer,
+  shouldSubmitTeacherComposer,
+} from "../src/renderer/teacher-composer.mjs";
 
 function viewModel(overrides = {}) {
   return {
@@ -40,6 +44,21 @@ function viewModel(overrides = {}) {
   };
 }
 
+
+test("Teacher composer uses one-line bounded growth and safe Enter submission", () => {
+  const textarea = { scrollHeight: 160, style: {} };
+  resizeTeacherComposer(textarea);
+  assert.deepEqual(textarea.style, { height: "120px", overflowY: "auto" });
+
+  textarea.scrollHeight = 36;
+  resizeTeacherComposer(textarea);
+  assert.deepEqual(textarea.style, { height: "36px", overflowY: "hidden" });
+
+  assert.equal(shouldSubmitTeacherComposer({ key: "Enter", shiftKey: false, isComposing: false }), true);
+  assert.equal(shouldSubmitTeacherComposer({ key: "Enter", shiftKey: true, isComposing: false }), false);
+  assert.equal(shouldSubmitTeacherComposer({ key: "Enter", shiftKey: false, isComposing: true }), false);
+  assert.equal(shouldSubmitTeacherComposer({ key: "a", shiftKey: false, isComposing: false }), false);
+});
 test("starts in Course with an immutable renderer-only state", () => {
   const state = createInitialPracticeRendererState();
   assert.deepEqual(state, {
@@ -1102,6 +1121,7 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(html, /id="teacher-messages"[^>]*role="log"/);
   assert.match(html, /id="context-receipt"/);
   assert.match(html, /id="teacher-form"/);
+  assert.match(html, /<textarea id="teacher-message"[^>]*rows="1"/);
   assert.match(html, /id="freshness-disclosure"/);
   assert.doesNotMatch(html, /complete (?:exercise|practice)|mark (?:as )?complete/i);
 
@@ -1120,6 +1140,7 @@ test("renderer shell keeps Course and Practice in one accessible window", async 
   assert.match(script, /getPracticeActionPolicy/);
   assert.match(script, /function renderPracticeActionControls\(\)[\s\S]{0,240}getPracticeActionPolicy/);
   assert.match(script, /updateComposer\(next\)[\s\S]{0,160}renderPracticeActionControls\(\)/);
+  assert.match(script, /shouldSubmitTeacherComposer\(event\)[\s\S]{0,160}getPracticeActionPolicy\(practiceController\.getState\(\)\)\.canSendTeacherMessage[\s\S]{0,80}event\.preventDefault\(\)/);
   assert.match(controllerSource, /observation cursor will reset/i);
   assert.match(script, /Intl\.DateTimeFormat/);
   assert.match(script, /\.textContent\s*=/);

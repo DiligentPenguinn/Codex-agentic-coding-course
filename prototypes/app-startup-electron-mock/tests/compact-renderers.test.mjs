@@ -55,12 +55,28 @@ test("compact HTML keeps main-renderer CSP parity and exact accessible landmarks
   assert.match(quickChat, /id="quick-freshness"[^>]*role="status"/);
   assert.match(quickChat, /id="quick-messages"[^>]*role="log"[^>]*aria-label="Teacher conversation"[^>]*aria-live="polite"/);
   assert.match(quickChat, /<label for="quick-message">Message Teacher<\/label>/);
-  assert.match(quickChat, /<textarea id="quick-message" maxlength="4000" rows="3"><\/textarea>/);
+  assert.match(quickChat, /<textarea id="quick-message" maxlength="4000" rows="1"><\/textarea>/);
   assert.match(quickChat, /<button type="submit"[^>]*>Send<\/button>/);
   assert.match(quickChat, /<button type="button" data-action="expand">Expand Practice<\/button>/);
   assert.match(quickChat, /<script type="module" src="\.\/quick-chat\.js"><\/script>/);
 });
 
+
+test("quick chat delegates composition-safe Enter and bounded resize to the shared composer", async () => {
+  const [quickChat, composer] = await Promise.all([
+    readRenderer("quick-chat.js"),
+    import(new URL("teacher-composer.mjs", rendererUrl)),
+  ]);
+  const textarea = { scrollHeight: 121, style: {} };
+
+  composer.resizeTeacherComposer(textarea);
+  assert.deepEqual(textarea.style, { height: "120px", overflowY: "auto" });
+  assert.equal(composer.shouldSubmitTeacherComposer({ key: "Enter", shiftKey: false, isComposing: false }), true);
+  assert.equal(composer.shouldSubmitTeacherComposer({ key: "Enter", shiftKey: false, isComposing: true }), false);
+  assert.match(quickChat, /shouldSubmitTeacherComposer/);
+  assert.match(quickChat, /resizeTeacherComposer/);
+  assert.match(quickChat, /if \(!shouldSubmitTeacherComposer\(event\) \|\| composer\.disabled \|\| composer\.value\.trim\(\) === ""\) return;[\s\S]{0,80}event\.preventDefault\(\)/);
+});
 test("bubble action name describes an external live Executor and unread status", async () => {
   const [html, bubbleModule] = await Promise.all([
     readRenderer("bubble.html"),
@@ -227,7 +243,7 @@ test("bubble counts only distinct observed unseen Teacher ID transitions", async
       listener = next;
       return () => { removeCalls += 1; };
     },
-    openQuickChat: async () => ({ ok: true }),
+    toggleQuickChat: async () => ({ ok: true }),
     expand: async () => ({ ok: true }),
     openMenu: async () => ({ ok: true }),
   };
@@ -288,7 +304,7 @@ test("bubble arbitrates click, double-click, keyboard Expand, and context menu w
     bridge: {
       getState: async () => ({ ok: true, value: {} }),
       onStateChanged: () => () => {},
-      openQuickChat: async () => { calls.push("open"); return { ok: true }; },
+      toggleQuickChat: async () => { calls.push("open"); return { ok: true }; },
       expand: async () => { calls.push("expand"); return { ok: true }; },
       openMenu: async () => { calls.push("menu"); return { ok: true }; },
     },
@@ -366,7 +382,7 @@ test("bubble waits through a realistic platform double-click window without open
     bridge: {
       getState: async () => ({ ok: true, value: {} }),
       onStateChanged: () => () => {},
-      openQuickChat: async () => { calls.push("open"); return { ok: true, value: true }; },
+      toggleQuickChat: async () => { calls.push("open"); return { ok: true, value: true }; },
       expand: async () => { calls.push("expand"); return { ok: true, value: true }; },
       openMenu: async () => ({ ok: true }),
     },
@@ -410,7 +426,7 @@ test("bubble initialization never overwrites a newer pushed state with a stale s
     bridge: {
       getState: () => initial.promise,
       onStateChanged(next) { listener = next; return () => {}; },
-      openQuickChat: async () => ({ ok: true }),
+      toggleQuickChat: async () => ({ ok: true }),
       expand: async () => ({ ok: true }),
       openMenu: async () => ({ ok: true }),
     },
@@ -445,7 +461,7 @@ test("bubble fails closed on initial state or open failure", async () => {
     bridge: {
       getState: async () => ({ ok: false }),
       onStateChanged: () => () => {},
-      openQuickChat: async () => ({ ok: false }),
+      toggleQuickChat: async () => ({ ok: false }),
       expand: async () => ({ ok: true }),
       openMenu: async () => ({ ok: true }),
     },
@@ -474,7 +490,7 @@ test("bubble fails closed on initial state or open failure", async () => {
         },
       }),
       onStateChanged: () => () => {},
-      openQuickChat: async () => ({ ok: false }),
+      toggleQuickChat: async () => ({ ok: false }),
       expand: async () => ({ ok: true }),
       openMenu: async () => ({ ok: true }),
     },
@@ -496,7 +512,7 @@ test("bubble fails closed on initial state or open failure", async () => {
 test("bubble clears unread only for the current confirmed quick-chat open", async (t) => {
   const { createBubbleController } = await import(new URL("bubble.js", rendererUrl));
 
-  async function harness(openQuickChat) {
+  async function harness(toggleQuickChat) {
     let listener;
     let timerId = 0;
     const timers = new Map();
@@ -511,7 +527,7 @@ test("bubble clears unread only for the current confirmed quick-chat open", asyn
           },
         }),
         onStateChanged(next) { listener = next; return () => {}; },
-        openQuickChat,
+        toggleQuickChat,
         expand: async () => ({ ok: true, value: true }),
         openMenu: async () => ({ ok: true }),
       },
@@ -544,11 +560,11 @@ test("bubble clears unread only for the current confirmed quick-chat open", asyn
   });
 
   await t.test("preserves unread for sanitized failure and throw", async () => {
-    for (const openQuickChat of [
+    for (const toggleQuickChat of [
       async () => ({ ok: false }),
       async () => { throw new Error("private failure"); },
     ]) {
-      const current = await harness(openQuickChat);
+      const current = await harness(toggleQuickChat);
       current.startOpen();
       await flushPromises();
       assert.equal(current.unread.at(-1), 1);

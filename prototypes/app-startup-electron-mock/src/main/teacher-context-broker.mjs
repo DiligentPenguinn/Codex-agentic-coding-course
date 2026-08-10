@@ -1,4 +1,5 @@
 import {
+  parsePracticeStartRequest,
   parseTeacherChatMessage,
   parseTeacherContextEnvelope,
 } from "../shared/practice-contracts.mjs";
@@ -12,6 +13,8 @@ export function createTeacherContextEnvelope({
   clock = () => new Date(),
   staleAfterMs = 15_000,
 }) {
+  const parsedStartRequest = parsePracticeStartRequest(startRequest);
+  const content = parsedStartRequest.content;
   const age = clock().getTime() - Date.parse(activity.observedAt);
   const freshness = activity.status === "disconnected"
     ? "disconnected"
@@ -22,11 +25,22 @@ export function createTeacherContextEnvelope({
   return parseTeacherContextEnvelope({
     schemaVersion: 1,
     course: {
-      courseRunId: startRequest.courseRunId,
-      lessonId: startRequest.lessonId,
-      missionId: startRequest.missionId,
-      checkpointId: startRequest.checkpointId,
-      contentVersion: startRequest.content.version,
+      courseRunId: parsedStartRequest.courseRunId,
+      lessonId: parsedStartRequest.lessonId,
+      missionId: parsedStartRequest.missionId,
+      checkpointId: parsedStartRequest.checkpointId,
+      contentVersion: content.version,
+    },
+    mission: {
+      title: content.title,
+      description: content.description,
+      learningOutcomes: content.learningOutcomes,
+      instructions: content.instructions,
+      allowedActions: content.allowedActions,
+      prohibitedActions: content.prohibitedActions,
+      expectedEvidence: content.expectedEvidence,
+      contentKind: content.kind,
+      contentVersion: content.version,
     },
     executor: {
       threadId: binding.threadId,
@@ -74,6 +88,6 @@ export function buildTeacherTurnInput({ envelope, chat, learnerMessage }) {
     JSON.stringify(recent),
     "CURRENT_LEARNER_MESSAGE",
     learnerMessage,
-    "Answer the learner using only this material. Disclose stale or disconnected context.",
+    "Answer only from this material. Provide a concrete next step that connects directly to the mission objective. Disclose stale or disconnected context. Do not invent progress. Do not redirect the learner to ask the Executor.",
   ].join("\n");
 }

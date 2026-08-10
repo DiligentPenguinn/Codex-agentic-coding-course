@@ -83,6 +83,31 @@ function parseMissionContent(value, label, additionalKeys = []) {
   return content;
 }
 
+function parseTeacherMission(value) {
+  const mission = objectWithKeys(value, [
+    "title",
+    "description",
+    "learningOutcomes",
+    "instructions",
+    "allowedActions",
+    "prohibitedActions",
+    "expectedEvidence",
+    "contentKind",
+    "contentVersion",
+  ], "Teacher mission");
+  for (const key of ["title", "description", "contentKind", "contentVersion"]) {
+    requiredString(mission[key], `Teacher mission.${key}`, 1_000);
+  }
+  for (const key of [
+    "learningOutcomes",
+    "instructions",
+    "allowedActions",
+    "prohibitedActions",
+    "expectedEvidence",
+  ]) stringArray(mission[key], `Teacher mission.${key}`);
+  return mission;
+}
+
 export function parsePracticeMissionFixture(input) {
   const value = objectWithKeys(input, ["schemaVersion", "courseRunId", "lessonId", "missionId", "checkpointId", "fixtureMetadata", "content", "workspace"], "Practice mission fixture");
   rejectForbiddenKeys(value);
@@ -144,11 +169,12 @@ export function parseActivitySnapshot(input) {
 }
 
 export function parseTeacherContextEnvelope(input) {
-  const value = objectWithKeys(input, ["schemaVersion", "course", "executor", "freshness", "privacy", "provenance"], "Teacher envelope");
+  const value = objectWithKeys(input, ["schemaVersion", "course", "mission", "executor", "freshness", "privacy", "provenance"], "Teacher envelope");
   rejectForbiddenKeys(value);
   schemaVersion(value);
   const course = objectWithKeys(value.course, ["courseRunId", "lessonId", "missionId", "checkpointId", "contentVersion"], "course");
   for (const key of ["courseRunId", "lessonId", "missionId", "checkpointId", "contentVersion"]) requiredString(course[key], `course.${key}`);
+  parseTeacherMission(value.mission);
   const executor = objectWithKeys(value.executor, ["threadId", "status", "activity"], "executor");
   requiredString(executor.threadId, "executor.threadId");
   const activity = parseActivitySnapshot(executor.activity);

@@ -110,6 +110,7 @@ export function createWindowCoordinator({
   toBubbleViewModel,
   toQuickChatViewModel,
   timers = globalThis,
+  defer = globalThis.setImmediate,
 }) {
   const presentationState = structuredClone(presentation ?? {
     mode: "full",
@@ -128,6 +129,7 @@ export function createWindowCoordinator({
   let transitionVersion = 0;
   let transitionQueue = Promise.resolve();
   let updateQueue = Promise.resolve();
+  let pendingQuickChatBlur = null;
   const listeners = [];
   const boundsTimers = new Map();
   const applyingBounds = new Set();
@@ -363,6 +365,17 @@ export function createWindowCoordinator({
     }
   }
 
+  function deferQuickChatBlurClose() {
+    const pending = {};
+    pendingQuickChatBlur = pending;
+    defer(() => {
+      if (disposed || pendingQuickChatBlur !== pending) return;
+      pendingQuickChatBlur = null;
+      if (BrowserWindow.getFocusedWindow?.() === bubbleWindow) return;
+      void closeQuickChat().catch(() => {});
+    });
+  }
+
   function create() {
     if (disposed) return Promise.reject(new Error("Window coordinator is disposed."));
     if (createPromise) return createPromise;
@@ -409,8 +422,12 @@ export function createWindowCoordinator({
         addListener(window, "move", persist);
         addListener(window, "resize", persist);
       }
+      addListener(mainWindow, "minimize", (event) => {
+        event.preventDefault?.();
+        invokeSafely(compact);
+      });
       addListener(quickChatWindow, "blur", () => {
-        void closeQuickChat().catch(() => {});
+        deferQuickChatBlurClose();
       });
       addListener(screen, "display-removed", reclampCompactWindows);
 
@@ -501,6 +518,13 @@ export function createWindowCoordinator({
     });
   }
 
+  function toggleQuickChat() {
+    requireWindows();
+    if (requestedMode === "compact") return openQuickChat();
+    if (requestedMode === "quick-chat") return closeQuickChat();
+    return Promise.reject(new Error("Quick chat requires compact mode."));
+  }
+
   function expandTeacher() {
     requireWindows();
     return requestTransition("full", async (isCurrent) => {
@@ -546,6 +570,7 @@ export function createWindowCoordinator({
     if (disposed) return;
     disposed = true;
     transitionVersion += 1;
+    pendingQuickChatBlur = null;
     for (const timer of boundsTimers.values()) timers.clearTimeout(timer);
     boundsTimers.clear();
     for (const [emitter, event, listener] of listeners.splice(0)) {
@@ -561,6 +586,7 @@ export function createWindowCoordinator({
     broadcast,
     compact,
     openQuickChat,
+    toggleQuickChat,
     closeQuickChat,
     expandTeacher,
     openBubbleMenu,

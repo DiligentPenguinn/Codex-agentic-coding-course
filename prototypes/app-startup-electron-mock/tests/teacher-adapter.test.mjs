@@ -37,6 +37,17 @@ const envelope = {
     checkpointId: "executor-awareness",
     contentVersion: "mock-1",
   },
+  mission: {
+    title: "Inspect ContentPilot Lite safely",
+    description: "Inspect the fixture before proposing changes.",
+    learningOutcomes: ["Write a bounded inspection prompt"],
+    instructions: ["Open the dedicated task", "Write your own prompt"],
+    allowedActions: ["Read files", "Summarize findings"],
+    prohibitedActions: ["Edit files", "Use the network"],
+    expectedEvidence: ["A structured inspection report"],
+    contentKind: "mock-adaptation",
+    contentVersion: "mock-1",
+  },
   executor: { threadId: "thr-bound", status: "response-ready", activity },
   freshness: { observedAt: activity.observedAt, state: "fresh" },
   privacy: { scope: "bound-thread-only", redactionsApplied: true },
@@ -359,6 +370,9 @@ test("starts one verified ephemeral no-tools Teacher thread and sends text-only 
   assert.equal(client.requests[2][1].input.length, 1);
   assert.deepEqual(Object.keys(client.requests[2][1].input[0]), ["type", "text"]);
   assert.equal(client.requests[2][1].input[0].type, "text");
+  assert.match(client.requests[2][1].input[0].text, /"mission"/);
+  assert.match(client.requests[2][1].input[0].text, /concrete next step/i);
+  assert.match(client.requests[2][1].input[0].text, /do not redirect.*Executor/i);
   assert.match(client.requests[2][1].input[0].text, /CURRENT_LEARNER_MESSAGE\nWhat next\?/);
 
   client.emit(itemNotification("item/completed", {

@@ -237,7 +237,7 @@ main {
 
 #quick-message {
   width: 100%;
-  min-height: 72px;
+  min-height: calc(1.38em + 18px);
   max-height: 120px;
   resize: none;
   padding: 9px 10px;

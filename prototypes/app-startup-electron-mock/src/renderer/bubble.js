@@ -55,7 +55,7 @@ export function createBubbleController({
   let initialized = false;
   let stateRevision = 0;
   let removeStateListener = null;
-  let pendingOpenTimer = null;
+  let pendingToggleTimer = null;
   let newestTeacherMessageId = null;
   let presentationRequestGeneration = 0;
   let lastSeenTeacherMessageId = null;
@@ -101,17 +101,17 @@ export function createBubbleController({
     renderUnread();
   }
 
-  function cancelPendingOpen() {
-    if (pendingOpenTimer === null) return;
-    cancel(pendingOpenTimer);
-    pendingOpenTimer = null;
+  function cancelPendingToggle() {
+    if (pendingToggleTimer === null) return;
+    cancel(pendingToggleTimer);
+    pendingToggleTimer = null;
   }
 
-  function openQuickChat() {
+  function toggleQuickChat() {
     const requestGeneration = ++presentationRequestGeneration;
-    pendingOpenTimer = null;
+    pendingToggleTimer = null;
     try {
-      Promise.resolve(bridge.openQuickChat())
+      Promise.resolve(bridge.toggleQuickChat())
         .then((response) => {
           if (
             !disposed
@@ -129,7 +129,7 @@ export function createBubbleController({
   }
 
   function expand() {
-    cancelPendingOpen();
+    cancelPendingToggle();
     presentationRequestGeneration += 1;
     invokeSafely(() => bridge.expand());
   }
@@ -161,10 +161,10 @@ export function createBubbleController({
 
   function handleClick(event) {
     if (disposed) return;
-    cancelPendingOpen();
+    cancelPendingToggle();
     // The second click only cancels; the following dblclick owns Expand.
     if (Number.isFinite(event?.detail) && event.detail > 1) return;
-    pendingOpenTimer = schedule(openQuickChat, clickDelay);
+    pendingToggleTimer = schedule(toggleQuickChat, clickDelay);
   }
 
   function handleDoubleClick(event) {
@@ -182,7 +182,7 @@ export function createBubbleController({
   function handleContextMenu(event) {
     event?.preventDefault?.();
     if (disposed) return;
-    cancelPendingOpen();
+    cancelPendingToggle();
     invokeSafely(() => bridge.openMenu());
   }
 
@@ -190,7 +190,7 @@ export function createBubbleController({
     if (disposed) return;
     disposed = true;
     presentationRequestGeneration += 1;
-    cancelPendingOpen();
+    cancelPendingToggle();
     removeStateListener?.();
     removeStateListener = null;
   }

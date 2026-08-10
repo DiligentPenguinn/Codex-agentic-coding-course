@@ -454,6 +454,7 @@ function requireWindowCoordinator() {
 const windowActions = Object.freeze({
   compact: () => requireWindowCoordinator().compact(),
   openQuickChat: () => requireWindowCoordinator().openQuickChat(),
+  toggleQuickChat: () => requireWindowCoordinator().toggleQuickChat(),
   closeQuickChat: () => requireWindowCoordinator().closeQuickChat(),
   expandTeacher: () => requireWindowCoordinator().expandTeacher(),
   openBubbleMenu: (sender) => requireWindowCoordinator().openBubbleMenu(sender),

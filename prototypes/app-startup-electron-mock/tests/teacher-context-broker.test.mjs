@@ -13,9 +13,20 @@ const startRequest = {
   lessonId: "module-0",
   missionId: "module-0-read-only-inspection-awareness-fixture",
   checkpointId: "executor-awareness",
-  content: { version: "mock-1", rawDiff: "RAW DIFF MUST NOT PASS" },
+  content: {
+    version: "mock-1",
+    locale: "vi-VN",
+    title: "Inspect ContentPilot Lite safely",
+    description: "Inspect the fixture before proposing changes.",
+    learningOutcomes: ["Write a bounded inspection prompt"],
+    instructions: ["Open the dedicated task", "Write your own prompt"],
+    allowedActions: ["Read files", "Summarize findings"],
+    prohibitedActions: ["Edit files", "Use the network"],
+    expectedEvidence: ["A structured inspection report"],
+    kind: "mock-adaptation",
+    owner: "Triết",
+  },
   workspace: { expectedRepositoryRoot: "C:\\course", exercisePath: "exercise" },
-  credential: "SECRET CREDENTIAL MUST NOT PASS",
 };
 
 const binding = {
@@ -73,12 +84,23 @@ test("creates only the versioned bound-thread Teacher context envelope", () => {
       checkpointId: "executor-awareness",
       contentVersion: "mock-1",
     },
+    mission: {
+      title: "Inspect ContentPilot Lite safely",
+      description: "Inspect the fixture before proposing changes.",
+      learningOutcomes: ["Write a bounded inspection prompt"],
+      instructions: ["Open the dedicated task", "Write your own prompt"],
+      allowedActions: ["Read files", "Summarize findings"],
+      prohibitedActions: ["Edit files", "Use the network"],
+      expectedEvidence: ["A structured inspection report"],
+      contentKind: "mock-adaptation",
+      contentVersion: "mock-1",
+    },
     executor: { threadId: "thr-bound", status: "response-ready", activity },
     freshness: { observedAt: activity.observedAt, state: "fresh" },
     privacy: { scope: "bound-thread-only", redactionsApplied: true },
     provenance: { sources: ["practice-start-request", "bound-executor-task"] },
   });
-  assert.doesNotMatch(JSON.stringify(result), /SECRET CREDENTIAL|RAW DIFF|UNBOUND TEXT/);
+  assert.doesNotMatch(JSON.stringify(result), /UNBOUND TEXT/);
 });
 
 test("marks age at the threshold and stale activity as stale, and disconnected activity as disconnected", () => {
@@ -119,7 +141,7 @@ test("serializes only the parsed envelope, newest 40 parsed chat records, and cu
   assert.match(input, /bounded-message-2/);
   assert.match(input, /bounded-message-41/);
   assert.doesNotMatch(input, /"id":/);
-  assert.doesNotMatch(input, /SECRET CREDENTIAL|RAW DIFF|UNBOUND TEXT|raw command output/i);
+  assert.doesNotMatch(input, /UNBOUND TEXT|raw command output/i);
   const recent = JSON.parse(input.split("RECENT_TEACHER_CHAT\n")[1].split("\nCURRENT_LEARNER_MESSAGE")[0]);
   assert.equal(recent.length, 40);
   assert.deepEqual(Object.keys(recent[0]), ["role", "text", "createdAt"]);
@@ -150,4 +172,19 @@ test("rejects empty, non-string, and over-4,000-code-point learner messages", ()
     chat: [],
     learnerMessage: "😀".repeat(4_000),
   }));
+});
+
+test("turn input directs concrete mission-aligned guidance without Executor deflection", () => {
+  const input = buildTeacherTurnInput({
+    envelope: envelope({ status: "stale" }),
+    chat: [],
+    learnerMessage: "What should I do next?",
+  });
+
+  assert.match(input, /"mission"/);
+  assert.match(input, /concrete next step/i);
+  assert.match(input, /mission objective/i);
+  assert.match(input, /stale or disconnected/i);
+  assert.match(input, /invent progress/i);
+  assert.match(input, /do not redirect.*Executor/i);
 });

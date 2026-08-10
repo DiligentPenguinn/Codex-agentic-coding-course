@@ -1,3 +1,5 @@
+import { resizeTeacherComposer, shouldSubmitTeacherComposer } from "./teacher-composer.mjs";
+
 const MAX_MESSAGES = 24;
 const MAX_MESSAGE_LENGTH = 4_000;
 
@@ -285,6 +287,7 @@ function createQuickChatDomView() {
     },
     renderComposer(next) {
       if (composer.value !== next.draft) composer.value = next.draft;
+      resizeTeacherComposer(composer);
       composer.disabled = next.sending;
       sendButton.disabled = next.sending || next.draft.trim().length === 0;
       sendButton.textContent = next.sending ? "Sending…" : "Send";
@@ -322,7 +325,15 @@ function startQuickChatRenderer() {
     bridge,
     view: createQuickChatDomView(),
   });
-  const onInput = () => controller.changeDraft(composer.value);
+  const onInput = () => {
+    resizeTeacherComposer(composer);
+    controller.changeDraft(composer.value);
+  };
+const onComposerKeyDown = (event) => {
+    if (!shouldSubmitTeacherComposer(event) || composer.disabled || composer.value.trim() === "") return;
+    event.preventDefault();
+    void controller.send();
+  };
   const onSubmit = (event) => {
     event.preventDefault();
     void controller.send();
@@ -330,6 +341,7 @@ function startQuickChatRenderer() {
   const onExpand = () => controller.expand();
   const onKeyDown = (event) => controller.handleKeyDown(event);
   composer.addEventListener("input", onInput);
+  composer.addEventListener("keydown", onComposerKeyDown);
   form.addEventListener("submit", onSubmit);
   expandButton.addEventListener("click", onExpand);
   document.addEventListener("keydown", onKeyDown);
@@ -339,6 +351,7 @@ function startQuickChatRenderer() {
     if (disposed) return;
     disposed = true;
     composer.removeEventListener("input", onInput);
+    composer.removeEventListener("keydown", onComposerKeyDown);
     form.removeEventListener("submit", onSubmit);
     expandButton.removeEventListener("click", onExpand);
     document.removeEventListener("keydown", onKeyDown);

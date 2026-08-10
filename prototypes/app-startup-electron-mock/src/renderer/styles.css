@@ -913,8 +913,9 @@ input[type="text"] {
 
 .composer-row textarea {
   width: 100%;
-  min-height: 92px;
-  resize: vertical;
+  min-height: calc(1.45em + 24px);
+  max-height: 120px;
+  resize: none;
   border: 1px solid var(--ink);
   border-radius: 0;
   padding: 12px 14px;

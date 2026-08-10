@@ -140,6 +140,7 @@ class FakeWindow extends EventEmitter {
 function createHarness(overrides = {}) {
   const windows = [];
   const loadResolvers = [];
+  let focusedWindow = null;
   class BrowserWindow extends FakeWindow {
     constructor(options) {
       super(options);
@@ -153,8 +154,17 @@ function createHarness(overrides = {}) {
       }
     }
 
+    focus() {
+      super.focus();
+      focusedWindow = this;
+    }
+
     static fromWebContents(sender) {
       return windows.find((window) => window.webContents === sender) ?? null;
+    }
+
+    static getFocusedWindow() {
+      return focusedWindow;
     }
   }
 
@@ -233,6 +243,7 @@ function createHarness(overrides = {}) {
     quitCalls,
     builtTemplates,
     popupCalls,
+    setFocusedWindow(window) { focusedWindow = window; },
     releaseLoads() {
       for (const resolve of loadResolvers.splice(0)) resolve();
     },
@@ -270,9 +281,13 @@ test("create builds and secures all three windows exactly once, showing only mai
     assert.equal(window.webContents.listenerCount("will-navigate"), 1);
     assert.equal(typeof window.webContents.openHandler, "function");
   }
-  assert.equal(main.listenerCount("minimize"), 0);
-  main.emit("minimize");
-  assert.equal(main.visible, true);
+  assert.equal(main.listenerCount("minimize"), 1);
+  let prevented = false;
+  main.emit("minimize", { preventDefault() { prevented = true; } });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(prevented, true);
+  assert.equal(harness.presentation.mode, "compact");
+  assert.deepEqual(harness.windows.map((window) => window.visible), [false, true, false]);
 });
 
 test("persisted compact creates full first and retains saved bounds for explicit compact", async () => {
@@ -480,9 +495,27 @@ test("quick-chat blur closes only the popover", async () => {
   await harness.coordinator.openQuickChat();
   const [main, bubble, quickChat] = harness.windows;
 
+  harness.setFocusedWindow(null);
   quickChat.emit("blur");
   await new Promise((resolve) => setImmediate(resolve));
 
+  assert.deepEqual(harness.updates.at(-1), { mode: "compact" });
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, false]);
+});
+
+test("quick-chat blur defers to a bubble toggle instead of closing then reopening", async () => {
+  const harness = createHarness();
+  await harness.coordinator.create();
+  await harness.coordinator.compact();
+  await harness.coordinator.openQuickChat();
+  const [main, bubble, quickChat] = harness.windows;
+
+  bubble.focus();
+  quickChat.emit("blur");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, true]);
+
+  await harness.coordinator.toggleQuickChat();
   assert.deepEqual(harness.updates.at(-1), { mode: "compact" });
   assert.deepEqual([main.visible, bubble.visible, quickChat.visible], [false, true, false]);
 });
