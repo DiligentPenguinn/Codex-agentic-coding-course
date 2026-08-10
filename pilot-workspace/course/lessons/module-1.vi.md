@@ -1,4 +1,4 @@
-# Module 1 — Giao tiếp hiệu quả với coding agent: Planning và PRD
+# Module 1 — Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt
 
 ## Vì sao planning lại quan trọng?
 
@@ -8,20 +8,29 @@ nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa
 vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn
 nhiều so với planning kỹ ngay từ đầu.
 
-Planning không có nghĩa là viết một tài liệu dài cho mọi việc. Một thay đổi nhỏ,
-rõ ràng và dễ hoàn tác có thể được giao trực tiếp. Nhưng khi bạn đang xây một
-sản phẩm từ đầu, còn nhiều lựa chọn chưa rõ hoặc cần nhiều bước liên quan, hãy
-lập kế hoạch trước khi yêu cầu coding agent viết code.
+Không phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi,
+bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản
+phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc
+nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi
+mới viết code.
+
+[Microsoft Engineering Fundamentals](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/)
+cũng khuyên chỉ xem xét thiết kế khi cần. Những dấu hiệu đáng planning gồm yêu
+cầu còn mơ hồ, có nhiều điều chưa biết hoặc người thực hiện chưa thể chỉ ra đầy
+đủ các bước cần làm.
 
 ## Kết quả của module
 
-Sau khoảng 45 phút, bạn có thể:
+Module này kéo dài khoảng 60–75 phút và có thể tạm dừng giữa các checkpoint. Khi
+hoàn thành, bạn có thể:
 
 - giải thích khi nào cần planning và khi nào một yêu cầu trực tiếp là đủ,
+- giải thích PRD giữ những quyết định nào,
+- dùng năm câu hỏi đơn giản để viết prompt planning,
 - dùng coding agent như một người phỏng vấn để làm rõ ý tưởng sản phẩm,
-- tạo và duyệt một PRD một trang bằng ngôn ngữ dễ hiểu,
-- yêu cầu coding agent chuyển PRD thành implementation plan theo từng bước, và
-- kiểm tra PRD và implementation plan có khớp nhau trước khi bắt đầu code.
+- tạo và duyệt một PRD một trang,
+- yêu cầu coding agent chuyển PRD thành implementation plan, và
+- kiểm tra PRD với implementation plan có khớp nhau trước khi bắt đầu code.
 
 Module này dừng ở planning. Bạn chưa cần đọc code, chọn công nghệ, cài gói phụ
 thuộc hay xây giao diện. Implementation và debugging sẽ được học ở bước tiếp
@@ -35,50 +44,77 @@ Khóa học cung cấp điểm bắt đầu sau:
 > trên profile — hoặc một profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý
 > tưởng nội dung có khả năng bắt kịp xu hướng.
 
-Đây mới là ý tưởng, chưa phải kế hoạch. Coding agent sẽ hỏi từng câu một để bạn
-quyết định phiên bản đầu tiên thực sự làm gì.
-
-## Cấu trúc prompt để planning với coding agent
-
-Bạn không cần viết một “câu lệnh thần kỳ”. Một prompt planning hữu ích chỉ cần
-làm rõ năm phần:
-
-1. **Mục tiêu:** bạn muốn agent giúp hoàn thành kết quả gì.
-2. **Bối cảnh:** ý tưởng và những điều đã biết.
-3. **Cách trao đổi:** chẳng hạn hỏi một câu mỗi lượt thay vì tự điền chỗ trống.
-4. **Output:** tài liệu hoặc kế hoạch bạn muốn nhận để review.
-5. **Ranh giới và tiêu chí đạt:** điều chưa được làm, phần bắt buộc và dấu hiệu
-   cho biết output đã đủ tốt.
-
-Bạn giữ quyền quyết định sản phẩm. Coding agent giúp đặt câu hỏi, phát hiện điểm
-mơ hồ và tổ chức câu trả lời thành tài liệu rõ ràng.
+Đây mới là ý tưởng, chưa phải kế hoạch. Ý tưởng chưa xác định luồng sử dụng,
+đầu vào, đầu ra, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. PRD sẽ giữ những
+quyết định này trước khi coding agent đề xuất cách xây.
 
 ## PRD là gì?
 
 PRD, viết tắt của *Product Requirements Document*, là tài liệu mô tả sản phẩm
-cần đạt kết quả gì, phạm vi phiên bản đầu tiên và cách nhận biết sản phẩm đã đáp
-ứng yêu cầu. PRD trả lời câu hỏi **“Chúng ta đang xây cái gì và vì sao?”**, không
-đi sâu vào code hoặc công nghệ.
+cần đạt kết quả gì, vì sao sản phẩm cần tồn tại, phạm vi phiên bản đầu và cách
+nhận biết sản phẩm đã đáp ứng yêu cầu. PRD tập trung vào quyết định về sản phẩm,
+không đi sâu vào code hoặc công nghệ.
 
 PRD một trang của bạn cần có:
 
 1. Ý tưởng sản phẩm.
 2. Luồng sử dụng cốt lõi.
-3. Input.
-4. Output.
+3. Đầu vào.
+4. Đầu ra.
 5. Phạm vi phiên bản 1.
 6. Ngoài phạm vi.
-7. `Done When` — các dấu hiệu hoàn thành cụ thể, quan sát và kiểm tra được.
+7. `Done When` — các dấu hiệu hoàn thành có thể quan sát và kiểm tra.
 8. Câu hỏi còn mở.
 
-Khóa học không yêu cầu phần persona. Mục tiêu ở đây là luyện cách làm rõ sản
-phẩm và giao tiếp với coding agent, không phải hoàn thành mọi loại tài liệu
-product.
+Khóa học chưa yêu cầu phần persona. Mục tiêu ở đây là luyện cách làm rõ sản phẩm
+và giao tiếp với coding agent, không phải hoàn thành mọi loại tài liệu product.
+
+Mẫu PRD của
+[Atlassian](https://www.atlassian.com/software/confluence/templates/product-requirements?category=services)
+đưa ra một ví dụ: nếu nhóm giả định phần lớn người dùng truy cập bằng máy tính
+bảng, một yêu cầu có thể là giao diện phải hiển thị tốt trên máy tính bảng. Mẫu
+cũng dành riêng chỗ cho câu hỏi còn mở và phần ngoài phạm vi nhằm hạn chế phạm
+vi tự phình ra ngoài ý định ban đầu.
+
+## Prompt engineering là gì?
+
+Prompt là lời giao việc cho coding agent. Prompt engineering là cách làm lời
+giao việc đó đủ rõ để agent hiểu đúng và trả lại kết quả bạn có thể kiểm tra.
+Với một việc planning, hãy trả lời năm câu hỏi:
+
+1. **Bạn muốn coding agent giúp làm việc gì?**
+2. **Coding agent cần biết những thông tin nào?**
+3. **Coding agent nên làm việc với bạn như thế nào?**
+4. **Coding agent không được tự làm điều gì?**
+5. **Kết quả cuối cùng cần có những gì?**
+
+Không phải prompt nào cũng cần viết dài. Một yêu cầu nhỏ có thể chỉ cần một câu.
+Năm câu hỏi trên hữu ích khi công việc còn nhiều quyết định hoặc cần nhiều lượt
+trao đổi.
+
+[Tài liệu chính thức của OpenAI](https://developers.openai.com/api/docs/guides/latest-model)
+khuyên prompt hướng đến kết quả nên nêu mục tiêu, bối cảnh, ràng buộc, bằng chứng
+cần có, tiêu chí thành công và định dạng đầu ra. Một ví dụ trong tài liệu yêu
+cầu agent xem xét kế hoạch chuyển dữ liệu, tìm nguy cơ mất dữ liệu hoặc gián
+đoạn, dẫn lại bước liên quan và xếp năm rủi ro quan trọng nhất theo thứ tự.
+
+Năm câu hỏi của khóa học là cách diễn đạt lại hướng dẫn đó cho người mới. Khi áp
+dụng vào ContentPilot:
+
+- việc cần làm là hỗ trợ tạo PRD,
+- thông tin ban đầu là ý tưởng một câu,
+- cách làm việc là hỏi một câu mỗi lượt,
+- coding agent không được tự quyết định thay bạn hoặc viết code, và
+- kết quả cuối là PRD một trang có đủ tám phần.
+
+Bạn giữ quyền quyết định sản phẩm. Coding agent giúp đặt câu hỏi, phát hiện điểm
+mơ hồ và tổ chức câu trả lời thành tài liệu.
 
 ## Implementation plan là gì?
 
 Implementation plan là kế hoạch biến PRD đã duyệt thành những bước xây dựng có
-thứ tự. Nó trả lời câu hỏi **“Coding agent sẽ xây sản phẩm này như thế nào?”**
+thứ tự. PRD giữ quyết định về sản phẩm; implementation plan giữ cách thực hiện
+và kiểm tra.
 
 Bạn chưa cần biết tên file hay cách viết code. Coding agent có trách nhiệm đề
 xuất và giải thích các thành phần kỹ thuật bằng ngôn ngữ dành cho người mới. Mỗi
@@ -90,8 +126,18 @@ bước trong plan cần nêu:
 - cách kiểm tra kết quả.
 
 Plan cũng phải nêu thứ tự phụ thuộc, giả định, rủi ro, quyết định kỹ thuật còn
-mở và cách kiểm tra toàn bộ luồng từ đầu đến cuối. Plan không được tự thêm tính
-năng nằm ngoài PRD và chưa được phép chứa code triển khai.
+mở và cách kiểm tra toàn bộ luồng. Plan không được tự thêm tính năng nằm ngoài
+PRD và chưa được phép chứa code triển khai.
+
+[Mẫu Task Design Review của Microsoft](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/)
+tách rõ mục tiêu, trong phạm vi, ngoài phạm vi, phương án, thành phần cần thay
+đổi và câu hỏi còn mở. Khóa học dùng phiên bản ngắn hơn cho người mới nhưng vẫn
+giữ nguyên mục đích: mỗi bước phải gắn với một yêu cầu và một cách kiểm tra.
+
+Quay lại ví dụ máy tính bảng của Atlassian: PRD có thể yêu cầu giao diện hiển
+thị tốt trên máy tính bảng. Implementation plan sẽ nêu bước chỉnh bố cục và
+cách kiểm tra ở chiều rộng máy tính bảng. Đây là mối liên hệ giữa điều sản phẩm
+cần đạt và cách chứng minh điều đó đã được thực hiện.
 
 ## Checkpoint hoàn thành
 
@@ -108,7 +154,7 @@ Implementation plan đạt khi:
 - dùng `PRD.md` đã duyệt làm nguồn,
 - có cách tiếp cận tổng thể bằng ngôn ngữ dễ hiểu,
 - chia công việc thành các bước nhỏ có thứ tự,
-- mỗi bước có mục tiêu, thành phần/file, kết quả quan sát và cách kiểm tra,
+- mỗi bước có mục tiêu, thành phần hoặc file, kết quả quan sát và cách kiểm tra,
 - nêu phụ thuộc, giả định, rủi ro và câu hỏi kỹ thuật còn mở,
 - có kiểm tra toàn bộ luồng từ đầu đến cuối, và
 - không mở rộng phạm vi hoặc bắt đầu viết code.
@@ -120,18 +166,9 @@ plan, mọi bước của plan đều truy ngược được về PRD, phần ng
 Trước khi qua module tiếp theo, bạn cần duyệt cả hai tài liệu và giải thích bằng
 lời của mình ít nhất một quyết định về phạm vi.
 
-## Nguồn phương pháp
+## Nguồn và lựa chọn sư phạm
 
-Nội dung module được xây dựng từ hướng dẫn chính thức về prompt và coding agent
-của [OpenAI](https://learn.chatgpt.com/docs/prompting),
-[OpenAI Developers](https://developers.openai.com/api/docs/guides/latest-model),
-[Anthropic](https://code.claude.com/docs/en/best-practices) và
-[Anthropic API](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview),
-cùng hướng dẫn PRD của
-[Atlassian](https://www.atlassian.com/agile/product-management/requirements),
-hướng dẫn thiết kế task của
-[Microsoft](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/)
-và thực hành chia thay đổi nhỏ của
-[Google](https://google.github.io/eng-practices/review/developer/small-cls.html).
-Yêu cầu một trang, bỏ persona và cách chia checkpoint là lựa chọn sư phạm riêng
-của khóa học này.
+Các nguyên tắc về planning, PRD, prompt và thiết kế công việc trong module dựa
+trên các nguồn chính thức được liên kết ngay tại phần liên quan. Yêu cầu PRD một
+trang, tám phần, chưa dùng persona, năm câu hỏi dành cho người mới và cách chia
+checkpoint là lựa chọn sư phạm riêng của khóa học này.

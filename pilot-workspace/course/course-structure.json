@@ -31,9 +31,9 @@
     },
     {
       "id": "module-1",
-      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning và PRD",
-      "titleEn": "Communicate effectively with a coding agent: Planning and PRDs",
-      "estimatedMinutes": 45,
+      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
+      "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
+      "estimatedMinutes": 70,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
       "quizPath": "course/quizzes/module-1.quiz.json",

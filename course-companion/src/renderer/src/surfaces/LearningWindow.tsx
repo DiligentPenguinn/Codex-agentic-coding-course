@@ -124,7 +124,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-why-planning',
     step: 1,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Vì sao planning giúp bạn tiết kiệm thời gian?',
     panelLabel: 'Ý TƯỞNG BAN ĐẦU',
@@ -137,24 +137,42 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'DONE WHEN', value: 'Chưa có' }
     ],
     // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-1.script.vi.md.
-    dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nPlanning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.',
-    choices: [{ label: 'Tiếp tục', next: 'module-1-why-planning-check', primary: true }],
+    dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi mới viết code.',
+    choices: [{ label: 'Xem khi nào cần planning', next: 'module-1-planning-example', primary: true }],
     showPanel: false
+  },
+  'module-1-planning-example': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-why-planning',
+    step: 1,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Planning trước khi code',
+    objective: 'Nhận ra công việc nào cần planning',
+    panelLabel: 'NGUỒN PHƯƠNG PHÁP · MICROSOFT',
+    panelStatus: 'KHÔNG PHẢI VIỆC NÀO CŨNG CẦN PLANNING',
+    tone: 'neutral',
+    request: 'Planning có ích khi yêu cầu còn mơ hồ, có nhiều điều chưa biết hoặc chưa thể chỉ ra đầy đủ các bước.',
+    evidence: [
+      { label: 'YÊU CẦU', value: 'Còn mơ hồ' },
+      { label: 'ĐIỀU CHƯA BIẾT', value: 'Còn nhiều' },
+      { label: 'CÁC BƯỚC', value: 'Chưa thể liệt kê' }
+    ],
+    dialogue: 'Hướng dẫn thiết kế của Microsoft khuyên chỉ planning khi công việc thật sự cần. Một thay đổi nhỏ có thể giao trực tiếp. Ngược lại, một sản phẩm mới với nhiều quyết định chưa rõ nên được làm rõ trước khi code.',
+    choices: [{ label: 'Làm câu kiểm tra nhanh', next: 'module-1-why-planning-check', primary: true }]
   },
   'module-1-why-planning-check': {
     lessonId: 'module-1',
     checkpointId: 'm1-why-planning',
     step: 1,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Khi nào một yêu cầu nên được planning trước?',
-    panelLabel: 'NGUỒN PHƯƠNG PHÁP',
-    panelStatus: 'OPENAI · ANTHROPIC',
+    panelLabel: 'KIỂM TRA NHANH',
+    panelStatus: 'SAU PHẦN GIẢI THÍCH VÀ VÍ DỤ',
     tone: 'neutral',
-    // Source translations: https://learn.chatgpt.com/docs/prompting and
-    // https://code.claude.com/docs/en/best-practices.
-    request: 'OpenAI: Với công việc nhiều bước, hãy để Codex điều tra và đề xuất cách tiếp cận trước khi chỉnh sửa. Anthropic: Khám phá trước, sau đó lập kế hoạch, rồi mới viết code.',
+    request: 'Chọn dấu hiệu cho thấy coding agent cần làm rõ công việc trước khi viết code.',
     evidence: [
       { label: 'VIỆC NHỎ', value: 'Có thể giao trực tiếp' },
       { label: 'NHIỀU QUYẾT ĐỊNH', value: 'Nên planning' },
@@ -171,7 +189,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-why-planning',
     step: 1,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Phân biệt việc nhỏ với việc cần planning',
     panelLabel: 'YÊU CẦU NHỎ',
@@ -183,7 +201,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'YÊU CẦU', value: 'Rõ ràng' },
       { label: 'HOÀN TÁC', value: 'Dễ' }
     ],
-    dialogue: 'Planning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.',
+    dialogue: 'Không phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi mới viết code.',
     choices: [{ label: 'Xem lại dấu hiệu cần planning', next: 'module-1-why-planning-check', primary: true }]
   },
   'module-1-contentpilot-brief': {
@@ -191,30 +209,27 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-contentpilot-brief',
     step: 2,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm rõ ý tưởng ContentPilot',
-    objective: 'Tách ý tưởng khỏi kế hoạch triển khai',
+    objective: 'Nhìn ra điều còn thiếu trong một ý tưởng',
     panelLabel: 'Ý TƯỞNG CONTENTPILOT',
     panelStatus: 'MỘT CÂU KHỞI ĐẦU',
     tone: 'neutral',
     request: 'Phân tích bài viết hiện có trên profile — hoặc profile mẫu — rồi đề xuất ý tưởng có khả năng bắt kịp xu hướng.',
     evidence: [
-      { label: 'INPUT', value: 'Cần làm rõ' },
-      { label: 'OUTPUT', value: 'Cần làm rõ' },
+      { label: 'ĐẦU VÀO', value: 'Cần làm rõ' },
+      { label: 'ĐẦU RA', value: 'Cần làm rõ' },
       { label: 'PHẠM VI V1', value: 'Cần quyết định' }
     ],
-    dialogue: 'Đây mới là ý tưởng, chưa phải kế hoạch. Điều gì nên được làm rõ trước?',
-    choices: [
-      { label: 'Framework, database và thư viện', next: 'module-1-implementation-too-soon', danger: true },
-      { label: 'Workflow, input, output và phạm vi V1', next: 'module-1-prd-concept', primary: true, decision: { key: 'clarificationFocus', value: 'product-requirements' } }
-    ]
+    dialogue: 'Đây mới là ý tưởng, chưa phải kế hoạch. Ta còn cần làm rõ luồng sử dụng, đầu vào, đầu ra, phạm vi phiên bản đầu và dấu hiệu hoàn thành. PRD sẽ giữ các quyết định đó trước khi coding agent đề xuất cách xây.',
+    choices: [{ label: 'Tìm hiểu PRD', next: 'module-1-prd-concept', primary: true, decision: { key: 'clarificationFocus', value: 'product-requirements' } }]
   },
   'module-1-implementation-too-soon': {
     lessonId: 'module-1',
     checkpointId: 'm1-contentpilot-brief',
     step: 2,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm rõ ý tưởng ContentPilot',
     objective: 'Chưa vội chọn cách xây',
     panelLabel: 'QUYẾT ĐỊNH QUÁ SỚM',
@@ -234,16 +249,56 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-prd-concept',
     step: 3,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
-    mission: 'Phân biệt PRD và implementation plan',
-    objective: 'Biết tài liệu nào trả lời câu hỏi nào',
-    panelLabel: 'HAI TÀI LIỆU',
-    panelStatus: 'XÂY GÌ · XÂY NHƯ THẾ NÀO',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu PRD trước khi phân loại',
+    objective: 'PRD giữ những quyết định nào?',
+    panelLabel: 'PRD MỘT TRANG',
+    panelStatus: '8 PHẦN CẦN CÓ',
     tone: 'neutral',
-    request: 'PRD giữ quyết định sản phẩm. Implementation plan chuyển PRD đã duyệt thành các bước xây dựng.',
+    request: 'Ý tưởng · luồng sử dụng · đầu vào · đầu ra · phạm vi V1 · ngoài phạm vi · Done When · câu hỏi còn mở.',
     evidence: [
-      { label: 'PRD', value: 'Xây cái gì?' },
-      { label: 'PLAN', value: 'Xây như thế nào?' },
+      { label: 'MỤC ĐÍCH', value: 'Làm rõ sản phẩm' },
+      { label: 'PHẠM VI', value: 'Trong và ngoài V1' },
+      { label: 'DONE WHEN', value: 'Kiểm tra được' }
+    ],
+    dialogue: 'PRD mô tả sản phẩm cần đạt kết quả gì, vì sao sản phẩm cần tồn tại, phạm vi phiên bản đầu và cách nhận biết sản phẩm đã đáp ứng yêu cầu. PRD chưa quyết định code hoặc công nghệ.',
+    choices: [{ label: 'Xem một ví dụ PRD', next: 'module-1-prd-example', primary: true }]
+  },
+  'module-1-prd-example': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
+    step: 3,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu PRD trước khi phân loại',
+    objective: 'Từ giả định đến yêu cầu sản phẩm',
+    panelLabel: 'VÍ DỤ TỪ ATLASSIAN',
+    panelStatus: 'GIẢ ĐỊNH → YÊU CẦU',
+    tone: 'neutral',
+    request: 'Giả định: phần lớn người dùng truy cập bằng máy tính bảng. Yêu cầu: giao diện phải hiển thị tốt trên máy tính bảng.',
+    evidence: [
+      { label: 'GIẢ ĐỊNH', value: 'Dùng máy tính bảng' },
+      { label: 'YÊU CẦU', value: 'Hiển thị tốt' },
+      { label: 'PHẠM VI', value: 'Ghi rõ giới hạn' }
+    ],
+    dialogue: 'Mẫu PRD của Atlassian còn dành chỗ cho câu hỏi chưa có đáp án và những gì nằm ngoài phạm vi. Nhờ vậy, nhóm biết điều gì đã được quyết định và điều gì chưa được phép tự thêm vào sản phẩm.',
+    choices: [{ label: 'Phân biệt PRD và plan', next: 'module-1-prd-check', primary: true }]
+  },
+  'module-1-prd-check': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
+    step: 3,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Phân biệt PRD và implementation plan',
+    objective: 'Biết tài liệu nào giữ quyết định phạm vi',
+    panelLabel: 'HAI TÀI LIỆU',
+    panelStatus: 'SẢN PHẨM · CÁCH THỰC HIỆN',
+    tone: 'neutral',
+    request: 'PRD giữ quyết định về sản phẩm. Implementation plan giữ các bước thực hiện và kiểm tra.',
+    evidence: [
+      { label: 'PRD', value: 'Sản phẩm cần đạt gì?' },
+      { label: 'PLAN', value: 'Thực hiện thế nào?' },
       { label: 'THỨ TỰ', value: 'PRD trước' }
     ],
     dialogue: 'Câu “Phiên bản đầu chưa tự động đăng bài” thuộc tài liệu nào?',
@@ -257,7 +312,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-prd-concept',
     step: 3,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Phân biệt PRD và implementation plan',
     objective: 'Đưa quyết định phạm vi về đúng tài liệu',
     panelLabel: 'PHÂN LOẠI CHƯA ĐÚNG',
@@ -277,49 +332,89 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-prd-interview',
     step: 4,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
-    mission: 'Prompt để coding agent phỏng vấn',
-    objective: 'Giữ quyền quyết định trong cuộc hội thoại',
-    panelLabel: 'PROMPT PLANNING',
-    panelStatus: '5 PHẦN CẦN CÓ',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu prompt trước khi tự viết',
+    objective: 'Một prompt planning cần nói rõ điều gì?',
+    panelLabel: '5 CÂU HỎI DỄ NHỚ',
+    panelStatus: 'LỜI GIAO VIỆC RÕ RÀNG',
     tone: 'neutral',
-    request: 'Mục tiêu · bối cảnh · hỏi một câu mỗi lượt · output PRD một trang · chưa viết code.',
+    request: 'Muốn agent làm gì? · Agent cần biết gì? · Làm việc thế nào? · Không được tự làm gì? · Kết quả cần có gì?',
     evidence: [
-      { label: 'CÁCH HỎI', value: 'Một câu mỗi lượt', ready: true },
-      { label: 'OUTPUT', value: 'PRD một trang', ready: true },
-      { label: 'RANH GIỚI', value: 'Chưa code', ready: true }
+      { label: 'VIỆC CẦN LÀM', value: 'Nói rõ' },
+      { label: 'CÁCH LÀM VIỆC', value: 'Nói rõ' },
+      { label: 'KẾT QUẢ CUỐI', value: 'Nói rõ' }
     ],
-    dialogue: 'Agent giúp đặt câu hỏi và tổ chức câu trả lời; bạn vẫn là người quyết định. Hãy dùng cấu trúc này để bắt đầu cuộc phỏng vấn PRD.',
-    choices: [{ label: 'Phỏng vấn tôi từng câu một', next: 'module-1-prd-approved', primary: true, decision: { key: 'promptMethod', value: 'one-question-at-a-time' } }]
+    dialogue: 'Prompt là lời giao việc cho coding agent. Prompt engineering là cách làm lời giao việc đó đủ rõ để agent hiểu đúng và trả lại kết quả bạn có thể kiểm tra. Không phải prompt nào cũng cần dài; năm câu hỏi này hữu ích khi công việc có nhiều quyết định.',
+    choices: [{ label: 'Xem một prompt có nguồn', next: 'module-1-prompt-example', primary: true }]
+  },
+  'module-1-prompt-example': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-interview',
+    step: 4,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu prompt trước khi tự viết',
+    objective: 'Nhìn thấy từng phần trong một prompt',
+    panelLabel: 'VÍ DỤ TỪ OPENAI DOCS',
+    panelStatus: 'VIỆC LÀM · BẰNG CHỨNG · KẾT QUẢ',
+    tone: 'neutral',
+    request: 'Xem xét kế hoạch chuyển dữ liệu · tìm nguy cơ mất dữ liệu hoặc gián đoạn · dẫn lại bước liên quan · xếp năm rủi ro quan trọng nhất.',
+    evidence: [
+      { label: 'VIỆC CẦN LÀM', value: 'Xem xét kế hoạch' },
+      { label: 'ĐIỀU CẦN TÌM', value: 'Nguy cơ cụ thể' },
+      { label: 'KẾT QUẢ', value: '5 rủi ro có thứ tự' }
+    ],
+    dialogue: 'Tài liệu chính thức của OpenAI dùng ví dụ này để cho thấy một prompt hướng đến kết quả: agent biết phải làm gì, cần dựa vào bằng chứng nào và phải trình bày kết quả ra sao. Khóa học chuyển nguyên tắc đó thành năm câu hỏi dành cho người mới.',
+    choices: [{ label: 'Áp dụng vào ContentPilot', next: 'module-1-prompt-guided-practice', primary: true }]
+  },
+  'module-1-prompt-guided-practice': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-interview',
+    step: 4,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu prompt trước khi tự viết',
+    objective: 'Chuẩn bị prompt phỏng vấn PRD',
+    panelLabel: 'CONTENTPILOT · 5 CÂU TRẢ LỜI',
+    panelStatus: 'SẴN SÀNG TỰ VIẾT',
+    tone: 'neutral',
+    request: 'Tạo PRD · biết ý tưởng ban đầu · hỏi một câu mỗi lượt · không tự quyết định hoặc viết code · PRD một trang có tám phần.',
+    evidence: [
+      { label: 'CÁCH TRAO ĐỔI', value: 'Một câu mỗi lượt', ready: true },
+      { label: 'KHÔNG ĐƯỢC LÀM', value: 'Tự quyết định, viết code', ready: true },
+      { label: 'KẾT QUẢ CUỐI', value: 'PRD đủ 8 phần', ready: true }
+    ],
+    dialogue: 'Bạn đã được học khái niệm, xem ví dụ và đối chiếu năm câu hỏi. Bây giờ mới đến lượt bạn tự viết prompt bằng lời của mình để coding agent phỏng vấn và tạo bản nháp PRD.',
+    choices: [{ label: 'Dùng năm câu hỏi để tự viết prompt', next: 'module-1-prd-approved', primary: true, decision: { key: 'promptMethod', value: 'one-question-at-a-time' } }]
   },
   'module-1-prd-approved': {
     lessonId: 'module-1',
     checkpointId: 'm1-prd-approved',
     step: 5,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Review và duyệt PRD',
     objective: 'Biết một PRD tốt trông như thế nào',
     panelLabel: 'PRD MỘT TRANG',
     panelStatus: '8 PHẦN ĐÃ REVIEW',
     tone: 'good',
-    request: 'Ý tưởng · workflow · input · output · phạm vi V1 · ngoài phạm vi · Done When · câu hỏi còn mở.',
+    request: 'Ý tưởng · luồng sử dụng · đầu vào · đầu ra · phạm vi V1 · ngoài phạm vi · Done When · câu hỏi còn mở.',
     evidence: [
       { label: 'DONE WHEN', value: 'Kiểm tra được', ready: true },
       { label: 'CHI TIẾT CODE', value: 'Không có', ready: true },
       { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn', ready: true }
     ],
     dialogue: 'PRD tốt đủ rõ để giữ sản phẩm đi đúng hướng nhưng chưa quyết định cách viết code. Hãy duyệt sau khi bạn đã kiểm tra đủ tám phần.',
-    choices: [{ label: 'Duyệt PRD đã review', next: 'module-1-implementation-plan', primary: true, decision: { key: 'prdApproval', value: 'reviewed-eight-sections' } }]
+    choices: [{ label: 'Duyệt PRD đã xem xét', next: 'module-1-implementation-plan', primary: true, decision: { key: 'prdApproval', value: 'reviewed-eight-sections' } }]
   },
   'module-1-implementation-plan': {
     lessonId: 'module-1',
     checkpointId: 'm1-implementation-plan',
     step: 6,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
-    mission: 'Tạo implementation plan từ PRD',
-    objective: 'Chia cách xây thành các bước có thể kiểm tra',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu implementation plan trước khi tạo',
+    objective: 'Plan biến PRD thành các bước như thế nào?',
     panelLabel: 'MỖI BƯỚC TRONG PLAN',
     panelStatus: '4 TRƯỜNG BẮT BUỘC',
     tone: 'neutral',
@@ -329,7 +424,27 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'THỨ TỰ', value: 'Bước nhỏ, có phụ thuộc' },
       { label: 'CODE', value: 'Chưa viết' }
     ],
-    dialogue: 'Bạn chưa cần biết tên tệp. Coding agent phải đề xuất và giải thích bằng ngôn ngữ dành cho người mới.',
+    dialogue: 'PRD giữ điều sản phẩm cần đạt. Implementation plan biến yêu cầu đã duyệt thành các bước xây dựng có thứ tự. Bạn chưa cần biết tên file; coding agent phải đề xuất và giải thích bằng ngôn ngữ dành cho người mới.',
+    choices: [{ label: 'Xem PRD trở thành plan', next: 'module-1-implementation-plan-example', primary: true }]
+  },
+  'module-1-implementation-plan-example': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-implementation-plan',
+    step: 6,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Hiểu implementation plan trước khi tạo',
+    objective: 'Nối yêu cầu sản phẩm với cách kiểm tra',
+    panelLabel: 'VÍ DỤ ATLASSIAN → MICROSOFT',
+    panelStatus: 'YÊU CẦU → BƯỚC → KIỂM TRA',
+    tone: 'neutral',
+    request: 'PRD: hiển thị tốt trên máy tính bảng. Plan: chỉnh bố cục và kiểm tra ở chiều rộng máy tính bảng.',
+    evidence: [
+      { label: 'YÊU CẦU PRD', value: 'Hỗ trợ máy tính bảng' },
+      { label: 'BƯỚC PLAN', value: 'Chỉnh bố cục' },
+      { label: 'BẰNG CHỨNG', value: 'Kiểm tra chiều rộng' }
+    ],
+    dialogue: 'Mẫu thiết kế công việc của Microsoft tách rõ phạm vi, phương án, thành phần cần thay đổi và câu hỏi còn mở. Khóa học rút gọn thành từng bước có mục tiêu, thành phần, kết quả quan sát và cách kiểm tra.',
     choices: [{ label: 'Tạo plan có kết quả và cách kiểm tra', next: 'module-1-alignment-review', primary: true, decision: { key: 'planStructure', value: 'observable-and-verifiable' } }]
   },
   'module-1-alignment-review': {
@@ -337,7 +452,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-alignment-review',
     step: 7,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Đối chiếu PRD và implementation plan',
     objective: 'Phát hiện scope creep trước khi code',
     panelLabel: 'ALIGNMENT REVIEW',
@@ -360,7 +475,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-alignment-review',
     step: 7,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Đối chiếu PRD và implementation plan',
     objective: 'Không để agent tự mở rộng phạm vi',
     panelLabel: 'SCOPE CREEP',
@@ -380,7 +495,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-planning-package',
     step: 8,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hoàn thiện planning package',
     objective: 'Tạo hai artifact trước khi implementation',
     panelLabel: 'CHECKPOINT BẮT BUỘC',
@@ -403,7 +518,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-mastery',
     step: 9,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Kiểm tra planning package',
     objective: 'Chọn bằng chứng đủ để qua Module 1',
     panelLabel: 'BẰNG CHỨNG MÔ PHỎNG',
@@ -426,7 +541,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-mastery',
     step: 9,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Kiểm tra planning package',
     objective: 'Dựa vào artifact thay vì lời khẳng định',
     panelLabel: 'BẰNG CHỨNG CHƯA ĐỦ',
@@ -446,7 +561,7 @@ const scenes: Record<SceneId, SceneContent> = {
     checkpointId: 'm1-complete',
     step: 10,
     totalSteps: 10,
-    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước implementation',
     objective: 'Module 1 đã hoàn thành',
     panelLabel: 'PLANNING PACKAGE',
@@ -600,10 +715,10 @@ const decisionLabels: Record<string, string> = {
 
 const decisionValues: Record<string, string> = {
   'plan-first': 'Planning trước khi code',
-  'product-requirements': 'Workflow, input, output và phạm vi V1',
+  'product-requirements': 'Luồng sử dụng, đầu vào, đầu ra và phạm vi V1',
   'scope-in-prd': 'Quyết định phạm vi thuộc PRD',
   'one-question-at-a-time': 'Một câu hỏi mỗi lượt',
-  'reviewed-eight-sections': 'Đã review đủ tám phần',
+  'reviewed-eight-sections': 'Đã xem xét đủ tám phần',
   'observable-and-verifiable': 'Có kết quả và cách kiểm tra',
   'remove-scope-creep': 'Loại nội dung ngoài PRD',
   'artifacts-approved-and-aligned': 'Hai artifact đã duyệt và khớp nhau'
@@ -712,7 +827,7 @@ function PixelAppShell({
 
             <div className="pixel-roadmap" aria-label="Lộ trình học">
               <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                <span>01</span><div><small>MODULE 1</small><strong>Giao tiếp hiệu quả với coding agent: Planning và PRD</strong><p>{scene.objective}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
+                <span>01</span><div><small>MODULE 1</small><strong>Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt</strong><p>{scene.objective}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
               </button>
               {futureModules.map((title, index) => (
                 <article className="is-locked" key={title}>

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Planning, PRD và implementation plan",
+  "title": "Kiểm tra cuối Module 1 — Planning, PRD, prompt và implementation plan",
   "passingScore": 0.8,
   "delivery": {
     "mode": "one-question-at-a-time",
@@ -17,7 +17,7 @@
       "choices": [
         "Đổi một lỗi chính tả đã xác định rõ trong một nút.",
         "Xây từ đầu một ứng dụng có nhiều luồng và còn vài quyết định sản phẩm chưa rõ.",
-        "Đổi tên một file tạm chưa được dùng.",
+        "Đổi tên một tệp tạm chưa được dùng.",
         "Thay một mã màu đã có giá trị cụ thể."
       ],
       "answerIndex": 1,
@@ -27,11 +27,21 @@
     {
       "id": "m1-q2",
       "type": "classification",
-      "prompt": "Phân loại hai nội dung sau vào PRD hoặc implementation plan: (A) phiên bản đầu chưa tự động đăng bài; (B) bước kiểm tra từ input mẫu đến danh sách ý tưởng đầu ra.",
+      "prompt": "Phân loại hai nội dung sau vào PRD hoặc implementation plan: (A) phiên bản đầu chưa tự động đăng bài; (B) bước kiểm tra từ đầu vào mẫu đến danh sách ý tưởng đầu ra.",
       "expectedSignals": [
         "A thuộc PRD vì xác định ngoài phạm vi sản phẩm",
         "B thuộc implementation plan vì mô tả bước kiểm tra triển khai",
         "Giải thích được khác biệt giữa xây cái gì và xây như thế nào"
+      ]
+    },
+    {
+      "id": "m1-q3-prompt",
+      "type": "short-answer",
+      "prompt": "Một prompt chỉ nói: ‘Hãy tạo PRD cho ý tưởng này.’ Hãy nêu hai điều bạn cần bổ sung để coding agent không tự đoán cách làm hoặc kết quả cuối.",
+      "expectedSignals": [
+        "Nêu được ít nhất hai trong năm điều: việc cần làm, thông tin agent cần biết, cách làm việc, điều agent không được tự làm, kết quả cuối cần có",
+        "Giải thích được cách phần bổ sung làm prompt rõ hơn",
+        "Không chỉ chép lại câu hỏi"
       ]
     },
     {

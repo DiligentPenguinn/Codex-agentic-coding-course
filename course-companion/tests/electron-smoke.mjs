@@ -129,7 +129,7 @@ async function verifyHomeBase(page) {
   assert.equal(await page.getByText('00', { exact: true }).count(), 0)
   assert.equal(await page.getByText('Giới thiệu khóa học', { exact: true }).count(), 0)
   await page
-    .getByText('Giao tiếp hiệu quả với coding agent: Planning và PRD', { exact: true })
+    .getByText('Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt', { exact: true })
     .waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
@@ -252,22 +252,32 @@ try {
     .getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
+    .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
     .waitFor()
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nPlanning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.'
+    'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi mới viết code.'
   )
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'module-1-planning-fundamentals.png')
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
+    .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
+    .click()
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true })
+    .waitFor()
+  await firstWindows.learningPage
+    .getByText('NGUỒN PHƯƠNG PHÁP · MICROSOFT', { exact: true })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'module-1-planning-example.png')
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true })
     .click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau' })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('OpenAI: Với công việc nhiều bước, hãy để Codex điều tra và đề xuất cách tiếp cận trước khi chỉnh sửa. Anthropic: Khám phá trước, sau đó lập kế hoạch, rồi mới viết code.', { exact: true })
+    .getByText('Chọn dấu hiệu cho thấy coding agent cần làm rõ công việc trước khi viết code.', { exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-choice.is-primary').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-choice.is-danger').count(), 0)
@@ -352,25 +362,49 @@ try {
     .getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ })
     .click()
   await learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
+    .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
 
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Xem khi nào cần planning', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true }).click()
   await learningPage
     .getByRole('button', { name: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau' })
     .click()
-  await learningPage
-    .getByRole('button', { name: 'Workflow, input, output và phạm vi V1' })
-    .click()
+  await learningPage.getByRole('button', { name: 'Tìm hiểu PRD', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Xem một ví dụ PRD', exact: true }).click()
+  await learningPage.getByText('VÍ DỤ TỪ ATLASSIAN', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-prd-example.png')
+  await learningPage.getByRole('button', { name: 'Phân biệt PRD và plan', exact: true }).click()
   await learningPage
     .getByRole('button', { name: 'PRD · Đây là quyết định phạm vi' })
     .click()
+  await learningPage.getByRole('button', { name: 'Xem một prompt có nguồn', exact: true }).click()
+  await learningPage.getByText('VÍ DỤ TỪ OPENAI DOCS', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-prompt-example.png')
+  if (screenshotDirectory) {
+    await learningPage.setViewportSize({ width: 390, height: 844 })
+    const promptExampleNarrowWidths = await learningPage.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(promptExampleNarrowWidths.body, promptExampleNarrowWidths.viewport)
+    assert.equal(promptExampleNarrowWidths.document, promptExampleNarrowWidths.viewport)
+    await learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
+  await learningPage.getByRole('button', { name: 'Áp dụng vào ContentPilot', exact: true }).click()
   await learningPage
-    .getByRole('button', { name: 'Phỏng vấn tôi từng câu một' })
+    .getByRole('button', { name: 'Dùng năm câu hỏi để tự viết prompt' })
     .click()
-  await learningPage.getByRole('button', { name: 'Duyệt PRD đã review' }).click()
+  await learningPage.getByRole('button', { name: 'Duyệt PRD đã xem xét' }).click()
+  await learningPage.getByRole('button', { name: 'Xem PRD trở thành plan', exact: true }).click()
+  await learningPage.getByText('VÍ DỤ ATLASSIAN → MICROSOFT', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-implementation-plan-example.png')
   await learningPage
     .getByRole('button', { name: 'Tạo plan có kết quả và cách kiểm tra' })
     .click()

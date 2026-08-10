@@ -78,6 +78,31 @@ describe('ProgressRepository', () => {
     })
   })
 
+  it('resumes a source-backed teaching example inside a Module 1 checkpoint', async () => {
+    const repository = new ProgressRepository(await temporaryDirectory())
+    const promptExample = await repository.save({
+      currentLessonId: 'module-1',
+      checkpointId: 'm1-prd-interview',
+      sceneId: 'module-1-prompt-example',
+      completedCheckpointIds: [
+        'intro-visual-onboarding',
+        'm1-why-planning',
+        'm1-contentpilot-brief',
+        'm1-prd-concept'
+      ],
+      decisions: {
+        planningApproach: 'plan-first',
+        clarificationFocus: 'product-requirements',
+        prdClassification: 'scope-in-prd'
+      }
+    })
+
+    await expect(repository.load()).resolves.toEqual({
+      status: 'returning',
+      progress: promptExample
+    })
+  })
+
   it('migrates schema-v2 Module 0 progress to the new Module 1 opening', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {
