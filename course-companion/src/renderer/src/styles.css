@@ -1251,8 +1251,12 @@ button:focus-visible {
 .pixel-roadmap-stage > em b { margin-top: 7px; font-size: 7px; }
 .pixel-roadmap .is-current { border-color: var(--pixel-yellow); background: rgba(20, 31, 61, 0.98); }
 .pixel-roadmap .is-current > em { color: var(--pixel-yellow); }
-.pixel-roadmap article.is-complete { border-color: var(--pixel-mint); }
-.pixel-roadmap article.is-complete > em { color: var(--pixel-mint); }
+.pixel-roadmap article.is-complete,
+.pixel-roadmap-stage.is-complete { border-color: var(--pixel-mint); }
+.pixel-roadmap article.is-complete > em,
+.pixel-roadmap-stage.is-complete > em { color: var(--pixel-mint); }
+.pixel-roadmap article.is-migrated { border-color: var(--pixel-cyan); }
+.pixel-roadmap article.is-migrated > em { color: var(--pixel-cyan); }
 .pixel-roadmap article.is-locked { opacity: 0.64; }
 
 .pixel-teacher-overlay {

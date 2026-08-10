@@ -53,7 +53,7 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 function isTeacherContext(value: unknown): value is TeacherContext {
   return (
     isRecord(value) &&
-    (value.lessonId === 'intro' || value.lessonId === 'module-1') &&
+    (value.lessonId === 'intro' || value.lessonId === 'module-2') &&
     isCheckpointId(value.checkpointId) &&
     typeof value.sceneId === 'string' &&
     sceneSet.has(value.sceneId)
@@ -82,29 +82,42 @@ export function isTeacherSendRequest(value: unknown): value is TeacherSendReques
 
 function replyFor(context?: TeacherContext): string {
   if (!context) {
-    return 'Hãy mở Module 1 trước. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
+    return 'Hãy mở chặng có nhãn “Bạn đang ở đây”. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
   }
 
-  if (context.checkpointId === 'm1-prd-interview') {
+  if (context.checkpointId === 'm1-codex-orientation' || context.checkpointId === 'm1-model-choice') {
+    return 'Trước hết, hãy xác nhận đúng workspace và chọn một thiết lập model làm điểm bắt đầu. Bạn có thể điều chỉnh sau khi công việc thật cho thêm bằng chứng.'
+  }
+  if (context.checkpointId === 'm1-permissions') {
+    return 'Trước khi phê duyệt, hãy kiểm tra mục đích, nguồn truy cập và phạm vi thay đổi của hành động Codex đang đề nghị.'
+  }
+  if (context.checkpointId === 'm1-agents-guidance') {
+    return 'AGENTS.md phù hợp với chỉ dẫn bền vững của dự án; prompt phù hợp với mục tiêu riêng của task hiện tại.'
+  }
+  if (context.checkpointId === 'm1-skills' || context.checkpointId === 'm1-setup-checklist') {
+    return 'Skill nên đóng gói một quy trình có thể tái sử dụng. Hãy giữ quy tắc chung của dự án trong AGENTS.md và ghi lựa chọn setup vào checklist.'
+  }
+
+  if (context.checkpointId === 'm2-prd-interview') {
     return 'Prompt phỏng vấn nên có mục tiêu, bối cảnh, cách hỏi một câu mỗi lượt, output PRD một trang và ràng buộc chưa viết code.'
   }
-  if (context.checkpointId === 'm1-prd-approved') {
+  if (context.checkpointId === 'm2-prd-approved') {
     return 'Trước khi duyệt, hãy kiểm tra PRD có đủ tám phần, Done When quan sát được và không lẫn chi tiết implementation.'
   }
-  if (context.checkpointId === 'm1-implementation-plan') {
+  if (context.checkpointId === 'm2-implementation-plan') {
     return 'Mỗi bước trong implementation plan cần có mục tiêu, thành phần hoặc tệp, kết quả quan sát được, cách kiểm tra và yêu cầu PRD liên quan.'
   }
   if (
-    context.checkpointId === 'm1-alignment-review' ||
-    context.checkpointId === 'm1-planning-package'
+    context.checkpointId === 'm2-alignment-review' ||
+    context.checkpointId === 'm2-planning-package'
   ) {
     return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.'
   }
-  if (context.lessonId === 'module-1') {
-    return 'Ở Module 1, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'
+  if (context.lessonId === 'module-2') {
+    return 'Ở Module 2, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'
   }
 
-  return 'Phần giới thiệu chỉ giúp bạn hiểu dự án thực hành. Sau đó Course Companion sẽ đưa bạn thẳng vào Module 1.'
+  return 'Phần giới thiệu giúp bạn hiểu dự án thực hành. Sau đó Course Companion sẽ đưa bạn vào Module 1 để thiết lập Codex trước khi planning.'
 }
 
 export class TeacherChatRepository {

@@ -21,20 +21,20 @@ afterEach(async () => {
 })
 
 const practiceCheckpoint: ProgressUpdate = {
-  currentLessonId: 'module-1',
-  currentCourseLessonId: 'm1-implementation-plan',
-  checkpointId: 'm1-planning-package',
-  sceneId: 'module-1-planning-package',
-  sceneHistory: ['module-1-alignment-review'],
+  currentLessonId: 'module-2',
+  currentCourseLessonId: 'm2-implementation-plan',
+  checkpointId: 'm2-planning-package',
+  sceneId: 'module-2-planning-package',
+  sceneHistory: ['module-2-alignment-review'],
   completedCheckpointIds: [
     'intro-visual-onboarding',
-    'm1-why-planning',
-    'm1-contentpilot-brief',
-    'm1-prd-concept',
-    'm1-prd-interview',
-    'm1-prd-approved',
-    'm1-implementation-plan',
-    'm1-alignment-review'
+    'm2-why-planning',
+    'm2-contentpilot-brief',
+    'm2-prd-concept',
+    'm2-prd-interview',
+    'm2-prd-approved',
+    'm2-implementation-plan',
+    'm2-alignment-review'
   ],
   decisions: {}
 }
@@ -62,7 +62,7 @@ describe('FixturePracticeAdapter', () => {
       expect(state.latestEvent).toMatchObject({
         scenario,
         source: 'fixture',
-        missionId: 'm1-planning-package'
+        missionId: 'm2-planning-package'
       })
       await expect(adapter.loadState()).resolves.toEqual(state)
     }

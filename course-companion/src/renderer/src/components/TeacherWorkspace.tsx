@@ -47,7 +47,7 @@ function formatTime(timestamp: string): string {
 }
 
 const emptyPractice: PracticeState = {
-  missionId: 'm1-planning-package',
+  missionId: 'm2-planning-package',
   status: 'idle'
 }
 

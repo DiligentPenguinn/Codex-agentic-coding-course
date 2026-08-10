@@ -66,7 +66,7 @@ export class FixturePracticeAdapter implements PracticeAdapter {
     const now = this.now()
     const timestamp = now.toISOString()
     const definition = scenarioDefinition[request.scenario]
-    const correlationId = `fixture-m1-${timestamp}-${++this.sequence}`
+    const correlationId = `fixture-m2-${timestamp}-${++this.sequence}`
     const evidence: PracticeEvidence | undefined = definition.evidence
       ? {
           prdArtifact: 'PRD.md · đã duyệt',
@@ -81,11 +81,11 @@ export class FixturePracticeAdapter implements PracticeAdapter {
       : undefined
 
     return this.repository.savePractice({
-      missionId: 'm1-planning-package',
+      missionId: 'm2-planning-package',
       status: definition.status,
       latestEvent: {
         id: `${correlationId}-${request.scenario}`,
-        missionId: 'm1-planning-package',
+        missionId: 'm2-planning-package',
         scenario: request.scenario,
         status: definition.status,
         source: 'fixture',

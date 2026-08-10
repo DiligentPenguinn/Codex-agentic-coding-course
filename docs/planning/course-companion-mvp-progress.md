@@ -1,9 +1,9 @@
 # Course Companion MVP Plan and Progress Tracker
 
-**Decision locked:** 6 August 2026; Home Base interaction corrected 7 August 2026
+**Decision locked:** 6 August 2026; course structure aligned 10 August 2026
 **Owner:** Triết
-**Current phase:** Unified Home Base correction verified; ready for Triết's personal walkthrough
-**Current decision:** Home Base is the roadmap; the current stage opens the focused lesson, while Hương remains a subordinate corner companion
+**Current phase:** Pilot 0.2 roadmap and state migration verified; ready for Triết's personal walkthrough
+**Current decision:** Home Base shows Codex setup as Module 1 and Planning as Module 2, while preserving legacy Planning progress without falsely completing setup
 
 ## Product decision
 
@@ -23,6 +23,25 @@ remains a distraction-limited scene, while Hương stays available as a compact
 corner companion that expands into a right-docked overlay. Saved progress and
 settings remain quiet header utilities. Home Base is the sole course-progress
 surface; lesson-step progress appears only after the learner enters a lesson.
+
+### Pilot 0.2 course-structure alignment — 10 August 2026
+
+Course Companion 0.2 now follows `pilot-workspace/course/course-structure.json`
+for the first two runnable modules:
+
+- Module 1 is **Thiết lập môi trường làm việc với Codex**, with five lessons and
+  a five-question mastery check;
+- Module 2 is **Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt**,
+  with six lessons and the existing planning-package practice; and
+- schema-v4 Planning progress is migrated from the old `module-1` IDs to
+  `module-2` IDs, preserving the exact page, history, answers, practice state,
+  and timestamps.
+
+Legacy learners already inside Planning continue in Module 2. Their setup card
+is labelled as transferred from the previous roadmap; the migration does not
+invent Module 1 completion evidence. Historical sections below retain their
+original Pilot 0.1 wording when they describe evidence collected before this
+alignment.
 
 ### Home Base interaction correction — 7 August 2026
 
@@ -84,7 +103,8 @@ been migrated into the production Electron renderer.
 ## MVP finish line
 
 The personal-test MVP is complete when Triết can launch the Course Companion
-from the repository, complete or resume the Intro and Module 1 journey, orient
+from the repository, complete or resume the Intro, Module 1 setup, and Module 2
+Planning journey, orient
 from Home Base, inspect the roadmap and saved progress, change a real companion
 setting, move between the full learning window and the floating Teacher
 companion, exercise the complete practice-and-debrief loop through honest
@@ -130,7 +150,7 @@ ends only through an explicit Quit action.
 - A real setting for the floating companion's always-on-top behavior.
 - An always-on-top floating Teacher character.
 - An expandable Teacher chat panel.
-- Intro and Module 1 only.
+- Intro, Module 1 setup, and Module 2 Planning only.
 - A focused mission journey with character-led interactive scenes.
 - New-learner and returning-learner paths.
 - Real local progress, answers, activity, chat history, recovery, and reset.
@@ -145,7 +165,7 @@ ends only through an explicit Quit action.
 - Free movement or an explorable-room game.
 - Rewards, streaks, inventory, collectibles, or a game economy.
 - Voice interaction or continuous screen awareness.
-- Modules 2–6.
+- Modules 3 and later.
 - Real Teacher inference in Triết's implementation scope.
 - Real Codex App Server integration in Triết's implementation scope.
 - Authentication, cloud persistence, analytics, or multi-device sync.

@@ -35,9 +35,9 @@ describe('FixtureTeacherAdapter', () => {
     const result = await adapter.sendMessage({
       content: '  Tôi cần kiểm tra gì trước khi duyệt?  ',
       context: {
-        lessonId: 'module-1',
-        checkpointId: 'm1-alignment-review',
-        sceneId: 'module-1-alignment-review'
+        lessonId: 'module-2',
+        checkpointId: 'm2-alignment-review',
+        sceneId: 'module-2-alignment-review'
       }
     })
 
@@ -51,7 +51,7 @@ describe('FixtureTeacherAdapter', () => {
       id: 'teacher-id',
       role: 'teacher',
       source: 'fixture',
-      checkpointId: 'm1-alignment-review'
+      checkpointId: 'm2-alignment-review'
     })
     expect(result.teacherMessage.content).toContain('đối chiếu bốn điểm')
     await expect(adapter.loadConversation()).resolves.toEqual({
