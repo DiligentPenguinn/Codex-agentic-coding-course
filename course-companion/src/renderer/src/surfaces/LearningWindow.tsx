@@ -17,7 +17,7 @@ import {
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
 import courseStructure from '../../../../../pilot-workspace/course/course-structure.json'
-import moduleOneQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
+import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
@@ -97,7 +97,13 @@ type AssessmentGroup = {
   questions: AssessmentQuestion[]
 }
 
-const assessmentGroups = moduleOneQuiz.groups as AssessmentGroup[]
+const assessmentGroups = planningQuiz.groups.map((group) => ({
+  ...group,
+  questions: group.questions.map((question) => ({
+    ...question,
+    sceneId: question.sceneId.replace(/^module-2-/, 'module-1-') as SceneId
+  }))
+})) as AssessmentGroup[]
 const assessmentQuestions = assessmentGroups.flatMap((group) => group.questions)
 const assessmentQuestionById = new Map(assessmentQuestions.map((question) => [question.id, question]))
 const assessmentGroupById = new Map(assessmentGroups.map((group) => [group.id, group]))
@@ -187,7 +193,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'PHẠM VI V1', value: 'Chưa rõ' },
       { label: 'DONE WHEN', value: 'Chưa có' }
     ],
-    // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-1.script.vi.md.
+    // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-2.script.vi.md.
     dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.',
     choices: [{ label: 'Xem khi nào cần planning', next: 'module-1-planning-example', primary: true }],
     showPanel: false
@@ -756,15 +762,28 @@ type LearningPosition = {
   totalPages: number
 }
 
-const courseLessonDefinitions = courseStructure.modules.flatMap((module) =>
-  (module.lessons ?? []) as CourseLessonDefinition[]
-)
+const introModule = courseStructure.modules.find((module) => module.id === 'intro')
+const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
+
+// Course Companion still stores its planning journey with the original m1-* IDs.
+// Pilot 0.2 moved that source content to Module 2, so translate only the lesson IDs
+// at this boundary while preserving existing learner progress.
+const courseLessonDefinitions: CourseLessonDefinition[] = [
+  ...(introModule?.lessons ?? []).map((lesson) => ({
+    id: lesson.id as CourseLessonId,
+    titleVi: lesson.titleVi
+  })),
+  ...(planningModule?.lessons ?? []).map((lesson) => ({
+    id: lesson.id.replace(/^m2-/, 'm1-') as CourseLessonId,
+    titleVi: lesson.titleVi.replace('Module 2', 'Module 1')
+  }))
+]
 const courseLessonTitle = new Map(
   courseLessonDefinitions.map((lesson) => [lesson.id, lesson.titleVi])
 )
-const moduleOneLessonIds = courseStructure.modules
-  .find((module) => module.id === 'module-1')
-  ?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []
+const moduleOneLessonIds = planningModule?.lessons?.map(
+  (lesson) => lesson.id.replace(/^m2-/, 'm1-') as CourseLessonId
+) ?? []
 
 const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   'intro-overview': [

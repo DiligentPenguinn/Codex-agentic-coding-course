@@ -8,12 +8,12 @@ import { _electron as electron } from 'playwright-core'
 const mainEntry = join(process.cwd(), 'out/main/index.js')
 const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electron-'))
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
-const moduleOneQuiz = JSON.parse(
-  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-1.quiz.json'), 'utf8')
+const planningQuiz = JSON.parse(
+  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-2.quiz.json'), 'utf8')
 )
 
 function assessmentGroup(groupId) {
-  const group = moduleOneQuiz.groups.find((candidate) => candidate.id === groupId)
+  const group = planningQuiz.groups.find((candidate) => candidate.id === groupId)
   assert.ok(group, `Expected assessment group ${groupId}`)
   return group
 }
