@@ -35,6 +35,7 @@ export const sceneIds = [
   'intro-course-overview-2',
   'intro-learning-method',
   'module-1-why-planning',
+  'module-1-why-planning-check',
   'module-1-planning-cost',
   'module-1-contentpilot-brief',
   'module-1-implementation-too-soon',

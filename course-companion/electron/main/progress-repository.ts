@@ -30,6 +30,7 @@ const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'intro-course-overview-2': 'intro-visual-onboarding',
   'intro-learning-method': 'intro-visual-onboarding',
   'module-1-why-planning': 'm1-why-planning',
+  'module-1-why-planning-check': 'm1-why-planning',
   'module-1-planning-cost': 'm1-why-planning',
   'module-1-contentpilot-brief': 'm1-contentpilot-brief',
   'module-1-implementation-too-soon': 'm1-contentpilot-brief',

@@ -136,10 +136,33 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'PHẠM VI V1', value: 'Chưa rõ' },
       { label: 'DONE WHEN', value: 'Chưa có' }
     ],
-    dialogue: 'Cũng giống như con người, một kế hoạch kỹ càng trước khi xây giúp coding agent tránh những sai lầm ngớ ngẩn. Bạn sẽ làm gì trước?',
+    // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-1.script.vi.md.
+    dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nPlanning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.',
+    choices: [{ label: 'Tiếp tục', next: 'module-1-why-planning-check', primary: true }]
+  },
+  'module-1-why-planning-check': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-why-planning',
+    step: 1,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
+    mission: 'Planning trước khi code',
+    objective: 'Khi nào một yêu cầu nên được planning trước?',
+    panelLabel: 'NGUỒN PHƯƠNG PHÁP',
+    panelStatus: 'OPENAI · ANTHROPIC',
+    tone: 'neutral',
+    // Source translations: https://learn.chatgpt.com/docs/prompting and
+    // https://code.claude.com/docs/en/best-practices.
+    request: 'OpenAI: Với công việc nhiều bước, hãy để Codex điều tra và đề xuất cách tiếp cận trước khi chỉnh sửa. Anthropic: Khám phá trước, sau đó lập kế hoạch, rồi mới viết code.',
+    evidence: [
+      { label: 'VIỆC NHỎ', value: 'Có thể giao trực tiếp' },
+      { label: 'NHIỀU QUYẾT ĐỊNH', value: 'Nên planning' },
+      { label: 'NHIỀU BƯỚC', value: 'Nên planning' }
+    ],
+    dialogue: 'Theo bạn, dấu hiệu nào cho thấy một yêu cầu nên được planning trước?',
     choices: [
-      { label: 'Bắt đầu code để tiết kiệm thời gian', next: 'module-1-planning-cost', danger: true },
-      { label: 'Làm rõ kế hoạch trước khi code', next: 'module-1-contentpilot-brief', primary: true, decision: { key: 'planningApproach', value: 'plan-first' } }
+      { label: 'Một thay đổi nhỏ, rõ ràng và dễ hoàn tác', next: 'module-1-planning-cost', danger: true },
+      { label: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau', next: 'module-1-contentpilot-brief', primary: true, decision: { key: 'planningApproach', value: 'plan-first' } }
     ]
   },
   'module-1-planning-cost': {
@@ -149,18 +172,18 @@ const scenes: Record<SceneId, SceneContent> = {
     totalSteps: 10,
     lessonLabel: 'MODULE 1 · PLANNING VÀ PRD',
     mission: 'Planning trước khi code',
-    objective: 'Thấy chi phí của việc đi sai hướng',
-    panelLabel: 'KẾT QUẢ GIẢ ĐỊNH',
-    panelStatus: 'XÂY NHANH · SAI HƯỚNG',
-    tone: 'bad',
-    request: 'Agent xây nhiều màn hình nhưng workflow, input và output đều khác điều bạn mong muốn.',
+    objective: 'Phân biệt việc nhỏ với việc cần planning',
+    panelLabel: 'YÊU CẦU NHỎ',
+    panelStatus: 'CÓ THỂ GIAO TRỰC TIẾP',
+    tone: 'neutral',
+    request: 'Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp.',
     evidence: [
-      { label: 'CODE', value: 'Đã có nhiều' },
-      { label: 'SẢN PHẨM', value: 'Không vừa ý' },
-      { label: 'VIỆC TIẾP THEO', value: 'Debug và làm lại' }
+      { label: 'PHẠM VI', value: 'Nhỏ' },
+      { label: 'YÊU CẦU', value: 'Rõ ràng' },
+      { label: 'HOÀN TÁC', value: 'Dễ' }
     ],
-    dialogue: 'Planning tưởng chừng tốn thời gian, nhưng sửa một ứng dụng đã đi sai hướng thường tốn công hơn nhiều. Hãy quay lại làm rõ kế hoạch.',
-    choices: [{ label: 'Planning trước khi code', next: 'module-1-contentpilot-brief', primary: true, decision: { key: 'planningApproach', value: 'plan-first' } }]
+    dialogue: 'Planning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.',
+    choices: [{ label: 'Xem lại dấu hiệu cần planning', next: 'module-1-why-planning-check', primary: true }]
   },
   'module-1-contentpilot-brief': {
     lessonId: 'module-1',
@@ -1085,7 +1108,7 @@ export function LearningWindow() {
         <div className="pixel-choices">
           {scene.choices.map((choice) => (
             <button
-              className={`pixel-choice${choice.primary ? ' is-primary' : ''}${choice.danger ? ' is-danger' : ''}`}
+              className={`pixel-choice${scene.choices.length === 1 && choice.primary ? ' is-primary' : ''}${scene.choices.length === 1 && choice.danger ? ' is-danger' : ''}`}
               disabled={busy}
               key={choice.label}
               type="button"
