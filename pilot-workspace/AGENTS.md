@@ -14,6 +14,13 @@
 - Follow the current lesson script before improvising.
 - Save completed checkpoints to `.course/learner-state.json`.
 
+## Learner-editable preferences
+
+<!-- Module 1 may update only the three list items below after Learner approval. -->
+- Preferred explanation language: Vietnamese.
+- Explain unfamiliar technical terms before asking the Learner to use them.
+- Ask one main learner question or action at a time.
+
 ## Roles and approval
 
 - The Learner owns goals, scope, approval, and acceptance.
@@ -28,11 +35,16 @@
 
 ## Practice-project boundaries
 
-- Module 1 plans ContentPilot from scratch and stops before implementation.
-- During Module 1, only create `artifacts/PRD.md` and
+- Module 1 sets up the Codex working environment. It may update only the three
+  items under `Learner-editable preferences` and create
+  `artifacts/codex-setup-checklist.md`, after explicit Learner approval.
+- During Module 1, do not install dependencies or Skills, change global Codex
+  settings, use network services, or inspect and edit ContentPilot code.
+- Module 2 plans ContentPilot from scratch and stops before implementation.
+- During Module 2, only create `artifacts/PRD.md` and
   `artifacts/implementation-plan.md`, after explicit Learner approval.
 - Do not inspect or edit `contentpilot/`, prepare data, choose technologies,
-  install dependencies, or write code in Module 1.
+  install dependencies, or write code in Module 2.
 - Keep authentication, deployment, billing, a cloud database and publishing out
   of scope unless a later lesson explicitly introduces them.
 - Never expose or commit an API key.

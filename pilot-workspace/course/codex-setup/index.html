@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Hướng dẫn trực quan cho Module 1: Thiết lập môi trường làm việc với Codex."
+    />
+    <title>Thiết lập môi trường làm việc với Codex</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#lesson">Bỏ qua điều hướng</a>
+
+    <main class="shell" id="lesson">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Vibecoding 101 · Module 1</p>
+          <h1>Thiết lập môi trường làm việc với Codex</h1>
+        </div>
+        <div class="progress-wrap" aria-label="Tiến độ phần minh họa">
+          <span id="progressText">1 / 5</span>
+          <div class="progress-track" aria-hidden="true">
+            <span id="progressBar"></span>
+          </div>
+        </div>
+      </header>
+
+      <nav class="steps" aria-label="Các phần">
+        <button class="step is-active" type="button" data-step="0">
+          <span>01</span> Codex
+        </button>
+        <button class="step" type="button" data-step="1">
+          <span>02</span> Workspace
+        </button>
+        <button class="step" type="button" data-step="2">
+          <span>03</span> Model
+        </button>
+        <button class="step" type="button" data-step="3">
+          <span>04</span> Chỉ dẫn
+        </button>
+        <button class="step" type="button" data-step="4">
+          <span>05</span> Skills
+        </button>
+      </nav>
+
+      <section class="stage" aria-live="polite">
+        <article class="panel is-active" data-panel="0">
+          <div class="copy">
+            <p class="kicker">Bắt đầu từ vai trò</p>
+            <h2>Codex làm việc cùng dự án, không chỉ trả lời câu hỏi</h2>
+            <p>
+              Codex là <strong>coding agent</strong>: hệ thống AI có thể đọc tệp,
+              đề xuất kế hoạch, sửa tệp và chạy lệnh trong giới hạn bạn cho phép.
+            </p>
+            <div class="definition">
+              <span>Thuật ngữ</span>
+              <p>
+                <strong>Task</strong> là một cuộc làm việc có mục tiêu riêng.
+                <strong>Workspace</strong> là thư mục dự án của task đó.
+              </p>
+            </div>
+          </div>
+          <figure class="media-frame">
+            <img
+              src="../onboarding/images/codex-app-interface.webp"
+              alt="Ảnh giao diện Codex với vùng trao đổi và khu vực theo dõi công việc"
+            />
+            <figcaption>Giao diện Codex trong ứng dụng ChatGPT trên máy tính.</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel" data-panel="1" hidden>
+          <div class="copy">
+            <p class="kicker">Đúng nơi, đúng quyền</p>
+            <h2>Workspace tạo ranh giới đầu tiên</h2>
+            <p>
+              Codex làm việc với thư mục bạn mở. Sandbox giới hạn nơi Codex có
+              thể thao tác; phê duyệt là lúc Codex dừng để bạn quyết định.
+            </p>
+            <div class="workspace-map" aria-label="Cấu trúc workspace khóa học">
+              <div class="root-node">pilot-workspace/</div>
+              <div class="branch-grid">
+                <span>AGENTS.md</span>
+                <span>course/</span>
+                <span>contentpilot/</span>
+                <span>artifacts/</span>
+              </div>
+            </div>
+            <p class="note">
+              Khuyến nghị cho người mới: bắt đầu với <strong>Ask for approval</strong>,
+              nghĩa là Codex hỏi bạn trước khi vượt qua ranh giới hiện tại.
+            </p>
+          </div>
+          <figure class="media-frame terminal-frame">
+            <img
+              src="../onboarding/images/codex-terminal-interface.webp"
+              alt="Ảnh terminal tích hợp trong Codex đang hiển thị lệnh và kết quả"
+            />
+            <figcaption>Terminal cho thấy lệnh Codex chạy và kết quả trả về.</figcaption>
+          </figure>
+        </article>
+
+        <article class="panel" data-panel="2" hidden>
+          <div class="copy full-copy">
+            <p class="kicker">Chọn theo tác vụ</p>
+            <h2>Model là hệ thống AI xử lý yêu cầu</h2>
+            <p>
+              Giữ thiết lập mặc định nếu bạn chưa chắc. Chỉ đổi model hoặc mức
+              suy luận khi công việc thật cho thấy bạn cần nhanh hơn hoặc cần
+              phân tích sâu hơn. Mức suy luận là lượng công sức model dành cho
+              việc phân tích trước khi trả lời.
+            </p>
+          </div>
+          <div class="model-grid">
+            <article>
+              <p class="model-name">Sol</p>
+              <h3>Phức tạp, còn mơ hồ</h3>
+              <p>Làm rõ sản phẩm, nghiên cứu sâu hoặc xem xét nhiều đánh đổi.</p>
+            </article>
+            <article>
+              <p class="model-name">Terra</p>
+              <h3>Công việc hằng ngày</h3>
+              <p>Thực hiện yêu cầu đã rõ và dùng công cụ trong dự án.</p>
+            </article>
+            <article>
+              <p class="model-name">Luna</p>
+              <h3>Cụ thể, lặp lại</h3>
+              <p>Chuyển đổi hoặc sắp xếp đầu vào theo tiêu chí rõ ràng.</p>
+            </article>
+          </div>
+          <p class="source-note">
+            Tên model có thể thay đổi theo tài khoản và thời điểm. Kiểm tra lựa
+            chọn đang hiện dưới vùng nhập yêu cầu của bạn.
+          </p>
+        </article>
+
+        <article class="panel" data-panel="3" hidden>
+          <div class="copy full-copy">
+            <p class="kicker">Bối cảnh dùng lại</p>
+            <h2>Prompt và <code>AGENTS.md</code> có hai nhiệm vụ khác nhau</h2>
+          </div>
+          <div class="instruction-flow">
+            <article>
+              <span class="flow-label">Task hiện tại</span>
+              <h3>Prompt</h3>
+              <p>“Hãy giúp tôi kiểm tra cấu trúc workspace này.”</p>
+            </article>
+            <div class="flow-plus" aria-hidden="true">+</div>
+            <article>
+              <span class="flow-label">Nhiều task</span>
+              <h3><code>AGENTS.md</code></h3>
+              <p>“Giải thích thuật ngữ trước khi yêu cầu Learner sử dụng.”</p>
+            </article>
+            <div class="flow-equals" aria-hidden="true">→</div>
+            <article class="flow-result">
+              <span class="flow-label">Cách làm việc</span>
+              <h3>Đúng mục tiêu, đúng quy tắc</h3>
+              <p>Codex dùng cả yêu cầu hiện tại và chỉ dẫn lâu dài.</p>
+            </article>
+          </div>
+          <p class="note centered">
+            Trong module này, bạn chỉ sửa khối <strong>Learner-editable preferences</strong>.
+          </p>
+        </article>
+
+        <article class="panel" data-panel="4" hidden>
+          <div class="copy">
+            <p class="kicker">Quy trình có thể gọi lại</p>
+            <h2>Skill hướng dẫn Codex làm một loại công việc</h2>
+            <p>
+              Mỗi Skill có một tệp <code>SKILL.md</code>. Bạn có thể gọi trực
+              tiếp bằng dấu <code>$</code> để biết rõ quy trình nào đang được dùng.
+            </p>
+            <div class="skill-call">
+              <code>$start-course-lesson resume</code>
+              <span>tìm đúng bài và tiến độ cần tiếp tục</span>
+            </div>
+            <p class="note">
+              Không cần cài thêm Skill trong MVP. Các module sau chỉ bổ sung
+              Skill khi tác vụ thật sự cần.
+            </p>
+          </div>
+          <div class="finish-card">
+            <span class="finish-mark" aria-hidden="true">✓</span>
+            <p class="kicker">Quay lại Codex</p>
+            <h3>Bắt đầu kiểm tra workspace thật</h3>
+            <p>Gửi câu sau trong task đang học:</p>
+            <button class="copy-line" id="copyLine" type="button">
+              <span>Tôi đã xem xong hướng dẫn thiết lập Codex.</span>
+              <small id="copyStatus">Sao chép</small>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <footer class="actions">
+        <button class="secondary" id="backButton" type="button" disabled>
+          Quay lại
+        </button>
+        <p id="stepHint">Hiểu vai trò của Codex trước khi thiết lập.</p>
+        <button class="primary" id="nextButton" type="button">
+          Tiếp tục
+        </button>
+      </footer>
+
+      <details class="sources">
+        <summary>Nguồn chính thức</summary>
+        <ul>
+          <li><a href="https://learn.chatgpt.com/docs/quickstart">OpenAI Docs — Quickstart</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/models">OpenAI Docs — Models</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/permission-modes">OpenAI Docs — Permissions</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">OpenAI Docs — AGENTS.md</a></li>
+          <li><a href="https://learn.chatgpt.com/docs/build-skills">OpenAI Docs — Build skills</a></li>
+        </ul>
+        <p>
+          Hai ảnh giao diện lấy từ trang giới thiệu Codex chính thức của OpenAI;
+          chi tiết được ghi tại <code>course/onboarding/images/SOURCES.md</code>.
+        </p>
+      </details>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

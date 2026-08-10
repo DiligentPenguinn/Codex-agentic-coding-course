@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "pilotVersion": "0.1.0",
+  "pilotVersion": "0.2.0",
   "title": "Vibecoding 101 — Học agentic coding cùng Codex",
   "languagePriority": ["vi", "en"],
   "defaultLessonId": "intro",
@@ -51,81 +51,150 @@
     {
       "id": "module-1",
       "kind": "module",
-      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
-      "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
-      "estimatedMinutes": 110,
+      "titleVi": "Thiết lập môi trường làm việc với Codex",
+      "titleEn": "Set up your working environment with Codex",
+      "estimatedMinutes": 50,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
       "quizPath": "course/quizzes/module-1.quiz.json",
       "promptPath": "course/prompts/start-module-1.vi.md",
-      "artifactPaths": [
-        "artifacts/PRD.md",
-        "artifacts/implementation-plan.md"
-      ],
-      "artifactGateCheckpoint": "m1-planning-package",
+      "artifactPath": "artifacts/codex-setup-checklist.md",
+      "artifactGateCheckpoint": "m1-setup-checklist",
       "checkpoints": [
-        "m1-why-planning",
-        "m1-contentpilot-brief",
-        "m1-prd-concept",
-        "m1-prd-interview",
-        "m1-prd-approved",
-        "m1-implementation-plan",
-        "m1-alignment-review",
-        "m1-planning-package",
+        "m1-codex-orientation",
+        "m1-model-choice",
+        "m1-permissions",
+        "m1-agents-guidance",
+        "m1-skills",
+        "m1-setup-checklist",
         "m1-mastery",
         "m1-complete"
       ],
       "lessons": [
         {
-          "id": "m1-when-to-plan",
-          "titleVi": "Khi nào cần planning",
-          "estimatedMinutes": 15,
-          "checkpoints": [
-            "m1-why-planning",
-            "m1-contentpilot-brief"
-          ]
-        },
-        {
-          "id": "m1-product-requirements",
-          "titleVi": "Từ ý tưởng đến PRD",
-          "estimatedMinutes": 25,
-          "checkpoints": [
-            "m1-prd-concept"
-          ]
-        },
-        {
-          "id": "m1-prd-prompt",
-          "titleVi": "Viết prompt để tạo PRD",
-          "estimatedMinutes": 20,
-          "checkpoints": [
-            "m1-prd-interview"
-          ]
-        },
-        {
-          "id": "m1-prd-review",
-          "titleVi": "Xem xét và duyệt PRD",
+          "id": "m1-understand-codex",
+          "titleVi": "Hiểu Codex và chọn model",
           "estimatedMinutes": 10,
           "checkpoints": [
-            "m1-prd-approved"
+            "m1-codex-orientation",
+            "m1-model-choice"
           ]
         },
         {
-          "id": "m1-implementation-plan",
-          "titleVi": "Từ PRD đến implementation plan",
-          "estimatedMinutes": 20,
+          "id": "m1-workspace-permissions",
+          "titleVi": "Workspace và quyền hành động",
+          "estimatedMinutes": 10,
           "checkpoints": [
-            "m1-implementation-plan",
-            "m1-alignment-review",
-            "m1-planning-package"
+            "m1-permissions"
+          ]
+        },
+        {
+          "id": "m1-agents-guidance",
+          "titleVi": "Thiết lập hướng dẫn bền vững với AGENTS.md",
+          "estimatedMinutes": 15,
+          "checkpoints": [
+            "m1-agents-guidance"
+          ]
+        },
+        {
+          "id": "m1-skills-and-checklist",
+          "titleVi": "Dùng Skills và hoàn tất checklist",
+          "estimatedMinutes": 10,
+          "checkpoints": [
+            "m1-skills",
+            "m1-setup-checklist"
           ]
         },
         {
           "id": "m1-assessment",
           "titleVi": "Kiểm tra và hoàn thành Module 1",
-          "estimatedMinutes": 20,
+          "estimatedMinutes": 5,
           "checkpoints": [
             "m1-mastery",
             "m1-complete"
+          ]
+        }
+      ],
+      "nextLessonId": "module-2"
+    },
+    {
+      "id": "module-2",
+      "kind": "module",
+      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
+      "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
+      "estimatedMinutes": 110,
+      "lessonPath": "course/lessons/module-2.vi.md",
+      "scriptPath": "course/lesson-scripts/module-2.script.vi.md",
+      "quizPath": "course/quizzes/module-2.quiz.json",
+      "promptPath": "course/prompts/start-module-2.vi.md",
+      "artifactPaths": [
+        "artifacts/PRD.md",
+        "artifacts/implementation-plan.md"
+      ],
+      "artifactGateCheckpoint": "m2-planning-package",
+      "checkpoints": [
+        "m2-why-planning",
+        "m2-contentpilot-brief",
+        "m2-prd-concept",
+        "m2-prd-interview",
+        "m2-prd-approved",
+        "m2-implementation-plan",
+        "m2-alignment-review",
+        "m2-planning-package",
+        "m2-mastery",
+        "m2-complete"
+      ],
+      "lessons": [
+        {
+          "id": "m2-when-to-plan",
+          "titleVi": "Khi nào cần planning",
+          "estimatedMinutes": 15,
+          "checkpoints": [
+            "m2-why-planning",
+            "m2-contentpilot-brief"
+          ]
+        },
+        {
+          "id": "m2-product-requirements",
+          "titleVi": "Từ ý tưởng đến PRD",
+          "estimatedMinutes": 25,
+          "checkpoints": [
+            "m2-prd-concept"
+          ]
+        },
+        {
+          "id": "m2-prd-prompt",
+          "titleVi": "Viết prompt để tạo PRD",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m2-prd-interview"
+          ]
+        },
+        {
+          "id": "m2-prd-review",
+          "titleVi": "Xem xét và duyệt PRD",
+          "estimatedMinutes": 10,
+          "checkpoints": [
+            "m2-prd-approved"
+          ]
+        },
+        {
+          "id": "m2-implementation-plan",
+          "titleVi": "Từ PRD đến implementation plan",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m2-implementation-plan",
+            "m2-alignment-review",
+            "m2-planning-package"
+          ]
+        },
+        {
+          "id": "m2-assessment",
+          "titleVi": "Kiểm tra và hoàn thành Module 2",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m2-mastery",
+            "m2-complete"
           ]
         }
       ],

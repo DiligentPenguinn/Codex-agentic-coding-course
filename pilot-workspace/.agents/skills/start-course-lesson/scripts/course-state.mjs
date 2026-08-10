@@ -77,8 +77,9 @@ function defaultState(courseMap, lessonId) {
     timeBudgetMinutes: null,
     artifacts: {
       questCardPath: "artifacts/quest-card.md",
-      module1PrdPath: "artifacts/PRD.md",
-      module1ImplementationPlanPath: "artifacts/implementation-plan.md"
+      setupChecklistPath: "artifacts/codex-setup-checklist.md",
+      prdPath: "artifacts/PRD.md",
+      implementationPlanPath: "artifacts/implementation-plan.md"
     },
     updatedAt: null
   };

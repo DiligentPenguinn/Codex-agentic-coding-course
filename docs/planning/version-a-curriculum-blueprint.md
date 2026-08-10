@@ -842,3 +842,14 @@ behavior during Modules 2–6.
 Before implementation, choose where the learner starter lives, how learners
 receive it, when it becomes a standalone repository, and which package and API
 model versions are pinned for the first validated release.
+
+## Future Skill backlog
+
+- Sau khi Pilot MVP đã được kiểm thử với người học, đánh giá việc bổ sung một
+  Skill `verify-before-accepting`. Skill này sẽ buộc Codex nêu bằng chứng kiểm
+  tra trước khi Learner chấp nhận kết quả. Chưa đưa Skill này vào Module 1 vì
+  verification đã được dạy tại các checkpoint của từng bài, còn việc cài thêm
+  Skill sẽ làm tăng tải thiết lập ban đầu.
+- Khi đánh giá, so sánh nhu cầu của khóa học với các Skill cộng đồng có cùng
+  mục đích (đặc biệt là `verification-before-completion`) trước khi quyết định
+  dùng nguyên bản, điều chỉnh hay tự viết.

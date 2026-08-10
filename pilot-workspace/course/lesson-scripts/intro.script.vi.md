@@ -127,9 +127,10 @@ câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 ## Bước 9 — Chuyển sang Module 1 (`intro-complete`)
 
 Teacher nói: "Bạn đã có đích đến, dự án thực hành và quyền quyết định rõ ràng.
-Module 1 sẽ bắt đầu từ cách giao tiếp với coding agent: hiểu vì sao planning
-quan trọng, biến ý tưởng ContentPilot thành PRD một trang và chuyển PRD đã duyệt
-thành implementation plan. Bạn chưa cần biết code hoặc chuẩn bị dữ liệu."
+Module 1 sẽ giúp bạn thiết lập môi trường làm việc với Codex: hiểu Codex là gì,
+chọn model, kiểm soát quyền hành động, thiết lập `AGENTS.md` và dùng Skill có
+sẵn. Module 2 mới đi vào planning, PRD và implementation plan cho ContentPilot.
+Bạn chưa cần biết code hoặc chuẩn bị dữ liệu."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

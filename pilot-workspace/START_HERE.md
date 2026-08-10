@@ -33,19 +33,25 @@ cần cài thêm skill toàn cục hoặc sao chép một prompt dài.
 ## Trước khi vào Module 1
 
 Bạn không cần chuẩn bị dữ liệu, biết lập trình, chọn công nghệ, cài gói phụ
-thuộc hoặc có OpenAI API key. Module 1 bắt đầu từ cách giao tiếp với coding
-agent: hiểu vì sao cần planning, làm rõ ý tưởng ContentPilot, viết PRD và tạo
-implementation plan trước khi code.
+thuộc hoặc có OpenAI API key. Module 1 giúp bạn hiểu Codex, chọn model, nhận
+biết quyền hành động, thiết lập hướng dẫn trong `AGENTS.md` và dùng Skill có
+sẵn. Module này không yêu cầu cài thêm Skill hay thay đổi thiết lập toàn cục.
+
+Sau đó, Module 2 mới bắt đầu phần planning: làm rõ ý tưởng ContentPilot, viết
+PRD và tạo implementation plan trước khi code.
 
 ## Bạn sẽ luyện những gì?
 
 - Bắt đầu và tiếp tục bài học đúng chỗ.
+- Chọn model phù hợp với công việc thay vì chọn theo tên gọi mạnh nhất.
+- Phân biệt prompt, `AGENTS.md` và Skill.
+- Hiểu khi nào Codex cần xin phép trước khi hành động.
 - Nhận biết khi nào nên planning trước khi code.
 - Dùng coding agent để làm rõ một ý tưởng sản phẩm còn mơ hồ.
 - Viết và duyệt một PRD một trang có phạm vi cùng tiêu chí rõ ràng.
 - Chuyển PRD thành implementation plan theo từng bước có cách kiểm tra.
 - Phát hiện khi plan xây thiếu hoặc tự mở rộng ngoài PRD.
 
-Workspace này hiện có phần giới thiệu và bài học đầu tiên. Các phần tiếp theo
-sẽ tiếp tục dùng ContentPilot để luyện những kỹ năng agentic coding nâng cao
-hơn.
+Workspace này hiện có phần giới thiệu, Module 1 về thiết lập Codex và Module 2
+về planning. Các phần tiếp theo sẽ tiếp tục dùng ContentPilot để luyện những
+kỹ năng agentic coding nâng cao hơn.

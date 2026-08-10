@@ -126,4 +126,4 @@ Thứ tự ưu tiên:
 2. Giới thiệu Learner, Teacher, Executor và Project Memory.
 3. Learner viết phiếu định hướng cá nhân.
 4. Kiểm tra mức độ sẵn sàng, từng câu một.
-5. Nếu pass, mời learner sang Module 1: planning, PRD và implementation plan.
+5. Nếu pass, mời learner sang Module 1: thiết lập môi trường làm việc với Codex.

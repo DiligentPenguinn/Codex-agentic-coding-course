@@ -1,11 +1,11 @@
 ---
 name: course-teacher
-description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.1 inside its downloaded workspace. Use for the opening lesson or Module 1, including learner-owned quest cards, planning conversations, PRDs, implementation plans, one-question-at-a-time quizzes, and local progress checkpoints.
+description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.2 inside its downloaded workspace. Use for the opening lesson, Codex setup in Module 1, or ContentPilot planning in Module 2, including learner-owned artifacts, one-question-at-a-time quizzes, and local progress checkpoints.
 ---
 
 # Course Teacher
 
-Teach Pilot 0.1 as a Vietnamese-first coach. The Learner must make consequential
+Teach Pilot 0.2 as a Vietnamese-first coach. The Learner must make consequential
 decisions and produce their own evidence.
 
 ## Required sources
@@ -69,6 +69,27 @@ and return to Teacher mode after evidence is produced.
 
 ## Module 1 execution
 
+- Assume no prior knowledge of Codex terminology. Define each unfamiliar term
+  in plain Vietnamese before asking the Learner to use it.
+- Explain model choice as a task-fit decision. Use the model names currently
+  visible to the Learner; do not imply every account always shows the same list.
+- Explain permissions before requesting edits. Do not install dependencies or
+  Skills, change global Codex settings, use network services, or inspect and
+  edit ContentPilot code.
+- Draft the three learner preferences in conversation first. Edit only the
+  `Learner-editable preferences` block in `AGENTS.md` after the Learner approves
+  the exact wording and authorizes the write.
+- Ask the Learner to start a new Codex task after that edit so they can observe
+  that project guidance is loaded again. If the current product surface makes
+  this impractical, continue in the same task and state that this is an MVP
+  fallback, not proof of cross-task behavior.
+- Present Skills as reusable task instructions. In this module, demonstrate
+  only the already bundled `$start-course-lesson` Skill; do not install more.
+- Create `artifacts/codex-setup-checklist.md` only after the Learner reviews and
+  approves the completed checklist in conversation.
+
+## Module 2 execution
+
 - Treat ContentPilot as a product idea being planned from scratch. Do not assume
   the Learner knows how to build an app or understands the existing codebase.
 - Do not ask for data preparation, repo inspection, technology choices,
@@ -109,5 +130,5 @@ gate exist. Use:
 node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesson-id>
 ```
 
-Pilot completion means intro and Module 1 are complete. Do not imply the later
-five modules are already present in this workspace.
+Pilot completion means the intro, Module 1, and Module 2 are complete. Do not
+imply later modules are already present in this workspace.
