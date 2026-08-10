@@ -8,7 +8,7 @@ import type {
   TeacherSendRequest,
   TeacherSendResult
 } from '../../../../shared/contracts'
-import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import teacherImage from '../assets/teacher-triet.png'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -32,7 +32,7 @@ function previewReply(request: TeacherSendRequest): TeacherSendResult {
       id: `preview-teacher-${suffix}`,
       role: 'teacher',
       source: 'fixture',
-      content: 'Đây là bản xem trước. Trong ứng dụng Electron, câu hỏi và phản hồi mô phỏng sẽ được lưu cục bộ.',
+      content: 'Đây là phản hồi luyện tập. Khi bạn dùng Course Companion, câu hỏi và phản hồi sẽ được lưu trên máy để bạn có thể quay lại.',
       timestamp,
       checkpointId: request.context?.checkpointId
     }
@@ -47,13 +47,13 @@ function formatTime(timestamp: string): string {
 }
 
 const emptyPractice: PracticeState = {
-  missionId: 'm1-verifiable-brief',
+  missionId: 'm2-planning-package',
   status: 'idle'
 }
 
 const practiceLabels: Record<PracticeState['status'], { eyebrow: string; title: string }> = {
   idle: { eyebrow: 'CHƯA BẮT ĐẦU', title: 'Chờ một lượt thực hành' },
-  active: { eyebrow: 'ĐANG THỰC HIỆN', title: 'Codex mô phỏng đang làm việc' },
+  active: { eyebrow: 'ĐANG THỰC HIỆN', title: 'Bài luyện tập đang diễn ra' },
   approval_required: { eyebrow: 'CẦN PHÊ DUYỆT', title: 'Kế hoạch đang chờ bạn' },
   completed: { eyebrow: 'ĐÃ HOÀN THÀNH', title: 'Có bằng chứng mới để duyệt' },
   stale: { eyebrow: 'BẰNG CHỨNG CŨ', title: 'Chưa đủ để kết luận' },
@@ -138,7 +138,7 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
       setPractice(next)
       requestAnimationFrame(() => practiceRef.current?.scrollTo({ top: 0 }))
     } catch {
-      setError('Không thể lưu tình huống mô phỏng. Hãy mở bài học trước khi thử lại.')
+      setError('Không thể lưu tình huống luyện tập. Hãy mở bài học trước khi thử lại.')
     } finally {
       setPracticeBusy(false)
     }
@@ -178,19 +178,21 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
   }
 
   return (
-    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Hương, giáo viên đồng hành">
+    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Triết, giáo viên đồng hành">
       <header>
         <div className="pixel-teacher-identity">
-          <img src={teacherImage} alt="" />
+          <span className="pixel-teacher-portrait-frame" aria-hidden="true">
+            <img src={teacherImage} alt="" />
+          </span>
           <div>
-            <small>TEACHER · MÔ PHỎNG</small>
-            <strong>Hương</strong>
+            <small>TEACHER · CHẾ ĐỘ LUYỆN TẬP</small>
+            <strong>Triết</strong>
           </div>
         </div>
         <button
           className="pixel-panel-minimize"
           type="button"
-          aria-label={embedded ? 'Đóng Hương' : 'Thu nhỏ Hương'}
+          aria-label={embedded ? 'Đóng Triết' : 'Thu nhỏ Triết'}
           onClick={onClose}
         >
           {embedded ? '×' : '—'}
@@ -198,18 +200,18 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
       </header>
 
       <div className="pixel-fixture-notice">
-        <strong>CHƯA KẾT NỐI TEACHER LIVE</strong>
-        <span>Phản hồi hiện tại dùng kịch bản cục bộ.</span>
+        <strong>PHẢN HỒI LUYỆN TẬP</strong>
+        <span>Triết đang dùng kịch bản lưu trên máy và chưa kết nối trực tiếp với Codex.</span>
       </div>
 
       <div className="pixel-chat-context">
-        <span>CHECKPOINT HIỆN TẠI</span>
+        <span>BƯỚC HỌC HIỆN TẠI</span>
         <strong>{context?.checkpointId ?? 'Chưa bắt đầu bài học'}</strong>
       </div>
 
-      <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Hương">
+      <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
         <button aria-selected={activeTab === 'chat'} className={activeTab === 'chat' ? 'is-active' : ''} onClick={() => setActiveTab('chat')} role="tab" type="button">
-          HỎI HƯƠNG
+          HỎI TRIẾT
         </button>
         <button aria-selected={activeTab === 'practice'} className={activeTab === 'practice' ? 'is-active' : ''} onClick={() => setActiveTab('practice')} role="tab" type="button">
           THỰC HÀNH
@@ -218,18 +220,18 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       {activeTab === 'chat' ? (
         <>
-          <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Hương">
+          <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Triết">
             {messages.length === 0 ? (
               <div className="pixel-chat-empty">
                 <strong>Chưa có tin nhắn</strong>
-                <span>Hỏi Hương điều bạn cần kiểm tra ở checkpoint này.</span>
+                <span>Hỏi Triết điều bạn cần làm rõ ở bước học này.</span>
               </div>
             ) : (
               messages.map((message) => (
                 <article className={`pixel-chat-message is-${message.role}`} key={message.id}>
                   <header>
-                    <strong>{message.role === 'teacher' ? 'Hương' : 'Bạn'}</strong>
-                    {message.source === 'fixture' ? <span>MÔ PHỎNG</span> : null}
+                    <strong>{message.role === 'teacher' ? 'Triết' : 'Bạn'}</strong>
+                    {message.source === 'fixture' ? <span>LUYỆN TẬP</span> : null}
                     <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
                   </header>
                   <p>{message.content}</p>
@@ -244,9 +246,9 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
           <form className="pixel-chat-composer" onSubmit={submit}>
             <textarea
               ref={composerRef}
-              aria-label="Nhắn cho Hương"
+              aria-label="Nhắn cho Triết"
               maxLength={2000}
-              placeholder="Hỏi Hương về bước hiện tại…"
+              placeholder="Hỏi Triết về bước hiện tại…"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleComposerKeyDown}
@@ -262,24 +264,24 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
       ) : (
         <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
           <div className={`pixel-practice-status is-${practice.status}`}>
-            <span>{practiceLabels[practice.status].eyebrow} · MÔ PHỎNG</span>
+            <span>{practiceLabels[practice.status].eyebrow} · LUYỆN TẬP</span>
             <strong>{practiceLabels[practice.status].title}</strong>
-            <p>{practice.latestEvent?.summary ?? 'Mở điều khiển dành cho nhà phát triển để phát một sự kiện cục bộ.'}</p>
-            {practice.latestEvent ? <small>FIXTURE · {formatTime(practice.latestEvent.timestamp)} · {practice.latestEvent.correlationId}</small> : null}
+            <p>{practice.latestEvent?.summary ?? 'Chọn một tình huống bên dưới để luyện cách đọc trạng thái và bằng chứng.'}</p>
+            {practice.latestEvent ? <small>ĐÃ LƯU TRÊN MÁY · {formatTime(practice.latestEvent.timestamp)}</small> : null}
           </div>
 
           {practice.latestEvent?.evidence ? (
             <div className="pixel-practice-evidence">
-              <div><span>VIEWPORT</span><strong>{practice.latestEvent.evidence.viewport}</strong></div>
-              <div><span>PHẠM VI</span><strong>{practice.latestEvent.evidence.changedScope}</strong></div>
-              <div><span>TRÀN NGANG</span><strong>{practice.latestEvent.evidence.horizontalOverflow}</strong></div>
-              <small>{practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · MÔ PHỎNG</small>
+              <div><span>PRD</span><strong>{practice.latestEvent.evidence.prdArtifact}</strong></div>
+              <div><span>IMPLEMENTATION PLAN</span><strong>{practice.latestEvent.evidence.implementationPlanArtifact}</strong></div>
+              <div><span>ALIGNMENT</span><strong>{practice.latestEvent.evidence.alignment}</strong></div>
+              <small>{practice.latestEvent.evidence.freshness === 'current' ? 'BẰNG CHỨNG MỚI' : 'BẰNG CHỨNG ĐÃ CŨ'} · BÀI LUYỆN TẬP</small>
             </div>
           ) : null}
 
           <details className="pixel-practice-dev">
-            <summary>DEV · TÌNH HUỐNG MÔ PHỎNG</summary>
-            <p>Các nút này tạo sự kiện cục bộ; không quan sát Codex thật.</p>
+            <summary>CÁC TÌNH HUỐNG LUYỆN TẬP</summary>
+            <p>Các nút tạo dữ liệu luyện tập trên máy; Course Companion chưa quan sát Codex trực tiếp.</p>
             <div>
               {scenarioControls.map((control) => (
                 <button disabled={practiceBusy} key={control.scenario} onClick={() => void emitPracticeFixture(control.scenario)} type="button">
@@ -295,7 +297,7 @@ export function TeacherWorkspace({ embedded = false, onClose, onOpenLesson }: Te
 
       <footer>
         <button className="pixel-panel-quit" type="button" onClick={embedded ? onClose : () => void window.courseCompanion?.quitApp()}>
-          {embedded ? 'Đóng Hương' : 'Thoát ứng dụng'}
+          {embedded ? 'Đóng Triết' : 'Thoát ứng dụng'}
         </button>
         <button className="pixel-panel-primary" type="button" onClick={onOpenLesson}>
           Mở bài học

@@ -1,11 +1,11 @@
 ---
 name: course-teacher
-description: Teach, continue, assess, or review the current Codex Content Builder Academy Pilot 0.1 from the repository root. Use for the Pilot intro or Module 1, learner-owned artifacts, safe repository work, approval gates, evidence review, one-question-at-a-time quizzes, and local progress checkpoints. Delegates exclusively to pilot-workspace and does not teach historical prototype curricula.
+description: Teach, continue, assess, or review the current Codex Content Builder Academy Pilot 0.2 from the repository root. Use for the Pilot intro, Codex setup in Module 1, or ContentPilot planning in Module 2, including learner-owned artifacts, approval gates, evidence review, one-question-at-a-time quizzes, and local progress checkpoints. Delegates exclusively to pilot-workspace and does not teach historical prototype curricula.
 ---
 
 # Course Teacher
 
-Use the Teacher behavior bundled with the current Pilot 0.1 workspace.
+Use the Teacher behavior bundled with the current Pilot 0.2 workspace.
 
 ## Resolve the teaching authority
 
@@ -22,6 +22,6 @@ Use the Teacher behavior bundled with the current Pilot 0.1 workspace.
 
 - Do not teach lessons from `prototypes/mvp-1-course-repo/`.
 - Do not use the MVP 0.5 pedagogy kernel as the current Pilot rubric.
-- Do not offer Module 0 or imply that Modules 2–6 are implemented.
+- Do not offer Module 0 or imply that modules after Module 2 are implemented.
 - If the Pilot workspace is missing, report the problem instead of silently
   switching curricula.

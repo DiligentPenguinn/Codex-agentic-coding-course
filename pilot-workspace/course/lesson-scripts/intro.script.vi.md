@@ -1,13 +1,14 @@
-# Kịch bản — Bắt đầu với ContentPilot
+# Kịch bản — Giới thiệu khóa học
 
 ## Bước 1 — Xem phần giới thiệu trực quan (`intro-visual-onboarding`)
 
-Teacher nói: "Chào bạn. Trước khi mình hỏi bất kỳ điều gì về thương hiệu hoặc
-quy trình nội dung, mình sẽ giúp bạn hiểu khóa học này xây gì và bạn sẽ làm việc
-ở đâu. Phần giới thiệu trực quan mất khoảng 3 phút và chỉ dùng để hướng dẫn."
+Teacher nói: "Chào bạn. Khóa học này giúp bạn học cách làm việc cùng coding
+agent để biến một mục tiêu thành thay đổi có thể kiểm chứng. ContentPilot là dự
+án thực hành xuyên suốt. Phần giới thiệu trực quan mất khoảng 3 phút và giúp bạn
+biết mình sẽ học gì, thực hành ở đâu và giữ quyền quyết định như thế nào."
 
 [Dùng `WORKSPACE_ROOT` để tạo link Markdown cục bộ tuyệt đối tới
-`course/onboarding/index.html` với nhãn **Mở phần giới thiệu ContentPilot**.
+`course/onboarding/index.html` với nhãn **Mở phần giới thiệu khóa học**.
 Không chạy server, không yêu cầu cài dependency và không mở ứng dụng bên ngoài
 thay Learner.]
 
@@ -26,12 +27,12 @@ HTML đã tác động đến workspace.]
 
 Teacher nói: "Bạn đã quay lại Codex. Từ đây, Codex có thể làm việc với
 workspace thật. Bước đầu tiên chỉ cho phép đọc file để hiểu đúng dự án và tránh
-sửa nhầm. Codex sẽ báo ba loại bằng chứng: tên dự án, phạm vi Pilot và các file
-đã đọc."
+sửa nhầm. Codex sẽ báo ba loại bằng chứng: đúng dự án thực hành, đúng phần học
+hiện có và đúng các file đã đọc."
 
 Teacher nói: "Trước khi Codex đọc, bạn dự đoán báo cáo sẽ xác nhận điều gì:
-đúng dự án ContentPilot, đúng phạm vi phần mở đầu và Module 1, hay đúng các file
-nguồn? Ba ý này bổ sung cho nhau; mình khuyến nghị kiểm tra cả ba."
+đúng dự án thực hành, đúng phạm vi phần mở đầu và bài học đầu tiên, hay đúng các
+file nguồn? Ba ý này bổ sung cho nhau; mình khuyến nghị kiểm tra cả ba."
 
 [Mở Assessment State dạng prediction. Dừng chờ Learner. Cần thấy Learner hiểu
 đây là bước chỉ đọc và chọn ít nhất một bằng chứng muốn kiểm tra. Không biến câu
@@ -40,13 +41,13 @@ hỏi thành bài đánh đố. Dùng hint ladder nếu cần.]
 [Khi prediction đạt, nói ngắn rằng Executor sẽ chỉ đọc. Trong cùng thread, đọc
 `START_HERE.md`, `course/course-structure.json` và liệt kê các thư mục cấp cao
 của workspace. Không sửa file, không cài dependency, không dùng network. Báo
-ba bằng chứng: tên workspace, phạm vi Pilot hiện có, và các đường dẫn đã đọc.]
+ba bằng chứng: tên workspace, phần học hiện có và các đường dẫn đã đọc.]
 
 Teacher nói: "Executor vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
 chi tiết cụ thể trong báo cáo cho thấy nó đã đọc đúng dự án."
 
 [Dừng chờ Learner. Chấp nhận một bằng chứng cụ thể từ output như tên
-ContentPilot, intro + Module 1 hoặc đường dẫn file. Khi đạt, checkpoint
+ContentPilot, phần giới thiệu + bài học đầu tiên hoặc đường dẫn file. Khi đạt, checkpoint
 `intro-first-safe-win`.]
 
 ## Bước 3 — Chọn thời lượng học hôm nay (`intro-time-budget`)
@@ -65,13 +66,14 @@ này ghi đối tượng, nền tảng, vấn đề cần giải quyết, tiêu 
 quyết định bạn muốn tự giữ. Nhờ vậy, các bài sau phục vụ công việc của bạn thay
 vì một ví dụ chung chung."
 
-## Bước 4 — Hiểu sản phẩm cuối khóa (`intro-graduation`)
+## Bước 4 — Hiểu vai trò của dự án thực hành (`intro-graduation`)
 
-Teacher nói: "ContentPilot cuối khóa sẽ nhận dữ liệu thương hiệu, tạo 10 ý tưởng,
-để bạn chọn 5, rồi giúp tạo, duyệt, lưu và xuất 5 bộ nội dung. Mỗi bộ gồm bài
-viết và các phần hỗ trợ như câu mở đầu, lời kêu gọi hành động và gợi ý hình ảnh.
-Để hoàn thành toàn bộ khóa học, bạn cần chạy API thật ít nhất một lần; dữ liệu
-mô phỏng chỉ dùng để học và sửa lỗi."
+Teacher nói: "ContentPilot là dự án để bạn luyện các vòng agentic coding trên
+một codebase thật. Đến cuối khóa, ứng dụng sẽ nhận dữ liệu thương hiệu, tạo 10
+ý tưởng, để bạn chọn 5, rồi giúp tạo, duyệt, lưu và xuất 5 bộ nội dung. Mỗi mốc
+xây dựng sẽ rèn một kỹ năng có thể dùng lại cho sản phẩm khác. Để chứng minh
+tích hợp AI hoạt động, bạn cần chạy API thật ít nhất một lần; dữ liệu mô phỏng
+chỉ dùng để học và sửa lỗi."
 
 Teacher nói: "Bạn luôn giữ quyền quyết định cuối cùng. Bạn muốn trực tiếp kiểm
 soát phần nào: chọn ý tưởng, kiểm tra thông tin, giọng viết, hình ảnh hay xuất
@@ -94,7 +96,7 @@ deadline hoặc khâu duyệt. Khi đạt, checkpoint `intro-problem`.]
 
 ## Bước 6 — Chọn nền tảng nội dung chính (`intro-platform`)
 
-Teacher nói: "Nếu Pilot chỉ được tối ưu đầu ra cho một nền tảng trước, bạn chọn
+Teacher nói: "Nếu dự án thực hành chỉ được tối ưu đầu ra cho một nền tảng trước, bạn chọn
 nền tảng nào và vì sao? Ví dụ: LinkedIn để tiếp cận khách hàng chuyên nghiệp,
 Facebook để nuôi cộng đồng hoặc Instagram để ưu tiên nội dung hình ảnh. Hãy
 chọn nền tảng quan trọng nhất với công việc hiện tại của bạn."
@@ -124,10 +126,12 @@ câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 
 ## Bước 9 — Chuyển sang Module 1 (`intro-complete`)
 
-Teacher nói: "Bạn đã có đích đến và quyền quyết định rõ ràng. Module 1 sẽ dùng
-chính workspace này để luyện một quy trình đầy đủ: đọc dự án, viết bản mô tả
-công việc, duyệt kế hoạch, sửa giao diện, xem phần thay đổi và kiểm chứng kết
-quả."
+Teacher nói: "Bạn đã có đích đến, dự án thực hành và quyền quyết định rõ ràng.
+Module 1 sẽ giúp bạn thiết lập môi trường làm việc với Codex: hiểu Codex là gì,
+hiểu Harness Engineering, chọn approval an toàn, tìm hiểu model và reasoning
+effort rồi nộp cấu hình thật để Triết duyệt. Module 2 mới đi vào planning, PRD
+và implementation plan cho ContentPilot. Bạn chưa cần biết code hoặc chuẩn bị
+dữ liệu."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

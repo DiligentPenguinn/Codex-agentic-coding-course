@@ -1,6 +1,6 @@
 ---
 name: start-course-lesson
-description: Start or resume Codex Content Builder Academy Pilot 0.1 from this downloaded workspace. Use when the learner invokes $start-course-lesson, says start course, start intro, start module 1, resume course, continue course, bắt đầu khóa học, or tiếp tục bài học. Resolves the local course map and learner state, loads the exact lesson, script, quiz, and pedagogy sources, then teaches through course-teacher.
+description: Start or resume Codex Content Builder Academy Pilot 0.2 from this downloaded workspace. Use when the learner invokes $start-course-lesson, says start course, start intro, start module 1, start module 2, resume course, continue course, bắt đầu khóa học, or tiếp tục bài học. Resolves the local course map and learner state, loads the exact lesson, script, quiz, and pedagogy sources, then teaches through course-teacher.
 ---
 
 # Start Course Lesson
@@ -24,7 +24,8 @@ Treat that ancestor as `WORKSPACE_ROOT`. Do not assume an absolute path.
 3. Map `intro`, `prologue`, `opening`, `mở đầu`, and `bắt đầu khóa học` to
    `intro`.
 4. Map `module-1`, `module 1`, `1`, and `bài 1` to `module-1`.
-5. For `resume`, `continue`, `tiếp tục`, or `học tiếp`, run:
+5. Map `module-2`, `module 2`, `2`, and `bài 2` to `module-2`.
+6. For `resume`, `continue`, `tiếp tục`, or `học tiếp`, run:
 
    ```bash
    node .agents/skills/start-course-lesson/scripts/course-state.mjs show
@@ -33,9 +34,9 @@ Treat that ancestor as `WORKSPACE_ROOT`. Do not assume an absolute path.
    Use `currentLessonId` and `currentBeatId` from the output. Match
    `currentBeatId` to the checkpoint id shown in the script heading. If no state
    exists, start `intro`.
-6. If the learner resumes without a time budget in the current conversation,
+7. If the learner resumes without a time budget in the current conversation,
    ask one question with these choices: 10, 20, 30, 45, or 60 minutes.
-7. If a requested id is unavailable, list only the ids and Vietnamese titles
+8. If a requested id is unavailable, list only the ids and Vietnamese titles
    from the course map.
 
 ## Load exact sources
@@ -66,7 +67,10 @@ node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesso
 
 - `show` is read-only.
 - `checkpoint` creates state if needed and atomically records a completed beat.
-- `complete` marks a lesson complete and advances to its `nextLessonId`.
+- A module's `artifactGateCheckpoint`, when present, is recorded only after all
+  required artifact files exist and contain content.
+- `complete` validates required artifacts again, marks a lesson complete and
+  advances to its `nextLessonId`.
 - Update state only after the Learner completes the named beat.
 - Do not claim progress was saved unless the command succeeds.
 
@@ -81,3 +85,7 @@ node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesso
   `course/onboarding/index.html` from `WORKSPACE_ROOT` and render it as a
   clickable absolute local-file Markdown link. Do not start a server, install a
   dependency, or skip directly to personal brand questions.
+- At `m1-codex-orientation`, resolve `course/codex-setup/index.html` from
+  `WORKSPACE_ROOT` and render it as a clickable absolute local-file Markdown
+  link. The page is an illustration, not proof that the Learner completed the
+  setup steps.

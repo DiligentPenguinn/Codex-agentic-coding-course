@@ -53,7 +53,7 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 function isTeacherContext(value: unknown): value is TeacherContext {
   return (
     isRecord(value) &&
-    (value.lessonId === 'intro' || value.lessonId === 'module-1') &&
+    (value.lessonId === 'intro' || value.lessonId === 'module-1' || value.lessonId === 'module-2') &&
     isCheckpointId(value.checkpointId) &&
     typeof value.sceneId === 'string' &&
     sceneSet.has(value.sceneId)
@@ -82,20 +82,45 @@ export function isTeacherSendRequest(value: unknown): value is TeacherSendReques
 
 function replyFor(context?: TeacherContext): string {
   if (!context) {
-    return 'Hãy bắt đầu phần giới thiệu trước. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
+    return 'Hãy mở chặng có nhãn “Bạn đang ở đây”. Khi có checkpoint, mình sẽ nhắc đúng điều cần kiểm tra ở bước đó.'
   }
 
-  if (context.checkpointId === 'm1-plan-approval') {
-    return 'Bạn đang ở bước duyệt kế hoạch. Hãy kiểm tra bốn điểm: tệp sẽ đổi, thay đổi dự kiến, rủi ro và cách kiểm chứng trước khi chấp thuận.'
+  if (context.checkpointId === 'm1-codex-orientation') {
+    return 'Codex là coding agent của OpenAI. Nó có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả trong phạm vi bạn cho phép.'
   }
-  if (context.checkpointId === 'm1-brief') {
-    return 'Hãy kiểm tra yêu cầu của bạn có đủ mục tiêu, phạm vi và bằng chứng. Nếu một phần vẫn phải đoán, hãy làm rõ trước khi gửi.'
+  if (context.checkpointId === 'm1-model-choice') {
+    return 'Cấu hình khóa học đề xuất cho ContentPilot là 5.6 Sol, High và Standard. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
-  if (context.lessonId === 'module-1') {
-    return 'Ở Module 1, ưu tiên bằng chứng trước hành động: đọc đúng tệp, giới hạn phạm vi và nói rõ dấu hiệu hoàn thành.'
+  if (context.checkpointId === 'm1-permissions') {
+    return 'Người mới nên dùng Approve for me và không bật Full access. Bạn sẽ cài thật rồi nộp ảnh trong Practice.'
+  }
+  if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
+    return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
+  }
+  if (context.checkpointId === 'm1-setup-checklist') {
+    return 'Hãy nộp hai ảnh trong đúng task Executor: một ảnh Model, Effort và Speed; một ảnh Approval cùng trạng thái Full access.'
   }
 
-  return 'Ở phần giới thiệu, hãy giữ lựa chọn gắn với công việc thật của bạn. Tiến trình đã lưu checkpoint này để bạn có thể quay lại sau.'
+  if (context.checkpointId === 'm2-prd-interview') {
+    return 'Prompt phỏng vấn nên có mục tiêu, bối cảnh, cách hỏi một câu mỗi lượt, output PRD một trang và ràng buộc chưa viết code.'
+  }
+  if (context.checkpointId === 'm2-prd-approved') {
+    return 'Trước khi duyệt, hãy kiểm tra PRD có đủ tám phần, Done When quan sát được và không lẫn chi tiết implementation.'
+  }
+  if (context.checkpointId === 'm2-implementation-plan') {
+    return 'Mỗi bước trong implementation plan cần có mục tiêu, thành phần hoặc tệp, kết quả quan sát được, cách kiểm tra và yêu cầu PRD liên quan.'
+  }
+  if (
+    context.checkpointId === 'm2-alignment-review' ||
+    context.checkpointId === 'm2-planning-package'
+  ) {
+    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.'
+  }
+  if (context.lessonId === 'module-2') {
+    return 'Ở Module 2, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'
+  }
+
+  return 'Phần giới thiệu giúp bạn hiểu dự án thực hành. Sau đó Course Companion sẽ đưa bạn vào Module 1 để thiết lập Codex trước khi planning.'
 }
 
 export class TeacherChatRepository {

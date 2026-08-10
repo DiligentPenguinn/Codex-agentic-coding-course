@@ -1,12 +1,13 @@
-# Content Automation Course — Planning Handoff
+# Agentic Coding Course — ContentPilot Planning Handoff
 
 **Snapshot date:** 27 July 2026  
 **Branch:** `triet-content=planning`  
-**Status:** The product direction, general visual direction, beginner stack,
-Version A six-module/chapter progression, and artifact/run-state contract are
-agreed. The initial starter repository, cost-awareness policy, graduation
-progression, and graduation assessment are also locked. The initial learner
-starter is implemented and validated inside this course repository.
+**Status:** The agentic-coding learning direction, ContentPilot practice
+project, general visual direction, beginner stack, Version A six-module/chapter
+progression, and artifact/run-state contract are agreed. The initial starter
+repository, cost-awareness policy, graduation progression, and graduation
+assessment are also locked. The initial learner starter is implemented and
+validated inside this course repository.
 
 ## Resume prompt for a new Codex chat
 
@@ -25,11 +26,15 @@ starter is implemented and validated inside this course repository.
 
 ## Course outcome
 
-The course teaches creators and marketers to use Codex to build a local
-content-automation application that completes a real onboarding-to-export
-workflow.
+The course teaches creators and marketers a transferable agentic-coding
+workflow: understand a problem, inspect a repository, define scope and evidence
+of completion, review a plan, delegate implementation to a coding agent, and
+verify the result before accepting it.
 
-After graduating, a learner should have an application that can:
+ContentPilot is the continuous practice project that makes those skills
+concrete. It is evidence of learning, not the subject of the course. After
+graduating, a learner should be able to apply the same workflow to a different
+repository and use ContentPilot to demonstrate an application that can:
 
 1. Learn the creator's voice from real examples.
 2. Research a niche and expand from optional known competitor names to
@@ -251,12 +256,12 @@ The beginner starter stack is:
 - plain CSS,
 - local JSON storage.
 
-The selected curriculum is **Version A — Lean Product Path**:
+The selected curriculum is **Version A — Agentic Coding Through Practice**:
 
-- one prologue and six outcome-based modules,
+- one course introduction and six skill-based modules,
 - resumable chapters inside modules that exceed one study session,
 - approximately 14–16 hours,
-- product milestones rather than front-loaded theory modules,
+- transferable skill outcomes demonstrated through product milestones,
 - reusable 5–10 minute units with semantic IDs,
 - one coherent application that becomes more capable in every chapter,
 - a real API-powered graduation workflow.
@@ -390,9 +395,11 @@ workspace. It includes:
 - a clean copy of the real ContentPilot starter with a bounded responsive UI
   lab.
 
-The pilot intentionally stops after Module 1. Its purpose is to validate
-activation, resumption, Teacher pacing, Learner ownership, approval behavior,
-and evidence review before authoring all six public-release modules.
+The current workspace intentionally stops after Module 1. Its purpose is to
+validate the first transferable agentic-coding loop: activation, resumption,
+Teacher pacing, learner ownership, approval behavior, evidence review, and
+application of the same reasoning outside ContentPilot before authoring all six
+public-release modules.
 
 After private testing, the next consequential decision packet should use
 observed pilot evidence to settle:
