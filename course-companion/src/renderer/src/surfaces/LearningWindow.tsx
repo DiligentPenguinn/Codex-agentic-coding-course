@@ -14,6 +14,7 @@ import {
   type SceneId
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
+import moduleOneQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
@@ -48,11 +49,58 @@ type SceneContent = {
   evidence: EvidenceItem[]
   dialogue: string
   choices: Choice[]
+  assessmentQuestionId?: string
+  assessmentGroupId?: string
+  assessmentSummary?: boolean
   showTitle?: boolean
   showPanel?: boolean
 }
 
-const scenes: Record<SceneId, SceneContent> = {
+type AssessmentSource = {
+  label: string
+  url: string
+  basis: string
+}
+
+type ChoiceAssessmentQuestion = {
+  id: string
+  sceneId: SceneId
+  type: 'multiple-choice'
+  prompt: string
+  choices: string[]
+  answerIndex: number
+  explanation: string
+  source: AssessmentSource
+}
+
+type WrittenAssessmentQuestion = {
+  id: string
+  sceneId: SceneId
+  type: 'short-answer' | 'artifact-answer'
+  prompt: string
+  criteria: string[]
+  explanation: string
+  source: AssessmentSource
+}
+
+type AssessmentQuestion = ChoiceAssessmentQuestion | WrittenAssessmentQuestion
+
+type AssessmentGroup = {
+  id: string
+  title: string
+  placement: string
+  mode: 'formative' | 'mastery'
+  passingScore?: number
+  questions: AssessmentQuestion[]
+}
+
+const assessmentGroups = moduleOneQuiz.groups as AssessmentGroup[]
+const assessmentQuestions = assessmentGroups.flatMap((group) => group.questions)
+const assessmentQuestionById = new Map(assessmentQuestions.map((question) => [question.id, question]))
+const assessmentGroupById = new Map(assessmentGroups.map((group) => [group.id, group]))
+const assessmentDecisionKey = (questionId: string) => `assessment:${questionId}`
+
+const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'intro-visual-onboarding': {
     lessonId: 'intro',
     checkpointId: 'intro-visual-onboarding',
@@ -137,7 +185,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'DONE WHEN', value: 'Chưa có' }
     ],
     // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-1.script.vi.md.
-    dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi mới viết code.',
+    dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.',
     choices: [{ label: 'Xem khi nào cần planning', next: 'module-1-planning-example', primary: true }],
     showPanel: false
   },
@@ -158,8 +206,13 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'ĐIỀU CHƯA BIẾT', value: 'Còn nhiều' },
       { label: 'CÁC BƯỚC', value: 'Chưa thể liệt kê' }
     ],
-    dialogue: 'Hướng dẫn thiết kế của Microsoft khuyên chỉ planning khi công việc thật sự cần. Một thay đổi nhỏ có thể giao trực tiếp. Ngược lại, một sản phẩm mới với nhiều quyết định chưa rõ nên được làm rõ trước khi code.',
-    choices: [{ label: 'Làm câu kiểm tra nhanh', next: 'module-1-why-planning-check', primary: true }]
+    dialogue: 'Hướng dẫn thiết kế của Microsoft khuyên chỉ planning khi công việc thật sự cần. Ví dụ, tạo một ứng dụng mới từ đầu cần planning vì luồng sử dụng, đầu vào, đầu ra và phạm vi phiên bản đầu còn phải được quyết định. Ngược lại, bạn có thể giao trực tiếp việc sửa chữ hoặc màu của một nút nhỏ khi vị trí và kết quả mới đã rõ.',
+    choices: [{
+      label: 'Áp dụng vào ContentPilot',
+      next: 'module-1-contentpilot-brief',
+      primary: true,
+      decision: { key: 'planningApproach', value: 'plan-first' }
+    }]
   },
   'module-1-why-planning-check': {
     lessonId: 'module-1',
@@ -282,7 +335,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'PHẠM VI', value: 'Ghi rõ giới hạn' }
     ],
     dialogue: 'Mẫu PRD của Atlassian còn dành chỗ cho câu hỏi chưa có đáp án và những gì nằm ngoài phạm vi. Nhờ vậy, nhóm biết điều gì đã được quyết định và điều gì chưa được phép tự thêm vào sản phẩm.',
-    choices: [{ label: 'Phân biệt PRD và plan', next: 'module-1-prd-check', primary: true }]
+    choices: [{ label: 'Làm 3 câu kiểm tra Planning và PRD', next: 'module-1-check-planning-prd-1', primary: true }]
   },
   'module-1-prd-check': {
     lessonId: 'module-1',
@@ -384,8 +437,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'KHÔNG ĐƯỢC LÀM', value: 'Tự quyết định, viết code', ready: true },
       { label: 'KẾT QUẢ CUỐI', value: 'PRD đủ 8 phần', ready: true }
     ],
-    dialogue: 'Bạn đã được học khái niệm, xem ví dụ và đối chiếu năm câu hỏi. Bây giờ mới đến lượt bạn tự viết prompt bằng lời của mình để coding agent phỏng vấn và tạo bản nháp PRD.',
-    choices: [{ label: 'Dùng năm câu hỏi để tự viết prompt', next: 'module-1-prd-approved', primary: true, decision: { key: 'promptMethod', value: 'one-question-at-a-time' } }]
+    dialogue: 'Bạn đã được học khái niệm, xem ví dụ và đối chiếu năm câu hỏi với ContentPilot. Tiếp theo là ba câu kiểm tra ngắn. Sau đó, bạn mới dùng năm câu hỏi để viết prompt tạo PRD bằng lời của mình.',
+    choices: [{ label: 'Làm 3 câu kiểm tra Prompt engineering', next: 'module-1-check-prompt-1', primary: true }]
   },
   'module-1-prd-approved': {
     lessonId: 'module-1',
@@ -445,7 +498,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'BẰNG CHỨNG', value: 'Kiểm tra chiều rộng' }
     ],
     dialogue: 'Mẫu thiết kế công việc của Microsoft tách rõ phạm vi, phương án, thành phần cần thay đổi và câu hỏi còn mở. Khóa học rút gọn thành từng bước có mục tiêu, thành phần, kết quả quan sát và cách kiểm tra.',
-    choices: [{ label: 'Tạo plan có kết quả và cách kiểm tra', next: 'module-1-alignment-review', primary: true, decision: { key: 'planStructure', value: 'observable-and-verifiable' } }]
+    choices: [{ label: 'Làm 2 câu kiểm tra Implementation plan', next: 'module-1-check-plan-1', primary: true }]
   },
   'module-1-alignment-review': {
     lessonId: 'module-1',
@@ -519,10 +572,10 @@ const scenes: Record<SceneId, SceneContent> = {
     step: 9,
     totalSteps: 10,
     lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
-    mission: 'Kiểm tra planning package',
-    objective: 'Chọn bằng chứng đủ để qua Module 1',
-    panelLabel: 'BẰNG CHỨNG MÔ PHỎNG',
-    panelStatus: '2 ARTIFACT · ĐÃ ALIGN',
+    mission: 'Kiểm tra tổng hợp Module 1',
+    objective: 'Sẵn sàng cho 15 câu kiểm tra cuối',
+    panelLabel: 'KIỂM TRA CUỐI MODULE',
+    panelStatus: '15 CÂU · CẦN ĐẠT 80%',
     tone: 'good',
     request: 'PRD.md đã duyệt · implementation-plan.md đã duyệt · mọi Done When có cách kiểm tra tương ứng.',
     evidence: [
@@ -530,11 +583,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'PLAN', value: 'Đã duyệt', ready: true },
       { label: 'ALIGNMENT', value: 'Khớp', ready: true }
     ],
-    dialogue: 'Điều gì chứng minh planning package này đã sẵn sàng cho implementation?',
-    choices: [
-      { label: 'Coding agent nói rằng đã xong', next: 'module-1-mastery-repair', danger: true },
-      { label: 'Hai artifact tồn tại, đã duyệt và khớp nhau', next: 'module-1-complete', primary: true, decision: { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' } }
-    ]
+    dialogue: 'Bạn đã học đủ bốn vùng kiến thức và hoàn thành planning package. Phần cuối gồm mười câu lựa chọn, ba câu trả lời ngắn và hai câu đối chiếu artifact của chính bạn. Nguồn cùng lời giải sẽ hiện sau mỗi câu.',
+    choices: [{ label: 'Bắt đầu 15 câu kiểm tra cuối', next: 'module-1-final-1', primary: true }]
   },
   'module-1-mastery-repair': {
     lessonId: 'module-1',
@@ -577,6 +627,77 @@ const scenes: Record<SceneId, SceneContent> = {
     choices: [{ label: 'Về Home Base', action: 'home', primary: true }]
   }
 }
+
+function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, index: number): SceneContent {
+  const isFinal = group.id === 'final-assessment'
+  const isPlanAlignment = group.id === 'implementation-plan-check' && index === 1
+  const checkpointId: CheckpointId = isFinal
+    ? 'm1-mastery'
+    : group.id === 'planning-prd-check'
+      ? 'm1-prd-concept'
+      : group.id === 'prompt-check'
+        ? 'm1-prd-interview'
+        : isPlanAlignment
+          ? 'm1-alignment-review'
+          : 'm1-implementation-plan'
+  const step = isFinal ? 9 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 7
+  const questionType = question.type === 'multiple-choice'
+    ? 'Chọn một đáp án'
+    : question.type === 'artifact-answer'
+      ? 'Đối chiếu artifact'
+      : 'Trả lời ngắn'
+
+  return {
+    lessonId: 'module-1',
+    checkpointId,
+    step,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: group.title,
+    objective: `Câu ${index + 1}/${group.questions.length}`,
+    panelLabel: group.mode === 'mastery' ? 'KIỂM TRA TỔNG HỢP' : 'KIỂM TRA THEO CỤM',
+    panelStatus: `CÂU ${index + 1}/${group.questions.length}`,
+    tone: 'neutral',
+    request: 'Trả lời trước. Lời giải và nguồn chính thức sẽ hiện ngay sau đó.',
+    evidence: [
+      { label: 'HÌNH THỨC', value: questionType },
+      { label: 'NGUỒN', value: 'Hiện sau khi trả lời' },
+      { label: 'TIẾN ĐỘ', value: `${index + 1}/${group.questions.length}` }
+    ],
+    dialogue: question.prompt,
+    choices: [],
+    assessmentQuestionId: question.id,
+    assessmentGroupId: group.id
+  }
+}
+
+const generatedAssessmentScenes = Object.fromEntries(
+  assessmentGroups.flatMap((group) =>
+    group.questions.map((question, index) => [question.sceneId, assessmentScene(question, group, index)])
+  )
+) as Partial<Record<SceneId, SceneContent>>
+
+const scenes = {
+  ...staticScenes,
+  ...generatedAssessmentScenes,
+  'module-1-final-summary': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-mastery',
+    step: 9,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Kết quả kiểm tra tổng hợp',
+    objective: 'Đối chiếu kết quả trước khi hoàn thành',
+    panelLabel: 'KẾT QUẢ',
+    panelStatus: '15 CÂU · MỐC ĐẠT 12/15',
+    tone: 'neutral',
+    request: 'Mỗi câu đúng hoặc tự đối chiếu đạt được tính một điểm.',
+    evidence: [],
+    dialogue: '',
+    choices: [],
+    assessmentSummary: true
+  }
+} as Record<SceneId, SceneContent>
 type View = 'loading' | 'welcome' | 'resume' | 'app' | 'reset-confirm' | 'reset-required' | 'error'
 type AppDestination = 'home' | 'lesson' | 'progress' | 'settings'
 
@@ -622,6 +743,99 @@ function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
           <strong>{item.value}</strong>
         </div>
       ))}
+    </div>
+  )
+}
+
+function AssessmentControls({
+  question,
+  result,
+  busy,
+  continueLabel,
+  onConfirmWritten,
+  onChoose,
+  onContinue
+}: {
+  question: AssessmentQuestion
+  result?: string
+  busy: boolean
+  continueLabel: string
+  onConfirmWritten: () => void
+  onChoose: (index: number) => void
+  onContinue: () => void
+}) {
+  const [draft, setDraft] = useState('')
+  const [reviewing, setReviewing] = useState(false)
+  const answered = Boolean(result)
+  const correct = result?.startsWith('correct') ?? false
+  const showFeedback = answered || reviewing
+
+  return (
+    <div className="pixel-assessment">
+      {question.type === 'multiple-choice' && !answered ? (
+        <div className="pixel-assessment-options">
+          {question.choices.map((choice, index) => (
+            <button disabled={busy} key={choice} type="button" onClick={() => onChoose(index)}>
+              <span aria-hidden="true">{String.fromCharCode(65 + index)}</span>{choice}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {question.type !== 'multiple-choice' && !answered ? (
+        <div className="pixel-assessment-written">
+          <label htmlFor={`assessment-${question.id}`}>Câu trả lời của bạn</label>
+          <textarea
+            id={`assessment-${question.id}`}
+            disabled={busy || reviewing}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Viết bằng lời của bạn trước khi xem tiêu chí…"
+            rows={4}
+            value={draft}
+          />
+          {!reviewing ? (
+            <button disabled={busy || draft.trim().length < 20} type="button" onClick={() => setReviewing(true)}>
+              Đối chiếu với tiêu chí
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showFeedback ? (
+        <section className="pixel-assessment-feedback" data-result={answered ? (correct ? 'correct' : 'incorrect') : 'review'}>
+          <strong>
+            {answered
+              ? correct
+                ? 'Đã đáp ứng'
+                : 'Chưa đúng ở lần trả lời này'
+              : 'Tự đối chiếu trước khi tiếp tục'}
+          </strong>
+          <p>{question.explanation}</p>
+          {question.type !== 'multiple-choice' ? (
+            <ul>
+              {question.criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+            </ul>
+          ) : null}
+          <div className="pixel-assessment-source">
+            <small>NGUỒN CHÍNH THỨC</small>
+            <strong>{question.source.label}</strong>
+            <p>{question.source.basis}</p>
+            <code>{question.source.url}</code>
+          </div>
+          {answered ? (
+            <button className="is-primary" disabled={busy} type="button" onClick={onContinue}>
+              {continueLabel}
+            </button>
+          ) : (
+            <div className="pixel-assessment-review-actions">
+              <button disabled={busy} type="button" onClick={() => setReviewing(false)}>Viết lại</button>
+              <button className="is-primary" disabled={busy} type="button" onClick={onConfirmWritten}>
+                Câu trả lời đáp ứng đủ tiêu chí
+              </button>
+            </div>
+          )}
+        </section>
+      ) : null}
     </div>
   )
 }
@@ -1076,6 +1290,98 @@ export function LearningWindow() {
     }
   }
 
+  const advanceToScene = async (nextSceneId: SceneId, decisions: Record<string, string>) => {
+    if (!progress) return
+    const currentScene = scenes[progress.sceneId]
+    const nextScene = scenes[nextSceneId]
+    const completed = new Set(progress.completedCheckpointIds)
+    if (currentScene.checkpointId !== nextScene.checkpointId) {
+      completed.add(currentScene.checkpointId)
+    }
+    await persist({
+      currentLessonId: nextScene.lessonId,
+      checkpointId: nextScene.checkpointId,
+      sceneId: nextSceneId,
+      completedCheckpointIds: [...completed],
+      decisions
+    })
+  }
+
+  const saveAssessmentResult = async (question: AssessmentQuestion, result: string) => {
+    if (!progress || busy) return
+    setBusy(true)
+    setError('')
+    try {
+      await persist({
+        currentLessonId: progress.currentLessonId,
+        checkpointId: progress.checkpointId,
+        sceneId: progress.sceneId,
+        completedCheckpointIds: progress.completedCheckpointIds,
+        decisions: {
+          ...progress.decisions,
+          [assessmentDecisionKey(question.id)]: result
+        }
+      })
+    } catch {
+      setError('Không thể lưu câu trả lời này. Hãy thử lại trước khi tiếp tục.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const continueAssessment = async (question: AssessmentQuestion, group: AssessmentGroup) => {
+    if (!progress || busy) return
+    const questionIndex = group.questions.findIndex((candidate) => candidate.id === question.id)
+    const nextQuestion = group.questions[questionIndex + 1]
+    const exitScene: Record<string, SceneId> = {
+      'planning-prd-check': 'module-1-prd-interview',
+      'prompt-check': 'module-1-prd-approved',
+      'implementation-plan-check': 'module-1-planning-package',
+      'final-assessment': 'module-1-final-summary'
+    }
+    const nextSceneId = nextQuestion?.sceneId ?? exitScene[group.id]
+    if (!nextSceneId) return
+
+    setBusy(true)
+    setError('')
+    try {
+      const decisions = { ...progress.decisions }
+      if (!nextQuestion && group.id === 'prompt-check') {
+        decisions.promptMethod = 'one-question-at-a-time'
+      }
+      if (!nextQuestion && group.id === 'implementation-plan-check') {
+        decisions.planStructure = 'observable-and-verifiable'
+        decisions.alignmentDecision = 'remove-scope-creep'
+      }
+      await advanceToScene(nextSceneId, decisions)
+    } catch {
+      setError('Không thể mở câu tiếp theo. Hãy thử lại trước khi tiếp tục.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const retryFinalAssessment = async () => {
+    if (!progress || busy) return
+    const finalGroup = assessmentGroupById.get('final-assessment')
+    const firstQuestion = finalGroup?.questions[0]
+    if (!finalGroup || !firstQuestion) return
+
+    setBusy(true)
+    setError('')
+    try {
+      const finalQuestionIds = new Set(finalGroup.questions.map((question) => assessmentDecisionKey(question.id)))
+      const decisions = Object.fromEntries(
+        Object.entries(progress.decisions).filter(([key]) => !finalQuestionIds.has(key))
+      )
+      await advanceToScene(firstQuestion.sceneId, decisions)
+    } catch {
+      setError('Không thể bắt đầu lại phần kiểm tra. Hãy thử lại.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const choose = async (choice: Choice) => {
     if (!progress || busy) return
     if (choice.action === 'home') {
@@ -1092,23 +1398,10 @@ export function LearningWindow() {
     setBusy(true)
     setError('')
     try {
-      const currentScene = scenes[progress.sceneId]
-      const nextScene = scenes[choice.next]
-      const completed = new Set(progress.completedCheckpointIds)
-      if (currentScene.checkpointId !== nextScene.checkpointId) {
-        completed.add(currentScene.checkpointId)
-      }
       const decisions = choice.decision
         ? { ...progress.decisions, [choice.decision.key]: choice.decision.value }
         : progress.decisions
-
-      await persist({
-        currentLessonId: nextScene.lessonId,
-        checkpointId: nextScene.checkpointId,
-        sceneId: choice.next,
-        completedCheckpointIds: [...completed],
-        decisions
-      })
+      await advanceToScene(choice.next, decisions)
       if (choice.afterSave === 'home') {
         setTeacherOpen(false)
         setDestination('home')
@@ -1178,6 +1471,31 @@ export function LearningWindow() {
   }
 
   const scene = scenes[progress.sceneId]
+  const assessmentQuestion = scene.assessmentQuestionId
+    ? assessmentQuestionById.get(scene.assessmentQuestionId)
+    : undefined
+  const assessmentGroup = scene.assessmentGroupId
+    ? assessmentGroupById.get(scene.assessmentGroupId)
+    : undefined
+  const assessmentResult = assessmentQuestion
+    ? progress.decisions[assessmentDecisionKey(assessmentQuestion.id)]
+    : undefined
+  const assessmentQuestionIndex = assessmentQuestion && assessmentGroup
+    ? assessmentGroup.questions.findIndex((question) => question.id === assessmentQuestion.id)
+    : -1
+  const assessmentContinueLabel = assessmentGroup && assessmentQuestionIndex === assessmentGroup.questions.length - 1
+    ? assessmentGroup.id === 'final-assessment'
+      ? 'Xem kết quả 15 câu'
+      : 'Tiếp tục bài học'
+    : 'Câu tiếp theo'
+  const finalAssessment = assessmentGroupById.get('final-assessment')
+  const finalCorrectCount = finalAssessment?.questions.filter((question) =>
+    progress.decisions[assessmentDecisionKey(question.id)]?.startsWith('correct')
+  ).length ?? 0
+  const finalPassingCount = finalAssessment
+    ? Math.ceil(finalAssessment.questions.length * (finalAssessment.passingScore ?? 0.8))
+    : 12
+  const finalPassed = finalCorrectCount >= finalPassingCount
 
   return (
     <main className="pixel-learning-shell">
@@ -1207,9 +1525,11 @@ export function LearningWindow() {
       {scene.showTitle === false ? null : (
         <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
       )}
-      <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />
+      {assessmentQuestion || scene.assessmentSummary
+        ? null
+        : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
-      {scene.showPanel === false ? null : (
+      {scene.showPanel === false || assessmentQuestion || scene.assessmentSummary ? null : (
         <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
           <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
           <div className="pixel-request"><p>{scene.request}</p></div>
@@ -1217,23 +1537,65 @@ export function LearningWindow() {
         </aside>
       )}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        <p>{scene.dialogue}</p>
+        <p>{scene.assessmentSummary
+          ? finalPassed
+            ? `Bạn đạt ${finalCorrectCount}/15 câu. Kết quả này đạt mốc ${finalPassingCount}/15 để hoàn thành Module 1.`
+            : `Bạn đạt ${finalCorrectCount}/15 câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/15.`
+          : scene.dialogue}</p>
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
-        <div className="pixel-choices">
-          {scene.choices.map((choice) => (
+        {assessmentQuestion && assessmentGroup ? (
+          <AssessmentControls
+            busy={busy}
+            continueLabel={assessmentContinueLabel}
+            key={assessmentQuestion.id}
+            question={assessmentQuestion}
+            result={assessmentResult}
+            onChoose={(index) => {
+              if (assessmentQuestion.type !== 'multiple-choice') return
+              void saveAssessmentResult(
+                assessmentQuestion,
+                index === assessmentQuestion.answerIndex ? `correct:${index}` : `incorrect:${index}`
+              )
+            }}
+            onConfirmWritten={() => void saveAssessmentResult(assessmentQuestion, 'correct:self-review')}
+            onContinue={() => void continueAssessment(assessmentQuestion, assessmentGroup)}
+          />
+        ) : scene.assessmentSummary ? (
+          <div className="pixel-assessment-summary" data-result={finalPassed ? 'pass' : 'retry'}>
+            <strong>{finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
+            <span>{finalCorrectCount}/15 câu</span>
             <button
-              className={`pixel-choice${scene.choices.length === 1 && choice.primary ? ' is-primary' : ''}${scene.choices.length === 1 && choice.danger ? ' is-danger' : ''}`}
+              className="pixel-choice is-primary"
               disabled={busy}
-              key={choice.label}
               type="button"
-              onClick={() => void choose(choice)}
+              onClick={() => finalPassed
+                ? void choose({
+                    label: 'Hoàn thành Module 1',
+                    next: 'module-1-complete',
+                    decision: { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
+                  })
+                : void retryFinalAssessment()}
             >
-              {busy ? 'Đang lưu checkpoint…' : choice.label}
+              {busy ? 'Đang lưu…' : finalPassed ? 'Hoàn thành Module 1' : 'Làm lại 15 câu'}
             </button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className="pixel-choices">
+            {scene.choices.map((choice) => (
+              <button
+                className={`pixel-choice${scene.choices.length === 1 && choice.primary ? ' is-primary' : ''}${scene.choices.length === 1 && choice.danger ? ' is-danger' : ''}`}
+                disabled={busy}
+                key={choice.label}
+                type="button"
+                onClick={() => void choose(choice)}
+              >
+                {busy ? 'Đang lưu checkpoint…' : choice.label}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {teacherOpen ? (

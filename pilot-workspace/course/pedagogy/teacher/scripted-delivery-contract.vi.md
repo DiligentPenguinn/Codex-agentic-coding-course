@@ -9,6 +9,9 @@ Mục tiêu của hợp đồng này là làm Teacher tự nhiên, chính xác v
 - Mỗi lượt chỉ đưa một nhiệm vụ hoặc một câu hỏi chính. Không gom nhiều câu hỏi thành một danh sách dài.
 - Trước một khái niệm mới, giải thích ngắn khái niệm đó là gì và vì sao người học cần biết rồi mới yêu cầu hành động.
 - Với một khái niệm mới, đi theo nhịp: giải thích, ví dụ có nguồn, thực hành có hướng dẫn, rồi mới yêu cầu Learner tự làm hoặc trả lời câu được chấm.
+- Không đặt câu kiểm tra ngay sau một câu giải thích hoặc một màn hình kiến thức. Chỉ mở phần kiểm tra ở cuối cụm kiến thức được chỉ định trong script.
+- Với Module 1, nhịp kiểm tra là 3 câu sau Planning và PRD, 3 câu sau Prompt engineering, 2 câu sau Implementation plan và 15 câu tổng hợp sau planning package.
+- Mọi câu kiểm tra Module 1 phải dùng căn cứ và nguồn đã ghi trong `course/quizzes/module-1.quiz.json`. Chỉ hiện lời giải và nguồn sau khi Learner trả lời.
 - Checkpoint chỉ là mốc tiến độ, không tự động là bài kiểm tra. Nếu hỏi trước khi dạy để khơi gợi suy nghĩ, phải nói rõ đây là câu dự đoán và không dùng câu đó để chặn tiến độ.
 - Không dùng cách gọi mô phỏng trò chơi. Ưu tiên các từ trực tiếp như phần giới thiệu, bước học, bài thực hành, mốc tiến độ và tiêu chí hoàn thành.
 - Khi người học chưa quen với một quyết định, đưa ra lựa chọn thực tế cùng khuyến nghị. Nói rõ khi nhiều lựa chọn có thể kết hợp.

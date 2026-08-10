@@ -19,9 +19,14 @@ cũng khuyên chỉ xem xét thiết kế khi cần. Những dấu hiệu đáng
 cầu còn mơ hồ, có nhiều điều chưa biết hoặc người thực hiện chưa thể chỉ ra đầy
 đủ các bước cần làm.
 
+Ví dụ, tạo một ứng dụng mới từ đầu cần planning. Bạn còn phải quyết định luồng
+sử dụng, đầu vào, đầu ra và phạm vi phiên bản đầu. Trong khi đó, bạn có thể giao
+trực tiếp việc sửa chữ hoặc màu của một nút nhỏ nếu vị trí và kết quả mới đã
+rõ.
+
 ## Kết quả của module
 
-Module này kéo dài khoảng 60–75 phút và có thể tạm dừng giữa các checkpoint. Khi
+Module này kéo dài khoảng 90–120 phút và có thể tạm dừng giữa các checkpoint. Khi
 hoàn thành, bạn có thể:
 
 - giải thích khi nào cần planning và khi nào một yêu cầu trực tiếp là đủ,
@@ -139,6 +144,24 @@ thị tốt trên máy tính bảng. Implementation plan sẽ nêu bước chỉ
 cách kiểm tra ở chiều rộng máy tính bảng. Đây là mối liên hệ giữa điều sản phẩm
 cần đạt và cách chứng minh điều đó đã được thực hiện.
 
+## Các phần kiểm tra
+
+Module không kiểm tra ngay sau từng câu giải thích. Mỗi phần kiểm tra chỉ xuất
+hiện sau khi bạn đã học xong một cụm kiến thức:
+
+- 3 câu sau Planning và PRD.
+- 3 câu sau Prompt engineering.
+- 2 câu sau Implementation plan.
+- 15 câu tổng hợp sau khi bạn hoàn thành planning package.
+
+Tám câu đầu giúp bạn kiểm tra từng cụm kiến thức. Phần cuối gồm mười câu lựa
+chọn, ba câu trả lời ngắn và hai câu đối chiếu artifact của chính bạn. Bạn cần
+đạt ít nhất 12/15 câu cuối.
+
+Mỗi câu hỏi đều ghi căn cứ và đường dẫn đến nguồn chính thức. Khóa học biên soạn
+câu hỏi bằng tiếng Việt dựa trên các nguồn đó; câu hỏi không được trình bày như
+một trích dẫn nguyên văn. Lời giải và nguồn chỉ hiện sau khi bạn trả lời.
+
 ## Checkpoint hoàn thành
 
 Bạn hoàn thành Module 1 khi có một **planning package** gồm:
@@ -171,4 +194,6 @@ lời của mình ít nhất một quyết định về phạm vi.
 Các nguyên tắc về planning, PRD, prompt và thiết kế công việc trong module dựa
 trên các nguồn chính thức được liên kết ngay tại phần liên quan. Yêu cầu PRD một
 trang, tám phần, chưa dùng persona, năm câu hỏi dành cho người mới và cách chia
-checkpoint là lựa chọn sư phạm riêng của khóa học này.
+checkpoint là lựa chọn sư phạm riêng của khóa học này. Cấu trúc 3 + 3 + 2 + 15
+cũng là lựa chọn sư phạm; căn cứ và đáp án của từng câu nằm trong ngân hàng câu
+hỏi có nguồn.

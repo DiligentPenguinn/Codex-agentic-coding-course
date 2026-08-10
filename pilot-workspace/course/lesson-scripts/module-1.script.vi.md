@@ -8,11 +8,10 @@ tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ ph�
 ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn
 thời gian hơn nhiều so với planning kỹ ngay từ đầu."
 
-Teacher nói: "Không phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm
-lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt
-đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều
-bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu
-đúng vấn đề rồi mới viết code."
+Teacher nói: "Không phải việc nào cũng cần planning. Bạn có thể giao trực tiếp
+cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi
+bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được
+hướng đi hoặc thứ tự thực hiện."
 
 Teacher nói: "Hướng dẫn thiết kế của Microsoft cũng dùng cách phân biệt này:
 không phải công việc nào cũng cần một bản thiết kế, nhưng planning có ích khi
@@ -20,11 +19,13 @@ yêu cầu còn mơ hồ, có nhiều điều chưa biết hoặc người thự
 đầy đủ các bước cần làm. Vì vậy, trước khi planning, hãy nhìn vào độ rõ của
 công việc thay vì chỉ nhìn vào độ dài của yêu cầu."
 
-Teacher nói: "Bây giờ mới đến câu kiểm tra nhanh. Theo bạn, dấu hiệu nào cho
-thấy một yêu cầu nên được planning trước?"
+Teacher nói: "Ví dụ, tạo một ứng dụng mới từ đầu cần planning. Bạn còn phải
+quyết định người dùng sẽ làm gì, dữ liệu đi vào từ đâu, kết quả nào được tạo ra
+và phiên bản đầu dừng ở đâu. Ngược lại, bạn có thể giao trực tiếp việc sửa chữ
+hoặc màu của một nút nhỏ nếu vị trí và kết quả mới đã rõ."
 
-[Dừng chờ Learner nêu ít nhất một dấu hiệu bằng lời của họ. Dùng ví dụ ngoài
-ContentPilot nếu cần repair. Sau khi đạt, lưu checkpoint `m1-why-planning`.]
+[Đây là phần dạy, không phải bài kiểm tra. Không mở Assessment State. Tiếp tục
+sang ý tưởng ContentPilot và lưu checkpoint `m1-why-planning`.]
 
 ## Bước 2 — Nhìn ra điều còn thiếu trong ý tưởng ContentPilot (`m1-contentpilot-brief`)
 
@@ -61,17 +62,14 @@ cầu giao diện phải hiển thị tốt trên máy tính bảng. Mẫu này 
 hỏi còn mở và những gì nằm ngoài phạm vi để tránh sản phẩm tự lớn dần ngoài ý
 định ban đầu."
 
-Teacher nói: "Implementation plan là tài liệu khác. Nó mô tả coding agent sẽ
-biến PRD đã duyệt thành những bước xây dựng như thế nào. Nói ngắn gọn: PRD giữ
-quyết định về sản phẩm; implementation plan giữ cách thực hiện và kiểm tra."
+Teacher nói: "Ta đã học xong hai vùng kiến thức đầu tiên: khi nào cần planning
+và PRD giữ những quyết định nào. Bây giờ mới đến ba câu kiểm tra ngắn."
 
-Teacher nói: "Bây giờ ta mới kiểm tra cách phân biệt. Nếu một câu nói ‘phiên
-bản đầu chưa tự động đăng bài’, theo bạn câu đó thuộc PRD hay implementation
-plan? Vì sao?"
-
-[Mở Assessment State. Dừng chờ Learner. Cần nhận ra đây là quyết định ngoài
-phạm vi của sản phẩm, nên thuộc PRD. Cho repair bằng một tình huống tương tự
-khác nếu cần. Sau khi đạt, lưu checkpoint `m1-prd-concept`.]
+[Dùng nhóm `planning-prd-check` trong
+`course/quizzes/module-1.quiz.json`. Mở Assessment State cho từng câu và hỏi
+đúng một câu mỗi lượt. Sau khi Learner trả lời, đưa lời giải cùng nguồn của câu
+đó rồi mới tiếp tục. Đây là ba câu kiểm tra đầu tiên của module. Khi hoàn tất,
+lưu checkpoint `m1-prd-concept`.]
 
 ## Bước 4 — Hiểu prompt trước khi tự viết (`m1-prd-interview`)
 
@@ -96,19 +94,23 @@ ro quan trọng nhất theo thứ tự. Ví dụ đó cho thấy agent biết vi
 cần tìm và kết quả phải trình bày ra sao. Năm câu hỏi của khóa học là cách diễn
 đạt lại nguyên tắc này cho người mới."
 
-Teacher nói: "Áp dụng vào ContentPilot: việc cần làm là hỗ trợ tạo PRD; thông
-tin ban đầu là ý tưởng một câu; cách làm việc là hỏi một câu mỗi lượt; agent
-không được tự quyết định thay bạn hoặc viết code; kết quả cuối là PRD một trang
-có đủ tám phần. Bây giờ hãy viết prompt đó bằng lời của bạn."
+Teacher nói: "Áp dụng vào ContentPilot: việc cần làm là hỗ trợ tạo PRD. Thông
+tin ban đầu là ý tưởng một câu. Cách làm việc là hỏi một câu mỗi lượt. Agent
+không được tự quyết định thay bạn hoặc viết code. Kết quả cuối là PRD một trang
+có đủ tám phần."
 
-[Chỉ mở Assessment State sau toàn bộ phần giải thích và ví dụ ở trên. Dừng chờ
-Learner tự viết. Dùng hint ladder, không đưa prompt hoàn chỉnh trước khi Learner
+Teacher nói: "Bạn đã học xong prompt engineering. Bây giờ là ba câu kiểm tra
+ngắn trước khi bạn tự viết prompt cho ContentPilot."
+
+[Dùng nhóm `prompt-check` trong `course/quizzes/module-1.quiz.json`. Mở
+Assessment State cho từng câu và hỏi đúng một câu mỗi lượt. Sau mỗi câu, đưa
+lời giải cùng nguồn. Khi hoàn tất ba câu, yêu cầu Learner tự viết prompt bằng
+lời của họ. Dùng hint ladder, không đưa prompt hoàn chỉnh trước khi Learner
 thử. Prompt đạt khi nói rõ việc cần làm, thông tin agent cần biết, cách làm việc
 một câu mỗi lượt, điều agent không được tự làm và kết quả PRD một trang có tám
-phần. Sau khi đạt, chuyển ngắn sang Executor và dùng nguyên văn prompt của
-Learner. Executor hỏi đúng một câu mỗi lượt, không tự trả lời thay Learner.
-Tiếp tục cho tới khi đủ thông tin, rồi đưa bản nháp PRD. Lưu checkpoint
-`m1-prd-interview`.]
+phần. Sau khi đạt, Executor dùng nguyên văn prompt của Learner và hỏi đúng một
+câu mỗi lượt. Tiếp tục cho tới khi đủ thông tin rồi đưa bản nháp PRD. Lưu
+checkpoint `m1-prd-interview`.]
 
 ## Bước 5 — Xem xét, duyệt và lưu PRD (`m1-prd-approved`)
 
@@ -142,14 +144,16 @@ diện hiển thị tốt trên máy tính bảng, plan có thể có một bư�
 một phép kiểm tra ở chiều rộng máy tính bảng. PRD nói kết quả sản phẩm cần đạt;
 plan nói cách tạo và kiểm tra kết quả đó."
 
-Teacher nói: "Bây giờ hãy viết yêu cầu của bạn để coding agent đọc
-`artifacts/PRD.md`, tạo implementation plan mà không mở rộng phạm vi và chưa
-viết code."
+Teacher nói: "Bạn đã học xong implementation plan. Bây giờ là hai câu kiểm tra
+ngắn về phạm vi và cách đối chiếu plan với PRD."
 
-[Chỉ mở Assessment State sau phần giải thích và ví dụ. Prompt đạt khi chỉ định
-PRD là nguồn, yêu cầu mỗi bước có bốn trường bắt buộc, dùng ngôn ngữ cho người
-mới, nêu phụ thuộc/rủi ro/câu hỏi còn mở và giữ ràng buộc chưa code. Dùng hint
-ladder nếu cần. Sau khi đạt, Executor đọc PRD và đưa bản nháp plan trong hội
+[Dùng nhóm `implementation-plan-check` trong
+`course/quizzes/module-1.quiz.json`. Mở Assessment State cho từng câu. Sau mỗi
+câu, đưa lời giải cùng nguồn. Khi hoàn tất hai câu, yêu cầu Learner viết prompt
+để coding agent đọc `artifacts/PRD.md` và tạo implementation plan. Prompt phải
+dùng PRD làm nguồn. Mỗi bước cần có mục tiêu, thành phần, kết quả quan sát và
+cách kiểm tra. Prompt cũng phải yêu cầu nêu phụ thuộc, rủi ro, câu hỏi còn mở và
+giữ ràng buộc chưa code. Sau khi đạt, Executor đưa bản nháp plan trong hội
 thoại; chưa lưu file. Lưu checkpoint `m1-implementation-plan`.]
 
 ## Bước 7 — Kiểm tra PRD và plan có khớp nhau (`m1-alignment-review`)
@@ -159,12 +163,13 @@ thêm tính năng. Hãy kiểm tra bốn điều: mọi yêu cầu trong phạm 
 tương ứng; mọi bước đều truy ngược về PRD; nội dung ngoài phạm vi không quay trở
 lại; và mỗi Done When đều trở thành một phép kiểm tra trong plan."
 
-Teacher nói: "Hãy chọn một mục Done When trong PRD và chỉ ra bước cùng cách
-kiểm tra tương ứng trong plan."
+Teacher nói: "Bây giờ hãy dùng bốn điều trên như một danh sách xem xét. Nếu có
+điểm lệch, bạn quyết định sửa PRD hay sửa plan. Coding agent không được âm thầm
+chọn thay bạn."
 
-[Dừng chờ Learner tự đối chiếu một mapping cụ thể. Nếu phát hiện lệch, yêu cầu
-Learner quyết định sửa PRD hay sửa plan; không âm thầm chọn thay. Khi cả bốn điều
-đạt, lưu checkpoint `m1-alignment-review`.]
+[Đây là bước thực hành có hướng dẫn trên artifact, không phải một câu kiểm tra
+thứ ba. Yêu cầu Learner đối chiếu từng mục và tự quyết định cách sửa nếu phát
+hiện lệch. Khi cả bốn điều đạt, lưu checkpoint `m1-alignment-review`.]
 
 ## Bước 8 — Duyệt planning package (`m1-planning-package`)
 
@@ -182,10 +187,13 @@ giải thích được một quyết định phạm vi, lưu checkpoint `m1-plan
 ## Bước 9 — Kiểm tra cuối Module 1 (`m1-mastery`)
 
 Teacher nói: "Phần kiểm tra cuối giúp bạn vận dụng planning, PRD, prompt và
-implementation plan trong những tình huống mới. Mình sẽ hỏi từng câu một; một
-số câu yêu cầu bạn dùng chính planning package vừa tạo."
+implementation plan trong những tình huống mới. Phần này có 15 câu: mười câu
+lựa chọn, ba câu trả lời ngắn và hai câu dùng chính planning package vừa tạo."
 
-[Dùng `course/quizzes/module-1.quiz.json`. Khi pass theo
+[Dùng nhóm `final-assessment` trong `course/quizzes/module-1.quiz.json`. Hỏi
+đúng một câu mỗi lượt. Chỉ hiện lời giải, căn cứ và nguồn sau khi Learner đã trả
+lời. Với câu tự luận, yêu cầu Learner viết trước rồi tự đối chiếu với tiêu chí
+công khai. Learner cần đạt ít nhất 12/15 câu. Khi pass theo
 `course/pedagogy/rubrics/mastery-rubric.vi.md`, lưu checkpoint `m1-mastery`.]
 
 ## Bước 10 — Hoàn thành Module 1 (`m1-complete`)

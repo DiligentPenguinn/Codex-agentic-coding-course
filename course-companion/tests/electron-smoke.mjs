@@ -8,6 +8,41 @@ import { _electron as electron } from 'playwright-core'
 const mainEntry = join(process.cwd(), 'out/main/index.js')
 const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electron-'))
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
+const moduleOneQuiz = JSON.parse(
+  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-1.quiz.json'), 'utf8')
+)
+
+function assessmentGroup(groupId) {
+  const group = moduleOneQuiz.groups.find((candidate) => candidate.id === groupId)
+  assert.ok(group, `Expected assessment group ${groupId}`)
+  return group
+}
+
+async function answerAssessmentGroup(page, groupId) {
+  const group = assessmentGroup(groupId)
+  for (const [index, question] of group.questions.entries()) {
+    await page.getByText(question.prompt, { exact: true }).waitFor()
+    if (question.type === 'multiple-choice') {
+      await page.getByRole('button', { name: question.choices[question.answerIndex], exact: true }).click()
+    } else {
+      await page.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill(
+        `Câu trả lời do người học tự viết để đáp ứng các tiêu chí công khai của câu ${question.id}.`
+      )
+      await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
+      if (question.id === 'final-11') {
+        await capture(page, 'module-1-final-written-review.png')
+      }
+      await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
+    }
+    await page.getByText('NGUỒN CHÍNH THỨC', { exact: true }).waitFor()
+    await page.getByText(question.source.label, { exact: true }).waitFor()
+    await page.getByText(question.source.url, { exact: true }).waitFor()
+    const continueLabel = index === group.questions.length - 1
+      ? groupId === 'final-assessment' ? 'Xem kết quả 15 câu' : 'Tiếp tục bài học'
+      : 'Câu tiếp theo'
+    await page.getByRole('button', { name: continueLabel, exact: true }).click()
+  }
+}
 
 async function capture(page, filename) {
   if (!screenshotDirectory) return
@@ -256,7 +291,7 @@ try {
     .waitFor()
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi mới viết code.'
+    'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.'
   )
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'module-1-planning-fundamentals.png')
@@ -264,24 +299,34 @@ try {
     .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true })
+    .getByRole('button', { name: 'Áp dụng vào ContentPilot', exact: true })
     .waitFor()
+  assert.equal(
+    await firstWindows.learningPage.getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true }).count(),
+    0
+  )
   await firstWindows.learningPage
     .getByText('NGUỒN PHƯƠNG PHÁP · MICROSOFT', { exact: true })
     .waitFor()
   await capture(firstWindows.learningPage, 'module-1-planning-example.png')
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true })
+    .getByRole('button', { name: 'Áp dụng vào ContentPilot', exact: true })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau' })
-    .waitFor()
+    .getByRole('button', { name: 'Tìm hiểu PRD', exact: true })
+    .click()
+  await firstWindows.learningPage.getByRole('button', { name: 'Xem một ví dụ PRD', exact: true }).click()
   await firstWindows.learningPage
-    .getByText('Chọn dấu hiệu cho thấy coding agent cần làm rõ công việc trước khi viết code.', { exact: true })
-    .waitFor()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-choice.is-primary').count(), 0)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-choice.is-danger').count(), 0)
-  await capture(firstWindows.learningPage, 'module-1-planning-check.png')
+    .getByRole('button', { name: 'Làm 3 câu kiểm tra Planning và PRD', exact: true })
+    .click()
+  const firstAssessmentQuestion = assessmentGroup('planning-prd-check').questions[0]
+  await firstWindows.learningPage.getByText(firstAssessmentQuestion.prompt, { exact: true }).waitFor()
+  assert.equal(await firstWindows.learningPage.getByText('NGUỒN CHÍNH THỨC', { exact: true }).count(), 0)
+  await firstWindows.learningPage
+    .getByRole('button', { name: firstAssessmentQuestion.choices[0], exact: true })
+    .click()
+  await firstWindows.learningPage.getByText('NGUỒN CHÍNH THỨC', { exact: true }).waitFor()
+  await capture(firstWindows.learningPage, 'module-1-first-sourced-check.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
     const moduleOneNarrowWidths = await firstWindows.learningPage.evaluate(() => {
@@ -294,18 +339,9 @@ try {
     })
     assert.equal(moduleOneNarrowWidths.body, moduleOneNarrowWidths.viewport)
     assert.equal(moduleOneNarrowWidths.document, moduleOneNarrowWidths.viewport)
-    await capture(firstWindows.learningPage, 'module-1-planning-390px.png')
+    await capture(firstWindows.learningPage, 'module-1-assessment-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await firstWindows.learningPage
-    .getByRole('button', { name: 'Một thay đổi nhỏ, rõ ràng và dễ hoàn tác' })
-    .click()
-  await firstWindows.learningPage
-    .getByRole('button', { name: 'Xem lại dấu hiệu cần planning' })
-    .click()
-  await firstWindows.learningPage
-    .getByRole('button', { name: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau' })
-    .waitFor()
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -316,7 +352,7 @@ try {
     .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
     .waitFor()
   await learningPage
-    .getByText(/Khi nào một yêu cầu nên được planning trước/)
+    .getByText(/Câu 1\/3/)
     .waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu lại' }).click()
   await learningPage
@@ -368,18 +404,15 @@ try {
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
 
   await learningPage.getByRole('button', { name: 'Xem khi nào cần planning', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true }).click()
-  await learningPage
-    .getByRole('button', { name: 'Một công việc còn nhiều quyết định chưa rõ hoặc nhiều bước phụ thuộc nhau' })
-    .click()
+  await learningPage.getByRole('button', { name: 'Áp dụng vào ContentPilot', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Tìm hiểu PRD', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Xem một ví dụ PRD', exact: true }).click()
   await learningPage.getByText('VÍ DỤ TỪ ATLASSIAN', { exact: true }).waitFor()
   await capture(learningPage, 'module-1-prd-example.png')
-  await learningPage.getByRole('button', { name: 'Phân biệt PRD và plan', exact: true }).click()
   await learningPage
-    .getByRole('button', { name: 'PRD · Đây là quyết định phạm vi' })
+    .getByRole('button', { name: 'Làm 3 câu kiểm tra Planning và PRD', exact: true })
     .click()
+  await answerAssessmentGroup(learningPage, 'planning-prd-check')
   await learningPage.getByRole('button', { name: 'Xem một prompt có nguồn', exact: true }).click()
   await learningPage.getByText('VÍ DỤ TỪ OPENAI DOCS', { exact: true }).waitFor()
   await capture(learningPage, 'module-1-prompt-example.png')
@@ -399,18 +432,17 @@ try {
   }
   await learningPage.getByRole('button', { name: 'Áp dụng vào ContentPilot', exact: true }).click()
   await learningPage
-    .getByRole('button', { name: 'Dùng năm câu hỏi để tự viết prompt' })
+    .getByRole('button', { name: 'Làm 3 câu kiểm tra Prompt engineering' })
     .click()
+  await answerAssessmentGroup(learningPage, 'prompt-check')
   await learningPage.getByRole('button', { name: 'Duyệt PRD đã xem xét' }).click()
   await learningPage.getByRole('button', { name: 'Xem PRD trở thành plan', exact: true }).click()
   await learningPage.getByText('VÍ DỤ ATLASSIAN → MICROSOFT', { exact: true }).waitFor()
   await capture(learningPage, 'module-1-implementation-plan-example.png')
   await learningPage
-    .getByRole('button', { name: 'Tạo plan có kết quả và cách kiểm tra' })
+    .getByRole('button', { name: 'Làm 2 câu kiểm tra Implementation plan' })
     .click()
-  await learningPage
-    .getByRole('button', { name: 'Loại bước đăng bài khỏi plan' })
-    .click()
+  await answerAssessmentGroup(learningPage, 'implementation-plan-check')
   await learningPage
     .getByRole('button', { name: 'Sang Codex tạo planning package' })
     .click()
@@ -477,14 +509,18 @@ try {
     'Expected the learning window to restore and hide the companion'
   )
 
-  await learningPage.getByText('Kiểm tra planning package', { exact: true }).waitFor()
+  await learningPage.getByText('Kiểm tra tổng hợp Module 1', { exact: true }).waitFor()
   assert.equal(
     await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
     0
   )
   await learningPage
-    .getByRole('button', { name: 'Hai artifact tồn tại, đã duyệt và khớp nhau' })
+    .getByRole('button', { name: 'Bắt đầu 15 câu kiểm tra cuối', exact: true })
     .click()
+  await answerAssessmentGroup(learningPage, 'final-assessment')
+  await learningPage.getByText('Bạn đạt 15/15 câu.', { exact: false }).waitFor()
+  await capture(learningPage, 'module-1-final-summary.png')
+  await learningPage.getByRole('button', { name: 'Hoàn thành Module 1', exact: true }).click()
   await learningPage.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
@@ -515,6 +551,12 @@ try {
   assert.equal(persisted.checkpointId, 'm1-complete')
   assert.equal(persisted.decisions.planningApproach, 'plan-first')
   assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
+  assert.equal(
+    Object.entries(persisted.decisions).filter(
+      ([key, value]) => key.startsWith('assessment:final-') && String(value).startsWith('correct')
+    ).length,
+    15
+  )
   assert.equal(persisted.practice.status, 'completed')
   assert.equal(persisted.practice.latestEvent.source, 'fixture')
 

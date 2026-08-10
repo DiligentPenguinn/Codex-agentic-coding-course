@@ -1,78 +1,473 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Planning, PRD, prompt và implementation plan",
-  "passingScore": 0.8,
+  "title": "Các phần kiểm tra Module 1 — Planning, PRD, prompt và implementation plan",
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
-    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
-    "antiCopyPolicy": "Câu tự luận phải dùng tình huống mới hoặc chi tiết trong artifact của Learner."
+    "feedbackTiming": "Hiện lời giải và nguồn sau khi Learner trả lời từng câu.",
+    "sourcePolicy": "Câu hỏi do khóa học biên soạn bằng tiếng Việt. Tình huống, đáp án và lời giải phải truy ngược được đến nguồn chính thức được ghi trong từng câu.",
+    "shortAnswerPolicy": "Learner viết câu trả lời trước, rồi tự đối chiếu với các tiêu chí công khai. Không lưu nội dung tự luận vào tiến trình Course Companion."
   },
-  "questions": [
+  "groups": [
     {
-      "id": "m1-q1",
-      "type": "multiple-choice",
-      "prompt": "Tình huống nào nên được planning trước khi yêu cầu coding agent viết code?",
-      "choices": [
-        "Đổi một lỗi chính tả đã xác định rõ trong một nút.",
-        "Xây từ đầu một ứng dụng có nhiều luồng và còn vài quyết định sản phẩm chưa rõ.",
-        "Đổi tên một tệp tạm chưa được dùng.",
-        "Thay một mã màu đã có giá trị cụ thể."
-      ],
-      "answerIndex": 1,
-      "requiresRationale": true,
-      "rationalePrompt": "Nêu một dấu hiệu trong tình huống này khiến planning có ích."
-    },
-    {
-      "id": "m1-q2",
-      "type": "classification",
-      "prompt": "Phân loại hai nội dung sau vào PRD hoặc implementation plan: (A) phiên bản đầu chưa tự động đăng bài; (B) bước kiểm tra từ đầu vào mẫu đến danh sách ý tưởng đầu ra.",
-      "expectedSignals": [
-        "A thuộc PRD vì xác định ngoài phạm vi sản phẩm",
-        "B thuộc implementation plan vì mô tả bước kiểm tra triển khai",
-        "Giải thích được khác biệt giữa xây cái gì và xây như thế nào"
+      "id": "planning-prd-check",
+      "title": "Kiểm tra Planning và PRD",
+      "placement": "after-prd",
+      "mode": "formative",
+      "questions": [
+        {
+          "id": "planning-prd-1",
+          "sceneId": "module-1-check-planning-prd-1",
+          "type": "multiple-choice",
+          "prompt": "Tình huống nào nên được planning trước khi coding agent viết code?",
+          "choices": [
+            "Đổi chữ trên một nút khi vị trí và nội dung mới đã rõ.",
+            "Tạo một ứng dụng mới khi luồng sử dụng và phạm vi phiên bản đầu còn chưa rõ.",
+            "Sửa một lỗi chính tả đã xác định trong tiêu đề.",
+            "Thay một mã màu bằng giá trị đã được cung cấp."
+          ],
+          "answerIndex": 1,
+          "explanation": "Microsoft khuyên tách thiết kế khỏi triển khai khi công việc phức tạp, còn nhiều điều chưa biết hoặc chưa thể chỉ ra đầy đủ các bước. Một thay đổi nhỏ đã rõ có thể được giao trực tiếp.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Incorporating Design Reviews into an Engagement",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/",
+            "basis": "Không phải công việc nào cũng cần bước xem xét thiết kế; các yêu cầu còn mơ hồ, nhiều điều chưa biết hoặc chưa thể liệt kê các bước là dấu hiệu nên thiết kế trước."
+          }
+        },
+        {
+          "id": "planning-prd-2",
+          "sceneId": "module-1-check-planning-prd-2",
+          "type": "multiple-choice",
+          "prompt": "Nhóm giả định phần lớn người dùng truy cập bằng máy tính bảng. Yêu cầu nào bám sát giả định đó nhất?",
+          "choices": [
+            "Giao diện phải hiển thị tốt trên máy tính bảng.",
+            "Sản phẩm phải dùng một thư viện giao diện cụ thể.",
+            "Nhóm phải hoàn thành toàn bộ sản phẩm trong một ngày.",
+            "Ứng dụng phải tự động đăng bài lên mọi mạng xã hội."
+          ],
+          "answerIndex": 0,
+          "explanation": "Atlassian dùng chính ví dụ máy tính bảng để minh họa cách một giả định về người dùng dẫn đến yêu cầu giao diện phù hợp với thiết bị đó.",
+          "source": {
+            "label": "Atlassian — Product requirements document template",
+            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
+            "basis": "Mẫu PRD nối giả định người dùng truy cập bằng máy tính bảng với yêu cầu sản phẩm phải hiển thị phù hợp trên thiết bị di động."
+          }
+        },
+        {
+          "id": "planning-prd-3",
+          "sceneId": "module-1-check-planning-prd-3",
+          "type": "multiple-choice",
+          "prompt": "Bạn nên ghi tính năng chưa làm trong phiên bản đầu vào đâu để mọi người biết giới hạn sản phẩm?",
+          "choices": [
+            "Phần ngoài phạm vi của PRD.",
+            "Một bình luận tạm không thuộc tài liệu nào.",
+            "Danh sách thư viện sẽ cài đặt.",
+            "Lời nhắn riêng chỉ coding agent nhìn thấy."
+          ],
+          "answerIndex": 0,
+          "explanation": "Atlassian khuyên ghi rõ những gì nằm ngoài phạm vi của tính năng hoặc bản phát hành để chủ động hạn chế phạm vi tự phình ra.",
+          "source": {
+            "label": "Atlassian — Product requirements document template",
+            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
+            "basis": "Phần cuối của mẫu PRD ghi rõ nội dung ngoài phạm vi để mọi người biết ranh giới của phiên bản."
+          }
+        }
       ]
     },
     {
-      "id": "m1-q3-prompt",
-      "type": "short-answer",
-      "prompt": "Một prompt chỉ nói: ‘Hãy tạo PRD cho ý tưởng này.’ Hãy nêu hai điều bạn cần bổ sung để coding agent không tự đoán cách làm hoặc kết quả cuối.",
-      "expectedSignals": [
-        "Nêu được ít nhất hai trong năm điều: việc cần làm, thông tin agent cần biết, cách làm việc, điều agent không được tự làm, kết quả cuối cần có",
-        "Giải thích được cách phần bổ sung làm prompt rõ hơn",
-        "Không chỉ chép lại câu hỏi"
+      "id": "prompt-check",
+      "title": "Kiểm tra Prompt engineering",
+      "placement": "after-prompt",
+      "mode": "formative",
+      "questions": [
+        {
+          "id": "prompt-1",
+          "sceneId": "module-1-check-prompt-1",
+          "type": "multiple-choice",
+          "prompt": "Prompt nào giúp coding agent hiểu rõ kết quả cần tạo nhất?",
+          "choices": [
+            "Làm giúp mình nhé.",
+            "Tạo một PRD cho ý tưởng ContentPilot. Hỏi mình một câu mỗi lượt, không tự quyết định phạm vi và trả lại PRD một trang có tám phần.",
+            "Hãy suy nghĩ thật kỹ và làm mọi thứ cần thiết.",
+            "Tạo sản phẩm tốt nhất có thể."
+          ],
+          "answerIndex": 1,
+          "explanation": "OpenAI Docs khuyên nêu mục tiêu, thông tin liên quan, giới hạn và định dạng đầu ra. Lựa chọn đúng cũng chỉ rõ cách trao đổi và quyền quyết định của người học.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt hướng đến kết quả nên nêu mục tiêu, bối cảnh liên quan, ràng buộc, bằng chứng, tiêu chí thành công và định dạng đầu ra."
+          }
+        },
+        {
+          "id": "prompt-2",
+          "sceneId": "module-1-check-prompt-2",
+          "type": "multiple-choice",
+          "prompt": "Bạn muốn agent chỉ lập kế hoạch, chưa được sửa tệp. Câu nào nói rõ quyền hành động đó?",
+          "choices": [
+            "Hãy chủ động làm tất cả những gì bạn thấy cần.",
+            "Hãy đọc thông tin và đề xuất kế hoạch. Chưa sửa tệp hoặc thực hiện thay đổi cho đến khi mình duyệt.",
+            "Hãy làm nhanh nhất có thể.",
+            "Hãy dùng bất kỳ công cụ nào đang có."
+          ],
+          "answerIndex": 1,
+          "explanation": "OpenAI Docs khuyên nói rõ mức tự chủ và những hành động cần phê duyệt, nhất là khi công việc có thể tạo thay đổi hoặc mở rộng phạm vi.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt nên xác định mức hành động được phép và yêu cầu xác nhận trước hành động bên ngoài, phá hủy, tốn phí hoặc mở rộng phạm vi."
+          }
+        },
+        {
+          "id": "prompt-3",
+          "sceneId": "module-1-check-prompt-3",
+          "type": "multiple-choice",
+          "prompt": "Cách nào làm prompt gọn hơn mà vẫn giữ yêu cầu quan trọng?",
+          "choices": [
+            "Lặp lại cùng một chỉ dẫn ở nhiều đoạn để nhấn mạnh.",
+            "Thêm mọi công cụ có thể dùng dù không liên quan.",
+            "Nêu mỗi chỉ dẫn một lần và chỉ giữ công cụ liên quan đến công việc.",
+            "Xóa mục tiêu và tiêu chí thành công để prompt ngắn hơn."
+          ],
+          "answerIndex": 2,
+          "explanation": "OpenAI Docs khuyên nêu mỗi chỉ dẫn một lần, tinh gọn mô tả và chỉ cung cấp các công cụ liên quan. Việc tinh gọn không có nghĩa là xóa mục tiêu hoặc tiêu chí thành công.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt gọn nên tránh chỉ dẫn lặp lại, dùng mô tả chính xác và chỉ đưa vào những công cụ phù hợp với nhiệm vụ."
+          }
+        }
       ]
     },
     {
-      "id": "m1-q3",
-      "type": "short-answer",
-      "prompt": "Trong một sản phẩm khác do bạn chọn, hãy viết lại tiêu chí mơ hồ ‘ứng dụng hoạt động tốt’ thành một Done When cụ thể và kiểm tra được.",
-      "expectedSignals": [
-        "Có bối cảnh mới do Learner chọn",
-        "Nêu kết quả có thể quan sát",
-        "Nêu điều kiện hoặc cách xác nhận pass"
+      "id": "implementation-plan-check",
+      "title": "Kiểm tra Implementation plan",
+      "placement": "after-implementation-plan",
+      "mode": "formative",
+      "questions": [
+        {
+          "id": "implementation-plan-1",
+          "sceneId": "module-1-check-plan-1",
+          "type": "multiple-choice",
+          "prompt": "Nội dung nào nên nằm trong phần ngoài phạm vi của implementation plan?",
+          "choices": [
+            "Một tính năng đã được PRD yêu cầu cho phiên bản đầu.",
+            "Một mục tiêu mà kế hoạch chủ động chưa thực hiện trong lần này.",
+            "Một thành phần cần sửa để đạt yêu cầu.",
+            "Một tiêu chí dùng để xác nhận đã hoàn thành."
+          ],
+          "answerIndex": 1,
+          "explanation": "Mẫu Task Design Review của Microsoft dùng phần Non-goals / Out-of-Scope để làm rõ công việc nằm ngoài thiết kế hiện tại.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Phần Non-goals / Out-of-Scope liệt kê những mục tiêu nằm ngoài phạm vi của công việc."
+          }
+        },
+        {
+          "id": "implementation-plan-2",
+          "sceneId": "module-1-check-plan-2",
+          "type": "multiple-choice",
+          "prompt": "PRD ghi chưa tự động đăng bài, nhưng plan lại có bước đăng bài lên Facebook. Bạn nên làm gì?",
+          "choices": [
+            "Giữ bước đó vì coding agent đã đề xuất.",
+            "Loại bước đó khỏi plan, hoặc sửa và duyệt lại PRD trước khi giữ nó.",
+            "Ẩn bước đó trong phần câu hỏi còn mở.",
+            "Bắt đầu viết code rồi quyết định sau."
+          ],
+          "answerIndex": 1,
+          "explanation": "Microsoft yêu cầu thiết kế nêu rõ mục tiêu trong phạm vi và ngoài phạm vi. Nếu plan thêm một mục tiêu ngoài PRD, người học phải loại nó hoặc chủ động thay đổi rồi duyệt lại phạm vi.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Thiết kế phải tách rõ Goals/In-Scope và Non-goals/Out-of-Scope trước khi mô tả phương án thực hiện."
+          }
+        }
       ]
     },
     {
-      "id": "m1-q4",
-      "type": "short-answer",
-      "prompt": "PRD ghi đăng nhập nằm ngoài phạm vi, nhưng implementation plan lại có bước xây màn hình đăng nhập. Bạn sẽ xử lý điểm lệch này thế nào trước khi duyệt?",
-      "expectedSignals": [
-        "Không duyệt plan đang lệch",
-        "Loại bước đăng nhập hoặc chủ động sửa và duyệt lại phạm vi PRD",
-        "Không để coding agent tự mở rộng phạm vi"
-      ]
-    },
-    {
-      "id": "m1-q5",
-      "type": "short-answer",
-      "prompt": "Chọn một quyết định phạm vi trong `artifacts/PRD.md` của bạn. Nêu bước tương ứng trong `artifacts/implementation-plan.md` và bằng chứng sẽ dùng để kiểm tra nó.",
-      "expectedSignals": [
-        "Tham chiếu một quyết định thật trong PRD của Learner",
-        "Chỉ ra bước tương ứng trong plan",
-        "Nêu bằng chứng kiểm tra cụ thể",
-        "Giải thích bằng lời của Learner"
+      "id": "final-assessment",
+      "title": "Kiểm tra tổng hợp Module 1",
+      "placement": "after-planning-package",
+      "mode": "mastery",
+      "passingScore": 0.8,
+      "questions": [
+        {
+          "id": "final-1",
+          "sceneId": "module-1-final-1",
+          "type": "multiple-choice",
+          "prompt": "Dấu hiệu nào cho thấy một công việc có thể cần planning trước?",
+          "choices": [
+            "Yêu cầu còn nhiều điều chưa biết và chưa thể liệt kê đầy đủ các bước.",
+            "Chỉ cần sửa một chữ đã xác định.",
+            "Giá trị màu mới đã được cung cấp.",
+            "Thay đổi có thể hoàn tác ngay."
+          ],
+          "answerIndex": 0,
+          "explanation": "Nhiều điều chưa biết, yêu cầu chưa rõ và chưa thể chỉ ra các bước là những dấu hiệu Microsoft dùng để nhận diện công việc cần thiết kế trước.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Incorporating Design Reviews into an Engagement",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/",
+            "basis": "Các công việc có nhiều điều chưa biết, yêu cầu chưa rõ hoặc chưa thể chỉ ra các bước sẽ hưởng lợi từ việc thiết kế trước."
+          }
+        },
+        {
+          "id": "final-2",
+          "sceneId": "module-1-final-2",
+          "type": "multiple-choice",
+          "prompt": "Tình huống nào có thể giao trực tiếp mà chưa cần một bản planning đầy đủ?",
+          "choices": [
+            "Tạo một ứng dụng mới với ba luồng sử dụng chưa thống nhất.",
+            "Đổi nhãn của một nút khi nút và nội dung mới đã được chỉ rõ.",
+            "Thiết kế hệ thống khi chưa biết đầu vào.",
+            "Xây tính năng khi chưa có tiêu chí hoàn thành."
+          ],
+          "answerIndex": 1,
+          "explanation": "Microsoft nhấn mạnh rằng không phải công việc nào cũng cần bước xem xét thiết kế. Khóa học áp dụng nguyên tắc đó cho thay đổi nhỏ đã rõ và dễ kiểm tra.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Incorporating Design Reviews into an Engagement",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/",
+            "basis": "Chỉ tạo bản thiết kế khi cần; không phải mọi yêu cầu hoặc công việc đều cần một bản thiết kế đầy đủ."
+          }
+        },
+        {
+          "id": "final-3",
+          "sceneId": "module-1-final-3",
+          "type": "multiple-choice",
+          "prompt": "Tiêu chí nào đo được kết quả sản phẩm rõ nhất?",
+          "choices": [
+            "Trải nghiệm phải thật tốt.",
+            "Người dùng chắc chắn sẽ thích sản phẩm.",
+            "Điểm hài lòng của khách hàng tăng ít nhất 15%.",
+            "Giao diện phải hiện đại."
+          ],
+          "answerIndex": 2,
+          "explanation": "Atlassian dùng mức tăng ít nhất 15% về điểm hài lòng làm ví dụ cho một thước đo thành công cụ thể.",
+          "source": {
+            "label": "Atlassian — Product requirements document template",
+            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
+            "basis": "Mẫu PRD minh họa thước đo thành công bằng mức tăng ít nhất 15% trong điểm hài lòng của khách hàng."
+          }
+        },
+        {
+          "id": "final-4",
+          "sceneId": "module-1-final-4",
+          "type": "multiple-choice",
+          "prompt": "Một câu hỏi về cách người dùng biết đến tính năng mới chưa có đáp án. PRD nên xử lý thế nào?",
+          "choices": [
+            "Bỏ qua để tài liệu trông hoàn chỉnh.",
+            "Ghi vào phần câu hỏi còn mở và cập nhật khi có đáp án.",
+            "Để coding agent tự quyết định.",
+            "Chuyển thẳng thành yêu cầu đã duyệt."
+          ],
+          "answerIndex": 1,
+          "explanation": "Atlassian khuyên ghi lại câu hỏi còn mở, sau đó bổ sung đáp án và ngày quyết định để theo dõi sự phát triển của sản phẩm.",
+          "source": {
+            "label": "Atlassian — Product requirements document template",
+            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
+            "basis": "Mẫu PRD dành chỗ ghi câu hỏi còn mở, câu trả lời sau này và thời điểm câu hỏi được giải quyết."
+          }
+        },
+        {
+          "id": "final-5",
+          "sceneId": "module-1-final-5",
+          "type": "multiple-choice",
+          "prompt": "Thành phần nào không nên bị bỏ khỏi một prompt hướng đến kết quả?",
+          "choices": [
+            "Mục tiêu và tiêu chí thành công.",
+            "Các câu nhắc lại cùng một chỉ dẫn.",
+            "Công cụ không liên quan.",
+            "Lời động viên chung chung."
+          ],
+          "answerIndex": 0,
+          "explanation": "OpenAI Docs khuyên giữ mục tiêu, bằng chứng, tiêu chí thành công và định dạng đầu ra. Những phần lặp lại hoặc không liên quan mới là ứng viên nên lược bỏ.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt hướng đến kết quả cần giữ mục tiêu, bối cảnh, ràng buộc, bằng chứng, tiêu chí thành công và định dạng đầu ra."
+          }
+        },
+        {
+          "id": "final-6",
+          "sceneId": "module-1-final-6",
+          "type": "multiple-choice",
+          "prompt": "Prompt nào giữ quyền duyệt của người dùng rõ nhất?",
+          "choices": [
+            "Hãy tự chọn phạm vi và triển khai ngay.",
+            "Hãy đề xuất phạm vi, dừng để mình duyệt rồi mới sửa tệp.",
+            "Hãy hoàn thành bằng mọi cách.",
+            "Không cần hỏi lại trong bất kỳ trường hợp nào."
+          ],
+          "answerIndex": 1,
+          "explanation": "OpenAI Docs khuyên xác định mức tự chủ và điểm cần phê duyệt. Lựa chọn đúng cho phép agent đề xuất nhưng giữ quyết định thay đổi ở người dùng.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt nên nói rõ hành động được phép và yêu cầu xác nhận trước hành động mở rộng phạm vi hoặc tạo tác động đáng kể."
+          }
+        },
+        {
+          "id": "final-7",
+          "sceneId": "module-1-final-7",
+          "type": "multiple-choice",
+          "prompt": "Bạn nên làm gì khi prompt lặp cùng một quy tắc ở nhiều đoạn?",
+          "choices": [
+            "Giữ mọi lần lặp vì prompt càng dài càng tốt.",
+            "Gộp quy tắc thành một chỉ dẫn rõ ở một nơi.",
+            "Xóa luôn quy tắc đó.",
+            "Thêm nhiều ví dụ không liên quan."
+          ],
+          "answerIndex": 1,
+          "explanation": "OpenAI Docs khuyên nêu mỗi chỉ dẫn một lần. Điều này giúp prompt gọn hơn mà vẫn giữ yêu cầu cần thiết.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Hướng dẫn tinh gọn prompt yêu cầu nêu mỗi chỉ dẫn một lần và loại nội dung lặp lại."
+          }
+        },
+        {
+          "id": "final-8",
+          "sceneId": "module-1-final-8",
+          "type": "multiple-choice",
+          "prompt": "Phần nào của Task Design Review dùng để ghi việc chủ động không làm?",
+          "choices": [
+            "Overview/Problem Statement.",
+            "Goals/In-Scope.",
+            "Non-goals/Out-of-Scope.",
+            "Resources."
+          ],
+          "answerIndex": 2,
+          "explanation": "Mẫu của Microsoft dùng Non-goals / Out-of-Scope để làm rõ công việc nằm ngoài phạm vi thiết kế.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Non-goals / Out-of-Scope liệt kê những điều công việc sẽ không đạt hoặc chưa thực hiện."
+          }
+        },
+        {
+          "id": "final-9",
+          "sceneId": "module-1-final-9",
+          "type": "multiple-choice",
+          "prompt": "Trong phần Proposed Options, Microsoft gợi ý làm rõ nội dung nào?",
+          "choices": [
+            "Phương án, lý do lựa chọn, phương án thay thế và thành phần cần thay đổi.",
+            "Chỉ tên tác giả của tài liệu.",
+            "Chỉ ngày phát hành dự kiến.",
+            "Chỉ một câu tuyên bố đã hoàn thành."
+          ],
+          "answerIndex": 0,
+          "explanation": "Task Design Review yêu cầu mô tả phương án, lý do chọn, phương án khác đã cân nhắc và những thành phần mới hoặc cần cập nhật.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Proposed Options bao gồm thiết kế chi tiết, lý do chọn cách tiếp cận, phương án thay thế và các thành phần bị ảnh hưởng."
+          }
+        },
+        {
+          "id": "final-10",
+          "sceneId": "module-1-final-10",
+          "type": "multiple-choice",
+          "prompt": "Plan có một bước không truy ngược được về mục tiêu hoặc phạm vi PRD. Kết luận phù hợp nhất là gì?",
+          "choices": [
+            "Plan đã chi tiết nên có thể duyệt.",
+            "Bước đó cần bị loại, hoặc PRD phải được sửa và duyệt lại trước.",
+            "Coding agent có thể tự quyết định giữ bước đó.",
+            "Có thể bỏ qua vì đây chỉ là tài liệu."
+          ],
+          "answerIndex": 1,
+          "explanation": "Một thiết kế phải phục vụ mục tiêu trong phạm vi và tách rõ nội dung ngoài phạm vi. Bước không truy ngược được cần bị loại hoặc phải được hợp thức hóa bằng một quyết định phạm vi mới.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Mẫu thiết kế tách Goals/In-Scope khỏi Non-goals/Out-of-Scope trước khi mô tả phương án thực hiện."
+          }
+        },
+        {
+          "id": "final-11",
+          "sceneId": "module-1-final-11",
+          "type": "short-answer",
+          "prompt": "Viết một tiêu chí Done When có thể quan sát và đo được cho một sản phẩm do bạn chọn.",
+          "criteria": [
+            "Nêu một kết quả người dùng hoặc người kiểm tra có thể quan sát.",
+            "Có con số, điều kiện đạt hoặc cách xác nhận cụ thể.",
+            "Không chỉ dùng từ mơ hồ như tốt, đẹp hoặc ổn định."
+          ],
+          "explanation": "Atlassian khuyên xác định mục tiêu sản phẩm cùng thước đo dùng để theo dõi thành công. Ví dụ của họ dùng mức tăng ít nhất 15% về điểm hài lòng.",
+          "source": {
+            "label": "Atlassian — Product requirements document template",
+            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
+            "basis": "Mục tiêu sản phẩm cần đi kèm thước đo thành công cụ thể để theo dõi kết quả."
+          }
+        },
+        {
+          "id": "final-12",
+          "sceneId": "module-1-final-12",
+          "type": "short-answer",
+          "prompt": "Viết lại prompt ‘Hãy tạo PRD cho ý tưởng này’ để nói rõ ít nhất ba điều coding agent cần biết.",
+          "criteria": [
+            "Nêu rõ việc coding agent cần làm.",
+            "Bổ sung ít nhất hai điều khác: thông tin đầu vào, cách làm việc, giới hạn hành động hoặc kết quả cuối.",
+            "Giữ prompt gọn và không lặp cùng một chỉ dẫn."
+          ],
+          "explanation": "OpenAI Docs khuyên nêu mục tiêu, thông tin liên quan, ràng buộc, bằng chứng, tiêu chí thành công và định dạng đầu ra. Hướng dẫn cũng khuyên nêu mỗi chỉ dẫn một lần.",
+          "source": {
+            "label": "OpenAI Docs — Model guidance",
+            "url": "https://developers.openai.com/api/docs/guides/latest-model",
+            "basis": "Prompt hướng đến kết quả cần đủ thông tin để kiểm soát đầu ra nhưng nên tránh chỉ dẫn lặp lại."
+          }
+        },
+        {
+          "id": "final-13",
+          "sceneId": "module-1-final-13",
+          "type": "short-answer",
+          "prompt": "Viết một bước implementation plan gồm mục tiêu, thành phần liên quan, kết quả quan sát được và cách kiểm tra.",
+          "criteria": [
+            "Mục tiêu của bước gắn với một yêu cầu sản phẩm.",
+            "Nêu thành phần mới hoặc thành phần cần cập nhật.",
+            "Có kết quả quan sát được và cách xác nhận kết quả."
+          ],
+          "explanation": "Microsoft yêu cầu thiết kế nêu mục tiêu trong phạm vi, tiêu chí hoàn thành và các thành phần cần phát triển hoặc cập nhật. Khóa học tổ chức các ý đó thành bốn trường dễ dùng cho người mới.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Goals/In-Scope gồm acceptance criteria; Proposed Options nêu phương án cùng thành phần mới hoặc cần cập nhật."
+          }
+        },
+        {
+          "id": "final-14",
+          "sceneId": "module-1-final-14",
+          "type": "artifact-answer",
+          "prompt": "Chọn một yêu cầu trong `artifacts/PRD.md`. Nêu bước tương ứng trong `artifacts/implementation-plan.md` và bằng chứng dùng để kiểm tra bước đó.",
+          "criteria": [
+            "Tham chiếu một yêu cầu thật trong PRD của bạn.",
+            "Chỉ ra bước cụ thể trong implementation plan.",
+            "Nêu bằng chứng hoặc phép kiểm tra có thể quan sát."
+          ],
+          "explanation": "Mẫu Task Design Review nối mục tiêu trong phạm vi và acceptance criteria với phương án cùng thành phần thực hiện. Câu này yêu cầu bạn chứng minh mối nối đó trong planning package của mình.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Thiết kế phải cho thấy phương án giải quyết các mục tiêu trong phạm vi và đáp ứng tiêu chí hoàn thành."
+          }
+        },
+        {
+          "id": "final-15",
+          "sceneId": "module-1-final-15",
+          "type": "artifact-answer",
+          "prompt": "Chọn một mục ngoài phạm vi trong `artifacts/PRD.md`. Kiểm tra implementation plan và giải thích vì sao mục đó không được xuất hiện như một bước xây dựng.",
+          "criteria": [
+            "Tham chiếu một mục ngoài phạm vi thật trong PRD.",
+            "Xác nhận mục đó không trở lại trong implementation plan, hoặc chỉ ra điểm lệch nếu có.",
+            "Nêu hành động sửa phù hợp khi phát hiện điểm lệch."
+          ],
+          "explanation": "Mẫu Task Design Review của Microsoft tách rõ mục tiêu trong phạm vi với nội dung chủ động không làm. Đối chiếu ranh giới này với implementation plan giúp phát hiện một mục ngoài phạm vi bị đưa trở lại phần xây dựng.",
+          "source": {
+            "label": "Microsoft Engineering Fundamentals — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Mẫu tách Goals/In-Scope khỏi Non-goals/Out-of-Scope trước khi trình bày phương án thực hiện."
+          }
+        }
       ]
     }
   ]

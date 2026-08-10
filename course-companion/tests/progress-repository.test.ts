@@ -103,6 +103,32 @@ describe('ProgressRepository', () => {
     })
   })
 
+  it('resumes the exact sourced assessment question and its saved result', async () => {
+    const repository = new ProgressRepository(await temporaryDirectory())
+    const promptQuestion = await repository.save({
+      currentLessonId: 'module-1',
+      checkpointId: 'm1-prd-interview',
+      sceneId: 'module-1-check-prompt-2',
+      completedCheckpointIds: [
+        'intro-visual-onboarding',
+        'm1-why-planning',
+        'm1-contentpilot-brief',
+        'm1-prd-concept'
+      ],
+      decisions: {
+        'assessment:planning-prd-1': 'correct:1',
+        'assessment:planning-prd-2': 'correct:0',
+        'assessment:planning-prd-3': 'correct:0',
+        'assessment:prompt-1': 'correct:1'
+      }
+    })
+
+    await expect(repository.load()).resolves.toEqual({
+      status: 'returning',
+      progress: promptQuestion
+    })
+  })
+
   it('migrates schema-v2 Module 0 progress to the new Module 1 opening', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {

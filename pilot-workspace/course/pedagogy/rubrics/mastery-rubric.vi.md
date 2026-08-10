@@ -36,7 +36,9 @@ Learner pass Module 1 khi đạt tất cả điều kiện:
 - Mọi mục `Done When` có cách kiểm tra tương ứng.
 - Learner giải thích bằng lời của mình ít nhất một quyết định phạm vi, bước triển
   khai liên quan và bằng chứng sẽ dùng để kiểm tra.
-- Learner đạt ít nhất 80% bài kiểm tra cuối module.
+- Learner đạt ít nhất 12/15 câu trong nhóm `final-assessment`.
+- Ba nhóm kiểm tra ngắn được hoàn thành theo thứ tự 3 câu Planning và PRD, 3
+  câu Prompt engineering và 2 câu Implementation plan.
 
 ## Feedback mẫu
 
