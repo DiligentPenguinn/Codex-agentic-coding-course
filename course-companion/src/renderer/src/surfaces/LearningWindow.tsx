@@ -23,6 +23,7 @@ import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
 import m1ReasoningLevelsImage from '../../../../../pilot-workspace/course/codex-setup/images/reasoning-levels.png'
+import m1SlashCommandsImage from '../../../../../pilot-workspace/course/codex-setup/images/slash-commands.png'
 import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
 import m1AgentsGuidanceImage from '../assets/lesson-visuals/m1-agents-guidance.webp'
 import m1AssessmentImage from '../assets/lesson-visuals/m1-assessment.webp'
@@ -45,6 +46,7 @@ type LessonVisual = {
   alt: string
   caption: string
   source: string
+  fit?: 'cover' | 'contain'
 }
 
 type Choice = {
@@ -225,7 +227,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'TỰ ĐỘNG HÓA', value: 'Việc lặp lại' }
     ],
     dialogue: 'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.',
-    choices: [{ label: 'Codex có thể làm gì trong dự án?', next: 'module-1-codex-examples', primary: true }]
+    choices: [{ label: 'Làm quen với giao diện Codex', next: 'module-1-codex-examples', primary: true }]
   },
   'module-1-codex-examples': {
     lessonId: 'module-1',
@@ -233,19 +235,59 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     step: 1,
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Codex và coding agent',
-    objective: 'Codex không chỉ đưa ra câu trả lời',
-    panelLabel: 'MỘT VÒNG LÀM VIỆC',
-    panelStatus: 'MỤC TIÊU → HÀNH ĐỘNG → KIỂM TRA',
+    mission: 'Làm quen với giao diện Codex',
+    objective: 'Bạn quyết định khi nào Codex cần xin phép',
+    panelLabel: 'APPROVAL',
+    panelStatus: 'BẠN GIỮ QUYỀN QUYẾT ĐỊNH',
     tone: 'neutral',
-    request: 'Bạn giao mục tiêu; Codex làm việc trong dự án; bạn duyệt kết quả.',
+    request: 'Approval cho biết khi nào Codex cần dừng để xin phép.',
     evidence: [
-      { label: 'ĐỌC', value: 'Tệp và bối cảnh' },
-      { label: 'LÀM', value: 'Dùng công cụ và lệnh' },
-      { label: 'BÁO CÁO', value: 'Thay đổi và kiểm tra' }
+      { label: 'VỊ TRÍ', value: 'Bên dưới ô soạn tin' },
+      { label: 'VAI TRÒ', value: 'Kiểm soát quyền hành động' },
+      { label: 'HỌC KỸ HƠN', value: 'Ở phần Approval' }
     ],
-    dialogue: 'Khi được bạn cho phép, Codex có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả. Bạn vẫn là người đặt mục tiêu, chọn phạm vi và duyệt kết quả cuối cùng.',
-    choices: [{ label: 'Tìm hiểu môi trường quanh Codex', next: 'module-1-agents-guidance', primary: true }]
+    dialogue: 'Nếu đã mở được ứng dụng này, có lẽ bạn cũng từng nhìn thấy giao diện ChatGPT. Codex vẫn có ô trò chuyện quen thuộc. Tuy nhiên, ứng dụng còn có các điều khiển dành cho công việc trong dự án. Trước tiên, Approval cho biết khi nào Codex cần dừng để xin phép.',
+    choices: [{ label: 'Tiếp theo: Model', next: 'module-1-codex-model-intro', primary: true }]
+  },
+  'module-1-codex-model-intro': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-codex-orientation',
+    step: 1,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Làm quen với giao diện Codex',
+    objective: 'Model và mức suy luận nằm ngay cạnh ô gửi',
+    panelLabel: 'MODEL',
+    panelStatus: 'CHỌN CÁCH CODEX XỬ LÝ CÔNG VIỆC',
+    tone: 'neutral',
+    request: 'Xem Model, Effort và Speed đang dùng cho task.',
+    evidence: [
+      { label: 'MODEL', value: 'Khả năng chính' },
+      { label: 'EFFORT', value: 'Mức suy luận' },
+      { label: 'SPEED', value: 'Tốc độ xử lý' }
+    ],
+    dialogue: 'Ở góc dưới bên phải, bạn có thể xem Model cùng mức suy luận đang dùng. Đây là nơi bạn thay đổi cách Codex xử lý công việc. Chúng ta sẽ tìm hiểu từng lựa chọn ở phần sau.',
+    choices: [{ label: 'Tiếp theo: Lệnh /', next: 'module-1-codex-slash-commands', primary: true }]
+  },
+  'module-1-codex-slash-commands': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-codex-orientation',
+    step: 1,
+    totalSteps: 7,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Làm quen với giao diện Codex',
+    objective: 'Nhập / để mở nhanh các chức năng',
+    panelLabel: 'LỆNH /',
+    panelStatus: 'MỞ NGAY TRONG Ô SOẠN TIN',
+    tone: 'neutral',
+    request: 'Chọn một lệnh hoặc tiếp tục gõ để lọc danh sách.',
+    evidence: [
+      { label: '/REVIEW', value: 'Xem xét thay đổi code' },
+      { label: '/MODEL', value: 'Chọn model' },
+      { label: '/MEMORIES', value: 'Quản lý bộ nhớ' }
+    ],
+    dialogue: 'Khi nhập / trong ô soạn tin, Codex sẽ mở danh sách lệnh. Bạn có thể chọn một lệnh hoặc tiếp tục gõ để tìm nhanh. Chẳng hạn, /review bắt đầu xem xét thay đổi code, còn /model mở phần chọn model.',
+    choices: [{ label: 'Tìm hiểu Harness Engineering', next: 'module-1-agents-guidance', primary: true }]
   },
   'module-1-agents-guidance': {
     lessonId: 'module-1',
@@ -1211,6 +1253,25 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
 }
 
 const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
+  'module-1-codex-examples': {
+    image: m1ApprovalMenuImage,
+    alt: 'Menu Approval của Codex hiển thị Ask for approval, Approve for me và Full access',
+    caption: 'Approval giúp bạn kiểm soát khi nào Codex cần dừng để xin phép.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp',
+    fit: 'contain'
+  },
+  'module-1-codex-model-intro': {
+    image: m1ModelSettingsImage,
+    alt: 'Menu Codex hiển thị Model 5.6 Sol, Effort High và Speed Standard',
+    caption: 'Model, Effort và Speed nằm trong cùng một menu cạnh ô gửi.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+  },
+  'module-1-codex-slash-commands': {
+    image: m1SlashCommandsImage,
+    alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin',
+    caption: 'Nhập / để mở lệnh, sau đó chọn hoặc tiếp tục gõ để lọc danh sách.',
+    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+  },
   'module-1-reasoning-effort': {
     image: m1ReasoningLevelsImage,
     alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra',
@@ -1227,7 +1288,9 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   ],
   'm1-understand-codex': [
     ['module-1-codex-orientation'],
-    ['module-1-codex-examples']
+    ['module-1-codex-examples'],
+    ['module-1-codex-model-intro'],
+    ['module-1-codex-slash-commands']
   ],
   'm1-workspace-permissions': [
     ['module-1-permissions'],
@@ -2265,6 +2328,7 @@ export function LearningWindow() {
               <img
                 src={lessonVisual.image}
                 alt={lessonVisual.alt}
+                data-fit={lessonVisual.fit ?? 'cover'}
                 decoding="async"
                 fetchPriority="high"
               />

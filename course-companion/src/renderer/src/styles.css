@@ -221,6 +221,7 @@ button:focus-visible {
   object-fit: cover;
   object-position: center;
 }
+.pixel-lesson-visual img[data-fit="contain"] { object-fit: contain; }
 .pixel-lesson-visual figcaption {
   min-height: 54px;
   padding: 9px 11px;

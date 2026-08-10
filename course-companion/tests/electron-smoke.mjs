@@ -56,7 +56,7 @@ async function answerAssessmentGroup(page, groupId) {
 
 async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
-  await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 1/4', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
     'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
@@ -84,8 +84,37 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 
-  await page.getByRole('button', { name: 'Codex có thể làm gì trong dự án?', exact: true }).click()
-  await page.getByRole('button', { name: 'Tìm hiểu môi trường quanh Codex', exact: true }).click()
+  await page.getByRole('button', { name: 'Làm quen với giao diện Codex', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 2/4', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await page.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Approval cho biết khi nào Codex cần dừng để xin phép/)
+  await capture(page, 'module-1-codex-approval-intro.png')
+  await page.getByRole('button', { name: 'Tiếp theo: Model', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 3/4', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  await capture(page, 'module-1-codex-model-intro.png')
+  await page.getByRole('button', { name: 'Tiếp theo: Lệnh /', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 4/4', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Khi nhập \/ trong ô soạn tin/)
+  await capture(page, 'module-1-codex-slash-commands.png')
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const commandNarrowWidths = await page.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(commandNarrowWidths.body, commandNarrowWidths.viewport)
+    assert.equal(commandNarrowWidths.document, commandNarrowWidths.viewport)
+    await capture(page, 'module-1-codex-slash-commands-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tìm hiểu Harness Engineering', exact: true }).click()
   await page.getByRole('button', { name: 'Harness là gì?', exact: true }).click()
   await page.getByRole('button', { name: 'Xem harness của Codex', exact: true }).click()
   await page.getByRole('button', { name: 'Khi kết quả chưa tốt thì sao?', exact: true }).click()
