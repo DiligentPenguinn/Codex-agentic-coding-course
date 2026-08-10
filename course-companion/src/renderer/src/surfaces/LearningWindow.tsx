@@ -138,7 +138,8 @@ const scenes: Record<SceneId, SceneContent> = {
     ],
     // Keep this wording verbatim with pilot-workspace/course/lesson-scripts/module-1.script.vi.md.
     dialogue: 'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nPlanning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.',
-    choices: [{ label: 'Tiếp tục', next: 'module-1-why-planning-check', primary: true }]
+    choices: [{ label: 'Tiếp tục', next: 'module-1-why-planning-check', primary: true }],
+    showPanel: false
   },
   'module-1-why-planning-check': {
     lessonId: 'module-1',

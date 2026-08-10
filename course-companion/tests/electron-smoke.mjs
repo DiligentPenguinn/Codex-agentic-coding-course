@@ -246,6 +246,7 @@ try {
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
     'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nPlanning không cần thiết cho mọi việc. Một thay đổi nhỏ, rõ ràng và dễ hoàn tác có thể giao trực tiếp. Nhưng khi xây từ đầu, còn nhiều quyết định chưa rõ hoặc có nhiều bước phụ thuộc nhau, planning giúp coding agent hiểu đúng vấn đề trước khi viết code.'
   )
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   await capture(firstWindows.learningPage, 'module-1-planning-fundamentals.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục', exact: true })
@@ -342,7 +343,7 @@ try {
     .getByRole('button', { name: 'Tiếp tục', exact: true })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
-  assert.equal(await learningPage.locator('.pixel-consequence').count(), 1)
+  assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
 
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await learningPage
