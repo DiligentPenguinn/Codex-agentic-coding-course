@@ -1685,6 +1685,20 @@ export function LearningWindow() {
     ? Math.ceil(finalAssessment.questions.length * (finalAssessment.passingScore ?? 0.8))
     : 12
   const finalPassed = finalCorrectCount >= finalPassingCount
+  const usesPairedLessonNavigation = !isReviewing
+    && !assessmentQuestion
+    && !scene.assessmentSummary
+    && scene.choices.length === 1
+  const pageBackControl = (
+    <button
+      className="pixel-page-back"
+      disabled={!canOpenPreviousPage}
+      type="button"
+      onClick={openPreviousPage}
+    >
+      ← Trang trước
+    </button>
+  )
 
   return (
     <main className="pixel-learning-shell">
@@ -1779,28 +1793,24 @@ export function LearningWindow() {
             </button>
           </div>
         ) : (
-          <div className="pixel-choices">
-            {scene.choices.map((choice) => (
-              <button
-                className={`pixel-choice${scene.choices.length === 1 && choice.primary ? ' is-primary' : ''}${scene.choices.length === 1 && choice.danger ? ' is-danger' : ''}`}
-                disabled={busy}
-                key={choice.label}
-                type="button"
-                onClick={() => void choose(choice)}
-              >
-                {busy ? 'Đang lưu checkpoint…' : choice.label}
-              </button>
-            ))}
+          <div className={`pixel-lesson-actions${usesPairedLessonNavigation ? ' is-paired' : ''}`}>
+            {usesPairedLessonNavigation ? pageBackControl : null}
+            <div className="pixel-choices">
+              {scene.choices.map((choice) => (
+                <button
+                  className={`pixel-choice${scene.choices.length === 1 && choice.primary ? ' is-primary' : ''}${scene.choices.length === 1 && choice.danger ? ' is-danger' : ''}`}
+                  disabled={busy}
+                  key={choice.label}
+                  type="button"
+                  onClick={() => void choose(choice)}
+                >
+                  {busy ? 'Đang lưu checkpoint…' : choice.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
-        <button
-          className="pixel-page-back"
-          disabled={!canOpenPreviousPage}
-          type="button"
-          onClick={openPreviousPage}
-        >
-          ← Trang trước
-        </button>
+        {usesPairedLessonNavigation ? null : pageBackControl}
       </section>
 
       {teacherOpen ? (

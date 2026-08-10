@@ -348,6 +348,29 @@ button:focus-visible {
   text-align: center;
 }
 
+.pixel-lesson-actions.is-paired {
+  position: absolute;
+  z-index: 2;
+  right: 20px;
+  bottom: 15px;
+  left: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.pixel-lesson-actions.is-paired .pixel-page-back {
+  position: static;
+  flex: 0 0 auto;
+}
+
+.pixel-lesson-actions.is-paired .pixel-choices {
+  flex: 1;
+  margin-top: 0;
+  align-items: flex-end;
+}
+
 .pixel-dialogue.has-many-choices {
   min-height: 350px;
 }
@@ -1401,6 +1424,8 @@ button:focus-visible {
   .pixel-dialogue > p { min-height: 62px; font-size: 15px; }
   .pixel-choice { width: 100%; min-height: 42px; }
   .pixel-dialogue.has-single-choice .pixel-choice { width: 100%; }
+  .pixel-lesson-actions.is-paired { position: relative; right: auto; bottom: auto; left: auto; margin-top: 12px; flex-direction: column-reverse; align-items: stretch; gap: 12px; }
+  .pixel-lesson-actions.is-paired .pixel-page-back { width: 100%; margin-top: 0; }
   .pixel-review-return { display: block; }
   .pixel-review-return .pixel-choice { width: 100%; }
   .pixel-page-back { position: relative; bottom: auto; left: auto; width: 100%; margin-top: 12px; }

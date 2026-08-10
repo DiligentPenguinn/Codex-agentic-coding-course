@@ -289,9 +289,15 @@ try {
     const narrowChoiceArea = await firstWindows.learningPage
       .locator('.pixel-choices')
       .boundingBox()
+    const narrowBackButton = await firstWindows.learningPage
+      .getByRole('button', { name: '← Trang trước', exact: true })
+      .boundingBox()
     assert.ok(narrowStartButton)
     assert.ok(narrowChoiceArea)
+    assert.ok(narrowBackButton)
     assert.ok(Math.abs(narrowStartButton.width - narrowChoiceArea.width) <= 1)
+    assert.ok(Math.abs(narrowBackButton.width - narrowChoiceArea.width) <= 1)
+    assert.ok(narrowStartButton.y + narrowStartButton.height < narrowBackButton.y)
     await capture(firstWindows.learningPage, 'course-introduction-page-3-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
@@ -314,6 +320,18 @@ try {
     'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.'
   )
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  const planningBackButton = await firstWindows.learningPage
+    .getByRole('button', { name: '← Trang trước', exact: true })
+    .boundingBox()
+  const planningNextButton = await firstWindows.learningPage
+    .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
+    .boundingBox()
+  assert.ok(planningBackButton)
+  assert.ok(planningNextButton)
+  assert.ok(Math.abs(
+    planningBackButton.y + planningBackButton.height
+      - (planningNextButton.y + planningNextButton.height)
+  ) <= 1)
   await capture(firstWindows.learningPage, 'module-1-planning-fundamentals.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
