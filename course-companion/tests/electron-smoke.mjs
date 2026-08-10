@@ -62,6 +62,7 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     'Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động.'
   )
   assert.equal(await page.getByText('pilot-workspace/', { exact: true }).count(), 0)
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   await capture(page, 'module-1-codex-introduction.png')
 
   if (verifyResponsiveLayout) {
@@ -76,6 +77,9 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     })
     assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
     assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
+    const lessonVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
+    assert.ok(lessonVisualBounds)
+    assert.ok(lessonVisualBounds.width <= introductionNarrowWidths.viewport)
     await capture(page, 'module-1-codex-introduction-390px.png')
     await page.setViewportSize({ width: 1180, height: 780 })
   }
@@ -399,6 +403,7 @@ try {
     'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.'
   )
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
   const planningBackButton = await firstWindows.learningPage
     .getByRole('button', { name: '← Trang trước', exact: true })
     .boundingBox()

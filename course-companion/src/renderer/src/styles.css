@@ -201,6 +201,53 @@ button:focus-visible {
 .pixel-consequence header span { color: var(--pixel-yellow); font-size: 8px; letter-spacing: 0.12em; }
 .pixel-consequence header strong { font-size: 10px; }
 
+.pixel-lesson-visual {
+  position: absolute;
+  z-index: 5;
+  top: 180px;
+  right: 5vw;
+  width: min(440px, 42vw);
+  margin: 0;
+  overflow: hidden;
+  border: 4px solid var(--pixel-line);
+  background: #f7f7f5;
+  box-shadow: var(--pixel-shadow);
+}
+.pixel-lesson-visual img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+.pixel-lesson-visual figcaption {
+  min-height: 54px;
+  padding: 9px 11px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-top: 3px solid var(--pixel-line-soft);
+  color: var(--pixel-cream);
+  background: #0b1228;
+}
+.pixel-lesson-visual figcaption span,
+.pixel-lesson-visual figcaption small { display: block; }
+.pixel-lesson-visual figcaption span { font-size: 11px; line-height: 1.35; }
+.pixel-lesson-visual figcaption small {
+  margin-bottom: 5px;
+  color: var(--pixel-yellow);
+  font: 800 7px/1 var(--pixel-font);
+  letter-spacing: 0.1em;
+}
+.pixel-lesson-visual figcaption em {
+  color: var(--pixel-cyan);
+  font: 800 7px/1.3 var(--pixel-font);
+  font-style: normal;
+  text-align: right;
+}
+
 .pixel-request { margin-top: 13px; padding: 13px; border: 2px solid var(--pixel-line-soft); background: #131d39; }
 .pixel-request p { margin: 0; font-size: 14px; line-height: 1.5; }
 
@@ -1421,6 +1468,10 @@ button:focus-visible {
   .pixel-scene-title strong { font-size: 12px; }
   .pixel-teacher-character { display: none; }
   .pixel-consequence { position: relative; top: auto; right: auto; width: 100%; padding: 12px; }
+  .pixel-lesson-visual { position: relative; top: auto; right: auto; width: 100%; }
+  .pixel-lesson-visual img { height: auto; aspect-ratio: 16 / 9; }
+  .pixel-lesson-visual figcaption { grid-template-columns: 1fr; gap: 7px; }
+  .pixel-lesson-visual figcaption em { text-align: left; }
   .pixel-evidence-grid { grid-template-columns: 1fr; }
   .pixel-evidence-grid div { min-height: 44px; }
   .pixel-dialogue { position: relative; right: auto; bottom: auto; left: auto; min-height: 0; padding: 14px; }

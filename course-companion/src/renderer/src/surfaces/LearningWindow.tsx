@@ -20,12 +20,30 @@ import courseStructure from '../../../../../pilot-workspace/course/course-struct
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
+import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
+import m1PermissionsImage from '../assets/lesson-visuals/m1-workspace-permissions.webp'
+import m1AgentsGuidanceImage from '../assets/lesson-visuals/m1-agents-guidance.webp'
+import m1SkillsImage from '../assets/lesson-visuals/m1-skills-and-checklist.webp'
+import m1AssessmentImage from '../assets/lesson-visuals/m1-assessment.webp'
+import m2WhenToPlanImage from '../assets/lesson-visuals/m2-when-to-plan.webp'
+import m2ProductRequirementsImage from '../assets/lesson-visuals/m2-product-requirements.webp'
+import m2PrdPromptImage from '../assets/lesson-visuals/m2-prd-prompt.webp'
+import m2PrdReviewImage from '../assets/lesson-visuals/m2-prd-review.webp'
+import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementation-plan.webp'
+import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 type EvidenceItem = {
   label: string
   value: string
   ready?: boolean
+}
+
+type LessonVisual = {
+  image: string
+  alt: string
+  caption: string
+  source: string
 }
 
 type Choice = {
@@ -983,6 +1001,75 @@ const courseLessonTitle = new Map(
 const moduleLessonIds: Record<'module-1' | 'module-2', CourseLessonId[]> = {
   'module-1': setupModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? [],
   'module-2': planningModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []
+}
+
+const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
+  'm1-understand-codex': {
+    image: m1UnderstandCodexImage,
+    alt: 'Giao diện Codex hiển thị yêu cầu, tiến trình và thay đổi để người dùng xem lại',
+    caption: 'Một yêu cầu được Codex xử lý thành thay đổi mà bạn có thể xem lại.',
+    source: 'OpenAI Docs'
+  },
+  'm1-workspace-permissions': {
+    image: m1PermissionsImage,
+    alt: 'Tài liệu OpenAI hiển thị các chế độ quyền và lựa chọn hỏi trước khi phê duyệt',
+    caption: 'Chế độ quyền xác định lúc nào Codex phải dừng để bạn phê duyệt.',
+    source: 'OpenAI Docs'
+  },
+  'm1-agents-guidance': {
+    image: m1AgentsGuidanceImage,
+    alt: 'Tài liệu OpenAI giải thích cách Codex đọc hướng dẫn trong tệp AGENTS.md',
+    caption: 'Tệp AGENTS.md lưu hướng dẫn mà Codex đọc trước khi bắt đầu công việc.',
+    source: 'OpenAI Docs'
+  },
+  'm1-skills-and-checklist': {
+    image: m1SkillsImage,
+    alt: 'Tài liệu OpenAI giới thiệu Skills như những quy trình có thể dùng lại',
+    caption: 'Skills đóng gói quy trình để Codex có thể dùng lại cho đúng loại nhiệm vụ.',
+    source: 'OpenAI Docs'
+  },
+  'm1-assessment': {
+    image: m1AssessmentImage,
+    alt: 'Giao diện Codex hiển thị kết quả, các tệp đã tạo và những điểm cần người dùng kiểm tra',
+    caption: 'Kết quả tốt đi kèm tệp đã tạo, phần việc đã làm và điểm cần kiểm tra.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-when-to-plan': {
+    image: m2WhenToPlanImage,
+    alt: 'Codex trình bày cách tiếp cận và những nguồn sẽ kiểm tra trước khi hành động',
+    caption: 'Trước khi hành động, Codex nêu cách tiếp cận và những nguồn sẽ kiểm tra.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-product-requirements': {
+    image: m2ProductRequirementsImage,
+    alt: 'Một yêu cầu tạo PRD nêu vấn đề, người dùng, phạm vi, rủi ro và câu hỏi còn mở',
+    caption: 'Yêu cầu PRD tốt nêu rõ vấn đề, người dùng, phạm vi và cách đánh giá kết quả.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-prd-prompt': {
+    image: m2PrdPromptImage,
+    alt: 'Codex giải thích kế hoạch thu thập bằng chứng trước khi soạn tài liệu PRD',
+    caption: 'Codex thu thập bằng chứng trước rồi mới soạn PRD.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-prd-review': {
+    image: m2PrdReviewImage,
+    alt: 'Tài liệu PRD được mở cạnh cuộc trao đổi với Codex để người dùng xem xét',
+    caption: 'PRD được mở cạnh cuộc trao đổi để bạn kiểm tra nội dung thật.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-implementation-plan': {
+    image: m2ImplementationPlanImage,
+    alt: 'Tài liệu hiển thị bảng mốc triển khai, quyết định và nội dung cần kiểm tra',
+    caption: 'Các mốc trong tài liệu biến yêu cầu thành những bước có thể kiểm tra.',
+    source: 'Demo chính thức của OpenAI'
+  },
+  'm2-assessment': {
+    image: m2AssessmentImage,
+    alt: 'Codex và tài liệu hoàn chỉnh được đặt cạnh nhau để người dùng đối chiếu trước khi duyệt',
+    caption: 'Ở checkpoint cuối, bạn đối chiếu tài liệu, nguồn và quyết định trước khi hoàn thành.',
+    source: 'Demo chính thức của OpenAI'
+  }
 }
 
 const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
@@ -1964,6 +2051,11 @@ export function LearningWindow() {
     ? Math.ceil(finalAssessment.questions.length * (finalAssessment.passingScore ?? 0.8))
     : 0
   const finalPassed = finalCorrectCount >= finalPassingCount
+  const lessonVisual = learningPosition.page === 1
+    ? lessonVisuals[learningPosition.lessonId]
+    : undefined
+  const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
+  const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
   const usesPairedLessonNavigation = !isReviewing
     && !assessmentQuestion
     && !scene.assessmentSummary
@@ -2012,13 +2104,30 @@ export function LearningWindow() {
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
-      {scene.showPanel === false || assessmentQuestion || scene.assessmentSummary ? null : (
-        <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
-          <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
-          <div className="pixel-request"><p>{scene.request}</p></div>
-          <EvidenceGrid items={scene.evidence} />
-        </aside>
-      )}
+      {canShowSceneMedia && lessonVisual
+        ? (
+            <figure className="pixel-lesson-visual">
+              <img
+                src={lessonVisual.image}
+                alt={lessonVisual.alt}
+                decoding="async"
+                fetchPriority="high"
+              />
+              <figcaption>
+                <span><small>ẢNH MINH HOẠ BÀI HỌC</small>{lessonVisual.caption}</span>
+                <em>{lessonVisual.source}</em>
+              </figcaption>
+            </figure>
+          )
+        : shouldShowScenePanel
+          ? (
+              <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
+                <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
+                <div className="pixel-request"><p>{scene.request}</p></div>
+                <EvidenceGrid items={scene.evidence} />
+              </aside>
+            )
+          : null}
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>

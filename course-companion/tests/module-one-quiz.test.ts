@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -87,6 +87,28 @@ describe('Course module assessment banks', () => {
     expect(moduleTwo?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(110)
     expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
     expect(moduleTwo?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo?.checkpoints)
+  })
+
+  it('provides one sourced illustration for every runnable module lesson', async () => {
+    const course = await loadCourseStructure()
+    const lessonIds = course.modules
+      .filter((module) => module.kind === 'module')
+      .flatMap((module) => module.lessons.map((lesson) => lesson.id))
+    const visualDirectory = join(
+      process.cwd(),
+      'src',
+      'renderer',
+      'src',
+      'assets',
+      'lesson-visuals'
+    )
+    const visualFiles = (await readdir(visualDirectory))
+      .filter((file) => file.endsWith('.webp'))
+      .sort()
+    const sources = await readFile(join(visualDirectory, 'SOURCES.md'), 'utf8')
+
+    expect(visualFiles).toEqual(lessonIds.map((lessonId) => `${lessonId}.webp`).sort())
+    for (const visualFile of visualFiles) expect(sources).toContain(`\`${visualFile}\``)
   })
 
   it('keeps the approved 3 + 3 + 2 + 15 assessment rhythm', async () => {
