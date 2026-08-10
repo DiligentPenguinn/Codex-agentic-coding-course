@@ -14,7 +14,7 @@ export type AppSettings = {
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
 export const COURSE_VERSION = '0.1.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 3
+export const LEARNER_STATE_SCHEMA_VERSION = 4
 
 export const checkpointIds = [
   'intro-visual-onboarding',
@@ -88,6 +88,90 @@ export type LessonId = 'intro' | 'module-1'
 export type CheckpointId = (typeof checkpointIds)[number]
 export type SceneId = (typeof sceneIds)[number]
 
+export const courseLessonIds = [
+  'intro-overview',
+  'm1-when-to-plan',
+  'm1-product-requirements',
+  'm1-prd-prompt',
+  'm1-prd-review',
+  'm1-implementation-plan',
+  'm1-assessment'
+] as const
+
+export type CourseLessonId = (typeof courseLessonIds)[number]
+
+export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
+  'intro-visual-onboarding': 'intro-visual-onboarding',
+  'intro-course-overview-2': 'intro-visual-onboarding',
+  'intro-learning-method': 'intro-visual-onboarding',
+  'module-1-why-planning': 'm1-why-planning',
+  'module-1-planning-example': 'm1-why-planning',
+  'module-1-why-planning-check': 'm1-why-planning',
+  'module-1-planning-cost': 'm1-why-planning',
+  'module-1-contentpilot-brief': 'm1-contentpilot-brief',
+  'module-1-implementation-too-soon': 'm1-contentpilot-brief',
+  'module-1-prd-concept': 'm1-prd-concept',
+  'module-1-prd-example': 'm1-prd-concept',
+  'module-1-prd-visual-examples': 'm1-prd-concept',
+  'module-1-prd-code-examples': 'm1-prd-concept',
+  'module-1-check-planning-prd-1': 'm1-prd-concept',
+  'module-1-check-planning-prd-2': 'm1-prd-concept',
+  'module-1-check-planning-prd-3': 'm1-prd-concept',
+  'module-1-prd-check': 'm1-prd-concept',
+  'module-1-prd-misclassification': 'm1-prd-concept',
+  'module-1-prd-interview': 'm1-prd-interview',
+  'module-1-prompt-example': 'm1-prd-interview',
+  'module-1-prompt-guided-practice': 'm1-prd-interview',
+  'module-1-check-prompt-1': 'm1-prd-interview',
+  'module-1-check-prompt-2': 'm1-prd-interview',
+  'module-1-check-prompt-3': 'm1-prd-interview',
+  'module-1-prd-approved': 'm1-prd-approved',
+  'module-1-implementation-plan': 'm1-implementation-plan',
+  'module-1-implementation-plan-example': 'm1-implementation-plan',
+  'module-1-check-plan-1': 'm1-implementation-plan',
+  'module-1-check-plan-2': 'm1-alignment-review',
+  'module-1-alignment-review': 'm1-alignment-review',
+  'module-1-alignment-mismatch': 'm1-alignment-review',
+  'module-1-planning-package': 'm1-planning-package',
+  'module-1-mastery': 'm1-mastery',
+  'module-1-mastery-repair': 'm1-mastery',
+  'module-1-final-1': 'm1-mastery',
+  'module-1-final-2': 'm1-mastery',
+  'module-1-final-3': 'm1-mastery',
+  'module-1-final-4': 'm1-mastery',
+  'module-1-final-5': 'm1-mastery',
+  'module-1-final-6': 'm1-mastery',
+  'module-1-final-7': 'm1-mastery',
+  'module-1-final-8': 'm1-mastery',
+  'module-1-final-9': 'm1-mastery',
+  'module-1-final-10': 'm1-mastery',
+  'module-1-final-11': 'm1-mastery',
+  'module-1-final-12': 'm1-mastery',
+  'module-1-final-13': 'm1-mastery',
+  'module-1-final-14': 'm1-mastery',
+  'module-1-final-15': 'm1-mastery',
+  'module-1-final-summary': 'm1-mastery',
+  'module-1-complete': 'm1-complete'
+}
+
+export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
+  'intro-visual-onboarding': 'intro-overview',
+  'm1-why-planning': 'm1-when-to-plan',
+  'm1-contentpilot-brief': 'm1-when-to-plan',
+  'm1-prd-concept': 'm1-product-requirements',
+  'm1-prd-interview': 'm1-prd-prompt',
+  'm1-prd-approved': 'm1-prd-review',
+  'm1-implementation-plan': 'm1-implementation-plan',
+  'm1-alignment-review': 'm1-implementation-plan',
+  'm1-planning-package': 'm1-implementation-plan',
+  'm1-mastery': 'm1-assessment',
+  'm1-complete': 'm1-assessment'
+}
+
+export function courseLessonIdForScene(sceneId: SceneId): CourseLessonId {
+  return checkpointCourseLesson[sceneCheckpoint[sceneId]]
+}
+
 export const practiceScenarios = [
   'started',
   'approval_required',
@@ -141,8 +225,10 @@ export type LearnerProgress = {
   schemaVersion: typeof LEARNER_STATE_SCHEMA_VERSION
   courseVersion: typeof COURSE_VERSION
   currentLessonId: LessonId
+  currentCourseLessonId: CourseLessonId
   checkpointId: CheckpointId
   sceneId: SceneId
+  sceneHistory: SceneId[]
   completedCheckpointIds: CheckpointId[]
   decisions: Record<string, string>
   practice: PracticeState
@@ -153,8 +239,10 @@ export type LearnerProgress = {
 export type ProgressUpdate = Pick<
   LearnerProgress,
   | 'currentLessonId'
+  | 'currentCourseLessonId'
   | 'checkpointId'
   | 'sceneId'
+  | 'sceneHistory'
   | 'completedCheckpointIds'
   | 'decisions'
 >

@@ -210,8 +210,13 @@ try {
     .getByRole('button', { name: 'Cùng bắt đầu nhé' })
     .click()
   await firstWindows.learningPage
-    .getByText('BÀI HỌC HIỆN TẠI · BƯỚC 1/1', { exact: true })
+    .getByText('GIỚI THIỆU KHÓA HỌC · TRANG 1/3', { exact: true })
     .waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).waitFor()
+  assert.equal(
+    await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).isDisabled(),
+    true
+  )
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
@@ -231,6 +236,17 @@ try {
   await capture(firstWindows.learningPage, 'lesson-progress.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
+    .click()
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Bắt đầu khóa học', exact: true })
+    .waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).click()
+  await firstWindows.learningPage
+    .getByText('ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN', { exact: true })
+    .waitFor()
+  await capture(firstWindows.learningPage, 'lesson-review-mode.png')
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Quay lại trang đang học', exact: true })
     .click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Bắt đầu khóa học', exact: true })
@@ -289,6 +305,10 @@ try {
   await firstWindows.learningPage
     .getByRole('button', { name: 'Xem khi nào cần planning', exact: true })
     .waitFor()
+  await firstWindows.learningPage
+    .getByText('MODULE 1 · BÀI 1/6 · TRANG 1/4', { exact: true })
+    .first()
+    .waitFor()
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
     'Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn nhiều so với planning kỹ ngay từ đầu.\n\nKhông phải việc nào cũng cần planning. Bạn có thể giao trực tiếp cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được hướng đi hoặc thứ tự thực hiện.'
@@ -305,6 +325,16 @@ try {
     await firstWindows.learningPage.getByRole('button', { name: 'Làm câu kiểm tra nhanh', exact: true }).count(),
     0
   )
+  await firstWindows.learningPage
+    .getByText('NGUỒN PHƯƠNG PHÁP · MICROSOFT', { exact: true })
+    .waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).click()
+  await firstWindows.learningPage
+    .getByText('ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN', { exact: true })
+    .waitFor()
+  await firstWindows.learningPage
+    .getByRole('button', { name: 'Quay lại trang đang học', exact: true })
+    .click()
   await firstWindows.learningPage
     .getByText('NGUỒN PHƯƠNG PHÁP · MICROSOFT', { exact: true })
     .waitFor()
@@ -517,7 +547,7 @@ try {
     'Expected the learning window to restore and hide the companion'
   )
 
-  await learningPage.getByText('Kiểm tra tổng hợp Module 1', { exact: true }).waitFor()
+  await learningPage.getByText('Kiểm tra và hoàn thành Module 1', { exact: true }).waitFor()
   assert.equal(
     await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
     0
@@ -557,6 +587,9 @@ try {
   )
   assert.equal(persisted.sceneId, 'module-1-complete')
   assert.equal(persisted.checkpointId, 'm1-complete')
+  assert.equal(persisted.schemaVersion, 4)
+  assert.equal(persisted.currentCourseLessonId, 'm1-assessment')
+  assert.ok(persisted.sceneHistory.length > 20)
   assert.equal(persisted.decisions.planningApproach, 'plan-first')
   assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
   assert.equal(
@@ -610,7 +643,7 @@ try {
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: Module 0 removal, planning-first Module 1, roadmap entry, Teacher overlay, settings, journey resume/reset, planning-package fixtures, mastery, persistence, security, and companion lifecycle passed'
+    'Electron smoke: introduction separation, six-lesson Module 1, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, planning-package fixtures, mastery, persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

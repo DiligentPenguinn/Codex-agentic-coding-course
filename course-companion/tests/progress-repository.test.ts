@@ -21,16 +21,20 @@ afterEach(async () => {
 
 const introStart: ProgressUpdate = {
   currentLessonId: 'intro',
+  currentCourseLessonId: 'intro-overview',
   checkpointId: 'intro-visual-onboarding',
   sceneId: 'intro-visual-onboarding',
+  sceneHistory: [],
   completedCheckpointIds: [],
   decisions: {}
 }
 
 const moduleOneStart: ProgressUpdate = {
   currentLessonId: 'module-1',
+  currentCourseLessonId: 'm1-when-to-plan',
   checkpointId: 'm1-why-planning',
   sceneId: 'module-1-why-planning',
+  sceneHistory: ['intro-visual-onboarding'],
   completedCheckpointIds: ['intro-visual-onboarding'],
   decisions: { planningApproach: 'plan-first' }
 }
@@ -66,8 +70,10 @@ describe('ProgressRepository', () => {
 
     const overviewPageTwo = await repository.save({
       currentLessonId: 'intro',
+      currentCourseLessonId: 'intro-overview',
       checkpointId: 'intro-visual-onboarding',
       sceneId: 'intro-course-overview-2',
+      sceneHistory: ['intro-visual-onboarding'],
       completedCheckpointIds: [],
       decisions: {}
     })
@@ -82,8 +88,15 @@ describe('ProgressRepository', () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     const promptExample = await repository.save({
       currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-prd-prompt',
       checkpointId: 'm1-prd-interview',
       sceneId: 'module-1-prompt-example',
+      sceneHistory: [
+        'module-1-why-planning',
+        'module-1-contentpilot-brief',
+        'module-1-prd-concept',
+        'module-1-prd-interview'
+      ],
       completedCheckpointIds: [
         'intro-visual-onboarding',
         'm1-why-planning',
@@ -107,8 +120,10 @@ describe('ProgressRepository', () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     const promptQuestion = await repository.save({
       currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-prd-prompt',
       checkpointId: 'm1-prd-interview',
       sceneId: 'module-1-check-prompt-2',
+      sceneHistory: ['module-1-prd-interview', 'module-1-check-prompt-1'],
       completedCheckpointIds: [
         'intro-visual-onboarding',
         'm1-why-planning',
@@ -155,17 +170,60 @@ describe('ProgressRepository', () => {
     expect(result).toMatchObject({
       status: 'returning',
       progress: {
-        schemaVersion: 3,
+        schemaVersion: 4,
         currentLessonId: 'module-1',
+        currentCourseLessonId: 'm1-when-to-plan',
         checkpointId: 'm1-why-planning',
         sceneId: 'module-1-why-planning',
+        sceneHistory: [],
         completedCheckpointIds: ['intro-visual-onboarding'],
         practice: { missionId: 'm1-planning-package', status: 'idle' }
       }
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
-    expect(migrated.schemaVersion).toBe(3)
+    expect(migrated.schemaVersion).toBe(4)
     expect(migrated.startedAt).toBe(oldProgress.startedAt)
+  })
+
+  it('adds lesson hierarchy to schema-v3 progress without moving the learner', async () => {
+    const directory = await temporaryDirectory()
+    const oldProgress = {
+      schemaVersion: 3,
+      courseVersion: '0.1.0',
+      currentLessonId: 'module-1',
+      checkpointId: 'm1-prd-interview',
+      sceneId: 'module-1-prompt-example',
+      completedCheckpointIds: [
+        'intro-visual-onboarding',
+        'm1-why-planning',
+        'm1-contentpilot-brief',
+        'm1-prd-concept'
+      ],
+      decisions: { planningApproach: 'plan-first' },
+      practice: { missionId: 'm1-planning-package', status: 'idle' },
+      startedAt: '2026-08-06T10:00:00.000Z',
+      updatedAt: '2026-08-06T10:05:00.000Z'
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(oldProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    const repository = new ProgressRepository(directory)
+    const result = await repository.load()
+
+    expect(result).toMatchObject({
+      status: 'returning',
+      progress: {
+        schemaVersion: 4,
+        currentLessonId: 'module-1',
+        currentCourseLessonId: 'm1-prd-prompt',
+        checkpointId: 'm1-prd-interview',
+        sceneId: 'module-1-prompt-example',
+        sceneHistory: []
+      }
+    })
   })
 
   it('serializes overlapping saves so atomic temporary files cannot collide', async () => {
@@ -175,15 +233,19 @@ describe('ProgressRepository', () => {
     await Promise.all([
       repository.save({
         currentLessonId: 'module-1',
+        currentCourseLessonId: 'm1-when-to-plan',
         checkpointId: 'm1-contentpilot-brief',
         sceneId: 'module-1-contentpilot-brief',
+        sceneHistory: ['module-1-why-planning'],
         completedCheckpointIds: ['intro-visual-onboarding', 'm1-why-planning'],
         decisions: { planningApproach: 'plan-first' }
       }),
       repository.save({
         currentLessonId: 'module-1',
+        currentCourseLessonId: 'm1-product-requirements',
         checkpointId: 'm1-prd-concept',
         sceneId: 'module-1-prd-concept',
+        sceneHistory: ['module-1-why-planning', 'module-1-contentpilot-brief'],
         completedCheckpointIds: [
           'intro-visual-onboarding',
           'm1-why-planning',
@@ -208,8 +270,10 @@ describe('ProgressRepository', () => {
     const first = await repository.save(introStart)
     await repository.save({
       currentLessonId: 'intro',
+      currentCourseLessonId: 'intro-overview',
       checkpointId: 'intro-visual-onboarding',
       sceneId: 'intro-course-overview-2',
+      sceneHistory: ['intro-visual-onboarding'],
       completedCheckpointIds: [],
       decisions: {}
     })

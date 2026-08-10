@@ -29,7 +29,47 @@ async function loadQuiz(): Promise<{ groups: QuizGroup[] }> {
   return JSON.parse(await readFile(path, 'utf8')) as { groups: QuizGroup[] }
 }
 
+type CourseLesson = {
+  id: string
+  titleVi: string
+  estimatedMinutes: number
+  checkpoints: string[]
+}
+
+type CourseModule = {
+  id: string
+  kind: 'introduction' | 'module'
+  estimatedMinutes: number
+  checkpoints: string[]
+  lessons: CourseLesson[]
+}
+
+async function loadCourseStructure(): Promise<{ modules: CourseModule[] }> {
+  const path = join(process.cwd(), '..', 'pilot-workspace', 'course', 'course-structure.json')
+  return JSON.parse(await readFile(path, 'utf8')) as { modules: CourseModule[] }
+}
+
 describe('Module 1 sourced assessment bank', () => {
+  it('keeps the introduction separate and groups Module 1 into six complete lessons', async () => {
+    const course = await loadCourseStructure()
+    const introduction = course.modules.find((module) => module.id === 'intro')
+    const moduleOne = course.modules.find((module) => module.id === 'module-1')
+
+    expect(introduction?.kind).toBe('introduction')
+    expect(introduction?.lessons).toHaveLength(1)
+    expect(moduleOne?.kind).toBe('module')
+    expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
+      'Khi nào cần planning',
+      'Từ ý tưởng đến PRD',
+      'Viết prompt để tạo PRD',
+      'Xem xét và duyệt PRD',
+      'Từ PRD đến implementation plan',
+      'Kiểm tra và hoàn thành Module 1'
+    ])
+    expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(110)
+    expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
+  })
+
   it('keeps the approved 3 + 3 + 2 + 15 assessment rhythm', async () => {
     const quiz = await loadQuiz()
     expect(Object.fromEntries(quiz.groups.map((group) => [group.id, group.questions.length]))).toEqual({

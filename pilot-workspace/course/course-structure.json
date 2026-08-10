@@ -8,6 +8,7 @@
   "modules": [
     {
       "id": "intro",
+      "kind": "introduction",
       "titleVi": "Giới thiệu khóa học",
       "titleEn": "Course introduction",
       "estimatedMinutes": 25,
@@ -27,10 +28,29 @@
         "intro-readiness",
         "intro-complete"
       ],
+      "lessons": [
+        {
+          "id": "intro-overview",
+          "titleVi": "Bạn sẽ xây gì và học như thế nào?",
+          "estimatedMinutes": 25,
+          "checkpoints": [
+            "intro-visual-onboarding",
+            "intro-first-safe-win",
+            "intro-time-budget",
+            "intro-graduation",
+            "intro-problem",
+            "intro-platform",
+            "intro-quest-card",
+            "intro-readiness",
+            "intro-complete"
+          ]
+        }
+      ],
       "nextLessonId": "module-1"
     },
     {
       "id": "module-1",
+      "kind": "module",
       "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
       "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
       "estimatedMinutes": 110,
@@ -54,6 +74,60 @@
         "m1-planning-package",
         "m1-mastery",
         "m1-complete"
+      ],
+      "lessons": [
+        {
+          "id": "m1-when-to-plan",
+          "titleVi": "Khi nào cần planning",
+          "estimatedMinutes": 15,
+          "checkpoints": [
+            "m1-why-planning",
+            "m1-contentpilot-brief"
+          ]
+        },
+        {
+          "id": "m1-product-requirements",
+          "titleVi": "Từ ý tưởng đến PRD",
+          "estimatedMinutes": 25,
+          "checkpoints": [
+            "m1-prd-concept"
+          ]
+        },
+        {
+          "id": "m1-prd-prompt",
+          "titleVi": "Viết prompt để tạo PRD",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m1-prd-interview"
+          ]
+        },
+        {
+          "id": "m1-prd-review",
+          "titleVi": "Xem xét và duyệt PRD",
+          "estimatedMinutes": 10,
+          "checkpoints": [
+            "m1-prd-approved"
+          ]
+        },
+        {
+          "id": "m1-implementation-plan",
+          "titleVi": "Từ PRD đến implementation plan",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m1-implementation-plan",
+            "m1-alignment-review",
+            "m1-planning-package"
+          ]
+        },
+        {
+          "id": "m1-assessment",
+          "titleVi": "Kiểm tra và hoàn thành Module 1",
+          "estimatedMinutes": 20,
+          "checkpoints": [
+            "m1-mastery",
+            "m1-complete"
+          ]
+        }
       ],
       "nextLessonId": null
     }

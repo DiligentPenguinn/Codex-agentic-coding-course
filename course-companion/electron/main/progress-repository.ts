@@ -9,9 +9,13 @@ import {
 import { join } from 'node:path'
 import {
   checkpointIds,
+  courseLessonIdForScene,
+  courseLessonIds,
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  sceneCheckpoint,
   sceneIds,
+  type CourseLessonId,
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
@@ -24,60 +28,7 @@ import {
 
 const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
-
-const sceneCheckpoint: Record<SceneId, CheckpointId> = {
-  'intro-visual-onboarding': 'intro-visual-onboarding',
-  'intro-course-overview-2': 'intro-visual-onboarding',
-  'intro-learning-method': 'intro-visual-onboarding',
-  'module-1-why-planning': 'm1-why-planning',
-  'module-1-planning-example': 'm1-why-planning',
-  'module-1-why-planning-check': 'm1-why-planning',
-  'module-1-planning-cost': 'm1-why-planning',
-  'module-1-contentpilot-brief': 'm1-contentpilot-brief',
-  'module-1-implementation-too-soon': 'm1-contentpilot-brief',
-  'module-1-prd-concept': 'm1-prd-concept',
-  'module-1-prd-example': 'm1-prd-concept',
-  'module-1-prd-visual-examples': 'm1-prd-concept',
-  'module-1-prd-code-examples': 'm1-prd-concept',
-  'module-1-check-planning-prd-1': 'm1-prd-concept',
-  'module-1-check-planning-prd-2': 'm1-prd-concept',
-  'module-1-check-planning-prd-3': 'm1-prd-concept',
-  'module-1-prd-check': 'm1-prd-concept',
-  'module-1-prd-misclassification': 'm1-prd-concept',
-  'module-1-prd-interview': 'm1-prd-interview',
-  'module-1-prompt-example': 'm1-prd-interview',
-  'module-1-prompt-guided-practice': 'm1-prd-interview',
-  'module-1-check-prompt-1': 'm1-prd-interview',
-  'module-1-check-prompt-2': 'm1-prd-interview',
-  'module-1-check-prompt-3': 'm1-prd-interview',
-  'module-1-prd-approved': 'm1-prd-approved',
-  'module-1-implementation-plan': 'm1-implementation-plan',
-  'module-1-implementation-plan-example': 'm1-implementation-plan',
-  'module-1-check-plan-1': 'm1-implementation-plan',
-  'module-1-check-plan-2': 'm1-alignment-review',
-  'module-1-alignment-review': 'm1-alignment-review',
-  'module-1-alignment-mismatch': 'm1-alignment-review',
-  'module-1-planning-package': 'm1-planning-package',
-  'module-1-mastery': 'm1-mastery',
-  'module-1-mastery-repair': 'm1-mastery',
-  'module-1-final-1': 'm1-mastery',
-  'module-1-final-2': 'm1-mastery',
-  'module-1-final-3': 'm1-mastery',
-  'module-1-final-4': 'm1-mastery',
-  'module-1-final-5': 'm1-mastery',
-  'module-1-final-6': 'm1-mastery',
-  'module-1-final-7': 'm1-mastery',
-  'module-1-final-8': 'm1-mastery',
-  'module-1-final-9': 'm1-mastery',
-  'module-1-final-10': 'm1-mastery',
-  'module-1-final-11': 'm1-mastery',
-  'module-1-final-12': 'm1-mastery',
-  'module-1-final-13': 'm1-mastery',
-  'module-1-final-14': 'm1-mastery',
-  'module-1-final-15': 'm1-mastery',
-  'module-1-final-summary': 'm1-mastery',
-  'module-1-complete': 'm1-complete'
-}
+const courseLessonSet = new Set<string>(courseLessonIds)
 
 export function defaultPracticeState(): PracticeState {
   return {
@@ -104,6 +55,10 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 
 function isSceneId(value: unknown): value is SceneId {
   return typeof value === 'string' && sceneSet.has(value)
+}
+
+function isCourseLessonId(value: unknown): value is CourseLessonId {
+  return typeof value === 'string' && courseLessonSet.has(value)
 }
 
 function decisionsAreValid(value: unknown): value is Record<string, string> {
@@ -152,8 +107,12 @@ export function isProgressUpdate(value: unknown): value is ProgressUpdate {
   if (!isCheckpointId(value.checkpointId)) return false
   if (!isSceneId(value.sceneId)) return false
   if (sceneCheckpoint[value.sceneId] !== value.checkpointId) return false
+  if (!isCourseLessonId(value.currentCourseLessonId)) return false
+  if (courseLessonIdForScene(value.sceneId) !== value.currentCourseLessonId) return false
   if (value.currentLessonId === 'intro' && !value.sceneId.startsWith('intro-')) return false
   if (value.currentLessonId === 'module-1' && !value.sceneId.startsWith('module-1-')) return false
+  if (!Array.isArray(value.sceneHistory) || value.sceneHistory.length > 200) return false
+  if (!value.sceneHistory.every(isSceneId)) return false
   if (!Array.isArray(value.completedCheckpointIds)) return false
   if (!value.completedCheckpointIds.every(isCheckpointId)) return false
   if (new Set(value.completedCheckpointIds).size !== value.completedCheckpointIds.length) return false
@@ -189,6 +148,36 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
     return raw as unknown as LearnerProgress
   }
 
+  if (
+    schemaVersion === 3 &&
+    isLessonId(raw.currentLessonId) &&
+    isCheckpointId(raw.checkpointId) &&
+    isSceneId(raw.sceneId) &&
+    sceneCheckpoint[raw.sceneId] === raw.checkpointId &&
+    ((raw.currentLessonId === 'intro' && raw.sceneId.startsWith('intro-')) ||
+      (raw.currentLessonId === 'module-1' && raw.sceneId.startsWith('module-1-'))) &&
+    Array.isArray(raw.completedCheckpointIds) &&
+    raw.completedCheckpointIds.every(isCheckpointId) &&
+    new Set(raw.completedCheckpointIds).size === raw.completedCheckpointIds.length &&
+    decisionsAreValid(raw.decisions) &&
+    isPracticeState(practice)
+  ) {
+    return {
+      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
+      courseVersion: COURSE_VERSION,
+      currentLessonId: raw.currentLessonId,
+      currentCourseLessonId: courseLessonIdForScene(raw.sceneId),
+      checkpointId: raw.checkpointId,
+      sceneId: raw.sceneId,
+      sceneHistory: [],
+      completedCheckpointIds: raw.completedCheckpointIds,
+      decisions: raw.decisions,
+      practice,
+      startedAt,
+      updatedAt
+    }
+  }
+
   if ((schemaVersion === 1 || schemaVersion === 2) && decisionsAreValid(raw.decisions)) {
     const oldSceneId = typeof raw.sceneId === 'string' ? raw.sceneId : ''
     const resumeOnboarding = [
@@ -199,15 +188,19 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
     const update: ProgressUpdate = resumeOnboarding
       ? {
           currentLessonId: 'intro',
+          currentCourseLessonId: 'intro-overview',
           checkpointId: 'intro-visual-onboarding',
           sceneId: oldSceneId as ProgressUpdate['sceneId'],
+          sceneHistory: [],
           completedCheckpointIds: [],
           decisions: raw.decisions
         }
       : {
           currentLessonId: 'module-1',
+          currentCourseLessonId: 'm1-when-to-plan',
           checkpointId: 'm1-why-planning',
           sceneId: 'module-1-why-planning',
+          sceneHistory: [],
           completedCheckpointIds: ['intro-visual-onboarding'],
           decisions: raw.decisions
         }
@@ -398,7 +391,8 @@ export class ProgressRepository {
       this.activityPath,
       `${JSON.stringify({
         event,
-        lessonId: progress.currentLessonId,
+        moduleId: progress.currentLessonId,
+        lessonId: progress.currentCourseLessonId,
         checkpointId: progress.checkpointId,
         sceneId: progress.sceneId,
         timestamp: this.now().toISOString()

@@ -22,8 +22,10 @@ afterEach(async () => {
 
 const practiceCheckpoint: ProgressUpdate = {
   currentLessonId: 'module-1',
+  currentCourseLessonId: 'm1-implementation-plan',
   checkpointId: 'm1-planning-package',
   sceneId: 'module-1-planning-package',
+  sceneHistory: ['module-1-alignment-review'],
   completedCheckpointIds: [
     'intro-visual-onboarding',
     'm1-why-planning',

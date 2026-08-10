@@ -3,7 +3,9 @@ import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
   checkpointIds,
+  courseLessonIdForScene,
   type AppSettings,
+  type CourseLessonId,
   type PracticeState,
   type CheckpointId,
   type LearnerProgress,
@@ -14,6 +16,7 @@ import {
   type SceneId
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
+import courseStructure from '../../../../../pilot-workspace/course/course-structure.json'
 import moduleOneQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
@@ -29,7 +32,7 @@ type Choice = {
   next?: SceneId
   primary?: boolean
   danger?: boolean
-  action?: 'practice' | 'home'
+  action?: 'practice' | 'home' | 'review-module'
   afterSave?: 'home'
   decision?: { key: string; value: string }
 }
@@ -602,7 +605,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     ],
     dialogue: 'Bây giờ hãy sang Codex để tạo planning package. Course Companion sẽ chờ bằng chứng mô phỏng của cả hai artifact.',
     choices: [
-      { label: 'Xem lại từ đầu', next: 'module-1-why-planning' },
+      { label: 'Xem lại Module 1', action: 'review-module' },
       { label: 'Sang Codex tạo planning package', action: 'practice', primary: true }
     ]
   },
@@ -738,6 +741,112 @@ const scenes = {
     assessmentSummary: true
   }
 } as Record<SceneId, SceneContent>
+
+type CourseLessonDefinition = {
+  id: CourseLessonId
+  titleVi: string
+}
+
+type LearningPosition = {
+  lessonId: CourseLessonId
+  lessonTitle: string
+  lessonIndex: number
+  totalLessons: number
+  page: number
+  totalPages: number
+}
+
+const courseLessonDefinitions = courseStructure.modules.flatMap((module) =>
+  (module.lessons ?? []) as CourseLessonDefinition[]
+)
+const courseLessonTitle = new Map(
+  courseLessonDefinitions.map((lesson) => [lesson.id, lesson.titleVi])
+)
+const moduleOneLessonIds = courseStructure.modules
+  .find((module) => module.id === 'module-1')
+  ?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []
+
+const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
+  'intro-overview': [
+    ['intro-visual-onboarding'],
+    ['intro-course-overview-2'],
+    ['intro-learning-method']
+  ],
+  'm1-when-to-plan': [
+    ['module-1-why-planning'],
+    ['module-1-planning-example'],
+    ['module-1-why-planning-check', 'module-1-planning-cost'],
+    ['module-1-contentpilot-brief', 'module-1-implementation-too-soon']
+  ],
+  'm1-product-requirements': [
+    ['module-1-prd-concept'],
+    ['module-1-prd-example'],
+    ['module-1-prd-visual-examples'],
+    ['module-1-prd-code-examples'],
+    ['module-1-check-planning-prd-1'],
+    ['module-1-check-planning-prd-2'],
+    ['module-1-check-planning-prd-3'],
+    ['module-1-prd-check', 'module-1-prd-misclassification']
+  ],
+  'm1-prd-prompt': [
+    ['module-1-prd-interview'],
+    ['module-1-prompt-example'],
+    ['module-1-prompt-guided-practice'],
+    ['module-1-check-prompt-1'],
+    ['module-1-check-prompt-2'],
+    ['module-1-check-prompt-3']
+  ],
+  'm1-prd-review': [['module-1-prd-approved']],
+  'm1-implementation-plan': [
+    ['module-1-implementation-plan'],
+    ['module-1-implementation-plan-example'],
+    ['module-1-check-plan-1'],
+    ['module-1-check-plan-2'],
+    ['module-1-alignment-review', 'module-1-alignment-mismatch'],
+    ['module-1-planning-package']
+  ],
+  'm1-assessment': [
+    ['module-1-mastery'],
+    ['module-1-final-1'],
+    ['module-1-final-2'],
+    ['module-1-final-3'],
+    ['module-1-final-4'],
+    ['module-1-final-5'],
+    ['module-1-final-6'],
+    ['module-1-final-7'],
+    ['module-1-final-8'],
+    ['module-1-final-9'],
+    ['module-1-final-10'],
+    ['module-1-final-11'],
+    ['module-1-final-12'],
+    ['module-1-final-13'],
+    ['module-1-final-14'],
+    ['module-1-final-15'],
+    ['module-1-final-summary', 'module-1-mastery-repair'],
+    ['module-1-complete']
+  ]
+}
+
+const learningPositionByScene = Object.fromEntries(
+  Object.entries(courseLessonPages).flatMap(([lessonId, pages]) => {
+    const typedLessonId = lessonId as CourseLessonId
+    const lessonIndex = typedLessonId === 'intro-overview'
+      ? 1
+      : moduleOneLessonIds.indexOf(typedLessonId) + 1
+    const totalLessons = typedLessonId === 'intro-overview' ? 1 : moduleOneLessonIds.length
+    return pages.flatMap((scenePage, pageIndex) =>
+      scenePage.map((sceneId) => [sceneId, {
+        lessonId: typedLessonId,
+        lessonTitle: courseLessonTitle.get(typedLessonId) ?? scenes[sceneId].mission,
+        lessonIndex,
+        totalLessons,
+        page: pageIndex + 1,
+        totalPages: pages.length
+      } satisfies LearningPosition])
+    )
+  })
+) as Record<SceneId, LearningPosition>
+
 type View = 'loading' | 'welcome' | 'resume' | 'app' | 'reset-confirm' | 'reset-required' | 'error'
 type AppDestination = 'home' | 'lesson' | 'progress' | 'settings'
 
@@ -746,8 +855,10 @@ const sceneStyle = { '--pixel-room-image': `url("${roomImage}")` } as CSSPropert
 function initialUpdate(): ProgressUpdate {
   return {
     currentLessonId: 'intro',
+    currentCourseLessonId: 'intro-overview',
     checkpointId: 'intro-visual-onboarding',
     sceneId: 'intro-visual-onboarding',
+    sceneHistory: [],
     completedCheckpointIds: [],
     decisions: {}
   }
@@ -898,6 +1009,7 @@ function EntryScreen({
   onCancelReset: () => void
 }) {
   const scene = progress ? scenes[progress.sceneId] : null
+  const learningPosition = progress ? learningPositionByScene[progress.sceneId] : null
   const isWelcome = mode === 'welcome'
   const isConfirm = mode === 'reset-confirm' || mode === 'reset-required'
   const title = isWelcome
@@ -911,7 +1023,7 @@ function EntryScreen({
       ? 'Tiến trình hiện tại và bản khôi phục đều không đọc được. Bạn có thể xóa dữ liệu hỏng để bắt đầu an toàn.'
       : isConfirm
         ? 'Toàn bộ tiến trình và lựa chọn cục bộ của hành trình này sẽ bị xóa.'
-        : `${scene?.lessonLabel ?? 'BÀI HỌC'} · ${scene?.objective ?? progress?.checkpointId}`
+        : `${learningPosition?.lessonTitle ?? scene?.lessonLabel ?? 'BÀI HỌC'} · ${scene?.objective ?? progress?.checkpointId}`
 
   return (
     <main className="pixel-learning-shell pixel-entry-shell">
@@ -924,8 +1036,10 @@ function EntryScreen({
         <p>{description}</p>
         {progress && !isConfirm ? (
           <div className="pixel-entry-checkpoint">
-            <span>{progress.currentLessonId === 'intro' ? 'PHẦN GIỚI THIỆU' : 'MODULE 1'}</span>
-            <strong>{scene?.mission}</strong>
+            <span>{progress.currentLessonId === 'intro'
+              ? 'PHẦN GIỚI THIỆU'
+              : `MODULE 1 · BÀI ${learningPosition?.lessonIndex}/${learningPosition?.totalLessons}`}</span>
+            <strong>{learningPosition?.lessonTitle ?? scene?.mission}</strong>
             <em>Cập nhật {new Date(progress.updatedAt).toLocaleString('vi-VN')}</em>
           </div>
         ) : null}
@@ -1020,6 +1134,7 @@ function PixelAppShell({
 }: PixelAppShellProps) {
   const [confirmReset, setConfirmReset] = useState(false)
   const scene = scenes[progress.sceneId]
+  const learningPosition = learningPositionByScene[progress.sceneId]
   const completed = new Set(progress.completedCheckpointIds)
   if (progress.sceneId === 'module-1-complete') {
     completed.add(progress.checkpointId)
@@ -1081,7 +1196,7 @@ function PixelAppShell({
 
             <div className="pixel-roadmap" aria-label="Lộ trình học">
               <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                <span>01</span><div><small>MODULE 1</small><strong>Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt</strong><p>{scene.objective}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
+                <span>01</span><div><small>MODULE 1 · 6 BÀI HỌC</small><strong>Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt</strong><p>Bài {learningPosition.lessonIndex}/6 · {learningPosition.lessonTitle} · Trang {learningPosition.page}/{learningPosition.totalPages}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
               </button>
               {futureModules.map((title, index) => (
                 <article className="is-locked" key={title}>
@@ -1111,7 +1226,7 @@ function PixelAppShell({
             <div className="pixel-progress-surface">
               <section className="pixel-progress-summary">
                 <div><small>CHECKPOINT</small><strong>{completed.size}/{checkpointIds.length}</strong><span>Đã ghi nhận</span></div>
-                <div><small>BÀI HIỆN TẠI</small><strong>{scene.step}/{scene.totalSteps}</strong><span>{scene.lessonLabel}</span></div>
+                <div><small>BÀI HIỆN TẠI</small><strong>{learningPosition.lessonIndex}/{learningPosition.totalLessons}</strong><span>{learningPosition.lessonTitle}</span></div>
                 <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Bài luyện tập đã lưu' : 'Chưa có kết quả'}</span></div>
               </section>
               <section className="pixel-progress-detail">
@@ -1186,6 +1301,7 @@ export function LearningWindow() {
   const [error, setError] = useState('')
   const [destination, setDestination] = useState<AppDestination>('home')
   const [teacherOpen, setTeacherOpen] = useState(false)
+  const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
@@ -1196,8 +1312,10 @@ export function LearningWindow() {
     completed.add('m1-planning-package')
     const update: ProgressUpdate = {
       currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-assessment',
       checkpointId: 'm1-mastery',
       sceneId: 'module-1-mastery',
+      sceneHistory: [...current.sceneHistory, current.sceneId].slice(-200),
       completedCheckpointIds: [...completed],
       decisions: current.decisions
     }
@@ -1284,6 +1402,7 @@ export function LearningWindow() {
     try {
       await persist(initialUpdate())
       setRecovered(false)
+      setReviewHistoryIndex(null)
       setDestination('lesson')
       setTeacherOpen(false)
       setView('app')
@@ -1303,6 +1422,7 @@ export function LearningWindow() {
       setAppSettings(defaultAppSettings)
       setDestination('home')
       setTeacherOpen(false)
+      setReviewHistoryIndex(null)
       setRecovered(false)
       setView('welcome')
     } catch {
@@ -1340,8 +1460,10 @@ export function LearningWindow() {
     }
     await persist({
       currentLessonId: nextScene.lessonId,
+      currentCourseLessonId: courseLessonIdForScene(nextSceneId),
       checkpointId: nextScene.checkpointId,
       sceneId: nextSceneId,
+      sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
       completedCheckpointIds: [...completed],
       decisions
     })
@@ -1354,8 +1476,10 @@ export function LearningWindow() {
     try {
       await persist({
         currentLessonId: progress.currentLessonId,
+        currentCourseLessonId: progress.currentCourseLessonId,
         checkpointId: progress.checkpointId,
         sceneId: progress.sceneId,
+        sceneHistory: progress.sceneHistory,
         completedCheckpointIds: progress.completedCheckpointIds,
         decisions: {
           ...progress.decisions,
@@ -1426,7 +1550,13 @@ export function LearningWindow() {
     if (!progress || busy) return
     if (choice.action === 'home') {
       setTeacherOpen(false)
+      setReviewHistoryIndex(null)
       setDestination('home')
+      return
+    }
+    if (choice.action === 'review-module') {
+      const firstModuleSceneIndex = progress.sceneHistory.findIndex((sceneId) => sceneId.startsWith('module-1-'))
+      if (firstModuleSceneIndex >= 0) setReviewHistoryIndex(firstModuleSceneIndex)
       return
     }
     if (choice.action === 'practice') {
@@ -1436,6 +1566,7 @@ export function LearningWindow() {
     if (!choice.next) return
 
     setBusy(true)
+    setReviewHistoryIndex(null)
     setError('')
     try {
       const decisions = choice.decision
@@ -1466,6 +1597,7 @@ export function LearningWindow() {
         busy={busy}
         onPrimary={() => {
           if (view === 'resume') {
+            setReviewHistoryIndex(null)
             setDestination(progress?.currentLessonId === 'intro' ? 'lesson' : 'home')
             setTeacherOpen(false)
             setView('app')
@@ -1510,7 +1642,24 @@ export function LearningWindow() {
     )
   }
 
-  const scene = scenes[progress.sceneId]
+  const reviewingSceneId = reviewHistoryIndex === null
+    ? undefined
+    : progress.sceneHistory[reviewHistoryIndex]
+  const isReviewing = reviewingSceneId !== undefined
+  const currentReviewIndex = reviewHistoryIndex ?? progress.sceneHistory.length
+  const displayedSceneId = reviewingSceneId ?? progress.sceneId
+  const scene = scenes[displayedSceneId]
+  const learningPosition = learningPositionByScene[displayedSceneId]
+  const canOpenPreviousPage = isReviewing
+    ? currentReviewIndex > 0
+    : progress.sceneHistory.length > 0
+  const openPreviousPage = () => {
+    if (!canOpenPreviousPage) return
+    setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
+  }
+  const lessonContextLabel = scene.lessonId === 'intro'
+    ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
+    : `MODULE 1 · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
   const assessmentQuestion = scene.assessmentQuestionId
     ? assessmentQuestionById.get(scene.assessmentQuestionId)
     : undefined
@@ -1544,15 +1693,16 @@ export function LearningWindow() {
       <header className="pixel-hud">
         <button className="pixel-brand pixel-brand--button" type="button" onClick={() => {
           setTeacherOpen(false)
+          setReviewHistoryIndex(null)
           setDestination('home')
         }}>
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
-        <div className="pixel-mission-meta" aria-label={`Bước ${scene.step} trên ${scene.totalSteps}`}>
-          <span>BÀI HỌC HIỆN TẠI · BƯỚC {scene.step}/{scene.totalSteps}</span>
-          <strong>{scene.mission}</strong>
-          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(scene.step / scene.totalSteps) * 100}%` }} /></div>
+        <div className="pixel-mission-meta" aria-label={lessonContextLabel}>
+          <span>{lessonContextLabel}</span>
+          <strong>{learningPosition.lessonTitle}</strong>
+          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
         </div>
         <div className="pixel-hud-actions">
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
@@ -1563,7 +1713,7 @@ export function LearningWindow() {
       </header>
 
       {scene.showTitle === false ? null : (
-        <section className="pixel-scene-title"><small>{scene.lessonLabel}</small><strong>{scene.objective}</strong></section>
+        <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{scene.objective}</strong></section>
       )}
       {assessmentQuestion || scene.assessmentSummary
         ? null
@@ -1584,8 +1734,15 @@ export function LearningWindow() {
             ? `Bạn đạt ${finalCorrectCount}/15 câu. Kết quả này đạt mốc ${finalPassingCount}/15 để hoàn thành Module 1.`
             : `Bạn đạt ${finalCorrectCount}/15 câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/15.`
           : scene.dialogue}</p>
+        {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
-        {assessmentQuestion && assessmentGroup ? (
+        {isReviewing ? (
+          <div className="pixel-review-return">
+            <button className="pixel-choice is-primary" type="button" onClick={() => setReviewHistoryIndex(null)}>
+              Quay lại trang đang học
+            </button>
+          </div>
+        ) : assessmentQuestion && assessmentGroup ? (
           <AssessmentControls
             busy={busy}
             continueLabel={assessmentContinueLabel}
@@ -1636,6 +1793,14 @@ export function LearningWindow() {
             ))}
           </div>
         )}
+        <button
+          className="pixel-page-back"
+          disabled={!canOpenPreviousPage}
+          type="button"
+          onClick={openPreviousPage}
+        >
+          ← Trang trước
+        </button>
       </section>
 
       {teacherOpen ? (
