@@ -70,7 +70,7 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'ĐẦU VÀO', value: 'Bài viết hoặc profile mẫu' },
       { label: 'ĐẦU RA', value: 'Ý tưởng nội dung' }
     ],
-    dialogue: 'Trong khóa học này, bạn sẽ xây ContentPilot: một ứng dụng phân tích các bài viết hiện có trên profile — hoặc profile mẫu nếu chưa có dữ liệu — rồi đề xuất ý tưởng nội dung có khả năng bắt kịp xu hướng.',
+    dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
     choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }],
     showTitle: false,
     showPanel: false
@@ -82,7 +82,7 @@ const scenes: Record<SceneId, SceneContent> = {
     totalSteps: 1,
     lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
-    objective: 'Bạn sẽ học như thế nào?',
+    objective: 'Bạn sẽ xây gì trong khóa học này?',
     panelLabel: 'CÁCH HỌC',
     panelStatus: 'XÂY TỪNG PHẦN',
     tone: 'neutral',
@@ -92,8 +92,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'CÁCH HỌC', value: 'Từng quyết định nhỏ' },
       { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn' }
     ],
-    dialogue: 'Bạn không nhận một ứng dụng hoàn chỉnh để điền dữ liệu. Bạn sẽ bắt đầu từ ý tưởng, học cách giao tiếp với coding agent rồi tự xây từng phần của sản phẩm.',
-    choices: [{ label: 'Tiếp tục', next: 'intro-learning-method', primary: true }],
+    dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
+    choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }],
     showTitle: false,
     showPanel: false
   },
@@ -104,7 +104,7 @@ const scenes: Record<SceneId, SceneContent> = {
     totalSteps: 1,
     lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
-    objective: 'Bắt đầu từ planning, chưa cần biết code',
+    objective: 'Bạn sẽ học như thế nào?',
     panelLabel: 'MODULE 1',
     panelStatus: 'PLANNING TRƯỚC CODE',
     tone: 'neutral',
@@ -114,8 +114,8 @@ const scenes: Record<SceneId, SceneContent> = {
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
       { label: 'KẾT QUẢ', value: 'Planning package' }
     ],
-    dialogue: 'Module 1 bắt đầu bằng cách planning với coding agent. Bạn sẽ tạo PRD và implementation plan trước khi viết bất kỳ dòng code nào.',
-    choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-why-planning', afterSave: 'home', primary: true }],
+    dialogue: 'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.',
+    choices: [{ label: 'Bắt đầu', next: 'module-1-why-planning', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false
   },

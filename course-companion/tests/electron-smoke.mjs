@@ -179,6 +179,10 @@ try {
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(
+    await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
+    'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.'
+  )
   const desktopContinueButton = await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
     .boundingBox()
@@ -194,19 +198,27 @@ try {
     .getByRole('button', { name: 'Tiếp tục' })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục' })
+    .getByRole('button', { name: 'Bắt đầu khóa học', exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(
+    await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
+    'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.'
+  )
   await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục' })
+    .getByRole('button', { name: 'Bắt đầu khóa học', exact: true })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(
+    await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
+    'Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.'
+  )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
@@ -221,7 +233,7 @@ try {
     assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
     assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
     const narrowStartButton = await firstWindows.learningPage
-      .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
+      .getByRole('button', { name: 'Bắt đầu', exact: true })
       .boundingBox()
     const narrowChoiceArea = await firstWindows.learningPage
       .locator('.pixel-choices')
@@ -233,7 +245,7 @@ try {
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
+    .getByRole('button', { name: 'Bắt đầu', exact: true })
     .click()
   await verifyHomeBase(firstWindows.learningPage)
   await firstWindows.learningPage
@@ -306,8 +318,8 @@ try {
     .waitFor()
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
-  await learningPage.getByRole('button', { name: 'Bắt đầu Module 1', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu khóa học', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
   await learningPage.getByText('PHẢN HỒI LUYỆN TẬP', { exact: true }).waitFor()
