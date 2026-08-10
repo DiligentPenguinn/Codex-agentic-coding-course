@@ -31,6 +31,7 @@ hoàn thành, bạn có thể:
 
 - giải thích khi nào cần planning và khi nào một yêu cầu trực tiếp là đủ,
 - giải thích PRD giữ những quyết định nào,
+- dùng hình ảnh hoặc code để làm yêu cầu trong PRD rõ hơn,
 - dùng năm câu hỏi đơn giản để viết prompt planning,
 - dùng coding agent như một người phỏng vấn để làm rõ ý tưởng sản phẩm,
 - tạo và duyệt một PRD một trang,
@@ -80,6 +81,45 @@ Mẫu PRD của
 bảng, một yêu cầu có thể là giao diện phải hiển thị tốt trên máy tính bảng. Mẫu
 cũng dành riêng chỗ cho câu hỏi còn mở và phần ngoài phạm vi nhằm hạn chế phạm
 vi tự phình ra ngoài ý định ban đầu.
+
+## Cho coding agent xem ví dụ
+
+Ví dụ phù hợp giúp coding agent bớt phải đoán. Bạn không cần gom thật nhiều ví
+dụ. Hãy chọn ví dụ liên quan và nói rõ điều bạn muốn học theo.
+
+### Ví dụ bằng hình ảnh
+
+Ảnh chụp hoặc bản thiết kế có thể cho thấy bố cục, cách sắp xếp thông tin và
+luồng bạn muốn. Bạn có thể dùng:
+
+- [Pinterest](https://help.pinterest.com/en/guide/all-about-pinterest) để tìm ý
+  tưởng bằng hình ảnh,
+- [Mobbin](https://mobbin.com/) để xem màn hình và luồng từ sản phẩm thật, hoặc
+- [Dribbble](https://dribbble.com/shots/popular/web-design) để xem bản thiết kế
+  giao diện.
+
+[OpenAI Docs](https://learn.chatgpt.com/use-cases/frontend-designs) khuyên dùng
+những ảnh rõ nhất cho giao diện mong muốn. Một ảnh có thể đủ cho thay đổi nhỏ.
+Với một luồng lớn hơn, bạn có thể thêm bố cục trên máy tính và điện thoại. Bạn
+cũng có thể thêm trạng thái trống hoặc đang tải nếu chúng thật sự quan trọng.
+
+Khi đưa ảnh, hãy nói rõ phần muốn học theo. Đó có thể là bố cục, cách sắp xếp
+thông tin hoặc thứ tự các bước. Đừng chỉ nói “làm giống ảnh này”.
+
+### Ví dụ bằng code
+
+Bạn cũng có thể đưa một đoạn HTML, một thành phần giao diện hoặc repository có
+cách làm gần với điều bạn muốn. Hãy chỉ đúng tệp hoặc đoạn cần xem. Sau đó, nói
+rõ bạn muốn học theo cách sắp xếp hay cách phần đó hoạt động. Ví dụ không bắt
+coding agent dùng cùng cách xây.
+
+Repository công khai không tự động có nghĩa là bạn được sao chép code. Theo
+[GitHub Docs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository),
+nếu repository không có giấy phép thì luật bản quyền vẫn bảo vệ code.
+Vì vậy, hãy kiểm tra tệp giấy phép trước khi dùng lại code.
+
+Bạn có thể đặt ảnh hoặc đường dẫn ngay dưới yêu cầu liên quan trong PRD. Ví dụ
+giúp làm rõ yêu cầu. Nó không thay thế mục tiêu, phạm vi hoặc `Done When`.
 
 ## Prompt engineering là gì?
 

@@ -42,6 +42,8 @@ export const sceneIds = [
   'module-1-implementation-too-soon',
   'module-1-prd-concept',
   'module-1-prd-example',
+  'module-1-prd-visual-examples',
+  'module-1-prd-code-examples',
   'module-1-check-planning-prd-1',
   'module-1-check-planning-prd-2',
   'module-1-check-planning-prd-3',

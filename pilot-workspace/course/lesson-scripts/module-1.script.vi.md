@@ -62,8 +62,29 @@ cầu giao diện phải hiển thị tốt trên máy tính bảng. Mẫu này 
 hỏi còn mở và những gì nằm ngoài phạm vi để tránh sản phẩm tự lớn dần ngoài ý
 định ban đầu."
 
+Teacher nói: "Để coding agent bớt phải đoán, hãy cho nó xem một vài ví dụ phù
+hợp. Không cần gom thật nhiều. Mỗi ví dụ cần đi cùng lời giải thích về điều bạn
+muốn học theo."
+
+Teacher nói: "Dạng đầu tiên là ví dụ bằng hình ảnh. Bạn có thể dùng ảnh chụp
+giao diện hoặc bản thiết kế để cho thấy bố cục và luồng mong muốn. Pinterest
+giúp tìm ý tưởng. Mobbin có màn hình và luồng từ sản phẩm thật. Dribbble có các
+bản thiết kế giao diện. OpenAI Docs cũng khuyên dùng ảnh rõ ràng và đưa thêm
+những trạng thái thật sự cần thiết."
+
+Teacher nói: "Dạng thứ hai là ví dụ bằng code. Đó có thể là một đoạn HTML, một
+thành phần giao diện hoặc repository có cách làm gần với điều bạn muốn. Hãy chỉ
+đúng tệp hoặc đoạn cần xem. Sau đó, nói rõ bạn muốn học theo cách sắp xếp hay
+cách phần đó hoạt động. Ví dụ này không bắt coding agent dùng cùng cách xây.
+Repository công khai không tự động có nghĩa là được phép sao chép code, vì vậy
+hãy kiểm tra giấy phép trước khi dùng lại."
+
+Teacher nói: "Bạn có thể đặt ảnh hoặc đường dẫn ngay dưới yêu cầu liên quan
+trong PRD. Ví dụ giúp làm rõ yêu cầu; ví dụ không thay thế cho việc nói rõ mục
+tiêu, phạm vi và Done When."
+
 Teacher nói: "Ta đã học xong hai vùng kiến thức đầu tiên: khi nào cần planning
-và PRD giữ những quyết định nào. Bây giờ mới đến ba câu kiểm tra ngắn."
+và cách làm PRD rõ hơn. Bây giờ mới đến ba câu kiểm tra ngắn."
 
 [Dùng nhóm `planning-prd-check` trong
 `course/quizzes/module-1.quiz.json`. Mở Assessment State cho từng câu và hỏi

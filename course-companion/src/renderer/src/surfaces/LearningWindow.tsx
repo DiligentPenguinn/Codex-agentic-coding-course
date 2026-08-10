@@ -335,6 +335,46 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'PHẠM VI', value: 'Ghi rõ giới hạn' }
     ],
     dialogue: 'Mẫu PRD của Atlassian còn dành chỗ cho câu hỏi chưa có đáp án và những gì nằm ngoài phạm vi. Nhờ vậy, nhóm biết điều gì đã được quyết định và điều gì chưa được phép tự thêm vào sản phẩm.',
+    choices: [{ label: 'Cho coding agent xem ví dụ', next: 'module-1-prd-visual-examples', primary: true }]
+  },
+  'module-1-prd-visual-examples': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
+    step: 3,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Làm PRD rõ hơn bằng ví dụ',
+    objective: 'Cho coding agent xem ví dụ bằng hình ảnh',
+    panelLabel: 'VÍ DỤ BẰNG HÌNH ẢNH',
+    panelStatus: 'CHỌN ĐÚNG · NÓI RÕ',
+    tone: 'neutral',
+    request: 'Pinterest: tìm ý tưởng · Mobbin: xem màn hình và luồng thật · Dribbble: xem bản thiết kế giao diện.',
+    evidence: [
+      { label: 'CHỌN', value: 'Ảnh liên quan' },
+      { label: 'NÓI RÕ', value: 'Điều muốn học theo' },
+      { label: 'TRÁNH', value: 'Ảnh không liên quan' }
+    ],
+    dialogue: 'Ảnh chụp hoặc bản thiết kế giúp coding agent nhìn thấy bố cục, cách sắp xếp thông tin và luồng bạn muốn. OpenAI Docs khuyên dùng ảnh rõ ràng và đưa thêm các trạng thái thật sự cần thiết. Khi gửi ảnh, hãy nói rõ bạn muốn học theo phần nào thay vì chỉ bảo “làm giống ảnh này”.',
+    choices: [{ label: 'Xem ví dụ bằng code', next: 'module-1-prd-code-examples', primary: true }]
+  },
+  'module-1-prd-code-examples': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-prd-concept',
+    step: 3,
+    totalSteps: 10,
+    lessonLabel: 'MODULE 1 · PLANNING, PRD VÀ PROMPT',
+    mission: 'Làm PRD rõ hơn bằng ví dụ',
+    objective: 'Cho coding agent xem ví dụ bằng code',
+    panelLabel: 'VÍ DỤ BẰNG CODE',
+    panelStatus: 'CHỈ ĐÚNG PHẦN CẦN XEM',
+    tone: 'neutral',
+    request: 'Đoạn HTML · thành phần giao diện · repository có giấy phép phù hợp.',
+    evidence: [
+      { label: 'CHỈ RÕ', value: 'Tệp hoặc đoạn code' },
+      { label: 'MUỐN HỌC', value: 'Cách sắp xếp, hoạt động' },
+      { label: 'GIẤY PHÉP', value: 'Kiểm tra trước' }
+    ],
+    dialogue: 'Một đoạn HTML, một thành phần giao diện hoặc repository có thể cho coding agent thấy cách sắp xếp và cách phần đó hoạt động. Hãy chỉ đúng phần cần xem và nói rõ điều muốn học theo. Ví dụ không bắt agent dùng cùng cách xây. Với repository công khai, hãy kiểm tra giấy phép trước khi dùng lại code.',
     choices: [{ label: 'Làm 3 câu kiểm tra Planning và PRD', next: 'module-1-check-planning-prd-1', primary: true }]
   },
   'module-1-prd-check': {

@@ -39,19 +39,19 @@
           "id": "planning-prd-2",
           "sceneId": "module-1-check-planning-prd-2",
           "type": "multiple-choice",
-          "prompt": "Nhóm giả định phần lớn người dùng truy cập bằng máy tính bảng. Yêu cầu nào bám sát giả định đó nhất?",
+          "prompt": "Cách nào giúp coding agent hiểu đúng một ảnh giao diện bạn thích?",
           "choices": [
-            "Giao diện phải hiển thị tốt trên máy tính bảng.",
-            "Sản phẩm phải dùng một thư viện giao diện cụ thể.",
-            "Nhóm phải hoàn thành toàn bộ sản phẩm trong một ngày.",
-            "Ứng dụng phải tự động đăng bài lên mọi mạng xã hội."
+            "Gửi ảnh và nói rõ bạn muốn học theo bố cục hoặc luồng nào.",
+            "Gửi thật nhiều ảnh không liên quan và để agent tự chọn.",
+            "Chỉ nói ‘làm giống ảnh này’ mà không nêu phần quan trọng.",
+            "Mô tả giao diện nhưng giấu ảnh mà bạn đang dùng làm ví dụ."
           ],
           "answerIndex": 0,
-          "explanation": "Atlassian dùng chính ví dụ máy tính bảng để minh họa cách một giả định về người dùng dẫn đến yêu cầu giao diện phù hợp với thiết bị đó.",
+          "explanation": "OpenAI Docs khuyên đưa những ảnh rõ nhất và nói cụ thể về cách màn hình hoạt động cùng phong cách mong muốn. Ví dụ chỉ hữu ích khi agent biết điều gì trong ảnh cần được giữ lại.",
           "source": {
-            "label": "Atlassian — Product requirements document template",
-            "url": "https://www.atlassian.com/software/confluence/templates/product-requirements?category=services",
-            "basis": "Mẫu PRD nối giả định người dùng truy cập bằng máy tính bảng với yêu cầu sản phẩm phải hiển thị phù hợp trên thiết bị di động."
+            "label": "OpenAI — Build responsive front-end designs",
+            "url": "https://learn.chatgpt.com/use-cases/frontend-designs",
+            "basis": "Hướng dẫn khuyên đưa những ảnh rõ nhất, thêm các trạng thái cần thiết và nói cụ thể về cách màn hình hoạt động cùng phong cách mong muốn."
           }
         },
         {
@@ -311,19 +311,19 @@
           "id": "final-7",
           "sceneId": "module-1-final-7",
           "type": "multiple-choice",
-          "prompt": "Bạn nên làm gì khi prompt lặp cùng một quy tắc ở nhiều đoạn?",
+          "prompt": "Bạn tìm thấy một repository công khai nhưng không thấy giấy phép. Cách làm nào phù hợp?",
           "choices": [
-            "Giữ mọi lần lặp vì prompt càng dài càng tốt.",
-            "Gộp quy tắc thành một chỉ dẫn rõ ở một nơi.",
-            "Xóa luôn quy tắc đó.",
-            "Thêm nhiều ví dụ không liên quan."
+            "Sao chép toàn bộ vì repository công khai luôn được dùng tự do.",
+            "Chỉ xem để hiểu ý tưởng; chưa dùng lại code cho đến khi xác định quyền sử dụng.",
+            "Xóa tên tác giả rồi dùng code như code của mình.",
+            "Yêu cầu coding agent tự quyết định xem có được sao chép hay không."
           ],
           "answerIndex": 1,
-          "explanation": "OpenAI Docs khuyên nêu mỗi chỉ dẫn một lần. Điều này giúp prompt gọn hơn mà vẫn giữ yêu cầu cần thiết.",
+          "explanation": "GitHub Docs giải thích rằng luật bản quyền vẫn bảo vệ code trong repository công khai nếu repository không có giấy phép. Bạn có thể xem, nhưng chưa nên sao chép, sửa hoặc chia sẻ code khi chưa có quyền phù hợp.",
           "source": {
-            "label": "OpenAI Docs — Model guidance",
-            "url": "https://developers.openai.com/api/docs/guides/latest-model",
-            "basis": "Hướng dẫn tinh gọn prompt yêu cầu nêu mỗi chỉ dẫn một lần và loại nội dung lặp lại."
+            "label": "GitHub Docs — Licensing a repository",
+            "url": "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository",
+            "basis": "Nếu repository không có giấy phép, luật bản quyền vẫn bảo vệ code và người khác không được tự do sao chép hoặc sửa thành sản phẩm khác."
           }
         },
         {

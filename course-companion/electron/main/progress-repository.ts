@@ -37,6 +37,8 @@ const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-1-implementation-too-soon': 'm1-contentpilot-brief',
   'module-1-prd-concept': 'm1-prd-concept',
   'module-1-prd-example': 'm1-prd-concept',
+  'module-1-prd-visual-examples': 'm1-prd-concept',
+  'module-1-prd-code-examples': 'm1-prd-concept',
   'module-1-check-planning-prd-1': 'm1-prd-concept',
   'module-1-check-planning-prd-2': 'm1-prd-concept',
   'module-1-check-planning-prd-3': 'm1-prd-concept',

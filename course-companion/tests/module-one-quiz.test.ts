@@ -46,6 +46,8 @@ describe('Module 1 sourced assessment bank', () => {
     const questions = quiz.groups.flatMap((group) => group.questions)
     const allowedHosts = new Set([
       'developers.openai.com',
+      'docs.github.com',
+      'learn.chatgpt.com',
       'microsoft.github.io',
       'www.atlassian.com'
     ])

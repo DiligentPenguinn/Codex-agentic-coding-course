@@ -316,6 +316,8 @@ try {
     .getByRole('button', { name: 'Tìm hiểu PRD', exact: true })
     .click()
   await firstWindows.learningPage.getByRole('button', { name: 'Xem một ví dụ PRD', exact: true }).click()
+  await firstWindows.learningPage.getByRole('button', { name: 'Cho coding agent xem ví dụ', exact: true }).click()
+  await firstWindows.learningPage.getByRole('button', { name: 'Xem ví dụ bằng code', exact: true }).click()
   await firstWindows.learningPage
     .getByRole('button', { name: 'Làm 3 câu kiểm tra Planning và PRD', exact: true })
     .click()
@@ -409,6 +411,12 @@ try {
   await learningPage.getByRole('button', { name: 'Xem một ví dụ PRD', exact: true }).click()
   await learningPage.getByText('VÍ DỤ TỪ ATLASSIAN', { exact: true }).waitFor()
   await capture(learningPage, 'module-1-prd-example.png')
+  await learningPage.getByRole('button', { name: 'Cho coding agent xem ví dụ', exact: true }).click()
+  await learningPage.getByText('VÍ DỤ BẰNG HÌNH ẢNH', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-prd-visual-examples.png')
+  await learningPage.getByRole('button', { name: 'Xem ví dụ bằng code', exact: true }).click()
+  await learningPage.getByText('VÍ DỤ BẰNG CODE', { exact: true }).waitFor()
+  await capture(learningPage, 'module-1-prd-code-examples.png')
   await learningPage
     .getByRole('button', { name: 'Làm 3 câu kiểm tra Planning và PRD', exact: true })
     .click()
