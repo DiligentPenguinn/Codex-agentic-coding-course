@@ -1006,9 +1006,9 @@ const moduleLessonIds: Record<'module-1' | 'module-2', CourseLessonId[]> = {
 const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
   'm1-understand-codex': {
     image: m1UnderstandCodexImage,
-    alt: 'Giao diện Codex hiển thị yêu cầu, tiến trình và thay đổi để người dùng xem lại',
-    caption: 'Một yêu cầu được Codex xử lý thành thay đổi mà bạn có thể xem lại.',
-    source: 'OpenAI Docs'
+    alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu',
+    caption: 'Đây là giao diện Codex, nơi bạn mở dự án rồi giao việc bằng ngôn ngữ tự nhiên.',
+    source: 'Ảnh chụp từ Codex'
   },
   'm1-workspace-permissions': {
     image: m1PermissionsImage,

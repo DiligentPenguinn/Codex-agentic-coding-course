@@ -5,11 +5,13 @@ Bộ ảnh này được dùng ở trang mở đầu của 11 bài thuộc Modul
 thích tiếng Việt nằm trong giao diện Course Companion, không được ghi đè lên
 ảnh gốc.
 
+## Ảnh do tác giả khóa học cung cấp
+
+- `m1-understand-codex.webp`: ảnh chụp giao diện Codex do tác giả khóa học
+  cung cấp. Ảnh được cắt theo tỉ lệ 16:9 để vừa khung minh hoạ.
+
 ## Ảnh chính thức của OpenAI
 
-- `m1-understand-codex.webp`: ảnh giao diện Codex từ trang bắt đầu chính thức
-  của OpenAI. Ảnh gốc đã có trong
-  `pilot-workspace/course/onboarding/images/codex-app-interface.webp`.
 - `m1-workspace-permissions.webp`: ảnh chụp phần Permission modes tại
   <https://learn.chatgpt.com/docs/permission-modes>.
 - `m1-agents-guidance.webp`: ảnh chụp phần hướng dẫn `AGENTS.md` tại
