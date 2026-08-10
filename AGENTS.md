@@ -46,6 +46,10 @@
 
 - Current runnable private course: `pilot-workspace/`.
 - Current public-course plan: `docs/planning/`.
+- Internal target-learner definition:
+  `docs/internal/target-learner-definition.md`. Read it before making
+  curriculum, product, or learner-experience decisions. Do not copy it into
+  learner-facing content or include it in a public release package.
 - Current real application baseline: `starters/contentpilot/`.
 - Historical references only: `prototypes/` and
   `codex_content_creator_course_plan_v8.html`.
