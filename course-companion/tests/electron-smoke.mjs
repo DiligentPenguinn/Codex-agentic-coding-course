@@ -57,6 +57,29 @@ async function answerAssessmentGroup(page, groupId) {
 async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
+  assert.equal(
+    await page.locator('.pixel-dialogue > p').textContent(),
+    'Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động.'
+  )
+  assert.equal(await page.getByText('pilot-workspace/', { exact: true }).count(), 0)
+  await capture(page, 'module-1-codex-introduction.png')
+
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const introductionNarrowWidths = await page.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
+    assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
+    await capture(page, 'module-1-codex-introduction-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+
   await page.getByRole('button', { name: 'Tiếp tục chọn thiết lập ban đầu', exact: true }).click()
   await page.getByRole('button', { name: 'Giữ thiết lập được đề xuất', exact: true }).click()
   await page.getByRole('button', { name: 'Tôi sẽ xem xét trước khi phê duyệt', exact: true }).click()
@@ -213,7 +236,7 @@ async function verifyHomeBase(page) {
   assert.equal(await page.getByText('00', { exact: true }).count(), 0)
   assert.equal(await page.getByText('Giới thiệu khóa học', { exact: true }).count(), 0)
   await page
-    .getByText('Thiết lập môi trường làm việc với Codex', { exact: true })
+    .getByText('Bắt đầu làm việc với Codex', { exact: true })
     .waitFor()
   await page
     .getByText('Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt', { exact: true })
@@ -322,7 +345,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Khoá học sẽ bắt đầu bằng việc giúp bạn hiểu môi trường làm việc với Codex. Sau khi nhận biết workspace, quyền hành động, AGENTS.md và Skill, bạn mới chuyển sang planning cho ContentPilot.'
+    'Module 1 bắt đầu bằng phần làm quen ngắn với Codex. Sau đó, bạn sẽ chọn model, hiểu cách phê duyệt hành động và phân biệt vai trò của AGENTS.md với Skill trước khi chuyển sang planning cho ContentPilot.'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {

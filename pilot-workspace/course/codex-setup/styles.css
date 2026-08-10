@@ -278,12 +278,12 @@ code {
   filter: saturate(0.82) contrast(1.03);
 }
 
-.workspace-map {
+.permission-map {
   margin-top: 28px;
 }
 
-.root-node,
-.branch-grid span {
+.permission-node,
+.permission-grid span {
   padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -291,13 +291,13 @@ code {
   font-size: 0.82rem;
 }
 
-.root-node {
+.permission-node {
   width: fit-content;
   color: var(--accent-strong);
   background: #25231e;
 }
 
-.branch-grid {
+.permission-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
@@ -306,7 +306,7 @@ code {
   border-left: 1px solid var(--border);
 }
 
-.branch-grid span {
+.permission-grid span {
   color: var(--muted);
   background: #171714;
 }

@@ -1,10 +1,10 @@
 # Checklist thiết lập Codex
 
-## Môi trường
+## Cách tôi dùng Codex
 
-- Workspace đang mở:
 - Cách tôi đang dùng Codex (ứng dụng trên máy tính hoặc dòng lệnh):
-- Dấu hiệu xác nhận đúng workspace:
+- Mục tiêu đầu tiên tôi muốn giao:
+- Kết quả tôi sẽ kiểm tra:
 
 ## Model
 

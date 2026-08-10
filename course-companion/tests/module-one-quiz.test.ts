@@ -70,7 +70,7 @@ describe('Course module assessment banks', () => {
     expect(moduleOne?.kind).toBe('module')
     expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Hiểu Codex và chọn model',
-      'Workspace và quyền hành động',
+      'Quyền hành động và phê duyệt',
       'Thiết lập hướng dẫn bền vững với AGENTS.md',
       'Dùng Skills và hoàn tất checklist',
       'Kiểm tra và hoàn thành Module 1'
@@ -100,7 +100,7 @@ describe('Course module assessment banks', () => {
     expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(23)
   })
 
-  it('gives every question an answer contract and official source', async () => {
+  it('gives every question an answer contract and approved source', async () => {
     const setupQuiz = await loadQuiz('module-1')
     const planningQuiz = await loadQuiz('module-2')
     const setupQuestions = setupQuiz.questions ?? []
@@ -111,6 +111,7 @@ describe('Course module assessment banks', () => {
       'docs.github.com',
       'learn.chatgpt.com',
       'microsoft.github.io',
+      'www.freecodecamp.org',
       'www.atlassian.com'
     ])
 

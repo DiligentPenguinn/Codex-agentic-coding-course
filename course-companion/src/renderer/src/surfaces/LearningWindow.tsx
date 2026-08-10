@@ -177,13 +177,13 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     panelLabel: 'MODULE 1',
     panelStatus: 'THIẾT LẬP CODEX',
     tone: 'neutral',
-    request: 'Workspace → quyền hành động → hướng dẫn → Skill',
+    request: 'Codex → model → quyền hành động → AGENTS.md → Skill',
     evidence: [
       { label: 'KIẾN THỨC CODE', value: 'Chưa cần' },
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
       { label: 'KẾT QUẢ', value: 'Checklist thiết lập Codex' }
     ],
-    dialogue: 'Khoá học sẽ bắt đầu bằng việc giúp bạn hiểu môi trường làm việc với Codex. Sau khi nhận biết workspace, quyền hành động, AGENTS.md và Skill, bạn mới chuyển sang planning cho ContentPilot.',
+    dialogue: 'Module 1 bắt đầu bằng phần làm quen ngắn với Codex. Sau đó, bạn sẽ chọn model, hiểu cách phê duyệt hành động và phân biệt vai trò của AGENTS.md với Skill trước khi chuyển sang planning cho ContentPilot.',
     choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false
@@ -194,18 +194,18 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     step: 1,
     totalSteps: 8,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Hiểu Codex và workspace',
-    objective: 'Codex đang làm việc ở đâu?',
-    panelLabel: 'MÔI TRƯỜNG LÀM VIỆC',
-    panelStatus: 'CÓ RANH GIỚI RÕ RÀNG',
+    mission: 'Làm quen với Codex',
+    objective: 'Codex là gì?',
+    panelLabel: 'CODING AGENT',
+    panelStatus: 'LÀM VIỆC CÙNG BẠN',
     tone: 'neutral',
-    request: 'Codex làm việc với tệp và công cụ trong workspace được cho phép.',
+    request: 'Codex là coding agent của OpenAI.',
     evidence: [
-      { label: 'WORKSPACE', value: 'Thư mục khóa học' },
-      { label: 'BỐI CẢNH', value: 'Tệp và chỉ dẫn dự án' },
-      { label: 'GIỚI HẠN', value: 'Quyền đã được cấp' }
+      { label: 'VAI TRÒ', value: 'Coding agent' },
+      { label: 'BẠN GIAO', value: 'Mục tiêu và bối cảnh' },
+      { label: 'BẠN GIỮ', value: 'Quyền quyết định' }
     ],
-    dialogue: 'Workspace là thư mục Codex đang dùng làm bối cảnh công việc. Với khóa học này, bạn có thể nhận ra đúng workspace nhờ START_HERE.md, AGENTS.md, course/ và contentpilot/.',
+    dialogue: 'Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động.',
     choices: [{ label: 'Tiếp tục chọn thiết lập ban đầu', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-model-choice': {
@@ -237,7 +237,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     step: 3,
     totalSteps: 8,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Workspace và quyền hành động',
+    mission: 'Quyền hành động và phê duyệt',
     objective: 'Bạn kiểm tra gì trước khi phê duyệt?',
     panelLabel: 'PHÊ DUYỆT',
     panelStatus: 'BẠN GIỮ QUYỀN QUYẾT ĐỊNH',
@@ -304,11 +304,11 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     tone: 'good',
     request: 'Checklist ghi lại ranh giới làm việc và các lựa chọn bạn vừa xác nhận.',
     evidence: [
-      { label: 'WORKSPACE', value: 'Đã nhận biết', ready: true },
+      { label: 'CODEX', value: 'Đã hiểu vai trò', ready: true },
       { label: 'QUYỀN', value: 'Sẽ xem xét trước', ready: true },
       { label: 'HƯỚNG DẪN', value: 'AGENTS.md và Skill', ready: true }
     ],
-    dialogue: 'Bạn đã xác định đúng workspace, cách bắt đầu với model, cách xem xét phê duyệt và ranh giới giữa prompt, AGENTS.md với Skill. Tiếp theo là năm câu kiểm tra ngắn.',
+    dialogue: 'Bạn đã hiểu vai trò của Codex, cách bắt đầu với model và cách xem xét phê duyệt. Bạn cũng đã phân biệt prompt, AGENTS.md với Skill. Tiếp theo là năm câu kiểm tra ngắn.',
     choices: [{ label: 'Bắt đầu kiểm tra Module 1', next: 'module-1-mastery', primary: true, decision: { key: 'setupChecklist', value: 'reviewed-in-companion' } }]
   },
   'module-1-mastery': {
@@ -337,14 +337,14 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     step: 8,
     totalSteps: 8,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Hoàn tất môi trường làm việc',
+    mission: 'Sẵn sàng làm việc với Codex',
     objective: 'Module 1 đã hoàn thành',
     panelLabel: 'NỀN TẢNG LÀM VIỆC',
     panelStatus: 'SẴN SÀNG CHO MODULE 2',
     tone: 'good',
     request: 'Bạn đã có ranh giới làm việc rõ trước khi bắt đầu planning.',
     evidence: [
-      { label: 'WORKSPACE', value: 'Đã hiểu', ready: true },
+      { label: 'CODEX', value: 'Đã hiểu vai trò', ready: true },
       { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn', ready: true },
       { label: 'BƯỚC TIẾP', value: 'Planning, PRD và prompt', ready: true }
     ],
@@ -1456,11 +1456,11 @@ function PixelAppShell({
             <div className="pixel-roadmap" aria-label="Lộ trình học">
               {currentModuleId === 'module-1' ? (
                 <button className={`pixel-roadmap-stage is-current${moduleOneComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
-                  <span>01</span><div><small>MODULE 1 · {moduleOneLessonCount} BÀI HỌC</small><strong>{setupModule?.titleVi ?? 'Thiết lập môi trường làm việc với Codex'}</strong><p>Bài {learningPosition.lessonIndex}/{moduleOneLessonCount} · {learningPosition.lessonTitle} · Trang {learningPosition.page}/{learningPosition.totalPages}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
+                  <span>01</span><div><small>MODULE 1 · {moduleOneLessonCount} BÀI HỌC</small><strong>{setupModule?.titleVi ?? 'Bắt đầu làm việc với Codex'}</strong><p>Bài {learningPosition.lessonIndex}/{moduleOneLessonCount} · {learningPosition.lessonTitle} · Trang {learningPosition.page}/{learningPosition.totalPages}</p></div><em>{moduleOneComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
                 </button>
               ) : (
                 <article className={moduleOneMigrated ? 'is-migrated' : 'is-complete'}>
-                  <span>01</span><div><small>MODULE 1 · {moduleOneLessonCount} BÀI HỌC</small><strong>{setupModule?.titleVi ?? 'Thiết lập môi trường làm việc với Codex'}</strong><p>{moduleOneMigrated ? 'Tiến độ Planning cũ được giữ nguyên; học phần setup không được tự đánh dấu hoàn thành.' : 'Bạn đã hoàn tất nền tảng làm việc với Codex.'}</p></div><em>{moduleOneMigrated ? 'ĐÃ CHUYỂN TIẾP' : 'HOÀN THÀNH'}</em>
+                  <span>01</span><div><small>MODULE 1 · {moduleOneLessonCount} BÀI HỌC</small><strong>{setupModule?.titleVi ?? 'Bắt đầu làm việc với Codex'}</strong><p>{moduleOneMigrated ? 'Tiến độ Planning cũ được giữ nguyên; học phần setup không được tự đánh dấu hoàn thành.' : 'Bạn đã hoàn tất nền tảng làm việc với Codex.'}</p></div><em>{moduleOneMigrated ? 'ĐÃ CHUYỂN TIẾP' : 'HOÀN THÀNH'}</em>
                 </article>
               )}
               {currentModuleId === 'module-2' ? (

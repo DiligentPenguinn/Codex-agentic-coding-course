@@ -29,7 +29,7 @@ surface; lesson-step progress appears only after the learner enters a lesson.
 Course Companion 0.2 now follows `pilot-workspace/course/course-structure.json`
 for the first two runnable modules:
 
-- Module 1 is **Thiết lập môi trường làm việc với Codex**, with five lessons and
+- Module 1 is **Bắt đầu làm việc với Codex**, with five lessons and
   a five-question mastery check;
 - Module 2 is **Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt**,
   with six lessons and the existing planning-package practice; and

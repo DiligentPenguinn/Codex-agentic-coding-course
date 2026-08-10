@@ -10,7 +10,7 @@ const copyStatus = document.querySelector("#copyStatus");
 
 const hints = [
   "Hiểu vai trò của Codex trước khi thiết lập.",
-  "Xác nhận đúng workspace và ranh giới hành động.",
+  "Hiểu quyền quyết định và cách phê duyệt hành động.",
   "Chọn model theo công việc, không theo tên gọi.",
   "Tách mục tiêu của task khỏi chỉ dẫn lâu dài.",
   "Gọi Skill khi bạn cần một quy trình có thể dùng lại."

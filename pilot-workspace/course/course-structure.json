@@ -51,8 +51,8 @@
     {
       "id": "module-1",
       "kind": "module",
-      "titleVi": "Thiết lập môi trường làm việc với Codex",
-      "titleEn": "Set up your working environment with Codex",
+      "titleVi": "Bắt đầu làm việc với Codex",
+      "titleEn": "Getting started with Codex",
       "estimatedMinutes": 50,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
@@ -82,7 +82,7 @@
         },
         {
           "id": "m1-workspace-permissions",
-          "titleVi": "Workspace và quyền hành động",
+          "titleVi": "Quyền hành động và phê duyệt",
           "estimatedMinutes": 10,
           "checkpoints": [
             "m1-permissions"

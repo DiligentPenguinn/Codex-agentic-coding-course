@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Thiết lập môi trường làm việc với Codex",
+  "title": "Kiểm tra cuối Module 1 — Bắt đầu làm việc với Codex",
   "passingScore": 4,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
     "feedbackTiming": "Hiện lời giải và nguồn sau khi Learner trả lời từng câu.",
-    "sourcePolicy": "Mỗi lời giải phải dùng nguồn OpenAI Docs ghi trong câu hỏi.",
+    "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
     "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học."
   },
   "questions": [
@@ -16,17 +16,17 @@
       "type": "multiple-choice",
       "prompt": "Điểm nào phân biệt Codex với một cuộc trò chuyện chỉ trả lời bằng văn bản?",
       "choices": [
-        "Codex có thể làm việc với tệp và công cụ trong workspace được cho phép.",
+        "Codex là sản phẩm dành cho quy trình agentic coding, không chỉ là một model trả lời văn bản.",
         "Codex luôn được quyền truy cập toàn bộ máy tính.",
         "Codex không cần biết mục tiêu của người dùng.",
         "Codex chỉ hoạt động khi có OpenAI API key."
       ],
       "answerIndex": 0,
-      "explanation": "Codex được thiết kế cho công việc phát triển phần mềm có bối cảnh codebase và công cụ. Quyền truy cập vẫn bị giới hạn bởi workspace, sandbox và phê duyệt.",
+      "explanation": "Codex kết hợp model với một quy trình có tệp, công cụ, phê duyệt và kiểm tra. Người dùng vẫn quyết định mục tiêu và phạm vi hành động.",
       "source": {
-        "label": "OpenAI Docs — Quickstart",
-        "url": "https://learn.chatgpt.com/docs/quickstart",
-        "basis": "Quickstart phân biệt Codex như bề mặt dành cho công việc phần mềm có codebase context và developer tools."
+        "label": "FreeCodeCamp — The Codex Handbook",
+        "url": "https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/",
+        "basis": "The Codex Handbook phân biệt Codex với một model hoặc chatbot và mô tả Codex như sản phẩm dành cho quy trình agentic coding."
       }
     },
     {
@@ -55,7 +55,7 @@
         "Đọc lý do, nguồn sẽ truy cập và phạm vi thay đổi rồi mới quyết định.",
         "Luôn đồng ý vì Codex đã đưa ra yêu cầu.",
         "Luôn từ chối mọi yêu cầu mà không đọc.",
-        "Đóng workspace để xóa yêu cầu."
+        "Bắt đầu một task mới để yêu cầu biến mất."
       ],
       "answerIndex": 0,
       "explanation": "Phê duyệt là điểm người dùng xem xét một hành động vượt qua ranh giới hiện tại. Quyết định cần dựa trên mục đích và tác động của hành động.",

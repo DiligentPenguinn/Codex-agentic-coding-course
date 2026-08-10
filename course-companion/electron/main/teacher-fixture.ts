@@ -86,7 +86,7 @@ function replyFor(context?: TeacherContext): string {
   }
 
   if (context.checkpointId === 'm1-codex-orientation' || context.checkpointId === 'm1-model-choice') {
-    return 'Trước hết, hãy xác nhận đúng workspace và chọn một thiết lập model làm điểm bắt đầu. Bạn có thể điều chỉnh sau khi công việc thật cho thêm bằng chứng.'
+    return 'Trước hết, hãy xem Codex như một lập trình viên mới cần mục tiêu và bối cảnh rõ ràng. Sau đó, bạn có thể chọn một thiết lập model làm điểm bắt đầu và điều chỉnh khi công việc thật cho thêm bằng chứng.'
   }
   if (context.checkpointId === 'm1-permissions') {
     return 'Trước khi phê duyệt, hãy kiểm tra mục đích, nguồn truy cập và phạm vi thay đổi của hành động Codex đang đề nghị.'

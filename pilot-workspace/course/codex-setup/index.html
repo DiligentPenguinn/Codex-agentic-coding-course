@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Hướng dẫn trực quan cho Module 1: Thiết lập môi trường làm việc với Codex."
+      content="Hướng dẫn trực quan cho Module 1: Bắt đầu làm việc với Codex."
     />
-    <title>Thiết lập môi trường làm việc với Codex</title>
+    <title>Bắt đầu làm việc với Codex</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -17,7 +17,7 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">Vibecoding 101 · Module 1</p>
-          <h1>Thiết lập môi trường làm việc với Codex</h1>
+          <h1>Bắt đầu làm việc với Codex</h1>
         </div>
         <div class="progress-wrap" aria-label="Tiến độ phần minh họa">
           <span id="progressText">1 / 5</span>
@@ -32,7 +32,7 @@
           <span>01</span> Codex
         </button>
         <button class="step" type="button" data-step="1">
-          <span>02</span> Workspace
+          <span>02</span> Quyền
         </button>
         <button class="step" type="button" data-step="2">
           <span>03</span> Model
@@ -51,14 +51,14 @@
             <p class="kicker">Bắt đầu từ vai trò</p>
             <h2>Codex làm việc cùng dự án, không chỉ trả lời câu hỏi</h2>
             <p>
-              Codex là <strong>coding agent</strong>: hệ thống AI có thể đọc tệp,
-              đề xuất kế hoạch, sửa tệp và chạy lệnh trong giới hạn bạn cho phép.
+              Codex là <strong>coding agent</strong> của OpenAI. Hãy hình dung Codex
+              như một lập trình viên mới đang được bạn hướng dẫn làm quen với dự án.
             </p>
             <div class="definition">
               <span>Thuật ngữ</span>
               <p>
-                <strong>Task</strong> là một cuộc làm việc có mục tiêu riêng.
-                <strong>Workspace</strong> là thư mục dự án của task đó.
+                <strong>Để bắt đầu:</strong> giao mục tiêu rõ ràng, cung cấp đủ bối
+                cảnh và nêu cách bạn sẽ kiểm tra kết quả.
               </p>
             </div>
           </div>
@@ -73,19 +73,19 @@
 
         <article class="panel" data-panel="1" hidden>
           <div class="copy">
-            <p class="kicker">Đúng nơi, đúng quyền</p>
-            <h2>Workspace tạo ranh giới đầu tiên</h2>
+            <p class="kicker">Bạn giữ quyền quyết định</p>
+            <h2>Codex dừng lại khi cần bạn phê duyệt</h2>
             <p>
-              Codex làm việc với thư mục bạn mở. Sandbox giới hạn nơi Codex có
-              thể thao tác; phê duyệt là lúc Codex dừng để bạn quyết định.
+              Sandbox giới hạn nơi Codex có thể thao tác. Phê duyệt là lúc Codex
+              dừng lại để bạn xem xét một hành động trước khi tiếp tục.
             </p>
-            <div class="workspace-map" aria-label="Cấu trúc workspace khóa học">
-              <div class="root-node">pilot-workspace/</div>
-              <div class="branch-grid">
-                <span>AGENTS.md</span>
-                <span>course/</span>
-                <span>contentpilot/</span>
-                <span>artifacts/</span>
+            <div class="permission-map" aria-label="Các yếu tố cần kiểm tra trước khi phê duyệt">
+              <div class="permission-node">Yêu cầu hành động</div>
+              <div class="permission-grid">
+                <span>Mục đích</span>
+                <span>Nguồn truy cập</span>
+                <span>Phạm vi thay đổi</span>
+                <span>Rủi ro</span>
               </div>
             </div>
             <p class="note">
@@ -145,7 +145,7 @@
             <article>
               <span class="flow-label">Task hiện tại</span>
               <h3>Prompt</h3>
-              <p>“Hãy giúp tôi kiểm tra cấu trúc workspace này.”</p>
+              <p>“Hãy giúp tôi làm rõ yêu cầu cho tính năng này.”</p>
             </article>
             <div class="flow-plus" aria-hidden="true">+</div>
             <article>
@@ -185,7 +185,7 @@
           <div class="finish-card">
             <span class="finish-mark" aria-hidden="true">✓</span>
             <p class="kicker">Quay lại Codex</p>
-            <h3>Bắt đầu kiểm tra workspace thật</h3>
+            <h3>Bắt đầu áp dụng vào task thật</h3>
             <p>Gửi câu sau trong task đang học:</p>
             <button class="copy-line" id="copyLine" type="button">
               <span>Tôi đã xem xong hướng dẫn thiết lập Codex.</span>
@@ -206,13 +206,14 @@
       </footer>
 
       <details class="sources">
-        <summary>Nguồn chính thức</summary>
+        <summary>Nguồn tham khảo</summary>
         <ul>
           <li><a href="https://learn.chatgpt.com/docs/quickstart">OpenAI Docs — Quickstart</a></li>
           <li><a href="https://learn.chatgpt.com/docs/models">OpenAI Docs — Models</a></li>
           <li><a href="https://learn.chatgpt.com/docs/permission-modes">OpenAI Docs — Permissions</a></li>
           <li><a href="https://learn.chatgpt.com/docs/agent-configuration/agents-md">OpenAI Docs — AGENTS.md</a></li>
           <li><a href="https://learn.chatgpt.com/docs/build-skills">OpenAI Docs — Build skills</a></li>
+          <li><a href="https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/">FreeCodeCamp — The Codex Handbook</a></li>
         </ul>
         <p>
           Hai ảnh giao diện lấy từ trang giới thiệu Codex chính thức của OpenAI;

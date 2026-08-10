@@ -1,23 +1,27 @@
-# Kịch bản — Module 1: Thiết lập môi trường làm việc với Codex
+# Kịch bản — Module 1: Bắt đầu làm việc với Codex
 
-## Bước 1 — Nhận biết Codex và workspace (`m1-codex-orientation`)
+## Bước 1 — Làm quen với Codex (`m1-codex-orientation`)
 
-Teacher nói: "Module 1 giúp bạn thiết lập môi trường làm việc trước khi giao
-việc xây sản phẩm. Trước tiên, bạn sẽ xem một phần minh họa khoảng 5 phút. Phần
-này giải thích Codex, workspace, model, quyền truy cập, `AGENTS.md` và Skill
-bằng hình ảnh."
+Teacher nói: "Đầu tiên, bạn sẽ làm quen với Codex. Codex là coding agent của
+OpenAI. Hãy hình dung Codex như một lập trình viên mới đang được bạn hướng dẫn
+làm quen với dự án. Codex có thể thực hiện công việc thật, nhưng vẫn cần bạn
+giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định phạm vi hành động."
+
+Teacher nói: "Tiếp theo, bạn sẽ xem một phần minh họa khoảng 5 phút về model,
+quyền phê duyệt, `AGENTS.md` và Skill."
 
 [Dùng `WORKSPACE_ROOT` để tạo link Markdown cục bộ tuyệt đối tới
 `course/codex-setup/index.html` với nhãn **Mở hướng dẫn thiết lập Codex**. Không
 chạy server và không yêu cầu cài dependency.]
 
-Teacher nói: "Trang minh họa không thay đổi workspace. Hãy xem đến bước cuối,
+Teacher nói: "Trang minh họa không thay đổi tệp nào. Hãy xem đến bước cuối,
 rồi quay lại task này và gửi câu xác nhận mà trang đã chuẩn bị."
 
 [Dừng chờ Learner. Chỉ đạt khi Learner xác nhận đã xem xong. Sau đó hỏi một
-câu: "Workspace của khóa học là thư mục nào, và bạn nhận ra nó nhờ tệp hoặc thư
-mục nào?" Cần ít nhất một dấu hiệu đúng như `START_HERE.md`, `AGENTS.md`,
-`course/` hoặc `contentpilot/`. Khi đạt, checkpoint `m1-codex-orientation`.]
+câu: "Nếu xem Codex như một lập trình viên mới đang làm quen với dự án, bạn cần
+nói rõ điều gì trước khi giao việc?" Cần ít nhất một ý đúng như mục tiêu, bối
+cảnh, phạm vi hành động hoặc cách kiểm tra kết quả. Khi đạt, checkpoint
+`m1-codex-orientation`.]
 
 ## Bước 2 — Chọn model làm điểm bắt đầu (`m1-model-choice`)
 
@@ -52,7 +56,7 @@ chế độ quyền truy cập. Khi đạt, checkpoint `m1-permissions`.]
 ## Bước 4 — Cá nhân hóa phần được phép sửa trong `AGENTS.md` (`m1-agents-guidance`)
 
 Teacher nói: "Prompt cho biết task hiện tại cần làm gì. `AGENTS.md` giữ cách
-dự án luôn muốn Codex làm việc. Workspace đã có một khối mang tên
+dự án luôn muốn Codex làm việc. Tệp của khóa học đã có một khối mang tên
 `Learner-editable preferences`; chỉ khối đó được phép sửa trong bước này."
 
 [Đọc riêng khối `## Learner-editable preferences` trong `AGENTS.md` và báo nội
@@ -73,9 +77,8 @@ ghi lại lựa chọn đó mà không tạo thay đổi giả. Sau đó checkpo
 `m1-agents-guidance`.]
 
 Teacher nói: "Codex nạp `AGENTS.md` khi bắt đầu task. Để kiểm tra khả năng tiếp
-tục, hãy mở một task Codex mới trong cùng workspace và nhập
-`$start-course-lesson resume`. Task là một cuộc làm việc riêng trong Codex;
-workspace vẫn là thư mục khóa học này."
+tục, hãy mở một task Codex mới cho khóa học và nhập
+`$start-course-lesson resume`. Task là một cuộc làm việc riêng trong Codex."
 
 [Dừng. Learner có thể tiếp tục ngay trong task hiện tại nếu không muốn đổi task
 trong lần thử MVP. Khi resume, bắt đầu ở Bước 5 và không hỏi lại các lựa chọn đã
@@ -84,7 +87,7 @@ lưu trong state.]
 ## Bước 5 — Nhận biết và gọi Skill (`m1-skills`)
 
 Teacher nói: "Skill là hướng dẫn cho một quy trình có thể dùng lại. Bạn vừa gọi
-`start-course-lesson` bằng cách gõ tên Skill sau dấu `$`. Workspace còn có
+`start-course-lesson` bằng cách gõ tên Skill sau dấu `$`. Khóa học còn có
 `course-teacher`, là Skill giữ nhịp dạy và đánh giá của khóa học."
 
 Teacher nói: "Hãy giải thích bằng lời của bạn: một quy tắc lâu dài nên nằm
@@ -97,9 +100,9 @@ nghĩa. Không yêu cầu cài thêm Skill. Khi đạt, checkpoint `m1-skills`.]
 ## Bước 6 — Tạo checklist thiết lập (`m1-setup-checklist`)
 
 Teacher nói: "Bây giờ mình sẽ tổng hợp bằng chứng thiết lập vào một checklist.
-Checklist ghi workspace, cách bạn đang dùng Codex, lựa chọn model, quyền truy
-cập, chỉ dẫn Learner và hai Skill đã xác nhận. Đây là bằng chứng để bạn xem
-lại, không phải một chứng nhận tự động."
+Checklist ghi cách bạn đang dùng Codex, mục tiêu đầu tiên, cách kiểm tra kết
+quả, lựa chọn model, quyền truy cập, chỉ dẫn Learner và hai Skill đã xác nhận.
+Đây là bằng chứng để bạn xem lại, không phải một chứng nhận tự động."
 
 [Đọc `artifacts/codex-setup-checklist.template.md`. Dùng thông tin Learner đã
 cung cấp để soạn bản xem trước trong cuộc trò chuyện. Không tự suy đoán cách
@@ -122,9 +125,10 @@ sửa chữa tương đương; không lặp nguyên đáp án.]
 
 ## Bước 8 — Hoàn thành và chuyển sang Module 2 (`m1-complete`)
 
-Teacher nói: "Bạn đã thiết lập xong môi trường làm việc: đúng workspace, có
-giới hạn hành động, có chỉ dẫn lâu dài và biết cách gọi Skill. Module 2 sẽ dùng
-nền tảng này để biến ý tưởng ContentPilot thành PRD và implementation plan."
+Teacher nói: "Bạn đã sẵn sàng bắt đầu làm việc với Codex: hiểu vai trò của
+coding agent, biết xem xét phê duyệt, có chỉ dẫn lâu dài và biết cách gọi Skill.
+Module 2 sẽ dùng nền tảng này để biến ý tưởng ContentPilot thành PRD và
+implementation plan."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-2`."
 

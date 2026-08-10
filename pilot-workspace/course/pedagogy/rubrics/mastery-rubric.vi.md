@@ -16,7 +16,7 @@ chính mình.
 
 | Kỹ năng | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
-| Hiểu Codex và workspace | Xem Codex như chatbot chỉ trả lời chữ | Nhận diện được workspace khi Teacher chỉ | Giải thích được Codex có thể làm việc với tệp và công cụ trong phạm vi cho phép | Tự chọn đúng workspace và nêu được ranh giới của nó |
+| Hiểu vai trò của Codex | Xem Codex như chatbot chỉ trả lời chữ | Nhận biết Codex là coding agent của OpenAI | Giải thích được Codex cần mục tiêu, bối cảnh và phạm vi hành động | Giao được một mục tiêu có ranh giới và cách kiểm tra kết quả |
 | Chọn model | Chọn theo tên gọi hoặc mức mạnh nhất | Chấp nhận model mặc định khi được nhắc | Chọn theo loại công việc và biết khi nào cần điều chỉnh mức suy luận | Tự giải thích tradeoff giữa tốc độ, chi phí suy luận và độ phức tạp của tác vụ |
 | Quyền và phê duyệt | Đồng ý hoặc từ chối mà không đọc | Biết Codex đôi khi phải xin phép | Kiểm tra mục đích, phạm vi và tác động trước khi quyết định | Tự nhận diện yêu cầu quyền bất thường hoặc rộng hơn nhiệm vụ |
 | Hướng dẫn dự án | Không phân biệt prompt với `AGENTS.md` | Phân biệt được khi có ví dụ | Đặt chỉ dẫn lâu dài trong `AGENTS.md` và mục tiêu riêng trong prompt | Tự viết chỉ dẫn rõ, ngắn và kiểm tra được qua task mới |

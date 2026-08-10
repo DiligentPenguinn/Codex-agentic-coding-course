@@ -1,54 +1,51 @@
-# Module 1 — Thiết lập môi trường làm việc với Codex
+# Module 1 — Bắt đầu làm việc với Codex
 
-## Vì sao cần thiết lập trước khi giao việc?
+## Bạn sẽ chuẩn bị gì trước khi giao việc?
 
-Codex có thể đọc tệp, sửa mã và chạy lệnh trong thư mục bạn mở. Khả năng đó
-giúp bạn chuyển từ một cuộc trò chuyện sang công việc có thể kiểm tra. Tuy
-nhiên, Codex cần biết đúng thư mục, đúng chỉ dẫn và đúng giới hạn hành động
-trước khi bắt đầu.
+Codex là coding agent của OpenAI. Hãy hình dung Codex như một lập trình viên mới
+đang được bạn hướng dẫn làm quen với dự án. Codex có thể thực hiện công việc
+thật, nhưng vẫn cần bạn giao mục tiêu rõ ràng, cung cấp đủ bối cảnh và quyết định
+phạm vi hành động.
 
-Module này giúp bạn chuẩn bị những yếu tố đó. Bạn chưa cần biết lập trình và
-chưa cần cài thêm công cụ từ Internet.
+Module này giúp bạn chuẩn bị những yếu tố đó. Bạn chưa cần biết lập trình hoặc
+cài thêm công cụ từ Internet.
 
 ## Kết quả của module
 
 Trong khoảng 50 phút, bạn sẽ:
 
 - hiểu Codex là gì và phân biệt Codex với một cuộc trò chuyện thông thường,
-- nhận biết task, workspace và terminal trong môi trường làm việc,
+- hiểu task và terminal trong môi trường làm việc,
 - chọn model cùng mức suy luận phù hợp với một công việc,
 - hiểu vì sao Codex có thể dừng lại để xin phép,
 - đọc và cá nhân hóa phần được phép sửa trong `AGENTS.md`,
-- hiểu Skill là gì và gọi một Skill đã có trong workspace, và
+- hiểu Skill là gì và gọi một Skill đã có trong khóa học, và
 - tạo `artifacts/codex-setup-checklist.md` để chứng minh thiết lập đã sẵn sàng.
 
 ## Codex là gì?
 
-Codex là coding agent của OpenAI. Coding agent là hệ thống AI có thể làm việc
-với một dự án phần mềm, thay vì chỉ trả lời bằng văn bản. Trong phạm vi bạn cho
-phép, Codex có thể đọc tệp, đề xuất kế hoạch, sửa tệp, chạy lệnh và báo lại bằng
-chứng.
+Codex là sản phẩm dành cho quy trình agentic coding, không chỉ là tên của một
+model. Codex kết hợp model với tệp, công cụ, phê duyệt và bước xem xét kết quả.
+
+Bạn có thể hình dung Codex như một lập trình viên mới đang được hướng dẫn làm
+quen với dự án. Cách nhìn này nhắc bạn cung cấp mục tiêu, bối cảnh, giới hạn và
+cách kiểm tra kết quả trước khi giao việc.
 
 Bạn có thể dùng Codex trong ứng dụng ChatGPT trên máy tính, dòng lệnh hoặc tiện
 ích trong trình soạn thảo mã. Khóa học dùng Codex trong ứng dụng ChatGPT trên
 máy tính vì Learner có thể xem cuộc trao đổi, tệp thay đổi và terminal trong
 cùng một nơi.
 
-[OpenAI Docs — Quickstart](https://learn.chatgpt.com/docs/quickstart) mô tả
-Codex là lựa chọn dành cho công việc phát triển phần mềm có bối cảnh codebase
-và công cụ dành cho lập trình viên.
+[OpenAI Docs](https://developers.openai.com/) giới thiệu Codex là coding agent
+của OpenAI. [The Codex Handbook của FreeCodeCamp](https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/)
+phân biệt Codex với một chatbot hoặc model đơn lẻ. Bài viết cũng đề xuất cách
+nhìn Codex như một lập trình viên đang được hướng dẫn làm quen với dự án.
 
 ### Task là gì?
 
 Task là một cuộc làm việc với Codex có mục tiêu và bối cảnh riêng. Trong giao
 diện, task có thể trông giống một cuộc trò chuyện. Điểm khác biệt là Codex có
-thể dùng tệp và công cụ của workspace để thực hiện công việc.
-
-### Workspace là gì?
-
-Workspace là thư mục dự án bạn cho Codex làm việc cùng. Khi mở khóa học này,
-workspace đúng là thư mục chứa `START_HERE.md`, `AGENTS.md`, thư mục `course/`
-và thư mục `contentpilot/`.
+thể dùng tệp và công cụ liên quan để thực hiện công việc.
 
 ### Terminal là gì?
 
@@ -87,11 +84,11 @@ là ranh giới kỹ thuật giới hạn nơi Codex có thể thao tác. Phê d
 Codex dừng lại để bạn quyết định có cho phép một hành động hay không.
 
 Với người mới, thiết lập **Ask for approval** là điểm bắt đầu phù hợp. Codex có
-thể làm việc trong workspace nhưng sẽ dừng trước những hành động vượt qua ranh
-giới hiện tại.
+có thể làm việc trong phạm vi hiện tại nhưng sẽ dừng trước những hành động cần
+bạn quyết định.
 
 Bạn vẫn cần đọc yêu cầu phê duyệt. Không chấp nhận một hành động nếu chưa hiểu
-nó sẽ thay đổi gì. Những việc như truy cập mạng, sửa tệp ngoài workspace, xóa
+nó sẽ thay đổi gì. Những việc như truy cập mạng, sửa tệp ngoài dự án, xóa
 dữ liệu hoặc xuất bản ra bên ngoài cần được xem xét riêng.
 
 [OpenAI Docs — Permissions](https://learn.chatgpt.com/docs/permission-modes) và
@@ -121,7 +118,7 @@ Trong module này, bạn chỉ được sửa phần `Learner-editable preferenc
 sửa.
 
 Codex đọc chuỗi chỉ dẫn khi bắt đầu một task mới. Vì vậy, sau khi sửa
-`AGENTS.md`, bạn sẽ mở một task mới trong cùng workspace và dùng
+`AGENTS.md`, bạn sẽ mở một task mới cho cùng dự án và dùng
 `$start-course-lesson resume` để tiếp tục. Đây là cách kiểm tra chỉ dẫn có thể
 được dùng lại qua nhiều task.
 
@@ -155,8 +152,7 @@ thích cấu trúc Skill, cách gọi trực tiếp và vị trí `.agents/skill
 
 Bạn sẽ hoàn thành bốn việc theo hướng dẫn của Teacher:
 
-1. Xác nhận đúng workspace và cách bạn đang dùng Codex, chẳng hạn trong ứng
-   dụng trên máy tính hay ở dòng lệnh.
+1. Ghi cách bạn đang dùng Codex, mục tiêu đầu tiên và kết quả bạn sẽ kiểm tra.
 2. Ghi model cùng mức suy luận bạn chọn làm điểm bắt đầu.
 3. Duyệt một thay đổi nhỏ trong phần Learner được phép sửa của `AGENTS.md`.
 4. Xác nhận hai Skill của khóa học và tạo checklist thiết lập.
@@ -168,7 +164,7 @@ Checklist dùng mẫu `artifacts/codex-setup-checklist.template.md`. Teacher ch�
 
 Bạn hoàn thành Module 1 khi:
 
-- chỉ ra đúng workspace của khóa học,
+- giải thích Codex cần mục tiêu, bối cảnh và phạm vi hành động rõ ràng,
 - giải thích vì sao model mặc định là điểm bắt đầu hợp lý,
 - phân biệt sandbox với bước phê duyệt,
 - phân biệt prompt với `AGENTS.md`,
@@ -179,7 +175,8 @@ Bạn hoàn thành Module 1 khi:
 
 ## Nguồn và lựa chọn sư phạm
 
-Các mô tả về Codex, model, quyền truy cập, `AGENTS.md` và Skill dựa trên OpenAI
-Docs được liên kết tại từng phần. Việc dùng một checklist, yêu cầu 4/5 câu đúng
-và giới hạn chỉnh sửa vào một khối trong `AGENTS.md` là lựa chọn sư phạm của
-khóa học.
+Các mô tả về Codex, model, quyền truy cập, `AGENTS.md` và Skill dựa trên nguồn
+được liên kết tại từng phần. Cách ví von “lập trình viên mới đang được hướng dẫn
+làm quen với dự án” được chuyển thể từ The Codex Handbook. Việc dùng một checklist,
+yêu cầu 4/5 câu đúng và giới hạn chỉnh sửa vào một khối trong `AGENTS.md` là lựa
+chọn sư phạm của khóa học.
