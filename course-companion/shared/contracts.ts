@@ -499,6 +499,16 @@ export type PracticeWorkspaceKind = (typeof practiceWorkspaceKinds)[number]
 export type PracticeTaskPolicy = (typeof practiceTaskPolicies)[number]
 export type PracticeEvidenceProfile = (typeof practiceEvidenceProfiles)[number]
 
+export type ApprovedCodexConfiguration = {
+  schemaVersion: 1
+  sourcePracticeId: 'm1-codex-safe-setup'
+  sourcePracticeVersion: string
+  model: 'gpt-5.6-sol'
+  reasoningEffort: 'high'
+  serviceTier: 'standard'
+  approvedAt: string
+}
+
 export type LegacyPracticeDefinitionV1 = {
   schemaVersion: 1
   practiceId: string
@@ -600,6 +610,7 @@ export type PracticeCompletionReceipt = {
   evidenceSummary: string
   masterySummary: string
   destination: PracticeDefinition['completionDestination']
+  approvedConfiguration?: ApprovedCodexConfiguration
 }
 
 export type PracticeChecklistStep = {

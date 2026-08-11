@@ -88,7 +88,8 @@ function harness(options: { failCreate?: boolean; failPrepare?: string } = {}) {
   const calls: string[] = []
   let created = 0
   const executor = {
-    async createTarget(runId: string): Promise<ExecutorChatBinding> {
+    async createTarget(input: { runId: string }): Promise<ExecutorChatBinding> {
+      const runId = input.runId
       calls.push('create:' + runId)
       if (options.failCreate) throw new Error('private runtime detail')
       created += 1

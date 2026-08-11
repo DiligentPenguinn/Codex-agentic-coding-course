@@ -1,178 +1,206 @@
 import { describe, expect, it } from 'vitest'
+import type { ApprovedCodexConfiguration, PracticeDefinition } from '../shared/contracts'
 import {
   ExecutorChatCoordinator,
   type CodexRequestClient
 } from '../electron/main/executor-chat-coordinator'
 import type { ExecutorChatBinding } from '../electron/main/practice-run-repository'
 
-function binding(): ExecutorChatBinding {
+const approved: ApprovedCodexConfiguration = {
+  schemaVersion: 1,
+  sourcePracticeId: 'm1-codex-safe-setup',
+  sourcePracticeVersion: '2.0.0',
+  model: 'gpt-5.6-sol',
+  reasoningEffort: 'high',
+  serviceTier: 'standard',
+  approvedAt: '2026-08-10T00:00:00.000Z'
+}
+
+function definition(policy: 'inherit-configuration-only' | 'safe-workspace-write'): PracticeDefinition {
+  const moduleTwo = policy === 'safe-workspace-write'
+  return {
+    schemaVersion: 2,
+    practiceId: moduleTwo ? 'm2-planning-package' : 'm1-codex-safe-setup',
+    version: '2.0.0',
+    checkpointId: moduleTwo ? 'm2-planning-package' : 'm1-setup-checklist',
+    objective: 'Hoàn thành mục tiêu Practice.',
+    expectedOutcome: 'Tạo kết quả có thể duyệt.',
+    workspaceKind: 'pilot-workspace',
+    taskPolicy: policy,
+    evidenceProfile: moduleTwo ? 'planning-package' : 'codex-task-configuration',
+    checklist: [{ id: 'start', title: 'Bắt đầu', dependsOn: [] }],
+    criteria: [],
+    completionDestination: moduleTwo
+      ? { lessonId: 'module-2', checkpointId: 'm2-mastery', sceneId: 'module-2-mastery' }
+      : { lessonId: 'module-1', checkpointId: 'm1-mastery', sceneId: 'module-1-mastery' }
+  }
+}
+
+function effective(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    thread: { id: 'thread-target' },
+    cwd: 'D:\\course\\pilot-workspace',
+    model: 'gpt-5.6-sol',
+    reasoningEffort: 'high',
+    serviceTier: null,
+    approvalPolicy: 'on-request',
+    sandbox: { type: 'workspaceWrite', writableRoots: ['D:\\course\\pilot-workspace'] },
+    ...overrides
+  }
+}
+
+function binding(name = 'Practice · Module 1 · m1-codex-safe-setup · 123456'): ExecutorChatBinding {
   return {
     runId: 'run-123456',
     threadId: 'thread-target',
-    name: 'Practice · Module 1 · Verifiable brief · 123456',
-    workspaceRoot: 'D:\\course',
+    name,
+    workspaceRoot: 'D:\\course\\pilot-workspace',
     createdAt: '2026-08-10T00:00:00.000Z'
   }
 }
 
+function coordinator(client: CodexRequestClient): ExecutorChatCoordinator {
+  return new ExecutorChatCoordinator(
+    client,
+    { resolve: async () => 'D:\\course\\pilot-workspace' },
+    async () => undefined,
+    () => new Date('2026-08-10T00:00:00.000Z'),
+    { attempts: 2, intervalMs: 0, wait: async () => undefined }
+  )
+}
+
 describe('ExecutorChatCoordinator', () => {
-  it('creates and names one blank durable task, then closes bootstrap before returning', async () => {
-    const events: string[] = []
+  it('creates a Practice-aware Module 1 task without configuration overrides', async () => {
     const calls: Array<[string, Record<string, unknown>]> = []
     const client: CodexRequestClient = {
       async request(method, params = {}) {
         calls.push([method, params])
-        if (method === 'thread/start') return { thread: { id: 'thread-target', cwd: 'D:\\course' } }
-        return {}
-      },
-      async close() { events.push('close') }
-    }
-    const coordinator = new ExecutorChatCoordinator(
-      client,
-      'D:\\course',
-      async (url) => { events.push(`open:${url}`) },
-      () => new Date('2026-08-10T00:00:00.000Z')
-    )
-
-    const target = await coordinator.createTarget('run-123456')
-
-    expect(target).toEqual(binding())
-    expect(calls).toEqual([
-      ['thread/start', {
-        cwd: 'D:\\course',
-        ephemeral: false,
-        sandbox: 'workspace-write',
-        approvalPolicy: 'on-request',
-        serviceName: 'content_builder_academy_practice'
-      }],
-      ['thread/name/set', {
-        threadId: 'thread-target',
-        name: 'Practice · Module 1 · Verifiable brief · 123456'
-      }]
-    ])
-    expect(events).toEqual(['close'])
-  })
-
-  it('closes bootstrap when creation fails after thread/start', async () => {
-    let closes = 0
-    const client: CodexRequestClient = {
-      async request(method) {
-        if (method === 'thread/start') return { thread: { id: 'thread-target', cwd: 'D:\\course' } }
-        if (method === 'thread/name/set') throw new Error('name failed')
-        return {}
-      },
-      async close() { closes += 1 }
-    }
-    const coordinator = new ExecutorChatCoordinator(client, 'D:\\course', async () => undefined)
-
-    await expect(coordinator.createTarget('run-1')).rejects.toThrow('name failed')
-    expect(closes).toBe(1)
-  })
-
-  it('prepares by read-only discovery only and closes bootstrap before Desktop opens', async () => {
-    const calls: Array<[string, Record<string, unknown>]> = []
-    const events: string[] = []
-    const client: CodexRequestClient = {
-      async request(method, params = {}) {
-        calls.push([method, params])
-        if (method === 'thread/read') {
-          return { thread: { id: 'thread-target', cwd: 'D:\\course', turns: [] } }
-        }
-        throw new Error(`Unexpected mutating request: ${method}`)
-      },
-      async close() { events.push('close') }
-    }
-    const coordinator = new ExecutorChatCoordinator(
-      client,
-      'D:\\course',
-      async (url) => { events.push(`open:${url}`) }
-    )
-
-    await coordinator.prepareTarget(binding())
-    await coordinator.openTarget(binding())
-
-    expect(calls).toEqual([['thread/read', {
-      threadId: 'thread-target',
-      includeTurns: false
-    }]])
-    expect(calls.map(([method]) => method)).not.toEqual(expect.arrayContaining([
-      'thread/resume',
-      'thread/list',
-      'turn/start'
-    ]))
-    expect(events).toEqual(['close', 'open:codex://threads/thread-target'])
-  })
-
-  it('waits until the exact task can be read instead of accepting substituted data', async () => {
-    let reads = 0
-    const waits: number[] = []
-    const client: CodexRequestClient = {
-      async request(method) {
-        expect(method).toBe('thread/read')
-        reads += 1
-        return reads === 1
-          ? { thread: { id: 'thread-decoy', cwd: 'D:\\course' } }
-          : { thread: { id: 'thread-target', cwd: 'D:\\course', turns: [] } }
+        return method === 'thread/start' ? effective({ sandbox: { type: 'dangerFullAccess' } }) : {}
       },
       async close() {}
     }
-    const coordinator = new ExecutorChatCoordinator(
-      client,
-      'D:\\course',
-      async () => undefined,
-      undefined,
-      { attempts: 2, intervalMs: 25, wait: async (milliseconds) => { waits.push(milliseconds) } }
-    )
 
-    await coordinator.prepareTarget(binding())
+    const target = await coordinator(client).createTarget({
+      runId: 'run-123456',
+      definition: definition('inherit-configuration-only')
+    })
 
-    expect(reads).toBe(2)
-    expect(waits).toEqual([25])
+    expect(target).toEqual(binding())
+    expect(calls[0]).toEqual(['thread/start', {
+      cwd: 'D:\\course\\pilot-workspace',
+      ephemeral: false,
+      serviceName: 'content_builder_academy_practice'
+    }])
+    expect(calls[0]![1]).not.toHaveProperty('model')
+    expect(calls[0]![1]).not.toHaveProperty('config')
+    expect(calls[0]![1]).not.toHaveProperty('serviceTier')
+    expect(calls[0]![1]).not.toHaveProperty('approvalPolicy')
+    expect(calls[0]![1]).not.toHaveProperty('sandbox')
+    expect(calls[1]).toEqual(['thread/name/set', {
+      threadId: 'thread-target',
+      name: 'Practice · Module 1 · m1-codex-safe-setup · 123456'
+    }])
   })
 
-  it('keeps Desktop closed and releases bootstrap when exact reads time out', async () => {
-    const events: string[] = []
+  it('sends no turn while preparing an inherit-configuration-only task', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/read') return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        return {}
+      },
+      async close() {}
+    }
+
+    await coordinator(client).prepareTarget(binding(), definition('inherit-configuration-only'))
+
+    expect(calls).toEqual([['thread/read', { threadId: 'thread-target', includeTurns: false }]])
+    expect(calls.map(([method]) => method)).not.toContain('turn/start')
+  })
+
+  it('creates a safe later task from the approved configuration and starts one instructional turn', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/start') return effective()
+        if (method === 'thread/read') return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        return {}
+      },
+      async close() {}
+    }
+    const instance = coordinator(client)
+    const target = await instance.createTarget({
+      runId: 'run-123456',
+      definition: definition('safe-workspace-write'),
+      approvedConfiguration: approved
+    })
+    await instance.prepareTarget(target, definition('safe-workspace-write'))
+
+    expect(calls[0]).toEqual(['thread/start', {
+      cwd: 'D:\\course\\pilot-workspace',
+      ephemeral: false,
+      serviceName: 'content_builder_academy_practice',
+      model: 'gpt-5.6-sol',
+      serviceTier: 'standard',
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
+      config: { model_reasoning_effort: 'high' }
+    }])
+    expect(target.name).toBe('Practice · Module 2 · m2-planning-package · 123456')
+    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+  })
+
+  it('blocks a safe task before thread/start when the Module 1 receipt is missing', async () => {
+    const calls: string[] = []
+    const client: CodexRequestClient = {
+      async request(method) { calls.push(method); return {} },
+      async close() {}
+    }
+
+    await expect(coordinator(client).createTarget({
+      runId: 'run-123456',
+      definition: definition('safe-workspace-write')
+    })).rejects.toThrow('Approved Module 1 configuration is required')
+    expect(calls).toEqual([])
+  })
+
+  it.each([
+    ['unsafe permissions', { sandbox: { type: 'dangerFullAccess' } }],
+    ['wrong approval policy', { approvalPolicy: 'never' }],
+    ['wrong model', { model: 'gpt-5.6-terra' }],
+    ['wrong effort', { reasoningEffort: 'medium' }],
+    ['wrong workspace', { cwd: 'D:\\other' }],
+  ])('rejects %s before naming or starting a turn', async (_label, overrides) => {
+    const calls: string[] = []
+    const client: CodexRequestClient = {
+      async request(method) { calls.push(method); return effective(overrides) },
+      async close() {}
+    }
+
+    await expect(coordinator(client).createTarget({
+      runId: 'run-123456',
+      definition: definition('safe-workspace-write'),
+      approvedConfiguration: approved
+    })).rejects.toThrow()
+    expect(calls).toEqual(['thread/start'])
+  })
+
+  it('does not duplicate the later-task turn when retry discovers existing turns', async () => {
+    const calls: string[] = []
     const client: CodexRequestClient = {
       async request(method) {
-        expect(method).toBe('thread/read')
-        return { thread: { id: 'thread-decoy', cwd: 'D:\\course' } }
+        calls.push(method)
+        return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [{ id: 'existing' }] } }
       },
-      async close() { events.push('close') }
+      async close() {}
     }
-    const coordinator = new ExecutorChatCoordinator(
-      client,
-      'D:\\course',
-      async () => { events.push('open') },
-      undefined,
-      { attempts: 2, intervalMs: 0, wait: async () => undefined }
-    )
 
-    await expect(coordinator.prepareTarget(binding())).rejects.toThrow(
-      'Codex could not read the Executor chat after creation'
+    await coordinator(client).prepareTarget(
+      binding('Practice · Module 2 · m2-planning-package · 123456'),
+      definition('safe-workspace-write')
     )
-    expect(events).toEqual(['close'])
-  })
-
-  it('does not open Desktop when confirmed bootstrap shutdown fails', async () => {
-    const events: string[] = []
-    const client: CodexRequestClient = {
-      async request() {
-        return { thread: { id: 'thread-target', cwd: 'D:\\course', turns: [] } }
-      },
-      async close() {
-        events.push('close')
-        throw new Error('process still owns task')
-      }
-    }
-    const coordinator = new ExecutorChatCoordinator(
-      client,
-      'D:\\course',
-      async () => { events.push('open') }
-    )
-
-    await expect(coordinator.prepareTarget(binding())).rejects.toThrow(
-      'Codex Executor bootstrap did not close'
-    )
-    expect(events).toEqual(['close'])
+    expect(calls).toEqual(['thread/read'])
   })
 })

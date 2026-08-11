@@ -26,6 +26,7 @@ import {
   type ProgressUpdate,
   type SceneId
 } from '../../shared/contracts'
+import { isApprovedCodexConfiguration } from './practice-task-policy'
 
 const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
@@ -85,6 +86,8 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
     && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
       || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-'))
       || (destination.lessonId === 'module-2' && destination.sceneId.startsWith('module-2-')))
+    && (value.approvedConfiguration === undefined ||
+      isApprovedCodexConfiguration(value.approvedConfiguration))
 }
 
 function completionKey(receipt: PracticeCompletionReceipt): string {

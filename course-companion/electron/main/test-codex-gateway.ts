@@ -47,6 +47,16 @@ export class TestCodexGateway implements CodexRequestClient {
     }
     if (method === 'thread/start') {
       const id = `course-companion-smoke-${++this.sequence}`
+      const config = typeof params.config === 'object' && params.config !== null
+        ? params.config as Record<string, unknown>
+        : {}
+      const model = typeof params.model === 'string' ? params.model : 'gpt-5.6-sol'
+      const reasoningEffort = typeof config.model_reasoning_effort === 'string'
+        ? config.model_reasoning_effort
+        : 'high'
+      const serviceTier = typeof params.serviceTier === 'string' ? params.serviceTier : null
+      const approvalPolicy = params.approvalPolicy ?? 'on-request'
+      const sandboxMode = typeof params.sandbox === 'string' ? params.sandbox : 'workspace-write'
       const thread: TestThread = {
         id,
         cwd: typeof params.cwd === 'string' ? params.cwd : this.workspaceRoot,
@@ -57,8 +67,22 @@ export class TestCodexGateway implements CodexRequestClient {
       this.threads.set(id, thread)
       return {
         thread,
-        approvalPolicy: params.approvalPolicy,
-        sandbox: { type: params.sandbox === 'read-only' ? 'readOnly' : 'workspaceWrite' }
+        cwd: thread.cwd,
+        model,
+        reasoningEffort,
+        serviceTier,
+        approvalPolicy,
+        sandbox: sandboxMode === 'danger-full-access'
+          ? { type: 'dangerFullAccess' }
+          : sandboxMode === 'read-only'
+            ? { type: 'readOnly', networkAccess: false }
+            : {
+                type: 'workspaceWrite',
+                writableRoots: [thread.cwd],
+                networkAccess: false,
+                excludeTmpdirEnvVar: false,
+                excludeSlashTmp: false
+              }
       }
     }
 

@@ -1,5 +1,15 @@
 import { resolve } from 'node:path'
+import type {
+  ApprovedCodexConfiguration,
+  PracticeDefinition
+} from '../../shared/contracts'
 import type { ExecutorChatBinding } from './practice-run-repository'
+import {
+  buildPracticeTaskStartPlan,
+  parseEffectivePracticeTask,
+  validateEffectivePracticeTask
+} from './practice-task-policy'
+import type { PracticeWorkspaceResolverPort } from './practice-workspace-resolver'
 
 export type CodexRequestClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
@@ -31,50 +41,87 @@ function samePath(left: unknown, right: string): boolean {
 export class ExecutorChatCoordinator {
   constructor(
     private readonly client: CodexRequestClient,
-    private readonly workspaceRoot: string,
+    private readonly workspaces: PracticeWorkspaceResolverPort,
     private readonly openExternal: OpenExternal,
     private readonly now: () => Date = () => new Date(),
     private readonly discovery: DiscoveryOptions = {}
   ) {}
 
-  async createTarget(runId: string): Promise<ExecutorChatBinding> {
+  async createTarget(input: {
+    runId: string
+    definition: PracticeDefinition
+    approvedConfiguration?: ApprovedCodexConfiguration
+  }): Promise<ExecutorChatBinding> {
+    const workspaceRoot = await this.workspaces.resolve(input.definition.workspaceKind)
+    const plan = buildPracticeTaskStartPlan({
+      ...input,
+      workspaceRoot
+    })
     return this.withBootstrap(async () => {
-      const started = await this.client.request('thread/start', {
-        cwd: this.workspaceRoot,
-        ephemeral: false,
-        sandbox: 'workspace-write',
-        approvalPolicy: 'on-request',
-        serviceName: 'content_builder_academy_practice'
-      })
-      if (!isRecord(started) || !isRecord(started.thread)) {
-        throw new Error('Codex did not create the Executor chat')
-      }
-      const threadId = started.thread.id
-      if (!THREAD_ID.test(String(threadId)) || !samePath(started.thread.cwd, this.workspaceRoot)) {
+      const started = await this.client.request('thread/start', plan.startParams)
+      const effective = parseEffectivePracticeTask(started)
+      if (!THREAD_ID.test(effective.threadId)) {
         throw new Error('Codex created an invalid Executor chat')
       }
-      const name = `Practice · Module 1 · Verifiable brief · ${runId.slice(-6)}`
+      validateEffectivePracticeTask({
+        effective,
+        plan,
+        workspaceRoot,
+        samePath,
+        approvedConfiguration: input.approvedConfiguration
+      })
+      const threadId = effective.threadId
+      const name = plan.name
       await this.client.request('thread/name/set', { threadId, name })
       return {
-        runId,
-        threadId: String(threadId),
+        runId: input.runId,
+        threadId,
         name,
-        workspaceRoot: this.workspaceRoot,
+        workspaceRoot,
         createdAt: this.now().toISOString()
       }
     })
   }
 
-  async prepareTarget(binding: ExecutorChatBinding): Promise<void> {
-    if (!THREAD_ID.test(binding.threadId) || !samePath(binding.workspaceRoot, this.workspaceRoot)) {
+  async prepareTarget(
+    binding: ExecutorChatBinding,
+    definition: PracticeDefinition
+  ): Promise<void> {
+    const workspaceRoot = await this.workspaces.resolve(definition.workspaceKind)
+    if (!THREAD_ID.test(binding.threadId) || !samePath(binding.workspaceRoot, workspaceRoot)) {
       throw new Error('Invalid Executor chat binding')
     }
     await this.withBootstrap(async () => {
-      await this.waitUntilReadable(binding.threadId)
+      const thread = await this.waitUntilReadable(
+        binding.threadId,
+        workspaceRoot,
+        definition.taskPolicy === 'safe-workspace-write'
+      )
+      if (definition.taskPolicy === 'safe-workspace-write') {
+        const turns = Array.isArray(thread.turns) ? thread.turns : []
+        if (turns.length === 0) {
+          await this.client.request('turn/start', {
+            threadId: binding.threadId,
+            input: [{
+              type: 'text',
+              text: [
+                'Thực hiện Practice ' + definition.practiceId + '.',
+                'Mục tiêu: ' + definition.objective,
+                'Kết quả cần đạt: ' + definition.expectedOutcome,
+                'Chỉ làm trong phạm vi Practice và dừng tại mọi điểm cần người học duyệt.'
+              ].join('\n\n')
+            }]
+          })
+        }
+      }
     })
   }
 
-  private async waitUntilReadable(threadId: string): Promise<void> {
+  private async waitUntilReadable(
+    threadId: string,
+    workspaceRoot: string,
+    includeTurns: boolean
+  ): Promise<Record<string, unknown>> {
     const attempts = Math.max(1, this.discovery.attempts ?? 30)
     const intervalMs = Math.max(0, this.discovery.intervalMs ?? 100)
     const wait = this.discovery.wait ?? defaultWait
@@ -82,10 +129,10 @@ export class ExecutorChatCoordinator {
       try {
         const read = await this.client.request('thread/read', {
           threadId,
-          includeTurns: false
+          includeTurns
         })
         if (isRecord(read) && isRecord(read.thread) && read.thread.id === threadId &&
-          samePath(read.thread.cwd, this.workspaceRoot)) return
+          samePath(read.thread.cwd, workspaceRoot)) return read.thread
       } catch {
         // State persistence can briefly lag process startup; retry the exact read only.
       }

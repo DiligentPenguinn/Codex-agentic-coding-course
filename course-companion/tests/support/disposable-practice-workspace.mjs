@@ -44,15 +44,17 @@ export async function fingerprintTree(root) {
 }
 
 export async function createDisposablePracticeWorkspace({ repositoryRoot }) {
-  const canonicalStarter = resolve(repositoryRoot, 'starters', 'contentpilot')
-  if (!(await stat(canonicalStarter)).isDirectory()) {
-    throw new Error('Canonical ContentPilot starter is unavailable')
+  const canonicalWorkspace = resolve(repositoryRoot, 'pilot-workspace')
+  const canonicalStarter = join(canonicalWorkspace, 'contentpilot')
+  if (!(await stat(canonicalWorkspace)).isDirectory() || !(await stat(canonicalStarter)).isDirectory()) {
+    throw new Error('Canonical Pilot workspace is unavailable')
   }
 
   const root = await mkdtemp(join(tmpdir(), WORKSPACE_PREFIX))
-  const starterRoot = join(root, 'starters', 'contentpilot')
+  const workspaceRoot = join(root, 'pilot-workspace')
+  const starterRoot = join(workspaceRoot, 'contentpilot')
   try {
-    await cp(canonicalStarter, starterRoot, {
+    await cp(canonicalWorkspace, workspaceRoot, {
       recursive: true,
       errorOnExist: true,
       force: false,
@@ -71,7 +73,9 @@ export async function createDisposablePracticeWorkspace({ repositoryRoot }) {
   let cleaned = false
   return Object.freeze({
     root,
+    workspaceRoot,
     starterRoot,
+    canonicalWorkspace,
     canonicalStarter,
     async cleanup() {
       if (cleaned) return

@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type {
+  ApprovedCodexConfiguration,
   PracticeDefinition,
   PracticeChecklistStep,
   PracticeIdentity,
@@ -38,6 +39,16 @@ function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
 
 function safeCreationError(error: unknown): string {
   const message = error instanceof Error ? error.message : ''
+  if (message === 'Approved Module 1 configuration is required') {
+    return 'Bạn cần hoàn thành Practice thiết lập Codex ở Module 1 trước khi bắt đầu Practice này.'
+  }
+  if (message === 'Codex created an Executor task with incompatible safety settings' ||
+      message === 'Codex returned incomplete effective task settings') {
+    return 'Codex chưa áp dụng đúng cấu hình an toàn đã duyệt ở Module 1. Không có chỉ dẫn nào được gửi vào task.'
+  }
+  if (message === 'Codex created the Executor task in an unexpected workspace') {
+    return 'Executor task không nằm trong Pilot workspace đã được Course Companion xác nhận. Không có chỉ dẫn nào được gửi.'
+  }
   if (message === 'Codex could not read the Executor chat after creation') {
     return 'Executor chat đã được tạo nhưng Codex chưa đọc lại được dữ liệu đã lưu. Hãy thử lại.'
   }
@@ -64,7 +75,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'prepareTarget' | 'openTarget'>,
     private readonly now: () => Date = () => new Date(),
     private readonly createId: () => string = randomUUID,
-    private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>
+    private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>,
+    private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
@@ -81,7 +93,10 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       this.lastError = ''
       const record = await this.repository.load()
       if (record.pendingTransition) throw new Error('A Practice switch is already pending')
-      await this.definitions.load(request.practiceId, request.practiceVersion)
+      const definition = await this.definitions.load(request.practiceId, request.practiceVersion)
+      const approvedConfiguration = definition.taskPolicy === 'safe-workspace-write'
+        ? await this.loadApprovedConfiguration?.() ?? undefined
+        : undefined
       const startedAt = this.now().toISOString()
       const transition: PracticeTransitionRecord = {
         transitionId: this.createId(),
@@ -96,12 +111,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       let targetBinding
       let committed
       try {
-        targetBinding = await this.executor.createTarget(transition.targetRunId)
+        targetBinding = await this.executor.createTarget({
+          runId: transition.targetRunId,
+          definition,
+          approvedConfiguration
+        })
         const targetCreated = await this.repository.save({
           ...pending,
           pendingTransition: { ...transition, stage: 'target-created', targetBinding }
         })
-        await this.executor.prepareTarget(targetBinding)
+        await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)
@@ -133,10 +152,17 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       const record = await this.repository.load()
       const transition = record.pendingTransition
       if (!transition) throw new Error('Không có lần chuyển nào để thử lại.')
+      const definition = await this.definitions.load(
+        transition.practiceId,
+        transition.practiceVersion
+      )
+      const approvedConfiguration = definition.taskPolicy === 'safe-workspace-write'
+        ? await this.loadApprovedConfiguration?.() ?? undefined
+        : undefined
       if (transition.stage === 'target-created' && transition.targetBinding) {
         let committed
         try {
-          await this.executor.prepareTarget(transition.targetBinding)
+          await this.executor.prepareTarget(transition.targetBinding, definition)
           committed = await this.commitTarget(record)
         } catch (error) {
           this.lastError = safeCreationError(error)
@@ -147,7 +173,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       }
       let targetBinding
       try {
-        targetBinding = await this.executor.createTarget(transition.targetRunId)
+        targetBinding = await this.executor.createTarget({
+          runId: transition.targetRunId,
+          definition,
+          approvedConfiguration
+        })
       } catch (error) {
         this.lastError = safeCreationError(error)
         throw new Error(this.lastError, { cause: error })
@@ -158,7 +188,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       })
       let committed
       try {
-        await this.executor.prepareTarget(targetBinding)
+        await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)

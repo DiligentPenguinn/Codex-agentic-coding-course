@@ -20,6 +20,7 @@ import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
 import { PracticeRunRepository } from './practice-run-repository'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
+import { PracticeWorkspaceResolver } from './practice-workspace-resolver'
 import {
   DeterministicPracticeReviewEvaluator,
   LivePracticeReviewEvaluator
@@ -68,7 +69,8 @@ const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
-const workspaceRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot)
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()
@@ -104,7 +106,7 @@ async function closeExecutorBootstrap(): Promise<void> {
 }
 
 const appServerGateway = useTestCodexGateway
-  ? new TestCodexGateway(workspaceRoot)
+  ? new TestCodexGateway(courseRoot)
   : {
       async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
         await ensureAppServer()
@@ -136,7 +138,7 @@ const openExecutorChat = useTestCodexGateway
   : (url: string): Promise<void> => shell.openExternal(url)
 const executorChatCoordinator = new ExecutorChatCoordinator(
   executorBootstrapGateway,
-  workspaceRoot,
+  practiceWorkspaceResolver,
   openExecutorChat
 )
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
@@ -147,7 +149,14 @@ const practiceCoordinator = new PracticeCoordinator(
   executorChatCoordinator,
   undefined,
   undefined,
-  (binding, captureBaseline) => activityObserver.bind(binding, { captureBaseline }).then(() => undefined)
+  (binding, captureBaseline) => activityObserver.bind(binding, { captureBaseline }).then(() => undefined),
+  async () => {
+    const result = await progressRepository.load()
+    if (result.status !== 'returning' && result.status !== 'recovered') return null
+    const receipt = [...result.progress.practiceCompletions].reverse().find((item) =>
+      item.practiceId === 'm1-codex-safe-setup' && item.approvedConfiguration)
+    return receipt?.approvedConfiguration ?? null
+  }
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')

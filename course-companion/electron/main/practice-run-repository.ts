@@ -11,6 +11,7 @@ import type {
   PracticeTaskPolicy,
   PracticeWorkspaceKind
 } from '../../shared/contracts'
+import { isApprovedCodexConfiguration } from './practice-task-policy'
 
 export type ExecutorChatBinding = {
   runId: string
@@ -204,6 +205,8 @@ function isCompletion(value: unknown): value is PracticeCompletionReceipt {
     && typeof value.evidenceSummary === 'string'
     && typeof value.masterySummary === 'string'
     && Boolean(destination)
+    && (value.approvedConfiguration === undefined ||
+      isApprovedCodexConfiguration(value.approvedConfiguration))
 }
 
 function isRun(value: unknown): value is PracticeRunRecord {

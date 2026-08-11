@@ -14,7 +14,7 @@ const exec = promisify(execFile)
 
 test('developer Practice workspace is isolated, clean, excluded, unique, and removable', async () => {
   const repository = await mkdtemp(join(tmpdir(), 'course-companion-source-'))
-  const starter = join(repository, 'starters', 'contentpilot')
+  const starter = join(repository, 'pilot-workspace', 'contentpilot')
   await mkdir(join(starter, 'app'), { recursive: true })
   await mkdir(join(starter, 'node_modules', 'ignored'), { recursive: true })
   await writeFile(join(starter, 'app', 'globals.css'), 'body { color: black; }\n')
@@ -26,6 +26,8 @@ test('developer Practice workspace is isolated, clean, excluded, unique, and rem
   const second = await createDisposablePracticeWorkspace({ repositoryRoot: repository })
   try {
     assert.notEqual(first.root, second.root)
+    assert.equal(first.workspaceRoot, join(first.root, 'pilot-workspace'))
+    assert.equal(first.starterRoot, join(first.workspaceRoot, 'contentpilot'))
     assert.equal(await readFile(join(first.starterRoot, 'app', 'globals.css'), 'utf8'), 'body { color: black; }\n')
     await assert.rejects(stat(join(first.starterRoot, '.env')))
     await assert.rejects(stat(join(first.starterRoot, 'node_modules')))
