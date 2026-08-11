@@ -44,8 +44,6 @@ type EvidenceItem = {
 type LessonVisual = {
   image: string
   alt: string
-  caption: string
-  source: string
   fit?: 'cover' | 'contain'
 }
 
@@ -1186,69 +1184,47 @@ const moduleLessonIds: Record<'module-1' | 'module-2', CourseLessonId[]> = {
 const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
   'm1-understand-codex': {
     image: m1UnderstandCodexImage,
-    alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu',
-    caption: 'Đây là giao diện Codex, nơi bạn mở dự án rồi giao việc bằng ngôn ngữ tự nhiên.',
-    source: 'Ảnh chụp từ Codex'
+    alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu'
   },
   'm1-workspace-permissions': {
     image: m1ApprovalMenuImage,
-    alt: 'Menu approval của Codex hiển thị Ask for approval, Approve for me và Full access',
-    caption: 'Khóa học khuyên người mới dùng Approve for me và không bật Full access.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+    alt: 'Menu approval của Codex hiển thị Ask for approval, Approve for me và Full access'
   },
   'm1-agents-guidance': {
     image: m1AgentsGuidanceImage,
-    alt: 'Tài liệu OpenAI minh họa một lớp chỉ dẫn mà Codex dùng khi làm việc trong dự án',
-    caption: 'Chỉ dẫn dự án là một phần của harness giúp Codex làm việc ổn định.',
-    source: 'OpenAI Docs'
+    alt: 'Tài liệu OpenAI minh họa một lớp chỉ dẫn mà Codex dùng khi làm việc trong dự án'
   },
   'm1-skills-and-checklist': {
     image: m1ModelSettingsImage,
-    alt: 'Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard',
-    caption: 'Cấu hình model, reasoning effort và speed được chọn ngay trong Codex.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+    alt: 'Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard'
   },
   'm1-assessment': {
     image: m1AssessmentImage,
-    alt: 'Giao diện Codex hiển thị kết quả, các tệp đã tạo và những điểm cần người dùng kiểm tra',
-    caption: 'Kết quả tốt đi kèm tệp đã tạo, phần việc đã làm và điểm cần kiểm tra.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Giao diện Codex hiển thị kết quả, các tệp đã tạo và những điểm cần người dùng kiểm tra'
   },
   'm2-when-to-plan': {
     image: m2WhenToPlanImage,
-    alt: 'Codex trình bày cách tiếp cận và những nguồn sẽ kiểm tra trước khi hành động',
-    caption: 'Trước khi hành động, Codex nêu cách tiếp cận và những nguồn sẽ kiểm tra.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Codex trình bày cách tiếp cận và những nguồn sẽ kiểm tra trước khi hành động'
   },
   'm2-product-requirements': {
     image: m2ProductRequirementsImage,
-    alt: 'Một yêu cầu tạo PRD nêu vấn đề, người dùng, phạm vi, rủi ro và câu hỏi còn mở',
-    caption: 'Yêu cầu PRD tốt nêu rõ vấn đề, người dùng, phạm vi và cách đánh giá kết quả.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Một yêu cầu tạo PRD nêu vấn đề, người dùng, phạm vi, rủi ro và câu hỏi còn mở'
   },
   'm2-prd-prompt': {
     image: m2PrdPromptImage,
-    alt: 'Codex giải thích kế hoạch thu thập bằng chứng trước khi soạn tài liệu PRD',
-    caption: 'Codex thu thập bằng chứng trước rồi mới soạn PRD.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Codex giải thích kế hoạch thu thập bằng chứng trước khi soạn tài liệu PRD'
   },
   'm2-prd-review': {
     image: m2PrdReviewImage,
-    alt: 'Tài liệu PRD được mở cạnh cuộc trao đổi với Codex để người dùng xem xét',
-    caption: 'PRD được mở cạnh cuộc trao đổi để bạn kiểm tra nội dung thật.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Tài liệu PRD được mở cạnh cuộc trao đổi với Codex để người dùng xem xét'
   },
   'm2-implementation-plan': {
     image: m2ImplementationPlanImage,
-    alt: 'Tài liệu hiển thị bảng mốc triển khai, quyết định và nội dung cần kiểm tra',
-    caption: 'Các mốc trong tài liệu biến yêu cầu thành những bước có thể kiểm tra.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Tài liệu hiển thị bảng mốc triển khai, quyết định và nội dung cần kiểm tra'
   },
   'm2-assessment': {
     image: m2AssessmentImage,
-    alt: 'Codex và tài liệu hoàn chỉnh được đặt cạnh nhau để người dùng đối chiếu trước khi duyệt',
-    caption: 'Ở checkpoint cuối, bạn đối chiếu tài liệu, nguồn và quyết định trước khi hoàn thành.',
-    source: 'Demo chính thức của OpenAI'
+    alt: 'Codex và tài liệu hoàn chỉnh được đặt cạnh nhau để người dùng đối chiếu trước khi duyệt'
   }
 }
 
@@ -1256,27 +1232,19 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
   'module-1-codex-examples': {
     image: m1ApprovalMenuImage,
     alt: 'Menu Approval của Codex hiển thị Ask for approval, Approve for me và Full access',
-    caption: 'Approval giúp bạn kiểm soát khi nào Codex cần dừng để xin phép.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp',
     fit: 'contain'
   },
   'module-1-codex-model-intro': {
     image: m1ModelSettingsImage,
-    alt: 'Menu Codex hiển thị Model 5.6 Sol, Effort High và Speed Standard',
-    caption: 'Model, Effort và Speed nằm trong cùng một menu cạnh ô gửi.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+    alt: 'Menu Codex hiển thị Model 5.6 Sol, Effort High và Speed Standard'
   },
   'module-1-codex-slash-commands': {
     image: m1SlashCommandsImage,
-    alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin',
-    caption: 'Nhập / để mở lệnh, sau đó chọn hoặc tiếp tục gõ để lọc danh sách.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+    alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin'
   },
   'module-1-reasoning-effort': {
     image: m1ReasoningLevelsImage,
-    alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra',
-    caption: 'Khóa học dùng High; Extra High và Ultra thường quá nặng cho người mới.',
-    source: 'Ảnh chụp từ Codex do tác giả khóa học cung cấp'
+    alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra'
   }
 }
 
@@ -1480,6 +1448,115 @@ function ApprovalTourDialogue({
       <br /><br />
       Nếu mới bắt đầu, mình khuyên bạn dùng <ApprovalTerm activeFocus={activeFocus} focus="approve" onSelect={onSelect}>Approve for me</ApprovalTerm>. Chế độ này không yêu cầu bạn duyệt mọi hành động, nhưng cũng không trao toàn bộ quyền kiểm soát cho coding agent.
     </>
+  )
+}
+
+function LessonVisualMedia({
+  activeFocus,
+  isApprovalTour,
+  visual
+}: {
+  activeFocus: ApprovalFocus | null
+  isApprovalTour: boolean
+  visual: LessonVisual
+}) {
+  if (!isApprovalTour) {
+    return (
+      <img
+        src={visual.image}
+        alt={visual.alt}
+        data-fit={visual.fit ?? 'cover'}
+        decoding="async"
+        fetchPriority="high"
+      />
+    )
+  }
+
+  return (
+    <div className={`pixel-approval-frame${activeFocus ? ' is-manual' : ''}`}>
+      <img
+        src={visual.image}
+        alt={visual.alt}
+        data-fit={visual.fit ?? 'cover'}
+        decoding="async"
+        fetchPriority="high"
+      />
+      <span className={`pixel-approval-focus${activeFocus === 'ask' ? ' is-active' : ''}`} data-approval-focus="ask" aria-hidden="true"><small>1/3</small></span>
+      <span className={`pixel-approval-focus${activeFocus === 'approve' ? ' is-active' : ''}`} data-approval-focus="approve" aria-hidden="true"><small>2/3</small></span>
+      <span className={`pixel-approval-focus${activeFocus === 'full' ? ' is-active' : ''}`} data-approval-focus="full" aria-hidden="true"><small>3/3</small></span>
+    </div>
+  )
+}
+
+function LessonVisualLightbox({
+  activeFocus,
+  isApprovalTour,
+  onClose,
+  visual
+}: {
+  activeFocus: ApprovalFocus | null
+  isApprovalTour: boolean
+  onClose: () => void
+  visual: LessonVisual
+}) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        closeButtonRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    closeButtonRef.current?.focus()
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previousFocus?.focus()
+    }
+  }, [])
+
+  return (
+    <div className="pixel-visual-lightbox" onClick={onClose}>
+      <section
+        aria-label="Ảnh minh họa phóng to"
+        aria-modal="true"
+        className="pixel-visual-lightbox__panel"
+        role="dialog"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          ref={closeButtonRef}
+          aria-label="Đóng ảnh phóng to"
+          className="pixel-visual-lightbox__close"
+          type="button"
+          onClick={onClose}
+        >
+          ĐÓNG
+        </button>
+        <div className="pixel-visual-lightbox__media">
+          <LessonVisualMedia
+            activeFocus={activeFocus}
+            isApprovalTour={isApprovalTour}
+            visual={visual}
+          />
+        </div>
+      </section>
+    </div>
   )
 }
 
@@ -1926,6 +2003,7 @@ export function LearningWindow() {
   const [teacherOpen, setTeacherOpen] = useState(false)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
+  const [visualExpanded, setVisualExpanded] = useState(false)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
@@ -2200,6 +2278,7 @@ export function LearningWindow() {
         : progress.decisions
       await advanceToScene(choice.next, decisions)
       setApprovalFocus(null)
+      setVisualExpanded(false)
       if (choice.afterSave === 'home') {
         setTeacherOpen(false)
         setDestination('home')
@@ -2283,6 +2362,7 @@ export function LearningWindow() {
   const openPreviousPage = () => {
     if (!canOpenPreviousPage) return
     setApprovalFocus(null)
+    setVisualExpanded(false)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
   const lessonContextLabel = scene.lessonId === 'intro'
@@ -2319,6 +2399,8 @@ export function LearningWindow() {
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
+  const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
+  const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
   const usesPairedLessonNavigation = !isReviewing
@@ -2343,6 +2425,7 @@ export function LearningWindow() {
       <header className="pixel-hud">
         <button className="pixel-brand pixel-brand--button" type="button" onClick={() => {
           setApprovalFocus(null)
+          setVisualExpanded(false)
           setTeacherOpen(false)
           setReviewHistoryIndex(null)
           setDestination('home')
@@ -2372,35 +2455,22 @@ export function LearningWindow() {
 
       {canShowSceneMedia && lessonVisual
         ? (
-            <figure className={`pixel-lesson-visual${displayedSceneId === 'module-1-codex-examples' ? ' is-approval-tour' : ''}`}>
-              {displayedSceneId === 'module-1-codex-examples'
-                ? (
-                    <div className={`pixel-approval-frame${approvalFocus ? ' is-manual' : ''}`}>
-                      <img
-                        src={lessonVisual.image}
-                        alt={lessonVisual.alt}
-                        data-fit={lessonVisual.fit ?? 'cover'}
-                        decoding="async"
-                        fetchPriority="high"
-                      />
-                      <span className={`pixel-approval-focus${approvalFocus === 'ask' ? ' is-active' : ''}`} data-approval-focus="ask" aria-hidden="true"><small>1/3</small></span>
-                      <span className={`pixel-approval-focus${approvalFocus === 'approve' ? ' is-active' : ''}`} data-approval-focus="approve" aria-hidden="true"><small>2/3</small></span>
-                      <span className={`pixel-approval-focus${approvalFocus === 'full' ? ' is-active' : ''}`} data-approval-focus="full" aria-hidden="true"><small>3/3</small></span>
-                    </div>
-                  )
-                : (
-                    <img
-                      src={lessonVisual.image}
-                      alt={lessonVisual.alt}
-                      data-fit={lessonVisual.fit ?? 'cover'}
-                      decoding="async"
-                      fetchPriority="high"
-                    />
-                  )}
-              <figcaption>
-                <span><small>ẢNH MINH HOẠ BÀI HỌC</small>{lessonVisual.caption}</span>
-                <em>{lessonVisual.source}</em>
-              </figcaption>
+            <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}`}>
+              <LessonVisualMedia
+                activeFocus={approvalFocus}
+                isApprovalTour={isApprovalTour}
+                visual={lessonVisual}
+              />
+              {canExpandLessonVisual ? (
+                <button
+                  aria-label="Phóng to ảnh minh họa"
+                  className="pixel-visual-expand"
+                  type="button"
+                  onClick={() => setVisualExpanded(true)}
+                >
+                  PHÓNG TO
+                </button>
+              ) : null}
             </figure>
           )
         : shouldShowScenePanel
@@ -2412,6 +2482,15 @@ export function LearningWindow() {
               </aside>
             )
           : null}
+
+      {visualExpanded && lessonVisual && canExpandLessonVisual ? (
+        <LessonVisualLightbox
+          activeFocus={approvalFocus}
+          isApprovalTour={isApprovalTour}
+          visual={lessonVisual}
+          onClose={() => setVisualExpanded(false)}
+        />
+      ) : null}
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
@@ -2428,6 +2507,7 @@ export function LearningWindow() {
           <div className="pixel-review-return">
             <button className="pixel-choice is-primary" type="button" onClick={() => {
               setApprovalFocus(null)
+              setVisualExpanded(false)
               setReviewHistoryIndex(null)
             }}>
               Quay lại trang đang học

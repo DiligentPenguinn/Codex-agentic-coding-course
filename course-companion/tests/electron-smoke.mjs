@@ -63,6 +63,8 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   )
   assert.equal(await page.getByText('pilot-workspace/', { exact: true }).count(), 0)
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await page.locator('.pixel-lesson-visual figcaption').count(), 0)
+  assert.equal(await page.getByRole('button', { name: 'Phóng to ảnh minh họa', exact: true }).count(), 1)
   await capture(page, 'module-1-codex-introduction.png')
 
   if (verifyResponsiveLayout) {
@@ -107,6 +109,22 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   assert.equal(await approvalTerm('approve').last().getAttribute('aria-pressed'), 'true')
   assert.equal(await approvalFocus('approve').evaluate((element) => element.classList.contains('is-active')), true)
   assert.equal(await page.locator('.pixel-approval-frame').evaluate((element) => element.classList.contains('is-manual')), true)
+  assert.equal(await page.locator('.pixel-lesson-visual figcaption').count(), 0)
+  const expandVisualButton = page.getByRole('button', { name: 'Phóng to ảnh minh họa', exact: true })
+  await expandVisualButton.click()
+  const visualLightbox = page.getByRole('dialog', { name: 'Ảnh minh họa phóng to', exact: true })
+  await visualLightbox.waitFor()
+  assert.equal(
+    await visualLightbox.locator('.pixel-approval-focus[data-approval-focus="approve"]').evaluate((element) => element.classList.contains('is-active')),
+    true
+  )
+  assert.equal(
+    await page.getByRole('button', { name: 'Đóng ảnh phóng to', exact: true }).evaluate((element) => element === globalThis.document.activeElement),
+    true
+  )
+  await capture(page, 'module-1-codex-approval-expanded.png')
+  await page.keyboard.press('Escape')
+  assert.equal(await visualLightbox.count(), 0)
   const approvalVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
   const approvalDialogueBounds = await page.locator('.pixel-dialogue').boundingBox()
   assert.ok(approvalVisualBounds)
@@ -129,6 +147,13 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     assert.ok(approvalNarrowVisualBounds)
     assert.ok(approvalNarrowVisualBounds.width <= approvalNarrowWidths.viewport)
     assert.ok(approvalNarrowVisualBounds.width >= approvalNarrowWidths.viewport - 24)
+    await expandVisualButton.click()
+    await visualLightbox.waitFor()
+    const approvalNarrowLightboxBounds = await visualLightbox.boundingBox()
+    assert.ok(approvalNarrowLightboxBounds)
+    assert.ok(approvalNarrowLightboxBounds.width <= approvalNarrowWidths.viewport)
+    await capture(page, 'module-1-codex-approval-expanded-390px.png')
+    await page.getByRole('button', { name: 'Đóng ảnh phóng to', exact: true }).click()
     await capture(page, 'module-1-codex-approval-intro-390px.png')
     await page.setViewportSize({ width: 1180, height: 780 })
   }

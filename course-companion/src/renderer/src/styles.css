@@ -223,6 +223,26 @@ button:focus-visible {
 }
 .pixel-lesson-visual img[data-fit="contain"] { object-fit: contain; }
 .pixel-lesson-visual.is-approval-tour { width: min(400px, 38vw); }
+.pixel-visual-expand {
+  position: absolute;
+  z-index: 4;
+  top: 9px;
+  right: 9px;
+  min-height: 31px;
+  padding: 7px 9px;
+  border: 2px solid var(--pixel-yellow);
+  color: #10162a;
+  background: var(--pixel-yellow);
+  box-shadow: 3px 3px 0 rgba(4, 8, 21, 0.72);
+  font: 800 7px/1 var(--pixel-font);
+  letter-spacing: 0.06em;
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+.pixel-visual-expand:hover {
+  box-shadow: 1px 1px 0 rgba(4, 8, 21, 0.72);
+  transform: translate(2px, 2px);
+}
+.pixel-visual-expand:active { transform: translate(3px, 3px); }
 .pixel-approval-frame {
   position: relative;
   overflow: hidden;
@@ -271,31 +291,68 @@ button:focus-visible {
   height: 22%;
   animation-name: pixel-approval-focus-full;
 }
-.pixel-lesson-visual figcaption {
-  min-height: 54px;
-  padding: 9px 11px;
+
+.pixel-visual-lightbox {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  padding: clamp(12px, 3vw, 36px);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  border-top: 3px solid var(--pixel-line-soft);
-  color: var(--pixel-cream);
-  background: #0b1228;
+  place-items: center;
+  background: rgba(3, 6, 16, 0.88);
+  animation: pixel-lightbox-in 160ms ease-out both;
 }
-.pixel-lesson-visual figcaption span,
-.pixel-lesson-visual figcaption small { display: block; }
-.pixel-lesson-visual figcaption span { font-size: 11px; line-height: 1.35; }
-.pixel-lesson-visual figcaption small {
-  margin-bottom: 5px;
-  color: var(--pixel-yellow);
-  font: 800 7px/1 var(--pixel-font);
-  letter-spacing: 0.1em;
+.pixel-visual-lightbox__panel {
+  position: relative;
+  width: min(1180px, 100%);
+  max-height: 100%;
+  padding: 46px 10px 10px;
+  border: 4px solid var(--pixel-line);
+  background: #090f22;
+  box-shadow: 10px 10px 0 rgba(2, 4, 12, 0.9);
 }
-.pixel-lesson-visual figcaption em {
+.pixel-visual-lightbox__close {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  min-height: 28px;
+  padding: 6px 9px;
+  border: 2px solid var(--pixel-cyan);
   color: var(--pixel-cyan);
-  font: 800 7px/1.3 var(--pixel-font);
-  font-style: normal;
-  text-align: right;
+  background: #0b142a;
+  font: 800 7px/1 var(--pixel-font);
+  letter-spacing: 0.08em;
+}
+.pixel-visual-lightbox__close:hover { color: #091125; background: var(--pixel-cyan); }
+.pixel-visual-lightbox__media {
+  max-height: calc(100vh - 104px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f7f7f5;
+}
+.pixel-visual-lightbox__media > img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: calc(100vh - 104px);
+  display: block;
+  object-fit: contain;
+}
+.pixel-visual-lightbox__media .pixel-approval-frame {
+  width: 100%;
+  max-height: calc(100vh - 104px);
+}
+.pixel-visual-lightbox__media .pixel-approval-frame > img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+@keyframes pixel-lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .pixel-request { margin-top: 13px; padding: 13px; border: 2px solid var(--pixel-line-soft); background: #131d39; }
@@ -436,6 +493,8 @@ button:focus-visible {
   .pixel-approval-term { transition: none; animation: none; }
   .pixel-approval-focus[data-approval-focus="approve"] { opacity: 1; }
   .pixel-approval-term[data-approval-focus="approve"] { color: #10162a; background: var(--pixel-yellow); }
+  .pixel-visual-expand { transition: none; }
+  .pixel-visual-lightbox { animation: none; }
 }
 
 .pixel-review-notice {
@@ -1598,8 +1657,11 @@ button:focus-visible {
   .pixel-lesson-visual { position: relative; top: auto; right: auto; width: 100%; }
   .pixel-lesson-visual.is-approval-tour { width: 100%; }
   .pixel-lesson-visual img { height: auto; aspect-ratio: 16 / 9; }
-  .pixel-lesson-visual figcaption { grid-template-columns: 1fr; gap: 7px; }
-  .pixel-lesson-visual figcaption em { text-align: left; }
+  .pixel-visual-lightbox { padding: 8px; }
+  .pixel-visual-lightbox__panel { padding: 42px 6px 6px; }
+  .pixel-visual-lightbox__media,
+  .pixel-visual-lightbox__media > img,
+  .pixel-visual-lightbox__media .pixel-approval-frame { max-height: calc(100vh - 72px); }
   .pixel-evidence-grid { grid-template-columns: 1fr; }
   .pixel-evidence-grid div { min-height: 44px; }
   .pixel-dialogue { position: relative; right: auto; bottom: auto; left: auto; min-height: 0; padding: 14px; }
