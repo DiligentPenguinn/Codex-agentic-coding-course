@@ -114,4 +114,19 @@ describe('GitWorkspaceEvidenceProvider', () => {
 
     await writeFile(join(directory, 'tracked.txt'), 'before\n', 'utf8')
     expect((await provider.reconcile(directory, baseline, ['tracked.txt'])).changedSinceBaseline).not.toContain('tracked.txt')
-  })})
+  })
+
+  it('detects deletion of a path that was dirty at the Practice baseline', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'workspace-evidence-delete-'))
+    directories.push(directory)
+    await run('git', ['init'], { cwd: directory })
+    await writeFile(join(directory, 'preexisting.txt'), 'before\n', 'utf8')
+
+    const provider = new GitWorkspaceEvidenceProvider()
+    const baseline = await provider.capture(directory, '2026-08-09T00:00:00.000Z')
+    await rm(join(directory, 'preexisting.txt'))
+
+    expect((await provider.reconcile(directory, baseline)).changedSinceBaseline)
+      .toContain('preexisting.txt')
+  })
+})

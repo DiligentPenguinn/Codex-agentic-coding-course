@@ -589,6 +589,29 @@ export type PracticeEvidenceInvalidation = {
   nextAction: string
 }
 
+export const planningArtifactPaths = [
+  'artifacts/PRD.md',
+  'artifacts/implementation-plan.md'
+] as const
+
+export type PlanningArtifactPath = (typeof planningArtifactPaths)[number]
+
+export type PlanningArtifactSnapshot = {
+  schemaVersion: 1
+  path: PlanningArtifactPath
+  content: string
+  digest: string
+  byteLength: number
+  modifiedAt: string
+  observedAt: string
+}
+
+export type PlanningArtifactIssue = {
+  path: PlanningArtifactPath
+  code: 'missing' | 'empty' | 'oversized' | 'directory' | 'symlink' | 'escaping' | 'invalid-utf8' | 'unchanged'
+  message: string
+}
+
 export type PracticeAdapterEvidenceState = {
   schemaVersion: 1
   practiceId: string
@@ -602,6 +625,9 @@ export type PracticeAdapterEvidenceState = {
   steps: PracticeAdapterStepState[]
   invalidations: PracticeEvidenceInvalidation[]
   configuration?: CodexTaskConfigurationSnapshot
+  planningArtifacts?: PlanningArtifactSnapshot[]
+  artifactIssues?: PlanningArtifactIssue[]
+  unexpectedChangedPaths?: string[]
 }
 
 export type PracticeCriterionReview = {

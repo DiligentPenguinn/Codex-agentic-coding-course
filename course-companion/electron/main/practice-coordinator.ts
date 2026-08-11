@@ -120,13 +120,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           ...pending,
           pendingTransition: { ...transition, stage: 'target-created', targetBinding }
         })
+        if (definition.evidenceProfile === 'planning-package') {
+          await this.prepareExecutor?.(targetBinding, true)
+        }
         await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)
         throw new Error(this.lastError, { cause: error })
       }
-      await this.openTarget(targetBinding, true)
+      await this.openTarget(targetBinding, false)
       return this.toView(committed)
     })
   }
@@ -162,13 +165,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       if (transition.stage === 'target-created' && transition.targetBinding) {
         let committed
         try {
+          if (definition.evidenceProfile === 'planning-package') {
+            await this.prepareExecutor?.(transition.targetBinding, true)
+          }
           await this.executor.prepareTarget(transition.targetBinding, definition)
           committed = await this.commitTarget(record)
         } catch (error) {
           this.lastError = safeCreationError(error)
           throw new Error(this.lastError, { cause: error })
         }
-        await this.openTarget(transition.targetBinding, true)
+        await this.openTarget(transition.targetBinding, false)
         return this.toView(committed)
       }
       let targetBinding
@@ -188,13 +194,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       })
       let committed
       try {
+        if (definition.evidenceProfile === 'planning-package') {
+          await this.prepareExecutor?.(targetBinding, true)
+        }
         await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)
         throw new Error(this.lastError, { cause: error })
       }
-      await this.openTarget(targetBinding, true)
+      await this.openTarget(targetBinding, false)
       return this.toView(committed)
     })
   }

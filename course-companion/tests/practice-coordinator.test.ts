@@ -162,6 +162,33 @@ describe('PracticeCoordinator', () => {
     await expect(coordinator.resume(m2Identity)).rejects.toThrow('không khớp')
   })
 
+  it('captures the Module 2 workspace baseline before sending its first instruction', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId,
+      async (binding, captureBaseline) => {
+        testHarness.calls.push(
+          'observe:' + binding.threadId + ':' + String(captureBaseline)
+        )
+      }
+    )
+
+    await coordinator.startNew({ ...m2Identity, transfer: false })
+
+    expect(testHarness.calls).toEqual([
+      'create:run-1',
+      'observe:thread-1:true',
+      'prepare-target:thread-1',
+      'observe:thread-1:false',
+      'open:thread-1'
+    ])
+  })
+
   it('keeps the active run authoritative when replacement creation fails', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
     const firstHarness = harness()

@@ -203,6 +203,7 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
     }
 
     const candidatePaths = new Set(Object.keys(current))
+    for (const path of Object.keys(baseline.entries)) candidatePaths.add(path)
     if (baseline.head) {
       for (const path of await changedFromHead(workspaceRoot, baseline.head)) candidatePaths.add(path)
     }
