@@ -143,6 +143,7 @@ const activityRepository = new ExecutorActivityRepository(app.getPath('userData'
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
+  practiceDefinitionRepository,
   executorChatCoordinator,
   undefined,
   undefined,
@@ -171,6 +172,7 @@ const teacherService = new TeacherService(
   teacherRepository,
   progressRepository,
   practiceRunRepository,
+  practiceDefinitionRepository,
   activityRepository,
   activityObserver,
   memoryRepository,
@@ -301,7 +303,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isPracticeStartRequest(value: unknown): value is PracticeStartRequest {
-  return isRecord(value) && Object.keys(value).length === 1 && typeof value.transfer === 'boolean'
+  return isRecord(value)
+    && Object.keys(value).length === 3
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.practiceId))
+    && /^[0-9]+.[0-9]+.[0-9]+$/.test(String(value.practiceVersion))
+    && typeof value.transfer === 'boolean'
 }
 
 function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
@@ -352,7 +358,12 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
 
-  ipcMain.handle('course:load-practice-workspace', () => practiceCoordinator.loadWorkspace())
+  ipcMain.handle('course:load-practice-workspace', (_event, identity) => (
+    practiceCoordinator.loadWorkspace(isRecord(identity) ? {
+      practiceId: String(identity.practiceId),
+      practiceVersion: String(identity.practiceVersion)
+    } : undefined)
+  ))
 
   ipcMain.handle('course:start-practice', async (_event, request: PracticeStartRequest) => {
     const previousRun = (await practiceRunRepository.load()).activeRun
@@ -367,8 +378,11 @@ function registerIpcHandlers(): void {
     return view
   })
 
-  ipcMain.handle('course:resume-practice', async () => {
-    const view = await practiceCoordinator.resume()
+  ipcMain.handle('course:resume-practice', async (_event, identity) => {
+    const view = await practiceCoordinator.resume(isRecord(identity) ? {
+      practiceId: String(identity.practiceId),
+      practiceVersion: String(identity.practiceVersion)
+    } : undefined)
     const activeRun = (await practiceRunRepository.load()).activeRun
     if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
     await enterPracticeCompanion()

@@ -452,7 +452,7 @@ export type TeacherMemoryDocument = {
 }
 
 export type PracticePanel = 'teacher' | 'progress'
-export type PracticeStepStatus = 'completed' | 'current' | 'upcoming'
+export type PracticeStepStatus = 'completed' | 'current' | 'pending' | 'stale' | 'upcoming'
 export type PracticeReviewStatus = 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
 
 export type PracticeEvidenceKind =
@@ -606,6 +606,8 @@ export type PracticeChecklistStep = {
   id: string
   title: string
   status: PracticeStepStatus
+  reason?: string
+  dependencyInputs?: Record<string, string>
 }
 
 export type PracticeWorkspaceView = {
@@ -624,6 +626,8 @@ export type PracticeWorkspaceView = {
 
   activePractice?: {
     runId: string
+    practiceId: string
+    practiceVersion: string
     executorChatName: string
     startedAt: string
   }
@@ -647,8 +651,12 @@ export type PracticeWorkspaceView = {
 }
 
 export type PracticeStartRequest = {
+  practiceId: string
+  practiceVersion: string
   transfer: boolean
 }
+
+export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
 
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
@@ -656,9 +664,9 @@ export type PracticePanelUpdate = {
 }
 
 export type PracticeWorkspaceAdapter = {
-  loadWorkspace: () => Promise<PracticeWorkspaceView>
+  loadWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   startNew: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
-  resume: () => Promise<PracticeWorkspaceView>
+  resume: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retry: () => Promise<PracticeWorkspaceView>
   cancel: () => Promise<PracticeWorkspaceView>
   selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
@@ -692,9 +700,9 @@ export type CourseCompanionApi = {
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
   onFullTeacherRequested: (callback: () => void) => () => void
   onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => () => void
-  loadPracticeWorkspace: () => Promise<PracticeWorkspaceView>
+  loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
-  resumePractice: () => Promise<PracticeWorkspaceView>
+  resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>

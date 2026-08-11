@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import type {
   ExecutorActivitySnapshot,
   LearnerProgress,
+  PracticeDefinition,
   PracticeRunSummary,
   TeacherConversation,
   TeacherMemoryDocument
@@ -29,7 +30,8 @@ export type TeacherContextEnvelope = {
     decisions: Record<string, string>
   }
   practice: {
-    practiceId: string
+    practiceId: string | null
+    practiceVersion: string | null
     objective: string
     expectedOutcome: string
     activeRun: PracticeRunRecord | null
@@ -48,6 +50,7 @@ export type TeacherContextEnvelope = {
 
 type EnvelopeInput = {
   progress: LearnerProgress
+  definition: PracticeDefinition | null
   activeRun: PracticeRunRecord | null
   activity: ExecutorActivitySnapshot | null
   memory: TeacherMemoryDocument
@@ -56,13 +59,12 @@ type EnvelopeInput = {
   now?: () => Date
 }
 
-const PRACTICE_ID = 'm1-verifiable-brief'
-const OBJECTIVE = 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.'
-const EXPECTED_OUTCOME = 'Một thay đổi CSS đúng phạm vi, có bằng chứng ở viewport 390px và không gây tràn ngang.'
-
 export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherContextEnvelope; recentChat: TeacherConversation['messages'] } {
   const now = input.now ?? (() => new Date())
-  const allPrevious = (input.memory.practiceSummaries[PRACTICE_ID] ?? []).filter((summary) => summary.runId !== input.activeRun?.runId)
+  const practiceId = input.activeRun?.practiceId ?? input.definition?.practiceId ?? null
+  const practiceVersion = input.activeRun?.practiceVersion ?? input.definition?.version ?? null
+  const allPrevious = (practiceId ? input.memory.practiceSummaries[practiceId] ?? [] : [])
+    .filter((summary) => summary.runId !== input.activeRun?.runId)
   let previousRuns = allPrevious
     .slice(-2)
     .map((summary) => ({
@@ -128,9 +130,10 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
       decisions: structuredClone(input.progress.decisions)
     },
     practice: {
-      practiceId: PRACTICE_ID,
-      objective: OBJECTIVE,
-      expectedOutcome: EXPECTED_OUTCOME,
+      practiceId,
+      practiceVersion,
+      objective: input.definition?.objective ?? '',
+      expectedOutcome: input.definition?.expectedOutcome ?? '',
       activeRun: input.activeRun ? structuredClone(input.activeRun) : null,
       activity: activity ? structuredClone(activity) : null,
       previousRuns: structuredClone(previousRuns)

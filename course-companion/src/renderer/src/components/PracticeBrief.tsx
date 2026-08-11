@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
-import type { PracticeWorkspaceView } from '../../../../shared/contracts'
+import type { PracticeIdentity, PracticeWorkspaceView } from '../../../../shared/contracts'
 import { PracticeProgress } from './PracticeProgress'
 import { PracticeSwitchDialog } from './PracticeSwitchDialog'
 
 type PracticeBriefProps = {
+  identity: PracticeIdentity
   onClose: () => void
 }
 
 const previewWorkspace: PracticeWorkspaceView = {
   schemaVersion: 1,
   phase: 'brief',
-  objective: 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.',
-  expectedOutcome: 'Một thay đổi CSS đúng phạm vi, có bằng chứng ở viewport 390px và không gây tràn ngang.',
-  checklist: [
-    { id: 'review-objective', title: 'Xem mục tiêu và dấu hiệu hoàn thành', status: 'current' },
-    { id: 'open-executor', title: 'Mở Executor chat riêng cho Practice', status: 'upcoming' }
-  ],
+  objective: 'Đang tải mục tiêu Practice…',
+  expectedOutcome: 'Course Companion sẽ hiển thị kết quả cần đạt từ định nghĩa Practice.',
+  checklist: [],
   presentation: { fullPanel: 'teacher', compactPanel: 'teacher' },
   capabilities: {
     canStartNew: true,
@@ -25,7 +23,7 @@ const previewWorkspace: PracticeWorkspaceView = {
   }
 }
 
-export function PracticeBrief({ onClose }: PracticeBriefProps) {
+export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [busy, setBusy] = useState(false)
   const [switchOpen, setSwitchOpen] = useState(false)
@@ -35,7 +33,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     try {
       setWorkspace(
         window.courseCompanion
-          ? await window.courseCompanion.loadPracticeWorkspace()
+          ? await window.courseCompanion.loadPracticeWorkspace(identity)
           : previewWorkspace
       )
     } catch {
@@ -47,7 +45,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     const loadInitial = async () => {
       try {
         const initialWorkspace = window.courseCompanion
-          ? await window.courseCompanion.loadPracticeWorkspace()
+          ? await window.courseCompanion.loadPracticeWorkspace(identity)
           : await Promise.resolve(previewWorkspace)
         setWorkspace(initialWorkspace)
       } catch {
@@ -56,7 +54,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     }
 
     void loadInitial()
-  }, [])
+  }, [identity])
 
   const start = async () => {
     if (!workspace || busy) return
@@ -68,7 +66,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     setError('')
     try {
       const next = window.courseCompanion
-        ? await window.courseCompanion.startPractice({ transfer: false })
+        ? await window.courseCompanion.startPractice({ ...identity, transfer: false })
         : workspace
       setWorkspace(next)
       setSwitchOpen(false)
@@ -87,7 +85,7 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     try {
       setWorkspace(
         window.courseCompanion
-          ? await window.courseCompanion.resumePractice()
+          ? await window.courseCompanion.resumePractice(identity)
           : workspace
       )
     } catch {
@@ -141,8 +139,8 @@ export function PracticeBrief({ onClose }: PracticeBriefProps) {
     <main className="practice-brief-overlay">
       <header className="practice-brief-header">
         <button type="button" aria-label="Đóng trang Practice" onClick={onClose}>×</button>
-        <div><small>PRACTICE · MODULE 1</small><strong>Brief kiểm chứng được</strong></div>
-        <span aria-hidden="true">01</span>
+        <div><small>PRACTICE</small><strong>{identity.practiceId}</strong></div>
+        <span aria-hidden="true">◆</span>
       </header>
 
       <section className="practice-brief-card" aria-labelledby="practiceObjective">

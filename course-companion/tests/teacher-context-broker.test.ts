@@ -6,6 +6,7 @@ import {
   LEARNER_STATE_SCHEMA_VERSION,
   type ExecutorActivitySnapshot,
   type LearnerProgress,
+  type PracticeDefinition,
   type PracticeRunSummary
 } from '../shared/contracts'
 import type { PracticeRunRecord } from '../electron/main/practice-run-repository'
@@ -17,20 +18,48 @@ const progress: LearnerProgress = {
   courseVersion: COURSE_VERSION,
   courseRunId: 'course-run-1',
   currentLessonId: 'module-1',
-  checkpointId: 'm1-plan-approval',
-  sceneId: 'module-1-brief-choice',
-  completedCheckpointIds: ['m1-orient'],
+  currentCourseLessonId: 'm1-assessment',
+  checkpointId: 'm1-setup-checklist',
+  sceneId: 'module-1-setup-checklist',
+  sceneHistory: [],
+  completedCheckpointIds: ['m1-codex-orientation'],
   decisions: { evidence: 'viewport-and-typecheck' },
-  practice: { missionId: 'm1-verifiable-brief', status: 'active' },
+  practice: { missionId: 'm2-planning-package', status: 'idle' },
   practiceCompletions: [],
   startedAt: timestamp,
   updatedAt: timestamp
+}
+
+const definition: PracticeDefinition = {
+  schemaVersion: 2,
+  practiceId: 'm1-codex-safe-setup',
+  version: '2.0.0',
+  checkpointId: 'm1-setup-checklist',
+  objective: 'Thiết lập Codex an toàn.',
+  expectedOutcome: 'Năm thiết lập được xác nhận trực tiếp.',
+  workspaceKind: 'pilot-workspace',
+  taskPolicy: 'inherit-configuration-only',
+  evidenceProfile: 'codex-task-configuration',
+  checklist: [
+    { id: 'open-task', title: 'Mở task', dependsOn: [] }
+  ],
+  criteria: [],
+  completionDestination: {
+    lessonId: 'module-1',
+    checkpointId: 'm1-mastery',
+    sceneId: 'module-1-mastery'
+  }
 }
 
 const activeRun: PracticeRunRecord = {
   runId: 'run-current',
   generation: 2,
   status: 'active',
+  practiceId: definition.practiceId,
+  practiceVersion: definition.version,
+  workspaceKind: definition.workspaceKind,
+  taskPolicy: definition.taskPolicy,
+  evidenceProfile: definition.evidenceProfile,
   binding: {
     runId: 'run-current',
     threadId: 'thread-current',
@@ -40,7 +69,12 @@ const activeRun: PracticeRunRecord = {
   },
   startedAt: timestamp,
   updatedAt: timestamp,
-  checklist: [{ id: 'plan', title: 'Review plan', status: 'current' }]
+  checklist: [{ id: 'open-task', title: 'Mở task', status: 'current', dependencyInputs: {} }],
+  learnerDecisions: {},
+  learnerApprovals: {},
+  evidence: null,
+  invalidations: [],
+  reviewStatus: 'not-reviewed'
 }
 
 const activity: ExecutorActivitySnapshot = {
@@ -66,7 +100,7 @@ const activity: ExecutorActivitySnapshot = {
 function previousSummary(runId: string): PracticeRunSummary {
   return {
     schemaVersion: 1,
-    practiceId: 'm1-verifiable-brief',
+    practiceId: definition.practiceId,
     runId,
     attempt: 1,
     outcome: 'replaced',
@@ -83,7 +117,7 @@ function previousSummary(runId: string): PracticeRunSummary {
     endedAt: timestamp,
     summarizedAt: timestamp,
     sourceDigest: `digest-${runId}`,
-    model: 'Hương',
+    model: 'Triết',
     freshness: 'current',
     quality: 'live'
   }
@@ -92,13 +126,14 @@ function previousSummary(runId: string): PracticeRunSummary {
 describe('Teacher context broker', () => {
   it('keeps the current Practice full and older attempts summary-only', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
-    memory.practiceSummaries['m1-verifiable-brief'] = [
+    memory.practiceSummaries[definition.practiceId] = [
       previousSummary('run-old'),
       previousSummary('run-current')
     ]
 
     const result = buildTeacherEnvelope({
       progress,
+      definition,
       activeRun,
       activity,
       memory,
@@ -107,6 +142,12 @@ describe('Teacher context broker', () => {
     })
 
     expect(result.envelope.practice.activeRun?.runId).toBe('run-current')
+    expect(result.envelope.practice).toMatchObject({
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
+      objective: definition.objective,
+      expectedOutcome: definition.expectedOutcome
+    })
     expect(result.envelope.practice.activity?.executorResponses).toEqual(activity.executorResponses)
     expect(result.envelope.practice.previousRuns.map((run) => run.runId)).toEqual(['run-old'])
     expect(result.envelope.privacy).toEqual({ scope: 'bound-thread-only', redactionsApplied: true })
@@ -117,6 +158,7 @@ describe('Teacher context broker', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
     const stale = buildTeacherEnvelope({
       progress,
+      definition,
       activeRun,
       activity: null,
       memory,
@@ -124,6 +166,7 @@ describe('Teacher context broker', () => {
     })
     const disconnected = buildTeacherEnvelope({
       progress,
+      definition,
       activeRun,
       activity: { ...activity, status: 'disconnected' },
       memory,
@@ -144,6 +187,7 @@ describe('Teacher context broker', () => {
     }))
     const result = buildTeacherEnvelope({
       progress,
+      definition,
       activeRun,
       activity: {
         ...activity,
@@ -176,6 +220,7 @@ describe('Teacher context broker', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
     const result = buildTeacherEnvelope({
       progress,
+      definition,
       activeRun,
       activity,
       memory,

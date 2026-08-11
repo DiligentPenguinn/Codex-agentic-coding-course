@@ -51,10 +51,7 @@ export class PracticeReviewService {
   }
 
   private async reviewDirect(active: PracticeRunRecord): Promise<PracticeReviewResponse> {
-    const definition = await this.definitions.load(active.practiceId ?? 'm1-verifiable-brief')
-    if (active.practiceVersion && active.practiceVersion !== definition.version) {
-      throw new Error('N\u1ed9i dung Practice \u0111\u00e3 thay \u0111\u1ed5i. H\u00e3y b\u1eaft \u0111\u1ea7u m\u1ed9t l\u01b0\u1ee3t Practice m\u1edbi.')
-    }
+    const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
     const reviewedAt = this.now().toISOString()
     const reviewing = await this.runs.beginReview({
       runId: active.runId,
@@ -66,7 +63,7 @@ export class PracticeReviewService {
     if (reviewing.activeRun?.runId !== active.runId
       || reviewing.activeRun.generation !== active.generation
       || reviewing.activeRun.reviewStatus !== 'reviewing') {
-      throw new Error('Practice \u0111\u00e3 thay \u0111\u1ed5i tr\u01b0\u1edbc khi H\u01b0\u01a1ng b\u1eaft \u0111\u1ea7u duy\u1ec7t.')
+      throw new Error('Practice đã thay đổi trước khi Triết bắt đầu duyệt.')
     }
 
     try {
@@ -120,7 +117,7 @@ export class PracticeReviewService {
       if (saved.activeRun?.runId !== active.runId
         || saved.activeRun.generation !== active.generation
         || saved.activeRun.reviewResult?.sourceDigest !== result.sourceDigest) {
-        throw new Error('Practice \u0111\u00e3 thay \u0111\u1ed5i trong khi H\u01b0\u01a1ng \u0111ang duy\u1ec7t. K\u1ebft qu\u1ea3 c\u0169 kh\u00f4ng \u0111\u01b0\u1ee3c l\u01b0u.')
+        throw new Error('Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
       }
       if (saved.activeRun.completion) {
         await this.progress.recordPracticeCompletion(saved.activeRun.completion)
@@ -141,7 +138,7 @@ export class PracticeReviewService {
           : []),
         ...(result.verdict === 'passed'
           ? ['B\u1ea1n \u0111\u00e3 v\u01b0\u1ee3t qua Practice. D\u00f9ng bi\u1ec3u t\u01b0\u1ee3ng quay l\u1ea1i kh\u00f3a h\u1ecdc \u0111\u1ec3 ho\u00e0n th\u00e0nh ph\u1ea7n ph\u1ea3n t\u01b0.']
-          : ['H\u00e3y b\u1ed5 sung ph\u1ea7n c\u00f2n thi\u1ebfu r\u1ed3i y\u00eau c\u1ea7u H\u01b0\u01a1ng duy\u1ec7t l\u1ea1i.'])
+          : ['Hãy bổ sung phần còn thiếu rồi yêu cầu Triết duyệt lại.'])
       ].join('\n\n')
       const teacherMessage: TeacherMessage = {
         schemaVersion: 1,
@@ -156,7 +153,10 @@ export class PracticeReviewService {
       }
       await this.chat.append([teacherMessage])
       return {
-        workspace: await this.coordinator.loadWorkspace(),
+        workspace: await this.coordinator.loadWorkspace({
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion
+        }),
         teacherMessage
       }
     } catch (error) {
@@ -174,7 +174,7 @@ export class PracticeReviewService {
   async passedCompletion(): Promise<PracticeCompletionReceipt> {
     const active = (await this.runs.load()).activeRun
     if (!active || active.reviewStatus !== 'passed' || !active.completion) {
-      throw new Error('Practice ch\u01b0a \u0111\u01b0\u1ee3c H\u01b0\u01a1ng x\u00e1c nh\u1eadn l\u00e0 \u0111\u00e3 \u0111\u1ea1t.')
+      throw new Error('Practice chưa được Triết xác nhận là đã đạt.')
     }
     return structuredClone(active.completion)
   }

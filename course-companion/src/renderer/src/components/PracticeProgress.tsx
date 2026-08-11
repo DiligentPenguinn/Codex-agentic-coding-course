@@ -10,6 +10,8 @@ type PracticeProgressProps = {
 const stepIcon = {
   completed: '✓',
   current: '→',
+  pending: '·',
+  stale: '!',
   upcoming: '·'
 } as const
 
@@ -58,8 +60,11 @@ export function PracticeProgress({
                   ? 'Đã hoàn thành'
                   : step.status === 'current'
                     ? 'Bước tiếp theo'
-                    : 'Sắp tới'}
+                    : step.status === 'stale'
+                      ? 'Cần xem lại'
+                      : 'Sắp tới'}
               </small>
+              {step.reason ? <p>{step.reason}</p> : null}
             </div>
           </li>
         ))}

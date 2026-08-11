@@ -93,8 +93,8 @@ describe('PracticeDefinitionRepository', () => {
       .load('m1-codex-safe-setup', '2.0.0')
 
     expect(definition.schemaVersion).toBe(2)
-    expect(definition.checklist[0].dependsOn).toEqual([])
-    expect(definition.checklist[1].dependsOn).toEqual(['open-task'])
+    expect(definition.checklist[0]!.dependsOn).toEqual([])
+    expect(definition.checklist[1]!.dependsOn).toEqual(['open-task'])
     expect(definition.evidenceProfile).toBe('codex-task-configuration')
   })
 
@@ -111,7 +111,7 @@ describe('PracticeDefinitionRepository', () => {
     expect(() => parsePracticeDefinition(invalidVersion)).toThrow('Invalid Practice version')
 
     const invalidEvidence = cloneDefinition()
-    invalidEvidence.criteria[0].acceptedEvidence = ['executor-says-so']
+    invalidEvidence.criteria[0]!.acceptedEvidence = ['executor-says-so']
     expect(() => parsePracticeDefinition(invalidEvidence)).toThrow('Unsupported Practice evidence kind')
 
     const invalidDestination = cloneDefinition()
@@ -121,26 +121,26 @@ describe('PracticeDefinitionRepository', () => {
 
   it('rejects duplicate and dangling criterion or dependency references', () => {
     const danglingCriterion = cloneDefinition()
-    danglingCriterion.criteria[0].checklistStepId = 'missing-step'
+    danglingCriterion.criteria[0]!.checklistStepId = 'missing-step'
     expect(() => parsePracticeDefinition(danglingCriterion)).toThrow('unknown checklist step')
 
     const duplicateStep = cloneDefinition()
-    duplicateStep.checklist[1].id = 'open-task'
-    duplicateStep.checklist[1].dependsOn = []
+    duplicateStep.checklist[1]!.id = 'open-task'
+    duplicateStep.checklist[1]!.dependsOn = []
     expect(() => parsePracticeDefinition(duplicateStep)).toThrow('Duplicate Practice checklist step')
 
     const unknownDependency = cloneDefinition()
-    unknownDependency.checklist[1].dependsOn = ['missing-step']
+    unknownDependency.checklist[1]!.dependsOn = ['missing-step']
     expect(() => parsePracticeDefinition(unknownDependency)).toThrow('unknown dependency')
 
     const selfDependency = cloneDefinition()
-    selfDependency.checklist[1].dependsOn = ['review-settings']
+    selfDependency.checklist[1]!.dependsOn = ['review-settings']
     expect(() => parsePracticeDefinition(selfDependency)).toThrow('cannot depend on itself')
   })
 
   it('rejects dependency cycles', () => {
     const cyclic = cloneDefinition()
-    cyclic.checklist[0].dependsOn = ['review-settings']
+    cyclic.checklist[0]!.dependsOn = ['review-settings']
     expect(() => parsePracticeDefinition(cyclic)).toThrow('dependency cycle')
   })
 
@@ -188,6 +188,6 @@ describe('PracticeDefinitionRepository', () => {
     }
 
     expect(() => parsePracticeDefinition(legacy)).toThrow('Invalid Practice definition shape')
-    expect(parseLegacyPracticeDefinitionV1(legacy).checklist[0].dependsOn).toEqual([])
+    expect(parseLegacyPracticeDefinitionV1(legacy).checklist[0]!.dependsOn).toEqual([])
   })
 })

@@ -1,12 +1,15 @@
 import { randomUUID } from 'node:crypto'
 import type {
+  PracticeDefinition,
   PracticeChecklistStep,
+  PracticeIdentity,
   PracticePanelUpdate,
   PracticeStartRequest,
   PracticeWorkspaceAdapter,
   PracticeWorkspaceView
 } from '../../shared/contracts'
 import type { ExecutorChatCoordinator } from './executor-chat-coordinator'
+import { PracticeDefinitionRepository } from './practice-definition-repository'
 import {
   type PracticeRunRecord,
   type PracticeTransitionRecord,
@@ -18,17 +21,13 @@ import {
   selectiveTransferUnavailable
 } from './selective-handoff'
 
-const objective = 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.'
-const expectedOutcome =
-  'Một thay đổi CSS đúng phạm vi, có bằng chứng ở viewport 390px và không gây tràn ngang.'
-
-function initialChecklist(): PracticeChecklistStep[] {
-  return [
-    { id: 'review-objective', title: 'Xem mục tiêu và dấu hiệu hoàn thành', status: 'completed' },
-    { id: 'open-executor', title: 'Mở Executor chat riêng cho Practice', status: 'current' },
-    { id: 'build-and-verify', title: 'Thực hiện thay đổi trong phạm vi đã duyệt', status: 'upcoming' },
-    { id: 'review-evidence', title: 'Duyệt bằng chứng trước khi kết luận', status: 'upcoming' }
-  ]
+function initialChecklist(definition: PracticeDefinition): PracticeChecklistStep[] {
+  return definition.checklist.map((step, index) => ({
+    id: step.id,
+    title: step.title,
+    status: index === 0 ? 'current' : 'pending',
+    dependencyInputs: {}
+  }))
 }
 
 function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
@@ -61,18 +60,19 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
 
   constructor(
     private readonly repository: PracticeRunRepository,
+    private readonly definitions: PracticeDefinitionRepository,
     private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'prepareTarget' | 'openTarget'>,
     private readonly now: () => Date = () => new Date(),
     private readonly createId: () => string = randomUUID,
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>
   ) {}
 
-  async loadWorkspace(): Promise<PracticeWorkspaceView> {
+  async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     const record = await this.repository.load()
     if (record.pendingTransition && !this.lastError) {
       this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
     }
-    return this.toView(record)
+    return this.toView(record, identity)
   }
 
   startNew(request: PracticeStartRequest): Promise<PracticeWorkspaceView> {
@@ -81,11 +81,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       this.lastError = ''
       const record = await this.repository.load()
       if (record.pendingTransition) throw new Error('A Practice switch is already pending')
+      await this.definitions.load(request.practiceId, request.practiceVersion)
       const startedAt = this.now().toISOString()
       const transition: PracticeTransitionRecord = {
         transitionId: this.createId(),
         sourceRunId: record.activeRun?.runId ?? null,
         targetRunId: this.createId(),
+        practiceId: request.practiceId,
+        practiceVersion: request.practiceVersion,
         stage: 'creating-target',
         startedAt
       }
@@ -109,11 +112,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     })
   }
 
-  resume(): Promise<PracticeWorkspaceView> {
+  resume(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       const record = await this.repository.load()
       if (!record.activeRun || record.pendingTransition) {
         throw new Error('Không có Practice đang hoạt động để tiếp tục.')
+      }
+      if (identity
+        && (record.activeRun.practiceId !== identity.practiceId
+          || record.activeRun.practiceVersion !== identity.practiceVersion)) {
+        throw new Error('Practice đang hoạt động không khớp nội dung được yêu cầu.')
       }
       await this.openTarget(record.activeRun.binding, false)
       return this.toView(record)
@@ -207,19 +215,30 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     if (transition?.stage !== 'target-created' || !transition.targetBinding) {
       throw new Error('Practice target is not ready')
     }
+    const definition = await this.definitions.load(
+      transition.practiceId,
+      transition.practiceVersion
+    )
     const timestamp = this.now().toISOString()
     const generation = (record.activeRun?.generation ?? 0) + 1
     const activeRun: PracticeRunRecord = {
       runId: transition.targetRunId,
       generation,
-      practiceId: 'm1-verifiable-brief',
-      practiceVersion: '1.0.0',
+      practiceId: definition.practiceId,
+      practiceVersion: definition.version,
+      workspaceKind: definition.workspaceKind,
+      taskPolicy: definition.taskPolicy,
+      evidenceProfile: definition.evidenceProfile,
       reviewStatus: 'not-reviewed',
       status: 'active',
       binding: transition.targetBinding,
       startedAt: transition.startedAt,
       updatedAt: timestamp,
-      checklist: initialChecklist()
+      checklist: initialChecklist(definition),
+      learnerDecisions: {},
+      learnerApprovals: {},
+      evidence: null,
+      invalidations: []
     }
     const archivedRuns = record.activeRun
       ? [
@@ -227,8 +246,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           {
             runId: record.activeRun.runId,
             generation: record.activeRun.generation,
+            practiceId: record.activeRun.practiceId,
+            practiceVersion: record.activeRun.practiceVersion,
             threadId: record.activeRun.binding.threadId,
             name: record.activeRun.binding.name,
+            outcome: 'replaced' as const,
             archivedAt: timestamp
           }
         ].slice(-100)
@@ -242,14 +264,25 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     })
   }
 
-  private toView(record: PracticeWorkspaceRecord): PracticeWorkspaceView {
+  private async toView(
+    record: PracticeWorkspaceRecord,
+    requestedIdentity?: PracticeIdentity
+  ): Promise<PracticeWorkspaceView> {
     const transition = record.pendingTransition
+    const identity = record.activeRun
+      ?? transition
+      ?? requestedIdentity
+    const definition = identity
+      ? await this.definitions.load(identity.practiceId, identity.practiceVersion)
+      : null
     return {
       schemaVersion: 1,
       phase: transition ? 'switching' : record.activeRun ? 'active' : this.lastError ? 'error' : 'brief',
-      objective,
-      expectedOutcome,
-      checklist: structuredClone(record.activeRun?.checklist ?? initialChecklist()),
+      objective: definition?.objective ?? '',
+      expectedOutcome: definition?.expectedOutcome ?? '',
+      checklist: structuredClone(
+        record.activeRun?.checklist ?? (definition ? initialChecklist(definition) : [])
+      ),
       review: {
         status: record.activeRun?.reviewStatus ?? 'not-reviewed',
         canReview: Boolean(record.activeRun && !transition),
@@ -263,6 +296,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         ? {
             activePractice: {
               runId: record.activeRun.runId,
+              practiceId: record.activeRun.practiceId,
+              practiceVersion: record.activeRun.practiceVersion,
               executorChatName: record.activeRun.binding.name,
               startedAt: record.activeRun.startedAt
             }

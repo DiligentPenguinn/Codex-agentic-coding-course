@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   defaultPracticeWorkspaceRecord,
   PracticeRunRepository,
+  type PracticeRunRecord,
   type PracticeWorkspaceRecord
 } from '../electron/main/practice-run-repository'
 
@@ -22,40 +23,44 @@ afterEach(async () => {
   )
 })
 
-function activeRecord(): PracticeWorkspaceRecord {
+function activeRun(overrides: Partial<PracticeRunRecord> = {}): PracticeRunRecord {
   return {
-    ...defaultPracticeWorkspaceRecord(),
-    activeRun: {
+    runId: 'run-1',
+    generation: 1,
+    status: 'active',
+    practiceId: 'm1-codex-safe-setup',
+    practiceVersion: '2.0.0',
+    workspaceKind: 'pilot-workspace',
+    taskPolicy: 'inherit-configuration-only',
+    evidenceProfile: 'codex-task-configuration',
+    binding: {
       runId: 'run-1',
-      generation: 1,
-      status: 'active',
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      reviewStatus: 'not-reviewed',
-      binding: {
-        runId: 'run-1',
-        threadId: 'thread-1',
-        name: 'Practice · Module 1',
-        workspaceRoot: 'D:\\course',
-        createdAt: '2026-08-08T00:00:00.000Z'
-      },
-      startedAt: '2026-08-08T00:00:00.000Z',
-      updatedAt: '2026-08-08T00:00:00.000Z',
-      checklist: [
-        { id: 'review', title: 'Review objective', status: 'completed' },
-        { id: 'open', title: 'Open Executor chat', status: 'current' }
-      ]
-    }
+      threadId: 'thread-1',
+      name: 'Practice · Thiết lập Codex',
+      workspaceRoot: 'D:\\course',
+      createdAt: '2026-08-08T00:00:00.000Z'
+    },
+    startedAt: '2026-08-08T00:00:00.000Z',
+    updatedAt: '2026-08-08T00:00:00.000Z',
+    checklist: [
+      { id: 'open-task', title: 'Mở task', status: 'current', dependencyInputs: {} },
+      { id: 'review-settings', title: 'Duyệt cấu hình', status: 'pending', dependencyInputs: {} }
+    ],
+    learnerDecisions: {},
+    learnerApprovals: {},
+    evidence: null,
+    invalidations: [],
+    reviewStatus: 'not-reviewed',
+    ...overrides
   }
 }
 
-describe('PracticeRunRepository', () => {
-  it('starts with no active Practice and Teacher selected on both surfaces', async () => {
-    const repository = new PracticeRunRepository(await temporaryDirectory())
-    await expect(repository.load()).resolves.toEqual(defaultPracticeWorkspaceRecord())
-  })
+function activeRecord(run = activeRun()): PracticeWorkspaceRecord {
+  return { ...defaultPracticeWorkspaceRecord(), activeRun: run }
+}
 
-  it('writes one validated active Practice atomically', async () => {
+describe('PracticeRunRepository', () => {
+  it('persists a schema-2 run with explicit identity and policy fields', async () => {
     const directory = await temporaryDirectory()
     const repository = new PracticeRunRepository(directory)
     const record = activeRecord()
@@ -65,136 +70,182 @@ describe('PracticeRunRepository', () => {
     expect(JSON.parse(await readFile(join(directory, 'practice-runs.json'), 'utf8'))).toEqual(record)
   })
 
-  it('quarantines invalid state instead of inventing an active Practice', async () => {
+  it('archives a historical schema-1 active run instead of reinterpreting it', async () => {
     const directory = await temporaryDirectory()
-    await writeFile(join(directory, 'practice-runs.json'), '{"schemaVersion":1,"activeRun":{}}', 'utf8')
-    const repository = new PracticeRunRepository(directory)
+    const historical = {
+      schemaVersion: 1,
+      activeRun: {
+        runId: 'old-run',
+        generation: 3,
+        practiceId: 'm1-verifiable-brief',
+        practiceVersion: '1.0.0',
+        binding: {
+          runId: 'old-run',
+          threadId: 'old-thread',
+          name: 'Historical CSS Practice',
+          workspaceRoot: 'D:\\course',
+          createdAt: '2026-08-01T00:00:00.000Z'
+        }
+      },
+      archivedRuns: [],
+      pendingTransition: null,
+      presentation: { fullPanel: 'progress', compactPanel: 'teacher' }
+    }
+    await writeFile(join(directory, 'practice-runs.json'), JSON.stringify(historical), 'utf8')
 
-    await expect(repository.load()).resolves.toEqual(defaultPracticeWorkspaceRecord())
-    await expect(readFile(join(directory, 'practice-runs.corrupt.json'), 'utf8')).resolves.toContain('activeRun')
-  })
+    const migrated = await new PracticeRunRepository(directory).load()
 
-  it('rejects mismatched binding identity and more than one current checklist step', async () => {
-    const repository = new PracticeRunRepository(await temporaryDirectory())
-    const record = activeRecord()
-    if (!record.activeRun) throw new Error('fixture missing active run')
-    record.activeRun.binding.runId = 'another-run'
-    record.activeRun.checklist.push({ id: 'second-current', title: 'Second', status: 'current' })
-
-    await expect(repository.save(record)).rejects.toThrow('Invalid Practice workspace record')
-  })
-
-  it('updates panel selection atomically without replacing active review state', async () => {
-    const repository = new PracticeRunRepository(await temporaryDirectory())
-    await repository.save(activeRecord())
-    await repository.beginReview({
-      runId: 'run-1',
-      generation: 1,
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      updatedAt: '2026-08-09T00:00:00.000Z'
-    })
-
-    const selected = await repository.selectPanel('compact', 'progress')
-
-    expect(selected.presentation.compactPanel).toBe('progress')
-    expect(selected.activeRun?.reviewStatus).toBe('reviewing')
-    await expect(repository.load()).resolves.toMatchObject({
-      activeRun: { reviewStatus: 'reviewing' },
-      presentation: { compactPanel: 'progress' }
-    })
-  })
-
-  it('advances the active checklist conservatively and never moves it backward', async () => {
-    const repository = new PracticeRunRepository(await temporaryDirectory())
-    const record = activeRecord()
-    if (!record.activeRun) throw new Error('fixture missing active run')
-    record.activeRun.checklist = [
-      { id: 'review-objective', title: 'Review objective', status: 'completed' },
-      { id: 'open-executor', title: 'Open Executor', status: 'current' },
-      { id: 'build-and-verify', title: 'Build', status: 'upcoming' },
-      { id: 'review-evidence', title: 'Review evidence', status: 'upcoming' }
-    ]
-    await repository.save(record)
-
-    const advanced = await repository.advanceChecklist(
-      'run-1',
-      'review-evidence',
-      '2026-08-09T00:00:00.000Z'
-    )
-    expect(advanced.activeRun?.checklist.map((step) => step.status)).toEqual([
-      'completed', 'completed', 'completed', 'current'
+    expect(migrated.schemaVersion).toBe(2)
+    expect(migrated.activeRun).toBeNull()
+    expect(migrated.archivedRuns).toEqual([
+      expect.objectContaining({
+        runId: 'old-run',
+        practiceId: 'm1-verifiable-brief',
+        outcome: 'historical'
+      })
     ])
-
-    const unchanged = await repository.advanceChecklist(
-      'run-1',
-      'build-and-verify',
-      '2026-08-09T00:00:01.000Z'
-    )
-    expect(unchanged.activeRun?.checklist).toEqual(advanced.activeRun?.checklist)
+    expect(migrated.presentation).toEqual({ fullPanel: 'progress', compactPanel: 'teacher' })
   })
 
-  it('persists one authoritative review and ignores a stale generation', async () => {
+  it('rejects unsafe policy/profile combinations and mismatched bindings', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    const unsafe = activeRecord(activeRun({
+      taskPolicy: 'safe-workspace-write',
+      binding: { ...activeRun().binding, runId: 'another-run' }
+    }))
+
+    await expect(repository.save(unsafe)).rejects.toThrow('Invalid Practice workspace record')
+  })
+
+  it('guards checklist and learner-decision writes by run, generation, Practice, and version', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory())
     await repository.save(activeRecord())
-    const result = {
-      schemaVersion: 1 as const,
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      runId: 'run-1',
-      verdict: 'passed' as const,
-      criteria: [],
-      summary: 'Passed.',
-      reviewedAt: '2026-08-09T00:00:00.000Z',
-      sourceDigest: 'a'.repeat(64)
-    }
-    const checklist = [
-      { id: 'review', title: 'Review objective', status: 'completed' as const },
-      { id: 'open', title: 'Open Executor chat', status: 'completed' as const }
-    ]
-    const completion = {
-      schemaVersion: 1 as const,
-      courseRunId: 'course-run-1',
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      runId: 'run-1',
-      checkpointId: 'm1-plan-approval' as const,
-      status: 'completed' as const,
-      completedAt: '2026-08-09T00:00:00.000Z',
-      evidenceSummary: 'Passed.',
-      masterySummary: 'Complete.',
-      destination: {
-        lessonId: 'module-1' as const,
-        checkpointId: 'm1-review' as const,
-        sceneId: 'module-1-reflection' as const
-      }
-    }
-
-    const saved = await repository.saveReview({
+    const identity = {
       runId: 'run-1',
       generation: 1,
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      result,
-      checklist,
-      completion,
-      updatedAt: result.reviewedAt
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0'
+    }
+
+    const decided = await repository.saveLearnerDecision({
+      ...identity,
+      key: 'configuration-review',
+      value: 'reviewed',
+      updatedAt: '2026-08-08T00:01:00.000Z'
     })
-    expect(saved.activeRun).toMatchObject({
+    expect(decided.activeRun?.learnerDecisions).toEqual({ 'configuration-review': 'reviewed' })
+
+    const stale = await repository.advanceChecklist({
+      ...identity,
+      generation: 2,
+      currentStepId: 'review-settings',
+      updatedAt: '2026-08-08T00:02:00.000Z'
+    })
+    expect(stale.activeRun?.checklist[0]?.status).toBe('current')
+
+    const advanced = await repository.advanceChecklist({
+      ...identity,
+      currentStepId: 'review-settings',
+      updatedAt: '2026-08-08T00:03:00.000Z'
+    })
+    expect(advanced.activeRun?.checklist.map((step) => step.status)).toEqual(['completed', 'current'])
+  })
+
+  it('persists evidence and invalidation while clearing an obsolete pass', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    await repository.save(activeRecord(activeRun({
       reviewStatus: 'passed',
-      completion: { runId: 'run-1' }
+      reviewResult: {
+        schemaVersion: 1,
+        practiceId: 'm1-codex-safe-setup',
+        practiceVersion: '2.0.0',
+        runId: 'run-1',
+        verdict: 'passed',
+        criteria: [],
+        summary: 'Passed',
+        reviewedAt: '2026-08-08T00:00:00.000Z',
+        sourceDigest: 'a'.repeat(64)
+      }
+    })))
+    const identity = {
+      runId: 'run-1',
+      generation: 1,
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0'
+    }
+    const invalidation = {
+      changedInput: 'settings',
+      affectedStepIds: ['review-settings'],
+      reason: 'Cấu hình đã thay đổi.',
+      nextAction: 'Duyệt lại cấu hình.'
+    }
+    const saved = await repository.saveEvidence({
+      ...identity,
+      evidence: {
+        schemaVersion: 1,
+        practiceId: identity.practiceId,
+        practiceVersion: identity.practiceVersion,
+        runId: identity.runId,
+        evidenceProfile: 'codex-task-configuration',
+        observedAt: '2026-08-08T00:05:00.000Z',
+        freshness: 'fresh',
+        sourceDigest: 'b'.repeat(64),
+        evidence: [],
+        steps: [],
+        invalidations: [invalidation]
+      },
+      checklist: [
+        { id: 'open-task', title: 'Mở task', status: 'completed', dependencyInputs: {} },
+        { id: 'review-settings', title: 'Duyệt cấu hình', status: 'stale', reason: invalidation.reason, dependencyInputs: {} }
+      ],
+      invalidations: [invalidation],
+      updatedAt: '2026-08-08T00:05:00.000Z'
     })
 
-    const stale = await repository.saveReview({
-      runId: 'run-1',
-      generation: 2,
-      practiceId: 'generic-practice',
-      practiceVersion: '1.0.0',
-      result: { ...result, sourceDigest: 'b'.repeat(64) },
-      checklist,
-      completion,
-      updatedAt: '2026-08-09T00:01:00.000Z'
+    expect(saved.activeRun).toMatchObject({
+      reviewStatus: 'not-reviewed',
+      reviewResult: undefined,
+      invalidations: [{ changedInput: 'settings' }]
     })
-    expect(stale.activeRun?.reviewResult?.sourceDigest).toBe('a'.repeat(64))
+  })
+
+  it('recovers an interrupted review without changing run identity', async () => {
+    const directory = await temporaryDirectory()
+    const first = new PracticeRunRepository(directory)
+    await first.save(activeRecord(activeRun({ reviewStatus: 'reviewing' })))
+
+    await expect(new PracticeRunRepository(directory).load()).resolves.toMatchObject({
+      activeRun: {
+        runId: 'run-1',
+        practiceId: 'm1-codex-safe-setup',
+        practiceVersion: '2.0.0',
+        reviewStatus: 'not-reviewed'
+      }
+    })
+  })
+
+  it('keeps multiple Practice identities separate across archived receipts', async () => {
+    const record = activeRecord(activeRun({
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      taskPolicy: 'safe-workspace-write',
+      evidenceProfile: 'planning-package'
+    }))
+    record.archivedRuns.push({
+      runId: 'run-m1',
+      generation: 1,
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
+      threadId: 'thread-m1',
+      name: 'Module 1 Practice',
+      outcome: 'replaced',
+      archivedAt: '2026-08-08T00:00:00.000Z'
+    })
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+
+    await expect(repository.save(record)).resolves.toMatchObject({
+      activeRun: { practiceId: 'm2-planning-package' },
+      archivedRuns: [{ practiceId: 'm1-codex-safe-setup' }]
+    })
   })
 })

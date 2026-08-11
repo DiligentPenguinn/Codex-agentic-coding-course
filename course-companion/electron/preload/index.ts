@@ -12,6 +12,7 @@ import type {
   PracticeStartRequest,
   PracticeWorkspaceView,
   PracticeFixtureRequest,
+  PracticeIdentity,
   PracticeState,
   ProgressLoadResult,
   ProgressUpdate,
@@ -35,12 +36,12 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:load-practice-state') as Promise<PracticeState>,
   emitPracticeFixture: (request: PracticeFixtureRequest) =>
     ipcRenderer.invoke('course:emit-practice-fixture', request) as Promise<PracticeState>,
-  loadPracticeWorkspace: () =>
-    ipcRenderer.invoke('course:load-practice-workspace') as Promise<PracticeWorkspaceView>,
+  loadPracticeWorkspace: (identity?: PracticeIdentity) =>
+    ipcRenderer.invoke('course:load-practice-workspace', identity) as Promise<PracticeWorkspaceView>,
   startPractice: (request: PracticeStartRequest) =>
     ipcRenderer.invoke('course:start-practice', request) as Promise<PracticeWorkspaceView>,
-  resumePractice: () =>
-    ipcRenderer.invoke('course:resume-practice') as Promise<PracticeWorkspaceView>,
+  resumePractice: (identity?: PracticeIdentity) =>
+    ipcRenderer.invoke('course:resume-practice', identity) as Promise<PracticeWorkspaceView>,
   retryPracticeSwitch: () =>
     ipcRenderer.invoke('course:retry-practice-switch') as Promise<PracticeWorkspaceView>,
   cancelPracticeSwitch: () =>

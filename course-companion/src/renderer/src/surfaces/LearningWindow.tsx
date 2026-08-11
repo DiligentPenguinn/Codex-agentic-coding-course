@@ -2381,7 +2381,12 @@ export function LearningWindow() {
       </section>
 
       {practiceBriefOpen ? (
-        <PracticeBrief onClose={() => setPracticeBriefOpen(false)} />
+        <PracticeBrief
+          identity={progress.currentLessonId === 'module-1'
+            ? { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }
+            : { practiceId: 'm2-planning-package', practiceVersion: '2.0.0' }}
+          onClose={() => setPracticeBriefOpen(false)}
+        />
       ) : null}
 
       {teacherOpen ? (

@@ -12,6 +12,7 @@ import type {
 import type { CodexConnectionState } from './codex-app-server-client'
 import { ExecutorActivityObserver } from './executor-activity-observer'
 import { ExecutorActivityRepository } from './executor-activity-repository'
+import { PracticeDefinitionRepository } from './practice-definition-repository'
 import type { PracticeRunRecord } from './practice-run-repository'
 import { PracticeRunRepository } from './practice-run-repository'
 import { ProgressRepository } from './progress-repository'
@@ -19,9 +20,6 @@ import { RealTeacherAdapter, TeacherInferenceError, type RunSummaryProposal } fr
 import { buildTeacherEnvelope, buildTeacherTurnInput, sourceDigest } from './teacher-context-broker'
 import { TeacherChatRepository } from './teacher-fixture'
 import { TeacherMemoryRepository } from './teacher-memory-repository'
-
-const PRACTICE_ID = 'm1-verifiable-brief'
-const OBJECTIVE = 'Tạo một brief kiểm chứng được trước khi cho Codex thay đổi giao diện.'
 
 export function conversationForRun(conversation: TeacherConversation, runId: string | null): TeacherConversation {
   return {
@@ -47,6 +45,7 @@ export class TeacherService {
     private readonly chatRepository: TeacherChatRepository,
     private readonly progressRepository: ProgressRepository,
     private readonly practiceRepository: PracticeRunRepository,
+    private readonly definitionRepository: PracticeDefinitionRepository,
     private readonly activityRepository: ExecutorActivityRepository,
     private readonly activityObserver: ExecutorActivityObserver,
     private readonly memoryRepository: TeacherMemoryRepository,
@@ -130,7 +129,14 @@ export class TeacherService {
       const hasExecutorActivity = activity.learnerPrompts.length > 0 || activity.executorResponses.length > 0
       const target = hasConfirmedChange ? 'review-evidence' as const : hasExecutorActivity ? 'build-and-verify' as const : null
       if (target) {
-        workspace = await this.practiceRepository.advanceChecklist(workspace.activeRun.runId, target, activity.observedAt)
+        workspace = await this.practiceRepository.advanceChecklist({
+          runId: workspace.activeRun.runId,
+          generation: workspace.activeRun.generation,
+          practiceId: workspace.activeRun.practiceId,
+          practiceVersion: workspace.activeRun.practiceVersion,
+          currentStepId: target,
+          updatedAt: activity.observedAt
+        })
       }
     }
     return { activity, activeRun: workspace.activeRun }
@@ -198,8 +204,15 @@ export class TeacherService {
         this.chatRepository.loadConversation()
       ])
       const activity = activityState.activity
+      const definition = workspace.activeRun
+        ? await this.definitionRepository.load(
+            workspace.activeRun.practiceId,
+            workspace.activeRun.practiceVersion
+          )
+        : null
       const context = buildTeacherEnvelope({
         progress: progressResult.progress,
+        definition,
         activeRun: workspace.activeRun,
         activity,
         memory,
@@ -252,9 +265,10 @@ export class TeacherService {
 
   async summarizeReplacedRun(run: PracticeRunRecord): Promise<PracticeRunSummary> {
     const generation = this.generation
-    const [activity, conversation] = await Promise.all([
+    const [activity, conversation, definition] = await Promise.all([
       this.activityRepository.load(run.runId),
-      this.chatRepository.loadConversation()
+      this.chatRepository.loadConversation(),
+      this.definitionRepository.load(run.practiceId, run.practiceVersion)
     ])
     const frozen = {
       run,
@@ -263,11 +277,11 @@ export class TeacherService {
     }
     const base = {
       schemaVersion: 1 as const,
-      practiceId: PRACTICE_ID,
+      practiceId: run.practiceId,
       runId: run.runId,
       attempt: run.generation,
       outcome: 'replaced' as const,
-      objective: OBJECTIVE,
+      objective: definition.objective,
       startedAt: run.startedAt,
       endedAt: this.now().toISOString(),
       sourceDigest: sourceDigest(frozen),
@@ -312,7 +326,7 @@ export class TeacherService {
         verificationEvidence: groundedVerificationEvidence(activity),
         learningSignals: [],
         unresolvedIssues: groundedUnresolvedIssues([
-          'Cần Hương hoàn thiện bản tóm tắt khi kết nối được khôi phục.'
+          'Cần Triết hoàn thiện bản tóm tắt khi kết nối được khôi phục.'
         ], activity),
         nextAttemptGuidance: [],
         summarizedAt: this.now().toISOString(),
@@ -474,13 +488,13 @@ function validateProposal(
 
 function teacherFailureMessage(error: unknown): string {
   if (!(error instanceof TeacherInferenceError)) {
-    return 'Hương gặp lỗi không xác định. Tin nhắn đã được lưu; hãy thử lại.'
+    return 'Triết gặp lỗi không xác định. Tin nhắn đã được lưu; hãy thử lại.'
   }
   if (error.code === 'TEACHER_TIMEOUT') {
-    return 'Hương phản hồi quá thời gian. Tin nhắn đã được lưu; hãy thử lại.'
+    return 'Triết phản hồi quá thời gian. Tin nhắn đã được lưu; hãy thử lại.'
   }
   if (error.code === 'TEACHER_MODEL_UNAVAILABLE' || /newer version|upgrade/i.test(error.message)) {
-    return 'Codex hiện tại không có model tương thích cho Hương. Hãy cập nhật Codex rồi thử lại.'
+    return 'Codex hiện tại không có model tương thích cho Triết. Hãy cập nhật Codex rồi thử lại.'
   }
-  return 'Hương tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.'
+  return 'Triết tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.'
 }

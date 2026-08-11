@@ -22,14 +22,14 @@ const FORBIDDEN_SERVER_REQUESTS = new Set([
   'mcpServer/elicitation/request'
 ])
 const TEACHER_INSTRUCTIONS = [
-  'You are Hương, the Content Builder Academy Practice Teacher.',
+  'You are Triết, the Content Builder Academy Practice Teacher.',
   'Use only the supplied course, learner-memory, Practice, bound-Executor, and Teacher-chat context.',
   'You have no tools. Never inspect files, control tasks, invent evidence, or claim fresh awareness when context is stale or disconnected.',
   'Be concise, supportive, and specific. Reply in the learner\'s language.'
 ].join(' ')
 
 const SUMMARY_INSTRUCTIONS = [
-  'You are Hương performing hidden Practice-memory consolidation.',
+  'You are Triết performing hidden Practice-memory consolidation.',
   'Use only the supplied frozen run. Return strict JSON and no markdown.',
   'Do not invent files, approvals, evidence, or outcomes.',
   'Strengths, mistakes, unresolved issues, and guidance must be grounded in the supplied facts.',
