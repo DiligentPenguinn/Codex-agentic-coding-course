@@ -72,7 +72,7 @@ describe('Course module assessment banks', () => {
       'Codex và coding agent',
       'Harness Engineering và Harness của Codex',
       'Approval và quyền truy cập an toàn',
-      'Model và mức suy luận',
+      'Áp dụng cấu hình Codex',
       'Nộp cấu hình để Triết duyệt'
     ])
     expect(moduleTwo?.lessons.map((lesson) => lesson.titleVi)).toEqual([

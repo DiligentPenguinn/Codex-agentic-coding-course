@@ -14,10 +14,32 @@ chọn phạm vi và duyệt kết quả cuối cùng."
 `course/codex-setup/index.html` với nhãn **Mở phần giới thiệu Codex**. Không chạy
 server và không yêu cầu cài dependency.]
 
-[Dừng chờ Learner xem hai trang đầu. Sau đó hỏi: "Coding agent khác một chatbot
-chỉ trả lời ở điểm nào?" Đạt khi Learner nêu được ít nhất một khả năng hành động
-như đọc tệp, dùng công cụ, chạy lệnh hoặc kiểm tra kết quả. Checkpoint
-`m1-codex-orientation`.]
+Teacher nói: "Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu
+Model, Effort và Speed. Model chọn dòng model phù hợp với công việc. Effort điều
+chỉnh lượng công sức dành cho phân tích. Speed chọn tốc độ xử lý."
+
+Teacher nói: "Trong dòng GPT-5.6, Sol có năng lực cao nhất cho công việc chuyên
+môn phức tạp. Terra cân bằng giữa năng lực và chi phí. Luna dành cho công việc
+cần tiết kiệm chi phí hoặc xử lý số lượng lớn."
+
+Teacher nói: "Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc
+nhiều bước. Extra High và Ultra dành cho nhiệm vụ khó hơn. Trong những lần mình
+thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ
+lại mất nhiều thời gian hơn."
+
+Teacher nói: "OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ
+này dùng credit ở mức 2,5 lần Standard. Trong những lần mình thử, Fast thường
+chỉ nhanh hơn Standard khoảng 0,5 giây. Vì vậy, mình không chọn Fast làm mặc
+định."
+
+[Trình bày toàn bộ phần Model, Effort, Speed và cấu hình đề xuất trên một màn
+hình lớn. Đặt nội dung cạnh ảnh `model-settings.png`. Teacher Triết chỉ xuất
+hiện như một nhân vật nhỏ ở góc, không có nhãn.]
+
+[Dừng chờ Learner xem phần giới thiệu Codex và màn hình Model, Effort, Speed.
+Sau đó hỏi: "Coding agent khác một chatbot chỉ trả lời ở điểm nào?" Đạt khi
+Learner nêu được ít nhất một khả năng hành động như đọc tệp, dùng công cụ, chạy
+lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
 ## Bước 2 — Harness Engineering (`m1-agents-guidance`, `m1-skills`)
 
@@ -52,35 +74,14 @@ access. Course Companion chỉ ghi lại lựa chọn này; bạn sẽ cài th�
 nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
 `approvalApproach=approve-for-me-no-full-access`. Checkpoint `m1-permissions`.]
 
-## Bước 4 — Model và reasoning effort (`m1-model-choice`)
-
-Teacher nói: "Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn,
-thường được gọi là LLM. Sol có năng lực cao nhất cho công việc chuyên môn phức
-tạp. Terra cân bằng giữa năng lực và chi phí. Luna dành cho công việc cần tiết
-kiệm chi phí hoặc xử lý số lượng lớn."
-
-Teacher nói: "Reasoning effort là lượng công sức model dành cho phân tích. Light
-phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc nhiều bước. Extra
-High và Ultra dành cho nhiệm vụ khó hơn."
-
-Teacher nói: "Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn
-cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn. Vì vậy, bạn
-chưa cần dùng Extra High hoặc Ultra cho ContentPilot."
-
-Teacher nói: "OpenAI cho biết Fast có thể tăng tốc 1,5 lần, nhưng GPT-5.6 dùng
-credit ở mức 2,5 lần Standard. Trong những lần mình thử, Fast thường chỉ nhanh
-hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm
-mặc định."
+## Bước 4 — Áp dụng cấu hình Codex (`m1-model-choice`)
 
 Teacher nói: "Cấu hình khóa học đề xuất là 5.6 Sol, High, Standard và Approve
 for me. Full access để tắt. Đây là cấu hình của khóa học, không phải thiết lập
 mặc định của mọi tài khoản Codex."
 
-[Trình bày phần này trên hai trang lớn. Trang đầu đặt ba model cạnh ảnh
-`model-settings.png`. Trang sau đặt Effort, Speed và cấu hình đề xuất cạnh ảnh
-`reasoning-levels.png`. Teacher Triết chỉ xuất hiện như một nhân vật nhỏ ở góc,
-không có nhãn. Ghi quyết định `modelChoice=sol-high-standard`. Checkpoint
-`m1-model-choice`.]
+[Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
+định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
 
 ## Bước 5 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 

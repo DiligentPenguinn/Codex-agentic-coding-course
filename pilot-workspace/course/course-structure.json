@@ -72,7 +72,7 @@
         {
           "id": "m1-understand-codex",
           "titleVi": "Codex và coding agent",
-          "estimatedMinutes": 8,
+          "estimatedMinutes": 16,
           "checkpoints": [
             "m1-codex-orientation"
           ]
@@ -96,8 +96,8 @@
         },
         {
           "id": "m1-skills-and-checklist",
-          "titleVi": "Model và mức suy luận",
-          "estimatedMinutes": 12,
+          "titleVi": "Áp dụng cấu hình Codex",
+          "estimatedMinutes": 4,
           "checkpoints": [
             "m1-model-choice"
           ]

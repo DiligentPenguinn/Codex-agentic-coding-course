@@ -254,7 +254,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
-    objective: 'Ba lựa chọn nằm ngay cạnh ô gửi',
+    objective: 'Model, Effort và Speed: chọn thế nào?',
     panelLabel: 'MODEL',
     panelStatus: 'CHỌN CÁCH CODEX XỬ LÝ CÔNG VIỆC',
     tone: 'neutral',
@@ -264,7 +264,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'EFFORT', value: 'Mức suy luận' },
       { label: 'SPEED', value: 'Tốc độ xử lý' }
     ],
-    dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Khi mở menu, Codex hiển thị ba mục: Model, Effort và Speed. Model chọn khả năng chính, Effort điều chỉnh mức suy luận, còn Speed thay đổi tốc độ xử lý. Bạn sẽ tìm hiểu cách chọn từng mục ở bài Model và mức suy luận.',
+    dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu Model, Effort và Speed. Màn hình này giải thích từng lựa chọn, các trường hợp sử dụng và cấu hình khóa học đề xuất cho ContentPilot.',
     choices: [{ label: 'Tiếp theo: Lệnh /', next: 'module-1-codex-slash-commands', primary: true }]
   },
   'module-1-codex-slash-commands': {
@@ -414,18 +414,18 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
-    objective: 'Ba dòng model phục vụ ba nhu cầu',
-    panelLabel: 'SOL · TERRA · LUNA',
-    panelStatus: 'CHỌN THEO CÔNG VIỆC',
-    tone: 'neutral',
-    request: 'Tên model không phải cấp độ người học phải vượt qua.',
+    objective: 'Áp dụng cấu hình đã chọn',
+    panelLabel: 'CẤU HÌNH CONTENTPILOT',
+    panelStatus: '5.6 SOL · HIGH · STANDARD',
+    tone: 'good',
+    request: 'Dùng một cấu hình xuyên suốt phần thực hành để dễ đối chiếu kết quả.',
     evidence: [
       { label: 'SOL', value: 'Phức tạp hoặc mơ hồ' },
       { label: 'TERRA', value: 'Công việc hằng ngày' },
       { label: 'LUNA', value: 'Rõ và lặp lại' }
     ],
-    dialogue: 'Sol là dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ. Terra cân bằng cho công việc hằng ngày. Luna nhanh và tiết kiệm cho yêu cầu rõ, lặp lại hoặc có đầu ra cố định.',
-    choices: [{ label: 'Tiếp theo: Effort và Speed', next: 'module-1-reasoning-effort', primary: true }]
+    dialogue: 'Bạn đã tìm hiểu Model, Effort và Speed ở phần làm quen với giao diện. Bây giờ hãy dùng 5.6 Sol, High và Standard cho ContentPilot.',
+    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-model-use-cases': {
     lessonId: 'module-1',
@@ -445,7 +445,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'LUNA', value: 'Phân loại danh sách nội dung' }
     ],
     dialogue: 'Với ContentPilot, Sol phù hợp khi ta còn phải quyết định kiến trúc và luồng sử dụng. Terra phù hợp khi sửa một tính năng đã có yêu cầu rõ. Luna phù hợp khi chuyển đổi hoặc phân loại một danh sách theo tiêu chí cố định.',
-    choices: [{ label: 'Tìm hiểu reasoning effort', next: 'module-1-reasoning-effort', primary: true }]
+    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-reasoning-effort': {
     lessonId: 'module-1',
@@ -1271,8 +1271,7 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-1-skills']
   ],
   'm1-skills-and-checklist': [
-    ['module-1-model-choice', 'module-1-model-use-cases'],
-    ['module-1-reasoning-effort', 'module-1-project-setup']
+    ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
   ],
   'm1-assessment': [
     ['module-1-setup-checklist'],
@@ -1558,12 +1557,14 @@ function LessonVisualLightbox({
   )
 }
 
-type ModelLessonBoardKind = 'orientation' | 'models' | 'effort-speed'
+type ModelLessonBoardKind = 'complete' | 'apply'
 
 const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = {
-  'module-1-codex-model-intro': 'orientation',
-  'module-1-model-choice': 'models',
-  'module-1-reasoning-effort': 'effort-speed'
+  'module-1-codex-model-intro': 'complete',
+  'module-1-model-choice': 'apply',
+  'module-1-model-use-cases': 'apply',
+  'module-1-reasoning-effort': 'apply',
+  'module-1-project-setup': 'apply'
 }
 
 function ModelLessonBoard({
@@ -1590,29 +1591,14 @@ function ModelLessonBoard({
   return (
     <section className={`pixel-model-board is-${kind}`} aria-labelledby={titleId}>
       <div className="pixel-model-board__copy">
-        {kind === 'orientation' ? (
+        {kind === 'complete' ? (
           <>
             <header>
-              <small>LÀM QUEN VỚI GIAO DIỆN</small>
-              <h1 id={titleId}>Ba lựa chọn nằm cạnh ô gửi</h1>
-              <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Khi mở menu, Codex hiển thị Model, Effort và Speed.</p>
+              <small>MODEL · EFFORT · SPEED</small>
+              <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
+              <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
             </header>
-            <dl className="pixel-model-board__definitions">
-              <div><dt>Model</dt><dd>Chọn dòng model phù hợp với công việc.</dd></div>
-              <div><dt>Effort</dt><dd>Điều chỉnh lượng công sức dành cho phân tích.</dd></div>
-              <div><dt>Speed</dt><dd>Chọn tốc độ xử lý Standard hoặc Fast.</dd></div>
-            </dl>
-            <p className="pixel-model-board__note">Bạn chưa cần đổi thiết lập ở đây. Trong bài Model và mức suy luận, bạn sẽ so sánh từng lựa chọn rồi chốt cấu hình cho ContentPilot.</p>
-          </>
-        ) : null}
-
-        {kind === 'models' ? (
-          <>
-            <header>
-              <small>MODEL · CHỌN THEO LOẠI CÔNG VIỆC</small>
-              <h1 id={titleId}>Ba dòng GPT-5.6 phục vụ ba nhu cầu</h1>
-              <p>Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn, thường được gọi là LLM.</p>
-            </header>
+            <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
             <div className="pixel-model-board__models">
               <article>
                 <span>SOL</span>
@@ -1631,29 +1617,22 @@ function ModelLessonBoard({
           </>
         ) : null}
 
-        {kind === 'effort-speed' ? (
+        {kind === 'apply' ? (
           <>
             <header>
-              <small>EFFORT · SPEED</small>
-              <h1 id={titleId}>Thêm công sức hay thêm tốc độ?</h1>
-              <p>Effort và Speed thay đổi hai phần khác nhau trong cách Codex xử lý công việc.</p>
+              <small>ÁP DỤNG VÀO CONTENTPILOT</small>
+              <h1 id={titleId}>Dùng cấu hình đã chọn</h1>
+              <p>Phần giải thích đã nằm ở màn hình làm quen với giao diện. Bước này chỉ ghi lại cấu hình bạn sẽ dùng trong phần thực hành.</p>
             </header>
-            <div className="pixel-model-board__tradeoffs">
-              <section>
-                <h2>Effort</h2>
-                <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
-                <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
-              </section>
-              <section>
-                <h2>Speed</h2>
-                <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần, nhưng GPT-5.6 dùng credit ở mức 2,5 lần Standard.</p>
-                <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
-              </section>
-            </div>
+            <dl className="pixel-model-board__definitions">
+              <div><dt>Model</dt><dd>GPT-5.6 Sol</dd></div>
+              <div><dt>Effort</dt><dd>High</dd></div>
+              <div><dt>Speed</dt><dd>Standard</dd></div>
+            </dl>
             <div className="pixel-model-board__recommendation">
               <small>CẤU HÌNH KHÓA HỌC ĐỀ XUẤT</small>
               <strong>GPT-5.6 Sol · High · Standard</strong>
-              <p>Sol và High tạo thêm khoảng trống khi yêu cầu còn mới. Standard giữ mức sử dụng hợp lý trong quá trình học.</p>
+              <p>Đây là cấu hình dành cho ContentPilot, không phải thiết lập mặc định của mọi tài khoản Codex.</p>
             </div>
           </>
         ) : null}
@@ -1664,6 +1643,27 @@ function ModelLessonBoard({
           <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
           <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
         </figure>
+        {kind === 'complete' ? (
+          <>
+            <div className="pixel-model-board__tradeoffs">
+              <section>
+                <h2>Effort</h2>
+                <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
+                <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+              </section>
+              <section>
+                <h2>Speed</h2>
+                <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
+                <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+              </section>
+            </div>
+            <div className="pixel-model-board__recommendation">
+              <small>CẤU HÌNH KHÓA HỌC ĐỀ XUẤT</small>
+              <strong>GPT-5.6 Sol · High · Standard</strong>
+              <p>Sol và High tạo thêm khoảng trống khi yêu cầu còn mới. Standard giữ mức sử dụng hợp lý trong quá trình học.</p>
+            </div>
+          </>
+        ) : null}
       </div>
 
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
@@ -2591,7 +2591,7 @@ export function LearningWindow() {
               ) : null}
             </figure>
           )
-        : shouldShowScenePanel
+        : shouldShowScenePanel && !usesModelLessonBoard
           ? (
               <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
                 <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
