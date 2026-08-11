@@ -15,7 +15,31 @@ type JsonRpcMessage = {
   params?: unknown
 }
 
-export type CodexNotification = { method: string; params?: unknown }
+export type CodexEffectiveThreadSettings = {
+  thread: { id: string }
+  cwd: string
+  model: string
+  serviceTier: string | null
+  approvalPolicy: unknown
+  sandbox: unknown
+  reasoningEffort: string | null
+  activePermissionProfile?: unknown
+}
+
+export type CodexThreadSettingsUpdated = {
+  threadId: string
+  threadSettings: {
+    cwd: string
+    model: string
+    serviceTier: string | null
+    approvalPolicy: unknown
+    sandboxPolicy: unknown
+    effort: string | null
+    activePermissionProfile: unknown
+  }
+}
+
+export type CodexNotification = { method: string; params?: unknown; emittedAtMs?: number }
 export type CodexConnectionState = 'connecting' | 'connected' | 'disconnected'
 export type CodexNotificationListener = (notification: CodexNotification) => void
 export type CodexConnectionListener = (state: CodexConnectionState) => void
@@ -188,7 +212,13 @@ export class CodexAppServerClient {
       return
     }
     if (typeof message.method === 'string' && message.method.length <= 200) {
-      const notification = { method: message.method, params: message.params }
+      const notification = {
+        method: message.method,
+        params: message.params,
+        ...(typeof (message as { emittedAtMs?: unknown }).emittedAtMs === 'number'
+          ? { emittedAtMs: (message as { emittedAtMs: number }).emittedAtMs }
+          : {})
+      }
       if (typeof message.id === 'string' || Number.isSafeInteger(message.id)) {
         try {
           this.write({

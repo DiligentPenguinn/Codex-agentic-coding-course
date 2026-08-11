@@ -33,6 +33,17 @@ class ObservationGateway {
 
   async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
     this.methods.push(method)
+    if (method === 'thread/resume') {
+      return {
+        thread: { id: params.threadId },
+        cwd: 'D:\\course',
+        model: 'gpt-5.6-sol',
+        reasoningEffort: 'high',
+        serviceTier: null,
+        approvalPolicy: 'on-request',
+        sandbox: { type: 'workspaceWrite', writableRoots: ['D:\\course'] }
+      }
+    }
     if (method === 'thread/read') {
       return { thread: { id: params.threadId, turns: [] } }
     }
@@ -77,8 +88,8 @@ describe('ExecutorActivityObserver reliability', () => {
     }
 
     await observer.bind(binding)
+    expect(gateway.methods).toContain('thread/resume')
     expect(gateway.methods).toContain('thread/read')
-    expect(gateway.methods).not.toContain('thread/resume')
     gateway.emit({
       method: 'item/completed',
       params: {
@@ -95,8 +106,12 @@ describe('ExecutorActivityObserver reliability', () => {
     expect((await observer.current())?.executorResponses).toEqual(['Verified answer'])
     gateway.setConnection('disconnected')
     expect((await observer.current())?.status).toBe('disconnected')
+    expect((await observer.current())?.configuration?.freshness).toBe('stale')
     gateway.setConnection('connected')
     expect((await observer.current())?.status).toBe('ready')
+    expect((await observer.current())?.configuration).toMatchObject({
+      freshness: 'fresh', connection: 'connected', threadId: binding.threadId
+    })
 
     await observer.reset()
     expect(await observer.current()).toBeNull()

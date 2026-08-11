@@ -392,6 +392,29 @@ export type WorkspaceEvidenceReconciliation = {
   currentlyDirtyReportedFiles: string[]
 }
 
+export type CodexConfigurationValue = {
+  protocolValue: string | null
+  label: string | null
+}
+
+export type CodexTaskConfigurationSnapshot = {
+  schemaVersion: 1
+  runId: string
+  threadId: string
+  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated'
+  eventTimestampMs: number
+  observedAt: string
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  connection: 'connected' | 'disconnected'
+  model: CodexConfigurationValue
+  reasoningEffort: CodexConfigurationValue
+  serviceTier: CodexConfigurationValue
+  approvalPolicy: CodexConfigurationValue
+  fullAccess: CodexConfigurationValue
+  sandboxType: string | null
+  activePermissionProfile: { id: string; extends: string | null } | null
+}
+
 export type ExecutorActivitySnapshot = {
   schemaVersion: 1
   runId: string
@@ -410,6 +433,7 @@ export type ExecutorActivitySnapshot = {
   workspaceCurrentlyDirtyReportedFiles: string[]
   observedAt: string
   workspaceBaseline: WorkspaceEvidenceBaseline | null
+  configuration: CodexTaskConfigurationSnapshot | null
 }
 
 export type PracticeLearningSignal = {
@@ -577,6 +601,7 @@ export type PracticeAdapterEvidenceState = {
   evidence: PracticeEvidenceReference[]
   steps: PracticeAdapterStepState[]
   invalidations: PracticeEvidenceInvalidation[]
+  configuration?: CodexTaskConfigurationSnapshot
 }
 
 export type PracticeCriterionReview = {

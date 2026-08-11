@@ -4,6 +4,11 @@ import type { CodexConnectionState, CodexNotification } from './codex-app-server
 import type { ExecutorChatBinding } from './practice-run-repository'
 import { ExecutorActivityRepository } from './executor-activity-repository'
 import { GitWorkspaceEvidenceProvider, type WorkspaceEvidenceProvider } from './workspace-evidence-provider'
+import {
+  mergeCodexTaskConfiguration,
+  normalizeCodexTaskConfiguration,
+  staleCodexTaskConfiguration
+} from './codex-configuration-normalizer'
 
 export type ObservationClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
@@ -132,7 +137,8 @@ export function initialActivity(
     workspaceCommittedReportedFilesSinceRunStart: [],
     workspaceCurrentlyDirtyReportedFiles: [],
     observedAt: now().toISOString(),
-    workspaceBaseline
+    workspaceBaseline,
+    configuration: binding.configuration ? structuredClone(binding.configuration) : null
   }
 }
 
@@ -147,6 +153,26 @@ export function reduceExecutorActivity(
   const next = structuredClone(snapshot)
   if (notification.method === 'turn/started' || notification.method === 'item/started') next.status = 'working'
   if (notification.method === 'thread/closed' || notification.method === 'thread/archived') next.status = 'disconnected'
+  if (notification.method === 'thread/closed' || notification.method === 'thread/archived') {
+    next.configuration = staleCodexTaskConfiguration(next.configuration, true)
+  }
+  if (notification.method === 'thread/settings/updated') {
+    const observed = now()
+    next.configuration = mergeCodexTaskConfiguration(
+      next.configuration,
+      normalizeCodexTaskConfiguration({
+        runId: binding.runId,
+        threadId: binding.threadId,
+        source: 'thread-settings-updated',
+        payload: params,
+        observedAt: observed.toISOString(),
+        eventTimestampMs: notification.emittedAtMs ?? Math.max(
+          observed.getTime(),
+          (next.configuration?.eventTimestampMs ?? -1) + 1
+        )
+      })
+    )
+  }
   if (notification.method === 'thread/status/changed') {
     const status = record(params.status)
     const flags = status && Array.isArray(status.activeFlags) ? status.activeFlags : []
@@ -210,7 +236,8 @@ function mergeActivity(
     workspaceConfirmedChangedFiles: mergeUnique(previous.workspaceConfirmedChangedFiles, projected.workspaceConfirmedChangedFiles, 100),
     workspaceCommittedReportedFilesSinceRunStart: mergeUnique(previous.workspaceCommittedReportedFilesSinceRunStart, projected.workspaceCommittedReportedFilesSinceRunStart, 100),
     workspaceCurrentlyDirtyReportedFiles: mergeUnique(previous.workspaceCurrentlyDirtyReportedFiles, projected.workspaceCurrentlyDirtyReportedFiles, 100),
-    workspaceBaseline: previous.workspaceBaseline ?? projected.workspaceBaseline
+    workspaceBaseline: previous.workspaceBaseline ?? projected.workspaceBaseline,
+    configuration: projected.configuration ?? previous.configuration
   }
 }
 
@@ -262,10 +289,33 @@ export class ExecutorActivityObserver {
   private async refreshDirect(binding: ExecutorChatBinding, generation: number): Promise<ExecutorActivitySnapshot> {
     const previous = this.snapshot ?? await this.repository.load(binding.runId) ?? initialActivity(binding, this.now)
     try {
+      const resumed = record(await this.client.request('thread/resume', { threadId: binding.threadId }))
+      const resumedThread = record(resumed?.thread)
+      if (!resumedThread || resumedThread.id !== binding.threadId) {
+        throw new Error('Executor thread configuration verification failed')
+      }
+      const observed = this.now()
+      const configuration = mergeCodexTaskConfiguration(
+        previous.configuration,
+        normalizeCodexTaskConfiguration({
+          runId: binding.runId,
+          threadId: binding.threadId,
+          source: 'thread-resume',
+          payload: resumed,
+          observedAt: observed.toISOString(),
+          eventTimestampMs: Math.max(
+            observed.getTime(),
+            (previous.configuration?.eventTimestampMs ?? -1) + 1
+          )
+        })
+      )
       const result = record(await this.client.request('thread/read', { threadId: binding.threadId, includeTurns: true }))
       const thread = record(result?.thread)
       if (!thread || thread.id !== binding.threadId) throw new Error('Executor thread verification failed')
-      let rebuilt = initialActivity(binding, this.now, previous.workspaceBaseline)
+      let rebuilt: ExecutorActivitySnapshot = {
+        ...initialActivity(binding, this.now, previous.workspaceBaseline),
+        configuration
+      }
       const turns = Array.isArray(thread.turns) ? thread.turns : []
       for (const turnValue of turns) {
         const turn = record(turnValue)
@@ -307,7 +357,12 @@ export class ExecutorActivityObserver {
       if (!this.disposed && generation === this.generation) this.snapshot = await this.repository.save(reconciled)
     } catch {
       if (this.snapshot && !this.disposed && generation === this.generation) {
-        this.snapshot = await this.repository.save({ ...this.snapshot, status: 'stale', observedAt: this.now().toISOString() })
+        this.snapshot = await this.repository.save({
+          ...this.snapshot,
+          status: 'stale',
+          observedAt: this.now().toISOString(),
+          configuration: staleCodexTaskConfiguration(this.snapshot.configuration, false)
+        })
       }
     }
     return structuredClone(this.snapshot ?? previous)
@@ -323,7 +378,11 @@ export class ExecutorActivityObserver {
   markStale(): Promise<void> {
     return this.enqueue(async () => {
       if (!this.snapshot || this.snapshot.status === 'disconnected') return
-      this.snapshot = await this.repository.save({ ...this.snapshot, status: 'stale' })
+      this.snapshot = await this.repository.save({
+        ...this.snapshot,
+        status: 'stale',
+        configuration: staleCodexTaskConfiguration(this.snapshot.configuration, false)
+      })
     })
   }
 
@@ -354,7 +413,12 @@ export class ExecutorActivityObserver {
   private async onConnection(state: CodexConnectionState): Promise<void> {
     if (!this.snapshot) return
     if (state === 'disconnected') {
-      this.snapshot = await this.repository.save({ ...this.snapshot, status: 'disconnected', observedAt: this.now().toISOString() })
+      this.snapshot = await this.repository.save({
+        ...this.snapshot,
+        status: 'disconnected',
+        observedAt: this.now().toISOString(),
+        configuration: staleCodexTaskConfiguration(this.snapshot.configuration, true)
+      })
       return
     }
     if (state === 'connected' && this.binding && this.snapshot.status === 'disconnected') {

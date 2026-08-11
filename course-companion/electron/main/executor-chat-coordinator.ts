@@ -10,6 +10,7 @@ import {
   validateEffectivePracticeTask
 } from './practice-task-policy'
 import type { PracticeWorkspaceResolverPort } from './practice-workspace-resolver'
+import { normalizeCodexTaskConfiguration } from './codex-configuration-normalizer'
 
 export type CodexRequestClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
@@ -73,12 +74,21 @@ export class ExecutorChatCoordinator {
       const threadId = effective.threadId
       const name = plan.name
       await this.client.request('thread/name/set', { threadId, name })
+      const observed = this.now()
       return {
         runId: input.runId,
         threadId,
         name,
         workspaceRoot,
-        createdAt: this.now().toISOString()
+        createdAt: observed.toISOString(),
+        configuration: normalizeCodexTaskConfiguration({
+          runId: input.runId,
+          threadId,
+          source: 'thread-start',
+          payload: started,
+          observedAt: observed.toISOString(),
+          eventTimestampMs: observed.getTime()
+        })
       }
     })
   }

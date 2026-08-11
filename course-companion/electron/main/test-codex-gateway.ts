@@ -11,7 +11,24 @@ type TestThread = {
   name?: string
   ephemeral?: boolean
   serviceName?: string
+  model: string
+  reasoningEffort: string
+  serviceTier: string | null
+  approvalPolicy: unknown
+  sandbox: Record<string, unknown>
   turns: Array<{ id: string; status: string; items: unknown[] }>
+}
+
+function effectiveThread(thread: TestThread): Record<string, unknown> {
+  return {
+    thread,
+    cwd: thread.cwd,
+    model: thread.model,
+    reasoningEffort: thread.reasoningEffort,
+    serviceTier: thread.serviceTier,
+    approvalPolicy: thread.approvalPolicy,
+    sandbox: thread.sandbox
+  }
 }
 
 export class TestCodexGateway implements CodexRequestClient {
@@ -57,33 +74,31 @@ export class TestCodexGateway implements CodexRequestClient {
       const serviceTier = typeof params.serviceTier === 'string' ? params.serviceTier : null
       const approvalPolicy = params.approvalPolicy ?? 'on-request'
       const sandboxMode = typeof params.sandbox === 'string' ? params.sandbox : 'workspace-write'
+      const sandbox = sandboxMode === 'danger-full-access'
+        ? { type: 'dangerFullAccess' }
+        : sandboxMode === 'read-only'
+          ? { type: 'readOnly', networkAccess: false }
+          : {
+              type: 'workspaceWrite',
+              writableRoots: [typeof params.cwd === 'string' ? params.cwd : this.workspaceRoot],
+              networkAccess: false,
+              excludeTmpdirEnvVar: false,
+              excludeSlashTmp: false
+            }
       const thread: TestThread = {
         id,
         cwd: typeof params.cwd === 'string' ? params.cwd : this.workspaceRoot,
         ephemeral: params.ephemeral === true,
         serviceName: typeof params.serviceName === 'string' ? params.serviceName : undefined,
-        turns: []
-      }
-      this.threads.set(id, thread)
-      return {
-        thread,
-        cwd: thread.cwd,
         model,
         reasoningEffort,
         serviceTier,
         approvalPolicy,
-        sandbox: sandboxMode === 'danger-full-access'
-          ? { type: 'dangerFullAccess' }
-          : sandboxMode === 'read-only'
-            ? { type: 'readOnly', networkAccess: false }
-            : {
-                type: 'workspaceWrite',
-                writableRoots: [thread.cwd],
-                networkAccess: false,
-                excludeTmpdirEnvVar: false,
-                excludeSlashTmp: false
-              }
+        sandbox,
+        turns: []
       }
+      this.threads.set(id, thread)
+      return effectiveThread(thread)
     }
 
     if (method === 'thread/list') {
@@ -107,7 +122,7 @@ export class TestCodexGateway implements CodexRequestClient {
       }
       return { thread }
     }
-    if (method === 'thread/resume') return { thread }
+    if (method === 'thread/resume') return effectiveThread(thread)
     if (method === 'thread/unsubscribe' || method === 'turn/interrupt') return {}
     if (method === 'turn/start') {
       const turnId = `turn-${++this.sequence}`

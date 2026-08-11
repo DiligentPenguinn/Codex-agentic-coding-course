@@ -201,7 +201,8 @@ describe('Executor evidence reconciliation', () => {
       verificationEvidence: ['Legacy typecheck passed.'],
       reportedChangedFiles: [],
       workspaceConfirmedChangedFiles: [],
-      workspaceBaseline: null
+      workspaceBaseline: null,
+      configuration: null
     })
   })
 

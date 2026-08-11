@@ -1,0 +1,110 @@
+import { createHash } from 'node:crypto'
+import type {
+  CodexTaskConfigurationSnapshot,
+  ExecutorActivitySnapshot,
+  PracticeAdapterEvidenceState,
+  PracticeAdapterStepState,
+  PracticeEvidenceReference
+} from '../../shared/contracts'
+import type {
+  PracticeEvidenceAdapter,
+  PracticeEvidenceAdapterContext
+} from './practice-evidence-adapter'
+
+type ConfigurationSource = {
+  current: () => Promise<ExecutorActivitySnapshot | null>
+}
+
+const expected = {
+  model: 'gpt-5.6-sol',
+  reasoningEffort: 'high',
+  serviceTier: 'standard',
+  approvalPolicy: 'on-request',
+  fullAccess: 'off'
+} as const
+
+function digest(snapshot: CodexTaskConfigurationSnapshot): string {
+  return createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')
+}
+
+function evidence(snapshot: CodexTaskConfigurationSnapshot): PracticeEvidenceReference[] {
+  return (Object.keys(expected) as Array<keyof typeof expected>).map((key) => ({
+    id: 'configuration-' + key,
+    kind: 'codex-task-configuration',
+    text: snapshot[key].label === null
+      ? key + ': không xác minh được'
+      : key + ': ' + snapshot[key].label,
+    freshness: snapshot.freshness === 'fresh' ? 'fresh' : 'stale'
+  }))
+}
+
+function stepStates(
+  context: Readonly<PracticeEvidenceAdapterContext>,
+  snapshot: CodexTaskConfigurationSnapshot | null,
+  sourceDigest: string | null
+): PracticeAdapterStepState[] {
+  const firstThree = Boolean(snapshot
+    && snapshot.model.protocolValue === expected.model
+    && snapshot.reasoningEffort.protocolValue === expected.reasoningEffort
+    && snapshot.serviceTier.protocolValue === expected.serviceTier)
+  const permissions = Boolean(snapshot
+    && snapshot.approvalPolicy.protocolValue === expected.approvalPolicy
+    && snapshot.fullAccess.protocolValue === expected.fullAccess)
+  const reviewed = Boolean(snapshot && snapshot.freshness === 'fresh')
+  const completedThrough = snapshot === null ? -1
+    : firstThree && permissions && reviewed ? 3
+      : firstThree && permissions ? 2
+        : firstThree ? 1
+          : 0
+  return context.definition.checklist.map((step, index) => {
+    const dependencyInputs: Record<string, string> = sourceDigest
+      ? { configuration: sourceDigest }
+      : {}
+    return {
+      stepId: step.id,
+      status: index <= completedThrough
+        ? 'completed'
+        : index === completedThrough + 1
+          ? 'current'
+          : 'pending',
+      ...(snapshot?.freshness === 'stale' && index > 0
+        ? { reason: 'Cấu hình task hiện đã cũ hoặc mất kết nối.' }
+        : {}),
+      dependencyInputs
+    }
+  })
+}
+
+export class CodexConfigurationEvidenceAdapter implements PracticeEvidenceAdapter {
+  readonly evidenceProfile = 'codex-task-configuration' as const
+
+  constructor(private readonly source: ConfigurationSource) {}
+
+  async collect(
+    context: Readonly<PracticeEvidenceAdapterContext>
+  ): Promise<PracticeAdapterEvidenceState> {
+    const activity = await this.source.current()
+    const snapshot = activity?.configuration ?? null
+    const configuration = snapshot
+      && activity?.runId === context.runId
+      && context.task?.threadId === snapshot.threadId
+      && snapshot.runId === context.runId
+      ? structuredClone(snapshot)
+      : null
+    const sourceDigest = configuration ? digest(configuration) : null
+    return {
+      schemaVersion: 1,
+      practiceId: context.definition.practiceId,
+      practiceVersion: context.definition.version,
+      runId: context.runId,
+      evidenceProfile: this.evidenceProfile,
+      observedAt: configuration?.observedAt ?? new Date(0).toISOString(),
+      freshness: configuration?.freshness ?? 'unverifiable',
+      sourceDigest,
+      evidence: configuration ? evidence(configuration) : [],
+      steps: stepStates(context, configuration, sourceDigest),
+      invalidations: [],
+      ...(configuration ? { configuration } : {})
+    }
+  }
+}

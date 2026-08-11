@@ -4,6 +4,7 @@ import {
   reduceExecutorActivity
 } from '../electron/main/executor-activity-observer'
 import type { ExecutorChatBinding } from '../electron/main/practice-run-repository'
+import { normalizeCodexTaskConfiguration } from '../electron/main/codex-configuration-normalizer'
 
 const binding: ExecutorChatBinding = {
   runId: 'run-1',
@@ -110,5 +111,48 @@ describe('Executor activity projection', () => {
     expect(snapshot.changedFiles).toEqual(['src/lesson.tsx', 'README.md', 'Dockerfile'])
     expect(snapshot.status).toBe('waiting-for-learner')
     expect(snapshot.approvalEvents).toHaveLength(1)
+  })
+
+  it('updates only the bound task configuration and ignores duplicate or older events', () => {
+    const configuredBinding: ExecutorChatBinding = {
+      ...binding,
+      configuration: normalizeCodexTaskConfiguration({
+        runId: binding.runId, threadId: binding.threadId, source: 'thread-start',
+        payload: {
+          model: 'gpt-5.6-sol', reasoningEffort: 'high', serviceTier: null,
+          approvalPolicy: 'on-request', sandbox: { type: 'workspaceWrite' }
+        },
+        observedAt: '2026-08-08T00:00:00.000Z',
+        eventTimestampMs: 10
+      })
+    }
+    const settings = (model: string, emittedAtMs: number, threadId = binding.threadId) => ({
+      method: 'thread/settings/updated',
+      emittedAtMs,
+      params: {
+        threadId,
+        threadSettings: {
+          model, effort: 'high', serviceTier: null, approvalPolicy: 'on-request',
+          sandboxPolicy: { type: 'workspaceWrite' }, activePermissionProfile: null
+        }
+      }
+    })
+    let snapshot = reduceExecutorActivity(
+      initialActivity(configuredBinding, now),
+      settings('gpt-5.6-terra', 20),
+      configuredBinding,
+      now
+    )
+    expect(snapshot.configuration?.model.protocolValue).toBe('gpt-5.6-terra')
+
+    snapshot = reduceExecutorActivity(snapshot, settings('gpt-5.6-sol', 15), configuredBinding, now)
+    expect(snapshot.configuration?.model.protocolValue).toBe('gpt-5.6-terra')
+    const same = reduceExecutorActivity(snapshot, settings('gpt-5.6-sol', 30, 'thread-other'), configuredBinding, now)
+    expect(same).toBe(snapshot)
+
+    snapshot = reduceExecutorActivity(snapshot, {
+      method: 'thread/closed', params: { threadId: binding.threadId }
+    }, configuredBinding, now)
+    expect(snapshot.configuration).toMatchObject({ freshness: 'stale', connection: 'disconnected' })
   })
 })

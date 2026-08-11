@@ -80,7 +80,8 @@ async function harness(options: { verification?: boolean } = {}) {
     workspaceCommittedReportedFilesSinceRunStart: [],
     workspaceCurrentlyDirtyReportedFiles: [],
     observedAt: '2026-08-09T00:01:00.000Z',
-    workspaceBaseline: null
+    workspaceBaseline: null,
+    configuration: null
   }
   const activity = {
     async bind() {

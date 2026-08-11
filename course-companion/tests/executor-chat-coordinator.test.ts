@@ -85,7 +85,13 @@ describe('ExecutorChatCoordinator', () => {
       definition: definition('inherit-configuration-only')
     })
 
-    expect(target).toEqual(binding())
+    expect(target).toMatchObject(binding())
+    expect(target.configuration).toMatchObject({
+      runId: 'run-123456',
+      threadId: 'thread-target',
+      source: 'thread-start',
+      fullAccess: { protocolValue: 'on', label: 'On' }
+    })
     expect(calls[0]).toEqual(['thread/start', {
       cwd: 'D:\\course\\pilot-workspace',
       ephemeral: false,

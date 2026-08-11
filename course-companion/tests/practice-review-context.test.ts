@@ -55,6 +55,7 @@ function activity(overrides: Partial<ExecutorActivitySnapshot> = {}): ExecutorAc
     workspaceCurrentlyDirtyReportedFiles: [],
     observedAt: '2026-08-10T00:01:00.000Z',
     workspaceBaseline: null,
+    configuration: null,
     ...overrides
   }
 }

@@ -1,6 +1,7 @@
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type { ExecutorActivitySnapshot } from '../../shared/contracts'
+import { isCodexTaskConfigurationSnapshot } from './codex-configuration-normalizer'
 
 type ActivityDocument = {
   schemaVersion: 1
@@ -41,6 +42,7 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   const workspaceCommittedReportedFilesSinceRunStart = value.workspaceCommittedReportedFilesSinceRunStart ?? []
   const workspaceCurrentlyDirtyReportedFiles = value.workspaceCurrentlyDirtyReportedFiles ?? []
   const rawWorkspaceBaseline = value.workspaceBaseline ?? null
+  const configuration = value.configuration ?? null
   const workspaceBaseline = isRecord(rawWorkspaceBaseline) && rawWorkspaceBaseline.head === undefined
     ? { ...rawWorkspaceBaseline, head: null }
     : rawWorkspaceBaseline
@@ -48,19 +50,21 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   if (!isStringArray(workspaceConfirmedChangedFiles, 100) || !isStringArray(workspaceCommittedReportedFilesSinceRunStart, 100)) return null
   if (!isStringArray(workspaceCurrentlyDirtyReportedFiles, 100)) return null
   if (!validBaseline(workspaceBaseline)) return null
+  if (configuration !== null && !isCodexTaskConfigurationSnapshot(configuration)) return null
   return {
-    ...(value as Omit<ExecutorActivitySnapshot, 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline'>),
+    ...(value as Omit<ExecutorActivitySnapshot, 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline' | 'configuration'>),
     reportedChangedFiles,
     reportedVerificationEvidence,
     workspaceConfirmedChangedFiles,
     workspaceCommittedReportedFilesSinceRunStart,
     workspaceCurrentlyDirtyReportedFiles,
-    workspaceBaseline: workspaceBaseline as ExecutorActivitySnapshot['workspaceBaseline']
+    workspaceBaseline: workspaceBaseline as ExecutorActivitySnapshot['workspaceBaseline'],
+    configuration
   }
 }
 
 export function isExecutorActivitySnapshot(value: unknown): value is ExecutorActivitySnapshot {
-  if (!isRecord(value) || value.reportedChangedFiles === undefined || value.workspaceCommittedReportedFilesSinceRunStart === undefined || value.workspaceCurrentlyDirtyReportedFiles === undefined || value.workspaceBaseline === undefined) return false
+  if (!isRecord(value) || value.reportedChangedFiles === undefined || value.workspaceCommittedReportedFilesSinceRunStart === undefined || value.workspaceCurrentlyDirtyReportedFiles === undefined || value.workspaceBaseline === undefined || value.configuration === undefined) return false
   return normalizeSnapshot(value) !== null
 }
 

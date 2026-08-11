@@ -12,6 +12,7 @@ import type {
   PracticeWorkspaceKind
 } from '../../shared/contracts'
 import { isApprovedCodexConfiguration } from './practice-task-policy'
+import { isCodexTaskConfigurationSnapshot } from './codex-configuration-normalizer'
 
 export type ExecutorChatBinding = {
   runId: string
@@ -19,6 +20,7 @@ export type ExecutorChatBinding = {
   name: string
   workspaceRoot: string
   createdAt: string
+  configuration?: import('../../shared/contracts').CodexTaskConfigurationSnapshot
 }
 
 export type PracticeRunRecord = {
@@ -108,7 +110,10 @@ function isBinding(value: unknown): value is ExecutorChatBinding {
     value.name.length <= 500 &&
     typeof value.workspaceRoot === 'string' &&
     value.workspaceRoot.length > 0 &&
-    isIso(value.createdAt)
+    isIso(value.createdAt) &&
+    (value.configuration === undefined || (isCodexTaskConfigurationSnapshot(value.configuration)
+      && value.configuration.runId === value.runId
+      && value.configuration.threadId === value.threadId))
   )
 }
 
@@ -160,6 +165,8 @@ function isEvidence(value: unknown): value is PracticeAdapterEvidenceState {
     && Array.isArray(value.evidence)
     && Array.isArray(value.steps)
     && Array.isArray(value.invalidations)
+    && (value.configuration === undefined || (isCodexTaskConfigurationSnapshot(value.configuration)
+      && value.configuration.runId === value.runId))
 }
 
 function isInvalidations(value: unknown): value is PracticeEvidenceInvalidation[] {

@@ -94,7 +94,8 @@ const activity: ExecutorActivitySnapshot = {
   workspaceCommittedReportedFilesSinceRunStart: [],
   workspaceCurrentlyDirtyReportedFiles: [],
   observedAt: timestamp,
-  workspaceBaseline: null
+  workspaceBaseline: null,
+  configuration: null
 }
 
 function previousSummary(runId: string): PracticeRunSummary {
