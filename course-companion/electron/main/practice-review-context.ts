@@ -1,4 +1,5 @@
 import type {
+  CodexTaskConfigurationSnapshot,
   ExecutorActivitySnapshot,
   PracticeDefinition,
   PracticeEvidenceKind,
@@ -48,8 +49,17 @@ export type PracticeReviewEnvelope = {
     startedAt: string
   }
   evidence: PracticeEvidenceReference[]
+  configuration?: CodexTaskConfigurationSnapshot
   generatedAt: string
 }
+
+const configurationFields = [
+  ['model', 'Model'],
+  ['reasoningEffort', 'Effort'],
+  ['serviceTier', 'Speed'],
+  ['approvalPolicy', 'Approval'],
+  ['fullAccess', 'Full access']
+] as const
 
 export function buildPracticeReviewEnvelope(input: {
   definition: PracticeDefinition
@@ -58,6 +68,37 @@ export function buildPracticeReviewEnvelope(input: {
   decisions?: Record<string, string>
   generatedAt: string
 }): PracticeReviewEnvelope {
+  if (input.definition.evidenceProfile === 'codex-task-configuration') {
+    const configuration = input.activity?.configuration
+    const configurationMatches = input.activity?.runId === input.run.runId
+      && input.activity.threadId === input.run.binding.threadId
+      && configuration?.runId === input.run.runId
+      && configuration.threadId === input.run.binding.threadId
+    const accepted = configurationMatches ? configuration : null
+    const freshness = accepted?.freshness === 'fresh' && accepted.connection === 'connected'
+      ? 'fresh' as const
+      : 'stale' as const
+    return {
+      schemaVersion: 1,
+      definition: structuredClone(input.definition),
+      run: {
+        runId: input.run.runId,
+        generation: input.run.generation,
+        threadId: input.run.binding.threadId,
+        startedAt: input.run.startedAt
+      },
+      evidence: accepted
+        ? configurationFields.map(([key, label]) => ({
+            id: 'configuration-' + key,
+            kind: 'codex-task-configuration' as const,
+            text: label + ': ' + (accepted[key].label ?? 'không xác minh được'),
+            freshness
+          }))
+        : [],
+      ...(accepted ? { configuration: structuredClone(accepted) } : {}),
+      generatedAt: input.generatedAt
+    }
+  }
   const evidence: PracticeEvidenceReference[] = []
   const activityMatches = input.activity?.runId === input.run.runId
     && input.activity.threadId === input.run.binding.threadId

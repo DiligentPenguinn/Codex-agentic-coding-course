@@ -68,7 +68,7 @@ describe('CodexConfigurationEvidenceAdapter', () => {
     expect(result.configuration?.model.label).toBe('5.6 Sol')
     expect(result.sourceDigest).toMatch(/^[a-f0-9]{64}$/)
     expect(result.steps.map((step) => step.status)).toEqual([
-      'completed', 'completed', 'completed', 'completed', 'current'
+      'completed', 'completed', 'completed', 'completed', 'completed'
     ])
   })
 

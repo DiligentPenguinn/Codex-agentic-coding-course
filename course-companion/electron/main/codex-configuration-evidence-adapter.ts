@@ -43,19 +43,19 @@ function stepStates(
   snapshot: CodexTaskConfigurationSnapshot | null,
   sourceDigest: string | null
 ): PracticeAdapterStepState[] {
-  const firstThree = Boolean(snapshot
-    && snapshot.model.protocolValue === expected.model
-    && snapshot.reasoningEffort.protocolValue === expected.reasoningEffort
-    && snapshot.serviceTier.protocolValue === expected.serviceTier)
-  const permissions = Boolean(snapshot
-    && snapshot.approvalPolicy.protocolValue === expected.approvalPolicy
-    && snapshot.fullAccess.protocolValue === expected.fullAccess)
-  const reviewed = Boolean(snapshot && snapshot.freshness === 'fresh')
-  const completedThrough = snapshot === null ? -1
-    : firstThree && permissions && reviewed ? 3
-      : firstThree && permissions ? 2
-        : firstThree ? 1
-          : 0
+  const checks = snapshot
+    ? [
+        snapshot.model.protocolValue === expected.model,
+        snapshot.reasoningEffort.protocolValue === expected.reasoningEffort,
+        snapshot.serviceTier.protocolValue === expected.serviceTier,
+        snapshot.approvalPolicy.protocolValue === expected.approvalPolicy,
+        snapshot.fullAccess.protocolValue === expected.fullAccess
+      ]
+    : []
+  const firstUnmet = checks.findIndex((matches) => !matches)
+  const completedThrough = snapshot === null || snapshot.freshness !== 'fresh'
+    ? -1
+    : firstUnmet === -1 ? checks.length - 1 : firstUnmet - 1
   return context.definition.checklist.map((step, index) => {
     const dependencyInputs: Record<string, string> = sourceDigest
       ? { configuration: sourceDigest }

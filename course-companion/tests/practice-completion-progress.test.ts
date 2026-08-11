@@ -18,26 +18,37 @@ describe('Practice completion progress', () => {
     const repository = new ProgressRepository(directory)
     const progress = await repository.save({
       currentLessonId: 'module-1',
-      checkpointId: 'm1-plan-approval',
-      sceneId: 'module-1-success',
-      completedCheckpointIds: ['m1-orient'],
+      currentCourseLessonId: 'm1-assessment',
+      checkpointId: 'm1-setup-checklist',
+      sceneId: 'module-1-setup-checklist',
+      sceneHistory: [],
+      completedCheckpointIds: ['m1-codex-orientation'],
       decisions: {}
     })
     const receipt: PracticeCompletionReceipt = {
       schemaVersion: 1,
       courseRunId: progress.courseRunId,
-      practiceId: 'practice-1',
-      practiceVersion: '1.0.0',
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
       runId: 'run-1',
-      checkpointId: 'm1-plan-approval',
+      checkpointId: 'm1-setup-checklist',
       status: 'completed',
       completedAt: '2026-08-10T00:00:00.000Z',
       evidenceSummary: 'Passed',
       masterySummary: 'Complete',
       destination: {
         lessonId: 'module-1',
-        checkpointId: 'm1-review',
-        sceneId: 'module-1-reflection'
+        checkpointId: 'm1-mastery',
+        sceneId: 'module-1-mastery'
+      },
+      approvedConfiguration: {
+        schemaVersion: 1,
+        sourcePracticeId: 'm1-codex-safe-setup',
+        sourcePracticeVersion: '2.0.0',
+        model: 'gpt-5.6-sol',
+        reasoningEffort: 'high',
+        serviceTier: 'standard',
+        approvedAt: '2026-08-10T00:00:00.000Z'
       }
     }
 
@@ -47,8 +58,8 @@ describe('Practice completion progress', () => {
     const returned = await repository.returnFromPractice(receipt)
     expect(returned).toMatchObject({
       currentLessonId: 'module-1',
-      checkpointId: 'm1-review',
-      sceneId: 'module-1-reflection',
+      checkpointId: 'm1-mastery',
+      sceneId: 'module-1-mastery',
       practiceCompletions: [receipt]
     })
     await expect(repository.returnFromPractice(receipt)).resolves.toEqual(returned)

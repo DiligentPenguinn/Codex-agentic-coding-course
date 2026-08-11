@@ -8,6 +8,7 @@ import type {
 } from '../electron/main/codex-app-server-client'
 import { ExecutorActivityObserver } from '../electron/main/executor-activity-observer'
 import { ExecutorActivityRepository } from '../electron/main/executor-activity-repository'
+import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
 import { PracticeRunRepository } from '../electron/main/practice-run-repository'
 import { ProgressRepository } from '../electron/main/progress-repository'
 import { RealTeacherAdapter } from '../electron/main/real-teacher-adapter'
@@ -71,7 +72,17 @@ class ScenarioGateway {
     if (method === 'model/list') {
       return { data: [{ id: 'compatible', model: 'compatible', hidden: false, isDefault: true }] }
     }
-    if (method === 'thread/resume') return {}
+    if (method === 'thread/resume') {
+      return {
+        thread: { id: params.threadId },
+        cwd: 'D:\\course',
+        model: 'gpt-5.6-sol',
+        reasoningEffort: 'high',
+        serviceTier: 'standard',
+        approvalPolicy: 'on-request',
+        sandbox: { type: 'workspaceWrite', writableRoots: ['D:\\course'] }
+      }
+    }
     if (method === 'thread/read') {
       if (params.threadId === 'executor-thread' && this.holdNextExecutorRead) {
         this.holdNextExecutorRead = false
@@ -117,7 +128,7 @@ class ScenarioGateway {
         }
         const text = isSummary
           ? JSON.stringify({
-              approach: 'H\u01b0\u01a1ng refined the fallback.',
+              approach: 'Triết refined the fallback.',
               learnerDecisions: ['Keep verification scoped.'],
               strengths: ['Used grounded evidence.'],
               mistakes: [],
@@ -166,18 +177,25 @@ describe('TeacherService mock scenarios', () => {
     const progress = new ProgressRepository(directory, () => new Date(timestamp))
     await progress.save({
       currentLessonId: 'module-1',
-      checkpointId: 'm1-plan-approval',
-      sceneId: 'module-1-success',
-      completedCheckpointIds: ['m1-orient'],
+      currentCourseLessonId: 'm1-assessment',
+      checkpointId: 'm1-setup-checklist',
+      sceneId: 'module-1-setup-checklist',
+      sceneHistory: [],
+      completedCheckpointIds: ['m1-codex-orientation'],
       decisions: {}
     })
     const practice = new PracticeRunRepository(directory)
     await practice.save({
-      schemaVersion: 1,
+      schemaVersion: 2,
       activeRun: {
         runId: 'run-current',
         generation: 1,
         status: 'active',
+        practiceId: 'm1-codex-safe-setup',
+        practiceVersion: '2.0.0',
+        workspaceKind: 'pilot-workspace',
+        taskPolicy: 'inherit-configuration-only',
+        evidenceProfile: 'codex-task-configuration',
         binding: {
           runId: 'run-current',
           threadId: 'executor-thread',
@@ -187,7 +205,12 @@ describe('TeacherService mock scenarios', () => {
         },
         startedAt: timestamp,
         updatedAt: timestamp,
-        checklist: [{ id: 'plan', title: 'Review plan', status: 'current' }]
+        checklist: [{ id: 'set-model', title: 'Chọn Model', status: 'current' }],
+        learnerDecisions: {},
+        learnerApprovals: {},
+        evidence: null,
+        invalidations: [],
+        reviewStatus: 'not-reviewed'
       },
       archivedRuns: [],
       pendingTransition: null,
@@ -219,11 +242,15 @@ describe('TeacherService mock scenarios', () => {
     const summaryAdapter = new RealTeacherAdapter(gateway, join(directory, 'teacher-runtime'), 1_000)
     const chat = new TeacherChatRepository(directory)
     const memory = new TeacherMemoryRepository(directory, () => new Date(timestamp))
+    const definitions = new PracticeDefinitionRepository(
+      join(process.cwd(), 'content', 'practices')
+    )
     let id = 0
     const service = new TeacherService(
       chat,
       progress,
       practice,
+      definitions,
       activityRepository,
       observer,
       memory,
@@ -239,10 +266,11 @@ describe('TeacherService mock scenarios', () => {
     let state = await service.loadState('expanded')
     const failed = state.conversation.messages.find((message) => message.role === 'learner')
     expect(failed?.deliveryStatus).toBe('failed')
-    expect(state.teacher.error).toBe('Hương tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.')
-    expect(gateway.lastTeacherInput).toContain('reportedChangedFiles')
-    expect(gateway.lastTeacherInput).toContain('starters/contentpilot/app/globals.css')
-    expect(gateway.lastTeacherInput).toContain('hasHorizontalOverflow: false')
+    expect(state.teacher.error).toBe('Triết tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.')
+    expect(gateway.lastTeacherInput).toContain('"evidenceProfile":"codex-task-configuration"')
+    expect(gateway.lastTeacherInput).toContain('"model":{"protocolValue":"gpt-5.6-sol"')
+    expect(gateway.lastTeacherInput).not.toContain('starters/contentpilot/app/globals.css')
+    expect(gateway.lastTeacherInput).not.toContain('hasHorizontalOverflow: false')
 
     await expect(service.sendMessage({ content: 'Did I pass?' })).resolves.toMatchObject({
       learnerMessage: { id: failed?.id, deliveryStatus: 'delivered' },
@@ -264,7 +292,7 @@ describe('TeacherService mock scenarios', () => {
     ]))
 
     const refinementTrigger = service.loadState('expanded')
-    const concurrentResponse = service.sendMessage({ content: 'Can Hương answer while refining memory?' })
+    const concurrentResponse = service.sendMessage({ content: 'Can Triết answer while refining memory?' })
     await expect(concurrentResponse).resolves.toMatchObject({
       teacherMessage: { content: 'Grounded retry answer' }
     })
@@ -276,14 +304,14 @@ describe('TeacherService mock scenarios', () => {
       await new Promise((resolve) => setTimeout(resolve, 10))
       refinedMemory = await memory.load()
     }
-    expect(refinedMemory.practiceSummaries['m1-verifiable-brief']?.[0]).toMatchObject({
+    expect(refinedMemory.practiceSummaries['m1-codex-safe-setup']?.[0]).toMatchObject({
       runId: 'run-current',
       quality: 'live',
-      approach: 'Hương refined the fallback.',
+      approach: 'Triết refined the fallback.',
       changedFiles: ['starters/contentpilot/app/globals.css'],
       verificationEvidence: []
     })
-    expect(refinedMemory.practiceSummaries['m1-verifiable-brief']?.[0]?.unresolvedIssues).toEqual(expect.arrayContaining([
+    expect(refinedMemory.practiceSummaries['m1-codex-safe-setup']?.[0]?.unresolvedIssues).toEqual(expect.arrayContaining([
       expect.stringContaining('not independently rerun')
     ]))
 

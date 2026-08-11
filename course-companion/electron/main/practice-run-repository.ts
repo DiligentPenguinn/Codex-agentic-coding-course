@@ -81,7 +81,7 @@ export type PracticeWorkspaceRecord = {
 const ID = /^[A-Za-z0-9_-]{1,160}$/
 const VERSION = /^[0-9]+\.[0-9]+\.[0-9]+$/
 const THREAD_ID = /^[A-Za-z0-9_-]{1,160}$/
-const STEP_STATUSES = new Set(['completed', 'current', 'pending', 'stale'])
+const STEP_STATUSES = new Set(['completed', 'current', 'pending', 'stale', 'upcoming'])
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)

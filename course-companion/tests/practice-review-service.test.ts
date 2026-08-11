@@ -2,7 +2,10 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { ExecutorActivitySnapshot } from '../shared/contracts'
+import type {
+  CodexTaskConfigurationSnapshot,
+  ExecutorActivitySnapshot
+} from '../shared/contracts'
 import type { ExecutorActivityObserver } from '../electron/main/executor-activity-observer'
 import { PracticeCoordinator } from '../electron/main/practice-coordinator'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
@@ -16,30 +19,83 @@ import { ProgressRepository } from '../electron/main/progress-repository'
 import { TeacherChatRepository } from '../electron/main/teacher-fixture'
 
 const directories: string[] = []
+const timestamp = '2026-08-09T00:00:00.000Z'
 
 afterEach(async () => {
   await Promise.all(directories.splice(0).map((directory) =>
     rm(directory, { recursive: true, force: true })))
 })
 
-async function harness(options: { verification?: boolean } = {}) {
-  const directory = await mkdtemp(join(tmpdir(), 'course-companion-practice-review-'))
+function configuration(
+  overrides: Partial<CodexTaskConfigurationSnapshot> = {}
+): CodexTaskConfigurationSnapshot {
+  return {
+    schemaVersion: 1,
+    runId: 'run-1',
+    threadId: 'thread-1',
+    source: 'thread-resume',
+    eventTimestampMs: 1,
+    observedAt: timestamp,
+    freshness: 'fresh',
+    connection: 'connected',
+    model: { protocolValue: 'gpt-5.6-sol', label: '5.6 Sol' },
+    reasoningEffort: { protocolValue: 'high', label: 'High' },
+    serviceTier: { protocolValue: 'standard', label: 'Standard' },
+    approvalPolicy: { protocolValue: 'on-request', label: 'Approve for me' },
+    fullAccess: { protocolValue: 'off', label: 'Off' },
+    sandboxType: 'workspaceWrite',
+    activePermissionProfile: null,
+    ...overrides
+  }
+}
+
+function activity(config: CodexTaskConfigurationSnapshot | null): ExecutorActivitySnapshot {
+  return {
+    schemaVersion: 1,
+    runId: 'run-1',
+    threadId: 'thread-1',
+    status: config?.connection === 'disconnected' ? 'disconnected' : 'ready',
+    cursor: '',
+    learnerPrompts: [],
+    executorResponses: [],
+    approvalEvents: [],
+    changedFiles: [],
+    verificationEvidence: [],
+    reportedChangedFiles: [],
+    reportedVerificationEvidence: [],
+    workspaceConfirmedChangedFiles: [],
+    workspaceCommittedReportedFilesSinceRunStart: [],
+    workspaceCurrentlyDirtyReportedFiles: [],
+    observedAt: timestamp,
+    workspaceBaseline: null,
+    configuration: config
+  }
+}
+
+async function harness(
+  initial: CodexTaskConfigurationSnapshot | null = configuration()
+) {
+  const directory = await mkdtemp(join(tmpdir(), 'course-companion-m1-review-'))
   directories.push(directory)
+  const definitions = new PracticeDefinitionRepository(join(process.cwd(), 'content', 'practices'))
+  const definition = await definitions.load('m1-codex-safe-setup', '2.0.0')
   const runs = new PracticeRunRepository(directory)
-  const progress = new ProgressRepository(directory, () => new Date('2026-08-09T00:00:00.000Z'))
+  const progress = new ProgressRepository(directory, () => new Date(timestamp))
   await progress.save({
     currentLessonId: 'module-1',
-    checkpointId: 'm1-plan-approval',
-    sceneId: 'module-1-success',
-    completedCheckpointIds: [],
+    currentCourseLessonId: 'm1-assessment',
+    checkpointId: 'm1-setup-checklist',
+    sceneId: 'module-1-setup-checklist',
+    sceneHistory: [],
+    completedCheckpointIds: ['m1-codex-orientation'],
     decisions: {}
   })
   const binding = {
     runId: 'run-1',
     threadId: 'thread-1',
-    name: 'Practice 1',
+    name: 'Practice · Module 1',
     workspaceRoot: directory,
-    createdAt: '2026-08-09T00:00:00.000Z'
+    createdAt: timestamp
   }
   await runs.save({
     ...defaultPracticeWorkspaceRecord(),
@@ -47,112 +103,143 @@ async function harness(options: { verification?: boolean } = {}) {
       runId: 'run-1',
       generation: 1,
       status: 'active',
+      practiceId: definition.practiceId,
+      practiceVersion: definition.version,
+      workspaceKind: definition.workspaceKind,
+      taskPolicy: definition.taskPolicy,
+      evidenceProfile: definition.evidenceProfile,
       binding,
-      startedAt: '2026-08-09T00:00:00.000Z',
-      updatedAt: '2026-08-09T00:00:00.000Z',
-      practiceId: 'm1-verifiable-brief',
-      practiceVersion: '1.0.0',
-      reviewStatus: 'not-reviewed',
-      checklist: [
-        { id: 'review-objective', title: 'Review objective', status: 'completed' },
-        { id: 'open-executor', title: 'Open Executor', status: 'current' },
-        { id: 'build-and-verify', title: 'Build', status: 'upcoming' },
-        { id: 'review-evidence', title: 'Review', status: 'upcoming' }
-      ]
+      startedAt: timestamp,
+      updatedAt: timestamp,
+      checklist: definition.checklist.map((step, index) => ({
+        id: step.id,
+        title: step.title,
+        status: index === 0 ? 'current' : 'pending'
+      })),
+      learnerDecisions: {},
+      learnerApprovals: {},
+      evidence: null,
+      invalidations: [],
+      reviewStatus: 'not-reviewed'
     }
   })
-  const snapshot: ExecutorActivitySnapshot = {
-    schemaVersion: 1,
-    runId: 'run-1',
-    threadId: 'thread-1',
-    status: 'response-ready',
-    cursor: 'turn:item',
-    learnerPrompts: ['Apply the approved scoped change.'],
-    executorResponses: ['Implemented and checked the requested change.'],
-    approvalEvents: [],
-    changedFiles: [],
-    verificationEvidence: [],
-    reportedChangedFiles: ['starters/contentpilot/app/globals.css'],
-    reportedVerificationEvidence: options.verification === false
-      ? []
-      : ['390px routes report scrollWidth <= innerWidth and no horizontal overflow.'],
-    workspaceConfirmedChangedFiles: ['starters/contentpilot/app/globals.css'],
-    workspaceCommittedReportedFilesSinceRunStart: [],
-    workspaceCurrentlyDirtyReportedFiles: [],
-    observedAt: '2026-08-09T00:01:00.000Z',
-    workspaceBaseline: null,
-    configuration: null
-  }
-  const activity = {
+  let current: ExecutorActivitySnapshot = activity(initial)
+  const observer = {
     async bind() {
-      return structuredClone(snapshot)
+      return structuredClone(current)
     }
   } as unknown as ExecutorActivityObserver
-  const coordinator = new PracticeCoordinator(runs, {
-    async createTarget() {
-      throw new Error('not used')
-    },
-    async prepareTarget() {
-      throw new Error('not used')
-    },
-    async openTarget() {
-      throw new Error('not used')
-    }
-  })
-  const chat = new TeacherChatRepository(directory)
-  const service = new PracticeReviewService(
-    new PracticeDefinitionRepository(join(process.cwd(), 'content', 'practices')),
+  const coordinator = new PracticeCoordinator(
     runs,
-    coordinator,
-    progress,
-    activity,
-    new DeterministicPracticeReviewEvaluator(),
-    chat,
-    true,
-    () => new Date('2026-08-09T00:02:00.000Z'),
-    () => 'review-message-1'
+    definitions,
+    {
+      async createTarget() { throw new Error('not used') },
+      async prepareTarget() { throw new Error('not used') },
+      async openTarget() { throw new Error('not used') }
+    }
   )
-  return { chat, runs, service }
+  const chat = new TeacherChatRepository(directory)
+  let messageId = 0
+  const createService = () => new PracticeReviewService(
+      definitions,
+      runs,
+      coordinator,
+      progress,
+      observer,
+      new DeterministicPracticeReviewEvaluator(),
+      chat,
+      true,
+      () => new Date(timestamp),
+      () => 'review-message-' + String(++messageId)
+    )
+  const service = createService()
+  return {
+    chat,
+    progress,
+    runs,
+    service,
+    restartService: createService,
+    setConfiguration(value: CodexTaskConfigurationSnapshot | null) {
+      current = activity(value)
+    }
+  }
 }
 
-describe('PracticeReviewService', () => {
-  it('persists a pass, completes the checklist, and exposes a return receipt', async () => {
-    const { chat, runs, service } = await harness()
+describe('Module 1 Practice review service', () => {
+  it('passes only all five fresh values and persists the approved task configuration', async () => {
+    const { chat, progress, runs, service } = await harness()
 
     const response = await service.review()
 
-    expect(response.workspace.review).toMatchObject({
-      status: 'passed',
-      canReturn: true
-    })
+    expect(response.workspace.review).toMatchObject({ status: 'passed', canReturn: true })
     expect(response.workspace.checklist.every((step) => step.status === 'completed')).toBe(true)
-    await expect(service.passedCompletion()).resolves.toMatchObject({
-      practiceId: 'm1-verifiable-brief',
-      runId: 'run-1',
-      status: 'completed',
-      destination: { sceneId: 'module-1-reflection' }
+    const receipt = await service.passedCompletion()
+    expect(receipt).toMatchObject({
+      practiceId: 'm1-codex-safe-setup',
+      checkpointId: 'm1-setup-checklist',
+      destination: { checkpointId: 'm1-mastery', sceneId: 'module-1-mastery' },
+      approvedConfiguration: {
+        model: 'gpt-5.6-sol',
+        reasoningEffort: 'high',
+        serviceTier: 'standard'
+      }
     })
+    expect((await progress.load()).status).toBe('returning')
     expect((await runs.load()).activeRun?.reviewStatus).toBe('passed')
     expect((await chat.loadConversation()).messages.at(-1)?.content).toContain(
-      'Executor b\u00e1o c\u00e1o'
+      'cả năm thiết lập'
     )
   })
 
-  it('keeps course return locked and points at the earliest unmet step', async () => {
-    const { service } = await harness({ verification: false })
+  it.each([
+    ['Model', { model: { protocolValue: 'gpt-5.6-terra', label: '5.6 Terra' } }],
+    ['Effort', { reasoningEffort: { protocolValue: 'medium', label: 'Medium' } }],
+    ['Speed', { serviceTier: { protocolValue: 'fast', label: 'Fast' } }],
+    ['Approval', { approvalPolicy: { protocolValue: 'never', label: 'Never' } }],
+    ['Full access', { fullAccess: { protocolValue: 'on', label: 'On' } }]
+  ])('rejects a %s mismatch and gives exactly one next settings action', async (
+    label,
+    overrides
+  ) => {
+    const { service } = await harness(configuration(overrides))
 
     const response = await service.review()
 
-    expect(response.workspace.review).toMatchObject({
-      status: 'needs-work',
-      canReturn: false
-    })
-    expect(response.workspace.checklist.map((step) => step.status)).toEqual([
-      'completed',
-      'completed',
-      'current',
-      'upcoming'
-    ])
+    expect(response.workspace.review).toMatchObject({ status: 'needs-work', canReturn: false })
+    expect(response.teacherMessage.content).toContain(label)
+    expect(response.teacherMessage.content.match(/Thao tác cài đặt tiếp theo:/g)).toHaveLength(1)
     await expect(service.passedCompletion()).rejects.toThrow()
+  })
+
+  it.each([
+    ['missing', null],
+    ['stale', configuration({ freshness: 'stale' })],
+    ['disconnected', configuration({ freshness: 'stale', connection: 'disconnected' })],
+    ['unknown', configuration({
+      model: { protocolValue: null, label: null },
+      freshness: 'unverifiable'
+    })]
+  ])('rejects %s configuration evidence', async (_label, value) => {
+    const { service } = await harness(value)
+    await expect(service.review()).resolves.toMatchObject({
+      workspace: { review: { status: 'needs-work', canReturn: false } }
+    })
+  })
+
+  it('passes after reconnect and keeps review, receipt, and return idempotent', async () => {
+    const disconnected = configuration({ freshness: 'stale', connection: 'disconnected' })
+    const { progress, service, restartService, setConfiguration } = await harness(disconnected)
+    expect((await service.review()).workspace.review).toMatchObject({ status: 'needs-work' })
+
+    setConfiguration(configuration({ eventTimestampMs: 2 }))
+    expect((await service.review()).workspace.review).toMatchObject({ status: 'passed' })
+    const receipt = await service.passedCompletion()
+    await expect(restartService().passedCompletion()).resolves.toEqual(receipt)
+    await expect(service.review()).resolves.toMatchObject({
+      workspace: { review: { status: 'passed' } }
+    })
+    expect((await progress.load()).status).toBe('returning')
+    await expect(service.returnPassedPractice()).resolves.toEqual(receipt)
+    await expect(service.returnPassedPractice()).resolves.toEqual(receipt)
   })
 })

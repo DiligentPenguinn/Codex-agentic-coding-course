@@ -125,9 +125,32 @@ export class TeacherService {
       : await this.activityObserver.bind(workspace.activeRun.binding)
     this.boundRunId = workspace.activeRun.runId
     if (activity) {
+      const active = workspace.activeRun
+      const configuration = activity.configuration
+      const configurationMatches = configuration
+        ? [
+            configuration.model.protocolValue === 'gpt-5.6-sol',
+            configuration.reasoningEffort.protocolValue === 'high',
+            configuration.serviceTier.protocolValue === 'standard',
+            configuration.approvalPolicy.protocolValue === 'on-request',
+            configuration.fullAccess.protocolValue === 'off'
+          ]
+        : []
+      const firstConfigurationMismatch = configurationMatches.findIndex((matches) => !matches)
+      const configurationTarget = active.evidenceProfile === 'codex-task-configuration'
+        ? active.checklist[
+            configuration?.freshness === 'fresh'
+              ? firstConfigurationMismatch === -1
+                ? active.checklist.length - 1
+                : firstConfigurationMismatch
+              : 0
+          ]?.id ?? null
+        : null
       const hasConfirmedChange = activity.changedFiles.length > 0 || activity.workspaceConfirmedChangedFiles.length > 0 || activity.workspaceCommittedReportedFilesSinceRunStart.length > 0
       const hasExecutorActivity = activity.learnerPrompts.length > 0 || activity.executorResponses.length > 0
-      const target = hasConfirmedChange ? 'review-evidence' as const : hasExecutorActivity ? 'build-and-verify' as const : null
+      const target = active.evidenceProfile === 'codex-task-configuration'
+        ? configurationTarget
+        : hasConfirmedChange ? 'review-evidence' as const : hasExecutorActivity ? 'build-and-verify' as const : null
       if (target) {
         workspace = await this.practiceRepository.advanceChecklist({
           runId: workspace.activeRun.runId,
@@ -210,11 +233,28 @@ export class TeacherService {
             workspace.activeRun.practiceVersion
           )
         : null
+      const contextualActivity = definition?.evidenceProfile === 'codex-task-configuration'
+        && activity
+        ? {
+            ...activity,
+            learnerPrompts: [],
+            executorResponses: [],
+            approvalEvents: [],
+            changedFiles: [],
+            verificationEvidence: [],
+            reportedChangedFiles: [],
+            reportedVerificationEvidence: [],
+            workspaceConfirmedChangedFiles: [],
+            workspaceCommittedReportedFilesSinceRunStart: [],
+            workspaceCurrentlyDirtyReportedFiles: [],
+            workspaceBaseline: null
+          }
+        : activity
       const context = buildTeacherEnvelope({
         progress: progressResult.progress,
         definition,
         activeRun: workspace.activeRun,
-        activity,
+        activity: contextualActivity,
         memory,
         conversation: currentConversation,
         excludeMessageId: learnerMessage.id,

@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto'
 import type {
+  CodexTaskConfigurationSnapshot,
   PracticeCompletionReceipt,
+  PracticeDefinition,
+  PracticeReviewResult,
   PracticeReviewResponse,
   TeacherMessage
 } from '../../shared/contracts'
@@ -11,11 +14,130 @@ import type { TeacherChatRepository } from './teacher-fixture'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
 import {
   derivePracticeChecklist,
-  parsePracticeReviewResult
+  parsePracticeReviewResult,
+  reviewSourceDigest
 } from './practice-review-contracts'
-import { buildPracticeReviewEnvelope } from './practice-review-context'
+import {
+  buildPracticeReviewEnvelope,
+  type PracticeReviewEnvelope
+} from './practice-review-context'
 import type { PracticeReviewEvaluator } from './practice-review-evaluator'
 import { PracticeRunRepository, type PracticeRunRecord } from './practice-run-repository'
+
+const configurationChecks = [
+  {
+    field: 'model',
+    criterionId: 'model-matches',
+    label: 'Model',
+    expected: 'gpt-5.6-sol',
+    expectedLabel: '5.6 Sol',
+    action: 'Trong task Executor, mở bộ chọn Model và chọn 5.6 Sol.'
+  },
+  {
+    field: 'reasoningEffort',
+    criterionId: 'effort-matches',
+    label: 'Effort',
+    expected: 'high',
+    expectedLabel: 'High',
+    action: 'Trong task Executor, mở Effort và chọn High.'
+  },
+  {
+    field: 'serviceTier',
+    criterionId: 'speed-matches',
+    label: 'Speed',
+    expected: 'standard',
+    expectedLabel: 'Standard',
+    action: 'Trong task Executor, mở Speed và chọn Standard.'
+  },
+  {
+    field: 'approvalPolicy',
+    criterionId: 'approval-matches',
+    label: 'Approval',
+    expected: 'on-request',
+    expectedLabel: 'Approve for me',
+    action: 'Trong task Executor, mở Approval và chọn Approve for me.'
+  },
+  {
+    field: 'fullAccess',
+    criterionId: 'full-access-off',
+    label: 'Full access',
+    expected: 'off',
+    expectedLabel: 'Off',
+    action: 'Trong task Executor, tắt Full access.'
+  }
+] as const
+
+function evaluateConfiguration(
+  envelope: PracticeReviewEnvelope,
+  definition: PracticeDefinition,
+  runId: string,
+  reviewedAt: string
+): PracticeReviewResult {
+  const configuration = envelope.configuration
+  const fresh = configuration?.freshness === 'fresh' && configuration.connection === 'connected'
+  const criteria = configurationChecks.map((check) => {
+    const value = configuration?.[check.field]
+    const status = !fresh || !value || value.protocolValue === null
+      ? 'unverifiable' as const
+      : value.protocolValue === check.expected
+        ? 'satisfied' as const
+        : 'unsatisfied' as const
+    return {
+      criterionId: check.criterionId,
+      status,
+      evidenceRefs: value ? ['configuration-' + check.field] : [],
+      explanation: status === 'satisfied'
+        ? check.label + ' đang khớp: ' + check.expectedLabel + '.'
+        : status === 'unsatisfied'
+          ? check.label + ' hiện là ' + (value?.label ?? value?.protocolValue ?? 'không rõ')
+            + '; cần ' + check.expectedLabel + '.'
+          : check.label + ' chưa có metadata mới và xác minh được.'
+    }
+  })
+  const passed = criteria.every((criterion) => criterion.status === 'satisfied')
+  return {
+    schemaVersion: 1,
+    practiceId: definition.practiceId,
+    practiceVersion: definition.version,
+    runId,
+    verdict: passed ? 'passed' : 'needs-work',
+    criteria,
+    summary: passed
+      ? 'Triết đã xác minh trực tiếp: cả năm thiết lập của task đều khớp cấu hình khuyến nghị.'
+      : 'Triết chưa thể xác nhận cấu hình an toàn vì còn giá trị chưa khớp hoặc chưa xác minh được.',
+    reviewedAt,
+    sourceDigest: reviewSourceDigest({
+      practiceId: definition.practiceId,
+      practiceVersion: definition.version,
+      runId,
+      configuration: configuration ?? null,
+      criteria
+    })
+  }
+}
+
+function configurationGuidance(
+  configuration: CodexTaskConfigurationSnapshot | undefined,
+  result: PracticeReviewResult
+): string[] {
+  const byId = new Map(result.criteria.map((criterion) => [criterion.criterionId, criterion.status]))
+  const matches = configurationChecks
+    .filter((check) => byId.get(check.criterionId) === 'satisfied')
+    .map((check) => check.label + ' ' + check.expectedLabel)
+  const mismatches = configurationChecks
+    .filter((check) => byId.get(check.criterionId) !== 'satisfied')
+    .map((check) => {
+      const current = configuration?.[check.field]
+      return check.label + ': ' + (current?.label ?? 'chưa xác minh được')
+        + ' → cần ' + check.expectedLabel
+    })
+  const next = configurationChecks.find((check) => byId.get(check.criterionId) !== 'satisfied')
+  return [
+    'Đang khớp: ' + (matches.length > 0 ? matches.join(', ') : 'chưa có giá trị nào được xác minh.'),
+    ...(mismatches.length > 0 ? ['Chưa khớp hoặc chưa xác minh: ' + mismatches.join('; ') + '.'] : []),
+    ...(next ? ['Thao tác cài đặt tiếp theo: ' + next.action] : [])
+  ]
+}
 
 export class PracticeReviewService {
   private readonly pending = new Map<string, Promise<PracticeReviewResponse>>()
@@ -81,13 +203,15 @@ export class PracticeReviewService {
         decisions: learnerProgress.decisions,
         generatedAt: reviewedAt
       })
-      const result = parsePracticeReviewResult({
-        text: await this.evaluator.evaluate(envelope),
-        definition,
-        runId: active.runId,
-        evidence: envelope.evidence,
-        reviewedAt
-      })
+      const result = definition.evidenceProfile === 'codex-task-configuration'
+        ? evaluateConfiguration(envelope, definition, active.runId, reviewedAt)
+        : parsePracticeReviewResult({
+            text: await this.evaluator.evaluate(envelope),
+            definition,
+            runId: active.runId,
+            evidence: envelope.evidence,
+            reviewedAt
+          })
       const checklist = derivePracticeChecklist(definition, result, active.checklist)
       const completion: PracticeCompletionReceipt | undefined = result.verdict === 'passed'
         ? {
@@ -100,8 +224,21 @@ export class PracticeReviewService {
             status: 'completed',
             completedAt: reviewedAt,
             evidenceSummary: result.summary,
-            masterySummary: '\u0110\u00e3 \u0111\u00e1p \u1ee9ng t\u1ea5t c\u1ea3 ti\u00eau ch\u00ed b\u1eaft bu\u1ed9c c\u1ee7a Practice.',
-            destination: structuredClone(definition.completionDestination)
+            masterySummary: 'Triết đã xác minh đủ năm thiết lập Codex bắt buộc từ metadata hiệu lực của đúng task.',
+            destination: structuredClone(definition.completionDestination),
+            ...(definition.practiceId === 'm1-codex-safe-setup' && envelope.configuration
+              ? {
+                  approvedConfiguration: {
+                    schemaVersion: 1 as const,
+                    sourcePracticeId: 'm1-codex-safe-setup' as const,
+                    sourcePracticeVersion: definition.version,
+                    model: 'gpt-5.6-sol' as const,
+                    reasoningEffort: 'high' as const,
+                    serviceTier: 'standard' as const,
+                    approvedAt: reviewedAt
+                  }
+                }
+              : {})
           }
         : undefined
       const saved = await this.runs.saveReview({
@@ -132,12 +269,15 @@ export class PracticeReviewService {
         .slice(0, 3)
       const content = [
         result.summary,
+        ...(definition.evidenceProfile === 'codex-task-configuration'
+          ? configurationGuidance(envelope.configuration, result)
+          : []),
         ...details,
         ...(reported
           ? ['L\u01b0u \u00fd: k\u1ebft qu\u1ea3 ki\u1ec3m ch\u1ee9ng n\u00e0y do Executor b\u00e1o c\u00e1o; Course Companion ch\u01b0a t\u1ef1 ch\u1ea1y l\u1ea1i c\u00e1c ki\u1ec3m tra.']
           : []),
         ...(result.verdict === 'passed'
-          ? ['B\u1ea1n \u0111\u00e3 v\u01b0\u1ee3t qua Practice. D\u00f9ng bi\u1ec3u t\u01b0\u1ee3ng quay l\u1ea1i kh\u00f3a h\u1ecdc \u0111\u1ec3 ho\u00e0n th\u00e0nh ph\u1ea7n ph\u1ea3n t\u01b0.']
+          ? ['Bạn đã vượt qua Practice. Dùng biểu tượng quay lại khóa học để tiếp tục phần mastery.']
           : ['Hãy bổ sung phần còn thiếu rồi yêu cầu Triết duyệt lại.'])
       ].join('\n\n')
       const teacherMessage: TeacherMessage = {
