@@ -88,8 +88,36 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 2/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   assert.equal(await page.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
-  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Approval cho biết khi nào Codex cần dừng để xin phép/)
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha/)
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Ask for approval luôn hỏi bạn trước khi chỉnh sửa tệp bên ngoài dự án hoặc sử dụng Internet/)
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /mình khuyên bạn dùng Approve for me/)
+  assert.equal(await page.locator('.pixel-approval-focus').count(), 3)
+  assert.equal(await page.locator('.pixel-approval-term').count(), 4)
+  const approvalVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
+  const approvalDialogueBounds = await page.locator('.pixel-dialogue').boundingBox()
+  assert.ok(approvalVisualBounds)
+  assert.ok(approvalDialogueBounds)
+  assert.ok(approvalVisualBounds.y + approvalVisualBounds.height < approvalDialogueBounds.y)
   await capture(page, 'module-1-codex-approval-intro.png')
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const approvalNarrowWidths = await page.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(approvalNarrowWidths.body, approvalNarrowWidths.viewport)
+    assert.equal(approvalNarrowWidths.document, approvalNarrowWidths.viewport)
+    const approvalNarrowVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
+    assert.ok(approvalNarrowVisualBounds)
+    assert.ok(approvalNarrowVisualBounds.width <= approvalNarrowWidths.viewport)
+    assert.ok(approvalNarrowVisualBounds.width >= approvalNarrowWidths.viewport - 24)
+    await capture(page, 'module-1-codex-approval-intro-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
   await page.getByRole('button', { name: 'Tiếp theo: Model', exact: true }).click()
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 3/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)

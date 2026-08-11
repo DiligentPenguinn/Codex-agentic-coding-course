@@ -222,6 +222,54 @@ button:focus-visible {
   object-position: center;
 }
 .pixel-lesson-visual img[data-fit="contain"] { object-fit: contain; }
+.pixel-lesson-visual.is-approval-tour { width: min(400px, 38vw); }
+.pixel-approval-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #f7f7f5;
+}
+.pixel-approval-frame > img {
+  height: 100%;
+  aspect-ratio: auto;
+}
+.pixel-approval-focus {
+  position: absolute;
+  z-index: 2;
+  right: 1.5%;
+  left: 1.5%;
+  opacity: 0;
+  border: 3px solid var(--pixel-yellow);
+  box-shadow: 0 0 0 999px rgba(4, 8, 21, 0.62), 0 0 14px rgba(255, 216, 107, 0.55);
+  pointer-events: none;
+  animation-duration: 12s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+.pixel-approval-focus small {
+  position: absolute;
+  top: -13px;
+  right: -3px;
+  padding: 3px 5px;
+  color: #10162a;
+  background: var(--pixel-yellow);
+  font: 800 7px/1 var(--pixel-font);
+}
+.pixel-approval-focus[data-approval-focus="ask"] {
+  top: 28%;
+  height: 19%;
+  animation-name: pixel-approval-focus-ask;
+}
+.pixel-approval-focus[data-approval-focus="approve"] {
+  top: 46%;
+  height: 19%;
+  animation-name: pixel-approval-focus-approve;
+}
+.pixel-approval-focus[data-approval-focus="full"] {
+  top: 64%;
+  height: 22%;
+  animation-name: pixel-approval-focus-full;
+}
 .pixel-lesson-visual figcaption {
   min-height: 54px;
   padding: 9px 11px;
@@ -310,6 +358,60 @@ button:focus-visible {
   font-size: clamp(15px, 1.35vw, 18px);
   line-height: 1.5;
   white-space: pre-line;
+}
+.pixel-dialogue.has-approval-tour > p {
+  max-width: none;
+  font-size: clamp(14px, 1.12vw, 16px);
+  line-height: 1.45;
+}
+.pixel-approval-term {
+  padding: 1px 3px;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  font-weight: 800;
+  -webkit-box-decoration-break: clone;
+  animation-duration: 12s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-in-out;
+}
+.pixel-approval-term[data-approval-focus="ask"] { animation-name: pixel-approval-term-ask; }
+.pixel-approval-term[data-approval-focus="approve"] { animation-name: pixel-approval-term-approve; }
+.pixel-approval-term[data-approval-focus="full"] { animation-name: pixel-approval-term-full; }
+
+@keyframes pixel-approval-focus-ask {
+  0%, 4% { opacity: 0; }
+  8%, 29% { opacity: 1; }
+  33%, 100% { opacity: 0; }
+}
+@keyframes pixel-approval-focus-approve {
+  0%, 31% { opacity: 0; }
+  35%, 56% { opacity: 1; }
+  60%, 84% { opacity: 0; }
+  88%, 100% { opacity: 1; }
+}
+@keyframes pixel-approval-focus-full {
+  0%, 58% { opacity: 0; }
+  62%, 79% { opacity: 1; }
+  83%, 100% { opacity: 0; }
+}
+@keyframes pixel-approval-term-ask {
+  0%, 4%, 33%, 100% { color: inherit; background: transparent; }
+  8%, 29% { color: #10162a; background: var(--pixel-yellow); }
+}
+@keyframes pixel-approval-term-approve {
+  0%, 31%, 60%, 84% { color: inherit; background: transparent; }
+  35%, 56%, 88%, 100% { color: #10162a; background: var(--pixel-yellow); }
+}
+@keyframes pixel-approval-term-full {
+  0%, 58%, 83%, 100% { color: inherit; background: transparent; }
+  62%, 79% { color: #10162a; background: var(--pixel-yellow); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-approval-focus,
+  .pixel-approval-term { animation: none; }
+  .pixel-approval-focus[data-approval-focus="approve"] { opacity: 1; }
+  .pixel-approval-term[data-approval-focus="approve"] { color: #10162a; background: var(--pixel-yellow); }
 }
 
 .pixel-review-notice {
@@ -1470,6 +1572,7 @@ button:focus-visible {
   .pixel-teacher-character { display: none; }
   .pixel-consequence { position: relative; top: auto; right: auto; width: 100%; padding: 12px; }
   .pixel-lesson-visual { position: relative; top: auto; right: auto; width: 100%; }
+  .pixel-lesson-visual.is-approval-tour { width: 100%; }
   .pixel-lesson-visual img { height: auto; aspect-ratio: 16 / 9; }
   .pixel-lesson-visual figcaption { grid-template-columns: 1fr; gap: 7px; }
   .pixel-lesson-visual figcaption em { text-align: left; }

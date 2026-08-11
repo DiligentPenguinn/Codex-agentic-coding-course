@@ -246,7 +246,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'VAI TRÒ', value: 'Kiểm soát quyền hành động' },
       { label: 'HỌC KỸ HƠN', value: 'Ở phần Approval' }
     ],
-    dialogue: 'Nếu đã mở được ứng dụng này, có lẽ bạn cũng từng nhìn thấy giao diện ChatGPT. Codex vẫn có ô trò chuyện quen thuộc. Tuy nhiên, ứng dụng còn có các điều khiển dành cho công việc trong dự án. Trước tiên, Approval cho biết khi nào Codex cần dừng để xin phép.',
+    dialogue: 'Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha. Đầu tiên, hãy nhìn qua Approval. Khi nhấn vào biểu tượng Codex bên trái dấu cộng, bạn sẽ thấy một hộp gồm ba lựa chọn. Đây là phần cài đặt Approval, nơi bạn thiết lập mức độ kiểm soát đối với coding agent.\n\nTrước tiên, Ask for approval luôn hỏi bạn trước khi chỉnh sửa tệp bên ngoài dự án hoặc sử dụng Internet. Tiếp theo, Approve for me chỉ hỏi khi phát hiện một hành động có thể không an toàn. Cuối cùng, Full access cho phép Codex truy cập Internet và mọi tệp trên máy tính mà không bị giới hạn.\n\nNếu mới bắt đầu, mình khuyên bạn dùng Approve for me. Chế độ này không yêu cầu bạn duyệt mọi hành động, nhưng cũng không trao toàn bộ quyền kiểm soát cho coding agent.',
     choices: [{ label: 'Tiếp theo: Model', next: 'module-1-codex-model-intro', primary: true }]
   },
   'module-1-codex-model-intro': {
@@ -1439,6 +1439,18 @@ function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
   )
 }
 
+function ApprovalTourDialogue() {
+  return (
+    <>
+      Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha. Đầu tiên, hãy nhìn qua Approval. Khi nhấn vào biểu tượng Codex bên trái dấu cộng, bạn sẽ thấy một hộp gồm ba lựa chọn. Đây là phần cài đặt Approval, nơi bạn thiết lập mức độ kiểm soát đối với coding agent.
+      <br /><br />
+      Trước tiên, <span className="pixel-approval-term" data-approval-focus="ask">Ask for approval</span> luôn hỏi bạn trước khi chỉnh sửa tệp bên ngoài dự án hoặc sử dụng Internet. Tiếp theo, <span className="pixel-approval-term" data-approval-focus="approve">Approve for me</span> chỉ hỏi khi phát hiện một hành động có thể không an toàn. Cuối cùng, <span className="pixel-approval-term" data-approval-focus="full">Full access</span> cho phép Codex truy cập Internet và mọi tệp trên máy tính mà không bị giới hạn.
+      <br /><br />
+      Nếu mới bắt đầu, mình khuyên bạn dùng <span className="pixel-approval-term" data-approval-focus="approve">Approve for me</span>. Chế độ này không yêu cầu bạn duyệt mọi hành động, nhưng cũng không trao toàn bộ quyền kiểm soát cho coding agent.
+    </>
+  )
+}
+
 function AssessmentControls({
   question,
   result,
@@ -2324,14 +2336,31 @@ export function LearningWindow() {
 
       {canShowSceneMedia && lessonVisual
         ? (
-            <figure className="pixel-lesson-visual">
-              <img
-                src={lessonVisual.image}
-                alt={lessonVisual.alt}
-                data-fit={lessonVisual.fit ?? 'cover'}
-                decoding="async"
-                fetchPriority="high"
-              />
+            <figure className={`pixel-lesson-visual${displayedSceneId === 'module-1-codex-examples' ? ' is-approval-tour' : ''}`}>
+              {displayedSceneId === 'module-1-codex-examples'
+                ? (
+                    <div className="pixel-approval-frame">
+                      <img
+                        src={lessonVisual.image}
+                        alt={lessonVisual.alt}
+                        data-fit={lessonVisual.fit ?? 'cover'}
+                        decoding="async"
+                        fetchPriority="high"
+                      />
+                      <span className="pixel-approval-focus" data-approval-focus="ask" aria-hidden="true"><small>1/3</small></span>
+                      <span className="pixel-approval-focus" data-approval-focus="approve" aria-hidden="true"><small>2/3</small></span>
+                      <span className="pixel-approval-focus" data-approval-focus="full" aria-hidden="true"><small>3/3</small></span>
+                    </div>
+                  )
+                : (
+                    <img
+                      src={lessonVisual.image}
+                      alt={lessonVisual.alt}
+                      data-fit={lessonVisual.fit ?? 'cover'}
+                      decoding="async"
+                      fetchPriority="high"
+                    />
+                  )}
               <figcaption>
                 <span><small>ẢNH MINH HOẠ BÀI HỌC</small>{lessonVisual.caption}</span>
                 <em>{lessonVisual.source}</em>
@@ -2348,13 +2377,15 @@ export function LearningWindow() {
             )
           : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.assessmentSummary
           ? finalPassed
             ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
             : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
-          : scene.dialogue}</p>
+          : displayedSceneId === 'module-1-codex-examples'
+            ? <ApprovalTourDialogue />
+            : scene.dialogue}</p>
         {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
