@@ -111,6 +111,7 @@ export function TeacherWorkspace({
   const [reviewBusy, setReviewBusy] = useState(false)
   const [returnBusy, setReturnBusy] = useState(false)
   const [planningActionBusy, setPlanningActionBusy] = useState(false)
+  const [testFixturesEnabled, setTestFixturesEnabled] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
@@ -135,10 +136,12 @@ export function TeacherWorkspace({
           ? await window.courseCompanion.loadCompanionState()
           : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
         const loadedWorkspace = await window.courseCompanion?.loadPracticeWorkspace()
+        const runtime = await window.courseCompanion?.getRuntimeInfo()
         setMessages(state.conversation.messages)
         setRecovered(state.conversation.recovered)
         setTeacherRuntime(state.teacher)
         setWorkspace(loadedWorkspace ?? null)
+        setTestFixturesEnabled(runtime?.testFixturesEnabled === true)
         if (loadedWorkspace) {
           setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
         }
@@ -562,7 +565,7 @@ export function TeacherWorkspace({
             <div className="pixel-practice-status"><strong>Đang đọc tiến độ Practice…</strong></div>
           )}
 
-          <details className="pixel-practice-fixture-evidence">
+          {testFixturesEnabled ? <details className="pixel-practice-fixture-evidence">
             <summary>DEV · BẰNG CHỨNG MÔ PHỎNG</summary>
             <div className={`pixel-practice-status is-${practice.status}`}>
               <span>{practiceLabels[practice.status].eyebrow} · MÔ PHỎNG</span>
@@ -588,7 +591,7 @@ export function TeacherWorkspace({
                 </button>
               ))}
             </div>
-          </details>
+          </details> : null}
         </section>
       )}
 

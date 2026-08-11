@@ -185,7 +185,10 @@ describe('Module 1 Practice review service', () => {
       }
     })
     expect((await progress.load()).status).toBe('returning')
-    expect((await runs.load()).activeRun?.reviewStatus).toBe('passed')
+    expect((await runs.load()).activeRun).toMatchObject({
+      reviewStatus: 'passed',
+      binding: { configuration: configuration() }
+    })
     expect((await chat.loadConversation()).messages.at(-1)?.content).toContain(
       'cả năm thiết lập'
     )

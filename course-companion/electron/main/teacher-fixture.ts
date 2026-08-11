@@ -104,13 +104,13 @@ function replyFor(context?: TeacherContext): string {
     return 'Cấu hình khóa học đề xuất cho ContentPilot là 5.6 Sol, High và Standard. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
   if (context.checkpointId === 'm1-permissions') {
-    return 'Người mới nên dùng Approve for me và không bật Full access. Bạn sẽ cài thật rồi nộp ảnh trong Practice.'
+    return 'Người mới nên dùng Approve for me và không bật Full access. Trong Practice, Course Companion đọc trực tiếp metadata hiệu lực của task; bạn không cần chụp ảnh.'
   }
   if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
     return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
   }
   if (context.checkpointId === 'm1-setup-checklist') {
-    return 'Hãy nộp hai ảnh trong đúng task Executor: một ảnh Model, Effort và Speed; một ảnh Approval cùng trạng thái Full access.'
+    return 'Hãy sửa từng giá trị trong đúng task Executor. Triết sẽ đối chiếu trực tiếp Model, Effort, Speed, Approval và Full access; nội dung chat không thể tự đánh dấu đạt.'
   }
 
   if (context.checkpointId === 'm2-prd-interview') {
@@ -126,7 +126,7 @@ function replyFor(context?: TeacherContext): string {
     context.checkpointId === 'm2-alignment-review' ||
     context.checkpointId === 'm2-planning-package'
   ) {
-    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.'
+    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra. Nếu PRD hoặc plan đổi, hãy làm lại đúng các bước bị đánh dấu cũ.'
   }
   if (context.lessonId === 'module-2') {
     return 'Ở Module 2, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'

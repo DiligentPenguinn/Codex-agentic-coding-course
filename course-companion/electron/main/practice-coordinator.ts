@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import type {
   ApprovedCodexConfiguration,
+  PracticeAdapterEvidenceState,
+  PracticeCompletionReceipt,
   PracticeDefinition,
   PracticeChecklistStep,
   PracticeIdentity,
@@ -138,7 +140,7 @@ function planningWorkspaceView(active: PracticeRunRecord): NonNullable<PracticeW
 }
 
 export class PracticeCoordinator implements PracticeWorkspaceAdapter {
-  private busy: Promise<PracticeWorkspaceView> | null = null
+  private operationTail: Promise<void> = Promise.resolve()
   private lastError = ''
 
   constructor(
@@ -149,7 +151,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly createId: () => string = randomUUID,
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>,
     private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>,
-    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry
+    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry,
+    private readonly revokeCompletion?: (receipt: PracticeCompletionReceipt) => Promise<unknown>
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
@@ -331,16 +334,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           workspaceRoot: active.binding.workspaceRoot
         }
       })
-      const refreshed = await this.repository.saveEvidence({
-        runId: active.runId,
-        generation: active.generation,
-        practiceId: active.practiceId,
-        practiceVersion: active.practiceVersion,
-        evidence,
-        checklist: active.checklist,
-        invalidations: evidence.invalidations,
-        updatedAt: evidence.observedAt
-      })
+      const refreshed = await this.saveEvidence(active, evidence)
       if (!refreshed.activeRun
         || refreshed.activeRun.runId !== active.runId
         || refreshed.activeRun.generation !== active.generation) {
@@ -364,11 +358,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   }
 
   private runExclusive(operation: () => Promise<PracticeWorkspaceView>): Promise<PracticeWorkspaceView> {
-    if (this.busy) return this.busy
-    const running = operation().finally(() => {
-      if (this.busy === running) this.busy = null
-    })
-    this.busy = running
+    const running = this.operationTail.then(operation)
+    this.operationTail = running.then(() => undefined, () => undefined)
     return running
   }
 
@@ -401,7 +392,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         workspaceRoot: active.binding.workspaceRoot
       }
     })
-    return this.repository.saveEvidence({
+    return this.saveEvidence(active, evidence)
+  }
+
+  private async saveEvidence(
+    active: PracticeRunRecord,
+    evidence: PracticeAdapterEvidenceState
+  ): Promise<PracticeWorkspaceRecord> {
+    const saved = await this.repository.saveEvidence({
       runId: active.runId,
       generation: active.generation,
       practiceId: active.practiceId,
@@ -411,6 +409,10 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       invalidations: evidence.invalidations,
       updatedAt: evidence.observedAt
     })
+    if (active.completion && !saved.activeRun?.completion) {
+      await this.revokeCompletion?.(active.completion)
+    }
+    return saved
   }
 
   private async commitTarget(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
@@ -472,42 +474,46 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     requestedIdentity?: PracticeIdentity
   ): Promise<PracticeWorkspaceView> {
     const transition = record.pendingTransition
-    const identity = record.activeRun
-      ?? transition
+    const requestedMatchesActive = !requestedIdentity || Boolean(record.activeRun
+      && record.activeRun.practiceId === requestedIdentity.practiceId
+      && record.activeRun.practiceVersion === requestedIdentity.practiceVersion)
+    const displayedRun = !transition && requestedMatchesActive ? record.activeRun : null
+    const identity = transition
       ?? requestedIdentity
+      ?? record.activeRun
     const definition = identity
       ? await this.definitions.load(identity.practiceId, identity.practiceVersion)
       : null
-    const planningReviewStep = record.activeRun?.checklist.find((step) =>
+    const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
-    const canReview = Boolean(record.activeRun && !transition && (
-      record.activeRun.evidenceProfile !== 'planning-package'
-      || (record.activeRun.learnerDecisions['scope-decision']
+    const canReview = Boolean(displayedRun && (
+      displayedRun.evidenceProfile !== 'planning-package'
+      || (displayedRun.learnerDecisions['scope-decision']
         && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
     ))
     return {
       schemaVersion: 1,
-      phase: transition ? 'switching' : record.activeRun ? 'active' : this.lastError ? 'error' : 'brief',
+      phase: transition ? 'switching' : displayedRun ? 'active' : this.lastError ? 'error' : 'brief',
       objective: definition?.objective ?? '',
       expectedOutcome: definition?.expectedOutcome ?? '',
       checklist: structuredClone(
-        record.activeRun?.checklist ?? (definition ? initialChecklist(definition) : [])
+        displayedRun?.checklist ?? (definition ? initialChecklist(definition) : [])
       ),
       ...(definition ? { completionDestination: structuredClone(definition.completionDestination) } : {}),
       review: {
-        status: record.activeRun?.reviewStatus ?? 'not-reviewed',
+        status: displayedRun?.reviewStatus ?? 'not-reviewed',
         canReview,
-        canReturn: Boolean(record.activeRun?.reviewStatus === 'passed' && record.activeRun.completion),
-        ...(record.activeRun?.reviewResult
-          ? { result: structuredClone(record.activeRun.reviewResult) }
+        canReturn: Boolean(displayedRun?.reviewStatus === 'passed' && displayedRun.completion),
+        ...(displayedRun?.reviewResult
+          ? { result: structuredClone(displayedRun.reviewResult) }
           : {})
       },
-      ...(record.activeRun?.completion ? { completion: structuredClone(record.activeRun.completion) } : {}),
-      ...(record.activeRun?.binding.configuration
-        ? { configuration: structuredClone(record.activeRun.binding.configuration) }
+      ...(displayedRun?.completion ? { completion: structuredClone(displayedRun.completion) } : {}),
+      ...(displayedRun?.binding.configuration
+        ? { configuration: structuredClone(displayedRun.binding.configuration) }
         : {}),
-      ...(record.activeRun?.evidenceProfile === 'planning-package'
-        ? { planning: planningWorkspaceView(record.activeRun) }
+      ...(displayedRun?.evidenceProfile === 'planning-package'
+        ? { planning: planningWorkspaceView(displayedRun) }
         : {}),
       ...(record.activeRun
         ? {
@@ -534,7 +540,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       presentation: structuredClone(record.presentation),
       capabilities: {
         canStartNew: !transition,
-        canResume: Boolean(record.activeRun && !transition),
+        canResume: Boolean(displayedRun),
         selectiveTransferAvailable: selectiveTransferCapability.available,
         selectiveTransferReason: selectiveTransferCapability.reason
       },

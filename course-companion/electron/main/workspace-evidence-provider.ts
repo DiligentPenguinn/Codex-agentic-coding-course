@@ -82,24 +82,46 @@ function gitOutput(workspaceRoot: string, args: string[]): Promise<Buffer> {
   })
 }
 
-function parseNullPaths(output: Buffer, workspaceRoot: string): string[] {
+function gitRelativePath(value: string, workspaceRoot: string, prefix: string): string | null {
+  const candidate = value.trim().replaceAll('\\', '/')
+  const normalizedPrefix = prefix.replaceAll('\\', '/')
+  if (normalizedPrefix && !candidate.startsWith(normalizedPrefix)) return null
+  return containedRelativePath(
+    normalizedPrefix ? candidate.slice(normalizedPrefix.length) : candidate,
+    workspaceRoot
+  )
+}
+
+async function gitPrefix(workspaceRoot: string): Promise<string> {
+  const prefix = (await gitOutput(workspaceRoot, ['rev-parse', '--show-prefix']))
+    .toString('utf8')
+    .trim()
+    .replaceAll('\\', '/')
+  if (prefix.includes('..') || isAbsolute(prefix)) throw new Error('Git prefix is unsafe')
+  return prefix && !prefix.endsWith('/') ? prefix + '/' : prefix
+}
+
+function parseNullPaths(output: Buffer, workspaceRoot: string, prefix: string): string[] {
   return [...new Set(
     output.toString('utf8')
       .split('\0')
-      .map((path) => containedRelativePath(path.trim(), workspaceRoot))
+      .map((path) => gitRelativePath(path, workspaceRoot, prefix))
       .filter((path): path is string => Boolean(path))
   )].slice(0, MAX_DIRTY_PATHS)
 }
 
 async function gitStatus(workspaceRoot: string): Promise<string[]> {
-  const output = await gitOutput(workspaceRoot, ['status', '--porcelain=v1', '-z', '--untracked-files=all'])
+  const [output, prefix] = await Promise.all([
+    gitOutput(workspaceRoot, ['status', '--porcelain=v1', '-z', '--untracked-files=all', '--', '.']),
+    gitPrefix(workspaceRoot)
+  ])
   const fields = output.toString('utf8').split('\0')
   const paths: string[] = []
   for (let index = 0; index < fields.length && paths.length < MAX_DIRTY_PATHS; index += 1) {
     const field = fields[index]
     if (!field || field.length < 4) continue
     const status = field.slice(0, 2)
-    const path = containedRelativePath(field.slice(3), workspaceRoot)
+    const path = gitRelativePath(field.slice(3), workspaceRoot, prefix)
     if (path) paths.push(path)
     if (status.includes('R') || status.includes('C')) index += 1
   }
@@ -116,9 +138,14 @@ async function gitHead(workspaceRoot: string): Promise<string | null> {
 }
 
 async function changedFromHead(workspaceRoot: string, head: string): Promise<string[]> {
+  const [output, prefix] = await Promise.all([
+    gitOutput(workspaceRoot, ['diff', '--name-only', '-z', head, '--', '.']),
+    gitPrefix(workspaceRoot)
+  ])
   return parseNullPaths(
-    await gitOutput(workspaceRoot, ['diff', '--name-only', '-z', head]),
-    workspaceRoot
+    output,
+    workspaceRoot,
+    prefix
   )
 }
 
@@ -128,17 +155,22 @@ async function committedPathsSince(
   reportedPaths: string[]
 ): Promise<string[]> {
   if (!runStartedAt || Number.isNaN(Date.parse(runStartedAt)) || reportedPaths.length === 0) return []
-  const output = await gitOutput(workspaceRoot, [
-    'log',
-    '--since=' + runStartedAt,
-    '--name-only',
-    '-z',
-    '--format=',
-    '--',
-    ...reportedPaths.slice(0, 100)
+  const [output, prefix] = await Promise.all([
+    gitOutput(workspaceRoot, [
+      'log',
+      '--since=' + runStartedAt,
+      '--name-only',
+      '-z',
+      '--format=',
+      '--',
+      ...reportedPaths.slice(0, 100)
+    ]),
+    gitPrefix(workspaceRoot)
   ])
   const reported = new Set(reportedPaths)
-  return parseNullPaths(output, workspaceRoot).filter((path) => reported.has(path)).slice(0, 100)
+  return parseNullPaths(output, workspaceRoot, prefix)
+    .filter((path) => reported.has(path))
+    .slice(0, 100)
 }
 
 async function snapshotEntries(workspaceRoot: string): Promise<Record<string, string>> {

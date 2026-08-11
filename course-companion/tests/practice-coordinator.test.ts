@@ -180,6 +180,65 @@ describe('PracticeCoordinator', () => {
     await expect(coordinator.resume(m2Identity)).rejects.toThrow('không khớp')
   })
 
+  it('shows the requested Practice brief while another Practice remains active', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId
+    )
+    await coordinator.startNew({ ...m1Identity, transfer: false })
+
+    const brief = await coordinator.loadWorkspace(m2Identity)
+
+    expect(brief).toMatchObject({
+      phase: 'brief',
+      objective: 'Tạo planning package.',
+      expectedOutcome: 'PRD và implementation plan đã duyệt.',
+      activePractice: m1Identity,
+      capabilities: { canStartNew: true, canResume: false },
+      review: { status: 'not-reviewed', canReturn: false }
+    })
+    expect(brief.checklist.map((step) => step.status))
+      .toEqual(['current', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending', 'pending'])
+    expect(brief.configuration).toBeUndefined()
+    expect(brief.planning).toBeUndefined()
+  })
+
+  it('serializes overlapping operations without replacing a learner action with a refresh result', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    let releaseCreation: () => void = () => undefined
+    const creationGate = new Promise<void>((resolve) => { releaseCreation = resolve })
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      {
+        ...testHarness.executor,
+        async createTarget(input: { runId: string }) {
+          await creationGate
+          return testHarness.executor.createTarget(input)
+        }
+      },
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId
+    )
+
+    const starting = coordinator.startNew({ ...m1Identity, transfer: false })
+    const loadingRequestedBrief = coordinator.loadWorkspace(m2Identity)
+    releaseCreation()
+
+    await expect(starting).resolves.toMatchObject({ activePractice: m1Identity })
+    await expect(loadingRequestedBrief).resolves.toMatchObject({
+      phase: 'brief',
+      objective: 'Tạo planning package.',
+      activePractice: m1Identity
+    })
+  })
+
   it('captures the Module 2 workspace baseline before sending its first instruction', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
     const testHarness = harness()

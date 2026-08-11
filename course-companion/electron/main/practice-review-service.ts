@@ -225,6 +225,26 @@ export class PracticeReviewService {
     let activity = definition.evidenceProfile === 'planning-package'
       ? await this.activity.bind(active.binding)
       : null
+    if (definition.evidenceProfile === 'codex-task-configuration') {
+      activity = await this.activity.bind(active.binding)
+      const refreshed = await this.runs.saveConfiguration({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        configuration: activity.configuration,
+        updatedAt: activity.configuration?.observedAt ?? reviewedAt
+      })
+      if (!refreshed.activeRun
+        || refreshed.activeRun.runId !== active.runId
+        || refreshed.activeRun.generation !== active.generation) {
+        throw new Error('Practice đã thay đổi trước khi Triết thu thập cấu hình task.')
+      }
+      if (active.completion && !refreshed.activeRun.completion) {
+        await this.progress.revokePracticeCompletion(active.completion)
+      }
+      reviewRun = refreshed.activeRun
+    }
     if (definition.evidenceProfile === 'planning-package') {
       if (!this.evidenceAdapters) throw new Error('Module 2 evidence adapter is unavailable.')
       const evidence = await this.evidenceAdapters.resolve('planning-package').collect({
@@ -323,6 +343,9 @@ export class PracticeReviewService {
           || latestRun.runId !== reviewRun.runId
           || latestRun.generation !== reviewRun.generation) {
           throw new Error('Practice đã thay đổi trong khi Triết đang duyệt.')
+        }
+        if (frozenRun.completion && !latestRun.completion) {
+          await this.progress.revokePracticeCompletion(frozenRun.completion)
         }
         const latestEnvelope = buildPracticeReviewEnvelope({
           definition,

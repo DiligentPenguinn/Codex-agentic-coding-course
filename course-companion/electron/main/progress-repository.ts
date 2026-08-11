@@ -537,6 +537,39 @@ export class ProgressRepository {
     })
   }
 
+  revokePracticeCompletion(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const key = completionKey(receipt)
+      const existing = current.progress.practiceCompletions.find((item) => completionKey(item) === key)
+      if (!existing) return current.progress
+      if (JSON.stringify(existing) !== JSON.stringify(receipt)) {
+        throw new Error('Practice completion receipt is not authoritative')
+      }
+      if (current.progress.checkpointId !== receipt.checkpointId
+        || current.progress.completedCheckpointIds.includes(receipt.checkpointId)) {
+        throw new Error('A returned Practice completion cannot be revoked')
+      }
+      const progress: LearnerProgress = {
+        ...current.progress,
+        practiceCompletions: current.progress.practiceCompletions
+          .filter((item) => completionKey(item) !== key),
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_completion_revoked', progress)
+      return progress
+    })
+  }
+
   returnFromPractice(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
     if (!isPracticeCompletionReceipt(receipt)) {
       return Promise.reject(new Error('Invalid Practice completion receipt'))

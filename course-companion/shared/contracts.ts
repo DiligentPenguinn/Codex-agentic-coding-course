@@ -2,6 +2,7 @@ export type RuntimeInfo = {
   appVersion: string
   platform: string
   packaged: boolean
+  testFixturesEnabled: boolean
 }
 
 export type CompanionMode = 'compact' | 'expanded'

@@ -11,6 +11,7 @@ import {
 import { ExecutorActivityRepository } from '../electron/main/executor-activity-repository'
 import type { ExecutorChatBinding } from '../electron/main/practice-run-repository'
 import type { WorkspaceEvidenceProvider } from '../electron/main/workspace-evidence-provider'
+import { TestCodexGateway } from '../electron/main/test-codex-gateway'
 
 const directories: string[] = []
 const timestamp = '2026-08-09T06:14:45.000Z'
@@ -118,6 +119,70 @@ const silentDesktopTurn = {
 }
 
 describe('Executor evidence reconciliation', () => {
+  it('models incorrect Module 1 defaults, settings notifications, disconnects, and safe or unsafe later tasks', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'test-codex-gateway-'))
+    directories.push(directory)
+    const gateway = new TestCodexGateway(directory)
+    const notifications: CodexNotification[] = []
+    const connections: CodexConnectionState[] = []
+    gateway.onNotification((notification) => notifications.push(notification))
+    gateway.onConnectionState((state) => connections.push(state))
+
+    const moduleOne = await gateway.request('thread/start', {
+      cwd: directory,
+      serviceName: 'content_builder_academy_practice'
+    }) as { thread: { id: string }; model: string; reasoningEffort: string; serviceTier: string; approvalPolicy: string; sandbox: { type: string } }
+    expect(moduleOne).toMatchObject({
+      model: 'gpt-5.6-terra',
+      reasoningEffort: 'medium',
+      serviceTier: 'fast',
+      approvalPolicy: 'never',
+      sandbox: { type: 'dangerFullAccess' }
+    })
+    for (let index = 0; index < 5; index += 1) {
+      gateway.advanceConfiguration(moduleOne.thread.id)
+    }
+    const corrected = await gateway.request('thread/resume', {
+      threadId: moduleOne.thread.id
+    }) as { model: string; reasoningEffort: string; serviceTier: string; approvalPolicy: string; sandbox: { type: string } }
+    expect(corrected).toMatchObject({
+      model: 'gpt-5.6-sol',
+      reasoningEffort: 'high',
+      serviceTier: 'standard',
+      approvalPolicy: 'on-request',
+      sandbox: { type: 'workspaceWrite' }
+    })
+    expect(notifications.filter((item) => item.method === 'thread/settings/updated')).toHaveLength(6)
+    gateway.disconnectThread(moduleOne.thread.id)
+    gateway.setConnectionState('disconnected')
+    gateway.setConnectionState('connected')
+    expect(notifications.at(-1)?.method).toBe('thread/closed')
+    expect(connections).toEqual(['connected', 'disconnected', 'connected'])
+
+    const safe = await gateway.request('thread/start', {
+      cwd: directory,
+      serviceName: 'content_builder_academy_practice',
+      model: 'gpt-5.6-sol',
+      serviceTier: 'standard',
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
+      config: { model_reasoning_effort: 'high' }
+    }) as { sandbox: { type: string } }
+    expect(safe.sandbox.type).toBe('workspaceWrite')
+
+    const unsafeGateway = new TestCodexGateway(directory, { unsafeLaterTask: true })
+    const unsafe = await unsafeGateway.request('thread/start', {
+      cwd: directory,
+      serviceName: 'content_builder_academy_practice',
+      model: 'gpt-5.6-sol',
+      serviceTier: 'standard',
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
+      config: { model_reasoning_effort: 'high' }
+    }) as { sandbox: { type: string } }
+    expect(unsafe.sandbox.type).toBe('dangerFullAccess')
+  })
+
   it('refreshes a silent Desktop turn, preserves structured facts, and keeps evidence across rebind', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-'))
     directories.push(directory)

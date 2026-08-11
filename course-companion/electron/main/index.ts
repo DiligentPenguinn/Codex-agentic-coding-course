@@ -164,7 +164,8 @@ const practiceCoordinator = new PracticeCoordinator(
       item.practiceId === 'm1-codex-safe-setup' && item.approvedConfiguration)
     return receipt?.approvedConfiguration ?? null
   },
-  evidenceAdapters
+  evidenceAdapters,
+  (receipt) => progressRepository.revokePracticeCompletion(receipt)
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
@@ -392,7 +393,8 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:get-runtime-info', (): RuntimeInfo => ({
     appVersion: app.getVersion(),
     platform: process.platform,
-    packaged: app.isPackaged
+    packaged: app.isPackaged,
+    testFixturesEnabled: useTestCodexGateway
   }))
 
   ipcMain.handle('course:load-progress', () => progressRepository.load())
@@ -523,6 +525,7 @@ function registerIpcHandlers(): void {
   ipcMain.handle(
     'course:emit-practice-fixture',
     (_event, request: PracticeFixtureRequest) => {
+      if (!useTestCodexGateway) throw new Error('Practice fixtures are available only in deterministic test mode')
       if (!isPracticeFixtureRequest(request)) throw new Error('Invalid practice fixture request')
       return practiceAdapter.emitFixture(request)
     }

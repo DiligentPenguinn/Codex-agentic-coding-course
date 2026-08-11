@@ -1,3 +1,5 @@
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import type {
   CodexConnectionListener,
   CodexNotification,
@@ -17,6 +19,12 @@ type TestThread = {
   approvalPolicy: unknown
   sandbox: Record<string, unknown>
   turns: Array<{ id: string; status: string; items: unknown[] }>
+  configurationExercise: boolean
+  configurationStage: number
+}
+
+type TestCodexGatewayOptions = {
+  unsafeLaterTask?: boolean
 }
 
 function effectiveThread(thread: TestThread): Record<string, unknown> {
@@ -37,10 +45,15 @@ export class TestCodexGateway implements CodexRequestClient {
   private failTeacherTurn = process.env.COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE === '1'
   private readonly connectionListeners = new Set<CodexConnectionListener>()
   private sequence = 0
-  private readonly silentExecutorResult = process.env.COURSE_COMPANION_FAKE_EXECUTOR_SILENT_RESULT === '1'
-  private readonly threadReads = new Map<string, number>()
+  private readonly unsafeLaterTask: boolean
 
-  constructor(private readonly workspaceRoot: string) {}
+  constructor(
+    private readonly workspaceRoot: string,
+    options: TestCodexGatewayOptions = {}
+  ) {
+    this.unsafeLaterTask = options.unsafeLaterTask
+      ?? process.env.COURSE_COMPANION_FAKE_UNSAFE_LATER_TASK === '1'
+  }
 
   onNotification(listener: CodexNotificationListener): () => void {
     this.notificationListeners.add(listener)
@@ -67,13 +80,27 @@ export class TestCodexGateway implements CodexRequestClient {
       const config = typeof params.config === 'object' && params.config !== null
         ? params.config as Record<string, unknown>
         : {}
-      const model = typeof params.model === 'string' ? params.model : 'gpt-5.6-sol'
+      const configurationExercise = params.serviceName === 'content_builder_academy_practice'
+        && typeof params.model !== 'string'
+      const model = typeof params.model === 'string'
+        ? params.model
+        : configurationExercise ? 'gpt-5.6-terra' : 'gpt-5.6-sol'
       const reasoningEffort = typeof config.model_reasoning_effort === 'string'
         ? config.model_reasoning_effort
-        : 'high'
-      const serviceTier = typeof params.serviceTier === 'string' ? params.serviceTier : null
-      const approvalPolicy = params.approvalPolicy ?? 'on-request'
-      const sandboxMode = typeof params.sandbox === 'string' ? params.sandbox : 'workspace-write'
+        : configurationExercise ? 'medium' : 'high'
+      const serviceTier = typeof params.serviceTier === 'string'
+        ? params.serviceTier
+        : configurationExercise ? 'fast' : null
+      const approvalPolicy = params.approvalPolicy
+        ?? (configurationExercise ? 'never' : 'on-request')
+      const requestedSandbox = typeof params.sandbox === 'string'
+        ? params.sandbox
+        : configurationExercise ? 'danger-full-access' : 'workspace-write'
+      const sandboxMode = this.unsafeLaterTask
+        && params.serviceName === 'content_builder_academy_practice'
+        && typeof params.model === 'string'
+        ? 'danger-full-access'
+        : requestedSandbox
       const sandbox = sandboxMode === 'danger-full-access'
         ? { type: 'dangerFullAccess' }
         : sandboxMode === 'read-only'
@@ -95,7 +122,9 @@ export class TestCodexGateway implements CodexRequestClient {
         serviceTier,
         approvalPolicy,
         sandbox,
-        turns: []
+        turns: [],
+        configurationExercise,
+        configurationStage: 0
       }
       this.threads.set(id, thread)
       return effectiveThread(thread)
@@ -114,15 +143,12 @@ export class TestCodexGateway implements CodexRequestClient {
       return {}
     }
     if (method === 'thread/read') {
-      const reads = (this.threadReads.get(threadId) ?? 0) + 1
-      this.threadReads.set(threadId, reads)
-      if (this.silentExecutorResult && !thread.ephemeral && reads >= 2 &&
-        !thread.turns.some((turn) => turn.id === 'executor-turn-silent-desktop')) {
-        thread.turns.push(silentExecutorTurn())
-      }
       return { thread }
     }
-    if (method === 'thread/resume') return effectiveThread(thread)
+    if (method === 'thread/resume') {
+      if (thread.configurationExercise) this.advanceConfiguration(thread.id)
+      return effectiveThread(thread)
+    }
     if (method === 'thread/unsubscribe' || method === 'turn/interrupt') return {}
     if (method === 'turn/start') {
       const turnId = `turn-${++this.sequence}`
@@ -165,6 +191,11 @@ export class TestCodexGateway implements CodexRequestClient {
       const item = { id: `message-${turnId}`, type: 'agentMessage', phase: 'final_answer', text: answer }
       const turn = { id: turnId, status: 'completed', items: [userItem, item] }
       thread.turns.push(turn)
+      if (thread.name?.includes('m2-planning-package')
+        && !thread.turns.some((candidate) => candidate.id === 'planning-interview-1')) {
+        await writePlanningArtifacts(thread.cwd)
+        thread.turns.push(...planningInterviewTurns())
+      }
       queueMicrotask(() => {
         this.emit({ method: 'item/completed', params: { threadId, turnId, item } })
         this.emit({ method: 'turn/completed', params: { threadId, turn } })
@@ -180,33 +211,165 @@ export class TestCodexGateway implements CodexRequestClient {
     this.emit({ method: 'item/completed', params: { threadId, turnId, item } })
   }
 
+  advanceConfiguration(threadId: string): Record<string, unknown> {
+    const thread = this.threads.get(threadId)
+    if (!thread) throw new Error(`Unknown smoke-test thread: ${threadId}`)
+    thread.configurationStage = Math.min(5, thread.configurationStage + 1)
+    if (thread.configurationStage >= 1) thread.model = 'gpt-5.6-sol'
+    if (thread.configurationStage >= 2) thread.reasoningEffort = 'high'
+    if (thread.configurationStage >= 3) thread.serviceTier = 'standard'
+    if (thread.configurationStage >= 4) thread.approvalPolicy = 'on-request'
+    if (thread.configurationStage >= 5) {
+      thread.sandbox = {
+        type: 'workspaceWrite',
+        writableRoots: [thread.cwd],
+        networkAccess: false,
+        excludeTmpdirEnvVar: false,
+        excludeSlashTmp: false
+      }
+    }
+    const threadSettings = {
+      model: thread.model,
+      effort: thread.reasoningEffort,
+      serviceTier: thread.serviceTier,
+      approvalPolicy: thread.approvalPolicy,
+      sandboxPolicy: thread.sandbox,
+      activePermissionProfile: thread.sandbox.type === 'dangerFullAccess'
+        ? { id: ':danger-full-access', extends: null }
+        : null
+    }
+    this.emit({
+      method: 'thread/settings/updated',
+      emittedAtMs: Date.now() + thread.configurationStage,
+      params: { threadId, threadSettings }
+    })
+    return structuredClone(threadSettings)
+  }
+
+  disconnectThread(threadId: string): void {
+    if (!this.threads.has(threadId)) throw new Error(`Unknown smoke-test thread: ${threadId}`)
+    this.emit({ method: 'thread/closed', params: { threadId } })
+  }
+
+  setConnectionState(state: 'connecting' | 'connected' | 'disconnected'): void {
+    for (const listener of this.connectionListeners) listener(state)
+  }
+
   private emit(notification: CodexNotification): void {
     for (const listener of this.notificationListeners) listener(notification)
   }
 }
 
-function silentExecutorTurn(): TestThread['turns'][number] {
-  return {
-    id: 'executor-turn-silent-desktop',
-    status: 'completed',
-    items: [
-      { id: 'executor-user', type: 'userMessage', content: [{ type: 'text', text: 'resume' }] },
-      { id: 'executor-reasoning', type: 'reasoning' },
-      {
-        id: 'executor-final',
-        type: 'agentMessage',
-        phase: 'final_answer',
-        text: [
-          '**Changed**',
-          '- Updated starters/contentpilot/app/globals.css:138.',
-          '',
-          '**Verification**',
-          '- npm run lint — passed.',
-          '- At 390px, scrollWidth: 390, innerWidth: 390, hasHorizontalOverflow: false.'
-        ].join('\n')
-      }
-    ]
-  }
+const deterministicPrd = `# PRD ContentPilot
+
+## 1. Ý tưởng sản phẩm
+Tạo một công cụ giúp người làm nội dung biến một ý tưởng thành bản nháp có cấu trúc.
+
+## 2. Luồng sử dụng cốt lõi
+Người dùng nhập ý tưởng, chọn giọng điệu, xem bản nháp rồi tự quyết định có sử dụng hay không.
+
+## 3. Input
+Một ý tưởng ngắn và lựa chọn giọng điệu.
+
+## 4. Output
+Một bản nháp hiển thị rõ tiêu đề, nội dung và gợi ý chỉnh sửa.
+
+## 5. Phạm vi phiên bản 1
+Nhận ý tưởng, tạo một bản nháp và cho phép sao chép kết quả.
+
+## 6. Ngoài phạm vi
+Không tự động đăng bài, không quản lý tài khoản mạng xã hội và không thu thập dữ liệu riêng tư.
+
+## 7. Done When
+- Người dùng nhập được ý tưởng và nhận một bản nháp có thể quan sát.
+- Bản nháp hiển thị tốt và có thể sao chép.
+- Không có chức năng tự động đăng bài.
+
+## 8. Câu hỏi còn mở
+- Cần hỗ trợ những giọng điệu nào trong phiên bản đầu?
+`
+
+const deterministicPlan = `# Implementation plan ContentPilot
+
+Nguồn duy nhất cho phạm vi: artifacts/PRD.md đã được người học duyệt.
+
+## 1. Cách tiếp cận tổng thể
+Chia luồng tạo bản nháp thành các bước nhỏ, giữ ranh giới ngoài phạm vi và kiểm tra sau mỗi bước.
+
+## 2. Các bước triển khai
+
+### Bước 1 — Thu thập ý tưởng
+Mục tiêu: Nhận ý tưởng và giọng điệu từ người dùng.
+Thành phần hoặc file dự kiến: Biểu mẫu đầu vào ContentPilot.
+Kết quả có thể quan sát: Dữ liệu hợp lệ được hiển thị trước khi tạo bản nháp.
+Cách kiểm tra: Nhập dữ liệu hợp lệ và thiếu dữ liệu để quan sát phản hồi.
+Phụ thuộc: Không có.
+Yêu cầu PRD liên quan: Input và luồng sử dụng cốt lõi.
+
+### Bước 2 — Trình bày bản nháp
+Mục tiêu: Trả kết quả có tiêu đề, nội dung và thao tác sao chép.
+Thành phần hoặc file dự kiến: Vùng kết quả ContentPilot.
+Kết quả có thể quan sát: Bản nháp hiển thị rõ và sao chép được.
+Cách kiểm tra: Hoàn thành toàn bộ luồng và so sánh với Done When.
+Phụ thuộc: Bước 1.
+Yêu cầu PRD liên quan: Output, phạm vi phiên bản 1 và Done When.
+
+## 3. Giả định, rủi ro và quyết định kỹ thuật còn mở
+Giả định dịch vụ tạo nội dung sẵn sàng; cần quyết định cách báo lỗi dễ hiểu cho người mới.
+
+## 4. Kiểm tra toàn bộ luồng
+- Mọi yêu cầu trong phạm vi PRD đều có bước triển khai.
+- Mọi bước đều truy ngược được về một yêu cầu trong PRD.
+- Không có nội dung thuộc phần ngoài phạm vi.
+- Mọi mục \`Done When\` của PRD đều có cách kiểm tra tương ứng.
+`
+
+async function writePlanningArtifacts(workspaceRoot: string): Promise<void> {
+  const artifacts = join(workspaceRoot, 'artifacts')
+  await mkdir(artifacts, { recursive: true })
+  await Promise.all([
+    writeFile(join(artifacts, 'PRD.md'), deterministicPrd, 'utf8'),
+    writeFile(join(artifacts, 'implementation-plan.md'), deterministicPlan, 'utf8')
+  ])
+}
+
+function planningInterviewTurns(): TestThread['turns'] {
+  return [
+    {
+      id: 'planning-interview-1',
+      status: 'completed',
+      items: [
+        {
+          id: 'planning-learner-prompt',
+          type: 'userMessage',
+          content: [{ type: 'text', text: 'Hãy phỏng vấn tôi từng câu một để tạo PRD ContentPilot đủ tám phần; chưa viết code và không tự quyết định phạm vi.' }]
+        },
+        {
+          id: 'planning-executor-question',
+          type: 'agentMessage',
+          phase: 'final_answer',
+          text: 'Ai là người dùng chính và kết quả quan sát được họ cần là gì?'
+        }
+      ]
+    },
+    {
+      id: 'planning-interview-2',
+      status: 'completed',
+      items: [
+        {
+          id: 'planning-learner-answer',
+          type: 'userMessage',
+          content: [{ type: 'text', text: 'Người làm nội dung cần nhận bản nháp có cấu trúc, còn tự động đăng bài nằm ngoài phạm vi V1.' }]
+        },
+        {
+          id: 'planning-executor-result',
+          type: 'agentMessage',
+          phase: 'final_answer',
+          text: 'Cuộc phỏng vấn đã hoàn tất; PRD và implementation plan đã được tạo để người học xem xét.'
+        }
+      ]
+    }
+  ]
 }
 
 function summaryAnswer(input: string): string {

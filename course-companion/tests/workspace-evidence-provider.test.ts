@@ -14,6 +14,22 @@ afterEach(async () => {
 })
 
 describe('GitWorkspaceEvidenceProvider', () => {
+  it('reports paths relative to a nested Practice workspace instead of the Git root', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'workspace-evidence-nested-'))
+    directories.push(directory)
+    await run('git', ['init'], { cwd: directory })
+    const workspace = join(directory, 'pilot-workspace')
+    await mkdir(join(workspace, 'artifacts'), { recursive: true })
+
+    const provider = new GitWorkspaceEvidenceProvider()
+    const baseline = await provider.capture(workspace, '2026-08-09T00:00:00.000Z')
+    await writeFile(join(workspace, 'artifacts', 'PRD.md'), '# PRD\n', 'utf8')
+
+    const result = await provider.reconcile(workspace, baseline)
+
+    expect(result.changedSinceBaseline).toEqual(['artifacts/PRD.md'])
+  })
+
   it('attributes new and newly modified dirty files while excluding unchanged baseline dirt', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'workspace-evidence-'))
     directories.push(directory)

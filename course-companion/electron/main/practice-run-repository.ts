@@ -522,6 +522,34 @@ export class PracticeRunRepository {
     })
   }
 
+  saveConfiguration(input: RunIdentity & {
+    configuration: import('../../shared/contracts').CodexTaskConfigurationSnapshot | null
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      if (!matchesRun(record.activeRun, input)) return record
+      if (input.configuration
+        && (!isCodexTaskConfigurationSnapshot(input.configuration)
+          || input.configuration.runId !== record.activeRun.runId
+          || input.configuration.threadId !== record.activeRun.binding.threadId)) {
+        return record
+      }
+      const binding = structuredClone(record.activeRun.binding)
+      delete binding.configuration
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...record.activeRun,
+          binding: input.configuration
+            ? { ...binding, configuration: structuredClone(input.configuration) }
+            : binding,
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
   saveLearnerDecision(input: RunIdentity & {
     key: string
     value: string

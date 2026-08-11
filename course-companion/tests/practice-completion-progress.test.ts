@@ -61,6 +61,14 @@ describe('Practice completion progress', () => {
       ...receipt,
       evidenceSummary: 'Conflicting stale review'
     })).rejects.toThrow('different completion receipt')
+    await expect(repository.revokePracticeCompletion({
+      ...receipt,
+      evidenceSummary: 'Conflicting stale review'
+    })).rejects.toThrow('not authoritative')
+    await expect(repository.revokePracticeCompletion(receipt)).resolves.toMatchObject({
+      practiceCompletions: []
+    })
+    await repository.recordPracticeCompletion(receipt)
     await expect(repository.returnFromPractice({
       ...receipt,
       evidenceSummary: 'Conflicting stale review'
@@ -73,6 +81,7 @@ describe('Practice completion progress', () => {
       practiceCompletions: [receipt]
     })
     await expect(repository.returnFromPractice(receipt)).resolves.toEqual(returned)
+    await expect(repository.revokePracticeCompletion(receipt)).rejects.toThrow('cannot be revoked')
     await expect(new ProgressRepository(directory).returnFromPractice(receipt)).resolves.toEqual(returned)
     await expect(repository.recordPracticeCompletion({
       ...receipt,

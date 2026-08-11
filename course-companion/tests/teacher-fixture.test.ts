@@ -60,6 +60,33 @@ describe('FixtureTeacherAdapter', () => {
     })
   })
 
+  it('explains direct Module 1 metadata and Module 2 dependency recovery without granting completion', async () => {
+    const repository = new TeacherChatRepository(await temporaryDirectory())
+    const adapter = new FixtureTeacherAdapter(repository)
+    const moduleOne = await adapter.sendMessage({
+      content: 'Tôi cần nộp gì?',
+      context: {
+        lessonId: 'module-1',
+        checkpointId: 'm1-setup-checklist',
+        sceneId: 'module-1-setup-checklist'
+      }
+    })
+    const moduleTwo = await adapter.sendMessage({
+      content: 'PRD vừa đổi thì sao?',
+      context: {
+        lessonId: 'module-2',
+        checkpointId: 'm2-planning-package',
+        sceneId: 'module-2-planning-package'
+      }
+    })
+
+    expect(moduleOne.teacherMessage.content).toContain('đối chiếu trực tiếp')
+    expect(moduleOne.teacherMessage.content).toContain('không thể tự đánh dấu đạt')
+    expect(moduleOne.teacherMessage.content).not.toContain('nộp hai ảnh')
+    expect(moduleTwo.teacherMessage.content).toContain('đúng các bước bị đánh dấu cũ')
+    expect(moduleTwo.teacherMessage.checkpointId).toBe('m2-planning-package')
+  })
+
   it('persists companion mode independently from the chat messages', async () => {
     const repository = new TeacherChatRepository(await temporaryDirectory())
     await expect(repository.loadMode()).resolves.toBe('compact')
