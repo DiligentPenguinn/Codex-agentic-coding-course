@@ -36,6 +36,7 @@ const progress: LearnerProgress = {
 const definition: PracticeDefinition = {
   schemaVersion: 2,
   practiceId: 'm1-codex-safe-setup',
+  title: 'Thiết lập Codex an toàn',
   version: '2.0.0',
   checkpointId: 'm1-setup-checklist',
   objective: 'Thiết lập Codex an toàn.',
@@ -50,7 +51,8 @@ const definition: PracticeDefinition = {
   completionDestination: {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    sceneId: 'module-1-mastery'
+    sceneId: 'module-1-mastery',
+    label: 'Phần tổng kết Module 1'
   }
 }
 

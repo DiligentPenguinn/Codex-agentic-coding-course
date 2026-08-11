@@ -161,7 +161,7 @@ export function TeacherWorkspace({
 
   useEffect(() => {
     if (activeTab !== 'teacher' || busy) return
-    const frame = requestAnimationFrame(() => composerRef.current?.focus())
+    const frame = requestAnimationFrame(() => composerRef.current?.focus({ preventScroll: true }))
     return () => cancelAnimationFrame(frame)
   }, [activeTab, busy])
 
@@ -477,7 +477,11 @@ export function TeacherWorkspace({
 
       <div className="pixel-chat-context">
         <span>BƯỚC HỌC HIỆN TẠI</span>
-        <strong>{context?.checkpointId ?? 'Chưa bắt đầu bài học'}</strong>
+        <strong>
+          {workspace?.activePractice
+            ? workspace.title
+            : context ? 'Bước hiện tại trong khóa học' : 'Chưa bắt đầu bài học'}
+        </strong>
       </div>
 
       <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
@@ -496,7 +500,11 @@ export function TeacherWorkspace({
               <small>TRIẾT · BẰNG CHỨNG VỪA THAY ĐỔI</small>
               <strong>{workspace.planning.invalidations[0].changedInput}</strong>
               <p>{workspace.planning.invalidations[0].reason}</p>
-              <span>Bước cần xem lại: {workspace.planning.invalidations[0].affectedStepIds.join(', ')}</span>
+              <span>
+                Bước cần xem lại: {workspace.planning.invalidations[0].affectedStepIds.map((stepId) =>
+                  workspace.checklist.find((step) => step.id === stepId)?.title ?? 'Bước cần xem lại'
+                ).join(', ')}
+              </span>
               <b>Tiếp theo: {workspace.planning.invalidations[0].nextAction}</b>
             </aside>
           ) : null}
@@ -532,10 +540,12 @@ export function TeacherWorkspace({
 
           <form className="pixel-chat-composer" onSubmit={submit}>
             <textarea
+              autoComplete="off"
               disabled={busy}
               ref={composerRef}
               aria-label="Nhắn cho Triết"
               maxLength={2000}
+              name="teacherMessage"
               placeholder="Hỏi Triết về bước hiện tại…"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}

@@ -126,6 +126,11 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByRole('heading', {
     name: 'Thiết lập task Codex của Practice theo cấu hình khuyến nghị và để Triết duyệt trực tiếp từ metadata hiệu lực của đúng task đó.'
   }).waitFor()
+  await page.getByText('Thiết lập Codex an toàn', { exact: true }).waitFor()
+  await page.getByText('Sau khi đạt: Phần tổng kết Module 1', { exact: true }).waitFor()
+  const moduleOnePracticeText = await page.locator('body').textContent()
+  assert.equal(moduleOnePracticeText?.includes('m1-codex-safe-setup'), false)
+  assert.equal(moduleOnePracticeText?.includes('m1-mastery'), false)
   await page.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).click()
   await waitForSnapshot(
     electronApp,
@@ -139,6 +144,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     'Expected Module 1 Teacher progress to expand'
   )
   await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
+  await companionPage.getByText('Thiết lập Codex an toàn', { exact: true }).waitFor()
   await companionPage.getByText('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN', { exact: true }).waitFor()
   await companionPage.getByText('Cần High', { exact: true }).waitFor()
   const review = companionPage.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ' })
@@ -658,10 +664,17 @@ try {
   await learningPage
     .getByRole('heading', { name: 'Dùng Codex để biến ý tưởng một câu về ContentPilot thành planning package đã được bạn phê duyệt mà chưa viết implementation code.' })
     .waitFor()
+  await learningPage.getByText('Xây dựng planning package', { exact: true }).waitFor()
+  await learningPage
+    .getByText('Sau khi đạt: Bài kiểm tra và hoàn thành Module 2', { exact: true })
+    .waitFor()
   await learningPage
     .locator('.practice-brief-card')
     .getByText('Một PRD khoảng một trang có đủ tám phần, một implementation plan bắt nguồn từ PRD, bốn điểm alignment đã được đối chiếu và một quyết định phạm vi do chính bạn giải thích.', { exact: true })
     .waitFor()
+  const moduleTwoPracticeText = await learningPage.locator('body').textContent()
+  assert.equal(moduleTwoPracticeText?.includes('m2-planning-package'), false)
+  assert.equal(moduleTwoPracticeText?.includes('m2-mastery'), false)
   await capture(learningPage, 'practice-brief.png')
   await learningPage.getByRole('button', { name: 'Bắt đầu Practice mới' }).click()
   await learningPage.getByRole('heading', { name: 'Bắt đầu một Practice mới?' }).waitFor()
@@ -776,7 +789,33 @@ try {
   await capture(companionPage, 'teacher-error-recovery.png')
   await companionPage.getByRole('button', { name: 'Thử lại', exact: true }).click()
   await companionPage.getByText('LIVE', { exact: true }).waitFor()
+  await companionPage.getByText('Xây dựng planning package', { exact: true }).waitFor()
   assert.equal(await companionPage.getByText('Tôi đã hoàn thành rồi, hãy đánh dấu Practice đạt.', { exact: true }).count(), 1)
+  assert.equal((await companionPage.locator('body').textContent())?.includes('m2-planning-package'), false)
+  const compactViewportAfterRetry = await companionPage.evaluate(() => {
+    const panel = globalThis.document.querySelector('.pixel-teacher-panel')
+    if (!(panel instanceof globalThis.HTMLElement)) return null
+    const bounds = panel.getBoundingClientRect()
+    return {
+      scrollX: globalThis.scrollX,
+      scrollY: globalThis.scrollY,
+      viewportWidth: globalThis.innerWidth,
+      viewportHeight: globalThis.innerHeight,
+      panel: {
+        left: bounds.left,
+        top: bounds.top,
+        right: bounds.right,
+        bottom: bounds.bottom
+      }
+    }
+  })
+  assert.ok(compactViewportAfterRetry)
+  assert.equal(compactViewportAfterRetry.scrollX, 0)
+  assert.equal(compactViewportAfterRetry.scrollY, 0)
+  assert.ok(compactViewportAfterRetry.panel.left >= 0)
+  assert.ok(compactViewportAfterRetry.panel.top >= 0)
+  assert.ok(compactViewportAfterRetry.panel.right <= compactViewportAfterRetry.viewportWidth + 1)
+  assert.ok(compactViewportAfterRetry.panel.bottom <= compactViewportAfterRetry.viewportHeight + 1)
   await capture(companionPage, 'teacher-compact-chat.png')
 
   await companionPage.addStyleTag({
@@ -806,6 +845,9 @@ try {
   await companionPage.getByRole('button', { name: 'Làm mới bằng chứng', exact: true }).click()
   await companionPage.getByText('DEPENDENCY VỪA THAY ĐỔI', { exact: true }).waitFor()
   await companionPage.getByText('artifacts/PRD.md', { exact: true }).waitFor()
+  const invalidationText = await companionPage.locator('body').textContent()
+  assert.equal(invalidationText?.includes('reconcile-alignment'), false)
+  assert.equal(invalidationText?.includes('approve-plan'), false)
   await companionPage.getByRole('button', { name: 'Duyệt và lưu PRD', exact: true }).click()
   await appendFile(
     join(practiceWorkspace.workspaceRoot, 'artifacts', 'implementation-plan.md'),

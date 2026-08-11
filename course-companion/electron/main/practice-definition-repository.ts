@@ -69,6 +69,10 @@ function bounded(value: unknown, maximum: number): value is string {
   return typeof value === 'string' && value.length > 0 && value.length <= maximum
 }
 
+function boundedLearnerLabel(value: unknown, maximum: number): value is string {
+  return bounded(value, maximum) && value.trim().length > 0
+}
+
 function parseChecklist(value: unknown, legacy: boolean): PracticeChecklistDefinition[] {
   if (!Array.isArray(value) || value.length < 1 || value.length > 20) {
     throw new Error('Invalid Practice checklist')
@@ -173,10 +177,27 @@ function parseCriteria(value: unknown, checklist: PracticeChecklistDefinition[])
   return criteria
 }
 
-function parseDestination(value: unknown): PracticeDefinition['completionDestination'] {
+function parseDestination(
+  value: unknown,
+  legacy: false
+): PracticeDefinition['completionDestination']
+function parseDestination(
+  value: unknown,
+  legacy: true
+): Omit<LegacyPracticeDefinitionV1['completionDestination'], 'label'>
+function parseDestination(
+  value: unknown,
+  legacy: boolean
+): PracticeDefinition['completionDestination'] | Omit<LegacyPracticeDefinitionV1['completionDestination'], 'label'> {
   const destination = record(value)
-  if (!destination || !exactKeys(destination, ['checkpointId', 'lessonId', 'sceneId'])) {
+  const expectedKeys = legacy
+    ? ['checkpointId', 'lessonId', 'sceneId']
+    : ['checkpointId', 'label', 'lessonId', 'sceneId']
+  if (!destination || !exactKeys(destination, expectedKeys)) {
     throw new Error('Invalid Practice completion destination')
+  }
+  if (!legacy && !boundedLearnerLabel(destination.label, 200)) {
+    throw new Error('Invalid Practice completion destination label')
   }
   if ((destination.lessonId !== 'intro'
       && destination.lessonId !== 'module-1'
@@ -205,11 +226,13 @@ export function parsePracticeDefinition(value: unknown): PracticeDefinition {
     'practiceId',
     'schemaVersion',
     'taskPolicy',
+    'title',
     'version',
     'workspaceKind'
   ])) throw new Error('Invalid Practice definition shape')
   if (input.schemaVersion !== 2) throw new Error('Unsupported current Practice definition schema')
   if (!bounded(input.practiceId, 160) || !ID.test(input.practiceId)) throw new Error('Invalid Practice id')
+  if (!boundedLearnerLabel(input.title, 160)) throw new Error('Invalid Practice title')
   if (!bounded(input.version, 40) || !VERSION.test(input.version)) throw new Error('Invalid Practice version')
   if (typeof input.checkpointId !== 'string' || !checkpoints.has(input.checkpointId)) {
     throw new Error('Invalid Practice checkpoint')
@@ -231,7 +254,7 @@ export function parsePracticeDefinition(value: unknown): PracticeDefinition {
   }
   const checklist = parseChecklist(input.checklist, false)
   const criteria = parseCriteria(input.criteria, checklist)
-  const completionDestination = parseDestination(input.completionDestination)
+  const completionDestination = parseDestination(input.completionDestination, false)
   return structuredClone({
     ...input,
     checklist,
@@ -264,12 +287,16 @@ export function parseLegacyPracticeDefinitionV1(value: unknown): LegacyPracticeD
   }
   const checklist = parseChecklist(input.checklist, true)
   const criteria = parseCriteria(input.criteria, checklist)
-  const completionDestination = parseDestination(input.completionDestination)
+  const completionDestination = parseDestination(input.completionDestination, true)
   return structuredClone({
     ...input,
+    title: 'Bài thực hành',
     checklist,
     criteria,
-    completionDestination
+    completionDestination: {
+      ...completionDestination,
+      label: 'Bước tiếp theo trong khóa học'
+    }
   }) as LegacyPracticeDefinitionV1
 }
 

@@ -9,6 +9,7 @@ import {
 const definition: PracticeDefinition = {
   schemaVersion: 2,
   practiceId: 'm2-planning-package',
+  title: 'Xây dựng planning package',
   version: '2.0.0',
   checkpointId: 'm2-planning-package',
   objective: 'Lập kế hoạch.',
@@ -21,7 +22,8 @@ const definition: PracticeDefinition = {
   completionDestination: {
     lessonId: 'module-2',
     checkpointId: 'm2-mastery',
-    sceneId: 'module-2-mastery'
+    sceneId: 'module-2-mastery',
+    label: 'Bài kiểm tra và hoàn thành Module 2'
   }
 }
 

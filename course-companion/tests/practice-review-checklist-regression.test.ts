@@ -5,6 +5,7 @@ import type { PracticeDefinition, PracticeReviewResult } from '../shared/contrac
 const definition: PracticeDefinition = {
   schemaVersion: 2,
   practiceId: 'practice-1',
+  title: 'Bài thực hành',
   version: '1.0.0',
   checkpointId: 'm1-setup-checklist',
   objective: 'Objective',
@@ -39,7 +40,8 @@ const definition: PracticeDefinition = {
   completionDestination: {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    sceneId: 'module-1-mastery'
+    sceneId: 'module-1-mastery',
+    label: 'Bước tiếp theo trong khóa học'
   }
 }
 

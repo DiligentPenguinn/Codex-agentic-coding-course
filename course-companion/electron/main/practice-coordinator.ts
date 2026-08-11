@@ -494,12 +494,20 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     return {
       schemaVersion: 1,
       phase: transition ? 'switching' : displayedRun ? 'active' : this.lastError ? 'error' : 'brief',
+      title: definition?.title ?? 'Bài thực hành',
       objective: definition?.objective ?? '',
       expectedOutcome: definition?.expectedOutcome ?? '',
       checklist: structuredClone(
         displayedRun?.checklist ?? (definition ? initialChecklist(definition) : [])
       ),
-      ...(definition ? { completionDestination: structuredClone(definition.completionDestination) } : {}),
+      ...(definition
+        ? {
+            completionDestination: {
+              ...structuredClone(definition.completionDestination),
+              label: definition.completionDestination.label || 'Bước tiếp theo trong khóa học'
+            }
+          }
+        : {}),
       review: {
         status: displayedRun?.reviewStatus ?? 'not-reviewed',
         canReview,

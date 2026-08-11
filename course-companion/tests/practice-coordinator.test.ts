@@ -47,6 +47,7 @@ async function definitions(): Promise<PracticeDefinitionRepository> {
   const m1 = {
     ...base,
     practiceId: m1Identity.practiceId,
+    title: 'Thiết lập Codex an toàn',
     version: m1Identity.practiceVersion,
     checkpointId: 'm1-setup-checklist',
     objective: 'Thiết lập Codex an toàn.',
@@ -56,12 +57,14 @@ async function definitions(): Promise<PracticeDefinitionRepository> {
     completionDestination: {
       lessonId: 'module-1',
       checkpointId: 'm1-mastery',
-      sceneId: 'module-1-mastery'
+      sceneId: 'module-1-mastery',
+      label: 'Phần tổng kết Module 1'
     }
   }
   const m2 = {
     ...base,
     practiceId: m2Identity.practiceId,
+    title: 'Xây dựng planning package',
     version: m2Identity.practiceVersion,
     checkpointId: 'm2-planning-package',
     objective: 'Tạo planning package.',
@@ -85,7 +88,8 @@ async function definitions(): Promise<PracticeDefinitionRepository> {
     completionDestination: {
       lessonId: 'module-2',
       checkpointId: 'm2-mastery',
-      sceneId: 'module-2-mastery'
+      sceneId: 'module-2-mastery',
+      label: 'Bài kiểm tra và hoàn thành Module 2'
     }
   }
   await Promise.all([
@@ -196,7 +200,9 @@ describe('PracticeCoordinator', () => {
 
     expect(brief).toMatchObject({
       phase: 'brief',
+      title: 'Xây dựng planning package',
       objective: 'Tạo planning package.',
+      completionDestination: { label: 'Bài kiểm tra và hoàn thành Module 2' },
       expectedOutcome: 'PRD và implementation plan đã duyệt.',
       activePractice: m1Identity,
       capabilities: { canStartNew: true, canResume: false },
@@ -234,6 +240,7 @@ describe('PracticeCoordinator', () => {
     await expect(starting).resolves.toMatchObject({ activePractice: m1Identity })
     await expect(loadingRequestedBrief).resolves.toMatchObject({
       phase: 'brief',
+      title: 'Xây dựng planning package',
       objective: 'Tạo planning package.',
       activePractice: m1Identity
     })

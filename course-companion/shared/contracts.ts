@@ -540,6 +540,7 @@ export type ApprovedCodexConfiguration = {
 export type LegacyPracticeDefinitionV1 = {
   schemaVersion: 1
   practiceId: string
+  title: string
   version: string
   checkpointId: CheckpointId
   objective: string
@@ -550,12 +551,20 @@ export type LegacyPracticeDefinitionV1 = {
     lessonId: LessonId
     checkpointId: CheckpointId
     sceneId: SceneId
+    label: string
   }
+}
+
+export type PracticeCompletionDestination = {
+  lessonId: LessonId
+  checkpointId: CheckpointId
+  sceneId: SceneId
 }
 
 export type PracticeDefinition = {
   schemaVersion: 2
   practiceId: string
+  title: string
   version: string
   checkpointId: CheckpointId
   objective: string
@@ -565,11 +574,7 @@ export type PracticeDefinition = {
   evidenceProfile: PracticeEvidenceProfile
   checklist: PracticeChecklistDefinition[]
   criteria: PracticeCriterionDefinition[]
-  completionDestination: {
-    lessonId: LessonId
-    checkpointId: CheckpointId
-    sceneId: SceneId
-  }
+  completionDestination: PracticeCompletionDestination & { label: string }
 }
 
 export type PracticeEvidenceReference = {
@@ -683,7 +688,7 @@ export type PracticeCompletionReceipt = {
   completedAt: string
   evidenceSummary: string
   masterySummary: string
-  destination: PracticeDefinition['completionDestination']
+  destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
 }
 
@@ -721,6 +726,7 @@ export type PracticePlanningWorkspaceView = {
 export type PracticeWorkspaceView = {
   schemaVersion: 1
   phase: 'brief' | 'switching' | 'active' | 'error'
+  title: string
   objective: string
   expectedOutcome: string
   checklist: PracticeChecklistStep[]

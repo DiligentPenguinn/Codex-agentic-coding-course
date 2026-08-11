@@ -21,6 +21,7 @@ function definition(policy: 'inherit-configuration-only' | 'safe-workspace-write
   return {
     schemaVersion: 2,
     practiceId: moduleTwo ? 'm2-planning-package' : 'm1-codex-safe-setup',
+    title: moduleTwo ? 'Xây dựng planning package' : 'Thiết lập Codex an toàn',
     version: '2.0.0',
     checkpointId: moduleTwo ? 'm2-planning-package' : 'm1-setup-checklist',
     objective: 'Hoàn thành mục tiêu Practice.',
@@ -31,8 +32,8 @@ function definition(policy: 'inherit-configuration-only' | 'safe-workspace-write
     checklist: [{ id: 'start', title: 'Bắt đầu', dependsOn: [] }],
     criteria: [],
     completionDestination: moduleTwo
-      ? { lessonId: 'module-2', checkpointId: 'm2-mastery', sceneId: 'module-2-mastery' }
-      : { lessonId: 'module-1', checkpointId: 'm1-mastery', sceneId: 'module-1-mastery' }
+      ? { lessonId: 'module-2', checkpointId: 'm2-mastery', sceneId: 'module-2-mastery', label: 'Bài kiểm tra và hoàn thành Module 2' }
+      : { lessonId: 'module-1', checkpointId: 'm1-mastery', sceneId: 'module-1-mastery', label: 'Phần tổng kết Module 1' }
   }
 }
 

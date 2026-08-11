@@ -13,6 +13,7 @@ const temporaryDirectories: string[] = []
 type MutableDefinition = {
   schemaVersion: number
   practiceId: string
+  title: string
   version: string
   checkpointId: string
   objective: string
@@ -34,12 +35,14 @@ type MutableDefinition = {
     lessonId: string
     checkpointId: string
     sceneId: string
+    label: string
   }
 }
 
 const validDefinition: MutableDefinition = {
   schemaVersion: 2,
   practiceId: 'm1-codex-safe-setup',
+  title: 'Thiết lập Codex an toàn',
   version: '2.0.0',
   checkpointId: 'm1-setup-checklist',
   objective: 'Thiết lập Codex an toàn.',
@@ -65,7 +68,8 @@ const validDefinition: MutableDefinition = {
   completionDestination: {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    sceneId: 'module-1-mastery'
+    sceneId: 'module-1-mastery',
+    label: 'Phần tổng kết Module 1'
   }
 }
 
@@ -93,9 +97,48 @@ describe('PracticeDefinitionRepository', () => {
       .load('m1-codex-safe-setup', '2.0.0')
 
     expect(definition.schemaVersion).toBe(2)
+    expect(definition.title).toBe('Thiết lập Codex an toàn')
+    expect(definition.completionDestination.label).toBe('Phần tổng kết Module 1')
     expect(definition.checklist[0]!.dependsOn).toEqual([])
     expect(definition.checklist[1]!.dependsOn).toEqual(['open-task'])
     expect(definition.evidenceProfile).toBe('codex-task-configuration')
+  })
+
+  it('requires bounded learner-facing labels and rejects unknown destination fields', () => {
+    const missingTitle = cloneDefinition() as Partial<MutableDefinition>
+    delete missingTitle.title
+    expect(() => parsePracticeDefinition(missingTitle)).toThrow('Invalid Practice definition shape')
+
+    const blankTitle = cloneDefinition()
+    blankTitle.title = '   '
+    expect(() => parsePracticeDefinition(blankTitle)).toThrow('Invalid Practice title')
+
+    const oversizedTitle = cloneDefinition()
+    oversizedTitle.title = 'a'.repeat(161)
+    expect(() => parsePracticeDefinition(oversizedTitle)).toThrow('Invalid Practice title')
+
+    const missingDestinationLabel = cloneDefinition()
+    delete (missingDestinationLabel.completionDestination as
+      Partial<MutableDefinition['completionDestination']>).label
+    expect(() => parsePracticeDefinition(missingDestinationLabel))
+      .toThrow('Invalid Practice completion destination')
+
+    const blankDestinationLabel = cloneDefinition()
+    blankDestinationLabel.completionDestination.label = '   '
+    expect(() => parsePracticeDefinition(blankDestinationLabel))
+      .toThrow('Invalid Practice completion destination label')
+
+    const oversizedDestinationLabel = cloneDefinition()
+    oversizedDestinationLabel.completionDestination.label = 'a'.repeat(201)
+    expect(() => parsePracticeDefinition(oversizedDestinationLabel))
+      .toThrow('Invalid Practice completion destination label')
+
+    const unknownDestinationField = cloneDefinition()
+    const destinationWithUnknownField = unknownDestinationField.completionDestination as
+      MutableDefinition['completionDestination'] & { internalId?: string }
+    destinationWithUnknownField.internalId = 'm1-mastery'
+    expect(() => parsePracticeDefinition(unknownDestinationField))
+      .toThrow('Invalid Practice completion destination')
   })
 
   it('rejects unknown fields, IDs, versions, evidence kinds, and destinations', () => {
@@ -188,6 +231,9 @@ describe('PracticeDefinitionRepository', () => {
     }
 
     expect(() => parsePracticeDefinition(legacy)).toThrow('Invalid Practice definition shape')
-    expect(parseLegacyPracticeDefinitionV1(legacy).checklist[0]!.dependsOn).toEqual([])
+    const projected = parseLegacyPracticeDefinitionV1(legacy)
+    expect(projected.checklist[0]!.dependsOn).toEqual([])
+    expect(projected.title).toBe('Bài thực hành')
+    expect(projected.completionDestination.label).toBe('Bước tiếp theo trong khóa học')
   })
 })

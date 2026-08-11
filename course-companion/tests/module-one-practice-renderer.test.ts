@@ -40,6 +40,7 @@ function workspace(
   return {
     schemaVersion: 1,
     phase: 'active',
+    title: 'Thiết lập Codex an toàn',
     objective: 'Thiết lập Codex an toàn.',
     expectedOutcome: 'Đủ năm giá trị.',
     checklist: [
@@ -163,6 +164,7 @@ describe('Module 2 Practice renderer', () => {
   const planningWorkspace: PracticeWorkspaceView = {
     schemaVersion: 1,
     phase: 'active',
+    title: 'Xây dựng planning package',
     objective: 'Tạo planning package.',
     expectedOutcome: 'Hai artifact đã duyệt và khớp nhau.',
     checklist: [
@@ -179,7 +181,8 @@ describe('Module 2 Practice renderer', () => {
     completionDestination: {
       lessonId: 'module-2',
       checkpointId: 'm2-mastery',
-      sceneId: 'module-2-mastery'
+      sceneId: 'module-2-mastery',
+      label: 'Bài kiểm tra và hoàn thành Module 2'
     },
     planning: {
       freshness: 'fresh',
@@ -241,11 +244,14 @@ describe('Module 2 Practice renderer', () => {
     expect(html).toContain('Cần đối chiếu lại')
     expect(html).toContain('app/globals.css')
     expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
-    expect(html).toContain('Bước cần xem lại: reconcile-alignment, approve-plan')
+    expect(html).toContain('Bước cần xem lại: Đối chiếu alignment, Duyệt plan')
+    expect(html).not.toContain('reconcile-alignment, approve-plan')
     expect(html).toContain('Tiếp theo: Đối chiếu lại PRD và plan.')
     expect(html).toContain('Xác nhận bốn điểm alignment')
     expect(html).toContain('Làm mới bằng chứng')
-    expect(html).toContain('Sau khi đạt: m2-mastery')
+    expect(html).toContain('Sau khi đạt: Bài kiểm tra và hoàn thành Module 2')
+    expect(html).not.toContain('m2-mastery')
+    expect(html).not.toContain('m2-planning-package')
   })
 
   it('uses the same evidence projection in compact mode', () => {

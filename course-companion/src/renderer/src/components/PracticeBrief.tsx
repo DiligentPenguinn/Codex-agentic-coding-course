@@ -11,6 +11,7 @@ type PracticeBriefProps = {
 const previewWorkspace: PracticeWorkspaceView = {
   schemaVersion: 1,
   phase: 'brief',
+  title: 'Bài thực hành',
   objective: 'Đang tải mục tiêu Practice…',
   expectedOutcome: 'Course Companion sẽ hiển thị kết quả cần đạt từ định nghĩa Practice.',
   checklist: [],
@@ -139,7 +140,7 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
     <main className="practice-brief-overlay">
       <header className="practice-brief-header">
         <button type="button" aria-label="Đóng trang Practice" onClick={onClose}>×</button>
-        <div><small>PRACTICE</small><strong>{identity.practiceId}</strong></div>
+        <div><small>PRACTICE</small><strong>{workspace.title}</strong></div>
         <span aria-hidden="true">◆</span>
       </header>
 

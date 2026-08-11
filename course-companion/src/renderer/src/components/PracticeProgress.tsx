@@ -71,6 +71,8 @@ export function PracticeProgress({
   const actionContext = planning?.actionContext
   const activeRunId = workspace.activePractice?.runId ?? ''
   const scopeDecision = scopeDraft.runId === activeRunId ? scopeDraft.value : ''
+  const checklistTitle = (stepId: string) =>
+    workspace.checklist.find((step) => step.id === stepId)?.title ?? 'Bước cần xem lại'
 
   const planningAction = (action: PlanningPracticeActionRequest['action']) => {
     if (!actionBusy) onPlanningAction?.(action)
@@ -83,7 +85,7 @@ export function PracticeProgress({
         {!compact ? <p>{workspace.expectedOutcome}</p> : null}
         {workspace.completionDestination ? (
           <small className="practice-destination">
-            Sau khi đạt: {workspace.completionDestination.checkpointId}
+            Sau khi đạt: {workspace.completionDestination.label}
           </small>
         ) : null}
       </div>
@@ -170,7 +172,7 @@ export function PracticeProgress({
               <small>DEPENDENCY VỪA THAY ĐỔI</small>
               <strong>{item.changedInput}</strong>
               <p>{item.reason}</p>
-              <span>Bước cần xem lại: {item.affectedStepIds.join(', ')}</span>
+              <span>Bước cần xem lại: {item.affectedStepIds.map(checklistTitle).join(', ')}</span>
               <b>Tiếp theo: {item.nextAction}</b>
             </article>
           ))}
@@ -202,7 +204,9 @@ export function PracticeProgress({
                 <label>
                   <span>Giải thích một quyết định phạm vi bằng lời của bạn</span>
                   <textarea
+                    autoComplete="off"
                     maxLength={500}
+                    name="scopeDecision"
                     value={scopeDecision}
                     onChange={(event) => setScopeDraft({
                       runId: activeRunId,
