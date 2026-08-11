@@ -242,6 +242,7 @@ button:focus-visible {
   border: 3px solid var(--pixel-yellow);
   box-shadow: 0 0 0 999px rgba(4, 8, 21, 0.62), 0 0 14px rgba(255, 216, 107, 0.55);
   pointer-events: none;
+  transition: opacity 160ms ease-in-out;
   animation-duration: 12s;
   animation-fill-mode: both;
   animation-timing-function: ease-in-out;
@@ -365,11 +366,21 @@ button:focus-visible {
   line-height: 1.45;
 }
 .pixel-approval-term {
-  padding: 1px 3px;
+  appearance: none;
+  margin: 0;
+  padding: 0 3px;
+  border: 0;
   border-radius: 2px;
+  color: inherit;
+  background: transparent;
   box-decoration-break: clone;
+  cursor: pointer;
+  font: inherit;
   font-weight: 800;
+  line-height: inherit;
+  vertical-align: baseline;
   -webkit-box-decoration-break: clone;
+  transition: color 160ms ease-in-out, background-color 160ms ease-in-out, box-shadow 160ms ease-in-out;
   animation-duration: 12s;
   animation-fill-mode: both;
   animation-timing-function: ease-in-out;
@@ -377,6 +388,19 @@ button:focus-visible {
 .pixel-approval-term[data-approval-focus="ask"] { animation-name: pixel-approval-term-ask; }
 .pixel-approval-term[data-approval-focus="approve"] { animation-name: pixel-approval-term-approve; }
 .pixel-approval-term[data-approval-focus="full"] { animation-name: pixel-approval-term-full; }
+.pixel-approval-term:hover { box-shadow: inset 0 -2px 0 var(--pixel-yellow); }
+.pixel-approval-term:focus-visible {
+  outline: 2px solid var(--pixel-cyan);
+  outline-offset: 2px;
+}
+.pixel-approval-frame.is-manual .pixel-approval-focus,
+.pixel-dialogue.has-manual-approval-focus .pixel-approval-term { animation: none; }
+.pixel-approval-frame.is-manual .pixel-approval-focus.is-active { opacity: 1; }
+.pixel-dialogue.has-manual-approval-focus .pixel-approval-term.is-active {
+  color: #10162a;
+  background: var(--pixel-yellow);
+  box-shadow: none;
+}
 
 @keyframes pixel-approval-focus-ask {
   0%, 4% { opacity: 0; }
@@ -409,7 +433,7 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .pixel-approval-focus,
-  .pixel-approval-term { animation: none; }
+  .pixel-approval-term { transition: none; animation: none; }
   .pixel-approval-focus[data-approval-focus="approve"] { opacity: 1; }
   .pixel-approval-term[data-approval-focus="approve"] { color: #10162a; background: var(--pixel-yellow); }
 }

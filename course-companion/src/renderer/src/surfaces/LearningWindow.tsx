@@ -1390,6 +1390,7 @@ const learningPositionByScene = Object.fromEntries(
 
 type View = 'loading' | 'welcome' | 'resume' | 'app' | 'reset-confirm' | 'reset-required' | 'error'
 type AppDestination = 'home' | 'lesson' | 'progress' | 'settings'
+type ApprovalFocus = 'ask' | 'approve' | 'full'
 
 const sceneStyle = { '--pixel-room-image': `url("${roomImage}")` } as CSSProperties
 
@@ -1439,14 +1440,45 @@ function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
   )
 }
 
-function ApprovalTourDialogue() {
+function ApprovalTerm({
+  activeFocus,
+  children,
+  focus,
+  onSelect
+}: {
+  activeFocus: ApprovalFocus | null
+  children: string
+  focus: ApprovalFocus
+  onSelect: (focus: ApprovalFocus) => void
+}) {
+  return (
+    <button
+      aria-label={`Làm nổi bật ${children} trong ảnh minh họa`}
+      aria-pressed={activeFocus === focus}
+      className={`pixel-approval-term${activeFocus === focus ? ' is-active' : ''}`}
+      data-approval-focus={focus}
+      type="button"
+      onClick={() => onSelect(focus)}
+    >
+      {children}
+    </button>
+  )
+}
+
+function ApprovalTourDialogue({
+  activeFocus,
+  onSelect
+}: {
+  activeFocus: ApprovalFocus | null
+  onSelect: (focus: ApprovalFocus) => void
+}) {
   return (
     <>
       Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha. Đầu tiên, hãy nhìn qua Approval. Khi nhấn vào biểu tượng Codex bên trái dấu cộng, bạn sẽ thấy một hộp gồm ba lựa chọn. Đây là phần cài đặt Approval, nơi bạn thiết lập mức độ kiểm soát đối với coding agent.
       <br /><br />
-      Trước tiên, <span className="pixel-approval-term" data-approval-focus="ask">Ask for approval</span> luôn hỏi bạn trước khi chỉnh sửa tệp bên ngoài dự án hoặc sử dụng Internet. Tiếp theo, <span className="pixel-approval-term" data-approval-focus="approve">Approve for me</span> chỉ hỏi khi phát hiện một hành động có thể không an toàn. Cuối cùng, <span className="pixel-approval-term" data-approval-focus="full">Full access</span> cho phép Codex truy cập Internet và mọi tệp trên máy tính mà không bị giới hạn.
+      Trước tiên, <ApprovalTerm activeFocus={activeFocus} focus="ask" onSelect={onSelect}>Ask for approval</ApprovalTerm> luôn hỏi bạn trước khi chỉnh sửa tệp bên ngoài dự án hoặc sử dụng Internet. Tiếp theo, <ApprovalTerm activeFocus={activeFocus} focus="approve" onSelect={onSelect}>Approve for me</ApprovalTerm> chỉ hỏi khi phát hiện một hành động có thể không an toàn. Cuối cùng, <ApprovalTerm activeFocus={activeFocus} focus="full" onSelect={onSelect}>Full access</ApprovalTerm> cho phép Codex truy cập Internet và mọi tệp trên máy tính mà không bị giới hạn.
       <br /><br />
-      Nếu mới bắt đầu, mình khuyên bạn dùng <span className="pixel-approval-term" data-approval-focus="approve">Approve for me</span>. Chế độ này không yêu cầu bạn duyệt mọi hành động, nhưng cũng không trao toàn bộ quyền kiểm soát cho coding agent.
+      Nếu mới bắt đầu, mình khuyên bạn dùng <ApprovalTerm activeFocus={activeFocus} focus="approve" onSelect={onSelect}>Approve for me</ApprovalTerm>. Chế độ này không yêu cầu bạn duyệt mọi hành động, nhưng cũng không trao toàn bộ quyền kiểm soát cho coding agent.
     </>
   )
 }
@@ -1893,6 +1925,7 @@ export function LearningWindow() {
   const [destination, setDestination] = useState<AppDestination>('home')
   const [teacherOpen, setTeacherOpen] = useState(false)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
+  const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
@@ -2166,6 +2199,7 @@ export function LearningWindow() {
         ? { ...progress.decisions, [choice.decision.key]: choice.decision.value }
         : progress.decisions
       await advanceToScene(choice.next, decisions)
+      setApprovalFocus(null)
       if (choice.afterSave === 'home') {
         setTeacherOpen(false)
         setDestination('home')
@@ -2248,6 +2282,7 @@ export function LearningWindow() {
     : progress.sceneHistory.length > 0
   const openPreviousPage = () => {
     if (!canOpenPreviousPage) return
+    setApprovalFocus(null)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
   const lessonContextLabel = scene.lessonId === 'intro'
@@ -2307,6 +2342,7 @@ export function LearningWindow() {
 
       <header className="pixel-hud">
         <button className="pixel-brand pixel-brand--button" type="button" onClick={() => {
+          setApprovalFocus(null)
           setTeacherOpen(false)
           setReviewHistoryIndex(null)
           setDestination('home')
@@ -2339,7 +2375,7 @@ export function LearningWindow() {
             <figure className={`pixel-lesson-visual${displayedSceneId === 'module-1-codex-examples' ? ' is-approval-tour' : ''}`}>
               {displayedSceneId === 'module-1-codex-examples'
                 ? (
-                    <div className="pixel-approval-frame">
+                    <div className={`pixel-approval-frame${approvalFocus ? ' is-manual' : ''}`}>
                       <img
                         src={lessonVisual.image}
                         alt={lessonVisual.alt}
@@ -2347,9 +2383,9 @@ export function LearningWindow() {
                         decoding="async"
                         fetchPriority="high"
                       />
-                      <span className="pixel-approval-focus" data-approval-focus="ask" aria-hidden="true"><small>1/3</small></span>
-                      <span className="pixel-approval-focus" data-approval-focus="approve" aria-hidden="true"><small>2/3</small></span>
-                      <span className="pixel-approval-focus" data-approval-focus="full" aria-hidden="true"><small>3/3</small></span>
+                      <span className={`pixel-approval-focus${approvalFocus === 'ask' ? ' is-active' : ''}`} data-approval-focus="ask" aria-hidden="true"><small>1/3</small></span>
+                      <span className={`pixel-approval-focus${approvalFocus === 'approve' ? ' is-active' : ''}`} data-approval-focus="approve" aria-hidden="true"><small>2/3</small></span>
+                      <span className={`pixel-approval-focus${approvalFocus === 'full' ? ' is-active' : ''}`} data-approval-focus="full" aria-hidden="true"><small>3/3</small></span>
                     </div>
                   )
                 : (
@@ -2377,20 +2413,23 @@ export function LearningWindow() {
             )
           : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.assessmentSummary
           ? finalPassed
             ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
             : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
           : displayedSceneId === 'module-1-codex-examples'
-            ? <ApprovalTourDialogue />
+            ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
             : scene.dialogue}</p>
         {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
           <div className="pixel-review-return">
-            <button className="pixel-choice is-primary" type="button" onClick={() => setReviewHistoryIndex(null)}>
+            <button className="pixel-choice is-primary" type="button" onClick={() => {
+              setApprovalFocus(null)
+              setReviewHistoryIndex(null)
+            }}>
               Quay lại trang đang học
             </button>
           </div>
