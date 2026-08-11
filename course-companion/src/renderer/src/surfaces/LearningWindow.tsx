@@ -202,7 +202,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
       { label: 'KẾT QUẢ', value: 'Cấu hình được Triết duyệt' }
     ],
-    dialogue: 'Module 1 bắt đầu bằng Codex và coding agent. Sau đó, bạn sẽ hiểu Harness Engineering, chọn quyền truy cập an toàn, tìm hiểu model và reasoning effort rồi nộp cấu hình thật để Triết duyệt.',
+    dialogue: 'Khóa học này không chỉ dành cho content creator. Content automation app chỉ là một dự án trong khóa học. Sau khi hoàn thành dự án này, bạn sẽ có bộ kỹ năng và hiểu biết cần thiết để xây dựng bất kỳ ứng dụng nào bạn mong muốn.',
     choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true }],
     showTitle: false,
     showPanel: false

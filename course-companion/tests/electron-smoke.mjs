@@ -502,7 +502,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Module 1 bắt đầu bằng Codex và coding agent. Sau đó, bạn sẽ hiểu Harness Engineering, chọn quyền truy cập an toàn, tìm hiểu model và reasoning effort rồi nộp cấu hình thật để Triết duyệt.'
+    'Khóa học này không chỉ dành cho content creator. Content automation app chỉ là một dự án trong khóa học. Sau khi hoàn thành dự án này, bạn sẽ có bộ kỹ năng và hiểu biết cần thiết để xây dựng bất kỳ ứng dụng nào bạn mong muốn.'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
