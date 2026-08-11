@@ -7,7 +7,8 @@
     "doNotStackQuestions": true,
     "feedbackTiming": "Hiện lời giải và nguồn sau khi Learner trả lời từng câu.",
     "sourcePolicy": "Câu hỏi do khóa học biên soạn bằng tiếng Việt. Tình huống, đáp án và lời giải phải truy ngược được đến nguồn chính thức được ghi trong từng câu.",
-    "shortAnswerPolicy": "Learner viết câu trả lời trước, rồi tự đối chiếu với các tiêu chí công khai. Không lưu nội dung tự luận vào tiến trình Course Companion."
+    "shortAnswerPolicy": "Learner viết câu trả lời trước, rồi tự đối chiếu với các tiêu chí công khai. Không lưu nội dung tự luận vào tiến trình Course Companion.",
+    "practiceBoundary": "Hoàn thành đủ ba nhóm formative theo thứ tự trước khi mở Practice m2-planning-package; chỉ mở final-assessment sau khi Practice được Triết xác nhận đạt."
   },
   "groups": [
     {
@@ -143,7 +144,7 @@
     {
       "id": "implementation-plan-check",
       "title": "Kiểm tra Implementation plan",
-      "placement": "after-implementation-plan",
+      "placement": "before-planning-package",
       "mode": "formative",
       "questions": [
         {
@@ -189,7 +190,7 @@
     {
       "id": "final-assessment",
       "title": "Kiểm tra tổng hợp Module 2",
-      "placement": "after-planning-package",
+      "placement": "after-passed-planning-package",
       "mode": "mastery",
       "passingScore": 0.8,
       "questions": [

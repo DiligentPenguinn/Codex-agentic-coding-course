@@ -59,9 +59,14 @@ Learner pass Module 2 khi đạt tất cả điều kiện:
 - Mọi mục `Done When` có cách kiểm tra tương ứng.
 - Learner giải thích bằng lời của mình ít nhất một quyết định phạm vi, bước triển
   khai liên quan và bằng chứng sẽ dùng để kiểm tra.
+- Practice `m2-planning-package` được Triết xác nhận đạt trên đúng hai digest
+  artifact hiện tại; receipt cùng run là bằng chứng cho phê duyệt, alignment,
+  quyết định phạm vi và semantic review.
 - Learner đạt ít nhất 12/15 câu trong nhóm `final-assessment`.
 - Ba nhóm kiểm tra ngắn được hoàn thành theo thứ tự 3 câu Planning và PRD, 3
-  câu Prompt engineering và 2 câu Implementation plan.
+  câu Prompt engineering và 2 câu Implementation plan trước khi mở Practice.
+- Nhóm `final-assessment` chỉ được mở sau khi Practice đạt và Learner quay lại
+  khóa học.
 
 ## Feedback mẫu
 

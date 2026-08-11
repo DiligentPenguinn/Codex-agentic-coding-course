@@ -116,7 +116,7 @@ async function harness(mutateDuringReview: boolean) {
   const progress = new ProgressRepository(directory, () => new Date(timestamp))
   await progress.save({
     currentLessonId: 'module-2',
-    currentCourseLessonId: 'm2-implementation-plan',
+    currentCourseLessonId: 'm2-prd-review',
     checkpointId: 'm2-planning-package',
     sceneId: 'module-2-planning-package',
     sceneHistory: [],

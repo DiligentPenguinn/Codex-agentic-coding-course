@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { ProgressRepository } from '../electron/main/progress-repository'
-import type { PracticeCompletionReceipt } from '../shared/contracts'
+import type { PracticeCompletionReceipt, ProgressUpdate } from '../shared/contracts'
 
 const directories: string[] = []
 
@@ -67,5 +67,63 @@ describe('Practice completion progress', () => {
       ...receipt,
       courseRunId: 'another-course'
     })).rejects.toThrow('another course run')
+  })
+
+  it('requires a passed planning Practice and a 12/15 mastery score before Module 2 completion', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'practice-completion-progress-'))
+    directories.push(directory)
+    const repository = new ProgressRepository(directory)
+    const assessmentDecisions = Object.fromEntries(
+      Array.from({ length: 15 }, (_, index) => [
+        `assessment:final-${index + 1}`,
+        index < 12 ? 'correct:test' : 'incorrect:test'
+      ])
+    )
+    const progress = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-prd-review',
+      checkpointId: 'm2-planning-package',
+      sceneId: 'module-2-planning-package',
+      sceneHistory: [],
+      completedCheckpointIds: ['m2-implementation-plan'],
+      decisions: {}
+    })
+    const receipt: PracticeCompletionReceipt = {
+      schemaVersion: 1,
+      courseRunId: progress.courseRunId,
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      runId: 'run-m2',
+      checkpointId: 'm2-planning-package',
+      status: 'completed',
+      completedAt: '2026-08-10T00:00:00.000Z',
+      evidenceSummary: 'Triết đã duyệt hai artifact hiện tại.',
+      masterySummary: 'PRD, plan, alignment, phạm vi và quyền sở hữu đều đạt.',
+      destination: {
+        lessonId: 'module-2',
+        checkpointId: 'm2-mastery',
+        sceneId: 'module-2-mastery'
+      }
+    }
+    const completionUpdate: ProgressUpdate = {
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-assessment',
+      checkpointId: 'm2-complete',
+      sceneId: 'module-2-complete',
+      sceneHistory: ['module-2-final-summary'],
+      completedCheckpointIds: ['m2-implementation-plan', 'm2-planning-package', 'm2-mastery'],
+      decisions: assessmentDecisions
+    }
+
+    await expect(repository.save(completionUpdate)).rejects.toThrow('passed planning Practice')
+    await repository.recordPracticeCompletion(receipt)
+    await expect(repository.save({
+      ...completionUpdate,
+      decisions: { ...assessmentDecisions, 'assessment:final-12': 'incorrect:test' }
+    })).rejects.toThrow('12/15')
+    await expect(repository.save(completionUpdate)).resolves.toMatchObject({
+      checkpointId: 'm2-complete',
+      sceneId: 'module-2-complete'
+    })
   })
 })

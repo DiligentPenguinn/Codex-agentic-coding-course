@@ -127,8 +127,8 @@ export const courseLessonIds = [
   'm2-when-to-plan',
   'm2-product-requirements',
   'm2-prd-prompt',
-  'm2-prd-review',
   'm2-implementation-plan',
+  'm2-prd-review',
   'm2-assessment'
 ] as const
 
@@ -184,7 +184,7 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-2-implementation-plan': 'm2-implementation-plan',
   'module-2-implementation-plan-example': 'm2-implementation-plan',
   'module-2-check-plan-1': 'm2-implementation-plan',
-  'module-2-check-plan-2': 'm2-alignment-review',
+  'module-2-check-plan-2': 'm2-implementation-plan',
   'module-2-alignment-review': 'm2-alignment-review',
   'module-2-alignment-mismatch': 'm2-alignment-review',
   'module-2-planning-package': 'm2-planning-package',
@@ -226,7 +226,7 @@ export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'm2-prd-approved': 'm2-prd-review',
   'm2-implementation-plan': 'm2-implementation-plan',
   'm2-alignment-review': 'm2-implementation-plan',
-  'm2-planning-package': 'm2-implementation-plan',
+  'm2-planning-package': 'm2-prd-review',
   'm2-mastery': 'm2-assessment',
   'm2-complete': 'm2-assessment'
 }

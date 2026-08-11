@@ -94,6 +94,35 @@ function completionKey(receipt: PracticeCompletionReceipt): string {
   return `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
 }
 
+const moduleTwoFinalQuestionIds = Array.from({ length: 15 }, (_, index) => `final-${index + 1}`)
+
+function hasPassedPlanningPractice(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm2-planning-package'
+    && receipt.checkpointId === 'm2-planning-package'
+    && receipt.destination.lessonId === 'module-2'
+    && receipt.destination.checkpointId === 'm2-mastery'
+    && receipt.destination.sceneId === 'module-2-mastery')
+}
+
+function moduleTwoMasteryScore(decisions: Record<string, string>): number {
+  return moduleTwoFinalQuestionIds.filter((questionId) =>
+    decisions[`assessment:${questionId}`]?.startsWith('correct')).length
+}
+
+function assertModuleTwoCompletionGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.sceneId !== 'module-2-complete') return
+  if (!current || !hasPassedPlanningPractice(current)
+    || !update.completedCheckpointIds.includes('m2-planning-package')) {
+    throw new Error('Module 2 requires a passed planning Practice before completion')
+  }
+  if (moduleTwoMasteryScore(update.decisions) < 12
+    || !update.completedCheckpointIds.includes('m2-mastery')) {
+    throw new Error('Module 2 requires a 12/15 mastery score before completion')
+  }
+}
+
 function courseRunId(startedAt: string): string {
   return `course-${startedAt.replace(/[^0-9]/g, '').slice(0, 17)}`
 }
@@ -259,6 +288,47 @@ function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerPro
   }
 }
 
+function normalizeCurrentModuleTwoOrder(raw: Record<string, unknown>): Record<string, unknown> {
+  if (raw.currentLessonId !== 'module-2') return raw
+  const completed = Array.isArray(raw.completedCheckpointIds)
+    ? [...raw.completedCheckpointIds]
+    : raw.completedCheckpointIds
+
+  if (raw.sceneId === 'module-2-prd-approved') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-implementation-plan',
+      checkpointId: 'm2-implementation-plan',
+      sceneId: 'module-2-implementation-plan',
+      completedCheckpointIds: Array.isArray(completed)
+        ? [...new Set([...completed, 'm2-prd-interview'])]
+        : completed
+    }
+  }
+  if (raw.sceneId === 'module-2-alignment-review' || raw.sceneId === 'module-2-alignment-mismatch') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-prd-review',
+      checkpointId: 'm2-planning-package',
+      sceneId: 'module-2-planning-package',
+      completedCheckpointIds: Array.isArray(completed)
+        ? [...new Set([...completed, 'm2-implementation-plan'])]
+        : completed
+    }
+  }
+  if (raw.sceneId === 'module-2-planning-package') {
+    return { ...raw, currentCourseLessonId: 'm2-prd-review' }
+  }
+  if (raw.sceneId === 'module-2-check-plan-2') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-implementation-plan',
+      checkpointId: 'm2-implementation-plan'
+    }
+  }
+  return raw
+}
+
 function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isRecord(value)) return null
   const raw = value as Record<string, unknown>
@@ -268,8 +338,9 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   const updatedAt = raw.updatedAt
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
-  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isLearnerProgress(raw)) {
-    return raw as unknown as LearnerProgress
+  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
+    const normalized = normalizeCurrentModuleTwoOrder(raw)
+    return isLearnerProgress(normalized) ? normalized : null
   }
 
   if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
@@ -394,6 +465,7 @@ export class ProgressRepository {
 
   private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
+    assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
@@ -490,6 +562,7 @@ export class ProgressRepository {
       const progress: LearnerProgress = {
         ...current.progress,
         currentLessonId: receipt.destination.lessonId,
+        currentCourseLessonId: courseLessonIdForScene(receipt.destination.sceneId),
         checkpointId: receipt.destination.checkpointId,
         sceneId: receipt.destination.sceneId,
         completedCheckpointIds,
@@ -552,11 +625,7 @@ export class ProgressRepository {
         ? {
             status: 'valid',
             progress,
-            migrated:
-              isRecord(parsed) && (
-                parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION ||
-                parsed.courseVersion !== COURSE_VERSION
-              )
+            migrated: isRecord(parsed) && JSON.stringify(parsed) !== JSON.stringify(progress)
           }
         : { status: 'invalid' }
     } catch (error) {

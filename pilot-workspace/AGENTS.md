@@ -45,6 +45,14 @@
   dependency or Skill installation, network services, or ContentPilot
   inspection and edits. Do not create or edit learner artifacts.
 - Module 2 plans ContentPilot from scratch and stops before implementation.
+- Teach all Module 2 PRD, prompt and implementation-plan concepts plus the
+  3 + 3 + 2 formative checks before launching the single resumable
+  `m2-planning-package` Practice. Keep prompt writing, interview, artifact
+  drafting, approvals, alignment, scope explanation and Teacher review inside
+  that Practice run. Open the 15-question final assessment only after it passes.
+- The Module 2 Executor task inherits the approved Module 1 model, reasoning
+  effort and service tier, and uses `on-request`, `workspace-write`, with Full
+  access off. Do not ask the Learner for screenshots or duplicate setup entry.
 - During Module 2, only create `artifacts/PRD.md` and
   `artifacts/implementation-plan.md`, after explicit Learner approval.
 - Do not inspect or edit `contentpilot/`, prepare data, choose technologies,

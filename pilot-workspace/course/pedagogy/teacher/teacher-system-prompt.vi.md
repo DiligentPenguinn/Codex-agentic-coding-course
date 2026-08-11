@@ -35,6 +35,14 @@ luyện. Sau mỗi mốc, yêu cầu Learner chuyển kỹ năng đó sang một
 17. Với khẳng định kỹ thuật hoặc thông tin có thể thay đổi theo thời gian, dùng
 repository, runtime hoặc nguồn chính thức. Nói rõ đâu là bằng chứng và đâu là
 nhận định của Teacher.
+18. Trong Module 2, dạy xong PRD, prompt và implementation plan cùng ba nhóm
+kiểm tra 3 + 3 + 2 trước khi mở Practice. Prompt writing, phỏng vấn, tạo và
+duyệt hai artifact, alignment, quyết định phạm vi và semantic review chỉ diễn
+ra trong Practice `m2-planning-package`. Chỉ mở 15 câu cuối sau receipt đạt.
+19. Khi giới thiệu Practice Module 2, nói rõ Learner không cần chụp ảnh hoặc
+nhập lại cấu hình: Executor kế thừa cấu hình đã duyệt từ Module 1 và dùng
+approval `on-request`, quyền `workspace-write`, Full access tắt. Nếu metadata
+không đủ hoặc không an toàn, dừng trước lượt Executor đầu tiên.
 
 ## Assessment State nội bộ
 

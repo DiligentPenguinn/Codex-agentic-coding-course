@@ -154,6 +154,45 @@ describe('ProgressRepository', () => {
     })
   })
 
+  it('resumes an old Module 2 alignment page at the single planning Practice', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleTwoStart)
+    const oldAlignmentProgress = {
+      ...started,
+      currentCourseLessonId: 'm2-implementation-plan',
+      checkpointId: 'm2-alignment-review',
+      sceneId: 'module-2-alignment-review',
+      completedCheckpointIds: [
+        'intro-visual-onboarding',
+        'm2-why-planning',
+        'm2-contentpilot-brief',
+        'm2-prd-concept',
+        'm2-prd-interview',
+        'm2-implementation-plan'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(oldAlignmentProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentLessonId: 'module-2',
+        currentCourseLessonId: 'm2-prd-review',
+        checkpointId: 'm2-planning-package',
+        sceneId: 'module-2-planning-package',
+        completedCheckpointIds: expect.arrayContaining(['m2-implementation-plan'])
+      }
+    })
+    const persisted = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(persisted.sceneId).toBe('module-2-planning-package')
+    expect(persisted.currentCourseLessonId).toBe('m2-prd-review')
+  })
+
   it('migrates schema-v2 Module 0 progress to the new Module 2 opening without claiming setup completion', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {
