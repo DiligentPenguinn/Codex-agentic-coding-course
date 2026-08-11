@@ -1,7 +1,7 @@
 # Practice Teacher Window Controls Design
 
 **Status:** Approved for implementation
-**Date:** 8 August 2026  
+**Date:** 8 August 2026
 **Implementation target:** `course-companion/`
 
 ## Follow-up UI regression fixes

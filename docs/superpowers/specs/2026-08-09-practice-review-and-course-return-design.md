@@ -1,7 +1,7 @@
 # Practice Review and Course Return Design
 
-**Date:** 9 August 2026  
-**Status:** Approved design  
+**Date:** 9 August 2026
+**Status:** Approved design
 **Scope:** Course Companion Practice review, checklist completion, and return to the Course App
 
 ## Problem

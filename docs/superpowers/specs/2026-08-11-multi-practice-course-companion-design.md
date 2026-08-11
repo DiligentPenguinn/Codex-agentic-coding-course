@@ -1,7 +1,7 @@
 # Multi-Practice Course Companion Design
 
-**Date:** 11 August 2026  
-**Status:** Approved design  
+**Date:** 11 August 2026
+**Status:** Approved design
 **Scope:** Reconcile the merged Pilot 0.2 curriculum with PR #4 and deliver real,
 resumable Module 1 and Module 2 Practice workflows
 

@@ -1,7 +1,7 @@
 # Real Teacher and Persistent Practice Memory Design
 
-**Status:** Approved design; written specification pending user review  
-**Date:** 8 August 2026  
+**Status:** Approved design; written specification pending user review
+**Date:** 8 August 2026
 **Implementation target:** `course-companion/`
 
 ## Purpose
