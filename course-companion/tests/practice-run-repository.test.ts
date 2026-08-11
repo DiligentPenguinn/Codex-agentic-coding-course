@@ -8,6 +8,7 @@ import {
   type PracticeRunRecord,
   type PracticeWorkspaceRecord
 } from '../electron/main/practice-run-repository'
+import { planningPracticeStepIds } from '../electron/main/practice-step-state'
 
 const temporaryDirectories: string[] = []
 
@@ -247,5 +248,80 @@ describe('PracticeRunRepository', () => {
       activeRun: { practiceId: 'm2-planning-package' },
       archivedRuns: [{ practiceId: 'm1-codex-safe-setup' }]
     })
+  })
+
+  it('persists Module 2 action progress across restart and ignores late-generation actions', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new PracticeRunRepository(directory)
+    const observedAt = '2026-08-08T00:01:00.000Z'
+    const planning = activeRun({
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      taskPolicy: 'safe-workspace-write',
+      evidenceProfile: 'planning-package',
+      checklist: planningPracticeStepIds.map((id, index) => ({
+        id,
+        title: 'Bước ' + String(index + 1),
+        status: index === 0 ? 'current' : 'pending',
+        dependencyInputs: {}
+      })),
+      evidence: {
+        schemaVersion: 1,
+        practiceId: 'm2-planning-package',
+        practiceVersion: '2.0.0',
+        runId: 'run-1',
+        evidenceProfile: 'planning-package',
+        observedAt,
+        freshness: 'unverifiable',
+        sourceDigest: 'a'.repeat(64),
+        evidence: [],
+        steps: [],
+        invalidations: [],
+        planningArtifacts: [],
+        artifactIssues: [],
+        unexpectedChangedPaths: [],
+        planningActivity: {
+          schemaVersion: 1,
+          cursor: 'cursor-1',
+          observedAt,
+          learnerTurnCount: 2,
+          executorTurnCount: 1,
+          prdPrompt: {
+            text: 'Hãy phỏng vấn tôi từng câu để tạo PRD.',
+            digest: 'b'.repeat(64)
+          }
+        }
+      }
+    })
+    await repository.save(activeRecord(planning))
+    await repository.applyPlanningAction({
+      runId: 'run-1',
+      generation: 1,
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      action: { type: 'capture-prd-prompt', expectedActivityCursor: 'cursor-1' },
+      updatedAt: observedAt
+    })
+
+    const restarted = new PracticeRunRepository(directory)
+    const restored = (await restarted.load()).activeRun
+    expect(restored).toMatchObject({
+      runId: 'run-1',
+      learnerDecisions: { 'prd-prompt': 'Hãy phỏng vấn tôi từng câu để tạo PRD.' }
+    })
+    expect(restored?.checklist.slice(0, 2)).toMatchObject([
+      { id: 'write-prd-prompt', status: 'completed' },
+      { id: 'complete-interview', status: 'current' }
+    ])
+
+    const late = await restarted.applyPlanningAction({
+      runId: 'run-1',
+      generation: 2,
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      action: { type: 'complete-interview', expectedActivityCursor: 'cursor-1' },
+      updatedAt: '2026-08-08T00:02:00.000Z'
+    })
+    expect(late.activeRun?.learnerDecisions['interview-completion']).toBeUndefined()
   })
 })

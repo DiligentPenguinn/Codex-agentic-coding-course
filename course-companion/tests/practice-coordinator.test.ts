@@ -4,6 +4,9 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PracticeCoordinator } from '../electron/main/practice-coordinator'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
+import { PracticeEvidenceAdapterRegistry } from '../electron/main/practice-evidence-adapter-registry'
+import { planningPracticeStepIds } from '../electron/main/practice-step-state'
+import type { PracticeEvidenceAdapter } from '../electron/main/practice-evidence-adapter'
 import {
   defaultPracticeWorkspaceRecord,
   PracticeRunRepository,
@@ -65,6 +68,20 @@ async function definitions(): Promise<PracticeDefinitionRepository> {
     expectedOutcome: 'PRD và implementation plan đã duyệt.',
     taskPolicy: 'safe-workspace-write',
     evidenceProfile: 'planning-package',
+    checklist: planningPracticeStepIds.map((id, index) => ({
+      id,
+      title: 'Bước ' + String(index + 1),
+      dependsOn: index === 0 ? [] : [planningPracticeStepIds[index - 1]]
+    })),
+    criteria: [{
+      id: 'package-reviewed',
+      description: 'Planning package đã được duyệt.',
+      required: true,
+      checklistStepId: 'explain-scope-and-review',
+      acceptedEvidence: ['teacher-assessment'],
+      assertion: 'The current planning package was reviewed.',
+      freshness: 'fresh'
+    }],
     completionDestination: {
       lessonId: 'module-2',
       checkpointId: 'm2-mastery',
@@ -207,6 +224,85 @@ describe('PracticeCoordinator', () => {
     await expect(failing.cancel()).resolves.toMatchObject({
       activePractice: { practiceId: 'm1-codex-safe-setup' }
     })
+  })
+
+  it('records bounded planning actions only for the current run and current activity cursor', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const adapter = (evidenceProfile: PracticeEvidenceAdapter['evidenceProfile']): PracticeEvidenceAdapter => ({
+      evidenceProfile,
+      async collect(context) {
+        return {
+          schemaVersion: 1,
+          practiceId: context.definition.practiceId,
+          practiceVersion: context.definition.version,
+          runId: context.runId,
+          evidenceProfile,
+          observedAt: '2026-08-08T00:01:00.000Z',
+          freshness: 'unverifiable',
+          sourceDigest: 'a'.repeat(64),
+          evidence: [],
+          steps: [],
+          invalidations: [],
+          ...(evidenceProfile === 'planning-package'
+            ? {
+                planningArtifacts: [],
+                artifactIssues: [],
+                unexpectedChangedPaths: [],
+                planningActivity: {
+                  schemaVersion: 1 as const,
+                  cursor: 'cursor-current',
+                  observedAt: '2026-08-08T00:01:00.000Z',
+                  learnerTurnCount: 2,
+                  executorTurnCount: 1,
+                  prdPrompt: {
+                    text: 'Hãy phỏng vấn tôi từng câu để tạo PRD cho ContentPilot.',
+                    digest: 'b'.repeat(64)
+                  }
+                }
+              }
+            : {})
+        }
+      }
+    })
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:02:00.000Z'),
+      testHarness.createId,
+      async () => undefined,
+      undefined,
+      new PracticeEvidenceAdapterRegistry([
+        adapter('codex-task-configuration'),
+        adapter('planning-package')
+      ])
+    )
+    await coordinator.startNew({ ...m2Identity, transfer: false })
+
+    const updated = await coordinator.recordPlanningAction({
+      runId: 'run-1',
+      generation: 1,
+      ...m2Identity,
+      action: {
+        type: 'capture-prd-prompt',
+        expectedActivityCursor: 'cursor-current'
+      }
+    })
+    expect(updated.checklist.slice(0, 2).map((step) => step.status))
+      .toEqual(['completed', 'current'])
+    expect((await repository.load()).activeRun?.learnerDecisions['prd-prompt'])
+      .toContain('ContentPilot')
+
+    await expect(coordinator.recordPlanningAction({
+      runId: 'run-1',
+      generation: 2,
+      ...m2Identity,
+      action: {
+        type: 'complete-interview',
+        expectedActivityCursor: 'cursor-current'
+      }
+    })).rejects.toThrow('active run')
   })
 
   it('recovers a durable target-created transition without duplicate creation', async () => {

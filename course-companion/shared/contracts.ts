@@ -422,6 +422,7 @@ export type ExecutorActivitySnapshot = {
   status: ExecutorActivityStatus
   cursor: string
   learnerPrompts: string[]
+  learnerAuthoredPrompts?: string[]
   executorResponses: string[]
   approvalEvents: string[]
   changedFiles: string[]
@@ -612,6 +613,24 @@ export type PlanningArtifactIssue = {
   message: string
 }
 
+export type PlanningActivityEvidence = {
+  schemaVersion: 1
+  cursor: string
+  observedAt: string
+  learnerTurnCount: number
+  executorTurnCount: number
+  prdPrompt: {
+    text: string
+    digest: string
+  } | null
+}
+
+export type PracticeLearnerApproval = {
+  decision: 'approved' | 'revision-requested'
+  recordedAt: string
+  artifactDigests: Partial<Record<PlanningArtifactPath, string>>
+}
+
 export type PracticeAdapterEvidenceState = {
   schemaVersion: 1
   practiceId: string
@@ -628,6 +647,7 @@ export type PracticeAdapterEvidenceState = {
   planningArtifacts?: PlanningArtifactSnapshot[]
   artifactIssues?: PlanningArtifactIssue[]
   unexpectedChangedPaths?: string[]
+  planningActivity?: PlanningActivityEvidence
 }
 
 export type PracticeCriterionReview = {
@@ -721,6 +741,29 @@ export type PracticeStartRequest = {
 
 export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
 
+type PlanningActionIdentity = PracticeIdentity & {
+  runId: string
+  generation: number
+}
+
+export type PlanningPracticeActionRequest = PlanningActionIdentity & {
+  action:
+    | { type: 'capture-prd-prompt'; expectedActivityCursor: string }
+    | { type: 'complete-interview'; expectedActivityCursor: string }
+    | { type: 'approve-prd' | 'request-prd-revision'; expectedPrdDigest: string }
+    | {
+        type: 'confirm-alignment' | 'approve-plan' | 'request-plan-revision'
+        expectedPrdDigest: string
+        expectedPlanDigest: string
+      }
+    | {
+        type: 'record-scope-decision'
+        value: string
+        expectedPrdDigest: string
+        expectedPlanDigest: string
+      }
+}
+
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
   panel: PracticePanel
@@ -732,6 +775,7 @@ export type PracticeWorkspaceAdapter = {
   resume: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retry: () => Promise<PracticeWorkspaceView>
   cancel: () => Promise<PracticeWorkspaceView>
+  recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reset: () => Promise<void>
 }
@@ -768,6 +812,7 @@ export type CourseCompanionApi = {
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
+  recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
   returnPassedPractice: () => Promise<PracticeCompletionReceipt>

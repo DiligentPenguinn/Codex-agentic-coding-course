@@ -37,6 +37,9 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   if (!isStringArray(value.verificationEvidence, 100)) return null
   if (typeof value.observedAt !== 'string' || Number.isNaN(Date.parse(value.observedAt))) return null
   const reportedChangedFiles = value.reportedChangedFiles ?? []
+  const learnerAuthoredPrompts = value.learnerAuthoredPrompts
+    ?? (value.learnerPrompts as string[]).filter((prompt) =>
+      !/^Thực hiện Practice [A-Za-z0-9_-]{1,160}\./.test(prompt))
   const reportedVerificationEvidence = value.reportedVerificationEvidence ?? []
   const workspaceConfirmedChangedFiles = value.workspaceConfirmedChangedFiles ?? []
   const workspaceCommittedReportedFilesSinceRunStart = value.workspaceCommittedReportedFilesSinceRunStart ?? []
@@ -47,12 +50,14 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
     ? { ...rawWorkspaceBaseline, head: null }
     : rawWorkspaceBaseline
   if (!isStringArray(reportedChangedFiles, 100) || !isStringArray(reportedVerificationEvidence, 100)) return null
+  if (!isStringArray(learnerAuthoredPrompts, 50)) return null
   if (!isStringArray(workspaceConfirmedChangedFiles, 100) || !isStringArray(workspaceCommittedReportedFilesSinceRunStart, 100)) return null
   if (!isStringArray(workspaceCurrentlyDirtyReportedFiles, 100)) return null
   if (!validBaseline(workspaceBaseline)) return null
   if (configuration !== null && !isCodexTaskConfigurationSnapshot(configuration)) return null
   return {
-    ...(value as Omit<ExecutorActivitySnapshot, 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline' | 'configuration'>),
+    ...(value as Omit<ExecutorActivitySnapshot, 'learnerAuthoredPrompts' | 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline' | 'configuration'>),
+    learnerAuthoredPrompts,
     reportedChangedFiles,
     reportedVerificationEvidence,
     workspaceConfirmedChangedFiles,

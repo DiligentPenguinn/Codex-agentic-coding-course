@@ -22,7 +22,7 @@ import {
 export const MAX_PLANNING_ARTIFACT_BYTES = 64 * 1024
 const permittedPaths = new Set<string>(planningArtifactPaths)
 
-function redact(value: string): string {
+export function redactPlanningEvidence(value: string): string {
   return value
     .replace(/-----BEGIN [^-\r\n]*PRIVATE KEY-----[\s\S]*?-----END [^-\r\n]*PRIVATE KEY-----/gi, '[REDACTED PRIVATE KEY]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer [REDACTED]')
@@ -122,7 +122,7 @@ export class PlanningArtifactRepository {
         artifact: {
           schemaVersion: 1,
           path,
-          content: redact(content),
+          content: redactPlanningEvidence(content),
           digest: createHash('sha256').update(bytes).digest('hex'),
           byteLength: bytes.byteLength,
           modifiedAt: info.mtime.toISOString(),

@@ -175,6 +175,34 @@ describe('PlanningPackageEvidenceAdapter', () => {
     expect(JSON.stringify(result)).not.toContain('never-expose-this')
   })
 
+  it('records bounded learner-authored prompt and interview provenance without the bootstrap turn', async () => {
+    const { directory, baseline } = await gitWorkspace()
+    await writePlanningPackage(directory)
+    const result = await adapterFor(
+      directory,
+      async () => activity(baseline, {
+        cursor: 'turn-3:item-2',
+        learnerPrompts: [
+          'Thực hiện Practice m2-planning-package. Mục tiêu bootstrap.',
+          'Hãy phỏng vấn tôi từng câu. TOKEN=private-prompt-value',
+          'Đối tượng là content creator.'
+        ],
+        executorResponses: ['Câu hỏi đầu tiên là gì?']
+      })
+    ).collect(context(directory))
+
+    expect(result.planningActivity).toMatchObject({
+      cursor: 'turn-3:item-2',
+      learnerTurnCount: 2,
+      executorTurnCount: 1,
+      prdPrompt: {
+        text: 'Hãy phỏng vấn tôi từng câu. TOKEN=[REDACTED]'
+      }
+    })
+    expect(result.planningActivity?.prdPrompt?.digest).toMatch(/^[a-f0-9]{64}$/)
+    expect(JSON.stringify(result)).not.toContain('private-prompt-value')
+  })
+
   it('ignores unrelated dirt that existed unchanged at the Practice baseline', async () => {
     const { directory, baseline } = await gitWorkspace({ preexistingDirty: true })
     await writePlanningPackage(directory)

@@ -12,7 +12,10 @@ import type {
   PracticeEvidenceAdapter,
   PracticeEvidenceAdapterContext
 } from './practice-evidence-adapter'
-import { PlanningArtifactRepository } from './planning-artifact-repository'
+import {
+  PlanningArtifactRepository,
+  redactPlanningEvidence
+} from './planning-artifact-repository'
 import {
   GitWorkspaceEvidenceProvider,
   type WorkspaceEvidenceProvider
@@ -93,6 +96,23 @@ export class PlanningPackageEvidenceAdapter implements PracticeEvidenceAdapter {
       .slice(0, 100)
     const planningArtifacts: PlanningArtifactSnapshot[] = []
     const artifactIssues: PlanningArtifactIssue[] = []
+    const learnerAuthoredPrompts = activity.learnerAuthoredPrompts
+      ?? activity.learnerPrompts.filter((prompt) =>
+        !prompt.startsWith('Thực hiện Practice ' + context.definition.practiceId + '.'))
+    const rawPrdPrompt = learnerAuthoredPrompts[0]?.slice(0, 2_000) ?? null
+    const planningActivity = {
+      schemaVersion: 1 as const,
+      cursor: activity.cursor,
+      observedAt: activity.observedAt,
+      learnerTurnCount: learnerAuthoredPrompts.length,
+      executorTurnCount: activity.executorResponses.length,
+      prdPrompt: rawPrdPrompt
+        ? {
+            text: redactPlanningEvidence(rawPrdPrompt),
+            digest: createHash('sha256').update(rawPrdPrompt).digest('hex')
+          }
+        : null
+    }
 
     for (const path of planningArtifactPaths) {
       const result = await this.artifacts.inspect(context.workspaceRoot, path, observedAt)
@@ -162,7 +182,8 @@ export class PlanningPackageEvidenceAdapter implements PracticeEvidenceAdapter {
       invalidations: [],
       planningArtifacts,
       artifactIssues,
-      unexpectedChangedPaths
+      unexpectedChangedPaths,
+      planningActivity
     }
   }
 }

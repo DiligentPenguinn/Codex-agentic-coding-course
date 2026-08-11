@@ -50,6 +50,10 @@ function textContent(item: Record<string, unknown>): string {
   return bounded(content.map((entry) => record(entry)).filter(Boolean).filter((entry) => entry?.type === 'text').map((entry) => entry?.text).join(' '))
 }
 
+function isCourseCompanionBootstrap(value: string): boolean {
+  return /^Thực hiện Practice [A-Za-z0-9_-]{1,160}\./.test(value)
+}
+
 function deniesChangedFileClaim(line: string): boolean {
   const normalized = line.toLowerCase().replace(/[’]/g, "'")
   return (
@@ -127,6 +131,7 @@ export function initialActivity(
     status: 'ready',
     cursor: 'initial',
     learnerPrompts: [],
+    learnerAuthoredPrompts: [],
     executorResponses: [],
     approvalEvents: [],
     changedFiles: [],
@@ -190,7 +195,13 @@ export function reduceExecutorActivity(
     const item = record(params.item)
     if (item) {
       next.cursor = `${String(params.turnId ?? '')}:${String(item.id ?? '')}`.slice(0, 500)
-      if (item.type === 'userMessage') next.learnerPrompts = appendUnique(next.learnerPrompts, textContent(item))
+      if (item.type === 'userMessage') {
+        const prompt = textContent(item)
+        next.learnerPrompts = appendUnique(next.learnerPrompts, prompt)
+        if (!isCourseCompanionBootstrap(prompt)) {
+          next.learnerAuthoredPrompts = appendUnique(next.learnerAuthoredPrompts ?? [], prompt)
+        }
+      }
       if (item.type === 'agentMessage' && (item.phase === 'final_answer' || item.phase === undefined)) {
         const answer = bounded(item.text)
         next.executorResponses = appendUnique(next.executorResponses, answer)
@@ -227,6 +238,11 @@ function mergeActivity(
     ...projected,
     cursor: projected.cursor === 'initial' ? previous.cursor : projected.cursor,
     learnerPrompts: mergeUnique(previous.learnerPrompts, projected.learnerPrompts, 50),
+    learnerAuthoredPrompts: mergeUnique(
+      previous.learnerAuthoredPrompts ?? [],
+      projected.learnerAuthoredPrompts ?? [],
+      50
+    ),
     executorResponses: mergeUnique(previous.executorResponses, projected.executorResponses, 50),
     approvalEvents: mergeUnique(previous.approvalEvents, projected.approvalEvents, 50),
     changedFiles: mergeUnique(previous.changedFiles, projected.changedFiles, 100),

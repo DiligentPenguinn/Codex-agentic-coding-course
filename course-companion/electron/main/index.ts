@@ -6,6 +6,7 @@ import type {
   AppSettingsUpdate,
   PracticeFixtureRequest,
   PracticePanelUpdate,
+  PlanningPracticeActionRequest,
   PracticeStartRequest,
   PracticeCompletionReceipt,
   ProgressUpdate,
@@ -37,6 +38,9 @@ import { TeacherMemoryRepository } from './teacher-memory-repository'
 import { TeacherService } from './teacher-service'
 import { getCompanionBounds } from './window-layout'
 import { TestCodexGateway } from './test-codex-gateway'
+import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
+import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
+import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
   app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
@@ -143,6 +147,10 @@ const executorChatCoordinator = new ExecutorChatCoordinator(
 )
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
+const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
+  new CodexConfigurationEvidenceAdapter(activityObserver),
+  new PlanningPackageEvidenceAdapter(activityObserver)
+])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
   practiceDefinitionRepository,
@@ -156,7 +164,8 @@ const practiceCoordinator = new PracticeCoordinator(
     const receipt = [...result.progress.practiceCompletions].reverse().find((item) =>
       item.practiceId === 'm1-codex-safe-setup' && item.approvedConfiguration)
     return receipt?.approvedConfiguration ?? null
-  }
+  },
+  evidenceAdapters
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
@@ -328,6 +337,47 @@ function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
   )
 }
 
+function isDigest(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+}
+
+function isPlanningPracticeActionRequest(value: unknown): value is PlanningPracticeActionRequest {
+  if (!isRecord(value)
+    || !/^[A-Za-z0-9_-]{1,160}$/.test(String(value.runId))
+    || !Number.isSafeInteger(value.generation)
+    || Number(value.generation) < 1
+    || value.practiceId !== 'm2-planning-package'
+    || !/^[0-9]+\.[0-9]+\.[0-9]+$/.test(String(value.practiceVersion))
+    || !isRecord(value.action)
+    || typeof value.action.type !== 'string') return false
+  const action = value.action
+  if (action.type === 'capture-prd-prompt' || action.type === 'complete-interview') {
+    return Object.keys(action).length === 2
+      && typeof action.expectedActivityCursor === 'string'
+      && action.expectedActivityCursor.length > 0
+      && action.expectedActivityCursor.length <= 500
+  }
+  if (action.type === 'approve-prd' || action.type === 'request-prd-revision') {
+    return Object.keys(action).length === 2 && isDigest(action.expectedPrdDigest)
+  }
+  if (action.type === 'confirm-alignment'
+    || action.type === 'approve-plan'
+    || action.type === 'request-plan-revision') {
+    return Object.keys(action).length === 3
+      && isDigest(action.expectedPrdDigest)
+      && isDigest(action.expectedPlanDigest)
+  }
+  if (action.type === 'record-scope-decision') {
+    return Object.keys(action).length === 4
+      && typeof action.value === 'string'
+      && action.value.trim().length >= 20
+      && action.value.length <= 2_000
+      && isDigest(action.expectedPrdDigest)
+      && isDigest(action.expectedPlanDigest)
+  }
+  return false
+}
+
 async function enterPracticeCompanion(): Promise<void> {
   companionMode = 'compact'
   await teacherRepository.saveMode(companionMode)
@@ -411,6 +461,16 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:cancel-practice-switch', () => practiceCoordinator.cancel())
+
+  ipcMain.handle(
+    'course:record-planning-action',
+    (_event, request: PlanningPracticeActionRequest) => {
+      if (!isPlanningPracticeActionRequest(request)) {
+        throw new Error('Invalid Module 2 Practice action')
+      }
+      return practiceCoordinator.recordPlanningAction(request)
+    }
+  )
 
   ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
     if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')

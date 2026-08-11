@@ -7,6 +7,7 @@ import type {
   CourseCompanionApi,
   LearnerProgress,
   PracticePanelUpdate,
+  PlanningPracticeActionRequest,
   PracticeCompletionReceipt,
   PracticeReviewResponse,
   PracticeStartRequest,
@@ -46,6 +47,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:retry-practice-switch') as Promise<PracticeWorkspaceView>,
   cancelPracticeSwitch: () =>
     ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
+  recordPlanningAction: (request: PlanningPracticeActionRequest) =>
+    ipcRenderer.invoke('course:record-planning-action', request) as Promise<PracticeWorkspaceView>,
   selectPracticePanel: (update: PracticePanelUpdate) =>
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>

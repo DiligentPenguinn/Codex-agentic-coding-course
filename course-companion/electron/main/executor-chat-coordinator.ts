@@ -118,7 +118,13 @@ export class ExecutorChatCoordinator {
                 'Thực hiện Practice ' + definition.practiceId + '.',
                 'Mục tiêu: ' + definition.objective,
                 'Kết quả cần đạt: ' + definition.expectedOutcome,
-                'Chỉ làm trong phạm vi Practice và dừng tại mọi điểm cần người học duyệt.'
+                'Chỉ làm trong phạm vi Practice và dừng tại mọi điểm cần người học duyệt.',
+                ...(definition.evidenceProfile === 'planning-package'
+                  ? [
+                      'Chỉ được thay đổi artifacts/PRD.md và artifacts/implementation-plan.md; không viết implementation code.',
+                      'Dùng chính task này cho toàn bộ Practice, phỏng vấn từng câu một, và chờ các nút phê duyệt trong Course Companion. Tin nhắn trong chat không thay thế phê duyệt của người học.'
+                    ]
+                  : [])
               ].join('\n\n')
             }]
           })

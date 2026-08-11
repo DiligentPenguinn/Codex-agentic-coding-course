@@ -6,6 +6,8 @@ import type {
   PracticeCompletionReceipt,
   PracticeEvidenceInvalidation,
   PracticeEvidenceProfile,
+  PracticeLearnerApproval,
+  PlanningPracticeActionRequest,
   PracticePanel,
   PracticeReviewResult,
   PracticeTaskPolicy,
@@ -13,6 +15,10 @@ import type {
 } from '../../shared/contracts'
 import { isApprovedCodexConfiguration } from './practice-task-policy'
 import { isCodexTaskConfigurationSnapshot } from './codex-configuration-normalizer'
+import {
+  applyPlanningPracticeAction,
+  reconcilePlanningStepState
+} from './practice-step-state'
 
 export type ExecutorChatBinding = {
   runId: string
@@ -37,7 +43,7 @@ export type PracticeRunRecord = {
   updatedAt: string
   checklist: PracticeChecklistStep[]
   learnerDecisions: Record<string, string>
-  learnerApprovals: Record<string, { decision: 'approved' | 'revision-requested'; recordedAt: string }>
+  learnerApprovals: Record<string, PracticeLearnerApproval>
   evidence: PracticeAdapterEvidenceState | null
   invalidations: PracticeEvidenceInvalidation[]
   reviewStatus: 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
@@ -149,6 +155,12 @@ function isApprovals(value: unknown): boolean {
       && isRecord(approval)
       && (approval.decision === 'approved' || approval.decision === 'revision-requested')
       && isIso(approval.recordedAt)
+      && isRecord(approval.artifactDigests)
+      && Object.keys(approval.artifactDigests).length <= 2
+      && Object.entries(approval.artifactDigests).every(([path, digest]) =>
+        (path === 'artifacts/PRD.md' || path === 'artifacts/implementation-plan.md')
+        && typeof digest === 'string'
+        && /^[a-f0-9]{64}$/.test(digest))
     ))
 }
 
@@ -467,14 +479,40 @@ export class PracticeRunRepository {
     return this.runExclusive(async () => {
       const record = await this.loadDirect()
       if (!matchesRun(record.activeRun, input)) return record
-      const invalidated = input.invalidations.length > 0
+      const planningState = record.activeRun.evidenceProfile === 'planning-package'
+        ? reconcilePlanningStepState({
+            checklist: record.activeRun.checklist,
+            previousEvidence: record.activeRun.evidence,
+            evidence: input.evidence,
+            learnerDecisions: record.activeRun.learnerDecisions,
+            learnerApprovals: record.activeRun.learnerApprovals,
+            priorInvalidations: record.activeRun.invalidations,
+            reviewStatus: record.activeRun.reviewStatus,
+            hasCompletion: Boolean(record.activeRun.completion)
+          })
+        : null
+      const checklist = planningState?.checklist ?? input.checklist
+      const invalidations = planningState?.invalidations ?? input.invalidations
+      const evidence = {
+        ...structuredClone(input.evidence),
+        steps: checklist.map((step) => ({
+          stepId: step.id,
+          status: step.status === 'upcoming' ? 'pending' as const : step.status,
+          ...(step.reason ? { reason: step.reason } : {}),
+          dependencyInputs: structuredClone(step.dependencyInputs ?? {})
+        })),
+        invalidations: structuredClone(invalidations)
+      }
+      const invalidated = invalidations.length > 0
       return this.saveDirect({
         ...record,
         activeRun: {
           ...record.activeRun,
-          evidence: structuredClone(input.evidence),
-          checklist: structuredClone(input.checklist),
-          invalidations: structuredClone(input.invalidations),
+          evidence,
+          checklist: structuredClone(checklist),
+          learnerDecisions: planningState?.learnerDecisions ?? record.activeRun.learnerDecisions,
+          learnerApprovals: planningState?.learnerApprovals ?? record.activeRun.learnerApprovals,
+          invalidations: structuredClone(invalidations),
           reviewStatus: invalidated ? 'not-reviewed' : record.activeRun.reviewStatus,
           reviewResult: invalidated ? undefined : record.activeRun.reviewResult,
           completion: invalidated ? undefined : record.activeRun.completion,
@@ -487,7 +525,7 @@ export class PracticeRunRepository {
   saveLearnerDecision(input: RunIdentity & {
     key: string
     value: string
-    approval?: { decision: 'approved' | 'revision-requested'; recordedAt: string }
+    approval?: PracticeLearnerApproval
     updatedAt: string
   }): Promise<PracticeWorkspaceRecord> {
     return this.runExclusive(async () => {
@@ -510,6 +548,60 @@ export class PracticeRunRepository {
                 [input.key]: structuredClone(input.approval)
               }
             : record.activeRun.learnerApprovals,
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  applyPlanningAction(input: RunIdentity & {
+    action: PlanningPracticeActionRequest['action']
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!matchesRun(active, input)) return record
+      if (active.evidenceProfile !== 'planning-package' || !active.evidence) {
+        throw new Error('Module 2 evidence is unavailable')
+      }
+      const result = applyPlanningPracticeAction({
+        state: {
+          checklist: active.checklist,
+          previousEvidence: active.evidence,
+          evidence: active.evidence,
+          learnerDecisions: active.learnerDecisions,
+          learnerApprovals: active.learnerApprovals,
+          priorInvalidations: active.invalidations,
+          reviewStatus: active.reviewStatus,
+          hasCompletion: Boolean(active.completion)
+        },
+        action: input.action,
+        recordedAt: input.updatedAt
+      })
+      const invalidated = result.invalidations.length > 0
+      const evidence = {
+        ...active.evidence,
+        steps: result.checklist.map((step) => ({
+          stepId: step.id,
+          status: step.status === 'upcoming' ? 'pending' as const : step.status,
+          ...(step.reason ? { reason: step.reason } : {}),
+          dependencyInputs: structuredClone(step.dependencyInputs ?? {})
+        })),
+        invalidations: structuredClone(result.invalidations)
+      }
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          evidence,
+          checklist: result.checklist,
+          learnerDecisions: result.learnerDecisions,
+          learnerApprovals: result.learnerApprovals,
+          invalidations: result.invalidations,
+          reviewStatus: invalidated ? 'not-reviewed' : active.reviewStatus,
+          reviewResult: invalidated ? undefined : active.reviewResult,
+          completion: invalidated ? undefined : active.completion,
           updatedAt: input.updatedAt
         }
       })

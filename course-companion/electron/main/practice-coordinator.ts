@@ -5,6 +5,7 @@ import type {
   PracticeChecklistStep,
   PracticeIdentity,
   PracticePanelUpdate,
+  PlanningPracticeActionRequest,
   PracticeStartRequest,
   PracticeWorkspaceAdapter,
   PracticeWorkspaceView
@@ -21,6 +22,7 @@ import {
   selectiveTransferCapability,
   selectiveTransferUnavailable
 } from './selective-handoff'
+import type { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
 
 function initialChecklist(definition: PracticeDefinition): PracticeChecklistStep[] {
   return definition.checklist.map((step, index) => ({
@@ -76,7 +78,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly now: () => Date = () => new Date(),
     private readonly createId: () => string = randomUUID,
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>,
-    private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>
+    private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>,
+    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
@@ -220,6 +223,59 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   selectPanel(update: PracticePanelUpdate): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       return this.toView(await this.repository.selectPanel(update.surface, update.panel))
+    })
+  }
+
+  recordPlanningAction(request: PlanningPracticeActionRequest): Promise<PracticeWorkspaceView> {
+    return this.runExclusive(async () => {
+      const record = await this.repository.load()
+      const active = record.activeRun
+      if (!active
+        || active.runId !== request.runId
+        || active.generation !== request.generation
+        || active.practiceId !== request.practiceId
+        || active.practiceVersion !== request.practiceVersion) {
+        throw new Error('Practice action does not belong to the active run')
+      }
+      if (active.evidenceProfile !== 'planning-package' || !this.evidenceAdapters) {
+        throw new Error('Module 2 Practice actions are unavailable')
+      }
+      const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
+      await this.prepareExecutor?.(active.binding, false)
+      const evidence = await this.evidenceAdapters.resolve(active.evidenceProfile).collect({
+        definition,
+        runId: active.runId,
+        generation: active.generation,
+        workspaceRoot: active.binding.workspaceRoot,
+        task: {
+          threadId: active.binding.threadId,
+          workspaceRoot: active.binding.workspaceRoot
+        }
+      })
+      const refreshed = await this.repository.saveEvidence({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        evidence,
+        checklist: active.checklist,
+        invalidations: evidence.invalidations,
+        updatedAt: evidence.observedAt
+      })
+      if (!refreshed.activeRun
+        || refreshed.activeRun.runId !== active.runId
+        || refreshed.activeRun.generation !== active.generation) {
+        throw new Error('Practice changed while evidence was refreshed')
+      }
+      const saved = await this.repository.applyPlanningAction({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        action: request.action,
+        updatedAt: this.now().toISOString()
+      })
+      return this.toView(saved)
     })
   }
 

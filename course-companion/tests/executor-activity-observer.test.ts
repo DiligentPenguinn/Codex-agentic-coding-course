@@ -70,6 +70,37 @@ describe('Executor activity projection', () => {
     expect(result.executorResponses).toEqual([])
   })
 
+  it('separates the Course Companion bootstrap from learner-authored prompts', () => {
+    const message = (text: string) => ({
+      method: 'item/completed',
+      params: {
+        threadId: binding.threadId,
+        turnId: 'turn-1',
+        item: {
+          type: 'userMessage',
+          content: [{ type: 'text', text }]
+        }
+      }
+    })
+    let snapshot = reduceExecutorActivity(
+      initialActivity(binding, now),
+      message('Thực hiện Practice m2-planning-package. Mục tiêu bootstrap.'),
+      binding,
+      now
+    )
+    snapshot = reduceExecutorActivity(
+      snapshot,
+      message('Hãy phỏng vấn tôi từng câu để tạo PRD.'),
+      binding,
+      now
+    )
+
+    expect(snapshot.learnerPrompts).toHaveLength(2)
+    expect(snapshot.learnerAuthoredPrompts).toEqual([
+      'Hãy phỏng vấn tôi từng câu để tạo PRD.'
+    ])
+  })
+
   it('keeps bounded evidence and rejects changed paths outside the workspace', () => {
     let snapshot = initialActivity(binding, now)
     snapshot = reduceExecutorActivity(
