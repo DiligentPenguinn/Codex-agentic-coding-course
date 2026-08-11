@@ -5,8 +5,8 @@
 Trong khoảng 25 phút, bạn sẽ:
 
 - xem phần giới thiệu trực quan,
-- hiểu cách khóa học giúp bạn làm việc cùng coding agent và vai trò của dự án
-  thực hành ContentPilot,
+- hiểu cách mình sẽ hướng dẫn bạn làm việc cùng coding agent và vai trò của dự
+  án thực hành ContentPilot,
 - nhận ra phần việc bạn quyết định và phần việc coding agent có thể thực thi,
 - hoàn thành một bài thực hành chỉ đọc mà không thay đổi workspace, và
 - tạo một phiếu định hướng để gắn khóa học với công việc thật:

@@ -51,10 +51,10 @@ tả chúng ta đang xây sản phẩm gì, vì sao sản phẩm cần tồn t�
 đầu và làm sao biết sản phẩm đáp ứng yêu cầu. PRD giữ các quyết định về sản phẩm
 trước khi coding agent chọn cách xây."
 
-Teacher nói: "Trong khóa học này, PRD một trang có tám phần: ý tưởng sản phẩm,
-luồng sử dụng cốt lõi, đầu vào, đầu ra, phạm vi phiên bản 1, ngoài phạm vi, Done
-When và câu hỏi còn mở. Khóa học chủ động chưa yêu cầu persona để bạn tập trung
-vào việc làm rõ sản phẩm."
+Teacher nói: "Trong bài này, mình dùng mẫu PRD một trang có tám phần: ý tưởng
+sản phẩm, luồng sử dụng cốt lõi, đầu vào, đầu ra, phạm vi phiên bản 1, ngoài
+phạm vi, Done When và câu hỏi còn mở. Ở bước này, mình chưa yêu cầu bạn viết
+persona để bạn tập trung vào việc làm rõ sản phẩm."
 
 Teacher nói: "Ví dụ trong mẫu PRD của Atlassian bắt đầu từ một giả định: phần
 lớn người dùng truy cập bằng máy tính bảng. Từ giả định đó, nhóm có thể ghi yêu
@@ -112,8 +112,8 @@ tiêu, bối cảnh, ràng buộc, bằng chứng cần có, tiêu chí thành c
 đầu ra. Một ví dụ chính thức yêu cầu agent xem xét kế hoạch chuyển dữ liệu, tìm
 nguy cơ gây mất dữ liệu hoặc gián đoạn, dẫn lại bước liên quan và trả về năm rủi
 ro quan trọng nhất theo thứ tự. Ví dụ đó cho thấy agent biết việc cần làm, điều
-cần tìm và kết quả phải trình bày ra sao. Năm câu hỏi của khóa học là cách diễn
-đạt lại nguyên tắc này cho người mới."
+cần tìm và kết quả phải trình bày ra sao. Mình diễn đạt lại nguyên tắc này thành
+năm câu hỏi để bạn dễ áp dụng."
 
 Teacher nói: "Áp dụng vào ContentPilot: việc cần làm là hỗ trợ tạo PRD. Thông
 tin ban đầu là ý tưởng một câu. Cách làm việc là hỏi một câu mỗi lượt. Agent
@@ -151,13 +151,13 @@ và lưu PRD” để cho phép tạo `artifacts/PRD.md` từ mẫu
 (`m2-implementation-plan`)
 
 Teacher nói: "PRD đã duyệt là nguồn giữ phạm vi sản phẩm. Implementation plan
-biến phạm vi đó thành những bước xây dựng có thứ tự. Mỗi bước trong plan của
-khóa học cần có bốn điều: mục tiêu, thành phần hoặc file dự kiến, kết quả có thể
+biến phạm vi đó thành những bước xây dựng có thứ tự. Mình sẽ hướng dẫn bạn viết
+mỗi bước với bốn phần: mục tiêu, thành phần hoặc file dự kiến, kết quả có thể
 quan sát và cách kiểm tra kết quả."
 
 Teacher nói: "Mẫu Task Design Review của Microsoft tách rõ phần trong phạm vi,
 ngoài phạm vi, phương án thực hiện, thành phần cần thay đổi và câu hỏi còn mở.
-Khóa học dùng phiên bản ngắn hơn cho người mới, nhưng giữ nguyên mục đích: mỗi
+Mình dùng phiên bản ngắn hơn để bạn dễ bắt đầu. Mục đích vẫn giữ nguyên: mỗi
 bước phải giải thích nó phục vụ yêu cầu nào và sẽ được kiểm tra ra sao."
 
 Teacher nói: "Quay lại ví dụ máy tính bảng của Atlassian: nếu PRD yêu cầu giao

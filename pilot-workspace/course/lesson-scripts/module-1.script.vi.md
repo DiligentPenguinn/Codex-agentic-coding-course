@@ -23,9 +23,9 @@ môn phức tạp. Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt c
 Ví dụ, bạn có thể dùng Terra để trả lời tin nhắn khách hàng theo hướng dẫn đã
 có."
 
-Teacher nói: "Trong khóa học, bạn không dùng Luna làm model chính. Coding agent
-có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm
-chi phí khi tác vụ không quá phức tạp."
+Teacher nói: "Ở bài này, mình không chọn Luna làm model chính. Coding agent có
+thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi
+phí khi tác vụ không quá phức tạp."
 
 Teacher nói: "Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc
 nhiều bước. Extra High và Ultra dành cho nhiệm vụ khó hơn. Trong những lần mình
@@ -71,9 +71,10 @@ bạn quyết định. Ask for approval hỏi thường xuyên hơn. Approve for
 hành động thông thường nhưng vẫn dừng ở hành động có rủi ro. Full access gỡ bỏ
 các ranh giới bảo vệ thông thường."
 
-Teacher nói: "Khóa học khuyên người mới dùng Approve for me và không bật Full
-access. Course Companion chỉ ghi lại lựa chọn này; bạn sẽ cài thật trong Codex
-ở phần Practice."
+Teacher nói: "Mình khuyên bạn dùng Approve for me và chưa bật Full access. Cách
+này giúp bạn giữ nhịp học mà vẫn có lớp bảo vệ trước hành động rủi ro. Course
+Companion chỉ ghi lại lựa chọn này; bạn sẽ cài thật trong Codex ở phần
+Practice."
 
 [Hiện ảnh `course/codex-setup/images/approval-menu.png`. Dừng chờ Learner xác
 nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
@@ -81,9 +82,9 @@ nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
 
 ## Bước 4 — Áp dụng cấu hình Codex (`m1-model-choice`)
 
-Teacher nói: "Cấu hình khóa học đề xuất là 5.6 Sol, High, Standard và Approve
-for me. Full access để tắt. Đây là cấu hình của khóa học, không phải thiết lập
-mặc định của mọi tài khoản Codex."
+Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
+Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
+hành, không phải thiết lập mặc định của mọi tài khoản Codex."
 
 [Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
 định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
@@ -98,7 +99,7 @@ Speed; một ảnh Approval cùng trạng thái Full access. Sau đó gửi yêu
 
 > Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt.
 > Báo cáo dưới tiêu đề `Verification`, gồm Model, Effort, Speed, Approval và
-> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình khóa học đề xuất.
+> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình Triết khuyên dùng.
 
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi task đã mở và có hoạt động mới.]

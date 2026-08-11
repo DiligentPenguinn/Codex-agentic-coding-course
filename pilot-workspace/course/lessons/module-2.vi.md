@@ -44,7 +44,7 @@ theo của khóa học.
 
 ## Ý tưởng thực hành: ContentPilot
 
-Khóa học cung cấp điểm bắt đầu sau:
+Mình gợi ý bạn bắt đầu với ý tưởng sau:
 
 > ContentPilot là công cụ giúp người sáng tạo phân tích các bài viết hiện có
 > trên profile — hoặc một profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý
@@ -72,8 +72,9 @@ PRD một trang của bạn cần có:
 7. `Done When` — các dấu hiệu hoàn thành có thể quan sát và kiểm tra.
 8. Câu hỏi còn mở.
 
-Khóa học chưa yêu cầu phần persona. Mục tiêu ở đây là luyện cách làm rõ sản phẩm
-và giao tiếp với coding agent, không phải hoàn thành mọi loại tài liệu product.
+Ở bước này, mình chưa yêu cầu bạn viết persona. Mục tiêu là luyện cách làm rõ
+sản phẩm và giao tiếp với coding agent, không phải hoàn thành mọi loại tài liệu
+product.
 
 Mẫu PRD của
 [Atlassian](https://www.atlassian.com/software/confluence/templates/product-requirements?category=services)
@@ -143,8 +144,8 @@ cần có, tiêu chí thành công và định dạng đầu ra. Một ví dụ 
 cầu agent xem xét kế hoạch chuyển dữ liệu, tìm nguy cơ mất dữ liệu hoặc gián
 đoạn, dẫn lại bước liên quan và xếp năm rủi ro quan trọng nhất theo thứ tự.
 
-Năm câu hỏi của khóa học là cách diễn đạt lại hướng dẫn đó cho người mới. Khi áp
-dụng vào ContentPilot:
+Mình diễn đạt lại hướng dẫn đó thành năm câu hỏi để bạn dễ áp dụng. Với
+ContentPilot:
 
 - việc cần làm là hỗ trợ tạo PRD,
 - thông tin ban đầu là ý tưởng một câu,
@@ -176,8 +177,8 @@ PRD và chưa được phép chứa code triển khai.
 
 [Mẫu Task Design Review của Microsoft](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/)
 tách rõ mục tiêu, trong phạm vi, ngoài phạm vi, phương án, thành phần cần thay
-đổi và câu hỏi còn mở. Khóa học dùng phiên bản ngắn hơn cho người mới nhưng vẫn
-giữ nguyên mục đích: mỗi bước phải gắn với một yêu cầu và một cách kiểm tra.
+đổi và câu hỏi còn mở. Mình dùng phiên bản ngắn hơn để bạn dễ bắt đầu. Mục đích
+vẫn giữ nguyên: mỗi bước phải gắn với một yêu cầu và một cách kiểm tra.
 
 Quay lại ví dụ máy tính bảng của Atlassian: PRD có thể yêu cầu giao diện hiển
 thị tốt trên máy tính bảng. Implementation plan sẽ nêu bước chỉnh bố cục và
@@ -198,9 +199,9 @@ Tám câu đầu giúp bạn kiểm tra từng cụm kiến thức. Phần cuố
 chọn, ba câu trả lời ngắn và hai câu đối chiếu artifact của chính bạn. Bạn cần
 đạt ít nhất 12/15 câu cuối.
 
-Mỗi câu hỏi đều ghi căn cứ và đường dẫn đến nguồn chính thức. Khóa học biên soạn
-câu hỏi bằng tiếng Việt dựa trên các nguồn đó; câu hỏi không được trình bày như
-một trích dẫn nguyên văn. Lời giải và nguồn chỉ hiện sau khi bạn trả lời.
+Mỗi câu hỏi đều ghi căn cứ và đường dẫn đến nguồn chính thức. Mình biên soạn câu
+hỏi bằng tiếng Việt dựa trên các nguồn đó. Đây không phải trích dẫn nguyên văn.
+Lời giải và nguồn chỉ hiện sau khi bạn trả lời.
 
 ## Checkpoint hoàn thành
 
@@ -232,8 +233,7 @@ lời của mình ít nhất một quyết định về phạm vi.
 ## Nguồn và lựa chọn sư phạm
 
 Các nguyên tắc về planning, PRD, prompt và thiết kế công việc trong module dựa
-trên các nguồn chính thức được liên kết ngay tại phần liên quan. Yêu cầu PRD một
-trang, tám phần, chưa dùng persona, năm câu hỏi dành cho người mới và cách chia
-checkpoint là lựa chọn sư phạm riêng của khóa học này. Cấu trúc 3 + 3 + 2 + 15
-cũng là lựa chọn sư phạm; căn cứ và đáp án của từng câu nằm trong ngân hàng câu
-hỏi có nguồn.
+trên các nguồn chính thức được liên kết ngay tại phần liên quan. Mình chọn PRD
+một trang có tám phần, chưa dùng persona và diễn đạt prompt thành năm câu hỏi.
+Cách chia checkpoint cùng cấu trúc 3 + 3 + 2 + 15 cũng là lựa chọn sư phạm của
+mình. Căn cứ và đáp án của từng câu nằm trong ngân hàng câu hỏi có nguồn.

@@ -9,9 +9,9 @@ giải thích xong Codex, harness, approval, ba dòng model và các mức reaso
 Mọi thuật ngữ phải được giải thích trước khi dùng. Nếu nhắc đến subagent, chỉ
 dùng phép so sánh với một nhóm trợ lý phụ; không đi sâu vào kiến trúc.
 
-Khóa học đề xuất 5.6 Sol, High, Standard, Approve for me và tắt Full access.
-Phải gọi đây là cấu hình của khóa học, không gọi là thiết lập mặc định của mọi
-tài khoản Codex.
+Teacher đề xuất 5.6 Sol, High, Standard, Approve for me và tắt Full access.
+Trong lời learner-facing, phải gọi đây là **cấu hình mình đề xuất cho
+ContentPilot**. Không gọi đây là thiết lập mặc định của mọi tài khoản Codex.
 
 Phần cuối phải mở Practice `m1-codex-safe-setup`. Learner nộp hai ảnh trong
 đúng task Executor. Triết chỉ đánh dấu đạt sau khi bằng chứng còn mới và xác

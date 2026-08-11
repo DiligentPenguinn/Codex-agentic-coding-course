@@ -16,7 +16,7 @@ const hints = [
   "Chọn model theo loại công việc.",
   "Dùng mức reasoning vừa đủ cho nhiệm vụ.",
   "Chốt cấu hình dành riêng cho ContentPilot.",
-  "Nộp bằng chứng thật để Triết duyệt."
+  "Nộp bằng chứng thật để mình duyệt."
 ];
 
 let currentStep = 0;

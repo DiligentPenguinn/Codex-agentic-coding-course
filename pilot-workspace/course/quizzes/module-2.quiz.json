@@ -224,7 +224,7 @@
             "Xây tính năng khi chưa có tiêu chí hoàn thành."
           ],
           "answerIndex": 1,
-          "explanation": "Microsoft nhấn mạnh rằng không phải công việc nào cũng cần bước xem xét thiết kế. Khóa học áp dụng nguyên tắc đó cho thay đổi nhỏ đã rõ và dễ kiểm tra.",
+          "explanation": "Microsoft nhấn mạnh rằng không phải công việc nào cũng cần bước xem xét thiết kế. Ở đây, mình áp dụng nguyên tắc đó cho thay đổi nhỏ đã rõ và dễ kiểm tra.",
           "source": {
             "label": "Microsoft Engineering Fundamentals — Incorporating Design Reviews into an Engagement",
             "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/",
@@ -427,7 +427,7 @@
             "Nêu thành phần mới hoặc thành phần cần cập nhật.",
             "Có kết quả quan sát được và cách xác nhận kết quả."
           ],
-          "explanation": "Microsoft yêu cầu thiết kế nêu mục tiêu trong phạm vi, tiêu chí hoàn thành và các thành phần cần phát triển hoặc cập nhật. Khóa học tổ chức các ý đó thành bốn trường dễ dùng cho người mới.",
+          "explanation": "Microsoft yêu cầu thiết kế nêu mục tiêu trong phạm vi, tiêu chí hoàn thành và các thành phần cần phát triển hoặc cập nhật. Mình tổ chức các ý đó thành bốn trường để bạn dễ áp dụng.",
           "source": {
             "label": "Microsoft Engineering Fundamentals — Task Design Review",
             "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",

@@ -2,9 +2,9 @@
 
 ## Codex là gì?
 
-Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding
-agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng
-dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.
+Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent
+là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây
+trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.
 
 Codex không chỉ đưa ra câu trả lời. Khi được bạn cho phép, Codex có thể đọc tệp,
 dùng công cụ, chạy lệnh và kiểm tra kết quả trong một workspace. Bạn vẫn là
@@ -62,9 +62,9 @@ Trong menu approval của Codex:
 - **Full access** mở quyền truy cập Internet và tệp trên máy tính mà không giữ
   các ranh giới bảo vệ thông thường.
 
-Khóa học khuyên người mới dùng **Approve for me** và không bật **Full access**.
-Thiết lập này giúp quá trình học ít bị ngắt quãng nhưng vẫn giữ lớp bảo vệ cho
-những hành động có rủi ro. Tự động duyệt không làm thay đổi ranh giới sandbox.
+Mình khuyên bạn dùng **Approve for me** và chưa bật **Full access**. Thiết lập
+này giúp quá trình học ít bị ngắt quãng nhưng vẫn giữ lớp bảo vệ trước những
+hành động có rủi ro. Tự động duyệt không làm thay đổi ranh giới sandbox.
 
 [OpenAI Docs — Sandboxing and approvals](https://learn.chatgpt.com/docs/sandboxing)
 giải thích sự khác nhau giữa ranh giới truy cập và chính sách xin phép.
@@ -78,14 +78,14 @@ là LLM:
 |---|---|---|
 | **Sol** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
 | **Terra** | Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày | Trả lời tin nhắn khách hàng theo hướng dẫn đã có |
-| **Luna** | Không dùng làm model chính trong khóa học; phù hợp với tác vụ phụ đã rõ | Coding agent giao Luna khảo sát một codebase nhỏ |
+| **Luna** | Mình không chọn làm model chính; model này phù hợp với tác vụ phụ đã rõ | Coding agent giao Luna khảo sát một codebase nhỏ |
 
 Tên model không phải cấp độ mà người học phải vượt qua. Bạn chọn model theo độ
 khó, độ rõ của yêu cầu và chi phí chấp nhận được.
 
 OpenAI mô tả Terra là lựa chọn cân bằng giữa năng lực và chi phí. Luna hướng đến
-các tác vụ cần tiết kiệm chi phí hoặc xử lý số lượng lớn. Trong khóa học, coding
-agent có thể giao Luna một tác vụ phụ đã rõ. Cách này giảm chi phí khi công việc
+các tác vụ cần tiết kiệm chi phí hoặc xử lý số lượng lớn. Trong bài thực hành,
+mình chỉ dùng Luna cho tác vụ phụ đã rõ. Cách này giảm chi phí khi công việc
 không quá phức tạp.
 
 [OpenAI Docs — GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
@@ -107,9 +107,9 @@ Ultra có thể chia việc cho nhiều subagent. Hãy hình dung subagent như 
 viên phụ trong một nhóm: mỗi người xử lý một phần rồi tổng hợp lại. Người mới
 chưa cần dùng cách này cho ContentPilot.
 
-Trong những lần Triết thử nghiệm, Extra High không tạo khác biệt đủ lớn cho đa
-số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn. Vì vậy, khóa học
-không khuyên dùng Extra High hoặc Ultra trong Module 1.
+Trong những lần mình thử nghiệm, Extra High không tạo khác biệt đủ lớn cho đa
+số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn. Vì vậy, mình không
+khuyên bạn dùng Extra High hoặc Ultra trong Module 1.
 
 [OpenAI Docs — Model guidance](https://developers.openai.com/api/docs/guides/latest-model)
 khuyên dùng High hoặc Extra High khi thử nghiệm cho thấy chất lượng tăng rõ.
@@ -119,16 +119,16 @@ khuyên dùng High hoặc Extra High khi thử nghiệm cho thấy chất lượ
 OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng
 credit ở mức 2,5 lần Standard khi bạn đăng nhập Codex bằng ChatGPT.
 
-Trong những lần Triết thử nghiệm, Fast thường chỉ nhanh hơn Standard khoảng
-0,5 giây. Mức chênh này không đủ lớn để Triết chọn Fast làm mặc định.
+Trong những lần mình thử nghiệm, Fast thường chỉ nhanh hơn Standard khoảng
+0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.
 
 [OpenAI Docs — Speed](https://learn.chatgpt.com/docs/agent-configuration/speed)
 giải thích tốc độ và mức dùng credit của hai chế độ.
 
-## Cấu hình khóa học đề xuất cho ContentPilot
+## Cấu hình mình đề xuất cho ContentPilot
 
-Đây là cấu hình dành riêng cho dự án thực hành của khóa học, không phải tuyên
-bố về thiết lập mặc định của mọi tài khoản Codex:
+Mình chọn cấu hình này cho dự án thực hành ContentPilot. Đây không phải thiết
+lập mặc định của mọi tài khoản Codex:
 
 - Model: **5.6 Sol**
 - Effort: **High**
@@ -151,11 +151,11 @@ Trong task đó, gửi yêu cầu:
 
 > Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt.
 > Báo cáo dưới tiêu đề `Verification`, gồm Model, Effort, Speed, Approval và
-> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình khóa học đề xuất.
+> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình Triết khuyên dùng.
 
 Sau đó, quay lại Course Companion và chọn **Yêu cầu Triết duyệt tiến độ**.
-Triết chỉ xác nhận đạt khi bằng chứng đến từ đúng task, còn mới và đủ năm mục.
-Nếu chưa đạt, Triết chỉ rõ mục cần sửa để bạn nộp lại.
+Mình chỉ xác nhận đạt khi bằng chứng đến từ đúng task, còn mới và đủ năm mục.
+Nếu chưa đạt, mình sẽ chỉ rõ mục cần sửa để bạn nộp lại.
 
 ## Tiêu chí hoàn thành
 
@@ -166,10 +166,10 @@ Bạn hoàn thành Module 1 khi:
 - chọn Approve for me và không bật Full access,
 - dùng cấu hình Sol, High và Standard cho ContentPilot,
 - nộp đủ hai ảnh trong đúng task Executor, và
-- được Triết duyệt bằng chứng.
+- được mình duyệt bằng chứng.
 
-## Nguồn và lựa chọn của khóa học
+## Nguồn và lựa chọn mình đưa ra
 
 Khái niệm Codex, Harness Engineering, approval, model và reasoning effort dựa
 trên các nguồn được liên kết tại từng phần. Việc chọn Sol, High, Standard và
-Approve for me là lựa chọn sư phạm của khóa học cho dự án ContentPilot.
+Approve for me là lựa chọn sư phạm mình đưa ra cho dự án ContentPilot.

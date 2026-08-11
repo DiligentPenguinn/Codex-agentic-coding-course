@@ -224,7 +224,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'TẠO', value: 'Ứng dụng và website' },
       { label: 'TỰ ĐỘNG HÓA', value: 'Việc lặp lại' }
     ],
-    dialogue: 'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.',
+    dialogue: 'Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.',
     choices: [{ label: 'Làm quen với giao diện Codex', next: 'module-1-codex-examples', primary: true }]
   },
   'module-1-codex-examples': {
@@ -264,7 +264,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'EFFORT', value: 'Mức suy luận' },
       { label: 'SPEED', value: 'Tốc độ xử lý' }
     ],
-    dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu Model, Effort và Speed. Màn hình này giải thích từng lựa chọn, các trường hợp sử dụng và cấu hình khóa học đề xuất cho ContentPilot.',
+    dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu Model, Effort và Speed. Màn hình này giải thích từng lựa chọn, các trường hợp sử dụng và cấu hình mình đề xuất cho ContentPilot.',
     choices: [{ label: 'Tiếp theo: Lệnh /', next: 'module-1-codex-slash-commands', primary: true }]
   },
   'module-1-codex-slash-commands': {
@@ -394,7 +394,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Approval và quyền truy cập',
-    objective: 'Người mới không nên bật Full access',
+    objective: 'Bạn chưa nên bật Full access',
     panelLabel: 'CẤU HÌNH AN TOÀN',
     panelStatus: 'APPROVE FOR ME · FULL ACCESS TẮT',
     tone: 'neutral',
@@ -404,7 +404,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'HÀNH ĐỘNG RỦI RO', value: 'Vẫn dừng lại' },
       { label: 'FULL ACCESS', value: 'Không bật' }
     ],
-    dialogue: 'Khóa học khuyên người mới dùng Approve for me và không bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
+    dialogue: 'Mình khuyên bạn dùng Approve for me và chưa bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
     choices: [{ label: 'Dùng thiết lập an toàn này', next: 'module-1-model-choice', primary: true, decision: { key: 'approvalApproach', value: 'approve-for-me-no-full-access' } }]
   },
   'module-1-model-choice': {
@@ -444,7 +444,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'TERRA', value: 'Trả lời tin nhắn khách hàng' },
       { label: 'LUNA', value: 'Khảo sát codebase nhỏ' }
     ],
-    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Trong khóa học, ta không chọn Luna làm model chính. Coding agent có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ.',
+    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Ở bài này, mình không chọn Luna làm model chính. Coding agent có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ.',
     choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-reasoning-effort': {
@@ -464,7 +464,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'MEDIUM', value: 'Cân bằng' },
       { label: 'HIGH', value: 'Nhiều bước, cần kiểm tra' }
     ],
-    dialogue: 'Effort cho biết Codex dành bao nhiêu công sức để phân tích. Speed quyết định Codex xử lý ở chế độ Standard hay Fast. Khóa học đề xuất 5.6 Sol, High và Standard cho ContentPilot.',
+    dialogue: 'Effort cho biết Codex dành bao nhiêu công sức để phân tích. Speed quyết định Codex xử lý ở chế độ Standard hay Fast. Với ContentPilot, mình đề xuất 5.6 Sol, High và Standard.',
     choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-project-setup': {
@@ -474,7 +474,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
-    objective: 'Cấu hình khóa học đề xuất cho ContentPilot',
+    objective: 'Cấu hình mình đề xuất cho ContentPilot',
     panelLabel: 'CẤU HÌNH CONTENTPILOT',
     panelStatus: '5.6 SOL · HIGH · STANDARD',
     tone: 'good',
@@ -484,7 +484,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'EFFORT', value: 'High', ready: true },
       { label: 'SPEED', value: 'Standard', ready: true }
     ],
-    dialogue: 'Khóa học chọn 5.6 Sol, High và Standard cho ContentPilot. Sol cùng High tạo thêm khoảng trống khi yêu cầu còn mới. Standard tránh đánh đổi thêm usage để lấy tốc độ.',
+    dialogue: 'Mình chọn 5.6 Sol, High và Standard cho ContentPilot. Sol cùng High tạo thêm khoảng trống khi yêu cầu còn mới. Standard tránh đánh đổi thêm usage để lấy tốc độ.',
     choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-setup-checklist': {
@@ -837,7 +837,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'ĐIỀU CẦN TÌM', value: 'Nguy cơ cụ thể' },
       { label: 'KẾT QUẢ', value: '5 rủi ro có thứ tự' }
     ],
-    dialogue: 'Tài liệu chính thức của OpenAI dùng ví dụ này để cho thấy một prompt hướng đến kết quả: agent biết phải làm gì, cần dựa vào bằng chứng nào và phải trình bày kết quả ra sao. Khóa học chuyển nguyên tắc đó thành năm câu hỏi dành cho người mới.',
+    dialogue: 'Tài liệu chính thức của OpenAI dùng ví dụ này để cho thấy một prompt hướng đến kết quả: agent biết phải làm gì, cần dựa vào bằng chứng nào và phải trình bày kết quả ra sao. Mình chuyển nguyên tắc đó thành năm câu hỏi để bạn dễ áp dụng.',
     choices: [{ label: 'Áp dụng vào ContentPilot', next: 'module-2-prompt-guided-practice', primary: true }]
   },
   'module-2-prompt-guided-practice': {
@@ -917,7 +917,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'BƯỚC PLAN', value: 'Chỉnh bố cục' },
       { label: 'BẰNG CHỨNG', value: 'Kiểm tra chiều rộng' }
     ],
-    dialogue: 'Mẫu thiết kế công việc của Microsoft tách rõ phạm vi, phương án, thành phần cần thay đổi và câu hỏi còn mở. Khóa học rút gọn thành từng bước có mục tiêu, thành phần, kết quả quan sát và cách kiểm tra.',
+    dialogue: 'Mẫu thiết kế công việc của Microsoft tách rõ phạm vi, phương án, thành phần cần thay đổi và câu hỏi còn mở. Mình rút gọn thành từng bước có mục tiêu, thành phần, kết quả quan sát và cách kiểm tra.',
     choices: [{ label: 'Làm 2 câu kiểm tra Implementation plan', next: 'module-2-check-plan-1', primary: true }]
   },
   'module-2-alignment-review': {
@@ -1610,7 +1610,7 @@ function ModelLessonBoard({
               </article>
               <article>
                 <span>LUNA</span>
-                <div><h2>GPT-5.6 Luna</h2><p>Trong khóa học, bạn không dùng Luna làm model chính.</p><small>Coding agent có thể giao Luna việc phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi phí khi tác vụ không quá phức tạp.</small></div>
+                <div><h2>GPT-5.6 Luna</h2><p>Ở bài này, mình không chọn Luna làm model chính.</p><small>Coding agent có thể giao Luna việc phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi phí khi tác vụ không quá phức tạp.</small></div>
               </article>
             </div>
             <p className="pixel-model-board__note">Tên model không phải cấp độ bạn phải vượt qua. Hãy chọn theo độ khó, độ rõ của yêu cầu và mức sử dụng bạn chấp nhận.</p>
@@ -1630,7 +1630,7 @@ function ModelLessonBoard({
               <div><dt>Speed</dt><dd>Standard</dd></div>
             </dl>
             <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH KHÓA HỌC ĐỀ XUẤT</small>
+              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
               <strong>GPT-5.6 Sol · High · Standard</strong>
               <p>Đây là cấu hình dành cho ContentPilot, không phải thiết lập mặc định của mọi tài khoản Codex.</p>
             </div>
@@ -1658,7 +1658,7 @@ function ModelLessonBoard({
               </section>
             </div>
             <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH KHÓA HỌC ĐỀ XUẤT</small>
+              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
               <strong>GPT-5.6 Sol · High · Standard</strong>
               <p>Sol và High tạo thêm khoảng trống khi yêu cầu còn mới. Standard giữ mức sử dụng hợp lý trong quá trình học.</p>
             </div>

@@ -50,7 +50,7 @@
     {
       "id": "m1-q3",
       "type": "multiple-choice",
-      "prompt": "Thiết lập approval nào được khóa học khuyên dùng cho người mới?",
+      "prompt": "Mình khuyên bạn dùng thiết lập approval nào?",
       "choices": [
         "Approve for me và không bật Full access.",
         "Full access cho mọi dự án.",
@@ -83,7 +83,7 @@
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Vì sao khóa học dùng High nhưng không khuyên người mới chọn Extra High hoặc Ultra cho ContentPilot?",
+      "prompt": "Vì sao mình khuyên bạn dùng High thay vì Extra High hoặc Ultra cho ContentPilot?",
       "expectedSignals": [
         "High đủ cho công việc nhiều bước của dự án thực hành",
         "Extra High hoặc Ultra dùng nhiều thời gian hay usage hơn",

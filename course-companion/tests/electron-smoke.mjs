@@ -59,7 +59,7 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 1/4', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
-    'Codex là coding agent của OpenAI. Trong khóa học này, bạn chỉ cần hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
+    'Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
   )
   assert.equal(await page.getByText('pilot-workspace/', { exact: true }).count(), 0)
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
@@ -226,6 +226,11 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: 'Khi kết quả chưa tốt thì sao?', exact: true }).click()
   await page.getByRole('button', { name: 'Tiếp tục đến quyền truy cập', exact: true }).click()
   await page.getByRole('button', { name: 'Xem thiết lập khuyên dùng', exact: true }).click()
+  await page.getByText(
+    'Mình khuyên bạn dùng Approve for me và chưa bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
+    { exact: true }
+  ).waitFor()
+  await capture(page, 'module-1-approval-choice.png')
   await page.getByRole('button', { name: 'Dùng thiết lập an toàn này', exact: true }).click()
   await page.getByText('Dùng cấu hình đã chọn', { exact: true }).waitFor()
   assert.equal(await page.locator('.pixel-model-board').count(), 1)
