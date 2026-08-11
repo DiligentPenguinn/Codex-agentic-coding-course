@@ -254,7 +254,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
-    objective: 'Model và mức suy luận nằm ngay cạnh ô gửi',
+    objective: 'Ba lựa chọn nằm ngay cạnh ô gửi',
     panelLabel: 'MODEL',
     panelStatus: 'CHỌN CÁCH CODEX XỬ LÝ CÔNG VIỆC',
     tone: 'neutral',
@@ -264,7 +264,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'EFFORT', value: 'Mức suy luận' },
       { label: 'SPEED', value: 'Tốc độ xử lý' }
     ],
-    dialogue: 'Ở góc dưới bên phải, bạn có thể xem Model cùng mức suy luận đang dùng. Đây là nơi bạn thay đổi cách Codex xử lý công việc. Chúng ta sẽ tìm hiểu từng lựa chọn ở phần sau.',
+    dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Khi mở menu, Codex hiển thị ba mục: Model, Effort và Speed. Model chọn khả năng chính, Effort điều chỉnh mức suy luận, còn Speed thay đổi tốc độ xử lý. Bạn sẽ tìm hiểu cách chọn từng mục ở bài Model và mức suy luận.',
     choices: [{ label: 'Tiếp theo: Lệnh /', next: 'module-1-codex-slash-commands', primary: true }]
   },
   'module-1-codex-slash-commands': {
@@ -425,7 +425,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'LUNA', value: 'Rõ và lặp lại' }
     ],
     dialogue: 'Sol là dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ. Terra cân bằng cho công việc hằng ngày. Luna nhanh và tiết kiệm cho yêu cầu rõ, lặp lại hoặc có đầu ra cố định.',
-    choices: [{ label: 'Xem ví dụ dùng từng model', next: 'module-1-model-use-cases', primary: true }]
+    choices: [{ label: 'Tiếp theo: Effort và Speed', next: 'module-1-reasoning-effort', primary: true }]
   },
   'module-1-model-use-cases': {
     lessonId: 'module-1',
@@ -454,9 +454,9 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
-    objective: 'Reasoning effort thay đổi điều gì?',
-    panelLabel: 'LIGHT → MEDIUM → HIGH',
-    panelStatus: 'DÙNG MỨC THẤP NHẤT VẪN ĐẠT YÊU CẦU',
+    objective: 'Effort và Speed tạo ra hai đánh đổi khác nhau',
+    panelLabel: 'EFFORT · SPEED',
+    panelStatus: 'CHỌN HIGH · GIỮ STANDARD',
     tone: 'neutral',
     request: 'Mức cao hơn dành thêm công sức cho phân tích nhưng thường chậm và tốn usage hơn.',
     evidence: [
@@ -464,8 +464,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'MEDIUM', value: 'Cân bằng' },
       { label: 'HIGH', value: 'Nhiều bước, cần kiểm tra' }
     ],
-    dialogue: 'Extra High và Ultra dành cho nhiệm vụ rất khó nên thường quá nặng với người mới. Ultra có thể chia việc cho nhiều subagent. Hãy hình dung subagent như các trợ lý phụ, mỗi người xử lý một phần. Bạn chưa cần cơ chế này cho ContentPilot.',
-    choices: [{ label: 'Chốt cấu hình ContentPilot', next: 'module-1-project-setup', primary: true }]
+    dialogue: 'Effort cho biết Codex dành bao nhiêu công sức để phân tích. Speed quyết định Codex xử lý ở chế độ Standard hay Fast. Khóa học đề xuất 5.6 Sol, High và Standard cho ContentPilot.',
+    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-project-setup': {
     lessonId: 'module-1',
@@ -1271,10 +1271,8 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-1-skills']
   ],
   'm1-skills-and-checklist': [
-    ['module-1-model-choice'],
-    ['module-1-model-use-cases'],
-    ['module-1-reasoning-effort'],
-    ['module-1-project-setup']
+    ['module-1-model-choice', 'module-1-model-use-cases'],
+    ['module-1-reasoning-effort', 'module-1-project-setup']
   ],
   'm1-assessment': [
     ['module-1-setup-checklist'],
@@ -1557,6 +1555,124 @@ function LessonVisualLightbox({
         </div>
       </section>
     </div>
+  )
+}
+
+type ModelLessonBoardKind = 'orientation' | 'models' | 'effort-speed'
+
+const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = {
+  'module-1-codex-model-intro': 'orientation',
+  'module-1-model-choice': 'models',
+  'module-1-reasoning-effort': 'effort-speed'
+}
+
+function ModelLessonBoard({
+  busy,
+  canOpenPreviousPage,
+  kind,
+  nextLabel,
+  onBack,
+  onExpand,
+  onNext,
+  visual
+}: {
+  busy: boolean
+  canOpenPreviousPage: boolean
+  kind: ModelLessonBoardKind
+  nextLabel: string
+  onBack: () => void
+  onExpand: () => void
+  onNext: () => void
+  visual: LessonVisual
+}) {
+  const titleId = `model-lesson-${kind}`
+
+  return (
+    <section className={`pixel-model-board is-${kind}`} aria-labelledby={titleId}>
+      <div className="pixel-model-board__copy">
+        {kind === 'orientation' ? (
+          <>
+            <header>
+              <small>LÀM QUEN VỚI GIAO DIỆN</small>
+              <h1 id={titleId}>Ba lựa chọn nằm cạnh ô gửi</h1>
+              <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Khi mở menu, Codex hiển thị Model, Effort và Speed.</p>
+            </header>
+            <dl className="pixel-model-board__definitions">
+              <div><dt>Model</dt><dd>Chọn dòng model phù hợp với công việc.</dd></div>
+              <div><dt>Effort</dt><dd>Điều chỉnh lượng công sức dành cho phân tích.</dd></div>
+              <div><dt>Speed</dt><dd>Chọn tốc độ xử lý Standard hoặc Fast.</dd></div>
+            </dl>
+            <p className="pixel-model-board__note">Bạn chưa cần đổi thiết lập ở đây. Trong bài Model và mức suy luận, bạn sẽ so sánh từng lựa chọn rồi chốt cấu hình cho ContentPilot.</p>
+          </>
+        ) : null}
+
+        {kind === 'models' ? (
+          <>
+            <header>
+              <small>MODEL · CHỌN THEO LOẠI CÔNG VIỆC</small>
+              <h1 id={titleId}>Ba dòng GPT-5.6 phục vụ ba nhu cầu</h1>
+              <p>Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn, thường được gọi là LLM.</p>
+            </header>
+            <div className="pixel-model-board__models">
+              <article>
+                <span>SOL</span>
+                <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+              </article>
+              <article>
+                <span>TERRA</span>
+                <div><h2>GPT-5.6 Terra</h2><p>Dòng cân bằng giữa năng lực và chi phí cho công việc hằng ngày.</p><small>Thường dùng: sửa tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ.</small></div>
+              </article>
+              <article>
+                <span>LUNA</span>
+                <div><h2>GPT-5.6 Luna</h2><p>Dòng dành cho công việc cần tiết kiệm chi phí hoặc xử lý số lượng lớn.</p><small>Thường dùng: phân loại, trích xuất, chuyển đổi hoặc tóm tắt theo mẫu.</small></div>
+              </article>
+            </div>
+            <p className="pixel-model-board__note">Tên model không phải cấp độ bạn phải vượt qua. Hãy chọn theo độ khó, độ rõ của yêu cầu và mức sử dụng bạn chấp nhận.</p>
+          </>
+        ) : null}
+
+        {kind === 'effort-speed' ? (
+          <>
+            <header>
+              <small>EFFORT · SPEED</small>
+              <h1 id={titleId}>Thêm công sức hay thêm tốc độ?</h1>
+              <p>Effort và Speed thay đổi hai phần khác nhau trong cách Codex xử lý công việc.</p>
+            </header>
+            <div className="pixel-model-board__tradeoffs">
+              <section>
+                <h2>Effort</h2>
+                <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
+                <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+              </section>
+              <section>
+                <h2>Speed</h2>
+                <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần, nhưng GPT-5.6 dùng credit ở mức 2,5 lần Standard.</p>
+                <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+              </section>
+            </div>
+            <div className="pixel-model-board__recommendation">
+              <small>CẤU HÌNH KHÓA HỌC ĐỀ XUẤT</small>
+              <strong>GPT-5.6 Sol · High · Standard</strong>
+              <p>Sol và High tạo thêm khoảng trống khi yêu cầu còn mới. Standard giữ mức sử dụng hợp lý trong quá trình học.</p>
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      <div className="pixel-model-board__media">
+        <figure>
+          <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
+          <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
+        </figure>
+      </div>
+
+      <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
+
+      <footer className="pixel-model-board__actions">
+        <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
+        <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
+      </footer>
+    </section>
   )
 }
 
@@ -2399,6 +2515,8 @@ export function LearningWindow() {
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
+  const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
+  const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
@@ -2419,7 +2537,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className="pixel-learning-shell">
+    <main className={`pixel-learning-shell${usesModelLessonBoard ? ' has-model-lesson-board' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -2446,14 +2564,14 @@ export function LearningWindow() {
         </div>
       </header>
 
-      {scene.showTitle === false ? null : (
+      {scene.showTitle === false || usesModelLessonBoard ? null : (
         <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{scene.objective}</strong></section>
       )}
-      {assessmentQuestion || scene.assessmentSummary
+      {assessmentQuestion || scene.assessmentSummary || usesModelLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
-      {canShowSceneMedia && lessonVisual
+      {canShowSceneMedia && lessonVisual && !usesModelLessonBoard
         ? (
             <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}`}>
               <LessonVisualMedia
@@ -2483,6 +2601,26 @@ export function LearningWindow() {
             )
           : null}
 
+      {modelLessonBoardKind && lessonVisual ? (
+        <ModelLessonBoard
+          busy={busy}
+          canOpenPreviousPage={canOpenPreviousPage}
+          kind={modelLessonBoardKind}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : scene.choices[0]?.label ?? 'Tiếp tục'}
+          visual={lessonVisual}
+          onBack={openPreviousPage}
+          onExpand={() => setVisualExpanded(true)}
+          onNext={() => {
+            if (isReviewing) {
+              setReviewHistoryIndex(null)
+              return
+            }
+            const choice = scene.choices[0]
+            if (choice) void choose(choice)
+          }}
+        />
+      ) : null}
+
       {visualExpanded && lessonVisual && canExpandLessonVisual ? (
         <LessonVisualLightbox
           activeFocus={approvalFocus}
@@ -2492,7 +2630,7 @@ export function LearningWindow() {
         />
       ) : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesModelLessonBoard ? ' is-model-board-source' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.assessmentSummary
           ? finalPassed

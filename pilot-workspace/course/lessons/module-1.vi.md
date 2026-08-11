@@ -71,13 +71,14 @@ giải thích sự khác nhau giữa ranh giới truy cập và chính sách xin
 
 ## Model: chọn theo loại công việc
 
-Codex hiện có ba dòng model GPT-5.6:
+Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn, thường được gọi
+là LLM:
 
 | Model | Điểm mạnh | Ví dụ phù hợp |
 |---|---|---|
-| **Sol** | Dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý nhiều đánh đổi |
-| **Terra** | Dòng cân bằng cho công việc hằng ngày | Sửa một tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ |
-| **Luna** | Dòng nhanh và tiết kiệm cho yêu cầu rõ | Phân loại, trích xuất, chuyển đổi hoặc tạo tóm tắt có cấu trúc |
+| **Sol** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
+| **Terra** | Dòng cân bằng giữa năng lực và chi phí | Sửa một tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ |
+| **Luna** | Dòng dành cho công việc cần tiết kiệm chi phí hoặc xử lý số lượng lớn | Phân loại, trích xuất, chuyển đổi hoặc tạo tóm tắt theo mẫu |
 
 Tên model không phải cấp độ mà người học phải vượt qua. Bạn chọn model theo độ
 khó, độ rõ của yêu cầu và chi phí chấp nhận được.
@@ -90,16 +91,30 @@ khi trả lời:
 - **Light** phù hợp với việc nhỏ và đã rõ.
 - **Medium** cân bằng tốc độ với độ sâu.
 - **High** phù hợp với việc có nhiều bước hoặc cần kiểm tra kỹ.
-- **Extra High** và **Ultra** dành cho những nhiệm vụ rất khó. Chúng mất nhiều
-  thời gian và usage hơn.
+- **Extra High** và **Ultra** dành cho những nhiệm vụ rất khó. Chúng thường mất
+  nhiều thời gian hơn.
 
 Ultra có thể chia việc cho nhiều subagent. Hãy hình dung subagent như các thành
 viên phụ trong một nhóm: mỗi người xử lý một phần rồi tổng hợp lại. Người mới
 chưa cần dùng cách này cho ContentPilot.
 
-Khóa học không khuyên dùng Extra High hoặc Ultra trong Module 1. Chúng quá nặng
-so với bài thiết lập ban đầu. [OpenAI Docs — Models](https://learn.chatgpt.com/docs/models)
-khuyên dùng mức thấp nhất vẫn tạo ra kết quả đạt yêu cầu.
+Trong những lần Triết thử nghiệm, Extra High không tạo khác biệt đủ lớn cho đa
+số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn. Vì vậy, khóa học
+không khuyên dùng Extra High hoặc Ultra trong Module 1.
+
+[OpenAI Docs — Model guidance](https://developers.openai.com/api/docs/guides/latest-model)
+khuyên dùng High hoặc Extra High khi thử nghiệm cho thấy chất lượng tăng rõ.
+
+## Speed: Standard hay Fast?
+
+OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng
+credit ở mức 2,5 lần Standard khi bạn đăng nhập Codex bằng ChatGPT.
+
+Trong những lần Triết thử nghiệm, Fast thường chỉ nhanh hơn Standard khoảng
+0,5 giây. Mức chênh này không đủ lớn để Triết chọn Fast làm mặc định.
+
+[OpenAI Docs — Speed](https://learn.chatgpt.com/docs/agent-configuration/speed)
+giải thích tốc độ và mức dùng credit của hai chế độ.
 
 ## Cấu hình khóa học đề xuất cho ContentPilot
 
@@ -112,8 +127,8 @@ bố về thiết lập mặc định của mọi tài khoản Codex:
 - Approval: **Approve for me**
 - Full access: **Tắt**
 
-Sol và High cho người học thêm khoảng trống khi yêu cầu còn mới. Standard tránh
-đánh đổi thêm usage để lấy tốc độ. Approve for me giữ nhịp học, còn việc tắt
+Sol và High cho người học thêm khoảng trống khi yêu cầu còn mới. Standard giữ
+mức sử dụng hợp lý trong quá trình học. Approve for me giữ nhịp học. Việc tắt
 Full access giữ ranh giới an toàn.
 
 ## Practice cuối Module 1

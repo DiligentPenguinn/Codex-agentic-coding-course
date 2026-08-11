@@ -54,25 +54,33 @@ nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
 
 ## Bước 4 — Model và reasoning effort (`m1-model-choice`)
 
-Teacher nói: "Sol là dòng mạnh nhất cho việc phức tạp hoặc còn mơ hồ. Terra cân
-bằng cho công việc hằng ngày. Luna nhanh và tiết kiệm cho yêu cầu rõ, lặp lại
-hoặc có đầu ra cố định."
+Teacher nói: "Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn,
+thường được gọi là LLM. Sol có năng lực cao nhất cho công việc chuyên môn phức
+tạp. Terra cân bằng giữa năng lực và chi phí. Luna dành cho công việc cần tiết
+kiệm chi phí hoặc xử lý số lượng lớn."
 
 Teacher nói: "Reasoning effort là lượng công sức model dành cho phân tích. Light
-phù hợp việc nhỏ. Medium cân bằng tốc độ và độ sâu. High phù hợp việc nhiều
-bước. Extra High và Ultra dành cho nhiệm vụ rất khó, nên thường quá nặng với
-người mới."
+phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc nhiều bước. Extra
+High và Ultra dành cho nhiệm vụ khó hơn."
 
-Teacher nói: "Ultra có thể chia việc cho nhiều subagent. Hãy hình dung đó là
-một nhóm trợ lý phụ, mỗi người xử lý một phần. Bạn chưa cần dùng cơ chế này cho
-ContentPilot."
+Teacher nói: "Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn
+cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn. Vì vậy, bạn
+chưa cần dùng Extra High hoặc Ultra cho ContentPilot."
+
+Teacher nói: "OpenAI cho biết Fast có thể tăng tốc 1,5 lần, nhưng GPT-5.6 dùng
+credit ở mức 2,5 lần Standard. Trong những lần mình thử, Fast thường chỉ nhanh
+hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm
+mặc định."
 
 Teacher nói: "Cấu hình khóa học đề xuất là 5.6 Sol, High, Standard và Approve
-for me; Full access để tắt. Đây là cấu hình của khóa học, không phải thiết lập
+for me. Full access để tắt. Đây là cấu hình của khóa học, không phải thiết lập
 mặc định của mọi tài khoản Codex."
 
-[Hiện lần lượt `model-settings.png` và `reasoning-levels.png`. Ghi quyết định
-`modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
+[Trình bày phần này trên hai trang lớn. Trang đầu đặt ba model cạnh ảnh
+`model-settings.png`. Trang sau đặt Effort, Speed và cấu hình đề xuất cạnh ảnh
+`reasoning-levels.png`. Teacher Triết chỉ xuất hiện như một nhân vật nhỏ ở góc,
+không có nhãn. Ghi quyết định `modelChoice=sol-high-standard`. Checkpoint
+`m1-model-choice`.]
 
 ## Bước 5 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 

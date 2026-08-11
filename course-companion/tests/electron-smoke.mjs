@@ -159,8 +159,35 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   }
   await page.getByRole('button', { name: 'Tiếp theo: Model', exact: true }).click()
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 3/4', { exact: true }).first().waitFor()
-  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  const modelIntroBoard = page.locator('.pixel-model-board')
+  await modelIntroBoard.waitFor()
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 0)
+  assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
+  const modelIntroTeacherBounds = await page.locator('.pixel-model-board__teacher').boundingBox()
+  assert.ok(modelIntroTeacherBounds)
+  assert.ok(modelIntroTeacherBounds.width <= 110)
+  assert.match(await modelIntroBoard.textContent(), /Model, Effort và Speed/)
   await capture(page, 'module-1-codex-model-intro.png')
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const modelNarrowWidths = await page.evaluate(() => {
+      const browserDocument = globalThis.document
+      return {
+        body: browserDocument.body.scrollWidth,
+        document: browserDocument.documentElement.scrollWidth,
+        viewport: globalThis.innerWidth
+      }
+    })
+    assert.equal(modelNarrowWidths.body, modelNarrowWidths.viewport)
+    assert.equal(modelNarrowWidths.document, modelNarrowWidths.viewport)
+    const modelNarrowBoardBounds = await modelIntroBoard.boundingBox()
+    assert.ok(modelNarrowBoardBounds)
+    assert.ok(modelNarrowBoardBounds.width <= modelNarrowWidths.viewport)
+    assert.ok(modelNarrowBoardBounds.width >= modelNarrowWidths.viewport - 24)
+    assert.equal(await page.locator('.pixel-model-board__teacher').isVisible(), false)
+    await capture(page, 'module-1-codex-model-intro-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
   await page.getByRole('button', { name: 'Tiếp theo: Lệnh /', exact: true }).click()
   await page.getByText('MODULE 1 · BÀI 1/5 · TRANG 4/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
@@ -188,11 +215,16 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: 'Tiếp tục đến quyền truy cập', exact: true }).click()
   await page.getByRole('button', { name: 'Xem thiết lập khuyên dùng', exact: true }).click()
   await page.getByRole('button', { name: 'Dùng thiết lập an toàn này', exact: true }).click()
-  await page.getByRole('button', { name: 'Xem ví dụ dùng từng model', exact: true }).click()
-  await page.getByRole('button', { name: 'Tìm hiểu reasoning effort', exact: true }).click()
-  await page.getByRole('button', { name: 'Chốt cấu hình ContentPilot', exact: true }).click()
+  await page.getByText('Ba dòng GPT-5.6 phục vụ ba nhu cầu', { exact: true }).waitFor()
+  assert.equal(await page.locator('.pixel-model-board').count(), 1)
+  await capture(page, 'module-1-model-choice.png')
+  await page.getByRole('button', { name: 'Tiếp theo: Effort và Speed', exact: true }).click()
+  await page.getByText('Thêm công sức hay thêm tốc độ?', { exact: true }).waitFor()
+  assert.match(await page.locator('.pixel-model-board').textContent(), /chỉ nhanh hơn Standard khoảng 0,5 giây/)
+  assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
+  await capture(page, 'module-1-effort-speed.png')
   await page.getByRole('button', { name: 'Dùng cấu hình này cho ContentPilot', exact: true }).click()
-  await page.getByText('PRACTICE · 2 ẢNH', { exact: true }).waitFor()
+  await page.getByText('Chứng minh cấu hình thật trong Codex', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-practice.png')
 
   if (verifyResponsiveLayout) {
@@ -816,14 +848,8 @@ try {
   assert.equal(persisted.currentCourseLessonId, 'm2-assessment')
   assert.ok(persisted.sceneHistory.length > 20)
   assert.equal(persisted.decisions.planningApproach, 'plan-first')
-  assert.equal(persisted.decisions.setupMastery, 'passed-four-of-five')
+  assert.equal(persisted.decisions.setupMastery, 'teacher-reviewed-setup')
   assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
-  assert.equal(
-    Object.entries(persisted.decisions).filter(
-      ([key, value]) => key.startsWith('assessment:m1-q') && String(value).startsWith('correct')
-    ).length,
-    5
-  )
   assert.equal(
     Object.entries(persisted.decisions).filter(
       ([key, value]) => key.startsWith('assessment:final-') && String(value).startsWith('correct')
