@@ -9,11 +9,17 @@ import type {
 import { ExecutorActivityObserver } from '../electron/main/executor-activity-observer'
 import { ExecutorActivityRepository } from '../electron/main/executor-activity-repository'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
-import { PracticeRunRepository } from '../electron/main/practice-run-repository'
+import {
+  PracticeRunRepository,
+  type PracticeRunRecord
+} from '../electron/main/practice-run-repository'
 import { ProgressRepository } from '../electron/main/progress-repository'
 import { RealTeacherAdapter } from '../electron/main/real-teacher-adapter'
 import { TeacherChatRepository } from '../electron/main/teacher-fixture'
-import { TeacherMemoryRepository } from '../electron/main/teacher-memory-repository'
+import {
+  practiceSummaryKey,
+  TeacherMemoryRepository
+} from '../electron/main/teacher-memory-repository'
 import { TeacherService } from '../electron/main/teacher-service'
 
 const directories: string[] = []
@@ -131,7 +137,7 @@ class ScenarioGateway {
               approach: 'Triết refined the fallback.',
               learnerDecisions: ['Keep verification scoped.'],
               strengths: ['Used grounded evidence.'],
-              mistakes: [],
+              mistakes: ['Needed one scope correction.'],
               approvals: [],
               changedFiles: [],
               verificationEvidence: [],
@@ -304,16 +310,154 @@ describe('TeacherService mock scenarios', () => {
       await new Promise((resolve) => setTimeout(resolve, 10))
       refinedMemory = await memory.load()
     }
-    expect(refinedMemory.practiceSummaries['m1-codex-safe-setup']?.[0]).toMatchObject({
+    const moduleOneMemoryKey = practiceSummaryKey('m1-codex-safe-setup', '2.0.0')
+    expect(refinedMemory.practiceSummaries[moduleOneMemoryKey]?.[0]).toMatchObject({
       runId: 'run-current',
+      practiceVersion: '2.0.0',
       quality: 'live',
       approach: 'Triết refined the fallback.',
       changedFiles: ['starters/contentpilot/app/globals.css'],
       verificationEvidence: []
     })
-    expect(refinedMemory.practiceSummaries['m1-codex-safe-setup']?.[0]?.unresolvedIssues).toEqual(expect.arrayContaining([
+    expect(refinedMemory.practiceSummaries[moduleOneMemoryKey]?.[0]?.unresolvedIssues).toEqual(expect.arrayContaining([
       expect.stringContaining('not independently rerun')
     ]))
+
+    const planningRun: PracticeRunRecord = {
+      ...currentRun!,
+      runId: 'run-planning',
+      generation: 2,
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      taskPolicy: 'safe-workspace-write',
+      evidenceProfile: 'planning-package',
+      binding: {
+        ...currentRun!.binding,
+        runId: 'run-planning',
+        threadId: 'planning-thread',
+        name: 'Practice · Module 2'
+      },
+      checklist: [{ id: 'explain-scope-and-review', title: 'Giải thích phạm vi', status: 'completed' }],
+      learnerDecisions: { scopeDecision: 'Giữ tự động đăng bài ngoài phạm vi V1.' },
+      learnerApprovals: {
+        'artifacts/PRD.md': {
+          decision: 'approved',
+          recordedAt: timestamp,
+          artifactDigests: { 'artifacts/PRD.md': 'prd-digest' }
+        },
+        'artifacts/implementation-plan.md': {
+          decision: 'approved',
+          recordedAt: timestamp,
+          artifactDigests: {
+            'artifacts/PRD.md': 'prd-digest',
+            'artifacts/implementation-plan.md': 'plan-digest'
+          }
+        }
+      },
+      evidence: {
+        schemaVersion: 1,
+        practiceId: 'm2-planning-package',
+        practiceVersion: '2.0.0',
+        runId: 'run-planning',
+        evidenceProfile: 'planning-package',
+        observedAt: timestamp,
+        freshness: 'fresh',
+        sourceDigest: 'planning-evidence-digest',
+        evidence: [],
+        steps: [],
+        invalidations: [],
+        planningArtifacts: [
+          {
+            schemaVersion: 1,
+            path: 'artifacts/PRD.md',
+            content: 'PRIVATE PRD CONTENT MUST NOT BE STORED',
+            digest: 'prd-digest',
+            byteLength: 38,
+            modifiedAt: timestamp,
+            observedAt: timestamp
+          },
+          {
+            schemaVersion: 1,
+            path: 'artifacts/implementation-plan.md',
+            content: 'PRIVATE PLAN CONTENT MUST NOT BE STORED',
+            digest: 'plan-digest',
+            byteLength: 39,
+            modifiedAt: timestamp,
+            observedAt: timestamp
+          }
+        ],
+        artifactIssues: [],
+        unexpectedChangedPaths: []
+      },
+      invalidations: [{
+        changedInput: 'artifacts/PRD.md',
+        affectedStepIds: ['reconcile-alignment'],
+        reason: 'PRD từng thay đổi sau lần đối chiếu đầu tiên.',
+        nextAction: 'Đối chiếu lại trên digest hiện tại.'
+      }],
+      reviewStatus: 'passed',
+      reviewResult: {
+        schemaVersion: 1,
+        practiceId: 'm2-planning-package',
+        practiceVersion: '2.0.0',
+        runId: 'run-planning',
+        verdict: 'passed',
+        criteria: [{
+          criterionId: 'artifact-alignment',
+          status: 'satisfied',
+          evidenceRefs: ['alignment-current'],
+          explanation: 'PRD và plan khớp phạm vi.'
+        }],
+        summary: 'Planning package đã đạt.',
+        reviewedAt: timestamp,
+        sourceDigest: 'review-digest'
+      },
+      completion: {
+        schemaVersion: 1,
+        courseRunId: 'course-run-1',
+        practiceId: 'm2-planning-package',
+        practiceVersion: '2.0.0',
+        runId: 'run-planning',
+        checkpointId: 'm2-planning-package',
+        status: 'completed',
+        completedAt: timestamp,
+        evidenceSummary: 'Planning package đã đạt.',
+        masterySummary: 'Hai artifact, alignment và quyết định phạm vi đều đạt.',
+        destination: {
+          lessonId: 'module-2',
+          checkpointId: 'm2-mastery',
+          sceneId: 'module-2-mastery'
+        }
+      }
+    }
+    const completedSummary = await service.summarizeCompletedRun(planningRun)
+    const repeatedSummary = await service.summarizeCompletedRun(planningRun)
+    expect(repeatedSummary).toEqual(completedSummary)
+    expect(completedSummary).toMatchObject({
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      outcome: 'completed',
+      changedFiles: ['artifacts/PRD.md', 'artifacts/implementation-plan.md'],
+      learnerDecisions: expect.arrayContaining([
+        'scopeDecision: Giữ tự động đăng bài ngoài phạm vi V1.'
+      ]),
+      verificationEvidence: expect.arrayContaining([
+        'artifact-alignment: PRD và plan khớp phạm vi.'
+      ]),
+      learningSignals: expect.arrayContaining([
+        expect.objectContaining({ text: 'Used grounded evidence.' }),
+        expect.objectContaining({ text: 'Needed one scope correction.' })
+      ]),
+      unresolvedIssues: expect.arrayContaining([
+        expect.stringContaining('PRD từng thay đổi sau lần đối chiếu đầu tiên.')
+      ])
+    })
+    const planningMemory = await memory.load()
+    expect(planningMemory.practiceSummaries[
+      practiceSummaryKey('m2-planning-package', '2.0.0')
+    ]).toHaveLength(1)
+    expect(JSON.stringify(planningMemory)).not.toContain('PRIVATE PRD CONTENT')
+    expect(JSON.stringify(planningMemory)).not.toContain('PRIVATE PLAN CONTENT')
 
     gateway.holdNextTeacherTurn = true
     const inFlightSend = service.sendMessage({ content: 'This must not survive reset.' })

@@ -52,9 +52,19 @@ describe('Practice completion progress', () => {
       }
     }
 
+    await expect(repository.returnFromPractice(receipt)).rejects.toThrow('not authoritative')
     await repository.recordPracticeCompletion(receipt)
     const duplicate = await repository.recordPracticeCompletion(receipt)
     expect(duplicate.practiceCompletions).toEqual([receipt])
+    expect(duplicate.practiceCompletions[0]?.approvedConfiguration).toEqual(receipt.approvedConfiguration)
+    await expect(repository.recordPracticeCompletion({
+      ...receipt,
+      evidenceSummary: 'Conflicting stale review'
+    })).rejects.toThrow('different completion receipt')
+    await expect(repository.returnFromPractice({
+      ...receipt,
+      evidenceSummary: 'Conflicting stale review'
+    })).rejects.toThrow('not authoritative')
     const returned = await repository.returnFromPractice(receipt)
     expect(returned).toMatchObject({
       currentLessonId: 'module-1',
@@ -63,6 +73,7 @@ describe('Practice completion progress', () => {
       practiceCompletions: [receipt]
     })
     await expect(repository.returnFromPractice(receipt)).resolves.toEqual(returned)
+    await expect(new ProgressRepository(directory).returnFromPractice(receipt)).resolves.toEqual(returned)
     await expect(repository.recordPracticeCompletion({
       ...receipt,
       courseRunId: 'another-course'
@@ -117,6 +128,14 @@ describe('Practice completion progress', () => {
 
     await expect(repository.save(completionUpdate)).rejects.toThrow('passed planning Practice')
     await repository.recordPracticeCompletion(receipt)
+    const returned = await repository.returnFromPractice(receipt)
+    expect(returned).toMatchObject({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-assessment',
+      checkpointId: 'm2-mastery',
+      sceneId: 'module-2-mastery'
+    })
+    await expect(new ProgressRepository(directory).returnFromPractice(receipt)).resolves.toEqual(returned)
     await expect(repository.save({
       ...completionUpdate,
       decisions: { ...assessmentDecisions, 'assessment:final-12': 'incorrect:test' }

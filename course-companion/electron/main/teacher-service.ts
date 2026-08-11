@@ -19,7 +19,7 @@ import { ProgressRepository } from './progress-repository'
 import { RealTeacherAdapter, TeacherInferenceError, type RunSummaryProposal } from './real-teacher-adapter'
 import { buildTeacherEnvelope, buildTeacherTurnInput, sourceDigest } from './teacher-context-broker'
 import { TeacherChatRepository } from './teacher-fixture'
-import { TeacherMemoryRepository } from './teacher-memory-repository'
+import { practiceSummaryKey, TeacherMemoryRepository } from './teacher-memory-repository'
 
 export function conversationForRun(conversation: TeacherConversation, runId: string | null): TeacherConversation {
   return {
@@ -304,12 +304,28 @@ export class TeacherService {
   }
 
   async summarizeReplacedRun(run: PracticeRunRecord): Promise<PracticeRunSummary> {
+    return this.summarizeRun(run, 'replaced')
+  }
+
+  async summarizeCompletedRun(run: PracticeRunRecord): Promise<PracticeRunSummary> {
+    return this.summarizeRun(run, 'completed')
+  }
+
+  private async summarizeRun(
+    run: PracticeRunRecord,
+    outcome: 'completed' | 'replaced'
+  ): Promise<PracticeRunSummary> {
     const generation = this.generation
-    const [activity, conversation, definition] = await Promise.all([
+    const [activity, conversation, definition, memory] = await Promise.all([
       this.activityRepository.load(run.runId),
       this.chatRepository.loadConversation(),
-      this.definitionRepository.load(run.practiceId, run.practiceVersion)
+      this.definitionRepository.load(run.practiceId, run.practiceVersion),
+      this.memoryRepository.load()
     ])
+    const existing = memory.practiceSummaries[
+      practiceSummaryKey(run.practiceId, run.practiceVersion)
+    ]?.find((summary) => summary.runId === run.runId && summary.outcome === outcome)
+    if (existing) return structuredClone(existing)
     const frozen = {
       run,
       activity,
@@ -318,12 +334,15 @@ export class TeacherService {
     const base = {
       schemaVersion: 1 as const,
       practiceId: run.practiceId,
+      practiceVersion: run.practiceVersion,
       runId: run.runId,
       attempt: run.generation,
-      outcome: 'replaced' as const,
+      outcome,
       objective: definition.objective,
       startedAt: run.startedAt,
-      endedAt: this.now().toISOString(),
+      endedAt: outcome === 'completed'
+        ? run.completion?.completedAt ?? this.now().toISOString()
+        : this.now().toISOString(),
       sourceDigest: sourceDigest(frozen),
       freshness: activity?.status === 'stale' || activity?.status === 'disconnected' ? 'stale' as const : 'current' as const
     }
@@ -338,15 +357,15 @@ export class TeacherService {
       const summary: PracticeRunSummary = {
         ...base,
         approach: proposal.approach,
-        learnerDecisions: proposal.learnerDecisions,
-        approvals: proposal.approvals,
-        changedFiles: groundedChangedFiles(activity),
-        verificationEvidence: groundedVerificationEvidence(activity),
+        learnerDecisions: [...new Set([...structuredLearnerDecisions(run), ...proposal.learnerDecisions])],
+        approvals: [...new Set([...structuredLearnerApprovals(run), ...proposal.approvals])],
+        changedFiles: summarizedChangedFiles(run, activity),
+        verificationEvidence: summarizedVerificationEvidence(run, activity),
         learningSignals: [
           ...proposal.strengths.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: run.runId })),
           ...proposal.mistakes.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: run.runId }))
         ],
-        unresolvedIssues: groundedUnresolvedIssues(proposal.unresolvedIssues, activity),
+        unresolvedIssues: summarizedUnresolvedIssues(run, proposal.unresolvedIssues, activity),
         nextAttemptGuidance: proposal.nextAttemptGuidance,
         summarizedAt: this.now().toISOString(),
         model: 'codex-default',
@@ -360,12 +379,12 @@ export class TeacherService {
       const summary: PracticeRunSummary = {
         ...base,
         approach: activity?.learnerPrompts.at(-1) ?? 'Chưa ghi nhận được cách tiếp cận.',
-        learnerDecisions: [],
-        approvals: activity?.approvalEvents ?? [],
-        changedFiles: groundedChangedFiles(activity),
-        verificationEvidence: groundedVerificationEvidence(activity),
+        learnerDecisions: structuredLearnerDecisions(run),
+        approvals: [...new Set([...structuredLearnerApprovals(run), ...(activity?.approvalEvents ?? [])])],
+        changedFiles: summarizedChangedFiles(run, activity),
+        verificationEvidence: summarizedVerificationEvidence(run, activity),
         learningSignals: [],
-        unresolvedIssues: groundedUnresolvedIssues([
+        unresolvedIssues: summarizedUnresolvedIssues(run, [
           'Cần Triết hoàn thiện bản tóm tắt khi kết nối được khôi phục.'
         ], activity),
         nextAttemptGuidance: [],
@@ -409,16 +428,25 @@ export class TeacherService {
           await this.memoryRepository.upsertSummary({
             ...summary,
             approach: proposal.approach,
-            learnerDecisions: proposal.learnerDecisions,
-            approvals: proposal.approvals,
-            changedFiles: groundedChangedFiles(activity),
-            verificationEvidence: groundedVerificationEvidence(activity),
+            learnerDecisions: [...new Set([...summary.learnerDecisions, ...proposal.learnerDecisions])],
+            approvals: [...new Set([...summary.approvals, ...proposal.approvals])],
+            changedFiles: [...new Set([...summary.changedFiles, ...groundedChangedFiles(activity)])],
+            verificationEvidence: [...new Set([
+              ...summary.verificationEvidence,
+              ...groundedVerificationEvidence(activity)
+            ])],
             learningSignals: [
               ...proposal.strengths.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: summary.runId })),
               ...proposal.mistakes.map((text) => ({ text, basis: 'inferred' as const, sourceRunId: summary.runId }))
             ],
-            unresolvedIssues: groundedUnresolvedIssues(proposal.unresolvedIssues, activity),
-            nextAttemptGuidance: proposal.nextAttemptGuidance,
+            unresolvedIssues: [...new Set([
+              ...summary.unresolvedIssues,
+              ...groundedUnresolvedIssues(proposal.unresolvedIssues, activity)
+            ])],
+            nextAttemptGuidance: [...new Set([
+              ...summary.nextAttemptGuidance,
+              ...proposal.nextAttemptGuidance
+            ])],
             summarizedAt: this.now().toISOString(),
             model: 'codex-default',
             quality: 'live'
@@ -494,6 +522,38 @@ function groundedChangedFiles(
   ])]
 }
 
+function structuredLearnerDecisions(run: PracticeRunRecord): string[] {
+  return Object.entries(run.learnerDecisions).map(([key, value]) => `${key}: ${value}`)
+}
+
+function structuredLearnerApprovals(run: PracticeRunRecord): string[] {
+  return Object.entries(run.learnerApprovals).map(([path, approval]) => (
+    `${path}: ${approval.decision} (${Object.values(approval.artifactDigests).join(', ')})`
+  ))
+}
+
+function summarizedChangedFiles(
+  run: PracticeRunRecord,
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set([
+    ...groundedChangedFiles(activity),
+    ...(run.evidence?.planningArtifacts ?? []).map((artifact) => artifact.path)
+  ])]
+}
+
+function summarizedVerificationEvidence(
+  run: PracticeRunRecord,
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set([
+    ...groundedVerificationEvidence(activity),
+    ...(run.reviewResult?.criteria ?? [])
+      .filter((criterion) => criterion.status === 'satisfied')
+      .map((criterion) => `${criterion.criterionId}: ${criterion.explanation}`)
+  ])]
+}
+
 function groundedVerificationEvidence(
   activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
 ): string[] {
@@ -512,6 +572,20 @@ function groundedUnresolvedIssues(
     ...(activity?.workspaceCurrentlyDirtyReportedFiles ?? []).map((item) => (
       'Currently dirty and report-matching, but not attributable without a Practice baseline: ' + item
     ))
+  ])]
+}
+
+function summarizedUnresolvedIssues(
+  run: PracticeRunRecord,
+  proposed: string[],
+  activity: Awaited<ReturnType<ExecutorActivityRepository['load']>>
+): string[] {
+  return [...new Set([
+    ...groundedUnresolvedIssues(proposed, activity),
+    ...run.invalidations.map((item) => `${item.reason} Tiếp theo: ${item.nextAction}`),
+    ...(run.reviewResult?.criteria ?? [])
+      .filter((criterion) => criterion.status !== 'satisfied')
+      .map((criterion) => criterion.explanation)
   ])]
 }
 

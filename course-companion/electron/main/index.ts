@@ -8,7 +8,6 @@ import type {
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PracticeStartRequest,
-  PracticeCompletionReceipt,
   ProgressUpdate,
   RuntimeInfo,
   TeacherSendRequest
@@ -50,7 +49,7 @@ let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
-let pendingPracticeReturn: Promise<PracticeCompletionReceipt> | null = null
+let pendingPracticeReturn: Promise<void> | null = null
 
 function practiceDefinitionsDirectory(): string {
   const override = process.env.COURSE_COMPANION_PRACTICE_DEFINITIONS_DIR
@@ -487,12 +486,23 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:return-passed-practice', async () => {
     if (pendingPracticeReturn) return pendingPracticeReturn
     const operation = (async () => {
+      const completedRun = (await practiceRunRepository.load()).activeRun
       const receipt = await practiceReviewService.returnPassedPractice()
+      if (!completedRun
+        || completedRun.runId !== receipt.runId
+        || completedRun.practiceId !== receipt.practiceId
+        || completedRun.practiceVersion !== receipt.practiceVersion) {
+        throw new Error('Passed Practice changed before its completion summary could be saved.')
+      }
+      await teacherService.summarizeCompletedRun(completedRun)
+      const authoritative = await progressRepository.load()
+      if (authoritative.status !== 'returning' && authoritative.status !== 'recovered') {
+        throw new Error('Authoritative learner progress is unavailable after Practice return.')
+      }
       mainWindow?.show()
       mainWindow?.focus()
       companionWindow?.hide()
-      mainWindow?.webContents.send('course:practice-returned', receipt)
-      return receipt
+      mainWindow?.webContents.send('course:practice-returned')
     })().finally(() => {
       if (pendingPracticeReturn === operation) pendingPracticeReturn = null
     })

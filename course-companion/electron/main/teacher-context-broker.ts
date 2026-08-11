@@ -8,6 +8,7 @@ import type {
   TeacherMemoryDocument
 } from '../../shared/contracts'
 import type { PracticeRunRecord } from './practice-run-repository'
+import { practiceSummaryKey } from './teacher-memory-repository'
 
 const MAX_ENVELOPE_CHARACTERS = 24_000
 function boundedText(value: string, maximum: number): string {
@@ -63,7 +64,10 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
   const now = input.now ?? (() => new Date())
   const practiceId = input.activeRun?.practiceId ?? input.definition?.practiceId ?? null
   const practiceVersion = input.activeRun?.practiceVersion ?? input.definition?.version ?? null
-  const allPrevious = (practiceId ? input.memory.practiceSummaries[practiceId] ?? [] : [])
+  const summaryKey = practiceId && practiceVersion
+    ? practiceSummaryKey(practiceId, practiceVersion)
+    : null
+  const allPrevious = (summaryKey ? input.memory.practiceSummaries[summaryKey] ?? [] : [])
     .filter((summary) => summary.runId !== input.activeRun?.runId)
   let previousRuns = allPrevious
     .slice(-2)

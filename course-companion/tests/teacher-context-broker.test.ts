@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { buildTeacherEnvelope } from '../electron/main/teacher-context-broker'
-import { emptyTeacherMemory } from '../electron/main/teacher-memory-repository'
+import {
+  emptyTeacherMemory,
+  practiceSummaryKey
+} from '../electron/main/teacher-memory-repository'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
@@ -102,6 +105,7 @@ function previousSummary(runId: string): PracticeRunSummary {
   return {
     schemaVersion: 1,
     practiceId: definition.practiceId,
+    practiceVersion: definition.version,
     runId,
     attempt: 1,
     outcome: 'replaced',
@@ -127,7 +131,7 @@ function previousSummary(runId: string): PracticeRunSummary {
 describe('Teacher context broker', () => {
   it('keeps the current Practice full and older attempts summary-only', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
-    memory.practiceSummaries[definition.practiceId] = [
+    memory.practiceSummaries[practiceSummaryKey(definition.practiceId, definition.version)] = [
       previousSummary('run-old'),
       previousSummary('run-current')
     ]

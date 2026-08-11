@@ -446,6 +446,7 @@ export type PracticeLearningSignal = {
 export type PracticeRunSummary = {
   schemaVersion: 1
   practiceId: string
+  practiceVersion: string
   runId: string
   attempt: number
   outcome: 'completed' | 'replaced' | 'abandoned' | 'error'
@@ -473,6 +474,7 @@ export type TeacherMemoryDocument = {
   learningSignals: PracticeLearningSignal[]
   unresolvedNeeds: PracticeLearningSignal[]
   practiceSummaries: Record<string, PracticeRunSummary[]>
+  archivedPracticeSummaries: Record<string, PracticeRunSummary[]>
   updatedAt: string
 }
 
@@ -841,10 +843,8 @@ export type CourseCompanionApi = {
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
-  returnPassedPractice: () => Promise<PracticeCompletionReceipt>
-  onPracticeReturned: (
-    callback: (receipt: PracticeCompletionReceipt) => void
-  ) => () => void
+  returnPassedPractice: () => Promise<void>
+  onPracticeReturned: (callback: () => void) => () => void
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
   showFullTeacher: () => Promise<void>

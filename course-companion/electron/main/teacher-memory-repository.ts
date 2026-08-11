@@ -19,10 +19,33 @@ function isSignal(value: unknown): value is PracticeLearningSignal {
   return Boolean(item && typeof item.text === 'string' && item.text.length <= 2_000 && (item.basis === 'observed' || item.basis === 'inferred') && typeof item.sourceRunId === 'string')
 }
 
+const currentPracticeIds = new Set(['m1-codex-safe-setup', 'm2-planning-package'])
+
+export function practiceSummaryKey(practiceId: string, practiceVersion: string): string {
+  return `${practiceId}@${practiceVersion}`
+}
+
+function inferredPracticeVersion(practiceId: string): string {
+  return currentPracticeIds.has(practiceId) ? '2.0.0' : 'historical'
+}
+
+function normalizeSummary(value: unknown): PracticeRunSummary | null {
+  const item = record(value)
+  if (!item || typeof item.practiceId !== 'string') return null
+  const normalized = {
+    ...item,
+    practiceVersion: typeof item.practiceVersion === 'string'
+      ? item.practiceVersion
+      : inferredPracticeVersion(item.practiceId)
+  }
+  return isPracticeRunSummary(normalized) ? normalized : null
+}
+
 export function isPracticeRunSummary(value: unknown): value is PracticeRunSummary {
   const item = record(value)
   if (!item || item.schemaVersion !== 1) return false
-  if (typeof item.practiceId !== 'string' || typeof item.runId !== 'string') return false
+  if (typeof item.practiceId !== 'string' || typeof item.practiceVersion !== 'string' || typeof item.runId !== 'string') return false
+  if (item.practiceVersion.length < 1 || item.practiceVersion.length > 40) return false
   if (!Number.isSafeInteger(item.attempt) || Number(item.attempt) < 1) return false
   if (!['completed', 'replaced', 'abandoned', 'error'].includes(String(item.outcome))) return false
   if (typeof item.objective !== 'string' || typeof item.approach !== 'string') return false
@@ -42,18 +65,49 @@ export function emptyTeacherMemory(now = () => new Date()): TeacherMemoryDocumen
     learningSignals: [],
     unresolvedNeeds: [],
     practiceSummaries: {},
+    archivedPracticeSummaries: {},
     updatedAt: now().toISOString()
   }
 }
 
-function isMemory(value: unknown): value is TeacherMemoryDocument {
+function normalizeMemory(value: unknown): TeacherMemoryDocument | null {
   const item = record(value)
-  if (!item || item.schemaVersion !== 1 || !strings(item.learnerDecisions)) return false
-  if (!Array.isArray(item.learningSignals) || !item.learningSignals.every(isSignal)) return false
-  if (!Array.isArray(item.unresolvedNeeds) || !item.unresolvedNeeds.every(isSignal)) return false
+  if (!item || item.schemaVersion !== 1 || !strings(item.learnerDecisions)) return null
+  if (!Array.isArray(item.learningSignals) || !item.learningSignals.every(isSignal)) return null
+  if (!Array.isArray(item.unresolvedNeeds) || !item.unresolvedNeeds.every(isSignal)) return null
+  if (typeof item.updatedAt !== 'string' || Number.isNaN(Date.parse(item.updatedAt))) return null
   const summaries = record(item.practiceSummaries)
-  if (!summaries || !Object.values(summaries).every((entries) => Array.isArray(entries) && entries.length <= 50 && entries.every(isPracticeRunSummary))) return false
-  return typeof item.updatedAt === 'string' && !Number.isNaN(Date.parse(item.updatedAt))
+  const archived = item.archivedPracticeSummaries === undefined
+    ? {}
+    : record(item.archivedPracticeSummaries)
+  if (!summaries || !archived) return null
+  const practiceSummaries: Record<string, PracticeRunSummary[]> = {}
+  const archivedPracticeSummaries: Record<string, PracticeRunSummary[]> = {}
+  for (const entries of [...Object.values(summaries), ...Object.values(archived)]) {
+    if (!Array.isArray(entries) || entries.length > 50) return null
+    for (const value of entries) {
+      const summary = normalizeSummary(value)
+      if (!summary) return null
+      const target = currentPracticeIds.has(summary.practiceId)
+        ? practiceSummaries
+        : archivedPracticeSummaries
+      const key = practiceSummaryKey(summary.practiceId, summary.practiceVersion)
+      const current = target[key] ?? []
+      target[key] = [...current.filter((entry) => entry.runId !== summary.runId), summary].slice(-50)
+    }
+  }
+  const archivedEntries = Object.values(archivedPracticeSummaries).flat()
+  const archivedRunIds = new Set(archivedEntries.map((summary) => summary.runId))
+  const archivedDecisions = new Set(archivedEntries.flatMap((summary) => summary.learnerDecisions))
+  return {
+    schemaVersion: 1,
+    learnerDecisions: item.learnerDecisions.filter((decision) => !archivedDecisions.has(decision)),
+    learningSignals: structuredClone(item.learningSignals.filter((signal) => !archivedRunIds.has(signal.sourceRunId))),
+    unresolvedNeeds: structuredClone(item.unresolvedNeeds.filter((signal) => !archivedRunIds.has(signal.sourceRunId))),
+    practiceSummaries,
+    archivedPracticeSummaries,
+    updatedAt: item.updatedAt
+  }
 }
 
 export class TeacherMemoryRepository {
@@ -76,19 +130,25 @@ export class TeacherMemoryRepository {
     if (!isPracticeRunSummary(summary)) return Promise.reject(new Error('Invalid Practice run summary'))
     return this.runExclusive(async () => {
       const memory = await this.loadDirect()
-      const current = memory.practiceSummaries[summary.practiceId] ?? []
+      const key = practiceSummaryKey(summary.practiceId, summary.practiceVersion)
+      const target = currentPracticeIds.has(summary.practiceId)
+        ? memory.practiceSummaries
+        : memory.archivedPracticeSummaries
+      const current = target[key] ?? []
       const summaries = [...current.filter((entry) => entry.runId !== summary.runId), structuredClone(summary)].slice(-50)
-      memory.practiceSummaries[summary.practiceId] = summaries
-      memory.learnerDecisions = [...new Set([...memory.learnerDecisions, ...summary.learnerDecisions])].slice(-100)
-      memory.learningSignals = mergeSignals(
-        memory.learningSignals.filter((signal) => signal.sourceRunId !== summary.runId),
-        summary.learningSignals
-      )
-      const unresolved = summary.unresolvedIssues.map((text) => ({ text, basis: 'observed' as const, sourceRunId: summary.runId }))
-      memory.unresolvedNeeds = mergeSignals(
-        memory.unresolvedNeeds.filter((signal) => signal.sourceRunId !== summary.runId),
-        unresolved
-      )
+      target[key] = summaries
+      if (currentPracticeIds.has(summary.practiceId)) {
+        memory.learnerDecisions = [...new Set([...memory.learnerDecisions, ...summary.learnerDecisions])].slice(-100)
+        memory.learningSignals = mergeSignals(
+          memory.learningSignals.filter((signal) => signal.sourceRunId !== summary.runId),
+          summary.learningSignals
+        )
+        const unresolved = summary.unresolvedIssues.map((text) => ({ text, basis: 'observed' as const, sourceRunId: summary.runId }))
+        memory.unresolvedNeeds = mergeSignals(
+          memory.unresolvedNeeds.filter((signal) => signal.sourceRunId !== summary.runId),
+          unresolved
+        )
+      }
       memory.updatedAt = this.now().toISOString()
       await this.write(memory)
       return structuredClone(memory)
@@ -112,7 +172,11 @@ export class TeacherMemoryRepository {
   private async loadDirect(): Promise<TeacherMemoryDocument> {
     try {
       const parsed: unknown = JSON.parse(await readFile(this.statePath, 'utf8'))
-      if (isMemory(parsed)) return structuredClone(parsed)
+      const normalized = normalizeMemory(parsed)
+      if (normalized) {
+        if (JSON.stringify(parsed) !== JSON.stringify(normalized)) await this.write(normalized)
+        return structuredClone(normalized)
+      }
       await this.quarantine()
     } catch (error) {
       if (record(error)?.code !== 'ENOENT') await this.quarantine()

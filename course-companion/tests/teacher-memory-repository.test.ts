@@ -1,8 +1,11 @@
-import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { TeacherMemoryRepository } from '../electron/main/teacher-memory-repository'
+import {
+  practiceSummaryKey,
+  TeacherMemoryRepository
+} from '../electron/main/teacher-memory-repository'
 import type { PracticeRunSummary } from '../shared/contracts'
 
 const temporaryDirectories: string[] = []
@@ -22,7 +25,8 @@ afterEach(async () => {
 function summary(quality: PracticeRunSummary['quality']): PracticeRunSummary {
   return {
     schemaVersion: 1,
-    practiceId: 'm1-verifiable-brief',
+    practiceId: 'm1-codex-safe-setup',
+    practiceVersion: '2.0.0',
     runId: 'run-1',
     attempt: 1,
     outcome: 'replaced',
@@ -71,7 +75,7 @@ describe('TeacherMemoryRepository', () => {
     refined.unresolvedIssues = []
     const memory = await repository.upsertSummary(refined)
 
-    expect(memory.practiceSummaries['m1-verifiable-brief']).toEqual([refined])
+    expect(memory.practiceSummaries[practiceSummaryKey('m1-codex-safe-setup', '2.0.0')]).toEqual([refined])
     expect(memory.learnerDecisions).toEqual(['Require mobile evidence.', 'Require desktop evidence.'])
     expect(memory.learningSignals.map((signal) => signal.text)).toEqual(['The learner now asks for desktop verification evidence.'])
     expect(memory.unresolvedNeeds).toEqual([])
@@ -87,5 +91,40 @@ describe('TeacherMemoryRepository', () => {
     await repository.reset()
 
     expect((await repository.load()).practiceSummaries).toEqual({})
+  })
+
+  it('migrates historical CSS summaries into an archive instead of current learning history', async () => {
+    const directory = await temporaryDirectory()
+    const historical = JSON.parse(JSON.stringify(summary('live'))) as Record<string, unknown>
+    historical.practiceId = 'm1-verifiable-brief'
+    delete historical.practiceVersion
+    await writeFile(join(directory, 'teacher-memory.json'), `${JSON.stringify({
+      schemaVersion: 1,
+      learnerDecisions: ['Require mobile evidence.'],
+      learningSignals: [{
+        text: 'Historical CSS signal.',
+        basis: 'observed',
+        sourceRunId: 'run-1'
+      }],
+      unresolvedNeeds: [{
+        text: 'Historical CSS issue.',
+        basis: 'observed',
+        sourceRunId: 'run-1'
+      }],
+      practiceSummaries: { 'm1-verifiable-brief': [historical] },
+      updatedAt: '2026-08-08T00:12:00.000Z'
+    }, null, 2)}\n`, 'utf8')
+
+    const memory = await new TeacherMemoryRepository(directory).load()
+
+    expect(memory.practiceSummaries).toEqual({})
+    expect(memory.learnerDecisions).toEqual([])
+    expect(memory.learningSignals).toEqual([])
+    expect(memory.unresolvedNeeds).toEqual([])
+    expect(memory.archivedPracticeSummaries[
+      practiceSummaryKey('m1-verifiable-brief', 'historical')
+    ]).toHaveLength(1)
+    await expect(readFile(join(directory, 'teacher-memory.json'), 'utf8'))
+      .resolves.toContain('archivedPracticeSummaries')
   })
 })

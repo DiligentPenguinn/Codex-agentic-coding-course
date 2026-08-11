@@ -518,7 +518,11 @@ export class ProgressRepository {
         throw new Error('Practice completion belongs to another course run')
       }
       const key = completionKey(receipt)
-      if (current.progress.practiceCompletions.some((item) => completionKey(item) === key)) {
+      const existing = current.progress.practiceCompletions.find((item) => completionKey(item) === key)
+      if (existing) {
+        if (JSON.stringify(existing) !== JSON.stringify(receipt)) {
+          throw new Error('A different completion receipt already exists for this Practice run')
+        }
         return current.progress
       }
       const progress: LearnerProgress = {
