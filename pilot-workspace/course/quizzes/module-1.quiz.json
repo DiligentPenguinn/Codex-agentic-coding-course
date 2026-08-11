@@ -1,70 +1,99 @@
 {
   "schemaVersion": "1.0.0",
   "moduleId": "module-1",
-  "title": "Kiểm tra cuối Module 1 — Làm việc an toàn với Codex",
-  "passingScore": 0.8,
+  "title": "Ngân hàng câu hỏi sửa sai — Thiết lập Codex",
+  "passingScore": 4,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
-    "feedbackTiming": "Phản hồi ngắn sau từng câu rồi mới hỏi câu tiếp theo.",
-    "antiCopyPolicy": "Câu tự luận phải dùng tình huống mới hoặc chi tiết riêng."
+    "feedbackTiming": "Chỉ dùng sau khi Learner đã trả lời hoặc Practice cho thấy một phần chưa hiểu.",
+    "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
+    "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học."
   },
   "questions": [
     {
       "id": "m1-q1",
       "type": "multiple-choice",
-      "prompt": "Bạn chưa biết vì sao trang thiết lập không lưu dữ liệu. Bước đầu nào giúp bạn kiểm tra nguyên nhân rõ ràng và an toàn nhất?",
+      "prompt": "Điểm nào mô tả đúng nhất một coding agent?",
       "choices": [
-        "Yêu cầu Codex sửa mọi file liên quan cho đến khi hoạt động.",
-        "Yêu cầu Codex chỉ đọc route thiết lập, phần lưu trữ và bài kiểm tra liên quan; sau đó báo giả thuyết, bằng chứng và bước tiếp theo.",
-        "Cài thêm database để tránh lỗi.",
-        "Deploy app rồi thử trên production."
+        "Một trợ lý có thể dùng công cụ và làm việc với dự án để thực hiện yêu cầu liên quan đến code.",
+        "Một chatbot chỉ trả lời câu hỏi bằng văn bản.",
+        "Một model luôn có toàn quyền trên máy tính.",
+        "Một trình soạn thảo chỉ dùng để viết code thủ công."
       ],
-      "answerIndex": 1,
-      "requiresRationale": true,
-      "rationalePrompt": "Nêu một loại bằng chứng mà lựa chọn này phải trả về."
+      "answerIndex": 0,
+      "explanation": "Codex là coding agent: model được đặt trong một môi trường có dự án, công cụ và các ranh giới hành động.",
+      "source": {
+        "label": "OpenAI Docs — Codex app",
+        "url": "https://learn.chatgpt.com/docs/app",
+        "basis": "Tài liệu giới thiệu Codex như coding agent của OpenAI có thể thực hiện công việc trong dự án."
+      }
     },
     {
       "id": "m1-q2",
-      "type": "classification",
-      "prompt": "Phân loại từng hành động sau: đọc file trên máy; sửa CSS; chạy npm install; xóa thư mục dữ liệu; đưa ứng dụng lên môi trường công khai. Hành động nào cần bạn phê duyệt trước?",
-      "expectedSignals": [
-        "Đọc file local là read-only",
-        "Sửa CSS cần phê duyệt edit",
-        "npm install cần phê duyệt network hoặc dependency change",
-        "Xóa data là destructive",
-        "Deploy là external side effect"
-      ]
+      "type": "multiple-choice",
+      "prompt": "Nếu model được ví như bộ não, đâu là ví dụ về harness?",
+      "choices": [
+        "Workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi.",
+        "Chỉ tên của model đang được chọn.",
+        "Chỉ câu trả lời cuối cùng của agent.",
+        "Chỉ tốc độ kết nối Internet."
+      ],
+      "answerIndex": 0,
+      "explanation": "Harness là hệ thống bao quanh model để agent có nơi hành động, quy tắc cần tuân theo và tín hiệu kiểm tra kết quả.",
+      "source": {
+        "label": "OpenAI — Harness Engineering",
+        "url": "https://openai.com/vi-VN/index/harness-engineering/",
+        "basis": "Bài viết mô tả công cụ, kiến thức dự án, rào chắn và vòng phản hồi giúp agent làm việc ổn định."
+      }
     },
     {
       "id": "m1-q3",
-      "type": "short-answer",
-      "prompt": "Viết hai dấu hiệu hoàn thành có thể kiểm chứng cho một cải tiến nhỏ khác trong ContentPilot. Không dùng lại bài tập nút trên màn hình hẹp.",
-      "expectedSignals": [
-        "Mỗi tiêu chí có nơi hoặc cách kiểm tra",
-        "Mỗi tiêu chí có dấu hiệu pass quan sát được",
-        "Có bối cảnh mới do Learner chọn"
-      ]
+      "type": "multiple-choice",
+      "prompt": "Thiết lập approval nào được khóa học khuyên dùng cho người mới?",
+      "choices": [
+        "Approve for me và không bật Full access.",
+        "Full access cho mọi dự án.",
+        "Tắt toàn bộ sandbox.",
+        "Luôn duyệt mọi yêu cầu mà không đọc."
+      ],
+      "answerIndex": 0,
+      "explanation": "Approve for me giữ nhịp làm việc nhưng vẫn dừng ở hành động bị phát hiện là có rủi ro. Full access gỡ bỏ các ranh giới bảo vệ thông thường.",
+      "source": {
+        "label": "OpenAI Docs — Sandboxing and approvals",
+        "url": "https://learn.chatgpt.com/docs/sandboxing",
+        "basis": "Tài liệu phân biệt sandbox với approval policy và mô tả Full access là chế độ không còn ranh giới tệp hoặc mạng thông thường."
+      }
     },
     {
       "id": "m1-q4",
       "type": "short-answer",
-      "prompt": "Khi kiểm tra tự động đạt nhưng giao diện trên màn hình hẹp vẫn không đúng yêu cầu, bạn nên chấp nhận hay yêu cầu sửa? Giải thích bằng một câu.",
+      "prompt": "Hãy nêu một tác vụ phù hợp với Sol và một tác vụ phù hợp với Luna. Giải thích điểm khác nhau.",
       "expectedSignals": [
-        "Không chấp nhận chỉ vì kiểm tra tự động đạt",
-        "Dùng bằng chứng quan sát giao diện",
-        "Yêu cầu sửa hoặc điều tra trước khi chấp nhận"
-      ]
+        "Sol được gắn với công việc phức tạp, mơ hồ hoặc có nhiều đánh đổi",
+        "Luna được gắn với công việc rõ, lặp lại hoặc có đầu ra cố định",
+        "Có ví dụ cụ thể bằng lời của Learner"
+      ],
+      "source": {
+        "label": "OpenAI Docs — Models",
+        "url": "https://learn.chatgpt.com/docs/models",
+        "basis": "Tài liệu phân biệt Sol cho việc phức tạp với Luna cho tác vụ rõ, lặp lại và cần chi phí thấp."
+      }
     },
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Nêu một hướng dẫn nên lưu lâu dài trong AGENTS.md và một yêu cầu chỉ nên nằm trong bản mô tả của một công việc.",
+      "prompt": "Vì sao khóa học dùng High nhưng không khuyên người mới chọn Extra High hoặc Ultra cho ContentPilot?",
       "expectedSignals": [
-        "AGENTS.md chứa hướng dẫn bền vững",
-        "Task brief chứa mục tiêu hoặc phạm vi cụ thể của một thay đổi",
-        "Giải thích bằng ví dụ"
-      ]
+        "High đủ cho công việc nhiều bước của dự án thực hành",
+        "Extra High hoặc Ultra dùng nhiều thời gian hay usage hơn",
+        "Nêu nguyên tắc dùng mức thấp nhất vẫn tạo ra kết quả đạt yêu cầu"
+      ],
+      "source": {
+        "label": "OpenAI Docs — Models",
+        "url": "https://learn.chatgpt.com/docs/models",
+        "basis": "Tài liệu khuyên dùng mức reasoning thấp nhất vẫn tạo ra kết quả đạt yêu cầu và dành mức rất cao cho nhiệm vụ thật sự khó."
+      }
     }
   ]
 }

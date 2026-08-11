@@ -17,20 +17,20 @@ const scenarioDefinition: Record<
 > = {
   started: {
     status: 'active',
-    summary: 'Codex mô phỏng đã bắt đầu thực hiện yêu cầu trong phạm vi đã duyệt.'
+    summary: 'Coding agent mô phỏng đang chuyển các quyết định của bạn thành planning package.'
   },
   approval_required: {
     status: 'approval_required',
-    summary: 'Codex mô phỏng đang chờ bạn duyệt kế hoạch trước khi thay đổi CSS.'
+    summary: 'PRD và implementation plan đã có bản nháp; coding agent đang chờ bạn review và duyệt.'
   },
   success: {
     status: 'completed',
-    summary: 'Thay đổi mô phỏng hoàn tất và có bằng chứng mới để bạn kiểm tra.',
+    summary: 'Planning package mô phỏng đã có đủ hai artifact và vượt qua alignment review.',
     evidence: 'current'
   },
   stale: {
     status: 'stale',
-    summary: 'Có bằng chứng mô phỏng, nhưng nó cũ hơn thay đổi gần nhất và chưa đủ để duyệt.',
+    summary: 'PRD đã thay đổi sau lần review gần nhất nên implementation plan cần được đối chiếu lại.',
     evidence: 'stale'
   },
   offline: {
@@ -39,7 +39,7 @@ const scenarioDefinition: Record<
   },
   error: {
     status: 'error',
-    summary: 'Lượt chạy mô phỏng gặp lỗi trước khi tạo được bằng chứng kiểm chứng.'
+    summary: 'Lượt planning mô phỏng gặp lỗi trước khi tạo đủ hai artifact.'
   }
 }
 
@@ -66,12 +66,12 @@ export class FixturePracticeAdapter implements PracticeAdapter {
     const now = this.now()
     const timestamp = now.toISOString()
     const definition = scenarioDefinition[request.scenario]
-    const correlationId = `fixture-m1-${timestamp}-${++this.sequence}`
+    const correlationId = `fixture-m2-${timestamp}-${++this.sequence}`
     const evidence: PracticeEvidence | undefined = definition.evidence
       ? {
-          viewport: '390px',
-          changedScope: 'onboarding CSS',
-          horizontalOverflow: definition.evidence === 'current' ? 'Không phát hiện' : 'Chưa kiểm tra lại',
+          prdArtifact: 'PRD.md · đã duyệt',
+          implementationPlanArtifact: 'implementation-plan.md · đã duyệt',
+          alignment: definition.evidence === 'current' ? 'Khớp PRD' : 'Cần kiểm tra lại',
           observedAt:
             definition.evidence === 'current'
               ? timestamp
@@ -81,11 +81,11 @@ export class FixturePracticeAdapter implements PracticeAdapter {
       : undefined
 
     return this.repository.savePractice({
-      missionId: 'm1-verifiable-brief',
+      missionId: 'm2-planning-package',
       status: definition.status,
       latestEvent: {
         id: `${correlationId}-${request.scenario}`,
-        missionId: 'm1-verifiable-brief',
+        missionId: 'm2-planning-package',
         scenario: request.scenario,
         status: definition.status,
         source: 'fixture',

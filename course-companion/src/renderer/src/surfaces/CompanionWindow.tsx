@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CompanionMode, CompanionState } from '../../../../shared/contracts'
-import teacherImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/teacher.png'
+import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 export function CompanionWindow() {
@@ -60,7 +60,7 @@ export function CompanionWindow() {
     void showFullTeacher()
   }
   if (mode === null) {
-    return <main className="pixel-companion-surface" aria-label="Đang tải Hương" />
+    return <main className="pixel-companion-surface" aria-label="Đang tải Triết" />
   }
 
   if (mode === 'compact') {
@@ -69,14 +69,14 @@ export function CompanionWindow() {
         <button
           className="pixel-teacher-launcher"
           type="button"
-          aria-label="Mở Hương, giáo viên đồng hành"
+          aria-label="Mở Triết, giáo viên đồng hành"
           aria-description="Nhấp một lần để mở nhanh. Nhấp đúp để mở toàn màn hình."
           title="Nhấp một lần để mở nhanh · Nhấp đúp để mở toàn màn hình"
           onClick={openQuickTeacher}
           onDoubleClick={openFullTeacher}
         >
           <img src={teacherImage} alt="" />
-          <span>MỞ</span>
+          <span>TRIẾT</span>
         </button>
       </main>
     )

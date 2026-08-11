@@ -9,9 +9,13 @@ import {
 import { join } from 'node:path'
 import {
   checkpointIds,
+  courseLessonIdForScene,
+  courseLessonIds,
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  sceneCheckpoint,
   sceneIds,
+  type CourseLessonId,
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
@@ -26,31 +30,12 @@ import {
 const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
 const SAFE_ID = /^[A-Za-z0-9_-]{1,160}$/
-
-const sceneCheckpoint: Record<SceneId, CheckpointId> = {
-  'intro-visual-onboarding': 'intro-visual-onboarding',
-  'intro-first-safe-win': 'intro-first-safe-win',
-  'intro-time-budget': 'intro-time-budget',
-  'intro-graduation': 'intro-graduation',
-  'intro-problem': 'intro-problem',
-  'intro-platform': 'intro-platform',
-  'intro-quest-card': 'intro-quest-card',
-  'intro-readiness': 'intro-readiness',
-  'intro-complete': 'intro-complete',
-  'module-1-opening': 'm1-orient',
-  'module-1-bad-consequence': 'm1-orient',
-  'module-1-concept': 'm1-inspect',
-  'module-1-brief-choice': 'm1-brief',
-  'module-1-weak-brief': 'm1-brief',
-  'module-1-success': 'm1-plan-approval',
-  'module-1-reflection': 'm1-review',
-  'module-1-debrief': 'm1-mastery',
-  'module-1-complete': 'm1-complete'
-}
+const courseLessonSet = new Set<string>(courseLessonIds)
+const LEGACY_COURSE_VERSION = '0.1.0'
 
 export function defaultPracticeState(): PracticeState {
   return {
-    missionId: 'm1-verifiable-brief',
+    missionId: 'm2-planning-package',
     status: 'idle'
   }
 }
@@ -64,7 +49,7 @@ function isIsoDate(value: unknown): value is string {
 }
 
 function isLessonId(value: unknown): value is LessonId {
-  return value === 'intro' || value === 'module-1'
+  return value === 'intro' || value === 'module-1' || value === 'module-2'
 }
 
 function isCheckpointId(value: unknown): value is CheckpointId {
@@ -98,7 +83,8 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
     && isSceneId(destination.sceneId)
     && sceneCheckpoint[destination.sceneId] === destination.checkpointId
     && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
-      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-')))
+      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-'))
+      || (destination.lessonId === 'module-2' && destination.sceneId.startsWith('module-2-')))
 }
 
 function completionKey(receipt: PracticeCompletionReceipt): string {
@@ -107,6 +93,10 @@ function completionKey(receipt: PracticeCompletionReceipt): string {
 
 function courseRunId(startedAt: string): string {
   return `course-${startedAt.replace(/[^0-9]/g, '').slice(0, 17)}`
+}
+
+function isCourseLessonId(value: unknown): value is CourseLessonId {
+  return typeof value === 'string' && courseLessonSet.has(value)
 }
 
 function decisionsAreValid(value: unknown): value is Record<string, string> {
@@ -121,9 +111,9 @@ function decisionsAreValid(value: unknown): value is Record<string, string> {
 function isPracticeEvidence(value: unknown): boolean {
   return (
     isRecord(value) &&
-    value.viewport === '390px' &&
-    value.changedScope === 'onboarding CSS' &&
-    typeof value.horizontalOverflow === 'string' &&
+    value.prdArtifact === 'PRD.md · đã duyệt' &&
+    value.implementationPlanArtifact === 'implementation-plan.md · đã duyệt' &&
+    typeof value.alignment === 'string' &&
     isIsoDate(value.observedAt) &&
     (value.freshness === 'current' || value.freshness === 'stale')
   )
@@ -132,7 +122,7 @@ function isPracticeEvidence(value: unknown): boolean {
 function isPracticeEvent(value: unknown): value is PracticeEvent {
   if (!isRecord(value)) return false
   if (typeof value.id !== 'string' || value.id.length < 1 || value.id.length > 160) return false
-  if (value.missionId !== 'm1-verifiable-brief') return false
+  if (value.missionId !== 'm2-planning-package') return false
   if (!['started', 'approval_required', 'success', 'stale', 'offline', 'error'].includes(String(value.scenario))) return false
   if (!['active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
   if (value.source !== 'fixture') return false
@@ -143,7 +133,7 @@ function isPracticeEvent(value: unknown): value is PracticeEvent {
 }
 
 export function isPracticeState(value: unknown): value is PracticeState {
-  if (!isRecord(value) || value.missionId !== 'm1-verifiable-brief') return false
+  if (!isRecord(value) || value.missionId !== 'm2-planning-package') return false
   if (!['idle', 'active', 'approval_required', 'completed', 'stale', 'offline', 'error'].includes(String(value.status))) return false
   if (value.status === 'idle') return value.latestEvent === undefined
   return isPracticeEvent(value.latestEvent) && value.latestEvent.status === value.status
@@ -155,8 +145,13 @@ export function isProgressUpdate(value: unknown): value is ProgressUpdate {
   if (!isCheckpointId(value.checkpointId)) return false
   if (!isSceneId(value.sceneId)) return false
   if (sceneCheckpoint[value.sceneId] !== value.checkpointId) return false
+  if (!isCourseLessonId(value.currentCourseLessonId)) return false
+  if (courseLessonIdForScene(value.sceneId) !== value.currentCourseLessonId) return false
   if (value.currentLessonId === 'intro' && !value.sceneId.startsWith('intro-')) return false
   if (value.currentLessonId === 'module-1' && !value.sceneId.startsWith('module-1-')) return false
+  if (value.currentLessonId === 'module-2' && !value.sceneId.startsWith('module-2-')) return false
+  if (!Array.isArray(value.sceneHistory) || value.sceneHistory.length > 200) return false
+  if (!value.sceneHistory.every(isSceneId)) return false
   if (!Array.isArray(value.completedCheckpointIds)) return false
   if (!value.completedCheckpointIds.every(isCheckpointId)) return false
   if (new Set(value.completedCheckpointIds).size !== value.completedCheckpointIds.length) return false
@@ -178,43 +173,144 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   return isPracticeState(practice)
 }
 
+function translateLegacySceneId(value: unknown): unknown {
+  return typeof value === 'string' && value.startsWith('module-1-')
+    ? value.replace(/^module-1-/, 'module-2-')
+    : value
+}
+
+function translateLegacyCheckpointId(value: unknown): unknown {
+  return typeof value === 'string' && value.startsWith('m1-')
+    ? value.replace(/^m1-/, 'm2-')
+    : value
+}
+
+function translateLegacyCourseLessonId(value: unknown): unknown {
+  return typeof value === 'string' && value.startsWith('m1-')
+    ? value.replace(/^m1-/, 'm2-')
+    : value
+}
+
+function translateLegacyPractice(value: unknown): PracticeState | null {
+  if (!isRecord(value)) return null
+  const translated = {
+    ...value,
+    missionId: value.missionId === 'm1-planning-package' ? 'm2-planning-package' : value.missionId,
+    ...(isRecord(value.latestEvent)
+      ? {
+          latestEvent: {
+            ...value.latestEvent,
+            missionId: value.latestEvent.missionId === 'm1-planning-package'
+              ? 'm2-planning-package'
+              : value.latestEvent.missionId
+          }
+        }
+      : {})
+  }
+  return isPracticeState(translated) ? translated : null
+}
+
+function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerProgress | null {
+  const startedAt = raw.startedAt
+  const updatedAt = raw.updatedAt
+  const translatedSceneId = translateLegacySceneId(raw.sceneId)
+  const translatedCheckpointId = translateLegacyCheckpointId(raw.checkpointId)
+  const translatedCourseLessonId = translateLegacyCourseLessonId(raw.currentCourseLessonId)
+  const translatedLessonId = raw.currentLessonId === 'module-1' ? 'module-2' : raw.currentLessonId
+  const translatedHistory = Array.isArray(raw.sceneHistory)
+    ? raw.sceneHistory.map(translateLegacySceneId)
+    : []
+  const translatedCompleted = Array.isArray(raw.completedCheckpointIds)
+    ? raw.completedCheckpointIds.map(translateLegacyCheckpointId)
+    : []
+  const translatedPractice = translateLegacyPractice(raw.practice)
+  if (!isIsoDate(startedAt) || !isIsoDate(updatedAt) || !translatedPractice || !decisionsAreValid(raw.decisions)) {
+    return null
+  }
+
+  const update = {
+    currentLessonId: translatedLessonId,
+    currentCourseLessonId: translatedCourseLessonId,
+    checkpointId: translatedCheckpointId,
+    sceneId: translatedSceneId,
+    sceneHistory: translatedHistory,
+    completedCheckpointIds: translatedCompleted,
+    decisions: {
+      ...raw.decisions,
+      ...(translatedLessonId === 'module-2'
+        ? { setupModuleMigration: 'continued-existing-planning-progress' }
+        : {})
+    }
+  }
+  if (!isProgressUpdate(update)) return null
+
+  return {
+    ...update,
+    schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
+    courseVersion: COURSE_VERSION,
+    practice: translatedPractice,
+    courseRunId: courseRunId(startedAt),
+    practiceCompletions: [],
+    startedAt,
+    updatedAt
+  }
+}
+
 function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isRecord(value)) return null
   const raw = value as Record<string, unknown>
   const schemaVersion = raw.schemaVersion
   const courseVersion = raw.courseVersion
-  const practice = raw.practice
   const startedAt = raw.startedAt
   const updatedAt = raw.updatedAt
-  if (courseVersion !== COURSE_VERSION) return null
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
-  if (!isProgressUpdate(raw)) return null
-  const update: ProgressUpdate = {
-    currentLessonId: raw.currentLessonId,
-    checkpointId: raw.checkpointId,
-    sceneId: raw.sceneId,
-    completedCheckpointIds: raw.completedCheckpointIds,
-    decisions: raw.decisions
-  }
 
   if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && isLearnerProgress(raw)) {
     return raw as unknown as LearnerProgress
   }
 
-  if ((schemaVersion === 2 || schemaVersion === 3) && isPracticeState(practice)) {
-    return {
-      ...update,
-      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
-      courseVersion: COURSE_VERSION,
-      practice,
-      courseRunId: courseRunId(startedAt),
-      startedAt,
-      practiceCompletions: [],
-      updatedAt
-    }
+  if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
+    const translatedSceneId = translateLegacySceneId(raw.sceneId)
+    if (!isSceneId(translatedSceneId)) return null
+    const legacyRaw = schemaVersion === 3
+      ? { ...raw, currentCourseLessonId: courseLessonIdForScene(translatedSceneId) }
+      : raw
+    return migrateLegacyPlanningProgress(legacyRaw)
   }
 
-  if (schemaVersion === 1 && practice === undefined) {
+  if (
+    (schemaVersion === 1 || schemaVersion === 2) &&
+    courseVersion === LEGACY_COURSE_VERSION &&
+    decisionsAreValid(raw.decisions)
+  ) {
+    const oldSceneId = typeof raw.sceneId === 'string' ? raw.sceneId : ''
+    const resumeOnboarding = [
+      'intro-visual-onboarding',
+      'intro-course-overview-2',
+      'intro-learning-method'
+    ].includes(oldSceneId)
+    const update: ProgressUpdate = resumeOnboarding
+      ? {
+          currentLessonId: 'intro',
+          currentCourseLessonId: 'intro-overview',
+          checkpointId: 'intro-visual-onboarding',
+          sceneId: oldSceneId as ProgressUpdate['sceneId'],
+          sceneHistory: [],
+          completedCheckpointIds: [],
+          decisions: raw.decisions
+        }
+      : {
+          currentLessonId: 'module-2',
+          currentCourseLessonId: 'm2-when-to-plan',
+          checkpointId: 'm2-why-planning',
+          sceneId: 'module-2-why-planning',
+          sceneHistory: [],
+          completedCheckpointIds: ['intro-visual-onboarding'],
+          decisions: {
+            ...raw.decisions,
+            setupModuleMigration: 'continued-existing-planning-progress'
+          }
+        }
     return {
       ...update,
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
@@ -450,7 +546,15 @@ export class ProgressRepository {
       const parsed: unknown = JSON.parse(await readFile(path, 'utf8'))
       const progress = migrateLearnerProgress(parsed)
       return progress
-        ? { status: 'valid', progress, migrated: isRecord(parsed) && parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION }
+        ? {
+            status: 'valid',
+            progress,
+            migrated:
+              isRecord(parsed) && (
+                parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION ||
+                parsed.courseVersion !== COURSE_VERSION
+              )
+          }
         : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }
@@ -470,7 +574,8 @@ export class ProgressRepository {
       this.activityPath,
       `${JSON.stringify({
         event,
-        lessonId: progress.currentLessonId,
+        moduleId: progress.currentLessonId,
+        lessonId: progress.currentCourseLessonId,
         checkpointId: progress.checkpointId,
         sceneId: progress.sceneId,
         timestamp: this.now().toISOString()

@@ -10,9 +10,9 @@ Mục tiêu: hiểu learner đang vướng ở đâu.
 
 Teacher hỏi:
 
-- "Bạn đang nghĩ Codex nên làm gì đầu tiên?"
+- "Bạn đang muốn coding agent giúp làm rõ điều gì trước?"
 - "Phần nào của prompt này đang mơ hồ?"
-- "Nếu Codex chạy lệnh này, bạn mong thấy kết quả gì?"
+- "Sau cuộc phỏng vấn, bạn muốn nhận tài liệu gì?"
 
 Dùng khi:
 
@@ -25,9 +25,9 @@ Mục tiêu: giúp learner tự tìm hướng từ thông tin đã được gi�
 
 Teacher hỏi:
 
-- "Hành động này là read-only hay có thể thay đổi workspace?"
-- "Nếu là marketer mới học Codex, bạn muốn thấy bằng chứng nào trước khi tin kết quả?"
-- "Phần nào nên nằm trong prompt một lần, phần nào nên thành hướng dẫn bền vững?"
+- "Điều này mô tả sản phẩm cần làm gì hay mô tả cách xây sản phẩm?"
+- "Tiêu chí này có thể quan sát và kiểm tra được chưa?"
+- "Bước này truy ngược về yêu cầu nào trong PRD?"
 
 ## Bậc 2 - Gợi ý nhẹ
 
@@ -35,9 +35,9 @@ Mục tiêu: thu hẹp phạm vi suy nghĩ nhưng vẫn để learner tự hoàn
 
 Teacher nói:
 
-- "Hãy tìm trong prompt 4 thành phần: goal, context, constraints, done when."
-- "Approval thường cần khi hành động vượt ra ngoài sandbox, dùng network, sửa/xóa file, hoặc chạm hệ thống ngoài."
-- "Với repo mới, prompt đầu tiên nên yêu cầu inspect và tóm tắt trước khi sửa."
+- "Hãy tìm trong prompt 4 thành phần: mục tiêu, bối cảnh, cách trao đổi và output cần nhận."
+- "Ở bước PRD, hãy yêu cầu agent hỏi một câu mỗi lượt và chưa bàn cách viết code."
+- "Ở bước implementation plan, hãy chỉ định PRD là nguồn phạm vi và yêu cầu cách kiểm tra cho từng bước."
 
 ## Bậc 3 - Ví dụ một phần
 
@@ -46,16 +46,14 @@ Mục tiêu: cho mẫu nhỏ để learner hoàn thiện tiếp.
 Teacher đưa:
 
 ```text
-Hãy inspect repo này và tóm tắt:
-1. Có những file/folder nào?
-2. Mục đích có vẻ là gì?
-3. Bạn đề xuất bước tiếp theo nào?
-Đừng sửa file trong bước này.
+Hãy giúp tôi làm rõ ý tưởng sản phẩm [tên sản phẩm].
+Hãy hỏi tôi [cách trao đổi] và sau đó tạo [output cần nhận].
+Trong bước này, chưa [điều không được làm].
 ```
 
 Sau đó hỏi:
 
-- "Bạn thêm constraints và done-when nào để prompt này tốt hơn?"
+- "Bạn sẽ thêm bối cảnh và các phần bắt buộc nào để output đủ rõ?"
 
 ## Bậc 4 - Lời giải mẫu
 
@@ -70,8 +68,11 @@ Teacher đưa câu trả lời đầy đủ, nhưng phải kèm:
 Mẫu:
 
 ```text
-Prompt tốt hơn:
-Hãy inspect repo này trước khi sửa bất kỳ file nào. Tóm tắt cấu trúc repo, file quan trọng, rủi ro khi sửa, và đề xuất 2 bước tiếp theo. Chỉ dùng lệnh/đọc file read-only. Done when: tôi hiểu repo đang có gì và có thể phê duyệt bước tiếp theo.
+Prompt tốt hơn cho một ví dụ khác:
+Tôi muốn làm một ứng dụng lên thực đơn từ nguyên liệu có sẵn. Hãy phỏng vấn tôi
+từng câu một để làm rõ PRD. Hỏi về luồng chính, input, output, phạm vi phiên bản
+đầu, ngoài phạm vi, Done When và câu hỏi còn mở. Dùng ngôn ngữ dành cho người
+mới, chưa bàn code. Khi đủ thông tin, hãy soạn PRD một trang để tôi review.
 ```
 
 ## Quy tắc chuyển bậc

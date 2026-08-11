@@ -1,51 +1,84 @@
 # Tiêu chí đánh giá mức độ thành thạo
 
-Bảng tiêu chí này đánh giá năng lực cộng tác với Codex, không đánh giá kiến
-thức lập trình thuần túy. Teacher dùng bảng để quyết định learner đã hoàn thành
-module hay cần luyện thêm.
+Bảng tiêu chí này đánh giá khả năng thiết lập Codex và dùng planning để giao
+tiếp với coding agent, không đánh giá kiến thức lập trình. Teacher chỉ đánh dấu
+hoàn thành khi Learner có artifact bắt buộc và bằng chứng hiểu quyết định của
+chính mình.
 
 ## Thang điểm
 
-- **0 - Chưa thấy bằng chứng**: learner chưa thử hoặc câu trả lời không liên quan.
-- **1 - Nhận diện có hỗ trợ**: learner làm được khi Teacher gợi ý nhiều.
-- **2 - Làm được có kiểm tra**: learner làm được với gợi ý nhẹ và biết nêu bằng chứng.
-- **3 - Tự chủ**: learner tự đưa yêu cầu rõ, phân loại rủi ro, kiểm tra kết quả, và giải thích được.
+- **0 - Chưa thấy bằng chứng**: Learner chưa thử hoặc câu trả lời không liên quan.
+- **1 - Nhận diện có hỗ trợ**: Learner làm được khi Teacher gợi ý nhiều.
+- **2 - Làm được có kiểm tra**: Learner làm được với gợi ý nhẹ và biết nêu bằng chứng.
+- **3 - Tự chủ**: Learner tự đưa yêu cầu rõ, kiểm soát phạm vi, review và giải thích được.
 
 ## Kỹ năng cốt lõi của Module 1
 
-| Skill | 0 | 1 | 2 | 3 |
+| Kỹ năng | 0 | 1 | 2 | 3 |
 | --- | --- | --- | --- | --- |
-| Repo inspection before edits | Yêu cầu sửa ngay hoặc không biết cần inspect | Chấp nhận inspect khi Teacher nhắc | Viết được prompt inspect read-only có done-when | Tự yêu cầu inspect, giới hạn phạm vi, và nêu bằng chứng cần thấy |
-| Prompt structure | Prompt mơ hồ, thiếu mục tiêu | Có goal nhưng thiếu context/constraints | Có goal, context, constraints, done-when | Tự chia task lớn thành prompt nhỏ để review được |
-| Approval awareness | Không phân biệt hành động rủi ro | Nhận ra một vài hành động cần approval | Phân loại được read-only, edit, network, destructive | Tự dừng lại và hỏi approval trước hành động rủi ro |
-| Teacher vs Executor | Lẫn lộn hỏi để hiểu và hỏi để làm | Phân biệt khi có ví dụ | Viết được 2 request: explain và action | Biết lúc nào cần Teacher coach, lúc nào cần Executor thực thi |
-| Evidence review | Tin vào tóm tắt chung chung | Hỏi lại Teacher "đã xong chưa" | Kiểm tra file/log/diff/test theo hướng dẫn | Tự nêu bằng chứng cần có và tóm tắt kết quả |
-| Reflection and transfer | Không nói lại được bài học | Lặp lại định nghĩa | Giải thích được bằng ví dụ của lesson | Chuyển kỹ năng sang tình huống marketing/content khác |
+| Hiểu vai trò của Codex | Xem Codex như chatbot chỉ trả lời chữ | Nhận biết Codex là coding agent của OpenAI | Giải thích được Codex cần mục tiêu, bối cảnh và phạm vi hành động | Giao được một mục tiêu có ranh giới và cách kiểm tra kết quả |
+| Chọn model | Chọn theo tên gọi hoặc mức mạnh nhất | Chấp nhận model mặc định khi được nhắc | Chọn theo loại công việc và biết khi nào cần điều chỉnh mức suy luận | Tự giải thích tradeoff giữa tốc độ, chi phí suy luận và độ phức tạp của tác vụ |
+| Quyền và phê duyệt | Đồng ý hoặc từ chối mà không đọc | Biết Codex đôi khi phải xin phép | Kiểm tra mục đích, phạm vi và tác động trước khi quyết định | Tự nhận diện yêu cầu quyền bất thường hoặc rộng hơn nhiệm vụ |
+| Hướng dẫn dự án | Không phân biệt prompt với `AGENTS.md` | Phân biệt được khi có ví dụ | Đặt chỉ dẫn lâu dài trong `AGENTS.md` và mục tiêu riêng trong prompt | Tự viết chỉ dẫn rõ, ngắn và kiểm tra được qua task mới |
+| Dùng Skill | Xem mọi prompt là Skill | Nhận ra Skill là hướng dẫn tái sử dụng | Dùng đúng Skill có sẵn cho quy trình lặp lại | Tự đánh giá khi nào đáng tạo hoặc cài thêm Skill |
 
 ## Tiêu chí hoàn thành Module 1
 
 Learner pass Module 1 khi đạt tất cả điều kiện:
 
-- Đạt mức 2 trở lên ở 4/6 skill.
-- Không skill nào ở mức 0.
-- Viết được prompt đầu tiên yêu cầu Codex inspect repo trước khi sửa.
-- Phân loại đúng ít nhất 4/5 hành động: read-only, file edit, network, dependency install, destructive action.
-- Giải thích bằng một đoạn ngắn sự khác nhau giữa Teacher và Executor.
+- Đạt mức 2 trở lên ở ít nhất 4/5 kỹ năng.
+- Không kỹ năng nào ở mức 0.
+- `artifacts/codex-setup-checklist.md` tồn tại, có nội dung và được Learner duyệt.
+- Learner đã duyệt nội dung trong khối `Learner-editable preferences` của
+  `AGENTS.md` trước khi Codex sửa file.
+- Learner đạt ít nhất 4/5 câu trong quiz Module 1 và giải thích các câu trả lời
+  tự luận bằng lời của mình.
+
+## Kỹ năng cốt lõi của Module 2
+
+| Kỹ năng | 0 | 1 | 2 | 3 |
+| --- | --- | --- | --- | --- |
+| Nhận biết nhu cầu planning | Muốn code ngay trong mọi tình huống | Chấp nhận planning khi Teacher nhắc | Phân biệt được việc nhỏ với việc mơ hồ/nhiều bước | Tự giải thích được tradeoff và chọn mức planning phù hợp |
+| Prompt cho cuộc phỏng vấn PRD | Đưa ý tưởng mơ hồ và chờ agent tự quyết | Nêu việc cần làm nhưng thiếu thông tin hoặc kết quả cuối | Làm rõ việc cần làm, thông tin, cách trao đổi, điều agent không được tự làm và kết quả cuối | Tự điều chỉnh prompt để giữ quyền quyết định và xử lý câu hỏi còn mở |
+| Chất lượng PRD | Thiếu phạm vi hoặc Done When | Có phần chính nhưng còn mơ hồ | Đủ tám phần, Done When kiểm tra được, không lẫn implementation | Tự phát hiện giả định ẩn, scope creep và chỉnh PRD trước khi duyệt |
+| Chất lượng implementation plan | Plan chung chung hoặc bắt đầu viết code | Có danh sách bước nhưng thiếu kết quả/cách kiểm tra | Bước nhỏ có thứ tự, mục tiêu, thành phần, kết quả và verification | Tự xem xét phụ thuộc, rủi ro, quyết định mở và kiểm tra end-to-end |
+| Alignment và kiểm soát phạm vi | Không nhận ra PRD và plan lệch nhau | Nhận ra khi Teacher chỉ điểm | Map được yêu cầu với bước và Done When với verification | Tự phát hiện thiếu/thừa, quyết định sửa đúng tài liệu và review lại |
+| Quyền sở hữu quyết định | Chấp nhận output mà không review | Chọn duyệt/sửa khi được nhắc | Duyệt rõ và giải thích được một quyết định phạm vi | Chủ động chất vấn đề xuất của agent bằng mục tiêu và bằng chứng |
+
+## Tiêu chí hoàn thành Module 2
+
+Learner pass Module 2 khi đạt tất cả điều kiện:
+
+- Đạt mức 2 trở lên ở ít nhất 5/6 kỹ năng.
+- Không kỹ năng nào ở mức 0.
+- `artifacts/PRD.md` tồn tại, có nội dung, đủ tám phần và được Learner duyệt.
+- `artifacts/implementation-plan.md` tồn tại, có nội dung, dùng PRD làm nguồn và
+  được Learner duyệt.
+- Mọi yêu cầu trong phạm vi PRD có bước tương ứng; mọi bước truy ngược về PRD.
+- Nội dung ngoài phạm vi không xuất hiện trong plan.
+- Mọi mục `Done When` có cách kiểm tra tương ứng.
+- Learner giải thích bằng lời của mình ít nhất một quyết định phạm vi, bước triển
+  khai liên quan và bằng chứng sẽ dùng để kiểm tra.
+- Learner đạt ít nhất 12/15 câu trong nhóm `final-assessment`.
+- Ba nhóm kiểm tra ngắn được hoàn thành theo thứ tự 3 câu Planning và PRD, 3
+  câu Prompt engineering và 2 câu Implementation plan.
 
 ## Feedback mẫu
 
-### Nếu learner đạt
+### Nếu Learner đạt
 
-"Bạn đã đạt Module 1. Bằng chứng là: prompt inspect của bạn có goal/context/constraint/done-when, bạn phân loại đúng các approval risk chính, và bạn dùng diff, check cùng quan sát giao diện để quyết định có chấp nhận thay đổi hay không. Bạn đã hoàn thành Pilot 0.1; Module 2 chưa có trong workspace này."
+"Bạn đã đạt Module 2. PRD của bạn giữ rõ sản phẩm cần làm gì và chưa làm gì;
+implementation plan chia đúng phạm vi đó thành các bước có thể kiểm tra; và bạn
+đã tự giải thích được vì sao hai tài liệu khớp nhau."
 
-### Nếu learner gần đạt
+### Nếu Learner gần đạt
 
-"Bạn gần hoàn thành rồi. Điểm cần luyện là nhận diện hành động cần phê duyệt:
-bạn đã nhận ra việc sửa file, nhưng chưa nhận ra dùng mạng và cài gói phụ thuộc
-cũng cần dừng lại. Ta sẽ làm một bài phân loại 3 phút rồi kiểm tra lại."
+"Bạn gần hoàn thành rồi. PRD đã rõ, nhưng một mục Done When chưa có cách kiểm
+tra tương ứng trong implementation plan. Ta sẽ sửa đúng mapping đó rồi review
+lại planning package."
 
-### Nếu learner chưa đạt
+### Nếu Learner chưa đạt
 
-"Bằng chứng hiện tại chưa đủ để hoàn thành module. Không sao. Ta quay lại yêu
-cầu đầu tiên: Codex nên đọc gì, không được làm gì và cần báo bằng chứng nào sau
-khi kiểm tra xong?"
+"Bằng chứng hiện tại chưa đủ để hoàn thành module. Không sao. Ta quay lại một
+quyết định cốt lõi: phiên bản đầu tiên cần tạo output gì, và dấu hiệu quan sát
+nào cho biết output đó đạt yêu cầu?"

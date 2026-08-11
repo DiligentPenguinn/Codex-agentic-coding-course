@@ -2,7 +2,8 @@
 
 This is the production desktop-app package for the learner-facing Course
 Companion. It is intentionally separate from the historical HTML prototypes and
-from ContentPilot, the application learners build during the course.
+from ContentPilot, the practice application learners use to demonstrate
+agentic-coding skills during the course.
 
 ## Implemented scope
 
@@ -20,7 +21,7 @@ The current app proves:
 - atomic local checkpoint saves with a last-known-good backup;
 - exact resume after a complete app relaunch;
 - confirmed reset and damaged-state recovery behavior;
-- a floating, tool-free Hương Teacher backed by an ephemeral read-only Codex
+- a floating, tool-free Triết Teacher backed by an ephemeral read-only Codex
   thread;
 - persistent `teacher-chat.jsonl` history, delivery state, companion mode, and
   versioned `teacher-memory.json` Practice summaries;
@@ -35,18 +36,18 @@ The current app proves:
 - an Electron-owned fixture evidence adapter with started, approval-required,
   success,
   stale-evidence, offline, and error fixtures;
-- visible fixture evidence plus hidden developer scenario controls; and
+- visible practice evidence plus expandable local scenario controls; and
 - a complete Module 1 evidence-reflection and debrief finish.
 
-Hương receives the current course checkpoint, the full active Practice state,
+Triết receives the current course checkpoint, the full active Practice state,
 bounded observations from its exact Executor thread, recent Teacher chat, prior
 summaries for the same Practice, and durable learner-level takeaways. Before a
 Teacher response, Course Companion refreshes the persistent Executor thread and
 distinguishes structured activity, Executor-reported results, and file changes
 corroborated read-only against the Practice Git baseline. Reported verification
-is never presented as independently rerun. Hương does not receive tools and
+is never presented as independently rerun. Triết does not receive tools and
 cannot modify files, control the Executor, approve work, or declare Practice
-completion. Older runs are consolidated by a separate ephemeral Hương summary
+completion. Older runs are consolidated by a separate ephemeral Triết summary
 thread; invalid or unavailable summaries fall back to a validated local record
 marked pending refinement.
 

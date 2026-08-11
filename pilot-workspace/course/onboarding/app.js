@@ -3,15 +3,15 @@ const STORAGE_KEY = "codex-academy-visual-map-v2";
 const story = [
   {
     title: "HAI KHÔNG GIAN, HAI MỤC ĐÍCH",
-    text: "Phần giới thiệu này giúp bạn hiểu khóa học. Codex là nơi bạn trò chuyện, cho phép hành động và kiểm tra công việc thật."
+    text: "Phần giới thiệu này giúp bạn hiểu cách học. Codex là nơi bạn trò chuyện, cho phép hành động và kiểm tra công việc thật."
   },
   {
     title: "BẠN KHÔNG CẦN BIẾT LẬP TRÌNH",
-    text: "Bạn có thể giao việc bằng ngôn ngữ bình thường. Vai trò của bạn là giữ mục tiêu, đưa ra quyết định và nói rõ điều gì đủ tốt."
+    text: "Bạn có thể giao việc bằng ngôn ngữ bình thường. Vai trò của bạn là hiểu vấn đề, giữ mục tiêu, đưa ra quyết định và nói rõ điều gì đủ tốt."
   },
   {
     title: "CODEX PHẢI ĐƯA RA BẰNG CHỨNG",
-    text: "Codex có thể đọc workspace, sửa file và chạy kiểm tra. Sau mỗi công việc, hãy xem file đã thay đổi, kết quả kiểm tra và phần so sánh trước khi chấp nhận."
+    text: "Codex có thể đọc workspace, sửa file và chạy kiểm tra. Sau mỗi công việc, hãy xem file đã thay đổi, kết quả kiểm tra và phần so sánh trước khi tự quyết định chấp nhận."
   },
   {
     title: "LUẬT ĐẦU TIÊN: ĐỌC TRƯỚC KHI SỬA",
@@ -57,7 +57,7 @@ const cockpitSteps = [
 const progressByScreen = {
   start: { width: 20, label: "BẮT ĐẦU", count: "01 / 05" },
   story: { width: 40, label: "THÔNG TIN CẦN BIẾT", count: "02 / 05" },
-  map: { width: 60, label: "NỘI DUNG KHÓA HỌC", count: "03 / 05" },
+  map: { width: 60, label: "LỘ TRÌNH KỸ NĂNG", count: "03 / 05" },
   cockpit: { width: 80, label: "GIAO DIỆN CODEX", count: "04 / 05" },
   complete: { width: 100, label: "TRỞ LẠI CODEX", count: "05 / 05" }
 };
@@ -146,7 +146,7 @@ function renderStory() {
   visualOnlyNote.hidden = storyIndex !== 0;
   storyPrevious.disabled = storyIndex === 0;
   storyNext.querySelector("span").textContent =
-    storyIndex === story.length - 1 ? "XEM NỘI DUNG KHÓA HỌC" : "TIẾP TỤC";
+    storyIndex === story.length - 1 ? "XEM LỘ TRÌNH KỸ NĂNG" : "TIẾP TỤC";
   saveState();
 }
 

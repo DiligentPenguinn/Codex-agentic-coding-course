@@ -1,26 +1,28 @@
-# Version A Curriculum Blueprint — Lean Product Path
+# Version A Curriculum Blueprint — Agentic Coding Through Practice
 
 **Status:** Approved direction translated into a buildable course map  
-**Path:** Prologue + 6 outcome-based modules with resumable chapters  
+**Path:** Course introduction + 6 skill-based modules with resumable chapters
 **Estimated learner time:** 14 hours 20 minutes  
 **Primary language:** Vietnamese, with English planning labels where useful  
-**Graduation product:** A local, real-API ContentPilot application that generates
-10 ideas and turns 5 learner-selected ideas into reviewed, archived, and
-exportable weekly content packages
+**Graduation proof:** The learner can independently frame, delegate, inspect,
+verify, recover, and defend agentic-coding work. A local, real-API ContentPilot
+application provides the practice artifacts used as evidence.
 
 ## Purpose
 
-This document defines the exact curriculum-to-feature progression for Version A.
-It replaces the old pattern of teaching several foundation modules before the
-learner improves the application.
+This document defines the exact skill-to-practice progression for Version A.
+The course teaches transferable agentic-coding skills. ContentPilot is the
+continuous practice project that makes those skills observable; it is not the
+course subject.
 
 Every substantial module:
 
-1. introduces one bounded Codex or OpenAI capability,
-2. uses that capability to improve ContentPilot,
-3. leaves behind an inspectable product artifact,
-4. ends with an observable acceptance test, and
-5. asks the learner to explain or defend one decision in their own words.
+1. names one transferable agentic-coding capability,
+2. introduces the mental model and decision boundary behind it,
+3. uses ContentPilot as a bounded practice lab,
+4. leaves behind inspectable evidence,
+5. ends with an observable acceptance test, and
+6. asks the learner to transfer or defend the skill in their own words.
 
 This blueprint decides the learning sequence. The exact JSON schemas, run-state
 rules, starter-repository progression, API cost-awareness policy, and
@@ -29,7 +31,7 @@ graduation assessment are locked in linked planning contracts.
 ## Locked curriculum rules
 
 - Version A is the default self-paced path.
-- The path contains one prologue and six outcome-based modules.
+- The path contains one introduction and six skill-based modules.
 - Modules represent complete learner goals; chapters provide 40–95 minute
   stopping points inside longer modules.
 - Reusable teaching units last 5–10 minutes.
@@ -39,6 +41,12 @@ graduation assessment are locked in linked planning contracts.
 - Prerequisites and mastery gates attach to capabilities or artifacts.
 - Foundation concepts such as briefing, `AGENTS.md`, testing, review, and safe
   approvals are taught inside real product milestones.
+- Every module title and opening outcome names the agentic-coding skill before
+  the ContentPilot feature used to practise it.
+- Every completion gate separates transferable skill evidence from
+  ContentPilot-specific product evidence.
+- A learner cannot pass by producing a polished ContentPilot result without
+  explaining scope, decisions, evidence, and recovery.
 - The learner uses their own business and content whenever possible. A sample
   brand is the fallback, not the default experience.
 - Mock data may support learning or troubleshooting, but graduation requires a
@@ -49,6 +57,8 @@ graduation assessment are locked in linked planning contracts.
 ## Learner-facing clarity standard
 
 - A module title must name the learner's action and its observable output.
+- Learner-facing copy introduces the skill first and labels ContentPilot as the
+  practice project or practice lab.
 - Locked quantities appear in the title or milestone when they help the learner:
   10 ideas, 5 selected packages, and 2 visual variants per package.
 - Words such as “useful,” “complete,” “relevant,” “strong,” or “quality” must be
@@ -58,24 +68,70 @@ graduation assessment are locked in linked planning contracts.
   evidence the learner will produce.
 - Any detail intentionally left for a later planning branch must be labeled as
   undecided rather than hidden behind general wording.
+- Internal delivery terms such as `fixture`, `MVP`, schema IDs, and release
+  gates stay in implementation documentation. Learners see plain descriptions
+  such as “chế độ luyện tập” or “phần học hiện tại.”
+
+## Authoritative foundations
+
+The course does not treat any vendor workflow as a universal law. It combines
+the following official sources into a tool-agnostic learning loop and verifies
+product-specific claims against current repository or runtime evidence:
+
+- [OpenAI Codex prompting](https://learn.chatgpt.com/docs/prompting): provide
+  relevant context and constraints, name the desired output, and define how the
+  result will be verified.
+- [OpenAI `AGENTS.md` guidance](https://learn.chatgpt.com/docs/agent-configuration/agents-md):
+  keep durable repository expectations in scoped project instructions.
+- [Anthropic research on agentic coding in practice](https://www.anthropic.com/research/claude-code-expertise):
+  people make most planning decisions while the coding agent makes most
+  execution decisions; domain understanding and verifiable outcomes matter.
+- [Anthropic Claude Code best practices](https://www.anthropic.com/engineering/claude-code-best-practices):
+  explore before editing, plan complex work, keep project guidance, and use
+  tests and review loops.
+- [Google Gemini CLI plan mode](https://developers.googleblog.com/plan-mode-now-available-in-gemini-cli/):
+  investigate code and dependencies in a read-only mode, clarify consequential
+  choices, and review the strategy before implementation.
+- [Google Cloud best practices for AI coding assistants](https://cloud.google.com/blog/topics/developers-practitioners/five-best-practices-for-using-ai-coding-assistants/):
+  document context, refine requirements, plan file changes, define tests, break
+  large work into manageable parts, and keep approval milestones.
+- [DeepLearning.AI: Claude Code — A Highly Agentic Coding Assistant](https://www.deeplearning.ai/courses/claude-code-a-highly-agentic-coding-assistant):
+  learn through codebase exploration, feature work, testing, debugging, and
+  several different project contexts.
+- [DeepLearning.AI: Spec-Driven Development with Coding Agents](https://www.deeplearning.ai/courses/spec-driven-development-with-coding-agents/):
+  use a repeatable specify → plan → implement → verify loop and preserve
+  project intent across sessions.
+
+Together these sources support the course loop:
+
+```text
+understand the problem
+  → inspect the real context
+  → specify scope and done conditions
+  → review the plan and risks
+  → let the agent execute within boundaries
+  → inspect fresh evidence
+  → accept, revise, or recover
+  → transfer the skill to another task
+```
 
 ## Progression at a glance
 
-| Stage | Learner-facing title | Product milestone | Primary proof | Time |
+| Stage | Learner-facing skill | ContentPilot practice milestone | Primary proof | Time |
 |---|---|---|---|---:|
-| Prologue | Xác định quy trình nội dung hằng tuần | Choose the audience, platform, cadence, and graduation target | Personal quest card with a measurable target | 20 min |
-| Module 1 | Thiết lập dự án và làm việc an toàn với Codex | Run and inspect the starter, complete one bounded change, and create durable project rules | Reviewed diff, documented check, manual UI result, and `AGENTS.md` | 70 min |
-| Module 2 | Thiết lập thương hiệu và hồ sơ giọng viết | Save reusable brand inputs and turn five real examples into a validated AI voice profile | Reloadable onboarding data and validated `voice` artifact | 155 min |
-| Module 3 | Nghiên cứu đối thủ và rút ra mẫu nội dung có bằng chứng | Collect cited evidence, reject unsupported sources, and derive anti-copy patterns | Accepted `evidence` and traceable `patterns` artifacts | 175 min |
-| Module 4 | Tạo ý tưởng và soạn 5 gói bài viết | Generate and score 10 ideas, select 5, and draft each selected package | Reviewed `ideas` artifact and 5 editable `drafts` packages | 170 min |
-| Module 5 | Tạo hình ảnh, duyệt và xuất 5 gói nội dung | Generate 2 visual variants per package, then edit, approve, archive, and export | 10 stored visuals, reopenable archive, and export bundle | 170 min |
-| Module 6 | Khắc phục lỗi và hoàn thành bài tốt nghiệp | Recover one failed or rejected phase and complete one real end-to-end run | Real-API graduation run and evidence bundle | 100 min |
+| Introduction | Xác định mục tiêu và quyền quyết định | Name the real problem, the human decisions, and observable success | Personal orientation card with a measurable target | 20 min |
+| Module 1 | Đọc dự án, giao việc và kiểm chứng thay đổi | Inspect a codebase, specify one bounded change, approve a plan, and verify the result | Reviewed diff, documented check, manual UI result, and `AGENTS.md` | 70 min |
+| Module 2 | Giữ bối cảnh và tích hợp AI an toàn | Preserve durable context, define a typed contract, protect secrets, and handle failures | Reloadable inputs and validated `voice` artifact | 155 min |
+| Module 3 | Dùng công cụ nghiên cứu và đánh giá bằng chứng | Use web tools, distinguish source roles, handle uncertainty, and ground synthesis | Accepted `evidence` and traceable `patterns` artifacts | 175 min |
+| Module 4 | Chia nhỏ công việc và kiểm soát đầu ra có cấu trúc | Define output contracts, review options, preserve decisions, and request bounded revisions | Reviewed `ideas` artifact and 5 editable `drafts` packages | 170 min |
+| Module 5 | Làm việc đa phương thức và giữ quyền duyệt | Brief image work, manage files and consent, preserve edits, and gate external output | 10 stored visuals, reopenable archive, and export bundle | 170 min |
+| Module 6 | Chẩn đoán lỗi, phục hồi và chứng minh kết quả | Debug from evidence, rerun bounded phases, control cost, and defend a real workflow | Real-API graduation run and evidence bundle | 100 min |
 
 **Total:** 860 minutes, or 14 hours 20 minutes.
 
-## Artifact spine
+## Practice artifact spine
 
-The course follows one visible chain of truth:
+ContentPilot supplies one visible chain of practice evidence:
 
 ```text
 onboarding data
@@ -113,19 +169,22 @@ Every chapter follows the same learner rhythm:
    exercise the changed interface behavior manually.
 6. **Reflect:** explain one tradeoff or acceptance decision in the learner's own
    words.
+7. **Transfer:** name how the same skill would apply outside ContentPilot.
 
 The Teacher asks quiz and reflection questions one at a time. Written answers
 must include a learner-owned example rather than repeating course wording.
 
 ---
 
-## Prologue — Xác định quy trình nội dung hằng tuần
+## Introduction — Xác định mục tiêu và quyền quyết định
 
 **English label:** Define your weekly content workflow  
 **Time:** 20 minutes  
-**Product state after the prologue:** The learner has recorded their niche,
-audience, primary platform, cadence, available examples, and a measurable target
-for a weekly batch.
+**Transferable skill:** Frame a real problem, name observable success, and keep
+consequential decisions with the human before delegating implementation.
+**ContentPilot practice state:** The learner has recorded their niche, audience,
+primary platform, cadence, available examples, and a measurable target for a
+weekly batch.
 
 ### Reusable units
 
@@ -147,14 +206,18 @@ The learner can state:
 
 ---
 
-## Module 1 — Thiết lập dự án và làm việc an toàn với Codex
+## Module 1 — Đọc dự án, giao việc và kiểm chứng thay đổi
 
-**English label:** Set up the project and work safely with Codex  
+**English label:** Inspect a project, delegate work, and verify changes
 **Time:** 70 minutes: 45 minutes of reusable units + 25-minute build lab  
-**Module achievement:** The starter runs locally; the learner completes one
-course-supplied interface task, reviews every changed file, and verifies the
-named UI behavior before acceptance. `AGENTS.md` records the project's purpose,
-commands, boundaries, language rules, and verification expectations.  
+**Transferable skill:** The learner can inspect an unfamiliar codebase, write a
+bounded task, review an implementation plan, control approval boundaries, and
+accept or revise work from fresh evidence.
+**ContentPilot practice achievement:** The starter runs locally; the learner
+completes one course-supplied interface task, reviews every changed file, and
+verifies the named UI behavior before acceptance. `AGENTS.md` records the
+project's purpose, commands, boundaries, language rules, and verification
+expectations.
 **Codex capability thread:** inspect, brief, plan, durable guidance, approve,
 review, verify.
 
@@ -180,6 +243,8 @@ in a failing state.
 
 ### Module 1 completion test
 
+- The learner can describe the same inspect → specify → plan → execute → verify
+  loop for one bounded change outside ContentPilot.
 - The starter runs using the documented command.
 - The visible change satisfies the learner's brief.
 - The learner has reviewed the diff and verification output.
@@ -189,13 +254,16 @@ in a failing state.
 
 ---
 
-## Module 2 — Thiết lập thương hiệu và hồ sơ giọng viết
+## Module 2 — Giữ bối cảnh và tích hợp AI an toàn
 
-**English label:** Set up the brand and voice profile  
+**English label:** Preserve context and integrate AI safely
 **Time:** 155 minutes across two resumable chapters  
-**Module achievement:** ContentPilot saves the learner's reusable brand and
-workflow inputs, then uses five or more real writing examples and the real
-OpenAI API to create a validated voice profile.
+**Transferable skill:** The learner can decide what context should persist,
+define and validate an AI output contract, protect secrets, distinguish real
+from simulated execution, and recover from a failed or invalid response.
+**ContentPilot practice achievement:** ContentPilot saves the learner's reusable
+brand and workflow inputs, then uses five or more real writing examples and the
+real OpenAI API to create a validated voice profile.
 
 ### Chapter 2.1 — Lưu dữ liệu thương hiệu để tái sử dụng
 
@@ -268,6 +336,9 @@ analysis brief.
 
 ### Module 2 completion test
 
+- The learner can identify durable context, one-time task context, the secret
+  boundary, the validation contract, and the recovery path for a different AI
+  feature.
 - The saved onboarding inputs and writing examples survive a reload.
 - The learner can edit an input and intentionally rerun voice analysis.
 - The real API produces a validated voice profile from at least five real
@@ -278,13 +349,17 @@ analysis brief.
 
 ---
 
-## Module 3 — Nghiên cứu đối thủ và rút ra mẫu nội dung có bằng chứng
+## Module 3 — Dùng công cụ nghiên cứu và đánh giá bằng chứng
 
-**English label:** Research competitors and derive evidence-backed content patterns  
+**English label:** Use research tools and evaluate evidence
 **Time:** 175 minutes across two resumable chapters  
-**Module achievement:** ContentPilot expands beyond optional known competitors,
-saves cited evidence, lets the learner reject unsupported sources, and derives
-traceable content patterns without copying competitor wording or layouts.
+**Transferable skill:** The learner can delegate web research, distinguish
+direct from supporting evidence, review uncertainty and freshness, reject weak
+sources, and require every synthesis claim to remain traceable.
+**ContentPilot practice achievement:** ContentPilot expands beyond optional
+known competitors, saves cited evidence, lets the learner reject unsupported
+sources, and derives traceable content patterns without copying competitor
+wording or layouts.
 
 ### Chapter 3.1 — Thu thập bằng chứng có trích dẫn từ web
 
@@ -382,6 +457,8 @@ example.
 
 ### Module 3 completion test
 
+- Given a different research task, the learner can state the required source
+  role, capture, freshness rule, uncertainty treatment, and acceptance decision.
 - Research expands from the saved niche and any optional known competitors.
 - Every saved claim retains a visible source reference.
 - Rejected sources cannot influence the resulting patterns.
@@ -400,13 +477,16 @@ example.
 
 ---
 
-## Module 4 — Tạo ý tưởng và soạn 5 gói bài viết
+## Module 4 — Chia nhỏ công việc và kiểm soát đầu ra có cấu trúc
 
-**English label:** Generate ideas and draft 5 copy packages  
+**English label:** Decompose work and control structured outputs
 **Time:** 170 minutes across two resumable chapters  
-**Module achievement:** ContentPilot generates 10 traceable ideas, shows the
-selection evidence, records 5 learner choices, and turns each choice into an
-editable copy package.
+**Transferable skill:** The learner can define a structured output contract,
+split generation into reviewable phases, compare options, preserve intentional
+decisions, and request a bounded revision without overwriting accepted work.
+**ContentPilot practice achievement:** ContentPilot generates 10 traceable
+ideas, shows the selection evidence, records 5 learner choices, and turns each
+choice into an editable copy package.
 
 ### Chapter 4.1 — Tạo 10 ý tưởng và chọn 5
 
@@ -478,6 +558,8 @@ the results, and chooses which wording better matches their voice.
 
 ### Module 4 completion test
 
+- For a different multi-output task, the learner can define the schema, review
+  criteria, preserved decisions, and bounded rerun scope before execution.
 - The learner reviews 10 distinct ideas using visible platform-fit, voice-fit,
   evidence-support, and variety criteria.
 - Exactly 5 learner-selected ideas advance to drafting.
@@ -488,13 +570,16 @@ the results, and chooses which wording better matches their voice.
 
 ---
 
-## Module 5 — Tạo hình ảnh, duyệt và xuất 5 gói nội dung
+## Module 5 — Làm việc đa phương thức và giữ quyền duyệt
 
-**English label:** Create visuals, review, and export 5 content packages  
+**English label:** Work across modalities and retain approval control
 **Time:** 170 minutes across two resumable chapters  
-**Module achievement:** Each selected package receives two stored visual
-variants; the learner edits the copy, chooses one image, approves the package,
-reopens it from the archive, and inspects the exported files.
+**Transferable skill:** The learner can brief visual work, control input consent,
+inspect generated files and metadata, handle partial failures, preserve human
+edits, and explicitly approve material before an external handoff.
+**ContentPilot practice achievement:** Each selected package receives two stored
+visual variants; the learner edits the copy, chooses one image, approves the
+package, reopens it from the archive, and inspects the exported files.
 
 ### Chapter 5.1 — Tạo 2 phương án hình ảnh cho mỗi gói
 
@@ -566,6 +651,8 @@ set, reopens an archived package, and inspects the exported bundle.
 
 ### Module 5 completion test
 
+- For a different image or file workflow, the learner can name consent,
+  provenance, storage, partial-failure, approval, and external-action boundaries.
 - Every selected package has two visually distinct variants stored under the
   correct package ID.
 - A learner likeness is never used without explicit approval.
@@ -577,13 +664,15 @@ set, reopens an archived package, and inspects the exported bundle.
 
 ---
 
-## Module 6 — Khắc phục lỗi và hoàn thành bài tốt nghiệp
+## Module 6 — Chẩn đoán lỗi, phục hồi và chứng minh kết quả
 
-**English label:** Recover from failures and complete graduation  
+**English label:** Diagnose failures, recover, and prove the result
 **Time:** 100 minutes across two resumable chapters  
-**Module achievement:** The learner diagnoses failures, reruns bounded phases,
-controls API use, and produces 10 ideas plus 5 reviewed, archived, and exportable
-packages in one real-API weekly run.  
+**Transferable skill:** The learner can diagnose from logs and artifacts, rerun
+only the affected phase, preserve valid work, control API cost and duplicate
+actions, and defend a completion claim with evidence.
+**ContentPilot practice achievement:** The learner produces 10 ideas plus 5
+reviewed, archived, and exportable packages in one real-API weekly run.
 **Codex capability thread:** testing, debugging from evidence, failure recovery,
 cost awareness, security review, and product demonstration.
 
@@ -660,6 +749,8 @@ and targeted resubmission policy are defined in:
 
 ### Module 6 completion test
 
+- The learner can apply the same diagnosis and bounded-recovery reasoning to a
+  failure outside ContentPilot.
 - At least one graduation run uses the real API from start to finish.
 - Mock mode is clearly distinguishable and is not submitted as graduation work.
 - A failed phase can be retried without destroying unrelated accepted work.
@@ -751,3 +842,14 @@ behavior during Modules 2–6.
 Before implementation, choose where the learner starter lives, how learners
 receive it, when it becomes a standalone repository, and which package and API
 model versions are pinned for the first validated release.
+
+## Future Skill backlog
+
+- Sau khi Pilot MVP đã được kiểm thử với người học, đánh giá việc bổ sung một
+  Skill `verify-before-accepting`. Skill này sẽ buộc Codex nêu bằng chứng kiểm
+  tra trước khi Learner chấp nhận kết quả. Chưa đưa Skill này vào Module 1 vì
+  verification đã được dạy tại các checkpoint của từng bài, còn việc cài thêm
+  Skill sẽ làm tăng tải thiết lập ban đầu.
+- Khi đánh giá, so sánh nhu cầu của khóa học với các Skill cộng đồng có cùng
+  mục đích (đặc biệt là `verification-before-completion`) trước khi quyết định
+  dùng nguyên bản, điều chỉnh hay tự viết.

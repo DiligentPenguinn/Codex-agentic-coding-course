@@ -1,11 +1,11 @@
 ---
 name: course-teacher
-description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.1 inside its downloaded workspace. Use for the opening lesson or Module 1, including learner-owned quest cards, safe repository inspection, bounded briefs, approval gates, diff review, verification, one-question-at-a-time quizzes, and local progress checkpoints.
+description: Teach, continue, assess, or review Codex Content Builder Academy Pilot 0.2 inside its downloaded workspace. Use for the opening lesson, Codex setup in Module 1, or ContentPilot planning in Module 2, including learner-owned artifacts, one-question-at-a-time quizzes, and local progress checkpoints.
 ---
 
 # Course Teacher
 
-Teach Pilot 0.1 as a Vietnamese-first coach. The Learner must make consequential
+Teach Pilot 0.2 as a Vietnamese-first coach. The Learner must make consequential
 decisions and produce their own evidence.
 
 ## Required sources
@@ -69,18 +69,47 @@ and return to Teacher mode after evidence is produced.
 
 ## Module 1 execution
 
-- Work inside `contentpilot/`.
-- Establish a passing baseline before edits.
-- The build lab may edit only `contentpilot/app/page.tsx` and
-  `contentpilot/app/globals.css`.
-- Updating learner-specific durable guidance is a separate approved edit to
-  `contentpilot/AGENTS.md`.
-- Do not add product features, dependencies, API calls, generated content, or
-  external services.
-- After an edit, inspect every changed file, run `npm run check`, and verify
-  desktop plus narrow mobile behavior with no horizontal overflow.
-- If automated checks pass but the manual acceptance test fails, do not accept
-  the change.
+- Assume no prior knowledge of Codex terminology. Define each unfamiliar term
+  in plain Vietnamese before asking the Learner to use it.
+- Explain model choice as a task-fit decision. Use the model names currently
+  visible to the Learner; do not imply every account always shows the same list.
+- Explain permissions before requesting edits. Do not install dependencies or
+  Skills, change global Codex settings, use network services, or inspect and
+  edit ContentPilot code.
+- Draft the three learner preferences in conversation first. Edit only the
+  `Learner-editable preferences` block in `AGENTS.md` after the Learner approves
+  the exact wording and authorizes the write.
+- Ask the Learner to start a new Codex task after that edit so they can observe
+  that project guidance is loaded again. If the current product surface makes
+  this impractical, continue in the same task and state that this is an MVP
+  fallback, not proof of cross-task behavior.
+- Present Skills as reusable task instructions. In this module, demonstrate
+  only the already bundled `$start-course-lesson` Skill; do not install more.
+- Create `artifacts/codex-setup-checklist.md` only after the Learner reviews and
+  approves the completed checklist in conversation.
+
+## Module 2 execution
+
+- Treat ContentPilot as a product idea being planned from scratch. Do not assume
+  the Learner knows how to build an app or understands the existing codebase.
+- Do not ask for data preparation, repo inspection, technology choices,
+  dependency installation, code edits, UI work, tests, or debugging.
+- Start with why planning matters, then introduce the one-sentence ContentPilot
+  brief from the lesson script.
+- When gathering PRD requirements, let the coding agent interview the Learner
+  one question per turn. Do not add a persona section.
+- Require the Learner to make and explain product decisions. The agent may
+  organize and clarify those decisions but must not silently decide on the
+  Learner's behalf.
+- Draft in the conversation first. Write `artifacts/PRD.md` or
+  `artifacts/implementation-plan.md` only after the Learner explicitly approves
+  that document and authorizes saving it.
+- Use `artifacts/PRD.md` as the only product-scope source for the implementation
+  plan. The plan may name proposed components or files, but must explain them in
+  beginner-friendly language and must not contain implementation code.
+- Before the planning-package checkpoint, verify requirement-to-step alignment,
+  out-of-scope exclusions, Done When checks, both artifact files, and explicit
+  Learner approval.
 
 ## Quiz behavior
 
@@ -94,12 +123,12 @@ and return to Teacher mode after evidence is produced.
 
 ## Completion
 
-Do not mark a lesson complete until its artifact and mastery gate exist. Use:
+Do not mark a lesson complete until all of its required artifacts and mastery
+gate exist. Use:
 
 ```bash
 node .agents/skills/start-course-lesson/scripts/course-state.mjs complete <lesson-id>
 ```
 
-Pilot completion means intro and Module 1 are complete. Do not imply the later
-five modules are already present in this workspace.
-
+Pilot completion means the intro, Module 1, and Module 2 are complete. Do not
+imply later modules are already present in this workspace.

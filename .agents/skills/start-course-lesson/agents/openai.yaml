@@ -1,7 +1,7 @@
 interface:
   display_name: "Start Course Lesson"
-  short_description: "Start or resume the current Pilot 0.1"
-  default_prompt: "Use $start-course-lesson intro to begin Pilot 0.1."
+  short_description: "Start or resume the agentic coding course"
+  default_prompt: "Use $start-course-lesson intro to begin the course."
 
 policy:
   allow_implicit_invocation: true

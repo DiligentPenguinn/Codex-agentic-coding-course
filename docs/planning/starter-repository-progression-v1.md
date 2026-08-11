@@ -17,6 +17,10 @@ This document defines:
 - the repository surface expected at graduation, and
 - the automated and manual proof required at every milestone.
 
+This is an implementation contract for the ContentPilot practice project. The
+transferable learning outcomes and assessment sequence live in the curriculum
+blueprint; completing these product additions alone does not prove mastery.
+
 The phrase **initial starter repository** means the repository state before the
 learner begins Module 1. It is not a product phase, workflow phase, or course
 module.
@@ -209,7 +213,7 @@ The paths below name responsibilities. A chapter may split a large component
 into smaller files during implementation as long as it preserves the stated
 boundary and proof.
 
-### Module 1 — Safe repository work
+### Module 1 — Inspect, delegate, and verify changes
 
 The learner:
 

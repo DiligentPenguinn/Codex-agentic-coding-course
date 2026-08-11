@@ -36,7 +36,7 @@ describe('Teacher Practice review controls', () => {
       source('src/renderer/src/styles.css')
     ])
 
-    expect(teacher).toContain('aria-label="Yêu cầu Hương duyệt tiến độ"')
+    expect(teacher).toContain('aria-label="Yêu cầu Triết duyệt tiến độ"')
     expect(teacher).toContain('aria-label="Quay lại khóa học nhanh"')
     expect(teacher).toContain('onReturn={() => void returnToCourse()}')
     expect(teacher).toContain('returnBusy={returnBusy}')

@@ -1,7 +1,8 @@
 # Phiếu định hướng cá nhân
 
-Phiếu này giúp Codex hiểu công việc bạn muốn cải thiện và những quyết định bạn
-muốn tự mình giữ lại.
+Phiếu này giúp bạn xác định mục tiêu trước khi giao việc cho coding agent.
+ContentPilot sẽ dùng bối cảnh này làm bài thực hành, nhưng các quyết định vẫn
+thuộc về bạn.
 
 - Vai trò hoặc công việc của tôi:
 - Nhóm người tôi muốn phục vụ:

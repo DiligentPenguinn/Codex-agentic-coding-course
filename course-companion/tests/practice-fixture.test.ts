@@ -21,10 +21,21 @@ afterEach(async () => {
 })
 
 const practiceCheckpoint: ProgressUpdate = {
-  currentLessonId: 'module-1',
-  checkpointId: 'm1-plan-approval',
-  sceneId: 'module-1-success',
-  completedCheckpointIds: ['m1-brief'],
+  currentLessonId: 'module-2',
+  currentCourseLessonId: 'm2-implementation-plan',
+  checkpointId: 'm2-planning-package',
+  sceneId: 'module-2-planning-package',
+  sceneHistory: ['module-2-alignment-review'],
+  completedCheckpointIds: [
+    'intro-visual-onboarding',
+    'm2-why-planning',
+    'm2-contentpilot-brief',
+    'm2-prd-concept',
+    'm2-prd-interview',
+    'm2-prd-approved',
+    'm2-implementation-plan',
+    'm2-alignment-review'
+  ],
   decisions: {}
 }
 
@@ -51,7 +62,7 @@ describe('FixturePracticeAdapter', () => {
       expect(state.latestEvent).toMatchObject({
         scenario,
         source: 'fixture',
-        missionId: 'm1-verifiable-brief'
+        missionId: 'm2-planning-package'
       })
       await expect(adapter.loadState()).resolves.toEqual(state)
     }
@@ -69,9 +80,9 @@ describe('FixturePracticeAdapter', () => {
     const stale = await adapter.emitFixture({ scenario: 'stale' })
 
     expect(success.latestEvent?.evidence).toMatchObject({
-      viewport: '390px',
-      changedScope: 'onboarding CSS',
-      horizontalOverflow: 'Không phát hiện',
+      prdArtifact: 'PRD.md · đã duyệt',
+      implementationPlanArtifact: 'implementation-plan.md · đã duyệt',
+      alignment: 'Khớp PRD',
       freshness: 'current'
     })
     expect(stale.latestEvent?.evidence?.freshness).toBe('stale')
