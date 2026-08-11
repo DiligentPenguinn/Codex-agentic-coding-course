@@ -67,6 +67,76 @@ function safeCreationError(error: unknown): string {
   return 'Không thể tạo Executor chat mới. Practice cũ vẫn được giữ nguyên.'
 }
 
+function planningWorkspaceView(active: PracticeRunRecord): NonNullable<PracticeWorkspaceView['planning']> {
+  const evidence = active.evidence
+  const snapshots = new Map(evidence?.planningArtifacts?.map((artifact) => [artifact.path, artifact]))
+  const issues = new Map(evidence?.artifactIssues?.map((issue) => [issue.path, issue]))
+  const prdDigest = snapshots.get('artifacts/PRD.md')?.digest
+  const planDigest = snapshots.get('artifacts/implementation-plan.md')?.digest
+  const invalidatedSteps = new Set(active.invalidations.flatMap((item) => item.affectedStepIds))
+
+  const approval = (
+    key: 'prd-approval' | 'plan-approval',
+    required: Array<'artifacts/PRD.md' | 'artifacts/implementation-plan.md'>
+  ): 'approved' | 'pending' | 'revision-requested' | 'stale' => {
+    const decision = active.learnerApprovals[key]
+    if (!decision) return 'pending'
+    if (decision.decision === 'revision-requested') return 'revision-requested'
+    return required.every((path) =>
+      decision.artifactDigests[path] === snapshots.get(path)?.digest)
+      ? 'approved'
+      : 'stale'
+  }
+
+  const artifact = (path: 'artifacts/PRD.md' | 'artifacts/implementation-plan.md') => {
+    const issue = issues.get(path)
+    const snapshot = snapshots.get(path)
+    const approvalKey = path === 'artifacts/PRD.md' ? 'prd-approval' : 'plan-approval'
+    const required = path === 'artifacts/PRD.md'
+      ? ['artifacts/PRD.md'] as const
+      : ['artifacts/PRD.md', 'artifacts/implementation-plan.md'] as const
+    const availability = !snapshot
+      ? 'missing' as const
+      : issue && issue.code !== 'unchanged'
+        ? 'invalid' as const
+        : 'available' as const
+    const freshness = issue?.code === 'unchanged'
+      ? 'stale' as const
+      : evidence?.freshness ?? 'unverifiable' as const
+    return {
+      path,
+      availability,
+      approval: approval(approvalKey, [...required]),
+      freshness,
+      ...(issue ? { issue: issue.code } : {})
+    }
+  }
+
+  const alignmentKey = prdDigest && planDigest ? `${prdDigest}:${planDigest}` : null
+  const alignment = invalidatedSteps.has('reconcile-alignment')
+    ? 'stale' as const
+    : alignmentKey && active.learnerDecisions['alignment-confirmed'] === alignmentKey
+      ? 'confirmed' as const
+      : 'pending' as const
+
+  return {
+    freshness: evidence?.freshness ?? 'unverifiable',
+    ...(evidence?.observedAt ? { observedAt: evidence.observedAt } : {}),
+    artifacts: [artifact('artifacts/PRD.md'), artifact('artifacts/implementation-plan.md')],
+    alignment,
+    unexpectedChangedPaths: structuredClone(evidence?.unexpectedChangedPaths ?? []),
+    invalidations: structuredClone(active.invalidations),
+    actionContext: {
+      generation: active.generation,
+      ...(evidence?.planningActivity?.cursor
+        ? { activityCursor: evidence.planningActivity.cursor }
+        : {}),
+      ...(prdDigest ? { prdDigest } : {}),
+      ...(planDigest ? { planDigest } : {})
+    }
+  }
+}
+
 export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   private busy: Promise<PracticeWorkspaceView> | null = null
   private lastError = ''
@@ -83,11 +153,20 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
-    const record = await this.repository.load()
-    if (record.pendingTransition && !this.lastError) {
-      this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
-    }
-    return this.toView(record, identity)
+    return this.runExclusive(async () => {
+      const refreshError = 'Chưa thể làm mới bằng chứng từ Executor. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
+      let record = await this.repository.load()
+      if (record.pendingTransition && !this.lastError) {
+        this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
+      }
+      try {
+        record = await this.refreshPlanningEvidence(record)
+        if (this.lastError === refreshError) this.lastError = ''
+      } catch {
+        this.lastError = refreshError
+      }
+      return this.toView(record, identity)
+    })
   }
 
   startNew(request: PracticeStartRequest): Promise<PracticeWorkspaceView> {
@@ -305,6 +384,35 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     }
   }
 
+  private async refreshPlanningEvidence(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
+    const active = record.activeRun
+    if (!active || record.pendingTransition || active.evidenceProfile !== 'planning-package' || !this.evidenceAdapters) {
+      return record
+    }
+    const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
+    await this.prepareExecutor?.(active.binding, false)
+    const evidence = await this.evidenceAdapters.resolve('planning-package').collect({
+      definition,
+      runId: active.runId,
+      generation: active.generation,
+      workspaceRoot: active.binding.workspaceRoot,
+      task: {
+        threadId: active.binding.threadId,
+        workspaceRoot: active.binding.workspaceRoot
+      }
+    })
+    return this.repository.saveEvidence({
+      runId: active.runId,
+      generation: active.generation,
+      practiceId: active.practiceId,
+      practiceVersion: active.practiceVersion,
+      evidence,
+      checklist: active.checklist,
+      invalidations: evidence.invalidations,
+      updatedAt: evidence.observedAt
+    })
+  }
+
   private async commitTarget(record: PracticeWorkspaceRecord): Promise<PracticeWorkspaceRecord> {
     const transition = record.pendingTransition
     if (transition?.stage !== 'target-created' || !transition.targetBinding) {
@@ -370,6 +478,13 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     const definition = identity
       ? await this.definitions.load(identity.practiceId, identity.practiceVersion)
       : null
+    const planningReviewStep = record.activeRun?.checklist.find((step) =>
+      step.id === 'explain-scope-and-review')
+    const canReview = Boolean(record.activeRun && !transition && (
+      record.activeRun.evidenceProfile !== 'planning-package'
+      || (record.activeRun.learnerDecisions['scope-decision']
+        && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
+    ))
     return {
       schemaVersion: 1,
       phase: transition ? 'switching' : record.activeRun ? 'active' : this.lastError ? 'error' : 'brief',
@@ -378,9 +493,10 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       checklist: structuredClone(
         record.activeRun?.checklist ?? (definition ? initialChecklist(definition) : [])
       ),
+      ...(definition ? { completionDestination: structuredClone(definition.completionDestination) } : {}),
       review: {
         status: record.activeRun?.reviewStatus ?? 'not-reviewed',
-        canReview: Boolean(record.activeRun && !transition),
+        canReview,
         canReturn: Boolean(record.activeRun?.reviewStatus === 'passed' && record.activeRun.completion),
         ...(record.activeRun?.reviewResult
           ? { result: structuredClone(record.activeRun.reviewResult) }
@@ -390,10 +506,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       ...(record.activeRun?.binding.configuration
         ? { configuration: structuredClone(record.activeRun.binding.configuration) }
         : {}),
+      ...(record.activeRun?.evidenceProfile === 'planning-package'
+        ? { planning: planningWorkspaceView(record.activeRun) }
+        : {}),
       ...(record.activeRun
         ? {
             activePractice: {
               runId: record.activeRun.runId,
+              generation: record.activeRun.generation,
               practiceId: record.activeRun.practiceId,
               practiceVersion: record.activeRun.practiceVersion,
               executorChatName: record.activeRun.binding.name,

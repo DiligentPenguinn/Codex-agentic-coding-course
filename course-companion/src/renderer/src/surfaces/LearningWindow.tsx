@@ -456,17 +456,17 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Nộp cấu hình để Triết duyệt',
     objective: 'Chứng minh cấu hình thật trong Codex',
-    panelLabel: 'PRACTICE · 2 ẢNH',
-    panelStatus: 'TRIẾT DUYỆT BẰNG CHỨNG',
+    panelLabel: 'PRACTICE · METADATA TRỰC TIẾP',
+    panelStatus: 'KHÔNG CẦN ẢNH CHỤP',
     tone: 'neutral',
-    request: 'Task Executor sẽ kiểm tra ảnh và báo cáo dưới tiêu đề Verification.',
+    request: 'Bạn đổi cấu hình ngay trong task; Course Companion đọc metadata hiệu lực để Triết duyệt.',
     evidence: [
-      { label: 'ẢNH 1', value: 'Model, Effort, Speed' },
-      { label: 'ẢNH 2', value: 'Approval, Full access' },
-      { label: 'KẾT QUẢ', value: 'Đúng task và còn mới' }
+      { label: 'MODEL', value: '5.6 Sol · High · Standard' },
+      { label: 'QUYỀN', value: 'Approve for me · Full access tắt' },
+      { label: 'BẰNG CHỨNG', value: 'Metadata đúng task và còn mới' }
     ],
-    dialogue: 'Course Companion sẽ mở một task Executor riêng. Trong task đó, hãy đính kèm hai ảnh cấu hình và yêu cầu Executor chỉ quan sát, không thay đổi cài đặt. Sau khi có báo cáo đủ năm mục, quay lại và yêu cầu Triết duyệt tiến độ.',
-    choices: [{ label: 'Sang Codex nộp cấu hình', action: 'practice', primary: true }]
+    dialogue: 'Course Companion sẽ mở một task riêng bằng cấu hình mặc định và chưa gửi prompt nào. Trong chính task đó, hãy chọn 5.6 Sol, High, Standard, Approve for me và tắt Full access. Bạn không cần chụp ảnh hoặc gửi báo cáo; Triết duyệt trực tiếp năm giá trị Course Companion đọc được.',
+    choices: [{ label: 'Sang Codex thiết lập cấu hình', action: 'practice', primary: true }]
   },
   'module-1-mastery': {
     lessonId: 'module-1',

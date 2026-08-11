@@ -48,4 +48,26 @@ describe('Teacher Practice review controls', () => {
     expect(styles).toContain('animation: pixel-review-spin .7s linear infinite')
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)')
   })
+
+  it('renders Module 2 evidence and uses explicit actions instead of chat inference', async () => {
+    const [teacher, progress, styles] = await Promise.all([
+      source('src/renderer/src/components/TeacherWorkspace.tsx'),
+      source('src/renderer/src/components/PracticeProgress.tsx'),
+      source('src/renderer/src/styles.css')
+    ])
+
+    expect(progress).toContain('planning.artifacts.map')
+    expect(progress).toContain('planning.invalidations.map')
+    expect(progress).toContain('planning.unexpectedChangedPaths')
+    expect(progress).toContain('Ghi nhận prompt của tôi')
+    expect(progress).toContain('Duyệt và lưu PRD')
+    expect(progress).toContain('Xác nhận bốn điểm alignment')
+    expect(progress).toContain('Ghi nhận quyết định phạm vi')
+    expect(progress).toContain('workspace.completionDestination')
+    expect(teacher).toContain('window.courseCompanion.recordPlanningAction')
+    expect(teacher).toContain('workspace?.planning?.invalidations[0]')
+    expect(teacher).not.toMatch(/message\.content.*recordPlanningAction/)
+    expect(styles).toContain('.practice-progress.is-compact .practice-artifacts')
+    expect(styles).toContain('.practice-planning button:focus-visible')
+  })
 })

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import type {
   CompanionState,
   PracticeScenario,
+  PlanningPracticeActionRequest,
   PracticeState,
   PracticeWorkspaceView,
   TeacherContext,
@@ -109,6 +110,7 @@ export function TeacherWorkspace({
   const [practiceBusy, setPracticeBusy] = useState(false)
   const [reviewBusy, setReviewBusy] = useState(false)
   const [returnBusy, setReturnBusy] = useState(false)
+  const [planningActionBusy, setPlanningActionBusy] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
@@ -240,6 +242,39 @@ export function TeacherWorkspace({
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
     } finally {
       setReviewBusy(false)
+    }
+  }
+
+  const refreshPracticeWorkspace = async () => {
+    if (planningActionBusy || !window.courseCompanion) return
+    setPlanningActionBusy(true)
+    setError('')
+    try {
+      setWorkspace(await window.courseCompanion.loadPracticeWorkspace())
+    } catch {
+      setError('Không thể làm mới bằng chứng Practice. Hãy thử lại.')
+    } finally {
+      setPlanningActionBusy(false)
+    }
+  }
+
+  const recordPlanningAction = async (action: PlanningPracticeActionRequest['action']) => {
+    const active = workspace?.activePractice
+    if (!active || planningActionBusy || !window.courseCompanion) return
+    setPlanningActionBusy(true)
+    setError('')
+    try {
+      setWorkspace(await window.courseCompanion.recordPlanningAction({
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        runId: active.runId,
+        generation: active.generation,
+        action
+      }))
+    } catch {
+      setError('Bằng chứng đã thay đổi hoặc chưa đủ cho xác nhận này. Hãy làm mới tiến độ rồi thử lại.')
+    } finally {
+      setPlanningActionBusy(false)
     }
   }
 
@@ -453,6 +488,15 @@ export function TeacherWorkspace({
 
       {activeTab === 'teacher' ? (
         <>
+          {workspace?.planning?.invalidations[0] ? (
+            <aside className="pixel-teacher-invalidation" role="status" aria-live="polite">
+              <small>TRIẾT · BẰNG CHỨNG VỪA THAY ĐỔI</small>
+              <strong>{workspace.planning.invalidations[0].changedInput}</strong>
+              <p>{workspace.planning.invalidations[0].reason}</p>
+              <span>Bước cần xem lại: {workspace.planning.invalidations[0].affectedStepIds.join(', ')}</span>
+              <b>Tiếp theo: {workspace.planning.invalidations[0].nextAction}</b>
+            </aside>
+          ) : null}
           <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Triết">
             {messages.length === 0 ? (
               <div className="pixel-chat-empty">
@@ -509,6 +553,9 @@ export function TeacherWorkspace({
               workspace={workspace}
               compact={!embedded}
               returnBusy={returnBusy}
+              actionBusy={planningActionBusy}
+              onPlanningAction={(action) => void recordPlanningAction(action)}
+              onRefresh={() => void refreshPracticeWorkspace()}
               onReturn={() => void returnToCourse()}
             />
           ) : (

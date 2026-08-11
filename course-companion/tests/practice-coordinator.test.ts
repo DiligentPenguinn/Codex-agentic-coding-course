@@ -151,6 +151,7 @@ describe('PracticeCoordinator', () => {
     const second = await coordinator.startNew({ ...m2Identity, transfer: false })
     expect(second.activePractice).toMatchObject({ runId: 'run-2', ...m2Identity })
     expect(second.objective).toBe('Tạo planning package.')
+    expect(second.review?.canReview).toBe(false)
 
     const stored = await repository.load()
     expect(stored.activeRun).toMatchObject({
@@ -291,6 +292,16 @@ describe('PracticeCoordinator', () => {
     })
     expect(updated.checklist.slice(0, 2).map((step) => step.status))
       .toEqual(['completed', 'current'])
+    expect(updated.planning).toMatchObject({
+      freshness: 'unverifiable',
+      alignment: 'pending',
+      actionContext: {
+        generation: 1,
+        activityCursor: 'cursor-current'
+      }
+    })
+    expect(updated.planning?.artifacts.map((artifact) => artifact.availability))
+      .toEqual(['missing', 'missing'])
     expect((await repository.load()).activeRun?.learnerDecisions['prd-prompt'])
       .toContain('ContentPilot')
 
@@ -303,6 +314,144 @@ describe('PracticeCoordinator', () => {
         expectedActivityCursor: 'cursor-current'
       }
     })).rejects.toThrow('active run')
+  })
+
+  it('projects bounded planning status without exposing artifact contents or digests', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:02:00.000Z'),
+      testHarness.createId
+    )
+    await coordinator.startNew({ ...m2Identity, transfer: false })
+    const record = await repository.load()
+    const active = record.activeRun!
+    const prdDigest = 'a'.repeat(64)
+    const planDigest = 'b'.repeat(64)
+    await repository.save({
+      ...record,
+      activeRun: {
+        ...active,
+        learnerDecisions: { 'alignment-confirmed': `${prdDigest}:${planDigest}` },
+        learnerApprovals: {
+          'prd-approval': {
+            decision: 'approved',
+            recordedAt: '2026-08-08T00:01:00.000Z',
+            artifactDigests: { 'artifacts/PRD.md': prdDigest }
+          },
+          'plan-approval': {
+            decision: 'approved',
+            recordedAt: '2026-08-08T00:01:00.000Z',
+            artifactDigests: {
+              'artifacts/PRD.md': prdDigest,
+              'artifacts/implementation-plan.md': planDigest
+            }
+          }
+        },
+        invalidations: [{
+          changedInput: 'artifacts/PRD.md',
+          affectedStepIds: ['reconcile-alignment', 'approve-plan'],
+          reason: 'PRD vừa thay đổi.',
+          nextAction: 'Cập nhật plan rồi đối chiếu lại.'
+        }],
+        evidence: {
+          schemaVersion: 1,
+          practiceId: m2Identity.practiceId,
+          practiceVersion: m2Identity.practiceVersion,
+          runId: active.runId,
+          evidenceProfile: 'planning-package',
+          observedAt: '2026-08-08T00:01:00.000Z',
+          freshness: 'fresh',
+          sourceDigest: 'c'.repeat(64),
+          evidence: [],
+          steps: [],
+          invalidations: [],
+          planningArtifacts: [
+            {
+              schemaVersion: 1,
+              path: 'artifacts/PRD.md',
+              content: 'PRIVATE PRD CONTENT',
+              digest: prdDigest,
+              byteLength: 19,
+              modifiedAt: '2026-08-08T00:01:00.000Z',
+              observedAt: '2026-08-08T00:01:00.000Z'
+            },
+            {
+              schemaVersion: 1,
+              path: 'artifacts/implementation-plan.md',
+              content: 'PRIVATE PLAN CONTENT',
+              digest: planDigest,
+              byteLength: 20,
+              modifiedAt: '2026-08-08T00:01:00.000Z',
+              observedAt: '2026-08-08T00:01:00.000Z'
+            }
+          ],
+          artifactIssues: [],
+          unexpectedChangedPaths: ['src/unexpected.ts'],
+          planningActivity: {
+            schemaVersion: 1,
+            cursor: 'cursor-current',
+            observedAt: '2026-08-08T00:01:00.000Z',
+            learnerTurnCount: 3,
+            executorTurnCount: 3,
+            prdPrompt: null
+          }
+        }
+      }
+    })
+
+    const view = await coordinator.loadWorkspace(m2Identity)
+    expect(view.planning).toMatchObject({
+      freshness: 'fresh',
+      alignment: 'stale',
+      unexpectedChangedPaths: ['src/unexpected.ts'],
+      artifacts: [
+        { path: 'artifacts/PRD.md', availability: 'available', approval: 'approved' },
+        { path: 'artifacts/implementation-plan.md', availability: 'available', approval: 'approved' }
+      ]
+    })
+    expect(view.planning?.invalidations[0]).toMatchObject({
+      changedInput: 'artifacts/PRD.md',
+      affectedStepIds: ['reconcile-alignment', 'approve-plan'],
+      nextAction: 'Cập nhật plan rồi đối chiếu lại.'
+    })
+    expect(JSON.stringify(view.planning)).not.toContain('PRIVATE PRD CONTENT')
+    expect(JSON.stringify(view.planning?.artifacts)).not.toContain(prdDigest)
+    expect(view.planning?.artifacts[0]).not.toHaveProperty('content')
+  })
+
+  it('keeps stored Module 2 status visible when live evidence refresh disconnects', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const failingAdapter = (evidenceProfile: PracticeEvidenceAdapter['evidenceProfile']): PracticeEvidenceAdapter => ({
+      evidenceProfile,
+      async collect() {
+        throw new Error('disconnected')
+      }
+    })
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:02:00.000Z'),
+      testHarness.createId,
+      async () => undefined,
+      undefined,
+      new PracticeEvidenceAdapterRegistry([
+        failingAdapter('codex-task-configuration'),
+        failingAdapter('planning-package')
+      ])
+    )
+    await coordinator.startNew({ ...m2Identity, transfer: false })
+
+    await expect(coordinator.loadWorkspace(m2Identity)).resolves.toMatchObject({
+      phase: 'active',
+      activePractice: m2Identity,
+      error: expect.stringContaining('Trạng thái đã lưu vẫn được giữ')
+    })
   })
 
   it('recovers a durable target-created transition without duplicate creation', async () => {

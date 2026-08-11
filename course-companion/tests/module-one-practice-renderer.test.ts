@@ -49,6 +49,7 @@ function workspace(
     ...(config ? { configuration: config } : {}),
     activePractice: {
       runId: 'run-1',
+      generation: 1,
       practiceId: 'm1-codex-safe-setup',
       practiceVersion: '2.0.0',
       executorChatName: 'Practice · Module 1',
@@ -65,6 +66,21 @@ function workspace(
 }
 
 describe('Module 1 Practice renderer', () => {
+  it('communicates the direct metadata flow without screenshots or an Executor report', async () => {
+    const source = await readFile(join(
+      process.cwd(),
+      'src',
+      'renderer',
+      'src',
+      'surfaces',
+      'LearningWindow.tsx'
+    ), 'utf8')
+    expect(source).toContain('PRACTICE · METADATA TRỰC TIẾP')
+    expect(source).toContain('KHÔNG CẦN ẢNH CHỤP')
+    expect(source).toContain('Triết duyệt trực tiếp năm giá trị')
+    expect(source).not.toContain('PRACTICE · 2 ẢNH')
+  })
+
   it('defines an announced loading state before workspace metadata is available', async () => {
     const source = await readFile(join(
       process.cwd(),
@@ -140,5 +156,105 @@ describe('Module 1 Practice renderer', () => {
     ), 'utf8')
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
     expect(css).toContain('.practice-loading-orbit { animation: none;')
+  })
+})
+
+describe('Module 2 Practice renderer', () => {
+  const planningWorkspace: PracticeWorkspaceView = {
+    schemaVersion: 1,
+    phase: 'active',
+    objective: 'Tạo planning package.',
+    expectedOutcome: 'Hai artifact đã duyệt và khớp nhau.',
+    checklist: [
+      { id: 'approve-prd', title: 'Duyệt PRD', status: 'completed' },
+      {
+        id: 'reconcile-alignment',
+        title: 'Đối chiếu alignment',
+        status: 'stale',
+        reason: 'PRD đã thay đổi sau lần đối chiếu trước.'
+      },
+      { id: 'approve-plan', title: 'Duyệt plan', status: 'pending' }
+    ],
+    review: { status: 'needs-work', canReview: false, canReturn: false },
+    completionDestination: {
+      lessonId: 'module-2',
+      checkpointId: 'm2-mastery',
+      sceneId: 'module-2-mastery'
+    },
+    planning: {
+      freshness: 'fresh',
+      observedAt,
+      artifacts: [
+        {
+          path: 'artifacts/PRD.md',
+          availability: 'available',
+          approval: 'stale',
+          freshness: 'fresh'
+        },
+        {
+          path: 'artifacts/implementation-plan.md',
+          availability: 'available',
+          approval: 'approved',
+          freshness: 'stale'
+        }
+      ],
+      alignment: 'stale',
+      unexpectedChangedPaths: ['app/globals.css'],
+      invalidations: [{
+        changedInput: 'artifacts/PRD.md',
+        affectedStepIds: ['reconcile-alignment', 'approve-plan'],
+        reason: 'PRD đã thay đổi sau khi plan được duyệt.',
+        nextAction: 'Đối chiếu lại PRD và plan.'
+      }],
+      actionContext: {
+        generation: 2,
+        prdDigest: 'prd-current',
+        planDigest: 'plan-current'
+      }
+    },
+    activePractice: {
+      runId: 'run-2',
+      generation: 2,
+      practiceId: 'm2-planning-package',
+      practiceVersion: '2.0.0',
+      executorChatName: 'Practice · Module 2',
+      startedAt: observedAt
+    },
+    presentation: { fullPanel: 'teacher', compactPanel: 'teacher' },
+    capabilities: {
+      canStartNew: true,
+      canResume: true,
+      selectiveTransferAvailable: false,
+      selectiveTransferReason: 'Không khả dụng.'
+    }
+  }
+
+  it('shows artifact, alignment, scope, invalidation, recovery, and destination state', () => {
+    const html = renderToStaticMarkup(createElement(PracticeProgress, {
+      workspace: planningWorkspace,
+      onPlanningAction: () => undefined,
+      onRefresh: () => undefined
+    }))
+    expect(html).toContain('PLANNING PACKAGE')
+    expect(html).toContain('PRD.md')
+    expect(html).toContain('implementation-plan.md')
+    expect(html).toContain('Cần đối chiếu lại')
+    expect(html).toContain('app/globals.css')
+    expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).toContain('Bước cần xem lại: reconcile-alignment, approve-plan')
+    expect(html).toContain('Tiếp theo: Đối chiếu lại PRD và plan.')
+    expect(html).toContain('Xác nhận bốn điểm alignment')
+    expect(html).toContain('Làm mới bằng chứng')
+    expect(html).toContain('Sau khi đạt: m2-mastery')
+  })
+
+  it('uses the same evidence projection in compact mode', () => {
+    const html = renderToStaticMarkup(createElement(PracticeProgress, {
+      workspace: planningWorkspace,
+      compact: true
+    }))
+    expect(html).toContain('practice-progress is-compact')
+    expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).toContain('CẦN BỔ SUNG')
   })
 })

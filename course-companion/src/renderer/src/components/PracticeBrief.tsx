@@ -172,7 +172,7 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
         {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
       </section>
 
-      <PracticeProgress workspace={workspace} />
+      <PracticeProgress workspace={workspace} onRefresh={() => void load()} />
 
       {switchOpen ? (
         <PracticeSwitchDialog

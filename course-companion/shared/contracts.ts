@@ -692,6 +692,29 @@ export type PracticeChecklistStep = {
   dependencyInputs?: Record<string, string>
 }
 
+export type PracticePlanningArtifactView = {
+  path: PlanningArtifactPath
+  availability: 'available' | 'missing' | 'invalid'
+  approval: 'approved' | 'pending' | 'revision-requested' | 'stale'
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  issue?: PlanningArtifactIssue['code']
+}
+
+export type PracticePlanningWorkspaceView = {
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  observedAt?: string
+  artifacts: PracticePlanningArtifactView[]
+  alignment: 'confirmed' | 'pending' | 'stale'
+  unexpectedChangedPaths: string[]
+  invalidations: PracticeEvidenceInvalidation[]
+  actionContext: {
+    generation: number
+    activityCursor?: string
+    prdDigest?: string
+    planDigest?: string
+  }
+}
+
 export type PracticeWorkspaceView = {
   schemaVersion: 1
   phase: 'brief' | 'switching' | 'active' | 'error'
@@ -706,9 +729,12 @@ export type PracticeWorkspaceView = {
   }
   completion?: PracticeCompletionReceipt
   configuration?: CodexTaskConfigurationSnapshot
+  planning?: PracticePlanningWorkspaceView
+  completionDestination?: PracticeDefinition['completionDestination']
 
   activePractice?: {
     runId: string
+    generation: number
     practiceId: string
     practiceVersion: string
     executorChatName: string
