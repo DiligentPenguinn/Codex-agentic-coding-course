@@ -35,11 +35,15 @@
 
 ## Practice-project boundaries
 
-- Module 1 sets up the Codex working environment. It may update only the three
-  items under `Learner-editable preferences` and create
-  `artifacts/codex-setup-checklist.md`, after explicit Learner approval.
-- During Module 1, do not install dependencies or Skills, change global Codex
-  settings, use network services, or inspect and edit ContentPilot code.
+- Module 1 sets up the effective configuration of its dedicated Codex task. The
+  Learner changes the five settings directly; Course Companion only reads
+  normalized metadata for the bound task and never changes those settings.
+- During Module 1, do not send a task or command into the Executor before its
+  configuration passes. This rule does not block the Learner from typing
+  manually in Codex.
+- During Module 1, do not request screenshots, attachments, an Executor report,
+  dependency or Skill installation, network services, or ContentPilot
+  inspection and edits. Do not create or edit learner artifacts.
 - Module 2 plans ContentPilot from scratch and stops before implementation.
 - During Module 2, only create `artifacts/PRD.md` and
   `artifacts/implementation-plan.md`, after explicit Learner approval.

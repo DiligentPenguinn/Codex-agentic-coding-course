@@ -15,6 +15,14 @@ const stepIcon = {
   upcoming: '·'
 } as const
 
+const configurationRows = [
+  { key: 'model', label: 'Model', expected: 'gpt-5.6-sol', expectedLabel: '5.6 Sol' },
+  { key: 'reasoningEffort', label: 'Effort', expected: 'high', expectedLabel: 'High' },
+  { key: 'serviceTier', label: 'Speed', expected: 'standard', expectedLabel: 'Standard' },
+  { key: 'approvalPolicy', label: 'Approval', expected: 'on-request', expectedLabel: 'Approve for me' },
+  { key: 'fullAccess', label: 'Full access', expected: 'off', expectedLabel: 'Off' }
+] as const
+
 export function PracticeProgress({
   workspace,
   compact = false,
@@ -22,6 +30,11 @@ export function PracticeProgress({
   onReturn
 }: PracticeProgressProps) {
   const reviewStatus = workspace.review?.status
+  const configurationPractice = workspace.activePractice?.practiceId === 'm1-codex-safe-setup'
+    || workspace.checklist.some((step) => step.id === 'set-model')
+  const configuration = workspace.configuration
+  const configurationFresh = configuration?.freshness === 'fresh'
+    && configuration.connection === 'connected'
   return (
     <section className={'practice-progress' + (compact ? ' is-compact' : '')} aria-label="Tiến độ Practice">
       <div className="practice-progress__summary">
@@ -29,6 +42,51 @@ export function PracticeProgress({
         <strong>{workspace.objective}</strong>
         {!compact ? <p>{workspace.expectedOutcome}</p> : null}
       </div>
+
+      {configurationPractice ? (
+        <section className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
+          <header>
+            <div>
+              <small>CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN</small>
+              <strong>
+                {!configuration
+                  ? 'CHƯA CÓ DỮ LIỆU'
+                  : configurationFresh ? 'DỮ LIỆU MỚI' : 'CHƯA THỂ XÁC MINH'}
+              </strong>
+            </div>
+            <span className={configurationFresh ? 'is-fresh' : 'is-unavailable'}>
+              {configurationFresh
+                ? 'Mới'
+                : !configuration ? 'Đang chờ'
+                : configuration.connection === 'disconnected'
+                  ? 'Mất kết nối'
+                  : configuration.freshness === 'stale' ? 'Đã cũ' : 'Không khả dụng'}
+            </span>
+          </header>
+          <p>
+            Course Companion chỉ đọc metadata hiệu lực của task Executor đang liên kết;
+            ứng dụng không tự thay đổi cài đặt của bạn.
+          </p>
+          <dl>
+            {configurationRows.map((row) => {
+              const value = configuration?.[row.key]
+              const matches = configurationFresh && value?.protocolValue === row.expected
+              return (
+                <div className={matches ? 'is-match' : 'is-mismatch'} key={row.key}>
+                  <dt>{row.label}</dt>
+                  <dd>{value?.label ?? 'Không xác minh được'}</dd>
+                  <small>{matches ? 'Khớp' : 'Cần ' + row.expectedLabel}</small>
+                </div>
+              )
+            })}
+          </dl>
+          {configuration ? (
+            <time dateTime={configuration.observedAt}>
+              Ghi nhận: {new Date(configuration.observedAt).toLocaleString('vi-VN')}
+            </time>
+          ) : null}
+        </section>
+      ) : null}
 
       {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
         <div className={`practice-review-result is-${reviewStatus}`} role="status">

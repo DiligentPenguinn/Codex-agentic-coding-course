@@ -292,11 +292,14 @@ export class PracticeReviewService {
         deliveryStatus: 'delivered'
       }
       await this.chat.append([teacherMessage])
-      return {
-        workspace: await this.coordinator.loadWorkspace({
+      const workspace = await this.coordinator.loadWorkspace({
           practiceId: active.practiceId,
           practiceVersion: active.practiceVersion
-        }),
+        })
+      return {
+        workspace: envelope.configuration
+          ? { ...workspace, configuration: structuredClone(envelope.configuration) }
+          : workspace,
         teacherMessage
       }
     } catch (error) {

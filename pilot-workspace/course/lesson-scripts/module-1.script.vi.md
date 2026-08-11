@@ -45,8 +45,8 @@ hành động thông thường nhưng vẫn dừng ở hành động có rủi r
 các ranh giới bảo vệ thông thường."
 
 Teacher nói: "Khóa học khuyên người mới dùng Approve for me và không bật Full
-access. Course Companion chỉ ghi lại lựa chọn này; bạn sẽ cài thật trong Codex
-ở phần Practice."
+access. Ở đây Course Companion ghi lại lựa chọn học tập; đến phần Practice,
+ứng dụng mới đọc metadata cấu hình thật từ task Codex được liên kết."
 
 [Hiện ảnh `course/codex-setup/images/approval-menu.png`. Dừng chờ Learner xác
 nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
@@ -76,27 +76,30 @@ mặc định của mọi tài khoản Codex."
 
 ## Bước 5 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
-Teacher nói: "Bây giờ bạn sẽ cài cấu hình thật và nộp bằng chứng. Course
-Companion sẽ mở một task Executor riêng trong Codex."
+Teacher nói: "Bây giờ Course Companion sẽ mở một task Executor riêng để bạn cài
+cấu hình thật. Ứng dụng chỉ đọc metadata cấu hình hiệu lực của đúng task này;
+không đọc ảnh, không cần Executor lập báo cáo và không tự thay đổi cài đặt."
 
-Teacher nói: "Trong task đó, hãy đính kèm hai ảnh: một ảnh Model, Effort và
-Speed; một ảnh Approval cùng trạng thái Full access. Sau đó gửi yêu cầu sau:"
+Teacher nói: "Trong task Executor, lần lượt chọn 5.6 Sol, High, Standard,
+Approve for me và giữ Full access ở trạng thái tắt. Sau mỗi thay đổi, quay lại
+Course Companion để xem giá trị được phát hiện và mục nào còn chưa khớp."
 
-> Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt.
-> Báo cáo dưới tiêu đề `Verification`, gồm Model, Effort, Speed, Approval và
-> trạng thái Full access. Cảnh báo nếu có mục nào khác cấu hình khóa học đề xuất.
+Teacher nói: "Course Companion không gửi task hay lệnh nào vào Executor trước
+khi cấu hình đạt. Điều này không ngăn bạn tự gõ vào Codex, vì vậy trong bước
+thiết lập này hãy chỉ thay đổi năm cài đặt rồi quay lại yêu cầu mình duyệt."
 
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
-Checkpoint `m1-setup-checklist` khi task đã mở và có hoạt động mới.]
+Checkpoint `m1-setup-checklist` khi metadata mới của task đã có đủ năm mục.]
 
-## Bước 6 — Triết duyệt bằng chứng (`m1-mastery`)
+## Bước 6 — Triết duyệt metadata (`m1-mastery`)
 
-[Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu bằng chứng theo
-Practice definition. Không nhận lời tự xác nhận thay cho báo cáo từ đúng task.
-Nếu thiếu hoặc sai một mục, nêu đúng mục cần sửa và cho nộp lại.]
+[Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu metadata hiệu lực
+theo Practice definition. Không nhận lời tự xác nhận thay cho dữ liệu của đúng
+task. Nếu thiếu, cũ, mất kết nối hoặc sai, nêu các giá trị đang khớp, các giá
+trị chưa khớp và đúng một thao tác cài đặt tiếp theo.]
 
 Teacher nói khi đạt: "Mình đã duyệt đủ năm mục: 5.6 Sol, High, Standard,
-Approve for me và Full access đang tắt. Bằng chứng đến từ đúng task và còn mới."
+Approve for me và Full access đang tắt. Metadata đến từ đúng task và còn mới."
 
 [Lưu kết quả đạt và checkpoint `m1-mastery`.]
 

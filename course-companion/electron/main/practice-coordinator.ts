@@ -322,6 +322,9 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           : {})
       },
       ...(record.activeRun?.completion ? { completion: structuredClone(record.activeRun.completion) } : {}),
+      ...(record.activeRun?.binding.configuration
+        ? { configuration: structuredClone(record.activeRun.binding.configuration) }
+        : {}),
       ...(record.activeRun
         ? {
             activePractice: {

@@ -5,8 +5,6 @@ const nextButton = document.querySelector("#nextButton");
 const progressText = document.querySelector("#progressText");
 const progressBar = document.querySelector("#progressBar");
 const stepHint = document.querySelector("#stepHint");
-const copyLine = document.querySelector("#copyLine");
-const copyStatus = document.querySelector("#copyStatus");
 
 const hints = [
   "Hiểu Codex trước khi đi vào thiết lập.",
@@ -16,7 +14,7 @@ const hints = [
   "Chọn model theo loại công việc.",
   "Dùng mức reasoning vừa đủ cho nhiệm vụ.",
   "Chốt cấu hình dành riêng cho ContentPilot.",
-  "Nộp bằng chứng thật để Triết duyệt."
+  "Để Triết đọc trực tiếp cấu hình của đúng task."
 ];
 
 let currentStep = 0;
@@ -56,16 +54,6 @@ steps.forEach((step) => {
 backButton.addEventListener("click", () => showStep(currentStep - 1));
 nextButton.addEventListener("click", () => {
   if (currentStep < panels.length - 1) showStep(currentStep + 1);
-});
-
-copyLine.addEventListener("click", async () => {
-  const message = "Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt. Báo cáo dưới tiêu đề Verification, gồm Model, Effort, Speed, Approval và trạng thái Full access.";
-  try {
-    await navigator.clipboard.writeText(message);
-    copyStatus.textContent = "Đã sao chép";
-  } catch {
-    copyStatus.textContent = "Hãy chọn và sao chép";
-  }
 });
 
 let savedStep = 0;

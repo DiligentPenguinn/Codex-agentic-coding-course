@@ -659,6 +659,7 @@ export type PracticeWorkspaceView = {
     result?: PracticeReviewResult
   }
   completion?: PracticeCompletionReceipt
+  configuration?: CodexTaskConfigurationSnapshot
 
   activePractice?: {
     runId: string
