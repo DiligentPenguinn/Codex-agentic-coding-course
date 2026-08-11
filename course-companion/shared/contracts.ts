@@ -462,10 +462,17 @@ export type PracticeEvidenceKind =
   | 'learner-decision'
   | 'artifact'
   | 'teacher-assessment'
+  | 'codex-task-configuration'
+  | 'planning-artifact'
+  | 'learner-approval'
+  | 'scope-decision'
+  | 'artifact-alignment'
+  | 'unexpected-workspace-change'
 
 export type PracticeChecklistDefinition = {
   id: string
   title: string
+  dependsOn: string[]
 }
 
 export type PracticeCriterionDefinition = {
@@ -478,7 +485,21 @@ export type PracticeCriterionDefinition = {
   freshness: 'fresh' | 'any'
 }
 
-export type PracticeDefinition = {
+export const practiceWorkspaceKinds = ['pilot-workspace'] as const
+export const practiceTaskPolicies = [
+  'inherit-configuration-only',
+  'safe-workspace-write'
+] as const
+export const practiceEvidenceProfiles = [
+  'codex-task-configuration',
+  'planning-package'
+] as const
+
+export type PracticeWorkspaceKind = (typeof practiceWorkspaceKinds)[number]
+export type PracticeTaskPolicy = (typeof practiceTaskPolicies)[number]
+export type PracticeEvidenceProfile = (typeof practiceEvidenceProfiles)[number]
+
+export type LegacyPracticeDefinitionV1 = {
   schemaVersion: 1
   practiceId: string
   version: string
@@ -494,11 +515,58 @@ export type PracticeDefinition = {
   }
 }
 
+export type PracticeDefinition = {
+  schemaVersion: 2
+  practiceId: string
+  version: string
+  checkpointId: CheckpointId
+  objective: string
+  expectedOutcome: string
+  workspaceKind: PracticeWorkspaceKind
+  taskPolicy: PracticeTaskPolicy
+  evidenceProfile: PracticeEvidenceProfile
+  checklist: PracticeChecklistDefinition[]
+  criteria: PracticeCriterionDefinition[]
+  completionDestination: {
+    lessonId: LessonId
+    checkpointId: CheckpointId
+    sceneId: SceneId
+  }
+}
+
 export type PracticeEvidenceReference = {
   id: string
   kind: PracticeEvidenceKind
   text: string
   freshness: 'fresh' | 'stale'
+}
+
+export type PracticeAdapterStepState = {
+  stepId: string
+  status: 'pending' | 'current' | 'completed' | 'stale'
+  reason?: string
+  dependencyInputs: Record<string, string>
+}
+
+export type PracticeEvidenceInvalidation = {
+  changedInput: string
+  affectedStepIds: string[]
+  reason: string
+  nextAction: string
+}
+
+export type PracticeAdapterEvidenceState = {
+  schemaVersion: 1
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  evidenceProfile: PracticeEvidenceProfile
+  observedAt: string
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  sourceDigest: string | null
+  evidence: PracticeEvidenceReference[]
+  steps: PracticeAdapterStepState[]
+  invalidations: PracticeEvidenceInvalidation[]
 }
 
 export type PracticeCriterionReview = {
