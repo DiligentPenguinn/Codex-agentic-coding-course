@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type {
   CodexTaskConfigurationSnapshot,
   ExecutorActivitySnapshot,
@@ -50,7 +51,33 @@ export type PracticeReviewEnvelope = {
   }
   evidence: PracticeEvidenceReference[]
   configuration?: CodexTaskConfigurationSnapshot
+  planning?: {
+    evidenceDigest: string
+    observedAt: string
+    freshness: 'fresh' | 'stale' | 'unverifiable'
+    artifacts: Array<{
+      path: 'artifacts/PRD.md' | 'artifacts/implementation-plan.md'
+      content: string
+      digest: string
+      byteLength: number
+      modifiedAt: string
+    }>
+    approvals: Array<{
+      key: string
+      decision: 'approved' | 'revision-requested'
+      recordedAt: string
+      artifactDigests: Record<string, string>
+    }>
+    prdPrompt: { text: string; digest: string } | null
+    scopeDecision: string | null
+    alignment: { prdDigest: string; planDigest: string } | null
+    unexpectedChangedPaths: string[]
+  }
   generatedAt: string
+}
+
+function digest(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(value)).digest('hex')
 }
 
 const configurationFields = [
@@ -96,6 +123,150 @@ export function buildPracticeReviewEnvelope(input: {
           }))
         : [],
       ...(accepted ? { configuration: structuredClone(accepted) } : {}),
+      generatedAt: input.generatedAt
+    }
+  }
+  if (input.definition.evidenceProfile === 'planning-package') {
+    const state = input.run.evidence
+    const accepted = state?.evidenceProfile === 'planning-package'
+      && state.practiceId === input.definition.practiceId
+      && state.practiceVersion === input.definition.version
+      && state.runId === input.run.runId
+      ? state
+      : null
+    const artifacts = (accepted?.planningArtifacts ?? []).map((artifact) => ({
+      path: artifact.path,
+      content: redact(artifact.content),
+      digest: artifact.digest,
+      byteLength: artifact.byteLength,
+      modifiedAt: artifact.modifiedAt
+    }))
+    const prdDigest = artifacts.find((artifact) => artifact.path === 'artifacts/PRD.md')?.digest
+    const planDigest = artifacts.find((artifact) =>
+      artifact.path === 'artifacts/implementation-plan.md')?.digest
+    const approvals = Object.entries(input.run.learnerApprovals).map(([key, approval]) => ({
+      key,
+      decision: approval.decision,
+      recordedAt: approval.recordedAt,
+      artifactDigests: structuredClone(approval.artifactDigests)
+    }))
+    const scopeDecision = input.run.learnerDecisions['scope-decision']?.trim() || null
+    const alignmentValue = input.run.learnerDecisions['alignment-confirmed']
+    const alignment = prdDigest && planDigest
+      && alignmentValue === prdDigest + ':' + planDigest
+      ? { prdDigest, planDigest }
+      : null
+    const prdPrompt = accepted?.planningActivity?.prdPrompt
+      && input.run.learnerDecisions['prd-prompt-digest']
+        === accepted.planningActivity.prdPrompt.digest
+      ? structuredClone(accepted.planningActivity.prdPrompt)
+      : null
+    const unexpectedChangedPaths = [...(accepted?.unexpectedChangedPaths ?? [])].slice(0, 100)
+    const freshness = accepted?.freshness ?? 'unverifiable'
+    const evidence: PracticeEvidenceReference[] = artifacts.map((artifact) => ({
+      id: artifact.path === 'artifacts/PRD.md'
+        ? 'planning-artifact:prd'
+        : 'planning-artifact:plan',
+      kind: 'planning-artifact',
+      text: [
+        artifact.path,
+        'sha256=' + artifact.digest,
+        'bytes=' + String(artifact.byteLength),
+        'modifiedAt=' + artifact.modifiedAt
+      ].join(' | '),
+      freshness: freshness === 'fresh' ? 'fresh' : 'stale'
+    }))
+    const approvalMatches = (key: string, expected: Record<string, string>) => {
+      const approval = input.run.learnerApprovals[key]
+      return approval?.decision === 'approved'
+        && Object.entries(expected).every(([path, value]) =>
+          approval.artifactDigests[path as keyof typeof approval.artifactDigests] === value)
+    }
+    if (prdDigest && input.run.learnerApprovals['prd-approval']) {
+      evidence.push({
+        id: 'learner-approval:prd',
+        kind: 'learner-approval',
+        text: 'Người học phê duyệt PRD sha256=' + prdDigest,
+        freshness: approvalMatches('prd-approval', {
+          'artifacts/PRD.md': prdDigest
+        }) ? 'fresh' : 'stale'
+      })
+    }
+    if (prdDigest && planDigest && input.run.learnerApprovals['plan-approval']) {
+      evidence.push({
+        id: 'learner-approval:plan',
+        kind: 'learner-approval',
+        text: 'Người học phê duyệt implementation plan sha256=' + planDigest,
+        freshness: approvalMatches('plan-approval', {
+          'artifacts/PRD.md': prdDigest,
+          'artifacts/implementation-plan.md': planDigest
+        }) ? 'fresh' : 'stale'
+      })
+    }
+    if (prdPrompt) {
+      evidence.push({
+        id: 'learner-decision:prd-prompt',
+        kind: 'learner-decision',
+        text: bounded('Prompt do người học viết: ' + prdPrompt.text),
+        freshness: 'fresh'
+      })
+    }
+    if (scopeDecision) {
+      evidence.push({
+        id: 'scope-decision:1',
+        kind: 'scope-decision',
+        text: bounded(scopeDecision),
+        freshness: 'fresh'
+      })
+    }
+    if (alignment) {
+      evidence.push({
+        id: 'artifact-alignment:1',
+        kind: 'artifact-alignment',
+        text: 'Người học đã xác nhận bốn điểm alignment cho đúng hai digest hiện tại.',
+        freshness: 'fresh'
+      })
+    }
+    unexpectedChangedPaths.slice(0, MAX_PER_KIND).forEach((path, index) => {
+      evidence.push({
+        id: 'unexpected-workspace-change:' + String(index + 1),
+        kind: 'unexpected-workspace-change',
+        text: path.slice(0, 500),
+        freshness: 'fresh'
+      })
+    })
+    const stablePlanning = {
+      runId: input.run.runId,
+      threadId: input.run.binding.threadId,
+      artifacts,
+      approvals,
+      prdPrompt,
+      scopeDecision,
+      alignment,
+      unexpectedChangedPaths,
+      freshness
+    }
+    return {
+      schemaVersion: 1,
+      definition: structuredClone(input.definition),
+      run: {
+        runId: input.run.runId,
+        generation: input.run.generation,
+        threadId: input.run.binding.threadId,
+        startedAt: input.run.startedAt
+      },
+      evidence,
+      planning: {
+        evidenceDigest: digest(stablePlanning),
+        observedAt: accepted?.observedAt ?? input.generatedAt,
+        freshness,
+        artifacts,
+        approvals,
+        prdPrompt,
+        scopeDecision,
+        alignment,
+        unexpectedChangedPaths
+      },
       generatedAt: input.generatedAt
     }
   }
@@ -186,6 +357,13 @@ export function buildPracticeReviewPrompt(envelope: PracticeReviewEnvelope): str
     'Use only evidence refs whose kind the criterion accepts.',
     'If fresh evidence is required, stale evidence is unverifiable.',
     'Do not invent evidence or omit required criteria.',
+    ...(envelope.planning
+      ? [
+          'For planning-package review, inspect both supplied artifact contents semantically.',
+          'Reject implementation code, scope leakage, hidden critical assumptions, missing current approvals, missing learner scope ownership, or any unexpected changed path.',
+          'Check all four PRD-to-plan alignment rules explicitly.'
+        ]
+      : []),
     'Executor-reported verification is not independently rerun.',
     'The verdict is passed only when every required criterion is satisfied.'
   ].join('\n')

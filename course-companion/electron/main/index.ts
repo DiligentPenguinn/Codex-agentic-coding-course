@@ -184,7 +184,10 @@ const practiceReviewService = new PracticeReviewService(
   activityObserver,
   practiceReviewEvaluator,
   teacherRepository,
-  useTestCodexGateway && !presentTestTeacherAsLive
+  useTestCodexGateway && !presentTestTeacherAsLive,
+  undefined,
+  undefined,
+  evidenceAdapters
 )
 const teacherService = new TeacherService(
   teacherRepository,

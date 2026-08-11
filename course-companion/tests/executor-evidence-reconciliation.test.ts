@@ -44,6 +44,16 @@ class SilentDesktopGateway {
 
   async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
     this.methods.push(method)
+    if (method === 'thread/resume') {
+      return {
+        thread: { id: params.threadId },
+        model: 'gpt-5.6-sol',
+        reasoningEffort: 'high',
+        serviceTier: null,
+        approvalPolicy: 'on-request',
+        sandbox: { type: 'workspaceWrite' }
+      }
+    }
     if (method === 'thread/read') return { thread: { id: params.threadId, turns: this.turns } }
     return {}
   }
@@ -129,7 +139,7 @@ describe('Executor evidence reconciliation', () => {
 
     gateway.turns = [silentDesktopTurn]
     const refreshed = await observer.refresh()
-    expect(gateway.methods).not.toContain('thread/resume')
+    expect(gateway.methods).toContain('thread/resume')
     expect(refreshed?.executorResponses.at(-1)).toContain('hasHorizontalOverflow: false')
     expect(refreshed?.reportedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
     expect(refreshed?.reportedVerificationEvidence).toEqual(expect.arrayContaining([

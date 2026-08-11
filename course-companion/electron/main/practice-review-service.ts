@@ -23,6 +23,8 @@ import {
 } from './practice-review-context'
 import type { PracticeReviewEvaluator } from './practice-review-evaluator'
 import { PracticeRunRepository, type PracticeRunRecord } from './practice-run-repository'
+import type { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
+import { reconcilePlanningStepState } from './practice-step-state'
 
 const configurationChecks = [
   {
@@ -139,6 +141,49 @@ function configurationGuidance(
   ]
 }
 
+function planningGuidance(
+  envelope: PracticeReviewEnvelope,
+  result: PracticeReviewResult
+): string[] {
+  const labels = new Map(envelope.definition.criteria.map((criterion) => [
+    criterion.id,
+    criterion.description
+  ]))
+  const passed = result.criteria
+    .filter((criterion) => criterion.status === 'satisfied')
+    .map((criterion) => labels.get(criterion.criterionId) ?? criterion.criterionId)
+  const problems = result.criteria.filter((criterion) => criterion.status !== 'satisfied')
+  const prd = envelope.planning?.artifacts.find((artifact) =>
+    artifact.path === 'artifacts/PRD.md')
+  const plan = envelope.planning?.artifacts.find((artifact) =>
+    artifact.path === 'artifacts/implementation-plan.md')
+  const nextByCriterion: Record<string, string> = {
+    'prd-quality': 'Sửa PRD theo vấn đề đầu tiên được nêu rồi phê duyệt lại PRD.',
+    'plan-quality': 'Sửa implementation plan theo vấn đề đầu tiên được nêu rồi kiểm tra lại từng bước.',
+    'artifact-alignment': 'Đối chiếu lại bốn điểm alignment và xác nhận lại trên đúng hai artifact hiện tại.',
+    'scope-control': 'Khôi phục thay đổi ngoài phạm vi hoặc loại bỏ implementation code khỏi planning package.',
+    'learner-ownership': 'Hoàn tất phê duyệt hoặc viết lời giải thích quyết định phạm vi bằng lời của bạn.',
+    'evidence-freshness': 'Làm mới bằng chứng và phê duyệt lại trên đúng digest hiện tại.'
+  }
+  const firstProblem = problems[0]
+  return [
+    'Kết luận: ' + (result.verdict === 'passed' ? 'Đạt.' : 'Cần chỉnh sửa.'),
+    'Bằng chứng đã duyệt: '
+      + (prd ? 'PRD ' + prd.digest.slice(0, 12) : 'thiếu PRD')
+      + '; '
+      + (plan ? 'implementation plan ' + plan.digest.slice(0, 12) : 'thiếu implementation plan')
+      + '; phê duyệt, alignment, quyết định phạm vi và provenance của run hiện tại.',
+    'Đã đạt: ' + (passed.length > 0 ? passed.join(' ') : 'Chưa có tiêu chí nào được xác nhận.'),
+    ...(problems.length > 0
+      ? ['Cần sửa: ' + problems.map((criterion) => criterion.explanation).join(' ')]
+      : []),
+    'Thao tác tiếp theo: ' + (firstProblem
+      ? nextByCriterion[firstProblem.criterionId]
+        ?? 'Sửa vấn đề đầu tiên rồi yêu cầu Triết duyệt lại.'
+      : 'Quay lại khóa học để tiếp tục phần kiểm tra cuối Module 2.')
+  ]
+}
+
 export class PracticeReviewService {
   private readonly pending = new Map<string, Promise<PracticeReviewResponse>>()
 
@@ -152,7 +197,8 @@ export class PracticeReviewService {
     private readonly chat: TeacherChatRepository,
     private readonly simulated: boolean,
     private readonly now: () => Date = () => new Date(),
-    private readonly createId: () => string = randomUUID
+    private readonly createId: () => string = randomUUID,
+    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry
   ) {}
 
   review(): Promise<PracticeReviewResponse> {
@@ -175,15 +221,48 @@ export class PracticeReviewService {
   private async reviewDirect(active: PracticeRunRecord): Promise<PracticeReviewResponse> {
     const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
     const reviewedAt = this.now().toISOString()
+    let reviewRun = active
+    let activity = definition.evidenceProfile === 'planning-package'
+      ? await this.activity.bind(active.binding)
+      : null
+    if (definition.evidenceProfile === 'planning-package') {
+      if (!this.evidenceAdapters) throw new Error('Module 2 evidence adapter is unavailable.')
+      const evidence = await this.evidenceAdapters.resolve('planning-package').collect({
+        definition,
+        runId: active.runId,
+        generation: active.generation,
+        workspaceRoot: active.binding.workspaceRoot,
+        task: {
+          threadId: active.binding.threadId,
+          workspaceRoot: active.binding.workspaceRoot
+        }
+      })
+      const refreshed = await this.runs.saveEvidence({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        evidence,
+        checklist: active.checklist,
+        invalidations: evidence.invalidations,
+        updatedAt: evidence.observedAt
+      })
+      if (!refreshed.activeRun
+        || refreshed.activeRun.runId !== active.runId
+        || refreshed.activeRun.generation !== active.generation) {
+        throw new Error('Practice đã thay đổi trước khi Triết thu thập bằng chứng.')
+      }
+      reviewRun = refreshed.activeRun
+    }
     const reviewing = await this.runs.beginReview({
-      runId: active.runId,
-      generation: active.generation,
+      runId: reviewRun.runId,
+      generation: reviewRun.generation,
       practiceId: definition.practiceId,
       practiceVersion: definition.version,
       updatedAt: reviewedAt
     })
-    if (reviewing.activeRun?.runId !== active.runId
-      || reviewing.activeRun.generation !== active.generation
+    if (reviewing.activeRun?.runId !== reviewRun.runId
+      || reviewing.activeRun.generation !== reviewRun.generation
       || reviewing.activeRun.reviewStatus !== 'reviewing') {
       throw new Error('Practice đã thay đổi trước khi Triết bắt đầu duyệt.')
     }
@@ -195,12 +274,15 @@ export class PracticeReviewService {
         : null
       if (!learnerProgress) throw new Error('Kh\u00f4ng th\u1ec3 t\u1ea3i ti\u1ebfn tr\u00ecnh kh\u00f3a h\u1ecdc \u0111\u1ec3 duy\u1ec7t Practice.')
 
-      const activity = await this.activity.bind(active.binding)
+      activity ??= await this.activity.bind(reviewRun.binding)
+      const frozenRun = reviewing.activeRun
       const envelope = buildPracticeReviewEnvelope({
         definition,
-        run: active,
+        run: frozenRun,
         activity,
-        decisions: learnerProgress.decisions,
+        decisions: definition.evidenceProfile === 'planning-package'
+          ? frozenRun.learnerDecisions
+          : learnerProgress.decisions,
         generatedAt: reviewedAt
       })
       const result = definition.evidenceProfile === 'codex-task-configuration'
@@ -210,9 +292,64 @@ export class PracticeReviewService {
             definition,
             runId: active.runId,
             evidence: envelope.evidence,
-            reviewedAt
+            reviewedAt,
+            planningEvidenceDigest: envelope.planning?.evidenceDigest
           })
-      const checklist = derivePracticeChecklist(definition, result, active.checklist)
+      if (definition.evidenceProfile === 'planning-package') {
+        const latestActivity = await this.activity.bind(reviewRun.binding)
+        activity = latestActivity
+        const latestEvidence = await this.evidenceAdapters!.resolve('planning-package').collect({
+          definition,
+          runId: reviewRun.runId,
+          generation: reviewRun.generation,
+          workspaceRoot: reviewRun.binding.workspaceRoot,
+          task: {
+            threadId: reviewRun.binding.threadId,
+            workspaceRoot: reviewRun.binding.workspaceRoot
+          }
+        })
+        const latestWorkspace = await this.runs.saveEvidence({
+          runId: reviewRun.runId,
+          generation: reviewRun.generation,
+          practiceId: reviewRun.practiceId,
+          practiceVersion: reviewRun.practiceVersion,
+          evidence: latestEvidence,
+          checklist: frozenRun.checklist,
+          invalidations: latestEvidence.invalidations,
+          updatedAt: latestEvidence.observedAt
+        })
+        const latestRun = latestWorkspace.activeRun
+        if (!latestRun
+          || latestRun.runId !== reviewRun.runId
+          || latestRun.generation !== reviewRun.generation) {
+          throw new Error('Practice đã thay đổi trong khi Triết đang duyệt.')
+        }
+        const latestEnvelope = buildPracticeReviewEnvelope({
+          definition,
+          run: latestRun,
+          activity: latestActivity,
+          decisions: latestRun.learnerDecisions,
+          generatedAt: reviewedAt
+        })
+        if (!envelope.planning
+          || !latestEnvelope.planning
+          || latestEnvelope.planning.evidenceDigest !== envelope.planning.evidenceDigest) {
+          throw new Error('Artifact hoặc quyết định của Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
+        }
+        reviewRun = latestRun
+      }
+      const checklist = definition.evidenceProfile === 'planning-package'
+        ? reconcilePlanningStepState({
+            checklist: reviewRun.checklist,
+            previousEvidence: reviewRun.evidence,
+            evidence: reviewRun.evidence!,
+            learnerDecisions: reviewRun.learnerDecisions,
+            learnerApprovals: reviewRun.learnerApprovals,
+            priorInvalidations: reviewRun.invalidations,
+            reviewStatus: result.verdict,
+            hasCompletion: false
+          }).checklist
+        : derivePracticeChecklist(definition, result, active.checklist)
       const completion: PracticeCompletionReceipt | undefined = result.verdict === 'passed'
         ? {
             schemaVersion: 1,
@@ -224,7 +361,9 @@ export class PracticeReviewService {
             status: 'completed',
             completedAt: reviewedAt,
             evidenceSummary: result.summary,
-            masterySummary: 'Triết đã xác minh đủ năm thiết lập Codex bắt buộc từ metadata hiệu lực của đúng task.',
+            masterySummary: definition.evidenceProfile === 'planning-package'
+              ? 'Triết đã duyệt semantic PRD, implementation plan, alignment, phạm vi và quyền sở hữu của người học trên đúng hai digest hiện tại.'
+              : 'Triết đã xác minh đủ năm thiết lập Codex bắt buộc từ metadata hiệu lực của đúng task.',
             destination: structuredClone(definition.completionDestination),
             ...(definition.practiceId === 'm1-codex-safe-setup' && envelope.configuration
               ? {
@@ -242,8 +381,8 @@ export class PracticeReviewService {
           }
         : undefined
       const saved = await this.runs.saveReview({
-        runId: active.runId,
-        generation: active.generation,
+        runId: reviewRun.runId,
+        generation: reviewRun.generation,
         practiceId: definition.practiceId,
         practiceVersion: definition.version,
         result,
@@ -251,8 +390,8 @@ export class PracticeReviewService {
         completion,
         updatedAt: reviewedAt
       })
-      if (saved.activeRun?.runId !== active.runId
-        || saved.activeRun.generation !== active.generation
+      if (saved.activeRun?.runId !== reviewRun.runId
+        || saved.activeRun.generation !== reviewRun.generation
         || saved.activeRun.reviewResult?.sourceDigest !== result.sourceDigest) {
         throw new Error('Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
       }
@@ -267,7 +406,9 @@ export class PracticeReviewService {
         .filter((criterion) => criterion.status !== 'satisfied')
         .map((criterion) => criterion.explanation)
         .slice(0, 3)
-      const content = [
+      const content = definition.evidenceProfile === 'planning-package'
+        ? [result.summary, ...planningGuidance(envelope, result)].join('\n\n')
+        : [
         result.summary,
         ...(definition.evidenceProfile === 'codex-task-configuration'
           ? configurationGuidance(envelope.configuration, result)

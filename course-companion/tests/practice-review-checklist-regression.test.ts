@@ -3,15 +3,15 @@ import { derivePracticeChecklist } from '../electron/main/practice-review-contra
 import type { PracticeDefinition, PracticeReviewResult } from '../shared/contracts'
 
 const definition: PracticeDefinition = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   practiceId: 'practice-1',
   version: '1.0.0',
-  checkpointId: 'm1-plan-approval',
+  checkpointId: 'm1-setup-checklist',
   objective: 'Objective',
   expectedOutcome: 'Outcome',
   checklist: [
-    { id: 'durable', title: 'Durable step' },
-    { id: 'fresh', title: 'Fresh step' }
+    { id: 'durable', title: 'Durable step', dependsOn: [] },
+    { id: 'fresh', title: 'Fresh step', dependsOn: ['durable'] }
   ],
   criteria: [
     {
@@ -33,10 +33,13 @@ const definition: PracticeDefinition = {
       freshness: 'fresh'
     }
   ],
+  workspaceKind: 'pilot-workspace',
+  taskPolicy: 'inherit-configuration-only',
+  evidenceProfile: 'codex-task-configuration',
   completionDestination: {
     lessonId: 'module-1',
-    checkpointId: 'm1-review',
-    sceneId: 'module-1-reflection'
+    checkpointId: 'm1-mastery',
+    sceneId: 'module-1-mastery'
   }
 }
 

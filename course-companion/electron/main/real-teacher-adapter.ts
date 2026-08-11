@@ -36,6 +36,14 @@ const SUMMARY_INSTRUCTIONS = [
   'You have no tools.'
 ].join(' ')
 
+const REVIEW_INSTRUCTIONS = [
+  'You are Triết performing a frozen Practice review.',
+  'Use only the supplied review envelope and return strict JSON in the requested shape.',
+  'For a planning package, inspect both artifact contents semantically and check every required criterion.',
+  'Never invent approvals, decisions, files, freshness, alignment, or outcomes.',
+  'You have no tools.'
+].join(' ')
+
 export type TeacherInferenceClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
   onNotification: (listener: (notification: CodexNotification) => void) => () => void
@@ -199,6 +207,7 @@ function inferenceError(stage: TeacherFailureStage, error: unknown): TeacherInfe
 export class RealTeacherAdapter {
   private responseThreadId: string | null = null
   private summaryThreadId: string | null = null
+  private reviewThreadId: string | null = null
   private pending: PendingTurn | null = null
   private earlyFacts: Fact[] = []
   private disposed = false
@@ -217,11 +226,19 @@ export class RealTeacherAdapter {
   respond(input: string): Promise<string> {
     return this.run('response', input)
   }
+  review(input: string): Promise<string> {
+    return this.run('review', input)
+  }
   async resetTransport(cleanup = false): Promise<void> {
     const pending = this.pending
-    const threadIds = [this.responseThreadId, this.summaryThreadId].filter((value): value is string => Boolean(value))
+    const threadIds = [
+      this.responseThreadId,
+      this.summaryThreadId,
+      this.reviewThreadId
+    ].filter((value): value is string => Boolean(value))
     this.responseThreadId = null
     this.summaryThreadId = null
+    this.reviewThreadId = null
     this.selectedModel = null
     this.earlyFacts = []
     if (pending) {
@@ -251,12 +268,12 @@ export class RealTeacherAdapter {
       this.finish(new Error('Teacher adapter stopped'))
       await this.safeRequest('turn/interrupt', { threadId: pending.threadId, turnId: pending.turnId })
     }
-    for (const threadId of [this.responseThreadId, this.summaryThreadId]) {
+    for (const threadId of [this.responseThreadId, this.summaryThreadId, this.reviewThreadId]) {
       if (threadId) await this.safeRequest('thread/unsubscribe', { threadId })
     }
   }
 
-  private async run(kind: 'response' | 'summary', input: string): Promise<string> {
+  private async run(kind: 'response' | 'summary' | 'review', input: string): Promise<string> {
     if (this.disposed) throw new TeacherInferenceError('adapter', 'TEACHER_STOPPED', 'Teacher adapter stopped')
     if (this.busy) throw new TeacherInferenceError('adapter', 'TEACHER_BUSY', 'Teacher is already responding')
     this.busy = true
@@ -318,8 +335,10 @@ export class RealTeacherAdapter {
     return model
   }
 
-  private async ensureThread(kind: 'response' | 'summary'): Promise<string> {
-    const current = kind === 'response' ? this.responseThreadId : this.summaryThreadId
+  private async ensureThread(kind: 'response' | 'summary' | 'review'): Promise<string> {
+    const current = kind === 'response'
+      ? this.responseThreadId
+      : kind === 'summary' ? this.summaryThreadId : this.reviewThreadId
     if (current) return current
     const model = await this.selectModel()
     let result: unknown
@@ -330,8 +349,14 @@ export class RealTeacherAdapter {
         ephemeral: true,
         sandbox: 'read-only',
         approvalPolicy: 'never',
-        serviceName: kind === 'response' ? 'content_builder_academy_teacher' : 'content_builder_academy_teacher_memory',
-        developerInstructions: kind === 'response' ? TEACHER_INSTRUCTIONS : SUMMARY_INSTRUCTIONS
+        serviceName: kind === 'response'
+          ? 'content_builder_academy_teacher'
+          : kind === 'summary'
+            ? 'content_builder_academy_teacher_memory'
+            : 'content_builder_academy_practice_review',
+        developerInstructions: kind === 'response'
+          ? TEACHER_INSTRUCTIONS
+          : kind === 'summary' ? SUMMARY_INSTRUCTIONS : REVIEW_INSTRUCTIONS
       })
     } catch (error) {
       throw inferenceError('thread-start', error)
@@ -343,7 +368,8 @@ export class RealTeacherAdapter {
       throw inferenceError('thread-verify', error)
     }
     if (kind === 'response') this.responseThreadId = threadId
-    else this.summaryThreadId = threadId
+    else if (kind === 'summary') this.summaryThreadId = threadId
+    else this.reviewThreadId = threadId
     return threadId
   }
 

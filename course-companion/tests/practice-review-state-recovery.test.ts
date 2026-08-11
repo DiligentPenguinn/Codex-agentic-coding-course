@@ -29,8 +29,11 @@ function workspace(): PracticeWorkspaceRecord {
       runId: 'run-1',
       generation: 1,
       status: 'active',
-      practiceId: 'practice-1',
-      practiceVersion: '1.0.0',
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
+      workspaceKind: 'pilot-workspace',
+      taskPolicy: 'inherit-configuration-only',
+      evidenceProfile: 'codex-task-configuration',
       reviewStatus: 'not-reviewed',
       binding: {
         runId: 'run-1',
@@ -41,7 +44,11 @@ function workspace(): PracticeWorkspaceRecord {
       },
       startedAt: timestamp,
       updatedAt: timestamp,
-      checklist: [{ id: 'step-1', title: 'Step 1', status: 'current' }]
+      checklist: [{ id: 'step-1', title: 'Step 1', status: 'current', dependencyInputs: {} }],
+      learnerDecisions: {},
+      learnerApprovals: {},
+      evidence: null,
+      invalidations: []
     }
   }
 }
@@ -49,8 +56,8 @@ function workspace(): PracticeWorkspaceRecord {
 function result(verdict: 'needs-work' | 'passed', digest: string): PracticeReviewResult {
   return {
     schemaVersion: 1,
-    practiceId: 'practice-1',
-    practiceVersion: '1.0.0',
+    practiceId: 'm1-codex-safe-setup',
+    practiceVersion: '2.0.0',
     runId: 'run-1',
     verdict,
     criteria: [],
@@ -63,18 +70,18 @@ function result(verdict: 'needs-work' | 'passed', digest: string): PracticeRevie
 const completion: PracticeCompletionReceipt = {
   schemaVersion: 1,
   courseRunId: 'course-1',
-  practiceId: 'practice-1',
-  practiceVersion: '1.0.0',
+  practiceId: 'm1-codex-safe-setup',
+  practiceVersion: '2.0.0',
   runId: 'run-1',
-  checkpointId: 'm1-plan-approval',
+  checkpointId: 'm1-setup-checklist',
   status: 'completed',
   completedAt: timestamp,
   evidenceSummary: 'Passed',
   masterySummary: 'Complete',
   destination: {
     lessonId: 'module-1',
-    checkpointId: 'm1-review',
-    sceneId: 'module-1-reflection'
+    checkpointId: 'm1-mastery',
+    sceneId: 'module-1-mastery'
   }
 }
 
@@ -86,8 +93,8 @@ describe('Practice review state recovery', () => {
     const reviewing = await repository.beginReview({
       runId: 'run-1',
       generation: 1,
-      practiceId: 'practice-1',
-      practiceVersion: '1.0.0',
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
       updatedAt: timestamp
     })
     expect(reviewing.activeRun?.reviewStatus).toBe('reviewing')
@@ -103,14 +110,14 @@ describe('Practice review state recovery', () => {
     const repository = new PracticeRunRepository(await directory())
     await repository.save(workspace())
     await repository.saveReview({
-      runId: 'run-1', generation: 1, practiceId: 'practice-1', practiceVersion: '1.0.0',
+      runId: 'run-1', generation: 1, practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0',
       result: result('passed', 'a'),
       checklist: [{ id: 'step-1', title: 'Step 1', status: 'completed' }],
       completion,
       updatedAt: timestamp
     })
     const later = await repository.saveReview({
-      runId: 'run-1', generation: 1, practiceId: 'practice-1', practiceVersion: '1.0.0',
+      runId: 'run-1', generation: 1, practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0',
       result: result('needs-work', 'b'),
       checklist: [{ id: 'step-1', title: 'Step 1', status: 'current' }],
       updatedAt: '2026-08-10T00:01:00.000Z'

@@ -32,6 +32,7 @@ export function parsePracticeReviewResult(input: {
   runId: string
   evidence: PracticeEvidenceReference[]
   reviewedAt: string
+  planningEvidenceDigest?: string
 }): PracticeReviewResult {
   const parsed = record(JSON.parse(jsonText(input.text)))
   if (!parsed) throw new Error('Practice review must be an object')
@@ -87,6 +88,24 @@ export function parsePracticeReviewResult(input: {
   if ((parsed.verdict === 'passed') !== allRequiredSatisfied) {
     throw new Error('Practice review verdict contradicts required criteria')
   }
+  if (input.definition.evidenceProfile === 'planning-package' && parsed.verdict === 'passed') {
+    const byEvidenceId = new Map(input.evidence.map((item) => [item.id, item]))
+    const requiredEvidenceIds = [
+      'planning-artifact:prd',
+      'planning-artifact:plan',
+      'learner-decision:prd-prompt',
+      'learner-approval:prd',
+      'learner-approval:plan',
+      'scope-decision:1',
+      'artifact-alignment:1'
+    ]
+    if (!input.planningEvidenceDigest
+      || !/^[a-f0-9]{64}$/.test(input.planningEvidenceDigest)
+      || input.evidence.some((item) => item.kind === 'unexpected-workspace-change')
+      || requiredEvidenceIds.some((id) => byEvidenceId.get(id)?.freshness !== 'fresh')) {
+      throw new Error('Planning package pass lacks complete fresh canonical evidence')
+    }
+  }
   return {
     schemaVersion: 1,
     practiceId: input.definition.practiceId,
@@ -100,7 +119,8 @@ export function parsePracticeReviewResult(input: {
       practiceId: input.definition.practiceId,
       practiceVersion: input.definition.version,
       runId: input.runId,
-      evidence: input.evidence,
+      evidenceDigest: input.planningEvidenceDigest,
+      evidence: input.planningEvidenceDigest ? undefined : input.evidence,
       criteria
     })
   }

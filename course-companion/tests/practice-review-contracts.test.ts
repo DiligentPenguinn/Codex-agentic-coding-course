@@ -9,15 +9,15 @@ import {
 } from '../electron/main/practice-review-contracts'
 
 const definition: PracticeDefinition = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   practiceId: 'generic-practice',
   version: '1.0.0',
-  checkpointId: 'm1-plan-approval',
+  checkpointId: 'm1-setup-checklist',
   objective: 'Produce the requested artifact.',
   expectedOutcome: 'The artifact satisfies its task-defined criterion.',
   checklist: [
-    { id: 'produce', title: 'Produce artifact' },
-    { id: 'review', title: 'Review evidence' }
+    { id: 'produce', title: 'Produce artifact', dependsOn: [] },
+    { id: 'review', title: 'Review evidence', dependsOn: ['produce'] }
   ],
   criteria: [
     {
@@ -39,10 +39,13 @@ const definition: PracticeDefinition = {
       freshness: 'fresh'
     }
   ],
+  workspaceKind: 'pilot-workspace',
+  taskPolicy: 'inherit-configuration-only',
+  evidenceProfile: 'codex-task-configuration',
   completionDestination: {
     lessonId: 'module-1',
-    checkpointId: 'm1-review',
-    sceneId: 'module-1-reflection'
+    checkpointId: 'm1-mastery',
+    sceneId: 'module-1-mastery'
   }
 }
 

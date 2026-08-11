@@ -104,6 +104,21 @@ describe('RealTeacherAdapter', () => {
     await expect(adapter.respond('return structured JSON')).resolves.toBe(answer)
     await adapter.dispose()
   })
+
+  it('uses a separate read-only, no-tool thread for frozen Practice review', async () => {
+    const client = new InferenceClient(false, '{"verdict":"needs-work"}')
+    const adapter = new RealTeacherAdapter(client, 'D:\\course', 1_000)
+
+    await expect(adapter.review('frozen review envelope'))
+      .resolves.toBe('{"verdict":"needs-work"}')
+    expect(client.calls.find(([method]) => method === 'thread/start')?.[1])
+      .toMatchObject({
+        sandbox: 'read-only',
+        approvalPolicy: 'never',
+        serviceName: 'content_builder_academy_practice_review'
+      })
+    await adapter.dispose()
+  })
   it('interrupts and rejects a Teacher turn that tries to use a tool', async () => {
     const client = new InferenceClient(true)
     const adapter = new RealTeacherAdapter(client, 'D:\\course', 1_000)
