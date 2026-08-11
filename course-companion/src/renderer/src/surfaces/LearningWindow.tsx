@@ -365,26 +365,6 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'PHẢN HỒI', value: 'Có biết kết quả sai không?' }
     ],
     dialogue: 'Nếu Codex làm chưa tốt, ta không chỉ đổi model. Ta còn xem harness có thiếu bối cảnh, công cụ, giới hạn hoặc cách kiểm tra nào không. Đây là tư duy cốt lõi của Harness Engineering.',
-    choices: [{ label: 'Tiếp tục đến quyền truy cập', next: 'module-1-permissions', primary: true }]
-  },
-  'module-1-permissions': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-permissions',
-    step: 3,
-    totalSteps: 7,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Quyền hành động và phê duyệt',
-    objective: 'Sandbox và approval khác nhau thế nào?',
-    panelLabel: 'RANH GIỚI VÀ QUYẾT ĐỊNH',
-    panelStatus: 'SANDBOX ≠ APPROVAL',
-    tone: 'neutral',
-    request: 'Sandbox giới hạn khả năng kỹ thuật; approval quyết định khi nào Codex phải dừng để hỏi.',
-    evidence: [
-      { label: 'ASK FOR APPROVAL', value: 'Hỏi thường xuyên hơn' },
-      { label: 'APPROVE FOR ME', value: 'Dừng ở hành động rủi ro' },
-      { label: 'FULL ACCESS', value: 'Gỡ ranh giới bảo vệ' }
-    ],
-    dialogue: 'Sandbox là ranh giới kỹ thuật giới hạn những gì Codex có thể truy cập. Approval là lúc Codex phải dừng để bạn quyết định. Tự động duyệt không làm thay đổi ranh giới sandbox.',
     choices: [{ label: 'Xem thiết lập khuyên dùng', next: 'module-1-approval-choice', primary: true }]
   },
   'module-1-approval-choice': {
@@ -1261,7 +1241,6 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-1-codex-slash-commands']
   ],
   'm1-workspace-permissions': [
-    ['module-1-permissions'],
     ['module-1-approval-choice']
   ],
   'm1-agents-guidance': [

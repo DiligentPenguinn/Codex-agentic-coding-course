@@ -154,6 +154,41 @@ describe('ProgressRepository', () => {
     })
   })
 
+  it('moves saved progress from the retired permissions page to the approval recommendation', async () => {
+    const directory = await temporaryDirectory()
+    const retiredProgress = {
+      schemaVersion: 5,
+      courseVersion: '0.2.0',
+      currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-workspace-permissions',
+      checkpointId: 'm1-permissions',
+      sceneId: 'module-1-permissions',
+      sceneHistory: ['module-1-codex-slash-commands', 'module-1-permissions'],
+      completedCheckpointIds: ['intro-visual-onboarding', 'm1-codex-orientation'],
+      decisions: {},
+      practice: { missionId: 'm2-planning-package', status: 'idle' },
+      startedAt: '2026-08-11T10:00:00.000Z',
+      updatedAt: '2026-08-11T10:05:00.000Z'
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    const repository = new ProgressRepository(directory)
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        sceneId: 'module-1-approval-choice',
+        sceneHistory: ['module-1-codex-slash-commands']
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(migrated.sceneId).toBe('module-1-approval-choice')
+    expect(migrated.sceneHistory).toEqual(['module-1-codex-slash-commands'])
+  })
+
   it('migrates schema-v2 Module 0 progress to the new Module 2 opening without claiming setup completion', async () => {
     const directory = await temporaryDirectory()
     const oldProgress = {

@@ -225,8 +225,8 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: 'Harness là gì?', exact: true }).click()
   await page.getByRole('button', { name: 'Xem harness của Codex', exact: true }).click()
   await page.getByRole('button', { name: 'Khi kết quả chưa tốt thì sao?', exact: true }).click()
-  await page.getByRole('button', { name: 'Tiếp tục đến quyền truy cập', exact: true }).click()
   await page.getByRole('button', { name: 'Xem thiết lập khuyên dùng', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 2/5 · TRANG 1/1', { exact: true }).first().waitFor()
   await page.getByText(
     'Mình khuyên bạn dùng Approve for me và chưa bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
     { exact: true }

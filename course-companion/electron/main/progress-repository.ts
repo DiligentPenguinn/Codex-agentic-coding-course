@@ -30,6 +30,27 @@ const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
 const courseLessonSet = new Set<string>(courseLessonIds)
 const LEGACY_COURSE_VERSION = '0.1.0'
+const RETIRED_PERMISSIONS_SCENE = 'module-1-permissions'
+
+function hasRetiredSceneReferences(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  return value.sceneId === RETIRED_PERMISSIONS_SCENE || (
+    Array.isArray(value.sceneHistory) && value.sceneHistory.includes(RETIRED_PERMISSIONS_SCENE)
+  )
+}
+
+function redirectRetiredSceneReferences(raw: Record<string, unknown>): Record<string, unknown> {
+  if (!hasRetiredSceneReferences(raw)) return raw
+  return {
+    ...raw,
+    sceneId: raw.sceneId === RETIRED_PERMISSIONS_SCENE
+      ? 'module-1-approval-choice'
+      : raw.sceneId,
+    sceneHistory: Array.isArray(raw.sceneHistory)
+      ? raw.sceneHistory.filter((sceneId) => sceneId !== RETIRED_PERMISSIONS_SCENE)
+      : raw.sceneHistory
+  }
+}
 
 export function defaultPracticeState(): PracticeState {
   return {
@@ -215,6 +236,7 @@ function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerPro
 function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isRecord(value)) return null
   const raw = value as Record<string, unknown>
+  const currentRaw = redirectRetiredSceneReferences(raw)
   const schemaVersion = raw.schemaVersion
   const courseVersion = raw.courseVersion
   const practice = raw.practice
@@ -225,10 +247,10 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (
     schemaVersion === LEARNER_STATE_SCHEMA_VERSION &&
     courseVersion === COURSE_VERSION &&
-    isProgressUpdate(raw) &&
+    isProgressUpdate(currentRaw) &&
     isPracticeState(practice)
   ) {
-    return raw as unknown as LearnerProgress
+    return currentRaw as unknown as LearnerProgress
   }
 
   if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
@@ -441,7 +463,8 @@ export class ProgressRepository {
             migrated:
               isRecord(parsed) && (
                 parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION ||
-                parsed.courseVersion !== COURSE_VERSION
+                parsed.courseVersion !== COURSE_VERSION ||
+                hasRetiredSceneReferences(parsed)
               )
           }
         : { status: 'invalid' }
