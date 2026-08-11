@@ -441,10 +441,10 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     request: 'Dùng model mạnh hơn khi công việc có nhiều điều chưa rõ; dùng model gọn hơn khi đầu ra đã cố định.',
     evidence: [
       { label: 'SOL', value: 'Thiết kế luồng ứng dụng' },
-      { label: 'TERRA', value: 'Sửa một tính năng đã rõ' },
-      { label: 'LUNA', value: 'Phân loại danh sách nội dung' }
+      { label: 'TERRA', value: 'Trả lời tin nhắn khách hàng' },
+      { label: 'LUNA', value: 'Khảo sát codebase nhỏ' }
     ],
-    dialogue: 'Với ContentPilot, Sol phù hợp khi ta còn phải quyết định kiến trúc và luồng sử dụng. Terra phù hợp khi sửa một tính năng đã có yêu cầu rõ. Luna phù hợp khi chuyển đổi hoặc phân loại một danh sách theo tiêu chí cố định.',
+    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Trong khóa học, ta không chọn Luna làm model chính. Coding agent có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ.',
     choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-reasoning-effort': {
@@ -1606,11 +1606,11 @@ function ModelLessonBoard({
               </article>
               <article>
                 <span>TERRA</span>
-                <div><h2>GPT-5.6 Terra</h2><p>Dòng cân bằng giữa năng lực và chi phí cho công việc hằng ngày.</p><small>Thường dùng: sửa tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ.</small></div>
+                <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
               </article>
               <article>
                 <span>LUNA</span>
-                <div><h2>GPT-5.6 Luna</h2><p>Dòng dành cho công việc cần tiết kiệm chi phí hoặc xử lý số lượng lớn.</p><small>Thường dùng: phân loại, trích xuất, chuyển đổi hoặc tóm tắt theo mẫu.</small></div>
+                <div><h2>GPT-5.6 Luna</h2><p>Trong khóa học, bạn không dùng Luna làm model chính.</p><small>Coding agent có thể giao Luna việc phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi phí khi tác vụ không quá phức tạp.</small></div>
               </article>
             </div>
             <p className="pixel-model-board__note">Tên model không phải cấp độ bạn phải vượt qua. Hãy chọn theo độ khó, độ rõ của yêu cầu và mức sử dụng bạn chấp nhận.</p>

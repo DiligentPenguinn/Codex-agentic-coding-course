@@ -171,6 +171,8 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   assert.match(modelIntroText, /GPT-5.6 Sol/)
   assert.match(modelIntroText, /GPT-5.6 Terra/)
   assert.match(modelIntroText, /GPT-5.6 Luna/)
+  assert.match(modelIntroText, /trả lời tin nhắn khách hàng/)
+  assert.match(modelIntroText, /khảo sát codebase nhỏ/)
   assert.match(modelIntroText, /Extra High/)
   assert.match(modelIntroText, /chỉ nhanh hơn Standard khoảng 0,5 giây/)
   assert.match(modelIntroText, /GPT-5.6 Sol · High · Standard/)

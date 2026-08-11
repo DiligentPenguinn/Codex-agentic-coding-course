@@ -77,11 +77,20 @@ là LLM:
 | Model | Điểm mạnh | Ví dụ phù hợp |
 |---|---|---|
 | **Sol** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
-| **Terra** | Dòng cân bằng giữa năng lực và chi phí | Sửa một tính năng, kiểm tra lỗi hoặc làm việc với nhiều công cụ |
-| **Luna** | Dòng dành cho công việc cần tiết kiệm chi phí hoặc xử lý số lượng lớn | Phân loại, trích xuất, chuyển đổi hoặc tạo tóm tắt theo mẫu |
+| **Terra** | Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày | Trả lời tin nhắn khách hàng theo hướng dẫn đã có |
+| **Luna** | Không dùng làm model chính trong khóa học; phù hợp với tác vụ phụ đã rõ | Coding agent giao Luna khảo sát một codebase nhỏ |
 
 Tên model không phải cấp độ mà người học phải vượt qua. Bạn chọn model theo độ
 khó, độ rõ của yêu cầu và chi phí chấp nhận được.
+
+OpenAI mô tả Terra là lựa chọn cân bằng giữa năng lực và chi phí. Luna hướng đến
+các tác vụ cần tiết kiệm chi phí hoặc xử lý số lượng lớn. Trong khóa học, coding
+agent có thể giao Luna một tác vụ phụ đã rõ. Cách này giảm chi phí khi công việc
+không quá phức tạp.
+
+[OpenAI Docs — GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
+và [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+cung cấp mô tả chính thức của hai model.
 
 ## Reasoning effort: model dành bao nhiêu công sức để suy luận?
 

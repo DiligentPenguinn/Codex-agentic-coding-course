@@ -19,8 +19,13 @@ Model, Effort và Speed. Model chọn dòng model phù hợp với công việc.
 chỉnh lượng công sức dành cho phân tích. Speed chọn tốc độ xử lý."
 
 Teacher nói: "Trong dòng GPT-5.6, Sol có năng lực cao nhất cho công việc chuyên
-môn phức tạp. Terra cân bằng giữa năng lực và chi phí. Luna dành cho công việc
-cần tiết kiệm chi phí hoặc xử lý số lượng lớn."
+môn phức tạp. Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.
+Ví dụ, bạn có thể dùng Terra để trả lời tin nhắn khách hàng theo hướng dẫn đã
+có."
+
+Teacher nói: "Trong khóa học, bạn không dùng Luna làm model chính. Coding agent
+có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm
+chi phí khi tác vụ không quá phức tạp."
 
 Teacher nói: "Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc
 nhiều bước. Extra High và Ultra dành cho nhiệm vụ khó hơn. Trong những lần mình
