@@ -78,19 +78,21 @@ là LLM:
 |---|---|---|
 | **Sol** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
 | **Terra** | Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày | Trả lời tin nhắn khách hàng theo hướng dẫn đã có |
-| **Luna** | Mình không chọn làm model chính; model này phù hợp với tác vụ phụ đã rõ | Coding agent giao Luna khảo sát một codebase nhỏ |
+| **Luna** | Thông thường mình không dùng trực tiếp; theo hiểu biết của mình, model này có thể làm sub-agent | GPT-5.6 Sol gọi Luna khảo sát codebase trước khi sửa một tính năng |
 
 Tên model không phải cấp độ mà người học phải vượt qua. Bạn chọn model theo độ
 khó, độ rõ của yêu cầu và chi phí chấp nhận được.
 
 OpenAI mô tả Terra là lựa chọn cân bằng giữa năng lực và chi phí. Luna hướng đến
-các tác vụ cần tiết kiệm chi phí hoặc xử lý số lượng lớn. Trong bài thực hành,
-mình chỉ dùng Luna cho tác vụ phụ đã rõ. Cách này giảm chi phí khi công việc
-không quá phức tạp.
+các tác vụ cần tiết kiệm chi phí hoặc xử lý số lượng lớn. Tài liệu cũng cho biết
+GPT-5.6 có thể điều phối nhiều sub-agent. Tuy nhiên, ví dụ Sol gọi Luna khảo sát
+codebase là cách mình hiểu và minh họa cơ chế này. OpenAI Docs không nêu riêng
+quy trình đó.
 
-[OpenAI Docs — GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
-và [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
-cung cấp mô tả chính thức của hai model.
+[OpenAI Docs — GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra),
+[GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna) và
+[hướng dẫn chọn model](https://developers.openai.com/api/docs/guides/latest-model)
+cung cấp mô tả chính thức.
 
 ## Reasoning effort: model dành bao nhiêu công sức để suy luận?
 

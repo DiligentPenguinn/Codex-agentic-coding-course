@@ -442,9 +442,9 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     evidence: [
       { label: 'SOL', value: 'Thiết kế luồng ứng dụng' },
       { label: 'TERRA', value: 'Trả lời tin nhắn khách hàng' },
-      { label: 'LUNA', value: 'Khảo sát codebase nhỏ' }
+      { label: 'LUNA', value: 'Sub-agent khảo sát codebase' }
     ],
-    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Ở bài này, mình không chọn Luna làm model chính. Coding agent có thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ.',
+    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Thông thường mình không dùng Luna quá nhiều. Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.',
     choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
   },
   'module-1-reasoning-effort': {
@@ -1610,7 +1610,7 @@ function ModelLessonBoard({
               </article>
               <article>
                 <span>LUNA</span>
-                <div><h2>GPT-5.6 Luna</h2><p>Ở bài này, mình không chọn Luna làm model chính.</p><small>Coding agent có thể giao Luna việc phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi phí khi tác vụ không quá phức tạp.</small></div>
+                <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
               </article>
             </div>
             <p className="pixel-model-board__note">Tên model không phải cấp độ bạn phải vượt qua. Hãy chọn theo độ khó, độ rõ của yêu cầu và mức sử dụng bạn chấp nhận.</p>

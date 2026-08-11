@@ -23,9 +23,10 @@ môn phức tạp. Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt c
 Ví dụ, bạn có thể dùng Terra để trả lời tin nhắn khách hàng theo hướng dẫn đã
 có."
 
-Teacher nói: "Ở bài này, mình không chọn Luna làm model chính. Coding agent có
-thể giao Luna một tác vụ phụ đã rõ, như khảo sát codebase nhỏ. Cách này giảm chi
-phí khi tác vụ không quá phức tạp."
+Teacher nói: "Thông thường mình không dùng Luna quá nhiều. Theo hiểu biết của
+mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử
+lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol
+có thể gọi Luna khảo sát codebase trước."
 
 Teacher nói: "Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc
 nhiều bước. Extra High và Ultra dành cho nhiệm vụ khó hơn. Trong những lần mình
