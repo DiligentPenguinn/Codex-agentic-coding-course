@@ -223,6 +223,22 @@ button:focus-visible {
 }
 .pixel-lesson-visual img[data-fit="contain"] { object-fit: contain; }
 .pixel-lesson-visual.is-approval-tour { width: min(400px, 38vw); }
+.pixel-lesson-visual-group {
+  position: absolute;
+  z-index: 5;
+  top: 180px;
+  right: 5vw;
+  width: min(720px, 63vw);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.pixel-lesson-visual.is-grouped {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 100%;
+}
 
 .pixel-model-board {
   position: absolute;
@@ -1983,6 +1999,14 @@ button:focus-visible {
   .pixel-model-board__actions .pixel-page-back,
   .pixel-model-board__actions .pixel-choice { width: 100%; }
   .pixel-consequence { position: relative; top: auto; right: auto; width: 100%; padding: 12px; }
+  .pixel-lesson-visual-group {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
   .pixel-lesson-visual { position: relative; top: auto; right: auto; width: 100%; }
   .pixel-lesson-visual.is-approval-tour { width: 100%; }
   .pixel-lesson-visual img { height: auto; aspect-ratio: 16 / 9; }

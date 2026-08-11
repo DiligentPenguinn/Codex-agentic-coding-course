@@ -24,6 +24,7 @@ import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-set
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
 import m1ReasoningLevelsImage from '../../../../../pilot-workspace/course/codex-setup/images/reasoning-levels.png'
 import m1SlashCommandsImage from '../../../../../pilot-workspace/course/codex-setup/images/slash-commands.png'
+import m1AtMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/at-menu.png'
 import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
 import m1AgentsGuidanceImage from '../assets/lesson-visuals/m1-agents-guidance.webp'
 import m1AssessmentImage from '../assets/lesson-visuals/m1-assessment.webp'
@@ -274,17 +275,17 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
-    objective: 'Nhập / để mở nhanh các chức năng',
-    panelLabel: 'LỆNH /',
+    objective: 'Dùng / và @ để mở nhanh các chức năng',
+    panelLabel: 'LỆNH / VÀ @',
     panelStatus: 'MỞ NGAY TRONG Ô SOẠN TIN',
     tone: 'neutral',
-    request: 'Chọn một lệnh hoặc tiếp tục gõ để lọc danh sách.',
+    request: 'Mở lệnh, nguồn hoặc công cụ ngay trong ô soạn tin.',
     evidence: [
-      { label: '/REVIEW', value: 'Xem xét thay đổi code' },
-      { label: '/MODEL', value: 'Chọn model' },
-      { label: '/MEMORIES', value: 'Quản lý bộ nhớ' }
+      { label: '/STATUS', value: 'Xem mức sử dụng context' },
+      { label: '/GOAL', value: 'Tạo mục tiêu bền vững' },
+      { label: '@', value: 'Mở thêm nguồn và công cụ' }
     ],
-    dialogue: 'Khi nhập / trong ô soạn tin, Codex sẽ mở danh sách lệnh. Bạn có thể chọn một lệnh hoặc tiếp tục gõ để tìm nhanh. Chẳng hạn, /review bắt đầu xem xét thay đổi code, còn /model mở phần chọn model.',
+    dialogue: 'Một số lệnh / bạn có thể thường xuyên sử dụng là /status và /goal. Lệnh /status cho biết mức sử dụng context window — bạn có thể hiểu đây là trí nhớ ngắn hạn của model. Nếu lượng context đã dùng vượt quá 150.000 token, bạn nên chuyển sang chat mới. Lệnh /goal tạo một mục tiêu bền vững để Codex tiếp tục theo đuổi qua nhiều lượt cho đến khi hoàn thành, bị tạm dừng hoặc cần bạn cung cấp thêm thông tin.\n\nNgoài ra, @ cũng mở một danh sách chọn nhanh tương tự /. Tuy nhiên, @ cho phép bạn truy cập thêm một số nguồn và công cụ. Chẳng hạn, bạn có thể chọn một skill cụ thể hoặc một đoạn chat trong tài khoản ChatGPT.',
     choices: [{ label: 'Tìm hiểu Harness Engineering', next: 'module-1-agents-guidance', primary: true }]
   },
   'module-1-agents-guidance': {
@@ -1228,6 +1229,13 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
   }
 }
 
+const sceneSecondaryVisuals: Partial<Record<SceneId, LessonVisual>> = {
+  'module-1-codex-slash-commands': {
+    image: m1AtMenuImage,
+    alt: 'Danh sách nguồn và công cụ mở trong Codex sau khi người dùng nhập dấu @ vào ô soạn tin'
+  }
+}
+
 const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   'intro-overview': [
     ['intro-visual-onboarding'],
@@ -2099,6 +2107,7 @@ export function LearningWindow() {
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
   const [visualExpanded, setVisualExpanded] = useState(false)
+  const [secondaryVisualExpanded, setSecondaryVisualExpanded] = useState(false)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
@@ -2374,6 +2383,7 @@ export function LearningWindow() {
       await advanceToScene(choice.next, decisions)
       setApprovalFocus(null)
       setVisualExpanded(false)
+      setSecondaryVisualExpanded(false)
       if (choice.afterSave === 'home') {
         setTeacherOpen(false)
         setDestination('home')
@@ -2458,6 +2468,7 @@ export function LearningWindow() {
     if (!canOpenPreviousPage) return
     setApprovalFocus(null)
     setVisualExpanded(false)
+    setSecondaryVisualExpanded(false)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
   const lessonContextLabel = scene.lessonId === 'intro'
@@ -2494,6 +2505,7 @@ export function LearningWindow() {
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
+  const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
@@ -2523,6 +2535,7 @@ export function LearningWindow() {
         <button className="pixel-brand pixel-brand--button" type="button" onClick={() => {
           setApprovalFocus(null)
           setVisualExpanded(false)
+          setSecondaryVisualExpanded(false)
           setTeacherOpen(false)
           setReviewHistoryIndex(null)
           setDestination('home')
@@ -2550,8 +2563,32 @@ export function LearningWindow() {
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
-      {canShowSceneMedia && lessonVisual && !usesModelLessonBoard
+      {canShowSceneMedia && lessonVisual && secondaryLessonVisual && !usesModelLessonBoard
         ? (
+            <div className="pixel-lesson-visual-group" aria-label="Hai cách mở nhanh chức năng trong Codex">
+              {[lessonVisual, secondaryLessonVisual].map((visual, index) => (
+                <figure className="pixel-lesson-visual is-grouped" key={visual.image}>
+                  <LessonVisualMedia
+                    activeFocus={null}
+                    isApprovalTour={false}
+                    visual={visual}
+                  />
+                  {canExpandLessonVisual ? (
+                    <button
+                      aria-label={index === 0 ? 'Phóng to ảnh minh họa lệnh /' : 'Phóng to ảnh minh họa dấu @'}
+                      className="pixel-visual-expand"
+                      type="button"
+                      onClick={() => index === 0 ? setVisualExpanded(true) : setSecondaryVisualExpanded(true)}
+                    >
+                      PHÓNG TO
+                    </button>
+                  ) : null}
+                </figure>
+              ))}
+            </div>
+          )
+        : canShowSceneMedia && lessonVisual && !usesModelLessonBoard
+          ? (
             <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}`}>
               <LessonVisualMedia
                 activeFocus={approvalFocus}
@@ -2609,6 +2646,15 @@ export function LearningWindow() {
         />
       ) : null}
 
+      {secondaryVisualExpanded && secondaryLessonVisual && canExpandLessonVisual ? (
+        <LessonVisualLightbox
+          activeFocus={null}
+          isApprovalTour={false}
+          visual={secondaryLessonVisual}
+          onClose={() => setSecondaryVisualExpanded(false)}
+        />
+      ) : null}
+
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesModelLessonBoard ? ' is-model-board-source' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.assessmentSummary
@@ -2625,6 +2671,7 @@ export function LearningWindow() {
             <button className="pixel-choice is-primary" type="button" onClick={() => {
               setApprovalFocus(null)
               setVisualExpanded(false)
+              setSecondaryVisualExpanded(false)
               setReviewHistoryIndex(null)
             }}>
               Quay lại trang đang học
