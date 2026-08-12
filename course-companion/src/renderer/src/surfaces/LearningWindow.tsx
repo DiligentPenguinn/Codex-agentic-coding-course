@@ -1910,12 +1910,12 @@ function EntryScreen({
         : `${learningPosition?.lessonTitle ?? scene?.lessonLabel ?? 'BÀI HỌC'} · ${scene?.objective ?? progress?.checkpointId}`
 
   return (
-    <main className="pixel-learning-shell pixel-entry-shell">
+    <main className={`pixel-learning-shell pixel-entry-shell${isWelcome ? ' is-welcome' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
       <div className="pixel-entry-brand">VIBECODING 101 · TRIẾT &amp; DUY</div>
       <img className="pixel-entry-teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
       <section className="pixel-entry-panel" aria-live="polite">
-        <small>{recovered ? 'ĐÃ KHÔI PHỤC BẢN LƯU GẦN NHẤT' : isWelcome ? 'HÀNH TRÌNH MỚI' : 'CHECKPOINT ĐÃ LƯU'}</small>
+        {!isWelcome ? <small>{recovered ? 'ĐÃ KHÔI PHỤC BẢN LƯU GẦN NHẤT' : 'CHECKPOINT ĐÃ LƯU'}</small> : null}
         <h1>{title}</h1>
         <p>{description}</p>
         {progress && !isConfirm ? (

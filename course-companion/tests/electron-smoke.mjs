@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { appendFile, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
@@ -531,6 +531,40 @@ try {
     })
   }
   assert.equal(companionWindow(initial)?.alwaysOnTop, true)
+
+  await firstWindows.learningPage
+    .getByRole('heading', { name: 'Chào mừng bạn đến với Vibecoding 101' })
+    .waitFor()
+  assert.equal(await firstWindows.learningPage.getByText('HÀNH TRÌNH MỚI', { exact: true }).count(), 0)
+  const welcomeSurface = await firstWindows.learningPage.evaluate(() => {
+    const panel = globalThis.document.querySelector('.pixel-entry-panel')
+    const primary = globalThis.document.querySelector('.pixel-entry-primary')
+    const world = globalThis.document.querySelector('.pixel-scene-world')
+    return {
+      shellIsWelcome: globalThis.document.querySelector('.pixel-entry-shell')?.classList.contains('is-welcome'),
+      panelBackground: panel ? globalThis.getComputedStyle(panel).backgroundColor : '',
+      panelBorderRadius: panel ? globalThis.getComputedStyle(panel).borderRadius : '',
+      primaryBorderRadius: primary ? globalThis.getComputedStyle(primary).borderRadius : '',
+      worldFilter: world ? globalThis.getComputedStyle(world).filter : ''
+    }
+  })
+  assert.equal(welcomeSurface.shellIsWelcome, true)
+  assert.equal(welcomeSurface.panelBackground, 'rgba(6, 6, 6, 0.97)')
+  assert.equal(welcomeSurface.panelBorderRadius, '16px')
+  assert.equal(welcomeSurface.primaryBorderRadius, '10px')
+  assert.match(welcomeSurface.worldFilter, /saturate\(0\.66\)/)
+  assert.match(welcomeSurface.worldFilter, /brightness\(0\.5\)/)
+  await capture(firstWindows.learningPage, 'welcome-obsidian.png')
+  await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+  const welcomeNarrowWidths = await firstWindows.learningPage.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(welcomeNarrowWidths.body, welcomeNarrowWidths.viewport)
+  assert.equal(welcomeNarrowWidths.document, welcomeNarrowWidths.viewport)
+  await capture(firstWindows.learningPage, 'welcome-obsidian-390px.png')
+  await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
 
   await firstWindows.learningPage
     .getByRole('button', { name: 'Cùng bắt đầu nhé' })

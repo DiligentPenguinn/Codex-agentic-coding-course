@@ -1320,6 +1320,29 @@ button:focus-visible {
   box-shadow: 10px 10px 0 rgba(2, 4, 12, 0.84);
 }
 
+.pixel-entry-shell.is-welcome .pixel-scene-world {
+  filter: saturate(0.66) brightness(0.5);
+}
+
+.pixel-entry-shell.is-welcome .pixel-scene-world::after {
+  background:
+    radial-gradient(circle at 48% 38%, transparent 0 22%, rgba(0, 0, 0, 0.24) 67%),
+    linear-gradient(180deg, rgba(4, 2, 0, 0.12), rgba(4, 2, 0, 0.5));
+}
+
+.pixel-entry-shell.is-welcome .pixel-entry-panel {
+  border: 0;
+  border-radius: 16px;
+  background: rgba(6, 6, 6, 0.97);
+  box-shadow:
+    0 0 0 1px rgba(255, 242, 202, 0.1),
+    0 24px 70px rgba(0, 0, 0, 0.54);
+}
+
+.pixel-entry-shell.is-welcome .pixel-entry-panel h1 {
+  margin-top: 0;
+}
+
 .pixel-entry-panel > small {
   color: var(--pixel-yellow);
   font: 800 9px/1.2 var(--pixel-font);
@@ -1393,6 +1416,11 @@ button:focus-visible {
   border-color: var(--pixel-yellow);
   color: #11182a;
   background: var(--pixel-yellow);
+}
+
+.pixel-entry-shell.is-welcome .pixel-entry-primary {
+  border-radius: 10px;
+  box-shadow: none;
 }
 
 .pixel-entry-secondary {
