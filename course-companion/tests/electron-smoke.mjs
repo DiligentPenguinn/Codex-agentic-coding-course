@@ -282,7 +282,16 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('Chứng minh cấu hình thật trong Codex', { exact: true }).waitFor()
+  await page.getByText('Nộp bằng chứng cấu hình Codex', { exact: true }).waitFor()
+  const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
+  await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
+  await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
+  await practiceBrief.getByRole('heading', { name: 'ĐIỀU KIỆN ĐẠT', exact: true }).waitFor()
+  assert.match(await practiceBrief.textContent(), /Model5.6 Sol/)
+  assert.match(await practiceBrief.textContent(), /EffortHigh/)
+  assert.match(await practiceBrief.textContent(), /SpeedStandard/)
+  assert.match(await practiceBrief.textContent(), /ApprovalApprove for me/)
+  assert.match(await practiceBrief.textContent(), /Full accessTắt/)
   await capture(page, 'module-1-codex-setup-practice.png')
 
   if (verifyResponsiveLayout) {
@@ -298,6 +307,12 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
     assert.equal(narrowWidths.body, narrowWidths.viewport)
     assert.equal(narrowWidths.document, narrowWidths.viewport)
     await capture(page, 'module-1-codex-setup-390px.png')
+    const narrowPracticeAction = page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
+    await narrowPracticeAction.scrollIntoViewIfNeeded()
+    const narrowPracticeActionBounds = await narrowPracticeAction.boundingBox()
+    assert.ok(narrowPracticeActionBounds)
+    assert.ok(narrowPracticeActionBounds.y >= 0)
+    assert.ok(narrowPracticeActionBounds.y + narrowPracticeActionBounds.height <= 844)
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 

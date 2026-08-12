@@ -97,6 +97,7 @@
           "id": "m1-assessment",
           "titleVi": "Nộp cấu hình để Triết duyệt",
           "estimatedMinutes": 10,
+          "practicePath": "course/practices/m1-codex-safe-setup.json",
           "checkpoints": [
             "m1-setup-checklist",
             "m1-mastery",

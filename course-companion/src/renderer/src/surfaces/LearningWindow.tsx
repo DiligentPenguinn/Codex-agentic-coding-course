@@ -17,6 +17,7 @@ import {
 } from '../../../../shared/contracts'
 import roomImage from '../../../../../prototypes/mvp-3-course-experience-companion/assets/home-base.png'
 import courseStructure from '../../../../../pilot-workspace/course/course-structure.json'
+import setupPracticeDefinitionSource from '../../../../../pilot-workspace/course/practices/m1-codex-safe-setup.json'
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
@@ -41,6 +42,25 @@ type EvidenceItem = {
   value: string
   ready?: boolean
 }
+
+type PracticeDefinition = {
+  practiceId: string
+  objective: string
+  expectedOutcome: string
+  reportTitle: string
+  requiredSettings: Array<{
+    id: string
+    label: string
+    value: string
+  }>
+  criteria: Array<{
+    id: string
+    description: string
+    required: boolean
+  }>
+}
+
+const setupPracticeDefinition: PracticeDefinition = setupPracticeDefinitionSource
 
 type LessonVisual = {
   image: string
@@ -80,6 +100,7 @@ type SceneContent = {
   evidence: EvidenceItem[]
   dialogue: string
   choices: Choice[]
+  practice?: PracticeDefinition
   assessmentQuestionId?: string
   assessmentGroupId?: string
   assessmentSummary?: boolean
@@ -462,7 +483,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Nộp cấu hình để Triết duyệt',
-    objective: 'Chứng minh cấu hình thật trong Codex',
+    objective: 'Nộp bằng chứng cấu hình Codex',
     panelLabel: 'PRACTICE · 2 ẢNH',
     panelStatus: 'TRIẾT DUYỆT BẰNG CHỨNG',
     tone: 'neutral',
@@ -472,7 +493,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'ẢNH 2', value: 'Approval, Full access' },
       { label: 'KẾT QUẢ', value: 'Đúng task và còn mới' }
     ],
-    dialogue: 'Course Companion sẽ mở một task Executor riêng. Trong task đó, hãy đính kèm hai ảnh cấu hình và yêu cầu Executor chỉ quan sát, không thay đổi cài đặt. Sau khi có báo cáo đủ năm mục, quay lại và yêu cầu Triết duyệt tiến độ.',
+    dialogue: setupPracticeDefinition.expectedOutcome,
+    practice: setupPracticeDefinition,
     choices: [{ label: 'Sang Codex nộp cấu hình', action: 'practice', primary: true }]
   },
   'module-1-mastery': {
@@ -1365,6 +1387,41 @@ function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
           <strong>{item.value}</strong>
         </div>
       ))}
+    </div>
+  )
+}
+
+function PracticeBrief({ definition }: { definition: PracticeDefinition }) {
+  const requiredCriteria = definition.criteria.filter((criterion) => criterion.required)
+
+  return (
+    <div className="pixel-practice-brief" data-practice-id={definition.practiceId}>
+      <section>
+        <h3>MỤC TIÊU</h3>
+        <p>{definition.objective}</p>
+      </section>
+      <section>
+        <h3>KẾT QUẢ CẦN NỘP</h3>
+        <p>{definition.expectedOutcome}</p>
+        <div className="pixel-practice-report-title">
+          <span>TIÊU ĐỀ BÁO CÁO</span>
+          <strong>{definition.reportTitle}</strong>
+        </div>
+        <dl className="pixel-practice-settings">
+          {definition.requiredSettings.map((setting) => (
+            <div key={setting.id}>
+              <dt>{setting.label}</dt>
+              <dd>{setting.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+      <section>
+        <h3>ĐIỀU KIỆN ĐẠT</h3>
+        <ol>
+          {requiredCriteria.map((criterion) => <li key={criterion.id}>{criterion.description}</li>)}
+        </ol>
+      </section>
     </div>
   )
 }
@@ -2761,15 +2818,17 @@ export function LearningWindow() {
         />
       ) : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        <p>{scene.assessmentSummary
-          ? finalPassed
-            ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
-            : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
-          : displayedSceneId === 'module-1-codex-examples'
-            ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
-            : scene.dialogue}</p>
+        {scene.practice ? <PracticeBrief definition={scene.practice} /> : (
+          <p>{scene.assessmentSummary
+            ? finalPassed
+              ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
+              : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
+            : displayedSceneId === 'module-1-codex-examples'
+              ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
+              : scene.dialogue}</p>
+        )}
         {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
