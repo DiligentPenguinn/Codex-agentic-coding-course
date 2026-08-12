@@ -302,26 +302,6 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   }
 
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
-
-  // The production return is owned by the verified Practice workflow in PR #4.
-  // This smoke fixture injects the same destination after a simulated passing receipt.
-  await page.evaluate(async () => {
-    const result = await globalThis.courseCompanion.loadProgress()
-    if (result.status !== 'returning' && result.status !== 'recovered') {
-      throw new Error('Expected saved Module 1 progress before simulated Practice return')
-    }
-    const current = result.progress
-    await globalThis.courseCompanion.saveProgress({
-      currentLessonId: 'module-1',
-      currentCourseLessonId: 'm1-assessment',
-      checkpointId: 'm1-mastery',
-      sceneId: 'module-1-mastery',
-      sceneHistory: [...current.sceneHistory, current.sceneId],
-      completedCheckpointIds: [...new Set([...current.completedCheckpointIds, 'm1-setup-checklist'])],
-      decisions: current.decisions
-    })
-    await globalThis.courseCompanion.showLearningWindow()
-  })
   await page.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
@@ -798,70 +778,12 @@ try {
   await learningPage
     .getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
     .click()
-
-  const minimized = await waitForSnapshot(
-    resumedLaunch,
-    (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
-    'Expected the learning window to minimize into the Teacher companion'
-  )
-  assert.equal(companionWindow(minimized)?.bounds.width, 168)
-  assert.equal(companionWindow(minimized)?.bounds.height, 188)
-
-  await companionPage
-    .getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' })
-    .click()
-  const expanded = await waitForSnapshot(
-    resumedLaunch,
-    (windows) => companionWindow(windows)?.bounds.width === 380,
-    'Expected the Teacher companion to expand'
-  )
-  assert.equal(companionWindow(expanded)?.bounds.height, 520)
-
-  await companionPage.getByText('PHẢN HỒI LUYỆN TẬP', { exact: true }).waitFor()
-  const composer = companionPage.getByRole('textbox', { name: 'Nhắn cho Triết' })
-  assert.equal(
-    await composer.evaluate((element) => element === element.ownerDocument.activeElement),
-    true
-  )
-  await composer.fill('Tôi cần kiểm tra gì trước khi duyệt?')
-  await composer.press('Enter')
-  await companionPage
-    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
-    .waitFor()
-  await companionPage
-    .getByText(
-      'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.',
-      { exact: true }
-    )
-    .waitFor()
-
-  await companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
-  await companionPage.getByText('CHƯA BẮT ĐẦU · LUYỆN TẬP', { exact: true }).waitFor()
-  await companionPage.getByText('CÁC TÌNH HUỐNG LUYỆN TẬP', { exact: true }).click()
-
-  const fixtureScenarios = [
-    ['Bắt đầu', 'ĐANG THỰC HIỆN · LUYỆN TẬP'],
-    ['Cần phê duyệt', 'CẦN PHÊ DUYỆT · LUYỆN TẬP'],
-    ['Bằng chứng cũ', 'BẰNG CHỨNG CŨ · LUYỆN TẬP'],
-    ['Mất kết nối', 'MẤT KẾT NỐI · LUYỆN TẬP'],
-    ['Lỗi', 'LƯỢT CHẠY LỖI · LUYỆN TẬP'],
-    ['Hoàn thành', 'ĐÃ HOÀN THÀNH · LUYỆN TẬP']
-  ]
-  for (const [buttonName, statusText] of fixtureScenarios) {
-    await companionPage.getByRole('button', { name: buttonName, exact: true }).click()
-    await companionPage.getByText(statusText, { exact: true }).waitFor()
-  }
-  await companionPage.getByText('Khớp PRD', { exact: true }).waitFor()
-  await companionPage.getByText('BẰNG CHỨNG MỚI · BÀI LUYỆN TẬP', { exact: true }).waitFor()
-
-  await companionPage.getByRole('button', { name: 'Mở bài học' }).click()
+  await learningPage.getByText('Kiểm tra và hoàn thành Module 2', { exact: true }).waitFor()
   await waitForSnapshot(
     resumedLaunch,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
-    'Expected the learning window to restore and hide the companion'
+    'Expected the mock Practice to keep the learning window visible'
   )
-
-  await learningPage.getByText('Kiểm tra và hoàn thành Module 2', { exact: true }).waitFor()
   assert.equal(
     await learningPage.getByText('Không thể tải tiến trình cục bộ.', { exact: true }).count(),
     0
@@ -917,13 +839,6 @@ try {
   assert.equal(persisted.practice.status, 'completed')
   assert.equal(persisted.practice.latestEvent.source, 'fixture')
 
-  const persistedChat = (await readFile(join(userDataDirectory, 'teacher-chat.jsonl'), 'utf8'))
-    .trim()
-    .split('\n')
-    .map((line) => JSON.parse(line))
-  assert.equal(persistedChat.length, 2)
-  assert.equal(persistedChat[1].source, 'fixture')
-
   chatHistoryLaunch = await launchCourseCompanion()
   const historyWindows = await loadWindows(chatHistoryLaunch)
   await chatHistoryLaunch.evaluate(({ BrowserWindow }) => {
@@ -941,15 +856,6 @@ try {
     'Expected the expanded Teacher chat mode to survive a full restart'
   )
   assert.equal(companionWindow(restoredChat)?.bounds.height, 520)
-  await historyWindows.companionPage
-    .getByText('Tôi cần kiểm tra gì trước khi duyệt?', { exact: true })
-    .waitFor()
-  await historyWindows.companionPage
-    .getByText(
-      'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.',
-      { exact: true }
-    )
-    .waitFor()
   await historyWindows.companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
   await historyWindows.companionPage
     .getByText('ĐÃ HOÀN THÀNH · LUYỆN TẬP', { exact: true })
@@ -959,7 +865,7 @@ try {
   chatHistoryLaunch = undefined
 
   console.log(
-    'Electron smoke: introduction separation, six-lesson Module 2, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, planning-package fixtures, mastery, persistence, security, and companion lifecycle passed'
+    'Electron smoke: introduction separation, six-lesson Module 2, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)

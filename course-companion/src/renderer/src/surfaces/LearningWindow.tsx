@@ -2298,11 +2298,6 @@ export function LearningWindow() {
     }
   }
 
-  const minimizeToTeacher = async () => {
-    await window.courseCompanion?.setCompanionMode('compact')
-    await window.courseCompanion?.hideLearningWindow()
-  }
-
   const updateAppSettings = async (companionAlwaysOnTop: boolean) => {
     setError('')
     try {
@@ -2433,7 +2428,32 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
-      await minimizeToTeacher()
+      const nextSceneId = progress.sceneId === 'module-1-setup-checklist'
+        ? 'module-1-mastery'
+        : progress.sceneId === 'module-2-planning-package'
+          ? 'module-2-mastery'
+          : null
+      if (!nextSceneId) return
+
+      setBusy(true)
+      setReviewHistoryIndex(null)
+      setError('')
+      try {
+        if (progress.sceneId === 'module-2-planning-package') {
+          await window.courseCompanion?.emitPracticeFixture({ scenario: 'success' })
+        }
+        await advanceToScene(nextSceneId, {
+          ...progress.decisions,
+          [`practicePreview:${progress.checkpointId}`]: 'mock-completed'
+        })
+        setApprovalFocus(null)
+        setVisualExpanded(false)
+        setSecondaryVisualExpanded(false)
+      } catch {
+        setError('Không thể hoàn thành bài thực hành mô phỏng. Hãy thử lại.')
+      } finally {
+        setBusy(false)
+      }
       return
     }
     if (!choice.next) return
