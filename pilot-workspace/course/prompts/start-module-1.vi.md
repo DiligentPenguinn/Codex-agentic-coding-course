@@ -15,9 +15,10 @@ Trong lời learner-facing, phải gọi đây là **cấu hình mình đề xu�
 ContentPilot**. Không gọi đây là thiết lập mặc định của mọi tài khoản Codex.
 
 Phần cuối phải mở Practice `m1-codex-safe-setup`. Learner nộp hai ảnh trong
-đúng task Executor. Triết chỉ đánh dấu đạt sau khi bằng chứng còn mới và xác
+đúng task Executor. Triết chỉ duyệt Practice sau khi bằng chứng còn mới và xác
 nhận đủ năm thiết lập. Không dùng nút tự xác nhận thay cho đánh giá của Triết.
 
-`course/quizzes/module-1.quiz.json` là ngân hàng câu hỏi sửa sai. Chỉ dùng câu
-phù hợp khi Learner chưa hiểu một tiêu chí; không biến nó thành bài kiểm tra
-cuối thay cho Practice.
+Sau khi Practice được duyệt, dùng đủ năm câu trong
+`course/quizzes/module-1.quiz.json` làm bài ôn tập cuối Module 1. Hỏi từng câu
+một và chỉ hiện phản hồi sau khi Learner đã trả lời. Learner cần đạt ít nhất
+4/5 câu trước khi hoàn thành Module 1.

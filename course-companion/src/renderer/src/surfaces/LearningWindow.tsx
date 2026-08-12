@@ -501,27 +501,27 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
     step: 6,
-    totalSteps: 7,
+    totalSteps: 8,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Triết đã duyệt cấu hình',
-    objective: 'Bằng chứng thiết lập đã đạt',
-    panelLabel: 'KẾT QUẢ PRACTICE',
-    panelStatus: 'ĐÃ ĐẠT',
+    mission: 'Ôn tập cuối Module 1',
+    objective: 'Sẵn sàng cho 5 câu ôn tập',
+    panelLabel: 'PRACTICE ĐÃ ĐƯỢC DUYỆT',
+    panelStatus: 'ĐÃ ĐẠT · TIẾP TỤC ÔN TẬP',
     tone: 'good',
-    request: 'Kết quả được lưu từ đúng task Executor, không dựa trên lời tự xác nhận.',
+    request: 'Năm câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
     evidence: [
       { label: 'MODEL', value: '5.6 Sol · High', ready: true },
       { label: 'SPEED', value: 'Standard', ready: true },
       { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Triết đã đối chiếu đủ năm thiết lập. Bằng chứng đến từ đúng task và còn mới. Bạn đã có cấu hình an toàn để bắt đầu dự án ContentPilot.',
-    choices: [{ label: 'Hoàn thành Module 1', next: 'module-1-complete', primary: true, decision: { key: 'setupMastery', value: 'teacher-reviewed-setup' } }]
+    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Executor. Bây giờ, bạn sẽ trả lời năm câu ôn tập. Bạn cần đạt ít nhất bốn câu để hoàn thành Module 1.',
+    choices: [{ label: 'Bắt đầu 5 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
   },
   'module-1-complete': {
     lessonId: 'module-1',
     checkpointId: 'm1-complete',
-    step: 7,
-    totalSteps: 7,
+    step: 8,
+    totalSteps: 8,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Sẵn sàng làm việc với Codex',
     objective: 'Module 1 đã hoàn thành',
@@ -1262,6 +1262,12 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
   'm1-assessment': [
     ['module-1-setup-checklist'],
     ['module-1-mastery'],
+    ['module-1-final-1'],
+    ['module-1-final-2'],
+    ['module-1-final-3'],
+    ['module-1-final-4'],
+    ['module-1-final-5'],
+    ['module-1-final-summary'],
     ['module-1-complete']
   ],
   'm2-when-to-plan': [
@@ -1641,7 +1647,6 @@ function ModelLessonBoard({
                 <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
               </article>
             </div>
-            <p className="pixel-model-board__note">Tên model không phải cấp độ bạn phải vượt qua. Hãy chọn theo độ khó, độ rõ của yêu cầu và mức sử dụng bạn chấp nhận.</p>
           </>
         ) : null}
 
@@ -1650,7 +1655,7 @@ function ModelLessonBoard({
             <header>
               <small>ÁP DỤNG VÀO CONTENTPILOT</small>
               <h1 id={titleId}>Dùng cấu hình đã chọn</h1>
-              <p>Phần giải thích đã nằm ở màn hình làm quen với giao diện. Bước này chỉ ghi lại cấu hình bạn sẽ dùng trong phần thực hành.</p>
+              <p>Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex</p>
             </header>
             <dl className="pixel-model-board__definitions">
               <div><dt>Model</dt><dd>GPT-5.6 Sol</dd></div>
@@ -1957,6 +1962,7 @@ const decisionLabels: Record<string, string> = {
   guidanceBoundary: 'Ranh giới hướng dẫn',
   skillBoundary: 'Cách dùng Skill',
   setupChecklist: 'Checklist thiết lập',
+  setupPractice: 'Bằng chứng cấu hình',
   setupMastery: 'Kết quả Module 1',
   setupModuleMigration: 'Module 1',
   planningApproach: 'Cách bắt đầu',

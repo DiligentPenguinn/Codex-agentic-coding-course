@@ -6,6 +6,8 @@ type QuizQuestion = {
   id: string
   sceneId?: string
   type: 'multiple-choice' | 'short-answer' | 'artifact-answer'
+  bloomLevel?: number
+  bloomLabel?: string
   choices?: string[]
   answerIndex?: number
   criteria?: string[]
@@ -72,7 +74,7 @@ describe('Course module assessment banks', () => {
       'Codex và coding agent',
       'Harness Engineering và Harness của Codex',
       'Áp dụng cấu hình Codex',
-      'Nộp cấu hình để Triết duyệt'
+      'Thực hành và ôn tập cuối Module 1'
     ])
     expect(moduleTwo?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Khi nào cần planning',
@@ -82,7 +84,7 @@ describe('Course module assessment banks', () => {
       'Từ PRD đến implementation plan',
       'Kiểm tra và hoàn thành Module 2'
     ])
-    expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(42)
+    expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(50)
     expect(moduleTwo?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(110)
     expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
     expect(moduleTwo?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo?.checkpoints)
@@ -166,5 +168,15 @@ describe('Course module assessment banks', () => {
     expect(finalGroup?.questions.filter((question) => question.type === 'multiple-choice')).toHaveLength(10)
     expect(finalGroup?.questions.filter((question) => question.type === 'short-answer')).toHaveLength(3)
     expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(2)
+  })
+
+  it('keeps all five Module 1 review questions at Bloom level 2 or higher', async () => {
+    const setupQuiz = await loadQuiz('module-1')
+    const setupQuestions = setupQuiz.questions ?? []
+
+    expect(setupQuestions).toHaveLength(5)
+    expect(setupQuestions.map((question) => question.bloomLevel)).toEqual([2, 3, 3, 3, 4])
+    expect(setupQuestions.every((question) => (question.bloomLevel ?? 0) >= 2)).toBe(true)
+    expect(setupQuestions.every((question) => Boolean(question.bloomLabel))).toBe(true)
   })
 })

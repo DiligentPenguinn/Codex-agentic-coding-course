@@ -1,28 +1,31 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "moduleId": "module-1",
-  "title": "Ngân hàng câu hỏi sửa sai — Thiết lập Codex",
+  "title": "Bài ôn tập cuối Module 1 — Làm việc với Codex",
   "passingScore": 4,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
-    "feedbackTiming": "Chỉ dùng sau khi Learner đã trả lời hoặc Practice cho thấy một phần chưa hiểu.",
+    "feedbackTiming": "Chỉ hiện phản hồi, lời giải và nguồn sau khi Learner đã trả lời câu hiện tại.",
     "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
-    "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học."
+    "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học.",
+    "retryPolicy": "Learner cần đạt ít nhất 4/5 câu. Nếu chưa đạt, cho làm lại bài ôn tập trước khi hoàn thành Module 1."
   },
   "questions": [
     {
       "id": "m1-q1",
       "type": "multiple-choice",
-      "prompt": "Điểm nào mô tả đúng nhất một coding agent?",
+      "bloomLevel": 2,
+      "bloomLabel": "Hiểu",
+      "prompt": "Một người dùng yêu cầu Codex sửa lỗi trong dự án. Dấu hiệu nào cho thấy Codex đang hoạt động như một coding agent thay vì chatbot chỉ trả lời bằng văn bản?",
       "choices": [
-        "Một trợ lý có thể dùng công cụ và làm việc với dự án để thực hiện yêu cầu liên quan đến code.",
-        "Một chatbot chỉ trả lời câu hỏi bằng văn bản.",
-        "Một model luôn có toàn quyền trên máy tính.",
-        "Một trình soạn thảo chỉ dùng để viết code thủ công."
+        "Codex đọc các tệp liên quan, sửa trong phạm vi được giao, chạy kiểm tra rồi báo cáo kết quả.",
+        "Codex giải thích lỗi có thể nằm ở đâu nhưng không làm việc với dự án.",
+        "Codex trả lời thật dài và dùng nhiều thuật ngữ kỹ thuật.",
+        "Codex luôn được toàn quyền truy cập máy tính trước khi bắt đầu."
       ],
       "answerIndex": 0,
-      "explanation": "Codex là coding agent: model được đặt trong một môi trường có dự án, công cụ và các ranh giới hành động.",
+      "explanation": "Coding agent có thể hành động trong dự án bằng công cụ và kiểm tra kết quả. Một câu trả lời dài hoặc có thuật ngữ chưa chứng minh khả năng đó.",
       "source": {
         "label": "OpenAI Docs — Codex app",
         "url": "https://learn.chatgpt.com/docs/app",
@@ -32,15 +35,17 @@
     {
       "id": "m1-q2",
       "type": "multiple-choice",
-      "prompt": "Nếu model được ví như bộ não, đâu là ví dụ về harness?",
+      "bloomLevel": 3,
+      "bloomLabel": "Vận dụng",
+      "prompt": "Codex đang dùng model mạnh nhưng liên tục sửa lệch yêu cầu. Bạn phát hiện workspace thiếu chỉ dẫn dự án và không có cách kiểm tra kết quả. Bạn nên làm gì trước?",
       "choices": [
-        "Workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi.",
-        "Chỉ tên của model đang được chọn.",
-        "Chỉ câu trả lời cuối cùng của agent.",
-        "Chỉ tốc độ kết nối Internet."
+        "Bổ sung chỉ dẫn cùng cách kiểm tra rõ ràng trong harness, rồi yêu cầu Codex thử lại.",
+        "Đổi sang model mạnh hơn ngay, vì model quyết định toàn bộ chất lượng.",
+        "Bật Full access để Codex tự tìm thêm thông tin trên máy.",
+        "Chấp nhận kết quả hiện tại nếu Codex nói rằng công việc đã hoàn thành."
       ],
       "answerIndex": 0,
-      "explanation": "Harness là hệ thống bao quanh model để agent có nơi hành động, quy tắc cần tuân theo và tín hiệu kiểm tra kết quả.",
+      "explanation": "Model chỉ là một phần của hệ thống. Khi Codex thiếu bối cảnh và tín hiệu kiểm tra, hãy cải thiện harness trước khi kết luận rằng cần đổi model.",
       "source": {
         "label": "OpenAI — Harness Engineering",
         "url": "https://openai.com/vi-VN/index/harness-engineering/",
@@ -50,15 +55,17 @@
     {
       "id": "m1-q3",
       "type": "multiple-choice",
-      "prompt": "Mình khuyên bạn dùng thiết lập approval nào?",
+      "bloomLevel": 3,
+      "bloomLabel": "Vận dụng",
+      "prompt": "Một task Executor chỉ cần đọc hai ảnh đã nằm trong workspace nhưng lại yêu cầu bật Full access. Cách xử lý nào phù hợp nhất?",
       "choices": [
-        "Approve for me và không bật Full access.",
-        "Full access cho mọi dự án.",
-        "Tắt toàn bộ sandbox.",
-        "Luôn duyệt mọi yêu cầu mà không đọc."
+        "Giữ Full access tắt, xem lý do xin quyền và yêu cầu Executor làm việc trong phạm vi hẹp hơn nếu có thể.",
+        "Bật Full access vì mọi yêu cầu từ Codex đều cần quyền này.",
+        "Duyệt ngay mà không đọc vì task chỉ kiểm tra ảnh.",
+        "Tắt sandbox vĩnh viễn để lần sau không bị gián đoạn."
       ],
       "answerIndex": 0,
-      "explanation": "Approve for me giữ nhịp làm việc nhưng vẫn dừng ở hành động bị phát hiện là có rủi ro. Full access gỡ bỏ các ranh giới bảo vệ thông thường.",
+      "explanation": "Quyền truy cập phải phù hợp với mục đích và phạm vi công việc. Một tác vụ đọc ảnh trong workspace chưa tự tạo ra lý do để gỡ các ranh giới bảo vệ thông thường.",
       "source": {
         "label": "OpenAI Docs — Sandboxing and approvals",
         "url": "https://learn.chatgpt.com/docs/sandboxing",
@@ -68,31 +75,37 @@
     {
       "id": "m1-q4",
       "type": "short-answer",
-      "prompt": "Hãy nêu một tác vụ phù hợp với Sol và một tác vụ phù hợp với Luna. Giải thích điểm khác nhau.",
+      "bloomLevel": 3,
+      "bloomLabel": "Vận dụng",
+      "prompt": "Bạn có hai việc: thiết kế một luồng ContentPilot còn nhiều điểm chưa rõ và chỉnh 20 đoạn nội dung theo mẫu đã duyệt. Hãy chọn model cùng mức Effort phù hợp cho từng việc, rồi giải thích một đánh đổi trong lựa chọn của bạn.",
+      "explanation": "Công việc mơ hồ, nhiều bước thường cần model có năng lực cao hơn và mức suy luận lớn hơn. Công việc rõ, lặp lại có thể dùng lựa chọn tiết kiệm hơn nếu kết quả vẫn đạt yêu cầu.",
       "expectedSignals": [
-        "Sol được gắn với công việc phức tạp, mơ hồ hoặc có nhiều đánh đổi",
-        "Luna được gắn với công việc rõ, lặp lại hoặc có đầu ra cố định",
-        "Có ví dụ cụ thể bằng lời của Learner"
+        "Chọn Sol và mức Effort cao hơn cho việc thiết kế còn mơ hồ, nhiều bước",
+        "Chọn model hoặc mức Effort tiết kiệm hơn cho việc rõ và lặp lại, kèm điều kiện kết quả vẫn đạt yêu cầu",
+        "Giải thích ít nhất một đánh đổi về chất lượng, thời gian hoặc mức sử dụng"
       ],
       "source": {
         "label": "OpenAI Docs — Models",
         "url": "https://learn.chatgpt.com/docs/models",
-        "basis": "Tài liệu phân biệt Sol cho việc phức tạp với Luna cho tác vụ rõ, lặp lại và cần chi phí thấp."
+        "basis": "Tài liệu hướng dẫn chọn model và mức suy luận theo độ phức tạp của tác vụ cùng chất lượng kết quả cần đạt."
       }
     },
     {
       "id": "m1-q5",
       "type": "short-answer",
-      "prompt": "Vì sao mình khuyên bạn dùng High thay vì Extra High hoặc Ultra cho ContentPilot?",
+      "bloomLevel": 4,
+      "bloomLabel": "Phân tích",
+      "prompt": "Báo cáo Verification ghi 5.6 Sol, High, Standard và Approve for me. Tuy nhiên, báo cáo không nhắc đến Full access và task chỉ có một ảnh. Bạn có thể duyệt cấu hình này không? Hãy nêu bằng chứng còn thiếu và bước tiếp theo.",
+      "explanation": "Chưa thể duyệt vì không được suy đoán trạng thái Full access từ bốn mục còn lại. Bằng chứng cũng chưa đáp ứng yêu cầu hai ảnh của Practice.",
       "expectedSignals": [
-        "High đủ cho công việc nhiều bước của dự án thực hành",
-        "Extra High hoặc Ultra dùng nhiều thời gian hay usage hơn",
-        "Nêu nguyên tắc dùng mức thấp nhất vẫn tạo ra kết quả đạt yêu cầu"
+        "Kết luận chưa thể duyệt cấu hình",
+        "Chỉ ra còn thiếu trạng thái Full access và ảnh Approval–Full access",
+        "Yêu cầu bổ sung đúng bằng chứng còn thiếu rồi kiểm tra lại, không tự suy đoán"
       ],
       "source": {
-        "label": "OpenAI Docs — Models",
-        "url": "https://learn.chatgpt.com/docs/models",
-        "basis": "Tài liệu khuyên dùng mức reasoning thấp nhất vẫn tạo ra kết quả đạt yêu cầu và dành mức rất cao cho nhiệm vụ thật sự khó."
+        "label": "OpenAI Docs — Sandboxing and approvals",
+        "url": "https://learn.chatgpt.com/docs/sandboxing",
+        "basis": "Tài liệu phân biệt trạng thái Full access với chính sách approval, nên không thể suy ra một trạng thái từ trạng thái còn lại."
       }
     }
   ]

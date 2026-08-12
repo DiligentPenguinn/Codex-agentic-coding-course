@@ -278,7 +278,7 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByText('Dùng cấu hình đã chọn', { exact: true }).waitFor()
   assert.equal(await page.locator('.pixel-model-board').count(), 1)
-  assert.match(await page.locator('.pixel-model-board').textContent(), /Phần giải thích đã nằm ở màn hình làm quen với giao diện/)
+  assert.match(await page.locator('.pixel-model-board').textContent(), /Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex/)
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
@@ -317,8 +317,36 @@ async function completeSetupModule(page, verifyResponsiveLayout = false) {
   }
 
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
-  await page.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
+  await page.getByText('Sẵn sàng cho 5 câu ôn tập', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-approved.png')
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+
+  await page.getByText(/Dấu hiệu nào cho thấy Codex đang hoạt động như một coding agent/).waitFor()
+  await page.getByRole('button', { name: /Codex đọc các tệp liên quan/ }).click()
+  await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
+
+  await page.getByText(/workspace thiếu chỉ dẫn dự án và không có cách kiểm tra kết quả/).waitFor()
+  await page.getByRole('button', { name: /Bổ sung chỉ dẫn cùng cách kiểm tra rõ ràng/ }).click()
+  await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
+
+  await page.getByText(/task Executor chỉ cần đọc hai ảnh/).waitFor()
+  await page.getByRole('button', { name: /Giữ Full access tắt/ }).click()
+  await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
+
+  await page.getByText(/Bạn có hai việc: thiết kế một luồng ContentPilot/).waitFor()
+  await page.getByLabel('Câu trả lời của bạn').fill('Dùng Sol và High cho việc còn mơ hồ; dùng lựa chọn tiết kiệm hơn cho việc theo mẫu đã duyệt.')
+  await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
+  await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
+  await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
+
+  await page.getByText(/Báo cáo Verification ghi 5.6 Sol/).waitFor()
+  await page.getByLabel('Câu trả lời của bạn').fill('Chưa thể duyệt. Cần thêm ảnh Approval–Full access và xác nhận Full access đang tắt rồi mới kiểm tra lại.')
+  await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
+  await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
+  await page.getByRole('button', { name: 'Xem kết quả 5 câu', exact: true }).click()
+
+  await page.getByText(/Bạn đạt 5\/5 câu/).waitFor()
+  await capture(page, 'module-1-final-review.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
@@ -843,8 +871,15 @@ try {
   assert.equal(persisted.currentCourseLessonId, 'm2-assessment')
   assert.ok(persisted.sceneHistory.length > 20)
   assert.equal(persisted.decisions.planningApproach, 'plan-first')
-  assert.equal(persisted.decisions.setupMastery, 'teacher-reviewed-setup')
+  assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
+  assert.equal(persisted.decisions.setupMastery, 'passed-four-of-five')
   assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
+  assert.equal(
+    Object.entries(persisted.decisions).filter(
+      ([key, value]) => key.startsWith('assessment:m1-q') && String(value).startsWith('correct')
+    ).length,
+    5
+  )
   assert.equal(
     Object.entries(persisted.decisions).filter(
       ([key, value]) => key.startsWith('assessment:final-') && String(value).startsWith('correct')

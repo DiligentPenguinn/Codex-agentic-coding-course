@@ -53,7 +53,7 @@
       "kind": "module",
       "titleVi": "Bắt đầu làm việc với Codex",
       "titleEn": "Getting started with Codex",
-      "estimatedMinutes": 42,
+      "estimatedMinutes": 50,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
       "quizPath": "course/quizzes/module-1.quiz.json",
@@ -95,8 +95,8 @@
         },
         {
           "id": "m1-assessment",
-          "titleVi": "Nộp cấu hình để Triết duyệt",
-          "estimatedMinutes": 10,
+          "titleVi": "Thực hành và ôn tập cuối Module 1",
+          "estimatedMinutes": 18,
           "practicePath": "course/practices/m1-codex-safe-setup.json",
           "checkpoints": [
             "m1-setup-checklist",

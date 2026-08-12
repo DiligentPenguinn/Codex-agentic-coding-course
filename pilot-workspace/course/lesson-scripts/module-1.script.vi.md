@@ -98,7 +98,7 @@ Speed; một ảnh Approval cùng trạng thái Full access. Sau đó gửi yêu
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi task đã mở và có hoạt động mới.]
 
-## Bước 5 — Triết duyệt bằng chứng (`m1-mastery`)
+## Bước 5 — Triết duyệt bằng chứng
 
 [Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu bằng chứng theo
 Practice definition. Không nhận lời tự xác nhận thay cho báo cáo từ đúng task.
@@ -107,9 +107,20 @@ Nếu thiếu hoặc sai một mục, nêu đúng mục cần sửa và cho nộ
 Teacher nói khi đạt: "Mình đã duyệt đủ năm mục: 5.6 Sol, High, Standard,
 Approve for me và Full access đang tắt. Bằng chứng đến từ đúng task và còn mới."
 
-[Lưu kết quả đạt và checkpoint `m1-mastery`.]
+[Lưu kết quả Practice đạt. Chưa hoàn thành checkpoint `m1-mastery`.]
 
-## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
+## Bước 6 — Ôn tập cuối Module 1 (`m1-mastery`)
+
+Teacher nói: "Bạn đã thiết lập Codex và kiểm tra bằng chứng thật. Bây giờ, năm
+câu ôn tập sẽ giúp bạn giải thích, áp dụng và phân tích những gì vừa học. Bạn
+cần đạt ít nhất bốn câu để hoàn thành Module 1."
+
+[Dùng đủ năm câu trong `course/quizzes/module-1.quiz.json`. Mở Assessment State
+cho từng câu và hỏi từng câu một. Chỉ hiện phản hồi, lời giải cùng nguồn sau khi
+Learner đã trả lời. Nếu chưa đạt 4/5, cho làm lại bài ôn tập. Khi đạt, lưu
+checkpoint `m1-mastery`.]
+
+## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
 
 Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
 hơn, bạn hiểu model là bộ não còn harness là môi trường giúp coding agent hành
