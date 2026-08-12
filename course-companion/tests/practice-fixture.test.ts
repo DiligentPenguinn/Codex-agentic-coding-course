@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -22,7 +22,7 @@ afterEach(async () => {
 
 const practiceCheckpoint: ProgressUpdate = {
   currentLessonId: 'module-2',
-  currentCourseLessonId: 'm2-implementation-plan',
+  currentCourseLessonId: 'm2-prd-review',
   checkpointId: 'm2-planning-package',
   sceneId: 'module-2-planning-package',
   sceneHistory: ['module-2-alignment-review'],
@@ -32,9 +32,7 @@ const practiceCheckpoint: ProgressUpdate = {
     'm2-contentpilot-brief',
     'm2-prd-concept',
     'm2-prd-interview',
-    'm2-prd-approved',
-    'm2-implementation-plan',
-    'm2-alignment-review'
+    'm2-implementation-plan'
   ],
   decisions: {}
 }
@@ -96,5 +94,14 @@ describe('FixturePracticeAdapter', () => {
     await expect(adapter.emitFixture({ scenario: 'started' })).rejects.toThrow(
       'Learner progress is required'
     )
+  })
+
+  it('keeps fixture IPC and controls behind deterministic test mode', async () => {
+    const [main, teacher] = await Promise.all([
+      readFile(join(process.cwd(), 'electron', 'main', 'index.ts'), 'utf8'),
+      readFile(join(process.cwd(), 'src', 'renderer', 'src', 'components', 'TeacherWorkspace.tsx'), 'utf8')
+    ])
+    expect(main).toContain("if (!useTestCodexGateway) throw new Error('Practice fixtures are available only in deterministic test mode')")
+    expect(teacher).toContain('testFixturesEnabled ? <details')
   })
 })

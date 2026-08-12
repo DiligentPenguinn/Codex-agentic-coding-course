@@ -100,11 +100,14 @@ test("quarantines corrupt JSON and returns defaults", async (t) => {
   assert.equal(state.setupCompleted, false);
   assert.equal(
     (await readdir(userDataPath)).some((name) => (
-      name.startsWith("setup-state.corrupt-")
+      name === "setup-state.corrupt-2026-07-30T00-00-00.000Z.json"
     )),
     true,
   );
-  assert.equal(store.lastRecovery?.code, "STATE_RESET");
+  assert.deepEqual(store.lastRecovery, {
+    code: "STATE_RESET",
+    message: "Local setup progress was reset because it could not be read.",
+  });
   assert.doesNotMatch(JSON.stringify(store.lastRecovery), /\{broken/);
 });
 

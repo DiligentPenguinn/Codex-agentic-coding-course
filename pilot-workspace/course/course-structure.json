@@ -127,9 +127,7 @@
         "m2-contentpilot-brief",
         "m2-prd-concept",
         "m2-prd-interview",
-        "m2-prd-approved",
         "m2-implementation-plan",
-        "m2-alignment-review",
         "m2-planning-package",
         "m2-mastery",
         "m2-complete"
@@ -161,20 +159,18 @@
           ]
         },
         {
-          "id": "m2-prd-review",
-          "titleVi": "Xem xét và duyệt PRD",
-          "estimatedMinutes": 10,
-          "checkpoints": [
-            "m2-prd-approved"
-          ]
-        },
-        {
           "id": "m2-implementation-plan",
           "titleVi": "Từ PRD đến implementation plan",
           "estimatedMinutes": 20,
           "checkpoints": [
-            "m2-implementation-plan",
-            "m2-alignment-review",
+            "m2-implementation-plan"
+          ]
+        },
+        {
+          "id": "m2-prd-review",
+          "titleVi": "Thực hành tạo planning package",
+          "estimatedMinutes": 10,
+          "checkpoints": [
             "m2-planning-package"
           ]
         },

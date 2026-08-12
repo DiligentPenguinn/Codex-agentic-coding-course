@@ -19,23 +19,25 @@ import {
   type CheckpointId,
   type LearnerProgress,
   type LessonId,
+  type PracticeCompletionReceipt,
   type PracticeEvent,
   type PracticeState,
   type ProgressLoadResult,
   type ProgressUpdate,
   type SceneId
 } from '../../shared/contracts'
+import { isApprovedCodexConfiguration } from './practice-task-policy'
 
 const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
+const SAFE_ID = /^[A-Za-z0-9_-]{1,160}$/
 const courseLessonSet = new Set<string>(courseLessonIds)
 const LEGACY_COURSE_VERSION = '0.1.0'
 const RETIRED_PERMISSION_SCENES = new Set(['module-1-permissions', 'module-1-approval-choice'])
 const RETIRED_PERMISSION_CHECKPOINT = 'm1-permissions'
 const RETIRED_PERMISSION_LESSON = 'm1-workspace-permissions'
 
-function hasRetiredSceneReferences(value: unknown): boolean {
-  if (!isRecord(value)) return false
+function hasRetiredSceneReferences(value: Record<string, unknown>): boolean {
   return (
     (typeof value.sceneId === 'string' && RETIRED_PERMISSION_SCENES.has(value.sceneId)) ||
     value.checkpointId === RETIRED_PERMISSION_CHECKPOINT ||
@@ -94,6 +96,72 @@ function isCheckpointId(value: unknown): value is CheckpointId {
 
 function isSceneId(value: unknown): value is SceneId {
   return typeof value === 'string' && sceneSet.has(value)
+}
+
+export function isPracticeCompletionReceipt(value: unknown): value is PracticeCompletionReceipt {
+  if (!isRecord(value) || value.schemaVersion !== 1 || value.status !== 'completed') return false
+  const destination = value.destination
+  return SAFE_ID.test(String(value.courseRunId))
+    && SAFE_ID.test(String(value.practiceId))
+    && typeof value.practiceVersion === 'string'
+    && value.practiceVersion.length > 0
+    && value.practiceVersion.length <= 40
+    && SAFE_ID.test(String(value.runId))
+    && isCheckpointId(value.checkpointId)
+    && isIsoDate(value.completedAt)
+    && typeof value.evidenceSummary === 'string'
+    && value.evidenceSummary.length > 0
+    && value.evidenceSummary.length <= 1500
+    && typeof value.masterySummary === 'string'
+    && value.masterySummary.length > 0
+    && value.masterySummary.length <= 1500
+    && isRecord(destination)
+    && isLessonId(destination.lessonId)
+    && isCheckpointId(destination.checkpointId)
+    && isSceneId(destination.sceneId)
+    && sceneCheckpoint[destination.sceneId] === destination.checkpointId
+    && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
+      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-'))
+      || (destination.lessonId === 'module-2' && destination.sceneId.startsWith('module-2-')))
+    && (value.approvedConfiguration === undefined ||
+      isApprovedCodexConfiguration(value.approvedConfiguration))
+}
+
+function completionKey(receipt: PracticeCompletionReceipt): string {
+  return `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
+}
+
+const moduleTwoFinalQuestionIds = Array.from({ length: 15 }, (_, index) => `final-${index + 1}`)
+
+function hasPassedPlanningPractice(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm2-planning-package'
+    && receipt.checkpointId === 'm2-planning-package'
+    && receipt.destination.lessonId === 'module-2'
+    && receipt.destination.checkpointId === 'm2-mastery'
+    && receipt.destination.sceneId === 'module-2-mastery')
+}
+
+function moduleTwoMasteryScore(decisions: Record<string, string>): number {
+  return moduleTwoFinalQuestionIds.filter((questionId) =>
+    decisions[`assessment:${questionId}`]?.startsWith('correct')).length
+}
+
+function assertModuleTwoCompletionGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.sceneId !== 'module-2-complete') return
+  if (!current || !hasPassedPlanningPractice(current)
+    || !update.completedCheckpointIds.includes('m2-planning-package')) {
+    throw new Error('Module 2 requires a passed planning Practice before completion')
+  }
+  if (moduleTwoMasteryScore(update.decisions) < 12
+    || !update.completedCheckpointIds.includes('m2-mastery')) {
+    throw new Error('Module 2 requires a 12/15 mastery score before completion')
+  }
+}
+
+function courseRunId(startedAt: string): string {
+  return `course-${startedAt.replace(/[^0-9]/g, '').slice(0, 17)}`
 }
 
 function isCourseLessonId(value: unknown): value is CourseLessonId {
@@ -163,7 +231,12 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   if (!isRecord(value)) return false
   if (value.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION) return false
   if (value.courseVersion !== COURSE_VERSION) return false
+  if (!SAFE_ID.test(String(value.courseRunId))) return false
   if (!isIsoDate(value.startedAt) || !isIsoDate(value.updatedAt)) return false
+  if (!Array.isArray(value.practiceCompletions)
+    || value.practiceCompletions.length > 100
+    || !value.practiceCompletions.every(isPracticeCompletionReceipt)
+    || new Set(value.practiceCompletions.map(completionKey)).size !== value.practiceCompletions.length) return false
   const practice = value.practice
   if (!isProgressUpdate(value)) return false
   return isPracticeState(practice)
@@ -245,29 +318,72 @@ function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerPro
     schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
     courseVersion: COURSE_VERSION,
     practice: translatedPractice,
+    courseRunId: courseRunId(startedAt),
+    practiceCompletions: [],
     startedAt,
     updatedAt
   }
 }
 
+function normalizeCurrentModuleTwoOrder(raw: Record<string, unknown>): Record<string, unknown> {
+  if (raw.currentLessonId !== 'module-2') return raw
+  const completed = Array.isArray(raw.completedCheckpointIds)
+    ? [...raw.completedCheckpointIds]
+    : raw.completedCheckpointIds
+
+  if (raw.sceneId === 'module-2-prd-approved') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-implementation-plan',
+      checkpointId: 'm2-implementation-plan',
+      sceneId: 'module-2-implementation-plan',
+      completedCheckpointIds: Array.isArray(completed)
+        ? [...new Set([...completed, 'm2-prd-interview'])]
+        : completed
+    }
+  }
+  if (raw.sceneId === 'module-2-alignment-review' || raw.sceneId === 'module-2-alignment-mismatch') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-prd-review',
+      checkpointId: 'm2-planning-package',
+      sceneId: 'module-2-planning-package',
+      completedCheckpointIds: Array.isArray(completed)
+        ? [...new Set([...completed, 'm2-implementation-plan'])]
+        : completed
+    }
+  }
+  if (raw.sceneId === 'module-2-planning-package') {
+    return { ...raw, currentCourseLessonId: 'm2-prd-review' }
+  }
+  if (raw.sceneId === 'module-2-check-plan-2') {
+    return {
+      ...raw,
+      currentCourseLessonId: 'm2-implementation-plan',
+      checkpointId: 'm2-implementation-plan'
+    }
+  }
+  return raw
+}
+
 function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isRecord(value)) return null
   const raw = value as Record<string, unknown>
-  const currentRaw = redirectRetiredSceneReferences(raw)
   const schemaVersion = raw.schemaVersion
   const courseVersion = raw.courseVersion
-  const practice = raw.practice
   const startedAt = raw.startedAt
   const updatedAt = raw.updatedAt
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
-  if (
-    schemaVersion === LEARNER_STATE_SCHEMA_VERSION &&
-    courseVersion === COURSE_VERSION &&
-    isProgressUpdate(currentRaw) &&
-    isPracticeState(practice)
-  ) {
-    return currentRaw as unknown as LearnerProgress
+  if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
+    const redirected = redirectRetiredSceneReferences(raw)
+    const compatible = {
+      ...redirected,
+      ...(redirected.courseRunId === undefined ? { courseRunId: courseRunId(startedAt) } : {}),
+      ...(redirected.practiceCompletions === undefined ? { practiceCompletions: [] } : {})
+    }
+    const normalized = normalizeCurrentModuleTwoOrder(compatible)
+    return isLearnerProgress(normalized) ? normalized : null
   }
 
   if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
@@ -317,7 +433,9 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
       practice: defaultPracticeState(),
+      courseRunId: courseRunId(startedAt),
       startedAt,
+      practiceCompletions: [],
       updatedAt
     }
   }
@@ -390,13 +508,18 @@ export class ProgressRepository {
 
   private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
+    assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
       schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
       courseVersion: COURSE_VERSION,
       practice: current.status === 'valid' ? current.progress.practice : defaultPracticeState(),
+      courseRunId: current.status === 'valid'
+        ? current.progress.courseRunId
+        : courseRunId(timestamp),
       startedAt: current.status === 'valid' ? current.progress.startedAt : timestamp,
+      practiceCompletions: current.status === 'valid' ? current.progress.practiceCompletions : [],
       updatedAt: timestamp
     }
 
@@ -425,6 +548,111 @@ export class ProgressRepository {
   savePractice(practice: PracticeState): Promise<PracticeState> {
     if (!isPracticeState(practice)) return Promise.reject(new Error('Invalid practice state'))
     return this.runExclusive(() => this.savePracticeUnlocked(practice))
+  }
+
+  recordPracticeCompletion(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const key = completionKey(receipt)
+      const existing = current.progress.practiceCompletions.find((item) => completionKey(item) === key)
+      if (existing) {
+        if (JSON.stringify(existing) !== JSON.stringify(receipt)) {
+          throw new Error('A different completion receipt already exists for this Practice run')
+        }
+        return current.progress
+      }
+      const progress: LearnerProgress = {
+        ...current.progress,
+        practiceCompletions: [...current.progress.practiceCompletions, structuredClone(receipt)].slice(-100),
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_completion_recorded', progress)
+      return progress
+    })
+  }
+
+  revokePracticeCompletion(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const key = completionKey(receipt)
+      const existing = current.progress.practiceCompletions.find((item) => completionKey(item) === key)
+      if (!existing) return current.progress
+      if (JSON.stringify(existing) !== JSON.stringify(receipt)) {
+        throw new Error('Practice completion receipt is not authoritative')
+      }
+      if (current.progress.checkpointId !== receipt.checkpointId
+        || current.progress.completedCheckpointIds.includes(receipt.checkpointId)) {
+        throw new Error('A returned Practice completion cannot be revoked')
+      }
+      const progress: LearnerProgress = {
+        ...current.progress,
+        practiceCompletions: current.progress.practiceCompletions
+          .filter((item) => completionKey(item) !== key),
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_completion_revoked', progress)
+      return progress
+    })
+  }
+
+  returnFromPractice(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)) {
+      return Promise.reject(new Error('Invalid Practice completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is required')
+      if (receipt.courseRunId !== current.progress.courseRunId) {
+        throw new Error('Practice completion belongs to another course run')
+      }
+      const stored = current.progress.practiceCompletions.find((item) =>
+        completionKey(item) === completionKey(receipt))
+      if (!stored || JSON.stringify(stored) !== JSON.stringify(receipt)) {
+        throw new Error('Practice completion receipt is not authoritative')
+      }
+      if (current.progress.completedCheckpointIds.includes(receipt.checkpointId)
+        && current.progress.checkpointId !== receipt.checkpointId) {
+        return current.progress
+      }
+      if (current.progress.checkpointId !== receipt.checkpointId) {
+        throw new Error('Practice completion does not match the current course checkpoint')
+      }
+      const completedCheckpointIds = [...new Set([
+        ...current.progress.completedCheckpointIds,
+        receipt.checkpointId
+      ])]
+      const progress: LearnerProgress = {
+        ...current.progress,
+        currentLessonId: receipt.destination.lessonId,
+        currentCourseLessonId: courseLessonIdForScene(receipt.destination.sceneId),
+        checkpointId: receipt.destination.checkpointId,
+        sceneId: receipt.destination.sceneId,
+        completedCheckpointIds,
+        updatedAt: this.now().toISOString()
+      }
+      await this.writeAtomic(this.backupPath, this.backupTempPath, current.progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, progress)
+      await this.appendActivity('practice_return_applied', progress)
+      return progress
+    })
   }
 
   private async savePracticeUnlocked(practice: PracticeState): Promise<PracticeState> {
@@ -477,12 +705,7 @@ export class ProgressRepository {
         ? {
             status: 'valid',
             progress,
-            migrated:
-              isRecord(parsed) && (
-                parsed.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION ||
-                parsed.courseVersion !== COURSE_VERSION ||
-                hasRetiredSceneReferences(parsed)
-              )
+            migrated: isRecord(parsed) && JSON.stringify(parsed) !== JSON.stringify(progress)
           }
         : { status: 'invalid' }
     } catch (error) {

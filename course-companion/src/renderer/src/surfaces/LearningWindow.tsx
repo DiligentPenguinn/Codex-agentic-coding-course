@@ -35,6 +35,7 @@ import m2PrdPromptImage from '../assets/lesson-visuals/m2-prd-prompt.webp'
 import m2PrdReviewImage from '../assets/lesson-visuals/m2-prd-review.webp'
 import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementation-plan.webp'
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
+import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 type EvidenceItem = {
@@ -483,19 +484,19 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 7,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Nộp cấu hình để Triết duyệt',
-    objective: 'Nộp bằng chứng cấu hình Codex',
-    panelLabel: 'PRACTICE · 2 ẢNH',
-    panelStatus: 'TRIẾT DUYỆT BẰNG CHỨNG',
+    objective: 'Chứng minh cấu hình thật trong Codex',
+    panelLabel: 'PRACTICE · METADATA TRỰC TIẾP',
+    panelStatus: 'KHÔNG CẦN ẢNH CHỤP',
     tone: 'neutral',
-    request: 'Task Executor sẽ kiểm tra ảnh và báo cáo dưới tiêu đề Verification.',
+    request: 'Bạn đổi cấu hình ngay trong task; Course Companion đọc metadata hiệu lực để Triết duyệt.',
     evidence: [
-      { label: 'ẢNH 1', value: 'Model, Effort, Speed' },
-      { label: 'ẢNH 2', value: 'Approval, Full access' },
-      { label: 'KẾT QUẢ', value: 'Đúng task và còn mới' }
+      { label: 'MODEL', value: '5.6 Sol · High · Standard' },
+      { label: 'QUYỀN', value: 'Approve for me · Full access tắt' },
+      { label: 'BẰNG CHỨNG', value: 'Metadata đúng task và còn mới' }
     ],
-    dialogue: setupPracticeDefinition.expectedOutcome,
+    dialogue: 'Course Companion sẽ mở một task riêng bằng cấu hình mặc định và chưa gửi prompt nào. Trong chính task đó, hãy chọn 5.6 Sol, High, Standard, Approve for me và tắt Full access. Bạn không cần chụp ảnh hoặc gửi báo cáo; Triết duyệt trực tiếp năm giá trị Course Companion đọc được.',
     practice: setupPracticeDefinition,
-    choices: [{ label: 'Sang Codex nộp cấu hình', action: 'practice', primary: true }]
+    choices: [{ label: 'Sang Codex thiết lập cấu hình', action: 'practice', primary: true }]
   },
   'module-1-mastery': {
     lessonId: 'module-1',
@@ -541,7 +542,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-why-planning',
     step: 1,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Vì sao planning giúp bạn tiết kiệm thời gian?',
@@ -563,7 +564,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-why-planning',
     step: 1,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Nhận ra công việc nào cần planning',
@@ -588,7 +589,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-why-planning',
     step: 1,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Khi nào một yêu cầu nên được planning trước?',
@@ -611,7 +612,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-why-planning',
     step: 1,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước khi code',
     objective: 'Phân biệt việc nhỏ với việc cần planning',
@@ -631,7 +632,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-contentpilot-brief',
     step: 2,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm rõ ý tưởng ContentPilot',
     objective: 'Nhìn ra điều còn thiếu trong một ý tưởng',
@@ -651,7 +652,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-contentpilot-brief',
     step: 2,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm rõ ý tưởng ContentPilot',
     objective: 'Chưa vội chọn cách xây',
@@ -671,7 +672,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu PRD trước khi phân loại',
     objective: 'PRD giữ những quyết định nào?',
@@ -691,7 +692,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu PRD trước khi phân loại',
     objective: 'Từ giả định đến yêu cầu sản phẩm',
@@ -711,7 +712,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm PRD rõ hơn bằng ví dụ',
     objective: 'Cho coding agent xem ví dụ bằng hình ảnh',
@@ -731,7 +732,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Làm PRD rõ hơn bằng ví dụ',
     objective: 'Cho coding agent xem ví dụ bằng code',
@@ -751,7 +752,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Phân biệt PRD và implementation plan',
     objective: 'Biết tài liệu nào giữ quyết định phạm vi',
@@ -774,7 +775,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-concept',
     step: 3,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Phân biệt PRD và implementation plan',
     objective: 'Đưa quyết định phạm vi về đúng tài liệu',
@@ -794,7 +795,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-interview',
     step: 4,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu prompt trước khi tự viết',
     objective: 'Một prompt planning cần nói rõ điều gì?',
@@ -814,7 +815,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-interview',
     step: 4,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu prompt trước khi tự viết',
     objective: 'Nhìn thấy từng phần trong một prompt',
@@ -834,7 +835,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-interview',
     step: 4,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu prompt trước khi tự viết',
     objective: 'Chuẩn bị prompt phỏng vấn PRD',
@@ -854,7 +855,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-prd-approved',
     step: 5,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Review và duyệt PRD',
     objective: 'Biết một PRD tốt trông như thế nào',
@@ -873,8 +874,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-implementation-plan': {
     lessonId: 'module-2',
     checkpointId: 'm2-implementation-plan',
-    step: 6,
-    totalSteps: 10,
+    step: 5,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu implementation plan trước khi tạo',
     objective: 'Plan biến PRD thành các bước như thế nào?',
@@ -893,8 +894,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-implementation-plan-example': {
     lessonId: 'module-2',
     checkpointId: 'm2-implementation-plan',
-    step: 6,
-    totalSteps: 10,
+    step: 5,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hiểu implementation plan trước khi tạo',
     objective: 'Nối yêu cầu sản phẩm với cách kiểm tra',
@@ -914,7 +915,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-alignment-review',
     step: 7,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Đối chiếu PRD và implementation plan',
     objective: 'Phát hiện scope creep trước khi code',
@@ -937,7 +938,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-2',
     checkpointId: 'm2-alignment-review',
     step: 7,
-    totalSteps: 10,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Đối chiếu PRD và implementation plan',
     objective: 'Không để agent tự mở rộng phạm vi',
@@ -956,8 +957,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-planning-package': {
     lessonId: 'module-2',
     checkpointId: 'm2-planning-package',
-    step: 8,
-    totalSteps: 10,
+    step: 6,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Hoàn thiện planning package',
     objective: 'Tạo hai artifact trước khi implementation',
@@ -970,7 +971,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'IMPLEMENTATION PLAN', value: 'Cần tạo' },
       { label: 'CODE', value: 'Chưa bắt đầu', ready: true }
     ],
-    dialogue: 'Bây giờ hãy sang Codex để tạo planning package. Course Companion sẽ chờ bằng chứng mô phỏng của cả hai artifact.',
+    dialogue: 'Bạn đã học xong PRD, prompt và implementation plan, đồng thời hoàn thành đủ 3 + 3 + 2 câu kiểm tra. Bây giờ Course Companion sẽ mở một Practice duy nhất trong Codex. Bạn sẽ tự viết prompt, hoàn thành phỏng vấn, duyệt hai artifact, đối chiếu alignment, giải thích một quyết định phạm vi và yêu cầu Triết duyệt trước khi quay lại làm bài kiểm tra cuối.',
     choices: [
       { label: 'Xem lại Module 2', action: 'review-module' },
       { label: 'Sang Codex tạo planning package', action: 'practice', primary: true }
@@ -979,8 +980,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-mastery': {
     lessonId: 'module-2',
     checkpointId: 'm2-mastery',
-    step: 9,
-    totalSteps: 10,
+    step: 7,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Kiểm tra tổng hợp Module 2',
     objective: 'Sẵn sàng cho 15 câu kiểm tra cuối',
@@ -999,8 +1000,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-mastery-repair': {
     lessonId: 'module-2',
     checkpointId: 'm2-mastery',
-    step: 9,
-    totalSteps: 10,
+    step: 7,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Kiểm tra planning package',
     objective: 'Dựa vào artifact thay vì lời khẳng định',
@@ -1019,8 +1020,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-2-complete': {
     lessonId: 'module-2',
     checkpointId: 'm2-complete',
-    step: 10,
-    totalSteps: 10,
+    step: 8,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Planning trước implementation',
     objective: 'Module 2 đã hoàn thành',
@@ -1041,7 +1042,6 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
 function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, index: number): SceneContent {
   const isSetupFinal = group.id === 'setup-final-assessment'
   const isFinal = group.id === 'final-assessment'
-  const isPlanAlignment = group.id === 'implementation-plan-check' && index === 1
   const checkpointId: CheckpointId = isSetupFinal
     ? 'm1-mastery'
     : isFinal
@@ -1050,10 +1050,8 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
       ? 'm2-prd-concept'
       : group.id === 'prompt-check'
         ? 'm2-prd-interview'
-        : isPlanAlignment
-          ? 'm2-alignment-review'
-          : 'm2-implementation-plan'
-  const step = isSetupFinal ? 7 : isFinal ? 9 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 7
+        : 'm2-implementation-plan'
+  const step = isSetupFinal ? 7 : isFinal ? 7 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 5
   const questionType = question.type === 'multiple-choice'
     ? 'Chọn một đáp án'
     : question.type === 'artifact-answer'
@@ -1064,7 +1062,7 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
     lessonId: isSetupFinal ? 'module-1' : 'module-2',
     checkpointId,
     step,
-    totalSteps: isSetupFinal ? 8 : 10,
+    totalSteps: 8,
     lessonLabel: isSetupFinal ? 'MODULE 1 · THIẾT LẬP CODEX' : 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: group.title,
     objective: `Câu ${index + 1}/${group.questions.length}`,
@@ -1114,8 +1112,8 @@ const scenes = {
   'module-2-final-summary': {
     lessonId: 'module-2',
     checkpointId: 'm2-mastery',
-    step: 9,
-    totalSteps: 10,
+    step: 7,
+    totalSteps: 8,
     lessonLabel: 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: 'Kết quả kiểm tra tổng hợp',
     objective: 'Đối chiếu kết quả trước khi hoàn thành',
@@ -1294,15 +1292,13 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-2-check-prompt-2'],
     ['module-2-check-prompt-3']
   ],
-  'm2-prd-review': [['module-2-prd-approved']],
   'm2-implementation-plan': [
     ['module-2-implementation-plan'],
     ['module-2-implementation-plan-example'],
     ['module-2-check-plan-1'],
-    ['module-2-check-plan-2'],
-    ['module-2-alignment-review', 'module-2-alignment-mismatch'],
-    ['module-2-planning-package']
+    ['module-2-check-plan-2']
   ],
+  'm2-prd-review': [['module-2-planning-package']],
   'm2-assessment': [
     ['module-2-mastery'],
     ['module-2-final-1'],
@@ -1379,7 +1375,9 @@ function previewProgress(update: ProgressUpdate, previous?: LearnerProgress): Le
     schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
     courseVersion: COURSE_VERSION,
     practice: previous?.practice ?? emptyPracticeState(),
+    courseRunId: previous?.courseRunId ?? `preview-${Date.now()}`,
     startedAt: previous?.startedAt ?? timestamp,
+    practiceCompletions: previous?.practiceCompletions ?? [],
     updatedAt: timestamp
   }
 }
@@ -1397,7 +1395,7 @@ function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
   )
 }
 
-function PracticeBrief({ definition }: { definition: PracticeDefinition }) {
+function LessonPracticeBrief({ definition }: { definition: PracticeDefinition }) {
   const requiredCriteria = definition.criteria.filter((criterion) => criterion.required)
 
   return (
@@ -1999,13 +1997,14 @@ const decisionValues: Record<string, string> = {
 
 type TeacherOverlayProps = {
   onClose: () => void
-  onOpenLesson: () => void
+  onMinimizeToBubble?: () => void
+  practiceMode?: boolean
 }
 
-function TeacherOverlay({ onClose, onOpenLesson }: TeacherOverlayProps) {
+function TeacherOverlay({ onClose, onMinimizeToBubble, practiceMode = false }: TeacherOverlayProps) {
   return (
-    <aside className="pixel-teacher-overlay" aria-label="Triết, giáo viên đồng hành">
-      <TeacherWorkspace embedded onClose={onClose} onOpenLesson={onOpenLesson} />
+    <aside className={'pixel-teacher-overlay' + (practiceMode ? ' is-practice-full' : '')} aria-label="Triết, giáo viên đồng hành">
+      <TeacherWorkspace embedded fullScreen={practiceMode} onClose={onClose} onMinimizeToBubble={onMinimizeToBubble} />
     </aside>
   )
 }
@@ -2211,7 +2210,7 @@ function PixelAppShell({
       )}
 
       {teacherOpen ? (
-        <TeacherOverlay onClose={onCloseTeacher} onOpenLesson={() => onNavigate('lesson')} />
+        <TeacherOverlay onClose={onCloseTeacher} />
       ) : null}
     </main>
   )
@@ -2226,6 +2225,8 @@ export function LearningWindow() {
   const [error, setError] = useState('')
   const [destination, setDestination] = useState<AppDestination>('home')
   const [teacherOpen, setTeacherOpen] = useState(false)
+  const [practiceBriefOpen, setPracticeBriefOpen] = useState(false)
+  const [practiceFullOpen, setPracticeFullOpen] = useState(false)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
   const [visualExpanded, setVisualExpanded] = useState(false)
@@ -2235,6 +2236,11 @@ export function LearningWindow() {
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
     if (current.sceneId !== 'module-2-planning-package' || current.practice.status !== 'completed') return current
+    const hasPassedReceipt = current.practiceCompletions.some((receipt) =>
+      receipt.practiceId === 'm2-planning-package'
+      && receipt.checkpointId === 'm2-planning-package'
+      && receipt.status === 'completed')
+    if (!hasPassedReceipt) return current
     if (practiceAdvanceRef.current) return practiceAdvanceRef.current
     const completed = new Set(current.completedCheckpointIds)
     completed.add('m2-planning-package')
@@ -2256,6 +2262,14 @@ export function LearningWindow() {
     } finally {
       practiceAdvanceRef.current = null
     }
+  }
+
+  const refreshAfterPractice = async () => {
+    if (!window.courseCompanion) return
+    const loadResult = await window.courseCompanion.loadProgress()
+    if (loadResult.status !== 'returning' && loadResult.status !== 'recovered') return
+    const updated = await advanceFromCompletedPractice(loadResult.progress)
+    setProgress(updated)
   }
 
   useEffect(() => {
@@ -2294,28 +2308,35 @@ export function LearningWindow() {
   }, [])
 
   useEffect(() => {
-    const refreshAfterPractice = async () => {
-      if (!window.courseCompanion) return
-      const loadResult = await window.courseCompanion.loadProgress()
-      if (loadResult.status !== 'returning' && loadResult.status !== 'recovered') return
-      const updated = await advanceFromCompletedPractice(loadResult.progress)
-      setProgress(updated)
-    }
-    const refreshWhenVisible = () => {
-      if (!document.hidden) void refreshAfterPractice()
-    }
-    window.addEventListener('focus', refreshAfterPractice)
-    document.addEventListener('visibilitychange', refreshWhenVisible)
-    const unsubscribe = window.courseCompanion?.onLearningWindowShown(() => {
-      void refreshAfterPractice()
+    const unsubscribe = window.courseCompanion?.onFullTeacherRequested(() => {
+      setPracticeBriefOpen(false)
+      setPracticeFullOpen(true)
+      setTeacherOpen(true)
     })
     return () => {
-      window.removeEventListener('focus', refreshAfterPractice)
-      document.removeEventListener('visibilitychange', refreshWhenVisible)
       unsubscribe?.()
     }
   })
 
+  useEffect(() => {
+    const unsubscribe = window.courseCompanion?.onPracticeReturned(() => {
+      void (async () => {
+        try {
+          const loadResult = await window.courseCompanion?.loadProgress()
+          if (!loadResult || (loadResult.status !== 'returning' && loadResult.status !== 'recovered')) return
+          setProgress(loadResult.progress)
+          setPracticeBriefOpen(false)
+          setPracticeFullOpen(false)
+          setTeacherOpen(false)
+          setDestination('lesson')
+          setView('app')
+        } catch {
+          setError('Kh\u00f4ng th\u1ec3 kh\u00f4i ph\u1ee5c b\u00e0i h\u1ecdc sau Practice. K\u1ebft qu\u1ea3 \u0111\u1ea1t v\u1eabn \u0111\u01b0\u1ee3c l\u01b0u.')
+        }
+      })()
+    })
+    return () => unsubscribe?.()
+  }, [])
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
     const saved = window.courseCompanion
       ? await window.courseCompanion.saveProgress(update)
@@ -2429,7 +2450,7 @@ export function LearningWindow() {
     const exitScene: Record<string, SceneId> = {
       'setup-final-assessment': 'module-1-final-summary',
       'planning-prd-check': 'module-2-prd-interview',
-      'prompt-check': 'module-2-prd-approved',
+      'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
       'final-assessment': 'module-2-final-summary'
     }
@@ -2826,7 +2847,7 @@ export function LearningWindow() {
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        {scene.practice ? <PracticeBrief definition={scene.practice} /> : (
+        {scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
@@ -2911,8 +2932,30 @@ export function LearningWindow() {
         {usesPairedLessonNavigation ? null : pageBackControl}
       </section>
 
+      {practiceBriefOpen ? (
+        <PracticeBrief
+          identity={progress.currentLessonId === 'module-1'
+            ? { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }
+            : { practiceId: 'm2-planning-package', practiceVersion: '2.0.0' }}
+          onClose={() => setPracticeBriefOpen(false)}
+        />
+      ) : null}
+
       {teacherOpen ? (
-        <TeacherOverlay onClose={() => setTeacherOpen(false)} onOpenLesson={() => setTeacherOpen(false)} />
+        <TeacherOverlay
+          practiceMode={practiceFullOpen}
+          onClose={() => {
+            const returningToLesson = practiceFullOpen
+            setTeacherOpen(false)
+            setPracticeFullOpen(false)
+            if (returningToLesson) void refreshAfterPractice()
+          }}
+          onMinimizeToBubble={() => {
+            setTeacherOpen(false)
+            setPracticeFullOpen(false)
+            void window.courseCompanion?.minimizeFullTeacher()
+          }}
+        />
       ) : null}
     </main>
   )

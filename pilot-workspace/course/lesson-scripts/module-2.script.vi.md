@@ -125,29 +125,11 @@ ngắn trước khi bạn tự viết prompt cho ContentPilot."
 
 [Dùng nhóm `prompt-check` trong `course/quizzes/module-2.quiz.json`. Mở
 Assessment State cho từng câu và hỏi đúng một câu mỗi lượt. Sau mỗi câu, đưa
-lời giải cùng nguồn. Khi hoàn tất ba câu, yêu cầu Learner tự viết prompt bằng
-lời của họ. Dùng hint ladder, không đưa prompt hoàn chỉnh trước khi Learner
-thử. Prompt đạt khi nói rõ việc cần làm, thông tin agent cần biết, cách làm việc
-một câu mỗi lượt, điều agent không được tự làm và kết quả PRD một trang có tám
-phần. Sau khi đạt, Executor dùng nguyên văn prompt của Learner và hỏi đúng một
-câu mỗi lượt. Tiếp tục cho tới khi đủ thông tin rồi đưa bản nháp PRD. Lưu
-checkpoint `m2-prd-interview`.]
+lời giải cùng nguồn. Khi hoàn tất ba câu, lưu checkpoint `m2-prd-interview`.
+Chưa yêu cầu Learner viết prompt, chưa mở cuộc phỏng vấn và chưa tạo artifact;
+các hành động đó thuộc Practice duy nhất ở Bước 6.]
 
-## Bước 5 — Xem xét, duyệt và lưu PRD (`m2-prd-approved`)
-
-Teacher nói: "Trước khi duyệt PRD, hãy kiểm tra: có đủ ý tưởng, luồng sử dụng,
-đầu vào, đầu ra, phạm vi phiên bản 1, ngoài phạm vi, Done When và câu hỏi còn mở
-không; Done When có quan sát và kiểm tra được không; tài liệu có tránh chi tiết
-code không. Bạn muốn duyệt, yêu cầu điều chỉnh hay từ chối bản nháp này?"
-
-[Dừng chờ quyết định. Nếu Learner yêu cầu sửa, Executor chỉ sửa nội dung được
-nêu rồi quay lại bước xem xét. Không chấp nhận một PRD có câu hỏi quan trọng bị
-giấu trong giả định. Khi nội dung đạt, yêu cầu Learner dùng lời rõ ràng “Duyệt
-và lưu PRD” để cho phép tạo `artifacts/PRD.md` từ mẫu
-`artifacts/PRD.template.md`. Kiểm tra file sau khi ghi. Lưu checkpoint
-`m2-prd-approved`.]
-
-## Bước 6 — Hiểu implementation plan trước khi yêu cầu tạo plan
+## Bước 5 — Hiểu implementation plan trước khi yêu cầu tạo plan
 (`m2-implementation-plan`)
 
 Teacher nói: "PRD đã duyệt là nguồn giữ phạm vi sản phẩm. Implementation plan
@@ -168,44 +150,70 @@ plan nói cách tạo và kiểm tra kết quả đó."
 Teacher nói: "Bạn đã học xong implementation plan. Bây giờ là hai câu kiểm tra
 ngắn về phạm vi và cách đối chiếu plan với PRD."
 
+Teacher nói: "Khi đối chiếu hai tài liệu, hãy kiểm tra bốn điều: mọi yêu cầu
+trong phạm vi PRD đều có bước tương ứng; mọi bước đều truy ngược về PRD; nội
+dung ngoài phạm vi không quay trở lại; và mỗi Done When đều trở thành một phép
+kiểm tra trong plan. Trong Practice, chính bạn sẽ dùng bốn điều này để quyết
+định sửa PRD hay sửa plan nếu hai tài liệu lệch nhau."
+
 [Dùng nhóm `implementation-plan-check` trong
 `course/quizzes/module-2.quiz.json`. Mở Assessment State cho từng câu. Sau mỗi
-câu, đưa lời giải cùng nguồn. Khi hoàn tất hai câu, yêu cầu Learner viết prompt
-để coding agent đọc `artifacts/PRD.md` và tạo implementation plan. Prompt phải
-dùng PRD làm nguồn. Mỗi bước cần có mục tiêu, thành phần, kết quả quan sát và
-cách kiểm tra. Prompt cũng phải yêu cầu nêu phụ thuộc, rủi ro, câu hỏi còn mở và
-giữ ràng buộc chưa code. Sau khi đạt, Executor đưa bản nháp plan trong hội
-thoại; chưa lưu file. Lưu checkpoint `m2-implementation-plan`.]
+câu, đưa lời giải cùng nguồn. Khi hoàn tất hai câu, lưu checkpoint
+`m2-implementation-plan`. Chưa yêu cầu tạo plan hoặc sửa file; mọi thao tác với
+artifact thuộc Practice ở bước tiếp theo.]
 
-## Bước 7 — Kiểm tra PRD và plan có khớp nhau (`m2-alignment-review`)
+## Bước 6 — Hoàn thành một Practice planning package (`m2-planning-package`)
 
-Teacher nói: "Một plan có vẻ chi tiết vẫn có thể sai nếu nó xây thiếu hoặc tự
-thêm tính năng. Hãy kiểm tra bốn điều: mọi yêu cầu trong phạm vi PRD đều có bước
-tương ứng; mọi bước đều truy ngược về PRD; nội dung ngoài phạm vi không quay trở
-lại; và mỗi Done When đều trở thành một phép kiểm tra trong plan."
+Teacher nói: "Bạn đã học xong cả ba phần và hoàn thành đủ 3 + 3 + 2 câu kiểm
+tra. Bây giờ ta chuyển sang một Practice duy nhất, có thể tạm dừng và tiếp tục.
+Trong Practice này, bạn sẽ biến ý tưởng ContentPilot thành PRD và implementation
+plan đã duyệt mà chưa viết code."
 
-Teacher nói: "Bây giờ hãy dùng bốn điều trên như một danh sách xem xét. Nếu có
-điểm lệch, bạn quyết định sửa PRD hay sửa plan. Coding agent không được âm thầm
-chọn thay bạn."
+Teacher nói: "Course Companion sẽ tạo task Executor với model, mức suy luận và
+speed đã được Triết duyệt ở Module 1. Task này dùng approval `on-request`, chỉ
+được ghi trong workspace và không bật Full access. Bạn không cần chụp ảnh hay
+nhập lại cấu hình. Nếu chưa có receipt cấu hình Module 1 hoặc metadata hiệu lực
+không an toàn, Course Companion sẽ dừng trước khi gửi bất kỳ prompt nào và hướng
+bạn quay lại bước thiết lập."
 
-[Đây là bước thực hành có hướng dẫn trên artifact, không phải một câu kiểm tra
-thứ ba. Yêu cầu Learner đối chiếu từng mục và tự quyết định cách sửa nếu phát
-hiện lệch. Khi cả bốn điều đạt, lưu checkpoint `m2-alignment-review`.]
+Teacher nói: "Practice có tám bước nối tiếp nhau: tự viết prompt tạo PRD; hoàn
+thành phỏng vấn từng câu; xem xét, duyệt và lưu PRD; yêu cầu tạo plan từ PRD;
+đối chiếu bốn điểm alignment; duyệt và lưu plan; giải thích một quyết định phạm
+vi rồi yêu cầu Triết duyệt; cuối cùng quay lại khóa học. Course Companion giữ
+trạng thái từng bước, nên nếu tạm dừng bạn sẽ tiếp tục tại bước chưa hoàn thành
+đầu tiên."
 
-## Bước 8 — Duyệt planning package (`m2-planning-package`)
+[Mở Practice `m2-planning-package` phiên bản `2.0.0`. Không thực hiện các hành
+động dưới đây trong thread dạy học. Bên trong đúng Practice run hiện tại:
 
-Teacher nói: "Planning package chỉ hoàn thành khi cả PRD và implementation plan
-đều rõ, khớp nhau và do bạn quyết định. Nếu plan hiện tại đúng ý, hãy trả lời
-‘Duyệt và lưu implementation plan’, đồng thời nêu một quyết định phạm vi bạn có
-thể giải thích bằng lời của mình."
+1. Learner tự viết prompt tạo PRD bằng lời của họ. Dùng hint ladder, không đưa
+   prompt hoàn chỉnh trước khi Learner thử. Prompt đạt khi nói rõ việc cần làm,
+   thông tin agent cần biết, cách làm việc một câu mỗi lượt, điều agent không
+   được tự làm và kết quả PRD một trang có tám phần.
+2. Executor dùng nguyên văn prompt của Learner và hỏi đúng một câu mỗi lượt.
+   Tiếp tục tới khi đủ thông tin rồi đưa bản nháp PRD để review.
+3. Learner kiểm tra đủ tám phần, Done When, câu hỏi còn mở và ràng buộc chưa
+   code. Chỉ sau lời duyệt rõ ràng “Duyệt và lưu PRD” mới tạo
+   `artifacts/PRD.md`. Nếu Learner yêu cầu sửa, chỉ sửa nội dung họ nêu rồi quay
+   lại review.
+4. Learner yêu cầu Executor đọc PRD đã duyệt làm nguồn phạm vi duy nhất và tạo
+   bản nháp implementation plan. Mỗi bước phải có mục tiêu, thành phần hoặc file
+   dự kiến, kết quả quan sát, cách kiểm tra, phụ thuộc và yêu cầu PRD liên quan;
+   plan phải nêu rủi ro, giả định, câu hỏi mở, kiểm tra end-to-end và chưa code.
+5. Learner đối chiếu bốn điểm alignment. Nếu lệch, Learner quyết định sửa đúng
+   tài liệu; Executor không được âm thầm chọn thay.
+6. Chỉ sau lời duyệt rõ ràng “Duyệt và lưu implementation plan” mới tạo
+   `artifacts/implementation-plan.md`.
+7. Learner giải thích bằng lời của mình ít nhất một quyết định phạm vi rồi yêu
+   cầu Triết duyệt. Triết chỉ đọc gói bằng chứng đã giới hạn gồm hai artifact,
+   digest hiện tại, phê duyệt, alignment, quyết định phạm vi và provenance của
+   task; Triết không dùng công cụ và không sửa file. Nếu review chưa đạt hoặc
+   artifact thay đổi, giữ cùng run và quay lại bước đầu tiên bị stale.
+8. Chỉ khi review semantic đạt trên đúng hai digest hiện tại mới cho phép quay
+   lại khóa học. Khi quay lại, lưu checkpoint `m2-planning-package` và mở phần
+   kiểm tra cuối.]
 
-[Dừng chờ Learner. Chỉ sau lời duyệt rõ ràng mới tạo
-`artifacts/implementation-plan.md` từ mẫu
-`artifacts/implementation-plan.template.md`. Kiểm tra cả hai artifact tồn tại,
-không rỗng, có trạng thái đã duyệt và không chứa code triển khai. Khi Learner
-giải thích được một quyết định phạm vi, lưu checkpoint `m2-planning-package`.]
-
-## Bước 9 — Kiểm tra cuối Module 2 (`m2-mastery`)
+## Bước 7 — Kiểm tra cuối Module 2 (`m2-mastery`)
 
 Teacher nói: "Phần kiểm tra cuối giúp bạn vận dụng planning, PRD, prompt và
 implementation plan trong những tình huống mới. Phần này có 15 câu: mười câu
@@ -217,7 +225,7 @@ lời. Với câu tự luận, yêu cầu Learner viết trước rồi tự đ�
 công khai. Learner cần đạt ít nhất 12/15 câu. Khi pass theo
 `course/pedagogy/rubrics/mastery-rubric.vi.md`, lưu checkpoint `m2-mastery`.]
 
-## Bước 10 — Hoàn thành Module 2 (`m2-complete`)
+## Bước 8 — Hoàn thành Module 2 (`m2-complete`)
 
 Teacher nói: "Bạn đã biến một ý tưởng một câu thành hai tài liệu đủ rõ để coding
 agent bắt đầu xây mà chưa cần bạn biết lập trình. PRD giữ sản phẩm đi đúng
@@ -225,7 +233,8 @@ hướng; prompt giúp bạn giao việc rõ ràng; implementation plan biến h
 thành các bước có thể thực hiện và kiểm tra. Ở module tiếp theo, hai tài liệu
 này sẽ là điểm xuất phát cho implementation và debugging."
 
-[Xác nhận lại hai artifact và mastery gate. Chạy lệnh complete; hard gate trong
-state helper sẽ từ chối nếu thiếu hoặc rỗng một artifact. Chỉ sau khi lệnh thành
-công mới thông báo hoàn thành. Không tuyên bố Module 2 đã có trong workspace nếu
-course map chưa chứa module đó.]
+[Xác nhận receipt của Practice chứng minh hai artifact, phê duyệt, alignment,
+quyết định phạm vi và semantic review đều đạt trên đúng run hiện tại. Xác nhận
+Learner đạt ít nhất 12/15 câu và checkpoint `m2-mastery`. Chạy lệnh complete;
+hard gate trong progress repository sẽ từ chối nếu thiếu Practice pass hoặc
+mastery score. Chỉ sau khi lệnh thành công mới thông báo hoàn thành.]

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "practiceId": "m2-planning-package",
+  "title": "Xây dựng planning package",
+  "version": "2.0.0",
+  "checkpointId": "m2-planning-package",
+  "objective": "Dùng Codex để biến ý tưởng một câu về ContentPilot thành planning package đã được bạn phê duyệt mà chưa viết implementation code.",
+  "expectedOutcome": "Một PRD khoảng một trang có đủ tám phần, một implementation plan bắt nguồn từ PRD, bốn điểm alignment đã được đối chiếu và một quyết định phạm vi do chính bạn giải thích.",
+  "workspaceKind": "pilot-workspace",
+  "taskPolicy": "safe-workspace-write",
+  "evidenceProfile": "planning-package",
+  "checklist": [
+    {
+      "id": "write-prd-prompt",
+      "title": "Viết prompt tạo PRD bằng lời của bạn",
+      "dependsOn": []
+    },
+    {
+      "id": "complete-interview",
+      "title": "Hoàn thành cuộc phỏng vấn từng câu với Executor",
+      "dependsOn": ["write-prd-prompt"]
+    },
+    {
+      "id": "approve-prd",
+      "title": "Xem xét, phê duyệt và lưu PRD",
+      "dependsOn": ["complete-interview"]
+    },
+    {
+      "id": "draft-plan",
+      "title": "Yêu cầu Executor tạo plan từ PRD đã duyệt",
+      "dependsOn": ["approve-prd"]
+    },
+    {
+      "id": "reconcile-alignment",
+      "title": "Đối chiếu phạm vi và Done When giữa PRD với plan",
+      "dependsOn": ["draft-plan"]
+    },
+    {
+      "id": "approve-plan",
+      "title": "Phê duyệt và lưu implementation plan",
+      "dependsOn": ["reconcile-alignment"]
+    },
+    {
+      "id": "explain-scope-and-review",
+      "title": "Giải thích một quyết định phạm vi và yêu cầu Triết duyệt",
+      "dependsOn": ["approve-plan"]
+    },
+    {
+      "id": "return-to-course",
+      "title": "Quay lại khóa học để làm bài kiểm tra cuối",
+      "dependsOn": ["explain-scope-and-review"]
+    }
+  ],
+  "criteria": [
+    {
+      "id": "prd-quality",
+      "description": "PRD có đủ tám phần, giữ quyết định ở mức sản phẩm, nêu rõ trong và ngoài phạm vi, có Done When quan sát được và không giấu quyết định quan trọng trong giả định.",
+      "required": true,
+      "checklistStepId": "approve-prd",
+      "acceptedEvidence": ["planning-artifact"],
+      "assertion": "The PRD contains all eight required product sections, explicit scope boundaries, testable Done When conditions, and no implementation code or hidden critical assumption.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "plan-quality",
+      "description": "Implementation plan dùng PRD làm nguồn phạm vi duy nhất, có cách tiếp cận và các bước có thứ tự; mỗi bước nêu mục tiêu, thành phần dự kiến, kết quả quan sát, cách kiểm tra, phụ thuộc và yêu cầu PRD liên quan.",
+      "required": true,
+      "checklistStepId": "draft-plan",
+      "acceptedEvidence": ["planning-artifact"],
+      "assertion": "The implementation plan is bounded, ordered, traceable, verifiable, names risks and open decisions, covers end-to-end verification, and contains no implementation code.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "artifact-alignment",
+      "description": "Mọi yêu cầu trong phạm vi có bước tương ứng, mọi bước truy ngược về PRD, nội dung ngoài phạm vi không quay lại và mỗi Done When có cách kiểm tra.",
+      "required": true,
+      "checklistStepId": "reconcile-alignment",
+      "acceptedEvidence": ["planning-artifact", "artifact-alignment"],
+      "assertion": "The PRD and plan satisfy all four alignment checks without scope leakage.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "scope-control",
+      "description": "Chỉ hai artifact chuẩn thay đổi và planning package không chứa implementation code.",
+      "required": true,
+      "checklistStepId": "explain-scope-and-review",
+      "acceptedEvidence": ["planning-artifact", "scope-decision", "unexpected-workspace-change"],
+      "assertion": "No unexpected workspace path changed and neither planning artifact contains implementation code.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "learner-ownership",
+      "description": "Prompt, phê duyệt hai artifact và lời giải thích quyết định phạm vi đều do người học tạo qua hành động khóa học hiện tại.",
+      "required": true,
+      "checklistStepId": "explain-scope-and-review",
+      "acceptedEvidence": ["learner-decision", "learner-approval", "scope-decision"],
+      "assertion": "The learner authored the PRD prompt, explicitly approved both current artifact digests, and explained one scope decision.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "evidence-freshness",
+      "description": "Artifact, phê duyệt, alignment và quyết định phạm vi đều khớp đúng digest hiện tại của cùng Practice run.",
+      "required": true,
+      "checklistStepId": "explain-scope-and-review",
+      "acceptedEvidence": ["planning-artifact", "learner-approval", "artifact-alignment", "scope-decision"],
+      "assertion": "All required evidence is fresh, complete, and bound to the current run and current artifact digests.",
+      "freshness": "fresh"
+    }
+  ],
+  "completionDestination": {
+    "lessonId": "module-2",
+    "checkpointId": "m2-mastery",
+    "sceneId": "module-2-mastery",
+    "label": "Bài kiểm tra và hoàn thành Module 2"
+  }
+}

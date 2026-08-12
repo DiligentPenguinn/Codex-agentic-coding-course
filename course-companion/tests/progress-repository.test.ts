@@ -224,6 +224,8 @@ describe('ProgressRepository', () => {
       status: 'returning',
       progress: {
         schemaVersion: 5,
+        courseRunId: expect.stringMatching(/^course-/),
+        practiceCompletions: [],
         currentLessonId: 'module-2',
         currentCourseLessonId: 'm2-when-to-plan',
         checkpointId: 'm2-why-planning',
@@ -237,6 +239,8 @@ describe('ProgressRepository', () => {
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
     expect(migrated.schemaVersion).toBe(5)
     expect(migrated.courseVersion).toBe('0.2.0')
+    expect(migrated.courseRunId).toMatch(/^course-/)
+    expect(migrated.practiceCompletions).toEqual([])
     expect(migrated.startedAt).toBe(oldProgress.startedAt)
   })
 

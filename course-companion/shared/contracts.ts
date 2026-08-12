@@ -2,6 +2,7 @@ export type RuntimeInfo = {
   appVersion: string
   platform: string
   packaged: boolean
+  testFixturesEnabled: boolean
 }
 
 export type CompanionMode = 'compact' | 'expanded'
@@ -125,8 +126,8 @@ export const courseLessonIds = [
   'm2-when-to-plan',
   'm2-product-requirements',
   'm2-prd-prompt',
-  'm2-prd-review',
   'm2-implementation-plan',
+  'm2-prd-review',
   'm2-assessment'
 ] as const
 
@@ -182,7 +183,7 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-2-implementation-plan': 'm2-implementation-plan',
   'module-2-implementation-plan-example': 'm2-implementation-plan',
   'module-2-check-plan-1': 'm2-implementation-plan',
-  'module-2-check-plan-2': 'm2-alignment-review',
+  'module-2-check-plan-2': 'm2-implementation-plan',
   'module-2-alignment-review': 'm2-alignment-review',
   'module-2-alignment-mismatch': 'm2-alignment-review',
   'module-2-planning-package': 'm2-planning-package',
@@ -223,7 +224,7 @@ export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'm2-prd-approved': 'm2-prd-review',
   'm2-implementation-plan': 'm2-implementation-plan',
   'm2-alignment-review': 'm2-implementation-plan',
-  'm2-planning-package': 'm2-implementation-plan',
+  'm2-planning-package': 'm2-prd-review',
   'm2-mastery': 'm2-assessment',
   'm2-complete': 'm2-assessment'
 }
@@ -284,6 +285,7 @@ export type PracticeFixtureRequest = {
 export type LearnerProgress = {
   schemaVersion: typeof LEARNER_STATE_SCHEMA_VERSION
   courseVersion: typeof COURSE_VERSION
+  courseRunId: string
   currentLessonId: LessonId
   currentCourseLessonId: CourseLessonId
   checkpointId: CheckpointId
@@ -292,6 +294,7 @@ export type LearnerProgress = {
   completedCheckpointIds: CheckpointId[]
   decisions: Record<string, string>
   practice: PracticeState
+  practiceCompletions: PracticeCompletionReceipt[]
   startedAt: string
   updatedAt: string
 }
@@ -319,13 +322,29 @@ export type TeacherContext = {
   sceneId: SceneId
 }
 
+export type TeacherConnectionState = 'simulated' | 'connecting' | 'ready' | 'live' | 'stale' | 'offline'
+export type TeacherContextFreshness = 'unavailable' | 'fresh' | 'stale' | 'disconnected'
+export type TeacherMemoryStatus = 'ready' | 'pending'
+export type TeacherDeliveryStatus = 'pending' | 'delivered' | 'failed'
+
+export type TeacherRuntimeView = {
+  connection: TeacherConnectionState
+  memory: TeacherMemoryStatus
+  observedAt?: string
+  contextFreshness?: TeacherContextFreshness
+  error?: string
+}
+
 export type TeacherMessage = {
+  schemaVersion?: 1
   id: string
   role: 'learner' | 'teacher'
-  source: 'learner' | 'fixture'
+  source: 'learner' | 'fixture' | 'live'
   content: string
   timestamp: string
   checkpointId?: CheckpointId
+  practiceRunId?: string
+  deliveryStatus?: TeacherDeliveryStatus
 }
 
 export type TeacherConversation = {
@@ -346,6 +365,451 @@ export type TeacherSendResult = {
 export type CompanionState = {
   mode: CompanionMode
   conversation: TeacherConversation
+  teacher: TeacherRuntimeView
+}
+
+export type ExecutorActivityStatus =
+  | 'ready'
+  | 'working'
+  | 'waiting-for-learner'
+  | 'response-ready'
+  | 'stale'
+  | 'disconnected'
+
+export type WorkspaceEvidenceBaseline = {
+  schemaVersion: 1
+  capturedAt: string
+  gitAvailable: boolean
+  head: string | null
+  entries: Record<string, string>
+}
+
+export type WorkspaceEvidenceReconciliation = {
+  changedSinceBaseline: string[]
+  committedReportedFilesSinceRunStart: string[]
+  currentlyDirtyReportedFiles: string[]
+}
+
+export type CodexConfigurationValue = {
+  protocolValue: string | null
+  label: string | null
+}
+
+export type CodexTaskConfigurationSnapshot = {
+  schemaVersion: 1
+  runId: string
+  threadId: string
+  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated'
+  eventTimestampMs: number
+  observedAt: string
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  connection: 'connected' | 'disconnected'
+  model: CodexConfigurationValue
+  reasoningEffort: CodexConfigurationValue
+  serviceTier: CodexConfigurationValue
+  approvalPolicy: CodexConfigurationValue
+  fullAccess: CodexConfigurationValue
+  sandboxType: string | null
+  activePermissionProfile: { id: string; extends: string | null } | null
+}
+
+export type ExecutorActivitySnapshot = {
+  schemaVersion: 1
+  runId: string
+  threadId: string
+  status: ExecutorActivityStatus
+  cursor: string
+  learnerPrompts: string[]
+  learnerAuthoredPrompts?: string[]
+  executorResponses: string[]
+  approvalEvents: string[]
+  changedFiles: string[]
+  verificationEvidence: string[]
+  reportedChangedFiles: string[]
+  reportedVerificationEvidence: string[]
+  workspaceConfirmedChangedFiles: string[]
+  workspaceCommittedReportedFilesSinceRunStart: string[]
+  workspaceCurrentlyDirtyReportedFiles: string[]
+  observedAt: string
+  workspaceBaseline: WorkspaceEvidenceBaseline | null
+  configuration: CodexTaskConfigurationSnapshot | null
+}
+
+export type PracticeLearningSignal = {
+  text: string
+  basis: 'observed' | 'inferred'
+  sourceRunId: string
+}
+
+export type PracticeRunSummary = {
+  schemaVersion: 1
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  attempt: number
+  outcome: 'completed' | 'replaced' | 'abandoned' | 'error'
+  objective: string
+  approach: string
+  learnerDecisions: string[]
+  approvals: string[]
+  changedFiles: string[]
+  verificationEvidence: string[]
+  learningSignals: PracticeLearningSignal[]
+  unresolvedIssues: string[]
+  nextAttemptGuidance: string[]
+  startedAt: string
+  endedAt: string
+  summarizedAt: string
+  sourceDigest: string
+  model: string
+  freshness: 'current' | 'stale'
+  quality: 'live' | 'pending-refinement'
+}
+
+export type TeacherMemoryDocument = {
+  schemaVersion: 1
+  learnerDecisions: string[]
+  learningSignals: PracticeLearningSignal[]
+  unresolvedNeeds: PracticeLearningSignal[]
+  practiceSummaries: Record<string, PracticeRunSummary[]>
+  archivedPracticeSummaries: Record<string, PracticeRunSummary[]>
+  updatedAt: string
+}
+
+export type PracticePanel = 'teacher' | 'progress'
+export type PracticeStepStatus = 'completed' | 'current' | 'pending' | 'stale' | 'upcoming'
+export type PracticeReviewStatus = 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
+
+export type PracticeEvidenceKind =
+  | 'bound-thread-activity'
+  | 'workspace-confirmed-change'
+  | 'executor-reported-verification'
+  | 'learner-decision'
+  | 'artifact'
+  | 'teacher-assessment'
+  | 'codex-task-configuration'
+  | 'planning-artifact'
+  | 'learner-approval'
+  | 'scope-decision'
+  | 'artifact-alignment'
+  | 'unexpected-workspace-change'
+
+export type PracticeChecklistDefinition = {
+  id: string
+  title: string
+  dependsOn: string[]
+}
+
+export type PracticeCriterionDefinition = {
+  id: string
+  description: string
+  required: boolean
+  checklistStepId: string
+  acceptedEvidence: PracticeEvidenceKind[]
+  assertion: string
+  freshness: 'fresh' | 'any'
+}
+
+export const practiceWorkspaceKinds = ['pilot-workspace'] as const
+export const practiceTaskPolicies = [
+  'inherit-configuration-only',
+  'safe-workspace-write'
+] as const
+export const practiceEvidenceProfiles = [
+  'codex-task-configuration',
+  'planning-package'
+] as const
+
+export type PracticeWorkspaceKind = (typeof practiceWorkspaceKinds)[number]
+export type PracticeTaskPolicy = (typeof practiceTaskPolicies)[number]
+export type PracticeEvidenceProfile = (typeof practiceEvidenceProfiles)[number]
+
+export type ApprovedCodexConfiguration = {
+  schemaVersion: 1
+  sourcePracticeId: 'm1-codex-safe-setup'
+  sourcePracticeVersion: string
+  model: 'gpt-5.6-sol'
+  reasoningEffort: 'high'
+  serviceTier: 'standard'
+  approvedAt: string
+}
+
+export type LegacyPracticeDefinitionV1 = {
+  schemaVersion: 1
+  practiceId: string
+  title: string
+  version: string
+  checkpointId: CheckpointId
+  objective: string
+  expectedOutcome: string
+  checklist: PracticeChecklistDefinition[]
+  criteria: PracticeCriterionDefinition[]
+  completionDestination: {
+    lessonId: LessonId
+    checkpointId: CheckpointId
+    sceneId: SceneId
+    label: string
+  }
+}
+
+export type PracticeCompletionDestination = {
+  lessonId: LessonId
+  checkpointId: CheckpointId
+  sceneId: SceneId
+}
+
+export type PracticeDefinition = {
+  schemaVersion: 2
+  practiceId: string
+  title: string
+  version: string
+  checkpointId: CheckpointId
+  objective: string
+  expectedOutcome: string
+  workspaceKind: PracticeWorkspaceKind
+  taskPolicy: PracticeTaskPolicy
+  evidenceProfile: PracticeEvidenceProfile
+  checklist: PracticeChecklistDefinition[]
+  criteria: PracticeCriterionDefinition[]
+  completionDestination: PracticeCompletionDestination & { label: string }
+}
+
+export type PracticeEvidenceReference = {
+  id: string
+  kind: PracticeEvidenceKind
+  text: string
+  freshness: 'fresh' | 'stale'
+}
+
+export type PracticeAdapterStepState = {
+  stepId: string
+  status: 'pending' | 'current' | 'completed' | 'stale'
+  reason?: string
+  dependencyInputs: Record<string, string>
+}
+
+export type PracticeEvidenceInvalidation = {
+  changedInput: string
+  affectedStepIds: string[]
+  reason: string
+  nextAction: string
+}
+
+export const planningArtifactPaths = [
+  'artifacts/PRD.md',
+  'artifacts/implementation-plan.md'
+] as const
+
+export type PlanningArtifactPath = (typeof planningArtifactPaths)[number]
+
+export type PlanningArtifactSnapshot = {
+  schemaVersion: 1
+  path: PlanningArtifactPath
+  content: string
+  digest: string
+  byteLength: number
+  modifiedAt: string
+  observedAt: string
+}
+
+export type PlanningArtifactIssue = {
+  path: PlanningArtifactPath
+  code: 'missing' | 'empty' | 'oversized' | 'directory' | 'symlink' | 'escaping' | 'invalid-utf8' | 'unchanged'
+  message: string
+}
+
+export type PlanningActivityEvidence = {
+  schemaVersion: 1
+  cursor: string
+  observedAt: string
+  learnerTurnCount: number
+  executorTurnCount: number
+  prdPrompt: {
+    text: string
+    digest: string
+  } | null
+}
+
+export type PracticeLearnerApproval = {
+  decision: 'approved' | 'revision-requested'
+  recordedAt: string
+  artifactDigests: Partial<Record<PlanningArtifactPath, string>>
+}
+
+export type PracticeAdapterEvidenceState = {
+  schemaVersion: 1
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  evidenceProfile: PracticeEvidenceProfile
+  observedAt: string
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  sourceDigest: string | null
+  evidence: PracticeEvidenceReference[]
+  steps: PracticeAdapterStepState[]
+  invalidations: PracticeEvidenceInvalidation[]
+  configuration?: CodexTaskConfigurationSnapshot
+  planningArtifacts?: PlanningArtifactSnapshot[]
+  artifactIssues?: PlanningArtifactIssue[]
+  unexpectedChangedPaths?: string[]
+  planningActivity?: PlanningActivityEvidence
+}
+
+export type PracticeCriterionReview = {
+  criterionId: string
+  status: 'satisfied' | 'unsatisfied' | 'unverifiable'
+  evidenceRefs: string[]
+  explanation: string
+}
+
+export type PracticeReviewResult = {
+  schemaVersion: 1
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  verdict: 'needs-work' | 'passed'
+  criteria: PracticeCriterionReview[]
+  summary: string
+  reviewedAt: string
+  sourceDigest: string
+}
+
+export type PracticeCompletionReceipt = {
+  schemaVersion: 1
+  courseRunId: string
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  checkpointId: CheckpointId
+  status: 'completed'
+  completedAt: string
+  evidenceSummary: string
+  masterySummary: string
+  destination: PracticeCompletionDestination
+  approvedConfiguration?: ApprovedCodexConfiguration
+}
+
+export type PracticeChecklistStep = {
+  id: string
+  title: string
+  status: PracticeStepStatus
+  reason?: string
+  dependencyInputs?: Record<string, string>
+}
+
+export type PracticePlanningArtifactView = {
+  path: PlanningArtifactPath
+  availability: 'available' | 'missing' | 'invalid'
+  approval: 'approved' | 'pending' | 'revision-requested' | 'stale'
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  issue?: PlanningArtifactIssue['code']
+}
+
+export type PracticePlanningWorkspaceView = {
+  freshness: 'fresh' | 'stale' | 'unverifiable'
+  observedAt?: string
+  artifacts: PracticePlanningArtifactView[]
+  alignment: 'confirmed' | 'pending' | 'stale'
+  unexpectedChangedPaths: string[]
+  invalidations: PracticeEvidenceInvalidation[]
+  actionContext: {
+    generation: number
+    activityCursor?: string
+    prdDigest?: string
+    planDigest?: string
+  }
+}
+
+export type PracticeWorkspaceView = {
+  schemaVersion: 1
+  phase: 'brief' | 'switching' | 'active' | 'error'
+  title: string
+  objective: string
+  expectedOutcome: string
+  checklist: PracticeChecklistStep[]
+  review?: {
+    status: PracticeReviewStatus
+    canReview: boolean
+    canReturn: boolean
+    result?: PracticeReviewResult
+  }
+  completion?: PracticeCompletionReceipt
+  configuration?: CodexTaskConfigurationSnapshot
+  planning?: PracticePlanningWorkspaceView
+  completionDestination?: PracticeDefinition['completionDestination']
+
+  activePractice?: {
+    runId: string
+    generation: number
+    practiceId: string
+    practiceVersion: string
+    executorChatName: string
+    startedAt: string
+  }
+  transition?: {
+    stage: 'creating-target' | 'target-created'
+    label: string
+    canCancel: boolean
+    canRetry: boolean
+  }
+  presentation: {
+    fullPanel: PracticePanel
+    compactPanel: PracticePanel
+  }
+  capabilities: {
+    canStartNew: boolean
+    canResume: boolean
+    selectiveTransferAvailable: false
+    selectiveTransferReason: string
+  }
+  error?: string
+}
+
+export type PracticeStartRequest = {
+  practiceId: string
+  practiceVersion: string
+  transfer: boolean
+}
+
+export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
+
+type PlanningActionIdentity = PracticeIdentity & {
+  runId: string
+  generation: number
+}
+
+export type PlanningPracticeActionRequest = PlanningActionIdentity & {
+  action:
+    | { type: 'capture-prd-prompt'; expectedActivityCursor: string }
+    | { type: 'complete-interview'; expectedActivityCursor: string }
+    | { type: 'approve-prd' | 'request-prd-revision'; expectedPrdDigest: string }
+    | {
+        type: 'confirm-alignment' | 'approve-plan' | 'request-plan-revision'
+        expectedPrdDigest: string
+        expectedPlanDigest: string
+      }
+    | {
+        type: 'record-scope-decision'
+        value: string
+        expectedPrdDigest: string
+        expectedPlanDigest: string
+      }
+}
+
+export type PracticePanelUpdate = {
+  surface: 'full' | 'compact'
+  panel: PracticePanel
+}
+
+export type PracticeWorkspaceAdapter = {
+  loadWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  startNew: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
+  resume: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  retry: () => Promise<PracticeWorkspaceView>
+  cancel: () => Promise<PracticeWorkspaceView>
+  recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
+  reset: () => Promise<void>
 }
 
 export type TeacherAdapter = {
@@ -359,6 +823,11 @@ export type PracticeAdapter = {
   emitFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
 }
 
+export type PracticeReviewResponse = {
+  workspace: PracticeWorkspaceView
+  teacherMessage: TeacherMessage
+}
+
 export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
@@ -368,11 +837,22 @@ export type CourseCompanionApi = {
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
   loadPracticeState: () => Promise<PracticeState>
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
-  onLearningWindowShown: (callback: () => void) => () => void
+  onFullTeacherRequested: (callback: () => void) => () => void
+  onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => () => void
+  loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
+  resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
+  cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
+  recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
+  reviewPractice: () => Promise<PracticeReviewResponse>
+  returnPassedPractice: () => Promise<void>
+  onPracticeReturned: (callback: () => void) => () => void
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
-  showLearningWindow: () => Promise<void>
-  hideLearningWindow: () => Promise<void>
+  showFullTeacher: () => Promise<void>
+  minimizeFullTeacher: () => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>
   quitApp: () => Promise<void>
 }

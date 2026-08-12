@@ -1,22 +1,45 @@
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
-import { join } from 'node:path'
+import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
+import { existsSync, mkdirSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import type {
   CompanionMode,
   AppSettingsUpdate,
   PracticeFixtureRequest,
+  PracticePanelUpdate,
+  PlanningPracticeActionRequest,
+  PracticeStartRequest,
   ProgressUpdate,
   RuntimeInfo,
   TeacherSendRequest
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
+import { CodexAppServerClient } from './codex-app-server-client'
+import { ExecutorActivityObserver } from './executor-activity-observer'
+import { ExecutorActivityRepository } from './executor-activity-repository'
+import { ExecutorChatCoordinator } from './executor-chat-coordinator'
+import { PracticeCoordinator } from './practice-coordinator'
+import { PracticeRunRepository } from './practice-run-repository'
+import { PracticeDefinitionRepository } from './practice-definition-repository'
+import { PracticeWorkspaceResolver } from './practice-workspace-resolver'
+import {
+  DeterministicPracticeReviewEvaluator,
+  LivePracticeReviewEvaluator
+} from './practice-review-evaluator'
+import { PracticeReviewService } from './practice-review-service'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
-  FixtureTeacherAdapter,
   isAppSettingsUpdate,
   isTeacherSendRequest,
   TeacherChatRepository
 } from './teacher-fixture'
+import { RealTeacherAdapter } from './real-teacher-adapter'
+import { TeacherMemoryRepository } from './teacher-memory-repository'
+import { TeacherService } from './teacher-service'
 import { getCompanionBounds } from './window-layout'
+import { TestCodexGateway } from './test-codex-gateway'
+import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
+import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
+import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
   app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
@@ -26,11 +49,168 @@ let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
+let pendingPracticeReturn: Promise<void> | null = null
+
+function practiceDefinitionsDirectory(): string {
+  const override = process.env.COURSE_COMPANION_PRACTICE_DEFINITIONS_DIR
+  if (override) return resolve(override)
+  const candidates = [
+    join(app.getAppPath(), 'content', 'practices'),
+    join(process.resourcesPath, 'content', 'practices'),
+    resolve(app.getAppPath(), '..', '..', 'content', 'practices')
+  ]
+  return candidates.find((candidate) => existsSync(candidate)) ??
+    join(app.getAppPath(), 'content', 'practices')
+}
+
+const practiceDefinitionRepository = new PracticeDefinitionRepository(
+  practiceDefinitionsDirectory()
+)
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
-const teacherAdapter = new FixtureTeacherAdapter(teacherRepository)
+
+const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
+const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot)
+const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
+const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
+const appServerClient = new CodexAppServerClient()
+let appServerStart: Promise<void> | null = null
+const executorBootstrapClient = new CodexAppServerClient()
+let executorBootstrapStart: Promise<void> | null = null
+
+async function ensureAppServer(): Promise<void> {
+  if (!appServerStart) {
+    appServerStart = appServerClient.start().catch((error: unknown) => {
+      appServerStart = null
+      throw error
+    })
+  }
+  await appServerStart
+}
+
+async function ensureExecutorBootstrap(): Promise<void> {
+  if (!executorBootstrapStart) {
+    executorBootstrapStart = executorBootstrapClient.start().catch((error: unknown) => {
+      executorBootstrapStart = null
+      throw error
+    })
+  }
+  await executorBootstrapStart
+}
+
+async function closeExecutorBootstrap(): Promise<void> {
+  const starting = executorBootstrapStart
+  executorBootstrapStart = null
+  if (starting) await starting.catch(() => undefined)
+  await executorBootstrapClient.stop()
+}
+
+const appServerGateway = useTestCodexGateway
+  ? new TestCodexGateway(courseRoot)
+  : {
+      async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        await ensureAppServer()
+        return appServerClient.request(method, params)
+      },
+      onNotification(listener: Parameters<CodexAppServerClient['onNotification']>[0]) {
+        return appServerClient.onNotification(listener)
+      },
+      onConnectionState(listener: Parameters<CodexAppServerClient['onConnectionState']>[0]) {
+        return appServerClient.onConnectionState(listener)
+      }
+    }
+const executorBootstrapGateway = useTestCodexGateway
+  ? {
+      request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        return appServerGateway.request(method, params)
+      },
+      async close(): Promise<void> {}
+    }
+  : {
+      async request(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+        await ensureExecutorBootstrap()
+        return executorBootstrapClient.request(method, params)
+      },
+      close: closeExecutorBootstrap
+    }
+const openExecutorChat = useTestCodexGateway
+  ? async (): Promise<void> => undefined
+  : (url: string): Promise<void> => shell.openExternal(url)
+const executorChatCoordinator = new ExecutorChatCoordinator(
+  executorBootstrapGateway,
+  practiceWorkspaceResolver,
+  openExecutorChat
+)
+const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
+const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
+const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
+  new CodexConfigurationEvidenceAdapter(activityObserver),
+  new PlanningPackageEvidenceAdapter(activityObserver)
+])
+const practiceCoordinator = new PracticeCoordinator(
+  practiceRunRepository,
+  practiceDefinitionRepository,
+  executorChatCoordinator,
+  undefined,
+  undefined,
+  (binding, captureBaseline) => activityObserver.bind(binding, { captureBaseline }).then(() => undefined),
+  async () => {
+    const result = await progressRepository.load()
+    if (result.status !== 'returning' && result.status !== 'recovered') return null
+    const receipt = [...result.progress.practiceCompletions].reverse().find((item) =>
+      item.practiceId === 'm1-codex-safe-setup' && item.approvedConfiguration)
+    return receipt?.approvedConfiguration ?? null
+  },
+  evidenceAdapters,
+  (receipt) => progressRepository.revokePracticeCompletion(receipt)
+)
+const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
+const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
+mkdirSync(teacherRuntimeDirectory, { recursive: true })
+const realTeacherAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const realTeacherSummaryAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const realTeacherReviewAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const practiceReviewEvaluator = useTestCodexGateway
+  ? new DeterministicPracticeReviewEvaluator()
+  : new LivePracticeReviewEvaluator(realTeacherReviewAdapter)
+const practiceReviewService = new PracticeReviewService(
+  practiceDefinitionRepository,
+  practiceRunRepository,
+  practiceCoordinator,
+  progressRepository,
+  activityObserver,
+  practiceReviewEvaluator,
+  teacherRepository,
+  useTestCodexGateway && !presentTestTeacherAsLive,
+  undefined,
+  undefined,
+  evidenceAdapters
+)
+const teacherService = new TeacherService(
+  teacherRepository,
+  progressRepository,
+  practiceRunRepository,
+  practiceDefinitionRepository,
+  activityRepository,
+  activityObserver,
+  memoryRepository,
+  realTeacherSummaryAdapter,
+  realTeacherAdapter,
+  useTestCodexGateway && !presentTestTeacherAsLive
+)
+const removeTeacherConnection = appServerGateway.onConnectionState((state) => {
+  if (state === 'disconnected') {
+    appServerStart = null
+    void realTeacherAdapter.resetTransport()
+    void realTeacherSummaryAdapter.resetTransport()
+    void realTeacherReviewAdapter.resetTransport()
+  }
+  teacherService.onConnectionState(state)
+})
+
 
 function rendererPreloadPath(): string {
   return join(__dirname, '../preload/index.js')
@@ -104,9 +284,10 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
     }
   })
 
-  window.setAlwaysOnTop(companionAlwaysOnTop, 'floating')
+  applyCompanionTopmost(window)
   window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false })
 
+  window.on('show', () => applyCompanionTopmost(window))
   window.on('close', (event) => {
     if (isQuitting) return
     event.preventDefault()
@@ -116,19 +297,104 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   return window
 }
 
+function applyCompanionTopmost(target: BrowserWindow | null = companionWindow): void {
+  if (!target) return
+  if (!companionAlwaysOnTop) {
+    target.setAlwaysOnTop(false)
+    return
+  }
+  target.setAlwaysOnTop(true, 'screen-saver')
+  if (target.isVisible()) target.moveTop()
+}
+
 function positionCompanion(mode: CompanionMode, show = true): void {
   if (!companionWindow) return
 
   const display = screen.getDisplayMatching(companionWindow.getBounds())
   companionWindow.setBounds(getCompanionBounds(display.workArea, mode), true)
-  if (show) companionWindow.showInactive()
+  applyCompanionTopmost()
+  if (show) {
+    companionWindow.showInactive()
+    applyCompanionTopmost()
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isPracticeStartRequest(value: unknown): value is PracticeStartRequest {
+  return isRecord(value)
+    && Object.keys(value).length === 3
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.practiceId))
+    && /^[0-9]+.[0-9]+.[0-9]+$/.test(String(value.practiceVersion))
+    && typeof value.transfer === 'boolean'
+}
+
+function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
+  return (
+    isRecord(value) &&
+    Object.keys(value).length === 2 &&
+    (value.surface === 'full' || value.surface === 'compact') &&
+    (value.panel === 'teacher' || value.panel === 'progress')
+  )
+}
+
+function isDigest(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+}
+
+function isPlanningPracticeActionRequest(value: unknown): value is PlanningPracticeActionRequest {
+  if (!isRecord(value)
+    || !/^[A-Za-z0-9_-]{1,160}$/.test(String(value.runId))
+    || !Number.isSafeInteger(value.generation)
+    || Number(value.generation) < 1
+    || value.practiceId !== 'm2-planning-package'
+    || !/^[0-9]+\.[0-9]+\.[0-9]+$/.test(String(value.practiceVersion))
+    || !isRecord(value.action)
+    || typeof value.action.type !== 'string') return false
+  const action = value.action
+  if (action.type === 'capture-prd-prompt' || action.type === 'complete-interview') {
+    return Object.keys(action).length === 2
+      && typeof action.expectedActivityCursor === 'string'
+      && action.expectedActivityCursor.length > 0
+      && action.expectedActivityCursor.length <= 500
+  }
+  if (action.type === 'approve-prd' || action.type === 'request-prd-revision') {
+    return Object.keys(action).length === 2 && isDigest(action.expectedPrdDigest)
+  }
+  if (action.type === 'confirm-alignment'
+    || action.type === 'approve-plan'
+    || action.type === 'request-plan-revision') {
+    return Object.keys(action).length === 3
+      && isDigest(action.expectedPrdDigest)
+      && isDigest(action.expectedPlanDigest)
+  }
+  if (action.type === 'record-scope-decision') {
+    return Object.keys(action).length === 4
+      && typeof action.value === 'string'
+      && action.value.trim().length >= 20
+      && action.value.length <= 2_000
+      && isDigest(action.expectedPrdDigest)
+      && isDigest(action.expectedPlanDigest)
+  }
+  return false
+}
+
+async function enterPracticeCompanion(): Promise<void> {
+  companionMode = 'compact'
+  await teacherRepository.saveMode(companionMode)
+  mainWindow?.hide()
+  companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
+  positionCompanion(companionMode)
 }
 
 function registerIpcHandlers(): void {
   ipcMain.handle('course:get-runtime-info', (): RuntimeInfo => ({
     appVersion: app.getVersion(),
     platform: process.platform,
-    packaged: app.isPackaged
+    packaged: app.isPackaged,
+    testFixturesEnabled: useTestCodexGateway
   }))
 
   ipcMain.handle('course:load-progress', () => progressRepository.load())
@@ -139,26 +405,117 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:reset-progress', async () => {
-    await Promise.all([progressRepository.reset(), teacherAdapter.reset()])
+    await Promise.all([progressRepository.reset(), teacherService.reset(), practiceCoordinator.reset()])
     companionMode = 'compact'
     companionAlwaysOnTop = true
-    companionWindow?.setAlwaysOnTop(true, 'floating')
+    applyCompanionTopmost()
     positionCompanion(companionMode, false)
   })
 
-  ipcMain.handle('course:load-companion-state', async () => ({
-    mode: companionMode,
-    conversation: await teacherAdapter.loadConversation()
-  }))
+  ipcMain.handle('course:load-companion-state', async () => {
+    if (!useTestCodexGateway) await ensureAppServer().catch(() => undefined)
+    return teacherService.loadState(companionMode)
+  })
 
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
 
   ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
 
+  ipcMain.handle('course:load-practice-workspace', (_event, identity) => (
+    practiceCoordinator.loadWorkspace(isRecord(identity) ? {
+      practiceId: String(identity.practiceId),
+      practiceVersion: String(identity.practiceVersion)
+    } : undefined)
+  ))
+
+  ipcMain.handle('course:start-practice', async (_event, request: PracticeStartRequest) => {
+    const previousRun = (await practiceRunRepository.load()).activeRun
+    if (!isPracticeStartRequest(request)) throw new Error('Invalid Practice start request')
+    const view = await practiceCoordinator.startNew(request)
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
+    if (previousRun && previousRun.runId !== activeRun?.runId) {
+      void teacherService.summarizeReplacedRun(previousRun)
+    }
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:resume-practice', async (_event, identity) => {
+    const view = await practiceCoordinator.resume(isRecord(identity) ? {
+      practiceId: String(identity.practiceId),
+      practiceVersion: String(identity.practiceVersion)
+    } : undefined)
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:retry-practice-switch', async () => {
+    const previousRun = (await practiceRunRepository.load()).activeRun
+    const view = await practiceCoordinator.retry()
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    if (activeRun) await teacherService.activatePracticeRun(activeRun.runId)
+    if (previousRun && previousRun.runId !== activeRun?.runId) {
+      void teacherService.summarizeReplacedRun(previousRun)
+    }
+    await enterPracticeCompanion()
+    return view
+  })
+
+  ipcMain.handle('course:cancel-practice-switch', () => practiceCoordinator.cancel())
+
+  ipcMain.handle(
+    'course:record-planning-action',
+    (_event, request: PlanningPracticeActionRequest) => {
+      if (!isPlanningPracticeActionRequest(request)) {
+        throw new Error('Invalid Module 2 Practice action')
+      }
+      return practiceCoordinator.recordPlanningAction(request)
+    }
+  )
+
+  ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
+    if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
+    return practiceCoordinator.selectPanel(update)
+  })
+  ipcMain.handle('course:review-practice', async () => {
+    if (!useTestCodexGateway) await ensureAppServer()
+    return practiceReviewService.review()
+  })
+
+  ipcMain.handle('course:return-passed-practice', async () => {
+    if (pendingPracticeReturn) return pendingPracticeReturn
+    const operation = (async () => {
+      const completedRun = (await practiceRunRepository.load()).activeRun
+      const receipt = await practiceReviewService.returnPassedPractice()
+      if (!completedRun
+        || completedRun.runId !== receipt.runId
+        || completedRun.practiceId !== receipt.practiceId
+        || completedRun.practiceVersion !== receipt.practiceVersion) {
+        throw new Error('Passed Practice changed before its completion summary could be saved.')
+      }
+      await teacherService.summarizeCompletedRun(completedRun)
+      const authoritative = await progressRepository.load()
+      if (authoritative.status !== 'returning' && authoritative.status !== 'recovered') {
+        throw new Error('Authoritative learner progress is unavailable after Practice return.')
+      }
+      mainWindow?.show()
+      mainWindow?.focus()
+      companionWindow?.hide()
+      mainWindow?.webContents.send('course:practice-returned')
+    })().finally(() => {
+      if (pendingPracticeReturn === operation) pendingPracticeReturn = null
+    })
+    pendingPracticeReturn = operation
+    return operation
+  })
+
   ipcMain.handle('course:save-app-settings', async (_event, update: AppSettingsUpdate) => {
     if (!isAppSettingsUpdate(update)) throw new Error('Invalid app settings update')
     companionAlwaysOnTop = update.companionAlwaysOnTop
-    companionWindow?.setAlwaysOnTop(companionAlwaysOnTop, companionAlwaysOnTop ? 'floating' : 'normal')
+    applyCompanionTopmost()
     return teacherRepository.saveSettings({
       companionMode,
       companionAlwaysOnTop
@@ -168,6 +525,7 @@ function registerIpcHandlers(): void {
   ipcMain.handle(
     'course:emit-practice-fixture',
     (_event, request: PracticeFixtureRequest) => {
+      if (!useTestCodexGateway) throw new Error('Practice fixtures are available only in deterministic test mode')
       if (!isPracticeFixtureRequest(request)) throw new Error('Invalid practice fixture request')
       return practiceAdapter.emitFixture(request)
     }
@@ -177,34 +535,26 @@ function registerIpcHandlers(): void {
     'course:send-teacher-message',
     async (_event, request: TeacherSendRequest) => {
       if (!isTeacherSendRequest(request)) throw new Error('Invalid teacher message request')
-      const progressResult = await progressRepository.load()
-      const progress =
-        progressResult.status === 'returning' || progressResult.status === 'recovered'
-          ? progressResult.progress
-          : undefined
-      return teacherAdapter.sendMessage({
-        content: request.content,
-        context: progress
-          ? {
-              lessonId: progress.currentLessonId,
-              checkpointId: progress.checkpointId,
-              sceneId: progress.sceneId
-            }
-          : undefined
-      })
+      return teacherService.sendMessage({ content: request.content })
     }
   )
 
-  ipcMain.handle('course:show-learning-window', () => {
-    companionWindow?.hide()
+  ipcMain.handle('course:show-full-teacher', async () => {
+    companionMode = 'compact'
+    await teacherRepository.saveMode(companionMode)
     mainWindow?.show()
     mainWindow?.focus()
-    mainWindow?.webContents.send('course:learning-window-shown')
+    mainWindow?.webContents.send('course:full-teacher-requested')
+    companionWindow?.hide()
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
   })
 
-  ipcMain.handle('course:hide-learning-window', () => {
+  ipcMain.handle('course:minimize-full-teacher', async () => {
+    companionMode = 'compact'
+    await teacherRepository.saveMode(companionMode)
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
+    positionCompanion(companionMode)
     mainWindow?.hide()
-    companionWindow?.showInactive()
   })
 
   ipcMain.handle('course:set-companion-mode', async (_event, mode: CompanionMode) => {
@@ -213,6 +563,7 @@ function registerIpcHandlers(): void {
     }
     companionMode = mode
     positionCompanion(companionMode)
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
     await teacherRepository.saveMode(companionMode)
   })
 
@@ -221,6 +572,11 @@ function registerIpcHandlers(): void {
 
 app.on('before-quit', () => {
   isQuitting = true
+  void appServerClient.stop()
+  void closeExecutorBootstrap()
+  removeTeacherConnection()
+  void teacherService.dispose()
+  void realTeacherReviewAdapter.dispose()
 })
 
 app.on('activate', () => {

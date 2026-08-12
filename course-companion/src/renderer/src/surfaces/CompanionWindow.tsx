@@ -1,24 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CompanionMode, CompanionState } from '../../../../shared/contracts'
 import teacherImage from '../assets/teacher-triet.png'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 export function CompanionWindow() {
   const [mode, setMode] = useState<CompanionMode | null>(null)
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const load = async () => {
       try {
         const state: CompanionState = window.courseCompanion
           ? await window.courseCompanion.loadCompanionState()
-          : { mode: 'compact', conversation: { messages: [], recovered: false } }
+          : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
         setMode(state.mode)
       } catch {
         setMode('compact')
       }
     }
+    const unsubscribeMode = window.courseCompanion?.onCompanionModeChanged(setMode)
 
     void load()
+    return () => {
+      if (clickTimer.current) clearTimeout(clickTimer.current)
+      unsubscribeMode?.()
+    }
   }, [])
 
   const changeMode = async (nextMode: CompanionMode) => {
@@ -30,11 +36,29 @@ export function CompanionWindow() {
     }
   }
 
-  const restoreLearningWindow = async () => {
-    await changeMode('compact')
-    await window.courseCompanion?.showLearningWindow()
+  const showFullTeacher = async () => {
+    try {
+      await window.courseCompanion?.showFullTeacher()
+    } catch {
+      setMode('compact')
+    }
   }
 
+  const openQuickTeacher = () => {
+    if (clickTimer.current) return
+    clickTimer.current = setTimeout(() => {
+      clickTimer.current = null
+      void changeMode('expanded')
+    }, 300)
+  }
+
+  const openFullTeacher = () => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current)
+      clickTimer.current = null
+    }
+    void showFullTeacher()
+  }
   if (mode === null) {
     return <main className="pixel-companion-surface" aria-label="Đang tải Triết" />
   }
@@ -46,7 +70,10 @@ export function CompanionWindow() {
           className="pixel-teacher-launcher"
           type="button"
           aria-label="Mở Triết, giáo viên đồng hành"
-          onClick={() => void changeMode('expanded')}
+          aria-description="Nhấp một lần để mở nhanh. Nhấp đúp để mở toàn màn hình."
+          title="Nhấp một lần để mở nhanh · Nhấp đúp để mở toàn màn hình"
+          onClick={openQuickTeacher}
+          onDoubleClick={openFullTeacher}
         >
           <img src={teacherImage} alt="" />
           <span>TRIẾT</span>
@@ -59,7 +86,7 @@ export function CompanionWindow() {
     <main className="pixel-companion-surface pixel-companion-surface--expanded">
       <TeacherWorkspace
         onClose={() => void changeMode('compact')}
-        onOpenLesson={() => void restoreLearningWindow()}
+        onExpand={() => void showFullTeacher()}
       />
     </main>
   )

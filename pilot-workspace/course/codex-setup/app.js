@@ -61,16 +61,6 @@ nextButton.addEventListener("click", () => {
   if (currentStep < panels.length - 1) showStep(currentStep + 1);
 });
 
-copyLine.addEventListener("click", async () => {
-  const message = "Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt. Báo cáo dưới tiêu đề Verification, gồm Model, Effort, Speed, Approval và trạng thái Full access.";
-  try {
-    await navigator.clipboard.writeText(message);
-    copyStatus.textContent = "Đã sao chép";
-  } catch {
-    copyStatus.textContent = "Hãy chọn và sao chép";
-  }
-});
-
 let savedStep = 0;
 try {
   const currentSavedStep = localStorage.getItem(storageKey);

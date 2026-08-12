@@ -6,10 +6,10 @@ const workArea = { x: 0, y: 25, width: 1440, height: 875 }
 describe('getCompanionBounds', () => {
   it('anchors the compact companion inside the lower-right work area', () => {
     expect(getCompanionBounds(workArea, 'compact')).toEqual({
-      x: 1248,
-      y: 688,
-      width: 168,
-      height: 188
+      x: 1344,
+      y: 804,
+      width: 72,
+      height: 72
     })
   })
 
@@ -35,10 +35,10 @@ describe('getCompanionBounds', () => {
     expect(
       getCompanionBounds({ x: -1920, y: 0, width: 1920, height: 1080 }, 'compact')
     ).toEqual({
-      x: -192,
-      y: 868,
-      width: 168,
-      height: 188
+      x: -96,
+      y: 984,
+      width: 72,
+      height: 72
     })
   })
 })

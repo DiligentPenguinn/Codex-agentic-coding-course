@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    >
+    <title>Practice Teacher</title>
+    <link rel="stylesheet" href="./bubble.css">
+  </head>
+  <body>
+    <main class="bubble-shell" aria-label="Teacher companion">
+      <div
+        class="drag-grip"
+        aria-label="Drag Teacher bubble"
+        title="Drag Teacher bubble"
+      ></div>
+      <div class="state-ring" aria-hidden="true"></div>
+      <button
+        id="teacher-bubble"
+        type="button"
+        aria-label="Open Teacher quick chat"
+        aria-describedby="bubble-status"
+      >
+        <span class="teacher-avatar" aria-hidden="true">T</span>
+        <span id="executor-symbol" class="executor-symbol" aria-hidden="true">○</span>
+        <span id="unread-badge" class="unread-badge" aria-hidden="true" hidden>0</span>
+      </button>
+      <span id="bubble-status" class="sr-only" role="status">Executor ready. No new Teacher message updates observed.</span>
+    </main>
+    <script type="module" src="./bubble.js"></script>
+  </body>
+</html>

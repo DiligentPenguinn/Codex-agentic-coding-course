@@ -12,9 +12,10 @@ ContentPilot là dự án thực hành xuyên suốt. Bạn sẽ xây ứng dụ
 quy trình cho những sản phẩm khác.
 
 > [!NOTE]
-> **Về chế độ luyện tập:** Course Companion hiện dùng kịch bản lưu trên máy cho
-> phản hồi của Teacher và các tình huống thực hành. Ứng dụng sẽ nói rõ khi dữ
-> liệu chưa đến trực tiếp từ Codex.
+> **Early access:** guided startup is available for Windows and macOS. Course
+> Companion restores local progress on both platforms. Normal operation uses
+> the local Codex App Server for Teacher and Practice tasks; deterministic
+> fixture behavior is reserved for explicitly labelled development tests.
 
 ## Bạn sẽ học được gì?
 
@@ -92,15 +93,15 @@ bạn có thể tự thực hiện.
 
 - Luồng thiết lập Windows dùng trang đăng nhập ChatGPT chính thức của Codex và
   không đọc hoặc lưu mật khẩu hay token đăng nhập của bạn.
-- Course Companion trên macOS hiện dùng chế độ luyện tập và chưa quan sát trực
-  tiếp task Codex; ứng dụng ghi rõ nguồn của phản hồi.
+- Course Companion chỉ đọc bằng chứng có giới hạn từ task Practice đã liên kết;
+  dữ liệu mô phỏng trong kiểm thử luôn được ghi nhãn rõ ràng.
 - Cấu hình không chứa bí mật và tiến độ học được lưu trên máy của bạn.
 - Khi mở lại, ứng dụng kiểm tra bản lưu và đưa bạn về đúng bước đang học.
 
 ## Khi cần trợ giúp
 
-- Với Windows, xem [hướng dẫn khởi động và xử lý lỗi](prototypes/app-startup-electron-mock/README.md).
-- Với macOS, xem [hướng dẫn Course Companion](course-companion/README.md).
+Với hướng dẫn khởi động, kiểm chứng Practice và các giới hạn hiện tại trên
+Windows và macOS, xem [hướng dẫn Course Companion](course-companion/README.md).
 
 ## For contributors
 
@@ -115,7 +116,8 @@ need to read them to begin.
 - [Pilot 0.1 workspace](pilot-workspace/START_HERE.md) is the runnable
   Codex-native course authority for `intro`, `module-1`, and `resume`.
 - [Course Companion](course-companion/README.md) is the implemented desktop-app
-  package; its Teacher and practice adapters are currently fixture-backed.
+  package shared by Windows and macOS; its Teacher and evidence adapters are
+  currently fixture-backed.
 - [ContentPilot learner starter](starters/contentpilot/README.md) is the
   validated application baseline that learners extend.
 - [Planning handoff](docs/planning/content-automation-course-handoff.md) and its
@@ -131,6 +133,7 @@ prototype curricula.
 
 ### Historical references
 
+- [Windows startup prototype](prototypes/app-startup-electron-mock/README.md)
 - [Windows startup mock technical design](docs/superpowers/specs/2026-07-30-electron-startup-mock-design.md)
 - [MVP 0.5 pedagogy kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md)
 - [MVP 1 course repository prototype](prototypes/mvp-1-course-repo/README.vi.md)

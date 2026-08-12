@@ -80,8 +80,8 @@ describe('Course module assessment banks', () => {
       'Khi nào cần planning',
       'Từ ý tưởng đến PRD',
       'Viết prompt để tạo PRD',
-      'Xem xét và duyệt PRD',
       'Từ PRD đến implementation plan',
+      'Thực hành tạo planning package',
       'Kiểm tra và hoàn thành Module 2'
     ])
     expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(50)

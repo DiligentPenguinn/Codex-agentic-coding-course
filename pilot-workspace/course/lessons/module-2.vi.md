@@ -203,6 +203,28 @@ Mỗi câu hỏi đều ghi căn cứ và đường dẫn đến nguồn chính 
 hỏi bằng tiếng Việt dựa trên các nguồn đó. Đây không phải trích dẫn nguyên văn.
 Lời giải và nguồn chỉ hiện sau khi bạn trả lời.
 
+## Một Practice planning package từ đầu đến cuối
+
+Chỉ sau khi hoàn thành ba cụm kiến thức và đủ 3 + 3 + 2 câu kiểm tra, bạn mới
+mở Practice `m2-planning-package`. Toàn bộ phần áp dụng nằm trong cùng một
+Practice run để bạn có thể tạm dừng và tiếp tục tại bước chưa hoàn thành đầu
+tiên:
+
+1. Tự viết prompt tạo PRD.
+2. Trả lời cuộc phỏng vấn từng câu với Executor.
+3. Xem xét, duyệt và lưu `artifacts/PRD.md`.
+4. Yêu cầu tạo implementation plan từ PRD đã duyệt.
+5. Đối chiếu bốn điểm alignment giữa PRD và plan.
+6. Duyệt và lưu `artifacts/implementation-plan.md`.
+7. Giải thích một quyết định phạm vi và yêu cầu Triết duyệt planning package.
+8. Quay lại khóa học để làm 15 câu kiểm tra cuối.
+
+Task Executor của Practice dùng cấu hình model, mức suy luận và speed đã được
+duyệt ở Module 1, cùng approval `on-request`, quyền ghi trong workspace và Full
+access tắt. Bạn không cần chụp ảnh hoặc nhập lại cấu hình. Triết xử lý trực tiếp
+gói bằng chứng giới hạn của Practice; Triết không sửa artifact hoặc thay quyết
+định của bạn.
+
 ## Checkpoint hoàn thành
 
 Bạn hoàn thành Module 2 khi có một **planning package** gồm:
@@ -228,7 +250,9 @@ plan, mọi bước của plan đều truy ngược được về PRD, phần ng
 đưa trở lại và các mục `Done When` trở thành bằng chứng kiểm tra trong plan.
 
 Trước khi qua module tiếp theo, bạn cần duyệt cả hai tài liệu và giải thích bằng
-lời của mình ít nhất một quyết định về phạm vi.
+lời của mình ít nhất một quyết định về phạm vi. Triết phải xác nhận semantic
+review đạt trên đúng hai digest artifact hiện tại, sau đó bạn mới làm 15 câu
+kiểm tra cuối và đạt ít nhất 12/15 câu.
 
 ## Nguồn và lựa chọn sư phạm
 

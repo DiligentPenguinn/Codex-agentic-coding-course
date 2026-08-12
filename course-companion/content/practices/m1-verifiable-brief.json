@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "practiceId": "m1-verifiable-brief",
+  "version": "1.0.0",
+  "checkpointId": "m1-plan-approval",
+  "objective": "T\u1ea1o m\u1ed9t brief ki\u1ec3m ch\u1ee9ng \u0111\u01b0\u1ee3c tr\u01b0\u1edbc khi cho Codex thay \u0111\u1ed5i giao di\u1ec7n.",
+  "expectedOutcome": "M\u1ed9t thay \u0111\u1ed5i CSS \u0111\u00fang ph\u1ea1m vi, c\u00f3 b\u1eb1ng ch\u1ee9ng \u1edf viewport 390px v\u00e0 kh\u00f4ng g\u00e2y tr\u00e0n ngang.",
+  "checklist": [
+    {
+      "id": "review-objective",
+      "title": "Xem m\u1ee5c ti\u00eau v\u00e0 d\u1ea5u hi\u1ec7u ho\u00e0n th\u00e0nh"
+    },
+    {
+      "id": "open-executor",
+      "title": "M\u1edf Executor chat ri\u00eang cho Practice"
+    },
+    {
+      "id": "build-and-verify",
+      "title": "Th\u1ef1c hi\u1ec7n thay \u0111\u1ed5i trong ph\u1ea1m vi \u0111\u00e3 duy\u1ec7t"
+    },
+    {
+      "id": "review-evidence",
+      "title": "Duy\u1ec7t b\u1eb1ng ch\u1ee9ng tr\u01b0\u1edbc khi k\u1ebft lu\u1eadn"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "objective-reviewed",
+      "description": "M\u1ee5c ti\u00eau v\u00e0 d\u1ea5u hi\u1ec7u ho\u00e0n th\u00e0nh \u0111\u00e3 \u0111\u01b0\u1ee3c \u0111\u01b0a v\u00e0o Practice.",
+      "required": true,
+      "checklistStepId": "review-objective",
+      "acceptedEvidence": [
+        "bound-thread-activity"
+      ],
+      "assertion": "The active Practice definition is bound to the reviewed run.",
+      "freshness": "any"
+    },
+    {
+      "id": "executor-bound",
+      "description": "C\u00f3 ho\u1ea1t \u0111\u1ed9ng trong \u0111\u00fang Executor chat \u0111\u01b0\u1ee3c li\u00ean k\u1ebft v\u1edbi Practice.",
+      "required": true,
+      "checklistStepId": "open-executor",
+      "acceptedEvidence": [
+        "bound-thread-activity"
+      ],
+      "assertion": "The evidence belongs to the active bound Executor thread.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "scoped-change",
+      "description": "Workspace x\u00e1c nh\u1eadn c\u00f3 thay \u0111\u1ed5i li\u00ean quan sau khi Practice b\u1eaft \u0111\u1ea7u.",
+      "required": true,
+      "checklistStepId": "build-and-verify",
+      "acceptedEvidence": [
+        "workspace-confirmed-change"
+      ],
+      "assertion": "The changed files are consistent with the requested scoped interface change.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "expected-verification",
+      "description": "Executor b\u00e1o c\u00e1o b\u1eb1ng ch\u1ee9ng ki\u1ec3m ch\u1ee9ng kh\u1edbp v\u1edbi k\u1ebft qu\u1ea3 mong \u0111\u1ee3i.",
+      "required": true,
+      "checklistStepId": "build-and-verify",
+      "acceptedEvidence": [
+        "executor-reported-verification"
+      ],
+      "assertion": "The report covers a 390px viewport and shows no horizontal overflow for the required routes.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "evidence-reviewed",
+      "description": "H\u01b0\u01a1ng \u0111\u00e3 \u0111\u1ed1i chi\u1ebfu to\u00e0n b\u1ed9 b\u1eb1ng ch\u1ee9ng b\u1eaft bu\u1ed9c tr\u01b0\u1edbc khi k\u1ebft lu\u1eadn.",
+      "required": true,
+      "checklistStepId": "review-evidence",
+      "acceptedEvidence": [
+        "teacher-assessment"
+      ],
+      "assertion": "All other required criteria are satisfied with consistent provenance.",
+      "freshness": "fresh"
+    }
+  ],
+  "completionDestination": {
+    "lessonId": "module-1",
+    "checkpointId": "m1-review",
+    "sceneId": "module-1-reflection"
+  }
+}

@@ -1,18 +1,70 @@
 import { isAllowedAuthUrl } from "./auth-service.mjs";
 
-export function createWindowOptions({ preloadPath }) {
+function rectangleOptions(bounds) {
+  if (!bounds) return {};
   return {
-    width: 880,
-    height: 680,
-    minWidth: 680,
-    minHeight: 560,
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  };
+}
+
+function secureWebPreferences(preloadPath) {
+  return {
+    preload: preloadPath,
+    nodeIntegration: false,
+    contextIsolation: true,
+    sandbox: true,
+  };
+}
+
+export function createMainWindowOptions({ preloadPath, bounds }) {
+  return {
+    width: 1180,
+    height: 800,
+    ...rectangleOptions(bounds),
+    minWidth: 760,
+    minHeight: 600,
     show: false,
-    webPreferences: {
-      preload: preloadPath,
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: true,
-    },
+    webPreferences: secureWebPreferences(preloadPath),
+  };
+}
+
+export const createWindowOptions = createMainWindowOptions;
+
+export function createBubbleWindowOptions({ preloadPath, bounds }) {
+  return {
+    width: 72,
+    height: 72,
+    ...rectangleOptions(bounds),
+    show: false,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    hasShadow: false,
+    webPreferences: secureWebPreferences(preloadPath),
+  };
+}
+
+export function createQuickChatWindowOptions({ preloadPath, bounds }) {
+  return {
+    width: 360,
+    height: 520,
+    ...rectangleOptions(bounds),
+    show: false,
+    frame: false,
+    transparent: false,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    webPreferences: secureWebPreferences(preloadPath),
   };
 }
 
