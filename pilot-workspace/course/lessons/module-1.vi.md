@@ -15,40 +15,6 @@ là coding agent của OpenAI. [The Codex Handbook của
 FreeCodeCamp](https://www.freecodecamp.org/news/the-codex-handbook-a-practical-guide-to-openai-s-coding-platform/)
 phân biệt Codex với một chatbot chỉ trả lời bằng văn bản.
 
-## Trước Codex: Harness Engineering
-
-Harness Engineering là cách thiết kế môi trường xung quanh một AI agent để nó
-có thể làm việc ổn định. OpenAI mô tả sự thay đổi vai trò như sau: con người
-định hướng, còn agent thực thi. Công việc của đội ngũ là làm rõ ý định, xây
-công cụ và tạo vòng phản hồi để agent biết kết quả có đạt hay không.
-
-### Harness là gì?
-
-Bạn có thể hình dung model là bộ não, còn harness là toàn bộ môi trường giúp bộ
-não đó làm việc:
-
-- workspace chứa dự án,
-- công cụ để đọc, sửa và chạy code,
-- chỉ dẫn và giới hạn cần tuân theo,
-- sandbox cùng cơ chế approval,
-- bài kiểm tra, diff và báo cáo để phản hồi kết quả.
-
-Không có harness, model có thể giải thích cách làm nhưng thiếu nơi để hành động
-và kiểm tra. Harness biến khả năng suy luận thành một quy trình làm việc có
-ranh giới.
-
-### Harness của Codex
-
-Trong Codex, model không làm việc một mình. Codex kết hợp model với workspace,
-terminal, công cụ đọc và sửa tệp, chỉ dẫn của dự án, sandbox, approval và các
-bước kiểm tra. Khi một kết quả chưa tốt, ta không chỉ đổi model. Ta cũng xem
-harness còn thiếu bối cảnh, công cụ, giới hạn hay phản hồi nào.
-
-Khái niệm này dựa trên [bài Harness Engineering bằng tiếng Việt của
-OpenAI](https://openai.com/vi-VN/index/harness-engineering/). [Bài giải thích
-nhập môn trên Viblo](https://viblo.asia/p/agent-harness-la-gi-tai-sao-ai-agent-can-harness-de-hoat-dong-hieu-qua-bA468BMMLKv)
-được dùng để diễn đạt các thành phần của harness theo cách gần gũi hơn.
-
 ## Approval: Codex được phép làm đến đâu?
 
 Sandbox là ranh giới kỹ thuật giới hạn những gì Codex có thể truy cập. Approval
@@ -126,6 +92,30 @@ Trong những lần mình thử nghiệm, Fast thường chỉ nhanh hơn Standa
 
 [OpenAI Docs — Speed](https://learn.chatgpt.com/docs/agent-configuration/speed)
 giải thích tốc độ và mức dùng credit của hai chế độ.
+
+## Trước khi tiếp tục: Harness Engineering là gì?
+
+Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một thuật ngữ được
+nhắc đến nhiều gần đây: Harness Engineering. Nghe có vẻ phức tạp, nhưng hiểu
+đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm việc.
+
+Ở phần trước, bạn đã tìm hiểu model và approval. Model là bộ não của agent, còn
+approval là một phần của harness. Harness còn gồm:
+
+- workspace chứa dự án và các tệp;
+- công cụ để đọc, sửa và chạy code;
+- terminal cùng chỉ dẫn của dự án;
+- sandbox để giới hạn quyền truy cập; và
+- test cùng diff để kiểm tra kết quả.
+
+Các thành phần này cho model nơi hành động, ranh giới cần tuân theo và cách kiểm
+tra kết quả. Vì vậy, khi Codex làm chưa tốt, bạn đừng chỉ đổi model. Hãy xem
+agent có thiếu bối cảnh, công cụ, quyền truy cập hoặc cách kiểm tra hay không.
+
+Khái niệm này dựa trên [bài Harness Engineering bằng tiếng Việt của
+OpenAI](https://openai.com/vi-VN/index/harness-engineering/). [Bài giải thích
+nhập môn trên Viblo](https://viblo.asia/p/agent-harness-la-gi-tai-sao-ai-agent-can-harness-de-hoat-dong-hieu-qua-bA468BMMLKv)
+được dùng để diễn đạt các thành phần của harness theo cách gần gũi hơn.
 
 ## Cấu hình mình đề xuất cho ContentPilot
 

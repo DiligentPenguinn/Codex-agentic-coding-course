@@ -58,6 +58,13 @@ type Choice = {
   decision?: { key: string; value: string }
 }
 
+function yellowChoiceLabel(choice: Choice): string {
+  if (!choice.primary) return choice.label
+  if (choice.action === 'practice') return 'Chuyển sang Codex để thực hành'
+  if (choice.next) return 'Tiếp tục'
+  return choice.label
+}
+
 type SceneContent = {
   lessonId: LessonId
   checkpointId: CheckpointId
@@ -286,7 +293,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: '@', value: 'Mở thêm nguồn và công cụ' }
     ],
     dialogue: 'Một số lệnh / bạn có thể thường xuyên sử dụng là /status và /goal. Lệnh /status cho biết mức sử dụng context window — bạn có thể hiểu đây là trí nhớ ngắn hạn của model. Nếu lượng context đã dùng vượt quá 150.000 token, bạn nên chuyển sang chat mới. Lệnh /goal tạo một mục tiêu bền vững để Codex tiếp tục theo đuổi qua nhiều lượt cho đến khi hoàn thành, bị tạm dừng hoặc cần bạn cung cấp thêm thông tin.\n\nNgoài ra, @ cũng mở một danh sách chọn nhanh tương tự /. Tuy nhiên, @ cho phép bạn truy cập thêm một số nguồn và công cụ. Chẳng hạn, bạn có thể chọn một skill cụ thể hoặc một đoạn chat trong tài khoản ChatGPT.',
-    choices: [{ label: 'Tìm hiểu Harness Engineering', next: 'module-1-agents-guidance', primary: true }]
+    choices: [{ label: 'Tiếp tục', next: 'module-1-agents-guidance', primary: true }]
   },
   'module-1-agents-guidance': {
     lessonId: 'module-1',
@@ -305,8 +312,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'CÔNG CỤ', value: 'Đủ để hành động' },
       { label: 'PHẢN HỒI', value: 'Biết đúng hay sai' }
     ],
-    dialogue: 'Trước khi đi sâu vào Codex, bạn nên biết Harness Engineering. Đây là cách thiết kế môi trường xung quanh một AI agent để nó có thể làm việc ổn định. Con người định hướng, còn agent thực thi trong môi trường đó.',
-    choices: [{ label: 'Harness là gì?', next: 'module-1-harness-intro', primary: true }]
+    dialogue: 'Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một thuật ngữ được nhắc đến nhiều gần đây: Harness Engineering. Nghe có vẻ phức tạp, nhưng hiểu đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm việc.',
+    choices: [{ label: 'Áp dụng cấu hình cho ContentPilot', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-harness-intro': {
     lessonId: 'module-1',
@@ -366,27 +373,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'PHẢN HỒI', value: 'Có biết kết quả sai không?' }
     ],
     dialogue: 'Nếu Codex làm chưa tốt, ta không chỉ đổi model. Ta còn xem harness có thiếu bối cảnh, công cụ, giới hạn hoặc cách kiểm tra nào không. Đây là tư duy cốt lõi của Harness Engineering.',
-    choices: [{ label: 'Xem thiết lập khuyên dùng', next: 'module-1-approval-choice', primary: true }]
-  },
-  'module-1-approval-choice': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-permissions',
-    step: 3,
-    totalSteps: 7,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Approval và quyền truy cập',
-    objective: 'Bạn chưa nên bật Full access',
-    panelLabel: 'CẤU HÌNH AN TOÀN',
-    panelStatus: 'APPROVE FOR ME · FULL ACCESS TẮT',
-    tone: 'neutral',
-    request: 'Course Companion chỉ ghi lại lựa chọn; bạn sẽ cài thật trong Codex ở phần Practice.',
-    evidence: [
-      { label: 'NHỊP LÀM VIỆC', value: 'Ít bị ngắt quãng' },
-      { label: 'HÀNH ĐỘNG RỦI RO', value: 'Vẫn dừng lại' },
-      { label: 'FULL ACCESS', value: 'Không bật' }
-    ],
-    dialogue: 'Mình khuyên bạn dùng Approve for me và chưa bật Full access. Thiết lập này giữ nhịp học nhưng vẫn bảo vệ bạn trước những hành động bị phát hiện là có rủi ro.',
-    choices: [{ label: 'Dùng thiết lập an toàn này', next: 'module-1-model-choice', primary: true, decision: { key: 'approvalApproach', value: 'approve-for-me-no-full-access' } }]
+    choices: [{ label: 'Tiếp tục', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-model-choice': {
     lessonId: 'module-1',
@@ -1167,10 +1154,6 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
     image: m1UnderstandCodexImage,
     alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu'
   },
-  'm1-workspace-permissions': {
-    image: m1ApprovalMenuImage,
-    alt: 'Menu approval của Codex hiển thị Ask for approval, Approve for me và Full access'
-  },
   'm1-agents-guidance': {
     image: m1AgentsGuidanceImage,
     alt: 'Tài liệu OpenAI minh họa một lớp chỉ dẫn mà Codex dùng khi làm việc trong dự án'
@@ -1248,14 +1231,8 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-1-codex-model-intro'],
     ['module-1-codex-slash-commands']
   ],
-  'm1-workspace-permissions': [
-    ['module-1-approval-choice']
-  ],
   'm1-agents-guidance': [
-    ['module-1-agents-guidance'],
-    ['module-1-harness-intro'],
-    ['module-1-harness-codex'],
-    ['module-1-skills']
+    ['module-1-agents-guidance', 'module-1-harness-intro', 'module-1-harness-codex', 'module-1-skills']
   ],
   'm1-skills-and-checklist': [
     ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
@@ -1554,6 +1531,13 @@ const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = 
   'module-1-project-setup': 'apply'
 }
 
+const harnessLessonSceneIds = new Set<SceneId>([
+  'module-1-agents-guidance',
+  'module-1-harness-intro',
+  'module-1-harness-codex',
+  'module-1-skills'
+])
+
 function ModelLessonBoard({
   busy,
   canOpenPreviousPage,
@@ -1647,10 +1631,85 @@ function ModelLessonBoard({
             <div className="pixel-model-board__recommendation">
               <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
               <strong>GPT-5.6 Sol · High · Standard</strong>
-              <p>Sol và High tạo thêm khoảng trống khi yêu cầu còn mới. Standard giữ mức sử dụng hợp lý trong quá trình học.</p>
             </div>
           </>
         ) : null}
+      </div>
+
+      <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
+
+      <footer className="pixel-model-board__actions">
+        <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
+        <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
+      </footer>
+    </section>
+  )
+}
+
+function HarnessLessonBoard({
+  busy,
+  canOpenPreviousPage,
+  nextLabel,
+  onBack,
+  onExpand,
+  onNext,
+  visual
+}: {
+  busy: boolean
+  canOpenPreviousPage: boolean
+  nextLabel: string
+  onBack: () => void
+  onExpand: () => void
+  onNext: () => void
+  visual: LessonVisual
+}) {
+  return (
+    <section className="pixel-model-board pixel-harness-board" aria-labelledby="harness-lesson-title">
+      <div className="pixel-model-board__copy">
+        <header>
+          <small>THUẬT NGỮ ĐƯỢC NHẮC ĐẾN NHIỀU</small>
+          <h1 id="harness-lesson-title">Harness Engineering thực ra là gì?</h1>
+          <p>Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một thuật ngữ được nhắc đến nhiều gần đây: Harness Engineering.</p>
+          <p>Nghe có vẻ phức tạp, nhưng hiểu đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm việc.</p>
+        </header>
+
+        <div className="pixel-harness-comparison" aria-label="Phân biệt model và harness">
+          <article>
+            <small>MODEL</small>
+            <strong>Bộ não</strong>
+            <p>Hiểu yêu cầu và suy luận.</p>
+          </article>
+          <span aria-hidden="true">+</span>
+          <article>
+            <small>HARNESS</small>
+            <strong>Môi trường làm việc</strong>
+            <p>Cho model nơi hành động, ranh giới và cách kiểm tra.</p>
+          </article>
+        </div>
+
+        <p className="pixel-model-board__note">Ở phần trước, bạn đã tìm hiểu model và approval. Model là bộ não của agent, còn approval là một phần của harness.</p>
+      </div>
+
+      <div className="pixel-model-board__media">
+        <figure>
+          <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
+          <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
+        </figure>
+
+        <section className="pixel-harness-components" aria-labelledby="harness-components-title">
+          <h2 id="harness-components-title">Harness của Codex gồm những gì?</h2>
+          <div>
+            <article><small>DỰ ÁN</small><strong>Workspace, tệp và chỉ dẫn</strong></article>
+            <article><small>HÀNH ĐỘNG</small><strong>Terminal và công cụ</strong></article>
+            <article><small>RANH GIỚI</small><strong>Sandbox và approval</strong></article>
+            <article><small>PHẢN HỒI</small><strong>Test và diff</strong></article>
+          </div>
+        </section>
+
+        <aside className="pixel-harness-diagnosis">
+          <small>KHI KẾT QUẢ CHƯA TỐT</small>
+          <p>Đừng chỉ đổi model. Hãy xem agent có thiếu bối cảnh, công cụ, quyền truy cập hoặc cách kiểm tra hay không.</p>
+        </aside>
       </div>
 
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
@@ -2264,6 +2323,12 @@ export function LearningWindow() {
     if (currentScene.checkpointId !== nextScene.checkpointId) {
       completed.add(currentScene.checkpointId)
     }
+    const currentCourseLessonId = courseLessonIdForScene(progress.sceneId)
+    const nextCourseLessonId = courseLessonIdForScene(nextSceneId)
+    if (currentCourseLessonId === 'm1-agents-guidance' && nextCourseLessonId !== currentCourseLessonId) {
+      completed.add('m1-agents-guidance')
+      completed.add('m1-skills')
+    }
     await persist({
       currentLessonId: nextScene.lessonId,
       currentCourseLessonId: courseLessonIdForScene(nextSceneId),
@@ -2508,6 +2573,9 @@ export function LearningWindow() {
   const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
+  const usesHarnessLessonBoard = harnessLessonSceneIds.has(displayedSceneId) && Boolean(lessonVisual)
+  const usesLessonBoard = usesModelLessonBoard || usesHarnessLessonBoard
+  const harnessNextChoice: Choice = { label: 'Tiếp tục', next: 'module-1-model-choice', primary: true }
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
@@ -2528,7 +2596,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${usesModelLessonBoard ? ' has-model-lesson-board' : ''}`}>
+    <main className={`pixel-learning-shell${usesLessonBoard ? ' has-model-lesson-board' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -2556,14 +2624,14 @@ export function LearningWindow() {
         </div>
       </header>
 
-      {scene.showTitle === false || usesModelLessonBoard ? null : (
+      {scene.showTitle === false || usesLessonBoard ? null : (
         <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{scene.objective}</strong></section>
       )}
-      {assessmentQuestion || scene.assessmentSummary || usesModelLessonBoard
+      {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
-      {canShowSceneMedia && lessonVisual && secondaryLessonVisual && !usesModelLessonBoard
+      {canShowSceneMedia && lessonVisual && secondaryLessonVisual && !usesLessonBoard
         ? (
             <div className="pixel-lesson-visual-group" aria-label="Hai cách mở nhanh chức năng trong Codex">
               {[lessonVisual, secondaryLessonVisual].map((visual, index) => (
@@ -2587,7 +2655,7 @@ export function LearningWindow() {
               ))}
             </div>
           )
-        : canShowSceneMedia && lessonVisual && !usesModelLessonBoard
+        : canShowSceneMedia && lessonVisual && !usesLessonBoard
           ? (
             <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}`}>
               <LessonVisualMedia
@@ -2607,7 +2675,7 @@ export function LearningWindow() {
               ) : null}
             </figure>
           )
-        : shouldShowScenePanel && !usesModelLessonBoard
+          : shouldShowScenePanel && !usesLessonBoard
           ? (
               <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
                 <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
@@ -2622,7 +2690,7 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={modelLessonBoardKind}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : scene.choices[0]?.label ?? 'Tiếp tục'}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           visual={lessonVisual}
           onBack={openPreviousPage}
           onExpand={() => setVisualExpanded(true)}
@@ -2633,6 +2701,24 @@ export function LearningWindow() {
             }
             const choice = scene.choices[0]
             if (choice) void choose(choice)
+          }}
+        />
+      ) : null}
+
+      {usesHarnessLessonBoard && lessonVisual ? (
+        <HarnessLessonBoard
+          busy={busy}
+          canOpenPreviousPage={canOpenPreviousPage}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(harnessNextChoice)}
+          visual={lessonVisual}
+          onBack={openPreviousPage}
+          onExpand={() => setVisualExpanded(true)}
+          onNext={() => {
+            if (isReviewing) {
+              setReviewHistoryIndex(null)
+              return
+            }
+            void choose(harnessNextChoice)
           }}
         />
       ) : null}
@@ -2655,7 +2741,7 @@ export function LearningWindow() {
         />
       ) : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesModelLessonBoard ? ' is-model-board-source' : ''}`} aria-labelledby="teacherName">
+      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
         <p>{scene.assessmentSummary
           ? finalPassed
@@ -2715,7 +2801,7 @@ export function LearningWindow() {
               {busy
                 ? 'Đang lưu…'
                 : finalPassed
-                  ? `Hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}`
+                  ? 'Tiếp tục'
                   : `Làm lại ${finalQuestionCount} câu`}
             </button>
           </div>
@@ -2731,7 +2817,7 @@ export function LearningWindow() {
                   type="button"
                   onClick={() => void choose(choice)}
                 >
-                  {busy ? 'Đang lưu checkpoint…' : choice.label}
+                  {busy ? 'Đang lưu checkpoint…' : yellowChoiceLabel(choice)}
                 </button>
               ))}
             </div>

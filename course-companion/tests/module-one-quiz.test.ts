@@ -71,7 +71,6 @@ describe('Course module assessment banks', () => {
     expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Codex và coding agent',
       'Harness Engineering và Harness của Codex',
-      'Approval và quyền truy cập an toàn',
       'Áp dụng cấu hình Codex',
       'Nộp cấu hình để Triết duyệt'
     ])
@@ -83,7 +82,7 @@ describe('Course module assessment banks', () => {
       'Từ PRD đến implementation plan',
       'Kiểm tra và hoàn thành Module 2'
     ])
-    expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(50)
+    expect(moduleOne?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(42)
     expect(moduleTwo?.lessons.reduce((total, lesson) => total + lesson.estimatedMinutes, 0)).toBe(110)
     expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
     expect(moduleTwo?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo?.checkpoints)

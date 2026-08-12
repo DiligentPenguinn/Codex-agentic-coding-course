@@ -91,9 +91,6 @@ function replyFor(context?: TeacherContext): string {
   if (context.checkpointId === 'm1-model-choice') {
     return 'Mình đề xuất 5.6 Sol, High và Standard cho ContentPilot. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
-  if (context.checkpointId === 'm1-permissions') {
-    return 'Mình khuyên bạn dùng Approve for me và chưa bật Full access. Bạn sẽ cài thật rồi nộp ảnh trong Practice.'
-  }
   if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
     return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
   }

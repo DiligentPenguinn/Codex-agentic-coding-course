@@ -17,20 +17,18 @@
           <h1>Bắt đầu làm việc với Codex</h1>
         </div>
         <div class="progress-wrap" aria-label="Tiến độ phần minh họa">
-          <span id="progressText">1 / 8</span>
+          <span id="progressText">1 / 6</span>
           <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
         </div>
       </header>
 
       <nav class="steps" aria-label="Các phần">
         <button class="step is-active" type="button" data-step="0"><span>01</span> Codex</button>
-        <button class="step" type="button" data-step="1"><span>02</span> Harness</button>
-        <button class="step" type="button" data-step="2"><span>03</span> Codex Harness</button>
-        <button class="step" type="button" data-step="3"><span>04</span> Approval</button>
-        <button class="step" type="button" data-step="4"><span>05</span> Model</button>
-        <button class="step" type="button" data-step="5"><span>06</span> Reasoning</button>
-        <button class="step" type="button" data-step="6"><span>07</span> Cấu hình</button>
-        <button class="step" type="button" data-step="7"><span>08</span> Practice</button>
+        <button class="step" type="button" data-step="1"><span>02</span> Model</button>
+        <button class="step" type="button" data-step="2"><span>03</span> Reasoning</button>
+        <button class="step" type="button" data-step="3"><span>04</span> Harness Engineering</button>
+        <button class="step" type="button" data-step="4"><span>05</span> Cấu hình</button>
+        <button class="step" type="button" data-step="5"><span>06</span> Practice</button>
       </nav>
 
       <section class="stage" aria-live="polite">
@@ -52,48 +50,6 @@
 
         <article class="panel is-wide" data-panel="1" hidden>
           <div class="copy full-copy">
-            <p class="kicker">Trước khi đi sâu vào Codex</p>
-            <h2>Harness Engineering là thiết kế môi trường để agent làm việc ổn định</h2>
-            <p>Hãy hình dung model là bộ não. Harness là nơi làm việc, công cụ, quy tắc an toàn và vòng phản hồi quanh bộ não đó.</p>
-          </div>
-          <div class="model-grid harness-grid">
-            <article><p class="model-name">Nơi làm việc</p><h3>Workspace</h3><p>Dự án và những tệp agent được phép dùng.</p></article>
-            <article><p class="model-name">Khả năng</p><h3>Công cụ</h3><p>Đọc, sửa, chạy lệnh và kiểm tra kết quả.</p></article>
-            <article><p class="model-name">Ranh giới</p><h3>Quy tắc và phản hồi</h3><p>Chỉ dẫn, sandbox, approval, test và diff.</p></article>
-          </div>
-        </article>
-
-        <article class="panel is-wide" data-panel="2" hidden>
-          <div class="copy full-copy">
-            <p class="kicker">Harness của Codex</p>
-            <h2>Model không làm việc một mình</h2>
-            <p>Codex kết hợp model với workspace, terminal, công cụ đọc và sửa tệp, chỉ dẫn dự án, sandbox, approval cùng các bước kiểm tra.</p>
-          </div>
-          <div class="instruction-flow harness-flow">
-            <article><span class="flow-label">Bộ não</span><h3>Model</h3><p>Hiểu yêu cầu và suy luận.</p></article>
-            <div class="flow-plus" aria-hidden="true">+</div>
-            <article><span class="flow-label">Môi trường</span><h3>Harness</h3><p>Cho model nơi hành động và giới hạn cần tuân theo.</p></article>
-            <div class="flow-equals" aria-hidden="true">→</div>
-            <article class="flow-result"><span class="flow-label">Kết quả</span><h3>Coding agent</h3><p>Thực hiện công việc rồi đưa bằng chứng để bạn duyệt.</p></article>
-          </div>
-          <p class="note centered">Khi Codex làm chưa tốt, hãy xem cả model lẫn harness đang thiếu điều gì.</p>
-        </article>
-
-        <article class="panel" data-panel="3" hidden>
-          <div class="copy">
-            <p class="kicker">Bạn giữ quyền quyết định</p>
-            <h2>Bạn chưa nên bật Full access</h2>
-            <p><strong>Approve for me</strong> giữ nhịp làm việc nhưng vẫn dừng ở hành động bị phát hiện là có rủi ro. <strong>Full access</strong> gỡ bỏ các ranh giới bảo vệ thông thường.</p>
-            <p class="note">Mình khuyên bạn chọn <strong>Approve for me</strong> và để <strong>Full access</strong> tắt.</p>
-          </div>
-          <figure class="media-frame">
-            <img src="./images/approval-menu.png" alt="Menu approval của Codex với Approve for me được chọn và Full access ở phía dưới" />
-            <figcaption>Course Companion không tự đổi thiết lập này. Bạn sẽ cài thật trong Practice.</figcaption>
-          </figure>
-        </article>
-
-        <article class="panel is-wide" data-panel="4" hidden>
-          <div class="copy full-copy">
             <p class="kicker">Chọn theo loại công việc</p>
             <h2>Ba dòng GPT-5.6 phục vụ ba nhu cầu khác nhau</h2>
           </div>
@@ -105,7 +61,7 @@
           <p class="source-note">Tên model không phải cấp độ người học phải vượt qua. Hãy chọn theo độ khó, độ rõ và chi phí của công việc.</p>
         </article>
 
-        <article class="panel" data-panel="5" hidden>
+        <article class="panel" data-panel="2" hidden>
           <div class="copy">
             <p class="kicker">Reasoning effort</p>
             <h2>Điều chỉnh lượng công sức dành cho suy luận</h2>
@@ -118,7 +74,24 @@
           </figure>
         </article>
 
-        <article class="panel" data-panel="6" hidden>
+        <article class="panel is-wide" data-panel="3" hidden>
+          <div class="copy full-copy harness-intro-copy">
+            <p class="kicker">Một thuật ngữ được nhắc đến nhiều</p>
+            <h2>Harness Engineering thực ra là gì?</h2>
+            <p>Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một thuật ngữ được nhắc đến nhiều gần đây: Harness Engineering.</p>
+            <p>Nghe có vẻ phức tạp, nhưng hiểu đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm việc.</p>
+          </div>
+          <div class="instruction-flow harness-flow">
+            <article><span class="flow-label">Bộ não</span><h3>Model</h3><p>Hiểu yêu cầu và suy luận.</p></article>
+            <div class="flow-plus" aria-hidden="true">+</div>
+            <article><span class="flow-label">Môi trường</span><h3>Harness</h3><p>Workspace, công cụ, chỉ dẫn, sandbox, approval, test và diff.</p></article>
+            <div class="flow-equals" aria-hidden="true">→</div>
+            <article class="flow-result"><span class="flow-label">Kết quả</span><h3>Coding agent</h3><p>Thực hiện công việc rồi đưa bằng chứng để bạn duyệt.</p></article>
+          </div>
+          <p class="note centered">Approval là một phần của harness. Khi Codex làm chưa tốt, đừng chỉ đổi model. Hãy kiểm tra bối cảnh, công cụ, quyền truy cập và cách kiểm tra kết quả.</p>
+        </article>
+
+        <article class="panel" data-panel="4" hidden>
           <div class="copy">
             <p class="kicker">Cấu hình ContentPilot</p>
             <h2>Chốt một thiết lập cụ thể cho dự án này</h2>
@@ -133,7 +106,7 @@
           </figure>
         </article>
 
-        <article class="panel" data-panel="7" hidden>
+        <article class="panel" data-panel="5" hidden>
           <div class="copy">
             <p class="kicker">Practice cuối Module 1</p>
             <h2>Nộp cấu hình để mình duyệt</h2>

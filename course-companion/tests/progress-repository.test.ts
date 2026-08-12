@@ -154,7 +154,9 @@ describe('ProgressRepository', () => {
     })
   })
 
-  it('moves saved progress from the retired permissions page to the approval recommendation', async () => {
+  it.each(['module-1-permissions', 'module-1-approval-choice'])(
+    'moves saved progress from the retired permissions page %s to Harness Engineering',
+    async (retiredSceneId) => {
     const directory = await temporaryDirectory()
     const retiredProgress = {
       schemaVersion: 5,
@@ -162,9 +164,9 @@ describe('ProgressRepository', () => {
       currentLessonId: 'module-1',
       currentCourseLessonId: 'm1-workspace-permissions',
       checkpointId: 'm1-permissions',
-      sceneId: 'module-1-permissions',
-      sceneHistory: ['module-1-codex-slash-commands', 'module-1-permissions'],
-      completedCheckpointIds: ['intro-visual-onboarding', 'm1-codex-orientation'],
+      sceneId: retiredSceneId,
+      sceneHistory: ['module-1-codex-slash-commands', retiredSceneId],
+      completedCheckpointIds: ['intro-visual-onboarding', 'm1-codex-orientation', 'm1-permissions'],
       decisions: {},
       practice: { missionId: 'm2-planning-package', status: 'idle' },
       startedAt: '2026-08-11T10:00:00.000Z',
@@ -180,13 +182,19 @@ describe('ProgressRepository', () => {
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
       progress: {
-        sceneId: 'module-1-approval-choice',
-        sceneHistory: ['module-1-codex-slash-commands']
+        currentCourseLessonId: 'm1-agents-guidance',
+        checkpointId: 'm1-agents-guidance',
+        sceneId: 'module-1-agents-guidance',
+        sceneHistory: ['module-1-codex-slash-commands'],
+        completedCheckpointIds: ['intro-visual-onboarding', 'm1-codex-orientation']
       }
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
-    expect(migrated.sceneId).toBe('module-1-approval-choice')
+    expect(migrated.currentCourseLessonId).toBe('m1-agents-guidance')
+    expect(migrated.checkpointId).toBe('m1-agents-guidance')
+    expect(migrated.sceneId).toBe('module-1-agents-guidance')
     expect(migrated.sceneHistory).toEqual(['module-1-codex-slash-commands'])
+    expect(migrated.completedCheckpointIds).toEqual(['intro-visual-onboarding', 'm1-codex-orientation'])
   })
 
   it('migrates schema-v2 Module 0 progress to the new Module 2 opening without claiming setup completion', async () => {

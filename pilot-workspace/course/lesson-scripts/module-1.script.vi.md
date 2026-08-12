@@ -14,6 +14,12 @@ chọn phạm vi và duyệt kết quả cuối cùng."
 `course/codex-setup/index.html` với nhãn **Mở phần giới thiệu Codex**. Không chạy
 server và không yêu cầu cài dependency.]
 
+Teacher nói: "Approval cho biết khi nào Codex cần dừng để bạn quyết định. Ask
+for approval hỏi thường xuyên hơn. Approve for me tự xử lý hành động thông
+thường nhưng vẫn dừng ở hành động có rủi ro. Full access gỡ bỏ các ranh giới
+bảo vệ thông thường. Nếu mới bắt đầu, mình khuyên bạn dùng Approve for me và
+để Full access tắt."
+
 Teacher nói: "Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu
 Model, Effort và Speed. Model chọn dòng model phù hợp với công việc. Effort điều
 chỉnh lượng công sức dành cho phân tích. Speed chọn tốc độ xử lý."
@@ -49,39 +55,26 @@ lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
 ## Bước 2 — Harness Engineering (`m1-agents-guidance`, `m1-skills`)
 
-Teacher nói: "Trước khi đi sâu vào Codex, ta cần hiểu Harness Engineering. Đây
-là cách thiết kế môi trường xung quanh agent để nó có thể làm việc ổn định. Con
-người định hướng, còn agent thực thi trong môi trường đó."
+Teacher nói: "Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một
+thuật ngữ được nhắc đến nhiều gần đây: Harness Engineering. Nghe có vẻ phức
+tạp, nhưng hiểu đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm
+việc."
 
-Teacher nói: "Hãy hình dung model là bộ não. Harness là nơi làm việc, công cụ,
-quy tắc an toàn và vòng phản hồi quanh bộ não đó. Trong Codex, harness gồm
-workspace, terminal, công cụ đọc và sửa tệp, chỉ dẫn dự án, sandbox, approval,
-diff và các bước kiểm tra."
+Teacher nói: "Ở phần trước, bạn đã tìm hiểu model và approval. Model là bộ não
+của agent, còn approval là một phần của harness. Harness còn gồm workspace,
+công cụ đọc và sửa tệp, terminal, chỉ dẫn của dự án, sandbox, test và diff."
 
-Teacher nói: "Nếu Codex làm chưa tốt, ta không chỉ đổi model. Ta còn xem harness
-có thiếu bối cảnh, công cụ, giới hạn hoặc cách kiểm tra nào không."
+Teacher nói: "Các thành phần này cho model nơi hành động, ranh giới cần tuân
+theo và cách kiểm tra kết quả. Vì vậy, khi Codex làm chưa tốt, bạn đừng chỉ đổi
+model. Hãy xem agent có thiếu bối cảnh, công cụ, quyền truy cập hoặc cách kiểm
+tra hay không."
 
-[Dừng chờ Learner. Hỏi một câu: "Nếu model là bộ não, hãy nêu hai phần thuộc
-harness của Codex." Đạt khi Learner nêu đúng hai thành phần. Checkpoint
-`m1-agents-guidance`, sau đó `m1-skills`.]
+[Trình bày toàn bộ phần Harness Engineering trên một màn hình. Dừng chờ Learner.
+Hỏi một câu: "Nếu model là bộ não, hãy nêu hai phần thuộc harness của Codex."
+Đạt khi Learner nêu đúng hai thành phần. Ghi checkpoint `m1-agents-guidance`,
+sau đó `m1-skills`.]
 
-## Bước 3 — Approval và quyền truy cập (`m1-permissions`)
-
-Teacher nói: "Sandbox là ranh giới kỹ thuật. Approval là lúc Codex phải dừng để
-bạn quyết định. Ask for approval hỏi thường xuyên hơn. Approve for me tự xử lý
-hành động thông thường nhưng vẫn dừng ở hành động có rủi ro. Full access gỡ bỏ
-các ranh giới bảo vệ thông thường."
-
-Teacher nói: "Mình khuyên bạn dùng Approve for me và chưa bật Full access. Cách
-này giúp bạn giữ nhịp học mà vẫn có lớp bảo vệ trước hành động rủi ro. Course
-Companion chỉ ghi lại lựa chọn này; bạn sẽ cài thật trong Codex ở phần
-Practice."
-
-[Hiện ảnh `course/codex-setup/images/approval-menu.png`. Dừng chờ Learner xác
-nhận đã tìm thấy menu approval trong Codex. Ghi quyết định
-`approvalApproach=approve-for-me-no-full-access`. Checkpoint `m1-permissions`.]
-
-## Bước 4 — Áp dụng cấu hình Codex (`m1-model-choice`)
+## Bước 3 — Áp dụng cấu hình Codex (`m1-model-choice`)
 
 Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
 Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
@@ -90,7 +83,7 @@ hành, không phải thiết lập mặc định của mọi tài khoản Codex.
 [Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
 định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
 
-## Bước 5 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
+## Bước 4 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
 Teacher nói: "Bây giờ bạn sẽ cài cấu hình thật và nộp bằng chứng. Course
 Companion sẽ mở một task Executor riêng trong Codex."
@@ -105,7 +98,7 @@ Speed; một ảnh Approval cùng trạng thái Full access. Sau đó gửi yêu
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi task đã mở và có hoạt động mới.]
 
-## Bước 6 — Triết duyệt bằng chứng (`m1-mastery`)
+## Bước 5 — Triết duyệt bằng chứng (`m1-mastery`)
 
 [Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu bằng chứng theo
 Practice definition. Không nhận lời tự xác nhận thay cho báo cáo từ đúng task.
@@ -116,7 +109,7 @@ Approve for me và Full access đang tắt. Bằng chứng đến từ đúng ta
 
 [Lưu kết quả đạt và checkpoint `m1-mastery`.]
 
-## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
+## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
 
 Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
 hơn, bạn hiểu model là bộ não còn harness là môi trường giúp coding agent hành

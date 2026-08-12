@@ -30,12 +30,20 @@ const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
 const courseLessonSet = new Set<string>(courseLessonIds)
 const LEGACY_COURSE_VERSION = '0.1.0'
-const RETIRED_PERMISSIONS_SCENE = 'module-1-permissions'
+const RETIRED_PERMISSION_SCENES = new Set(['module-1-permissions', 'module-1-approval-choice'])
+const RETIRED_PERMISSION_CHECKPOINT = 'm1-permissions'
+const RETIRED_PERMISSION_LESSON = 'm1-workspace-permissions'
 
 function hasRetiredSceneReferences(value: unknown): boolean {
   if (!isRecord(value)) return false
-  return value.sceneId === RETIRED_PERMISSIONS_SCENE || (
-    Array.isArray(value.sceneHistory) && value.sceneHistory.includes(RETIRED_PERMISSIONS_SCENE)
+  return (
+    (typeof value.sceneId === 'string' && RETIRED_PERMISSION_SCENES.has(value.sceneId)) ||
+    value.checkpointId === RETIRED_PERMISSION_CHECKPOINT ||
+    value.currentCourseLessonId === RETIRED_PERMISSION_LESSON ||
+    (Array.isArray(value.sceneHistory) && value.sceneHistory.some(
+      (sceneId) => typeof sceneId === 'string' && RETIRED_PERMISSION_SCENES.has(sceneId)
+    )) ||
+    (Array.isArray(value.completedCheckpointIds) && value.completedCheckpointIds.includes(RETIRED_PERMISSION_CHECKPOINT))
   )
 }
 
@@ -43,12 +51,21 @@ function redirectRetiredSceneReferences(raw: Record<string, unknown>): Record<st
   if (!hasRetiredSceneReferences(raw)) return raw
   return {
     ...raw,
-    sceneId: raw.sceneId === RETIRED_PERMISSIONS_SCENE
-      ? 'module-1-approval-choice'
+    sceneId: typeof raw.sceneId === 'string' && RETIRED_PERMISSION_SCENES.has(raw.sceneId)
+      ? 'module-1-agents-guidance'
       : raw.sceneId,
+    checkpointId: raw.checkpointId === RETIRED_PERMISSION_CHECKPOINT
+      ? 'm1-agents-guidance'
+      : raw.checkpointId,
+    currentCourseLessonId: raw.currentCourseLessonId === RETIRED_PERMISSION_LESSON
+      ? 'm1-agents-guidance'
+      : raw.currentCourseLessonId,
     sceneHistory: Array.isArray(raw.sceneHistory)
-      ? raw.sceneHistory.filter((sceneId) => sceneId !== RETIRED_PERMISSIONS_SCENE)
-      : raw.sceneHistory
+      ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || !RETIRED_PERMISSION_SCENES.has(sceneId))
+      : raw.sceneHistory,
+    completedCheckpointIds: Array.isArray(raw.completedCheckpointIds)
+      ? raw.completedCheckpointIds.filter((checkpointId) => checkpointId !== RETIRED_PERMISSION_CHECKPOINT)
+      : raw.completedCheckpointIds
   }
 }
 

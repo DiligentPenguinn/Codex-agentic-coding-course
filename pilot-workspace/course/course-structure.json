@@ -53,7 +53,7 @@
       "kind": "module",
       "titleVi": "Bắt đầu làm việc với Codex",
       "titleEn": "Getting started with Codex",
-      "estimatedMinutes": 50,
+      "estimatedMinutes": 42,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
       "quizPath": "course/quizzes/module-1.quiz.json",
@@ -62,7 +62,6 @@
         "m1-codex-orientation",
         "m1-agents-guidance",
         "m1-skills",
-        "m1-permissions",
         "m1-model-choice",
         "m1-setup-checklist",
         "m1-mastery",
@@ -84,14 +83,6 @@
           "checkpoints": [
             "m1-agents-guidance",
             "m1-skills"
-          ]
-        },
-        {
-          "id": "m1-workspace-permissions",
-          "titleVi": "Approval và quyền truy cập an toàn",
-          "estimatedMinutes": 8,
-          "checkpoints": [
-            "m1-permissions"
           ]
         },
         {
