@@ -289,7 +289,6 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('Nộp bằng chứng cấu hình Codex', { exact: true }).waitFor()
   const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
@@ -362,6 +361,71 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
 }
 
 async function capture(page, filename) {
+  const palette = await page.evaluate(() => {
+    const colorProperties = [
+      'color',
+      'backgroundColor',
+      'borderTopColor',
+      'borderRightColor',
+      'borderBottomColor',
+      'borderLeftColor',
+      'outlineColor'
+    ]
+    const samples = new Map()
+
+    const parseColor = (value) => {
+      const match = value.match(/^rgba?\(\s*(\d+(?:\.\d+)?)\D+(\d+(?:\.\d+)?)\D+(\d+(?:\.\d+)?)(?:\D+(\d+(?:\.\d+)?))?\s*\)$/)
+      if (!match) return null
+      const alpha = match[4] === undefined ? 1 : Number(match[4])
+      if (alpha < 0.05) return null
+      return [Number(match[1]), Number(match[2]), Number(match[3])]
+    }
+
+    const classify = ([red, green, blue]) => {
+      const maximum = Math.max(red, green, blue)
+      const minimum = Math.min(red, green, blue)
+      const relativeChroma = maximum === 0 ? 0 : (maximum - minimum) / maximum
+      if (maximum < 72 || relativeChroma < 0.22) return 'neutral'
+      if (red > 185 && green > 170 && blue > 155) return 'neutral'
+      if (red > 190 && green > 145 && blue < 170) return 'yellow'
+      if (green > red + 28 && green > blue + 18) return 'success'
+      if (red > green + 34 && red > blue + 22) return 'danger'
+      if (blue > red + 22 || (green > red + 28 && blue >= green - 22)) return 'information'
+      return 'other'
+    }
+
+    for (const element of globalThis.document.querySelectorAll('body *')) {
+      if (element.closest('img, picture, video, canvas')) continue
+      const style = globalThis.getComputedStyle(element)
+      const rect = element.getBoundingClientRect()
+      if (
+        style.display === 'none'
+        || style.visibility === 'hidden'
+        || Number(style.opacity) < 0.05
+        || rect.width < 1
+        || rect.height < 1
+      ) continue
+
+      for (const property of colorProperties) {
+        const value = style[property]
+        const parsed = parseColor(value)
+        if (!parsed) continue
+        const family = classify(parsed)
+        const familySamples = samples.get(family) ?? new Set()
+        if (familySamples.size < 5) familySamples.add(value)
+        samples.set(family, familySamples)
+      }
+    }
+
+    return Object.fromEntries(
+      [...samples.entries()].map(([family, values]) => [family, [...values]])
+    )
+  })
+  const families = Object.keys(palette)
+  assert.ok(
+    families.length <= 3,
+    `${filename} uses ${families.length} UI color families: ${JSON.stringify(palette)}`
+  )
   if (!screenshotDirectory) return
   await mkdir(screenshotDirectory, { recursive: true })
   await page.screenshot({

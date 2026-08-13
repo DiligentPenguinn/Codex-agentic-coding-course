@@ -5,21 +5,31 @@
   background: transparent;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --pixel-night: #070b18;
-  --pixel-navy: #0d1730;
-  --pixel-panel: #151f3d;
-  --pixel-panel-deep: #0b1228;
-  --pixel-line: #6b78a5;
-  --pixel-line-soft: #39496f;
-  --pixel-sky: #72dcff;
-  --pixel-cyan: #45c8d6;
+  --obsidian-canvas: #030405;
+  --obsidian-surface: #070708;
+  --obsidian-surface-raised: #0d0d0e;
+  --obsidian-surface-soft: #131314;
+  --obsidian-line: #605c51;
+  --obsidian-line-soft: #34332f;
+  --obsidian-radius-panel: 16px;
+  --obsidian-radius-card: 12px;
+  --obsidian-radius-control: 10px;
+  --obsidian-shadow: 0 24px 70px rgba(0, 0, 0, 0.54);
+  --pixel-night: var(--obsidian-canvas);
+  --pixel-navy: var(--obsidian-surface);
+  --pixel-panel: var(--obsidian-surface-raised);
+  --pixel-panel-deep: var(--obsidian-surface);
+  --pixel-line: var(--obsidian-line);
+  --pixel-line-soft: var(--obsidian-line-soft);
+  --pixel-sky: #ffd666;
+  --pixel-cyan: #ffd666;
   --pixel-yellow: #ffd666;
-  --pixel-violet: #a98cff;
+  --pixel-violet: #ffd666;
   --pixel-mint: #72e2b0;
   --pixel-danger: #ff8c9f;
   --pixel-cream: #fff1ca;
-  --pixel-muted: #a7b3ce;
-  --pixel-shadow: 7px 7px 0 rgba(2, 5, 13, 0.82);
+  --pixel-muted: #aaa79e;
+  --pixel-shadow: var(--obsidian-shadow);
   --pixel-font: var(--app-font);
 }
 
@@ -37,7 +47,11 @@ body,
   background: transparent;
 }
 
-button { color: inherit; font: inherit; }
+button {
+  border-radius: var(--obsidian-radius-control);
+  color: inherit;
+  font: inherit;
+}
 input,
 select,
 textarea { font-family: var(--app-font); }
@@ -2871,4 +2885,453 @@ button:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .practice-loading-orbit { animation: none; border-color: var(--pixel-cyan); }
+}
+
+/* Obsidian product system
+   Each rendered page uses at most three UI color families:
+   neutral + yellow + one contextual semantic accent. Raster artwork and
+   instructional screenshots are intentionally exempt from this UI rule. */
+
+.pixel-learning-shell,
+.pixel-course-app,
+.pixel-loading,
+.pixel-teacher-overlay.is-practice-full {
+  background: var(--obsidian-canvas);
+}
+
+.pixel-scene-world {
+  filter: saturate(0.68) brightness(0.52);
+}
+
+.pixel-hud,
+.pixel-app-header {
+  border-width: 0 0 1px;
+  border-color: var(--obsidian-line-soft);
+  background: rgba(3, 4, 5, 0.96);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
+}
+
+.pixel-home-base,
+.pixel-app-surface {
+  background: rgba(3, 4, 5, 0.78);
+}
+
+.pixel-entry-panel,
+.pixel-scene-title,
+.pixel-model-board,
+.pixel-harness-board,
+.pixel-dialogue,
+.pixel-visual-lightbox__panel,
+.pixel-home-heading,
+.pixel-surface-heading,
+.pixel-teacher-panel,
+.practice-brief-card,
+.practice-progress,
+.practice-switch-dialog {
+  border: 1px solid var(--obsidian-line);
+  border-radius: var(--obsidian-radius-panel);
+  background: rgba(7, 7, 8, 0.97);
+  box-shadow: var(--obsidian-shadow);
+}
+
+.pixel-entry-panel,
+.pixel-entry-shell.is-welcome .pixel-entry-panel {
+  border-color: var(--obsidian-line-soft);
+  background: rgba(6, 6, 6, 0.97);
+}
+
+.pixel-consequence,
+.pixel-lesson-visual,
+.pixel-model-board__definitions > div,
+.pixel-model-board__models article,
+.pixel-model-board__note,
+.pixel-model-board__tradeoffs > section,
+.pixel-model-board__recommendation,
+.pixel-model-board__media figure,
+.pixel-harness-comparison article,
+.pixel-harness-components article,
+.pixel-harness-diagnosis,
+.pixel-request,
+.pixel-evidence-grid div,
+.pixel-practice-brief > section,
+.pixel-practice-report-title,
+.pixel-practice-settings div,
+.pixel-review-notice,
+.pixel-assessment-options button,
+.pixel-assessment-feedback,
+.pixel-assessment-source,
+.pixel-assessment-summary,
+.pixel-entry-checkpoint,
+.pixel-course-progress,
+.pixel-home-teacher,
+.pixel-roadmap article,
+.pixel-roadmap-stage,
+.pixel-progress-summary > div,
+.pixel-progress-detail > div,
+.pixel-evidence-receipt,
+.pixel-settings > section,
+.pixel-fixture-notice,
+.pixel-chat-context,
+.pixel-chat-log,
+.pixel-chat-message,
+.pixel-practice,
+.pixel-practice-status,
+.pixel-practice-evidence,
+.pixel-practice-dev,
+.practice-transition,
+.practice-configuration,
+.practice-configuration dl > div,
+.practice-planning,
+.practice-artifacts article,
+.practice-scope-warning,
+.practice-invalidation,
+.pixel-teacher-invalidation,
+.practice-review-result,
+.practice-checklist li,
+.practice-checklist li > span,
+.practice-receipt,
+.practice-switch-option,
+.pixel-practice-fixture-evidence {
+  border-width: 1px;
+  border-color: var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-card);
+  background: var(--obsidian-surface-raised);
+  box-shadow: none;
+}
+
+.pixel-lesson-visual img,
+.pixel-model-board__media img,
+.pixel-approval-frame,
+.pixel-approval-frame > img,
+.pixel-visual-lightbox__media,
+.pixel-visual-lightbox__media > img {
+  border-radius: calc(var(--obsidian-radius-card) - 2px);
+}
+
+.pixel-model-board::before,
+.pixel-dialogue::before {
+  opacity: 0.18;
+}
+
+.pixel-model-board__definitions > div,
+.pixel-model-board__models article,
+.pixel-model-board__tradeoffs > section,
+.pixel-harness-comparison article,
+.pixel-harness-components article,
+.pixel-request,
+.pixel-evidence-grid div,
+.pixel-practice-brief > section,
+.pixel-practice-settings div,
+.pixel-assessment-options button,
+.pixel-assessment-feedback,
+.pixel-assessment-source,
+.pixel-entry-checkpoint,
+.pixel-course-progress,
+.pixel-chat-context,
+.pixel-chat-log,
+.pixel-chat-message,
+.pixel-practice,
+.pixel-practice-status,
+.pixel-practice-evidence,
+.pixel-practice-dev,
+.practice-transition,
+.practice-configuration,
+.practice-configuration dl > div,
+.practice-planning,
+.practice-artifacts article,
+.practice-checklist li,
+.practice-switch-option {
+  background: var(--obsidian-surface-soft);
+}
+
+.pixel-model-board__recommendation,
+.pixel-roadmap .is-current,
+.practice-checklist li.is-current {
+  border-color: var(--pixel-yellow);
+  background: #17150e;
+}
+
+.pixel-model-board__tradeoffs aside,
+.pixel-model-board__actions,
+.pixel-harness-components {
+  border-color: var(--obsidian-line-soft);
+  background: var(--obsidian-surface);
+}
+
+.pixel-consequence[data-tone="good"],
+.pixel-assessment-feedback[data-result="correct"],
+.pixel-assessment-summary[data-result="pass"],
+.pixel-roadmap article.is-complete,
+.pixel-roadmap-stage.is-complete,
+.pixel-evidence-receipt,
+.pixel-practice-status.is-completed,
+.practice-review-result.is-passed {
+  border-color: var(--pixel-mint);
+}
+
+.pixel-consequence[data-tone="bad"],
+.pixel-assessment-feedback[data-result="incorrect"],
+.pixel-settings > section.is-danger-zone,
+.pixel-practice-status.is-offline,
+.pixel-practice-status.is-error,
+.practice-review-result:not(.is-passed) {
+  border-color: var(--pixel-danger);
+}
+
+.pixel-choice,
+.pixel-page-back,
+.pixel-entry-primary,
+.pixel-entry-secondary,
+.pixel-loading button,
+.pixel-panel-control,
+.pixel-chat-retry,
+.pixel-chat-composer button,
+.pixel-panel-quit,
+.pixel-panel-primary,
+.pixel-hud-teacher,
+.pixel-app-actions button,
+.pixel-surface-heading > button,
+.pixel-progress-detail button,
+.pixel-settings > section > button,
+.pixel-assessment-written > button,
+.pixel-assessment-feedback > button,
+.pixel-assessment-review-actions button,
+.pixel-visual-expand,
+.pixel-visual-lightbox__close,
+.practice-brief-overlay.is-loading button,
+.practice-transition button,
+.practice-brief-header button,
+.practice-brief-actions button,
+.practice-planning > header button,
+.practice-planning-actions button,
+.practice-review-result button,
+.practice-switch-cancel,
+.practice-switch-option {
+  border-width: 1px;
+  border-radius: var(--obsidian-radius-control);
+  box-shadow: none;
+}
+
+.pixel-page-back,
+.pixel-entry-secondary,
+.pixel-panel-control,
+.pixel-panel-quit,
+.pixel-app-actions button,
+.practice-brief-header button,
+.practice-brief-actions button:not(.is-primary),
+.practice-planning > header button,
+.practice-planning-actions button,
+.practice-switch-option {
+  border-color: var(--obsidian-line);
+  color: var(--pixel-cream);
+  background: var(--obsidian-surface-soft);
+}
+
+.pixel-choice.is-primary,
+.pixel-entry-primary,
+.pixel-loading button,
+.pixel-chat-composer button,
+.pixel-panel-primary,
+.pixel-hud-teacher,
+.pixel-surface-heading > button,
+.pixel-progress-detail button,
+.pixel-assessment-feedback > button.is-primary,
+.pixel-assessment-review-actions button.is-primary,
+.practice-brief-overlay.is-loading button,
+.practice-transition button,
+.practice-brief-actions button.is-primary,
+.practice-checklist li.is-current > span {
+  border-color: var(--pixel-yellow);
+  color: var(--obsidian-canvas);
+  background: var(--pixel-yellow);
+}
+
+.pixel-choice:hover,
+.pixel-page-back:not(:disabled):hover,
+.pixel-panel-control:hover,
+.pixel-app-actions button:hover,
+.practice-planning button:hover:not(:disabled) {
+  border-color: var(--pixel-yellow);
+  color: var(--pixel-cream);
+}
+
+.pixel-app-actions button.is-active,
+.pixel-companion-tabs button.is-active {
+  border-color: var(--pixel-yellow);
+  color: var(--obsidian-canvas);
+  background: var(--pixel-yellow);
+}
+
+.pixel-progress,
+.pixel-chat-composer textarea,
+.pixel-assessment-written textarea,
+.practice-planning-actions textarea,
+.pixel-settings > section > button[role="switch"] {
+  border: 1px solid var(--obsidian-line);
+  border-radius: var(--obsidian-radius-control);
+  color: var(--pixel-cream);
+  background: var(--obsidian-surface-soft);
+}
+
+.pixel-progress {
+  overflow: hidden;
+}
+
+.pixel-speaker img,
+.pixel-teacher-portrait-frame,
+.pixel-home-teacher img {
+  border-radius: var(--obsidian-radius-control);
+}
+
+.pixel-speaker span,
+.pixel-chat-message > header span,
+.pixel-teacher-launcher span {
+  border-width: 1px;
+  border-radius: 999px;
+  box-shadow: none;
+}
+
+.pixel-brand__mark,
+.pixel-app-brand > span:first-child {
+  border-width: 1px;
+  border-radius: var(--obsidian-radius-control);
+  border-color: var(--pixel-yellow);
+  color: var(--pixel-yellow);
+  box-shadow: none;
+}
+
+.pixel-entry-brand {
+  border-left-width: 3px;
+  border-left-color: var(--pixel-yellow);
+  border-radius: 0 var(--obsidian-radius-control) var(--obsidian-radius-control) 0;
+  background: rgba(3, 4, 5, 0.86);
+}
+
+.pixel-teacher-panel.is-embedded,
+.practice-brief-card,
+.practice-switch-dialog {
+  border-color: var(--obsidian-line);
+}
+
+.pixel-teacher-portrait-frame,
+.pixel-home-teacher,
+.pixel-home-teacher > span {
+  border-color: var(--obsidian-line-soft);
+}
+
+.pixel-home-teacher > span {
+  background: var(--obsidian-surface-soft);
+}
+
+.pixel-teacher-identity small,
+.pixel-home-teacher small,
+.pixel-panel-control--return,
+.pixel-assessment-source code,
+.practice-configuration header > span.is-fresh,
+.practice-configuration .is-match small,
+.practice-invalidation b,
+.pixel-teacher-invalidation b {
+  color: var(--pixel-yellow);
+}
+
+.pixel-panel-control--return,
+.practice-configuration dl > div.is-match,
+.practice-artifacts article.is-available,
+.practice-artifacts article.is-alignment-confirmed,
+.practice-checklist li.is-completed {
+  border-color: var(--pixel-yellow);
+}
+
+.practice-configuration dl > div.is-mismatch,
+.practice-artifacts article.is-missing,
+.practice-artifacts article.is-invalid,
+.practice-artifacts article.is-stale,
+.practice-artifacts article.is-alignment-stale {
+  border-color: var(--pixel-danger);
+}
+
+.pixel-settings > section > button[role="switch"] span {
+  border-radius: calc(var(--obsidian-radius-control) - 2px);
+  background: var(--obsidian-line-soft);
+}
+
+.pixel-settings > section > button[role="switch"].is-on {
+  border-color: var(--pixel-yellow);
+}
+
+.pixel-settings > section > button[role="switch"].is-on span {
+  color: var(--obsidian-canvas);
+  background: var(--pixel-yellow);
+}
+
+.practice-brief-overlay {
+  background:
+    linear-gradient(rgba(3, 4, 5, 0.94), rgba(3, 4, 5, 0.98)),
+    var(--obsidian-canvas);
+}
+
+.practice-switch-backdrop,
+.pixel-visual-lightbox {
+  background: rgba(3, 4, 5, 0.82);
+  backdrop-filter: blur(8px);
+}
+
+.practice-loading-orbit,
+.pixel-review-spinner {
+  border-color: var(--obsidian-line);
+  border-top-color: var(--pixel-yellow);
+}
+
+.practice-review-result,
+.practice-review-result.is-passed,
+.practice-scope-warning,
+.practice-invalidation,
+.pixel-teacher-invalidation {
+  background: var(--obsidian-surface-raised);
+}
+
+.practice-review-result:not(.is-passed) button {
+  border-color: var(--obsidian-line);
+  color: var(--pixel-cream);
+  background: var(--obsidian-surface-soft);
+}
+
+.pixel-companion-tabs {
+  padding: 3px;
+  border: 1px solid var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-card);
+  background: var(--obsidian-surface);
+}
+
+.pixel-companion-tabs button {
+  border: 0;
+  border-radius: calc(var(--obsidian-radius-control) - 2px);
+  background: transparent;
+}
+
+.pixel-teacher-launcher {
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.48));
+}
+
+.pixel-home-teacher:hover,
+.pixel-roadmap-stage:hover,
+.pixel-roadmap-stage:focus-visible,
+.pixel-visual-expand:hover {
+  border-color: var(--pixel-yellow);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 640px) {
+  .pixel-entry-panel,
+  .pixel-model-board,
+  .pixel-harness-board,
+  .pixel-dialogue,
+  .pixel-home-heading,
+  .pixel-surface-heading,
+  .pixel-teacher-panel,
+  .practice-brief-card,
+  .practice-progress,
+  .practice-switch-dialog {
+    border-radius: var(--obsidian-radius-card);
+  }
 }
