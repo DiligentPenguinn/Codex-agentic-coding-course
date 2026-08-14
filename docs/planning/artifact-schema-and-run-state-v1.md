@@ -1,5 +1,10 @@
 # ContentPilot Artifact Schema and Run-State Contract v1
 
+> **Superseded for the runnable course.** This ContentPilot state contract
+> remains historical planning evidence and is not the contract for portfolio
+> learner artifacts. See
+> [Portfolio Course v1](./portfolio-course-v1/README.md).
+
 **Status:** Locked planning contract  
 **Decision:** Versioned artifacts with one active-run manifest  
 **Schema version:** `1.0.0`  

@@ -1,6 +1,7 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Implementation handoff v1; implementation has not started
+- **Status:** Foundation implementation in progress; F0.2 removed by decision
+  on 14 August 2026
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
   next module
@@ -14,7 +15,7 @@
 This document translates the approved Beginner Agentic Portfolio Course plan
 into a repository-specific implementation sequence. It does not redesign the
 curriculum. It identifies the files, runtime contracts, learner artifacts,
-progress migrations, Course Companion changes, tests, acceptance gates, and
+progress reset behavior, Course Companion changes, tests, acceptance gates, and
 local Git checkpoints needed to replace the ContentPilot path safely.
 
 The implementation must remain beginner-first. The learner directs product
@@ -26,8 +27,8 @@ can verify without reading source code.
 
 ### Curriculum authority
 
-The approved source plan currently lives in the adjacent
-`portfolio-course-planning/` folder:
+The approved portable source plan currently lives at
+`/Users/nguyenminhtriet/Portfolio-SMU/portfolio-course-planning/`:
 
 - `FINAL_CURRICULUM_PLAN.md` — approved curriculum for Modules 2–4;
 - `DECISION_LOG.md` — approved decisions D-001 through D-013;
@@ -68,9 +69,9 @@ The following decisions are settled for this implementation:
    real experience, projects, or honest documented concept work to present to
    one chosen audience. Marketers and content creators remain supported but no
    longer determine the project or examples.
-2. Existing introduction and Module 1 completion are preserved. Any old Module
-   2 progress is reset to the beginning of the new Module 2, while its old
-   ContentPilot Practice record is archived rather than deleted.
+2. The `0.3.0` course starts a fresh run from the introduction. State from the
+   `0.2.0` test course is not migrated or archived and does not produce a
+   migration notice. New `0.3.0` progress remains resumable normally.
 3. Course Companion uses one persistent Executor Practice per module: one for
    Module 2, one for Module 3, and one for Module 4. Each Practice contains five
    resumable milestone checkpoints. Module 3 Milestone 2 also contains small
@@ -100,7 +101,7 @@ The following decisions are settled for this implementation:
 | `pilot-workspace/course/course-structure.json` | Introduction, Module 1, and ContentPilot Module 2 only | Same introduction and Module 1 plus new portfolio Modules 2–4 |
 | Module 2 lesson/script/quiz/prompt | Plans ContentPilot and produces two artifacts | Plans the learner portfolio and produces the full seven-artifact build contract |
 | `pilot-workspace/contentpilot/` | Current Practice workspace | Not used by the new Modules 2–4; retained until archival is decided |
-| `course-companion/shared/contracts.ts` | Course `0.2.0`, state schema 5, lesson IDs through Module 2 | Course `0.3.0`, state schema 6, semantic IDs through Module 4, migration for old state |
+| `course-companion/shared/contracts.ts` | Course `0.2.0`, state schema 5, lesson IDs through Module 2 | Course `0.3.0`, state schema 6, semantic IDs through Module 4, silent clean restart for incompatible old state |
 | `LearningWindow.tsx` | Roughly 3,000 lines with hardcoded Module 2 scenes | Frozen legacy path for introduction/Module 1 plus modular registry-driven Modules 2–4 |
 | Practice definitions and adapters | Two evidence profiles with planning-package behavior hardcoded in several services | Generic module Practice lifecycle plus portfolio-planning, portfolio-build, and portfolio-release evidence profiles |
 | Practice workspace resolver | Resolves only `pilot-workspace/` | Resolves and validates one learner-selected portfolio path |
@@ -326,57 +327,26 @@ all foundation checkpoints before authoring the new Module 2 journey.
 **Checkpoint output:** Authoritative portfolio curriculum snapshot and an
 unambiguous supersession map.
 
-### F0.2 — Introduce course version 0.3 and preserve valid progress
-
-**Change**
-
-1. Bump the Course Companion course version to `0.3.0` and learner-state schema
-   to 6.
-2. Add Module 3 and Module 4 to the allowed lesson, scene, checkpoint, and
-   course-lesson types through module definitions rather than repeated manual
-   unions where practical.
-3. Implement one explicit `0.2.0 -> 0.3.0` migration:
-   - preserve the course run identity and timestamps;
-   - preserve valid introduction and Module 1 checkpoints, decisions, mastery,
-     and exact resume position when the learner has not entered old Module 2;
-   - when the learner is in or has completed old Module 2, move the active
-     course position to the first new Module 2 scene;
-   - remove old Module 2 checkpoint IDs and decisions from active progress;
-   - move old ContentPilot Practice receipts and active-run metadata to a
-     separate read-only legacy archive in application data;
-   - never treat an old ContentPilot receipt as portfolio evidence.
-4. Show a one-time plain-language migration message to affected learners.
-5. Preserve the last-known-good state and existing atomic write behavior.
-
-**Verify**
-
-- Fixture: new learner.
-- Fixture: learner midway through introduction.
-- Fixture: learner midway through Module 1.
-- Fixture: learner at old Module 2 start.
-- Fixture: learner with completed old Module 2.
-- Fixture: damaged old state using last-known-good recovery.
-- Every old Module 2 fixture lands at new Module 2 start with its legacy record
-  retained and no active portfolio completion.
-
-**Checkpoint output:** Backward-compatible progress migration with no silent
-loss of historical evidence.
-
 ### F0.3 — Add the modular Module 2–4 registry
 
 **Change**
 
-1. Define a typed module contract for metadata, scenes, checkpoints, quizzes,
+1. Bump the course to `0.3.0` and learner-state schema 6. Treat incompatible
+   state from the `0.2.0` test course as a new run without migration, archive,
+   or learner-facing notice.
+2. Define a typed module contract for metadata, scenes, checkpoints, quizzes,
    Practice identity, and completion destinations.
-2. Add the registry and route only Modules 2–4 through it.
-3. Keep introduction and Module 1 on the current renderer path.
-4. Add validation for duplicate IDs, unknown checkpoint references, broken
+3. Add the registry and route only Modules 2–4 through it.
+4. Keep introduction and Module 1 on the current renderer path.
+5. Add validation for duplicate IDs, unknown checkpoint references, broken
    scene destinations, and module-order errors.
-5. Add a frozen-journey regression test for introduction and Module 1.
+6. Add a frozen-journey regression test for introduction and Module 1.
 
 **Verify**
 
 - Existing introduction and Module 1 unit tests pass unchanged.
+- A valid `0.2.0` state loads as a new course run and no migration message or
+  legacy archive is created.
 - Snapshot or semantic assertions prove the frozen introduction has no content,
   asset, navigation, or behavior change.
 - Module registry rejects deliberately malformed fixture definitions.
@@ -432,8 +402,8 @@ loss of historical evidence.
    artifact digests, and freshness.
 6. Retain live/stale/offline/error honesty and the distinction between
    Executor-reported checks and independently corroborated file evidence.
-7. Retire old Module 2 active tasks through the migration path; do not append
-   new instructions to them.
+7. Do not append new instructions to an old Module 2 active task. The clean
+   restart makes old task state ineligible for the portfolio course.
 
 **Verify**
 
@@ -451,9 +421,9 @@ course-long or milestone-per-task chat explosion.
 
 Do not begin Module 2 content implementation until:
 
-- all five foundation checkpoint outputs exist;
+- all four retained foundation checkpoint outputs exist;
 - the introduction and Module 1 frozen regression passes;
-- all migration fixtures pass;
+- the silent clean-restart fixture passes;
 - the learner workspace is never resolved inside the course repository;
 - Course Companion passes unit, type, lint, build, and Electron smoke checks;
 - the scoped foundation commits contain no Module 2 learner-facing curriculum.
@@ -1129,7 +1099,7 @@ The course implementation is accepted only when:
 |---|---:|---:|---:|---:|
 | Course manifest/schema | Required | Required | Required | Required |
 | Introduction/Module 1 frozen regression | Required | Required | Required | Required |
-| Progress migration | Required | Regression | Regression | Regression |
+| Silent clean restart | Required | Regression | Regression | Regression |
 | Workspace path safety | Required | Required | Required | Required |
 | Practice-definition parser | Required | Required | Required | Required |
 | Evidence freshness/digests | Required | Planning | Build | Release/deploy |
@@ -1145,7 +1115,7 @@ The course implementation is accepted only when:
 
 Implementation and learner pilots follow the same one-module-at-a-time rule.
 
-1. **Foundation developer rehearsal:** migration fixtures, workspace selection,
+1. **Foundation developer rehearsal:** clean-restart fixture, workspace selection,
    registry, and Module 1 regression only.
 2. **Module 2 internal rehearsal:** use a disposable portfolio workspace and
    deliberately test incomplete, stale, private, and misaligned planning
@@ -1175,7 +1145,7 @@ duration range.
 | Risk | Control |
 |---|---|
 | Frozen introduction or Module 1 changes accidentally | Legacy rendering path, semantic snapshots, exact changed-file review, narrow transition-copy exception |
-| Old ContentPilot completion falsely passes new Module 2 | New IDs, course/schema bump, active-progress reset, legacy archive, no receipt reuse |
+| Old ContentPilot completion falsely passes new Module 2 | New IDs, course/schema bump, silent clean restart, no receipt reuse |
 | Module 2 registry refactor becomes a full UI rewrite | Route only Modules 2–4 through the registry; preserve legacy path |
 | Learner portfolio is created inside course files | Canonical folder validation and explicit rejection |
 | One Practice becomes one unreviewable change | Stage receipts, Module 3 internal slice receipts, acceptance before next stage |
@@ -1218,8 +1188,8 @@ This course migration is complete only when:
    guidance and Modules 2–4.
 3. Introduction and Module 1 remain unchanged except for the approved Module 2
    transition copy.
-4. Old learner progress migrates safely and old ContentPilot evidence cannot
-   pass a portfolio gate.
+4. State from the `0.2.0` test course starts fresh without a migration notice,
+   and old ContentPilot evidence cannot pass a portfolio gate.
 5. Modules 2, 3, and 4 each pass their own acceptance gate before the next is
    implemented.
 6. One learner-selected portfolio folder persists safely across all three
