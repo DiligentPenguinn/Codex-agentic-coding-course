@@ -13,6 +13,7 @@ import {
   courseLessonIds,
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  lessonIds,
   sceneCheckpoint,
   sceneIds,
   type CourseLessonId,
@@ -32,7 +33,7 @@ const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
 const SAFE_ID = /^[A-Za-z0-9_-]{1,160}$/
 const courseLessonSet = new Set<string>(courseLessonIds)
-const LEGACY_COURSE_VERSION = '0.1.0'
+const lessonSet = new Set<string>(lessonIds)
 const RETIRED_PERMISSION_SCENES = new Set(['module-1-permissions', 'module-1-approval-choice'])
 const RETIRED_PERMISSION_CHECKPOINT = 'm1-permissions'
 const RETIRED_PERMISSION_LESSON = 'm1-workspace-permissions'
@@ -87,7 +88,7 @@ function isIsoDate(value: unknown): value is string {
 }
 
 function isLessonId(value: unknown): value is LessonId {
-  return value === 'intro' || value === 'module-1' || value === 'module-2'
+  return typeof value === 'string' && lessonSet.has(value)
 }
 
 function isCheckpointId(value: unknown): value is CheckpointId {
@@ -121,8 +122,8 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
     && isSceneId(destination.sceneId)
     && sceneCheckpoint[destination.sceneId] === destination.checkpointId
     && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
-      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-'))
-      || (destination.lessonId === 'module-2' && destination.sceneId.startsWith('module-2-')))
+      || (destination.lessonId !== 'intro'
+        && destination.sceneId.startsWith(`${destination.lessonId}-`)))
     && (value.approvedConfiguration === undefined ||
       isApprovedCodexConfiguration(value.approvedConfiguration))
 }
@@ -217,8 +218,8 @@ export function isProgressUpdate(value: unknown): value is ProgressUpdate {
   if (!isCourseLessonId(value.currentCourseLessonId)) return false
   if (courseLessonIdForScene(value.sceneId) !== value.currentCourseLessonId) return false
   if (value.currentLessonId === 'intro' && !value.sceneId.startsWith('intro-')) return false
-  if (value.currentLessonId === 'module-1' && !value.sceneId.startsWith('module-1-')) return false
-  if (value.currentLessonId === 'module-2' && !value.sceneId.startsWith('module-2-')) return false
+  if (value.currentLessonId !== 'intro'
+    && !value.sceneId.startsWith(`${value.currentLessonId}-`)) return false
   if (!Array.isArray(value.sceneHistory) || value.sceneHistory.length > 200) return false
   if (!value.sceneHistory.every(isSceneId)) return false
   if (!Array.isArray(value.completedCheckpointIds)) return false
@@ -240,89 +241,6 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   const practice = value.practice
   if (!isProgressUpdate(value)) return false
   return isPracticeState(practice)
-}
-
-function translateLegacySceneId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('module-1-')
-    ? value.replace(/^module-1-/, 'module-2-')
-    : value
-}
-
-function translateLegacyCheckpointId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('m1-')
-    ? value.replace(/^m1-/, 'm2-')
-    : value
-}
-
-function translateLegacyCourseLessonId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('m1-')
-    ? value.replace(/^m1-/, 'm2-')
-    : value
-}
-
-function translateLegacyPractice(value: unknown): PracticeState | null {
-  if (!isRecord(value)) return null
-  const translated = {
-    ...value,
-    missionId: value.missionId === 'm1-planning-package' ? 'm2-planning-package' : value.missionId,
-    ...(isRecord(value.latestEvent)
-      ? {
-          latestEvent: {
-            ...value.latestEvent,
-            missionId: value.latestEvent.missionId === 'm1-planning-package'
-              ? 'm2-planning-package'
-              : value.latestEvent.missionId
-          }
-        }
-      : {})
-  }
-  return isPracticeState(translated) ? translated : null
-}
-
-function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerProgress | null {
-  const startedAt = raw.startedAt
-  const updatedAt = raw.updatedAt
-  const translatedSceneId = translateLegacySceneId(raw.sceneId)
-  const translatedCheckpointId = translateLegacyCheckpointId(raw.checkpointId)
-  const translatedCourseLessonId = translateLegacyCourseLessonId(raw.currentCourseLessonId)
-  const translatedLessonId = raw.currentLessonId === 'module-1' ? 'module-2' : raw.currentLessonId
-  const translatedHistory = Array.isArray(raw.sceneHistory)
-    ? raw.sceneHistory.map(translateLegacySceneId)
-    : []
-  const translatedCompleted = Array.isArray(raw.completedCheckpointIds)
-    ? raw.completedCheckpointIds.map(translateLegacyCheckpointId)
-    : []
-  const translatedPractice = translateLegacyPractice(raw.practice)
-  if (!isIsoDate(startedAt) || !isIsoDate(updatedAt) || !translatedPractice || !decisionsAreValid(raw.decisions)) {
-    return null
-  }
-
-  const update = {
-    currentLessonId: translatedLessonId,
-    currentCourseLessonId: translatedCourseLessonId,
-    checkpointId: translatedCheckpointId,
-    sceneId: translatedSceneId,
-    sceneHistory: translatedHistory,
-    completedCheckpointIds: translatedCompleted,
-    decisions: {
-      ...raw.decisions,
-      ...(translatedLessonId === 'module-2'
-        ? { setupModuleMigration: 'continued-existing-planning-progress' }
-        : {})
-    }
-  }
-  if (!isProgressUpdate(update)) return null
-
-  return {
-    ...update,
-    schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
-    courseVersion: COURSE_VERSION,
-    practice: translatedPractice,
-    courseRunId: courseRunId(startedAt),
-    practiceCompletions: [],
-    startedAt,
-    updatedAt
-  }
 }
 
 function normalizeCurrentModuleTwoOrder(raw: Record<string, unknown>): Record<string, unknown> {
@@ -386,65 +304,20 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
     return isLearnerProgress(normalized) ? normalized : null
   }
 
-  if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
-    const translatedSceneId = translateLegacySceneId(raw.sceneId)
-    if (!isSceneId(translatedSceneId)) return null
-    const legacyRaw = schemaVersion === 3
-      ? { ...raw, currentCourseLessonId: courseLessonIdForScene(translatedSceneId) }
-      : raw
-    return migrateLegacyPlanningProgress(legacyRaw)
-  }
-
-  if (
-    (schemaVersion === 1 || schemaVersion === 2) &&
-    courseVersion === LEGACY_COURSE_VERSION &&
-    decisionsAreValid(raw.decisions)
-  ) {
-    const oldSceneId = typeof raw.sceneId === 'string' ? raw.sceneId : ''
-    const resumeOnboarding = [
-      'intro-visual-onboarding',
-      'intro-course-overview-2',
-      'intro-learning-method'
-    ].includes(oldSceneId)
-    const update: ProgressUpdate = resumeOnboarding
-      ? {
-          currentLessonId: 'intro',
-          currentCourseLessonId: 'intro-overview',
-          checkpointId: 'intro-visual-onboarding',
-          sceneId: oldSceneId as ProgressUpdate['sceneId'],
-          sceneHistory: [],
-          completedCheckpointIds: [],
-          decisions: raw.decisions
-        }
-      : {
-          currentLessonId: 'module-2',
-          currentCourseLessonId: 'm2-when-to-plan',
-          checkpointId: 'm2-why-planning',
-          sceneId: 'module-2-why-planning',
-          sceneHistory: [],
-          completedCheckpointIds: ['intro-visual-onboarding'],
-          decisions: {
-            ...raw.decisions,
-            setupModuleMigration: 'continued-existing-planning-progress'
-          }
-        }
-    return {
-      ...update,
-      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
-      courseVersion: COURSE_VERSION,
-      practice: defaultPracticeState(),
-      courseRunId: courseRunId(startedAt),
-      startedAt,
-      practiceCompletions: [],
-      updatedAt
-    }
-  }
-
   return null
+}
+
+function isObsoleteCourseProgress(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.courseVersion === 'string'
+    && typeof value.schemaVersion === 'number'
+    && (value.courseVersion !== COURSE_VERSION
+      || value.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION)
 }
 
 type ReadResult =
   | { status: 'missing' }
+  | { status: 'obsolete' }
   | { status: 'invalid' }
   | { status: 'valid'; progress: LearnerProgress; migrated: boolean }
 
@@ -489,7 +362,8 @@ export class ProgressRepository {
       return { status: 'recovered', progress: backup.progress }
     }
 
-    if (primary.status === 'missing' && backup.status === 'missing') {
+    if ((primary.status === 'missing' || primary.status === 'obsolete')
+      && (backup.status === 'missing' || backup.status === 'obsolete')) {
       return { status: 'new' }
     }
 
@@ -707,7 +581,9 @@ export class ProgressRepository {
             progress,
             migrated: isRecord(parsed) && JSON.stringify(parsed) !== JSON.stringify(progress)
           }
-        : { status: 'invalid' }
+        : isObsoleteCourseProgress(parsed)
+          ? { status: 'obsolete' }
+          : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }
       return { status: 'invalid' }

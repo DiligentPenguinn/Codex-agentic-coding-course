@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
-  checkpointIds,
   courseLessonIdForScene,
+  runnableCheckpointIds,
   type AppSettings,
   type CourseLessonId,
   type PracticeState,
@@ -37,6 +37,12 @@ import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementatio
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
+import {
+  registryLessonDefinitions,
+  registryLessonPages,
+  registryModuleLessonIds,
+  registrySceneContent
+} from '../course/registry'
 
 type EvidenceItem = {
   label: string
@@ -1091,6 +1097,7 @@ const generatedAssessmentScenes = Object.fromEntries(
 const scenes = {
   ...staticScenes,
   ...generatedAssessmentScenes,
+  ...registrySceneContent,
   'module-1-final-summary': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
@@ -1159,14 +1166,20 @@ const courseLessonDefinitions: CourseLessonDefinition[] = [
   ...(planningModule?.lessons ?? []).map((lesson) => ({
     id: lesson.id as CourseLessonId,
     titleVi: lesson.titleVi
-  }))
+  })),
+  ...registryLessonDefinitions
 ]
 const courseLessonTitle = new Map(
   courseLessonDefinitions.map((lesson) => [lesson.id, lesson.titleVi])
 )
-const moduleLessonIds: Record<'module-1' | 'module-2', CourseLessonId[]> = {
+const moduleLessonIds: Record<Exclude<LessonId, 'intro'>, CourseLessonId[]> = {
   'module-1': setupModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? [],
-  'module-2': planningModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []
+  'module-2': [
+    ...(planningModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []),
+    ...registryModuleLessonIds['module-2']
+  ],
+  'module-3': registryModuleLessonIds['module-3'],
+  'module-4': registryModuleLessonIds['module-4']
 }
 
 const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
@@ -1239,7 +1252,7 @@ const sceneSecondaryVisuals: Partial<Record<SceneId, LessonVisual>> = {
   }
 }
 
-const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
+const courseLessonPages = {
   'intro-overview': [
     ['intro-visual-onboarding'],
     ['intro-course-overview-2'],
@@ -1318,14 +1331,23 @@ const courseLessonPages: Record<CourseLessonId, SceneId[][]> = {
     ['module-2-final-15'],
     ['module-2-final-summary', 'module-2-mastery-repair'],
     ['module-2-complete']
-  ]
+  ],
+  ...registryLessonPages
+} as Record<CourseLessonId, readonly (readonly SceneId[])[]>
+
+function lessonModuleId(lessonId: CourseLessonId): LessonId {
+  if (lessonId === 'intro-overview') return 'intro'
+  if (lessonId.startsWith('m1-')) return 'module-1'
+  if (lessonId.startsWith('m2-')) return 'module-2'
+  if (lessonId.startsWith('m3-')) return 'module-3'
+  return 'module-4'
 }
 
 const learningPositionByScene = Object.fromEntries(
   Object.entries(courseLessonPages).flatMap(([lessonId, pages]) => {
     const typedLessonId = lessonId as CourseLessonId
-    const moduleId = typedLessonId.startsWith('m1-') ? 'module-1' : 'module-2'
-    const lessonIds = typedLessonId === 'intro-overview' ? ['intro-overview'] : moduleLessonIds[moduleId]
+    const moduleId = lessonModuleId(typedLessonId)
+    const lessonIds = moduleId === 'intro' ? ['intro-overview'] : moduleLessonIds[moduleId]
     const lessonIndex = lessonIds.indexOf(typedLessonId) + 1
     const totalLessons = lessonIds.length
     return pages.flatMap((scenePage, pageIndex) =>
@@ -1922,7 +1944,7 @@ function EntryScreen({
           <div className="pixel-entry-checkpoint">
             <span>{progress.currentLessonId === 'intro'
               ? 'PHẦN GIỚI THIỆU'
-              : `${progress.currentLessonId === 'module-1' ? 'MODULE 1' : 'MODULE 2'} · BÀI ${learningPosition?.lessonIndex}/${learningPosition?.totalLessons}`}</span>
+              : `MODULE ${progress.currentLessonId.slice(-1)} · BÀI ${learningPosition?.lessonIndex}/${learningPosition?.totalLessons}`}</span>
             <strong>{learningPosition?.lessonTitle ?? scene?.mission}</strong>
             <em>Cập nhật {new Date(progress.updatedAt).toLocaleString('vi-VN')}</em>
           </div>
@@ -2043,7 +2065,7 @@ function PixelAppShell({
   if (progress.sceneId === 'module-1-complete' || progress.sceneId === 'module-2-complete') {
     completed.add(progress.checkpointId)
   }
-  const progressPercent = Math.round((completed.size / checkpointIds.length) * 100)
+  const progressPercent = Math.round((completed.size / runnableCheckpointIds.length) * 100)
   const currentModuleId = progress.currentLessonId === 'intro' ? 'module-1' : progress.currentLessonId
   const moduleOneComplete = completed.has('m1-complete')
   const moduleOneMigrated = progress.decisions.setupModuleMigration === 'continued-existing-planning-progress'
@@ -2099,7 +2121,7 @@ function PixelAppShell({
               </div>
               <div className="pixel-course-progress">
                 <small>TIẾN ĐỘ TOÀN KHÓA</small>
-                <strong>{completed.size}/{checkpointIds.length} checkpoint · {progressPercent}%</strong>
+                <strong>{completed.size}/{runnableCheckpointIds.length} checkpoint · {progressPercent}%</strong>
               </div>
             </div>
 
@@ -2149,7 +2171,7 @@ function PixelAppShell({
           {destination === 'progress' ? (
             <div className="pixel-progress-surface">
               <section className="pixel-progress-summary">
-                <div><small>CHECKPOINT</small><strong>{completed.size}/{checkpointIds.length}</strong><span>Đã ghi nhận</span></div>
+                <div><small>CHECKPOINT</small><strong>{completed.size}/{runnableCheckpointIds.length}</strong><span>Đã ghi nhận</span></div>
                 <div><small>BÀI HIỆN TẠI</small><strong>{learningPosition.lessonIndex}/{learningPosition.totalLessons}</strong><span>{learningPosition.lessonTitle}</span></div>
                 <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Bài luyện tập đã lưu' : 'Chưa có kết quả'}</span></div>
               </section>
@@ -2642,7 +2664,7 @@ export function LearningWindow() {
   }
   const lessonContextLabel = scene.lessonId === 'intro'
     ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
-    : `${scene.lessonId === 'module-1' ? 'MODULE 1' : 'MODULE 2'} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
+    : `MODULE ${scene.lessonId.slice(-1)} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
   const assessmentQuestion = scene.assessmentQuestionId
     ? assessmentQuestionById.get(scene.assessmentQuestionId)
     : undefined

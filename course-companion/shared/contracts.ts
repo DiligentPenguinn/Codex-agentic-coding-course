@@ -1,3 +1,16 @@
+import {
+  portfolioCheckpointCourseLesson,
+  portfolioCheckpointIds,
+  portfolioCourseLessonIds,
+  portfolioModuleDefinitions,
+  portfolioSceneCheckpoint,
+  portfolioSceneIds,
+  type PortfolioCheckpointId,
+  type PortfolioCourseLessonId,
+  type PortfolioModuleId,
+  type PortfolioSceneId
+} from './course/registry'
+
 export type RuntimeInfo = {
   appVersion: string
   platform: string
@@ -14,10 +27,10 @@ export type AppSettings = {
 
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
-export const COURSE_VERSION = '0.2.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 5
+export const COURSE_VERSION = '0.3.0'
+export const LEARNER_STATE_SCHEMA_VERSION = 6
 
-export const checkpointIds = [
+const legacyCheckpointIds = [
   'intro-visual-onboarding',
   'm1-codex-orientation',
   'm1-model-choice',
@@ -38,7 +51,16 @@ export const checkpointIds = [
   'm2-complete'
 ] as const
 
-export const sceneIds = [
+// The registry placeholders are valid contract IDs but are not part of the
+// runnable learner journey until Module 2 is accepted.
+export const runnableCheckpointIds = legacyCheckpointIds
+
+export const checkpointIds = [
+  ...legacyCheckpointIds,
+  ...portfolioCheckpointIds
+] as const satisfies readonly (typeof legacyCheckpointIds[number] | PortfolioCheckpointId)[]
+
+const legacySceneIds = [
   'intro-visual-onboarding',
   'intro-course-overview-2',
   'intro-learning-method',
@@ -113,11 +135,22 @@ export const sceneIds = [
   'module-2-complete'
 ] as const
 
-export type LessonId = 'intro' | 'module-1' | 'module-2'
+export const sceneIds = [
+  ...legacySceneIds,
+  ...portfolioSceneIds
+] as const satisfies readonly (typeof legacySceneIds[number] | PortfolioSceneId)[]
+
+export const lessonIds = [
+  'intro',
+  'module-1',
+  ...portfolioModuleDefinitions.map((module) => module.id)
+] as const satisfies readonly ('intro' | 'module-1' | PortfolioModuleId)[]
+
+export type LessonId = (typeof lessonIds)[number]
 export type CheckpointId = (typeof checkpointIds)[number]
 export type SceneId = (typeof sceneIds)[number]
 
-export const courseLessonIds = [
+const legacyCourseLessonIds = [
   'intro-overview',
   'm1-understand-codex',
   'm1-agents-guidance',
@@ -130,6 +163,11 @@ export const courseLessonIds = [
   'm2-prd-review',
   'm2-assessment'
 ] as const
+
+export const courseLessonIds = [
+  ...legacyCourseLessonIds,
+  ...portfolioCourseLessonIds
+] as const satisfies readonly (typeof legacyCourseLessonIds[number] | PortfolioCourseLessonId)[]
 
 export type CourseLessonId = (typeof courseLessonIds)[number]
 
@@ -205,7 +243,8 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-2-final-14': 'm2-mastery',
   'module-2-final-15': 'm2-mastery',
   'module-2-final-summary': 'm2-mastery',
-  'module-2-complete': 'm2-complete'
+  'module-2-complete': 'm2-complete',
+  ...portfolioSceneCheckpoint
 }
 
 export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
@@ -226,8 +265,11 @@ export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'm2-alignment-review': 'm2-implementation-plan',
   'm2-planning-package': 'm2-prd-review',
   'm2-mastery': 'm2-assessment',
-  'm2-complete': 'm2-assessment'
+  'm2-complete': 'm2-assessment',
+  ...portfolioCheckpointCourseLesson
 }
+
+export { portfolioModuleDefinitions }
 
 export function courseLessonIdForScene(sceneId: SceneId): CourseLessonId {
   return checkpointCourseLesson[sceneCheckpoint[sceneId]]

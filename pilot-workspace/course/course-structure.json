@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "pilotVersion": "0.2.0",
+  "pilotVersion": "0.3.0",
   "title": "Vibecoding 101 — Học agentic coding cùng Codex",
   "languagePriority": ["vi", "en"],
   "defaultLessonId": "intro",
