@@ -5,7 +5,9 @@ import { PracticeSwitchDialog } from './PracticeSwitchDialog'
 
 type PracticeBriefProps = {
   identity: PracticeIdentity
+  courseRunId?: string
   onClose: () => void
+  onPortfolioComplete?: () => void | Promise<void>
 }
 
 const previewWorkspace: PracticeWorkspaceView = {
@@ -24,7 +26,12 @@ const previewWorkspace: PracticeWorkspaceView = {
   }
 }
 
-export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
+export function PracticeBrief({
+  identity,
+  courseRunId,
+  onClose,
+  onPortfolioComplete
+}: PracticeBriefProps) {
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [busy, setBusy] = useState(false)
   const [switchOpen, setSwitchOpen] = useState(false)
@@ -125,6 +132,37 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
     }
   }
 
+  const recordPortfolioStage = async (
+    stageId: string,
+    decision: 'approved' | 'revision-requested'
+  ) => {
+    const active = workspace?.activePractice
+    if (!active || !courseRunId || busy || !window.courseCompanion) return
+    setBusy(true)
+    setError('')
+    try {
+      const next = await window.courseCompanion.recordPortfolioStageAction({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        courseRunId,
+        stageId,
+        decision
+      })
+      setWorkspace(next)
+      if (decision === 'approved'
+        && next.portfolioPlanning?.stages.every((stage) => stage.status === 'completed')) {
+        await onPortfolioComplete?.()
+      }
+    } catch {
+      setError('Không thể ghi nhận quyết định trên bằng chứng hiện tại. Hãy làm mới rồi thử lại.')
+      await load()
+    } finally {
+      setBusy(false)
+    }
+  }
+
   if (!workspace) {
     return (
       <main className="practice-brief-overlay is-loading" aria-live="polite">
@@ -173,7 +211,12 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
         {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
       </section>
 
-      <PracticeProgress workspace={workspace} onRefresh={() => void load()} />
+      <PracticeProgress
+        workspace={workspace}
+        actionBusy={busy}
+        onPortfolioStageAction={courseRunId ? (stageId, decision) => void recordPortfolioStage(stageId, decision) : undefined}
+        onRefresh={() => void load()}
+      />
 
       {switchOpen ? (
         <PracticeSwitchDialog

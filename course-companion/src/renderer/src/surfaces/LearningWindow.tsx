@@ -117,6 +117,7 @@ type SceneContent = {
 }
 
 type AssessmentSource = {
+  kind?: 'authoritative-source' | 'curriculum-judgment'
   label: string
   url: string
   basis: string
@@ -542,8 +543,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'CẤU HÌNH', value: 'Đã được Triết duyệt', ready: true },
       { label: 'BƯỚC TIẾP', value: 'Planning, PRD và prompt', ready: true }
     ],
-    dialogue: 'Module 2 sẽ dùng nền tảng này để biến ý tưởng ContentPilot thành PRD và implementation plan trước khi viết code.',
-    choices: [{ label: 'Mở Module 2', next: 'module-2-why-planning', afterSave: 'home', primary: true }]
+    dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.',
+    choices: [{ label: 'Mở Module 2', next: 'module-2-portfolio-workspace', afterSave: 'home', primary: true }]
   },
   'module-2-why-planning': {
     lessonId: 'module-2',
@@ -1155,18 +1156,6 @@ const introModule = courseStructure.modules.find((module) => module.id === 'intr
 const setupModule = courseStructure.modules.find((module) => module.id === 'module-1')
 const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
 
-// Temporary renderer compatibility only. The Pilot manifest owns the current
-// Module 2 contract; these legacy lessons remain reachable until M2.5 replaces
-// their hard-coded scenes with the portfolio renderer.
-const legacyPlanningLessonDefinitions: CourseLessonDefinition[] = [
-  { id: 'm2-when-to-plan', titleVi: 'Khi nào cần planning' },
-  { id: 'm2-product-requirements', titleVi: 'Từ ý tưởng đến PRD' },
-  { id: 'm2-prd-prompt', titleVi: 'Viết prompt để tạo PRD' },
-  { id: 'm2-implementation-plan', titleVi: 'Từ PRD đến implementation plan' },
-  { id: 'm2-prd-review', titleVi: 'Thực hành tạo planning package' },
-  { id: 'm2-assessment', titleVi: 'Kiểm tra và hoàn thành Module 2' }
-]
-
 const courseLessonDefinitions: CourseLessonDefinition[] = [
   ...(introModule?.lessons ?? []).map((lesson) => ({
     id: lesson.id as CourseLessonId,
@@ -1176,7 +1165,6 @@ const courseLessonDefinitions: CourseLessonDefinition[] = [
     id: lesson.id as CourseLessonId,
     titleVi: lesson.titleVi
   })),
-  ...legacyPlanningLessonDefinitions,
   ...registryLessonDefinitions
 ]
 const courseLessonTitle = new Map(
@@ -1184,10 +1172,7 @@ const courseLessonTitle = new Map(
 )
 const moduleLessonIds: Record<Exclude<LessonId, 'intro'>, CourseLessonId[]> = {
   'module-1': setupModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? [],
-  'module-2': [
-    ...legacyPlanningLessonDefinitions.map((lesson) => lesson.id),
-    ...registryModuleLessonIds['module-2']
-  ],
+  'module-2': registryModuleLessonIds['module-2'],
   'module-3': registryModuleLessonIds['module-3'],
   'module-4': registryModuleLessonIds['module-4']
 }
@@ -1290,57 +1275,6 @@ const courseLessonPages = {
     ['module-1-final-5'],
     ['module-1-final-summary'],
     ['module-1-complete']
-  ],
-  'm2-when-to-plan': [
-    ['module-2-why-planning'],
-    ['module-2-planning-example'],
-    ['module-2-why-planning-check', 'module-2-planning-cost'],
-    ['module-2-contentpilot-brief', 'module-2-implementation-too-soon']
-  ],
-  'm2-product-requirements': [
-    ['module-2-prd-concept'],
-    ['module-2-prd-example'],
-    ['module-2-prd-visual-examples'],
-    ['module-2-prd-code-examples'],
-    ['module-2-check-planning-prd-1'],
-    ['module-2-check-planning-prd-2'],
-    ['module-2-check-planning-prd-3'],
-    ['module-2-prd-check', 'module-2-prd-misclassification']
-  ],
-  'm2-prd-prompt': [
-    ['module-2-prd-interview'],
-    ['module-2-prompt-example'],
-    ['module-2-prompt-guided-practice'],
-    ['module-2-check-prompt-1'],
-    ['module-2-check-prompt-2'],
-    ['module-2-check-prompt-3']
-  ],
-  'm2-implementation-plan': [
-    ['module-2-implementation-plan'],
-    ['module-2-implementation-plan-example'],
-    ['module-2-check-plan-1'],
-    ['module-2-check-plan-2']
-  ],
-  'm2-prd-review': [['module-2-planning-package']],
-  'm2-assessment': [
-    ['module-2-mastery'],
-    ['module-2-final-1'],
-    ['module-2-final-2'],
-    ['module-2-final-3'],
-    ['module-2-final-4'],
-    ['module-2-final-5'],
-    ['module-2-final-6'],
-    ['module-2-final-7'],
-    ['module-2-final-8'],
-    ['module-2-final-9'],
-    ['module-2-final-10'],
-    ['module-2-final-11'],
-    ['module-2-final-12'],
-    ['module-2-final-13'],
-    ['module-2-final-14'],
-    ['module-2-final-15'],
-    ['module-2-final-summary', 'module-2-mastery-repair'],
-    ['module-2-complete']
   ],
   ...registryLessonPages
 } as Record<CourseLessonId, readonly (readonly SceneId[])[]>
@@ -1884,7 +1818,9 @@ function AssessmentControls({
             </ul>
           ) : null}
           <div className="pixel-assessment-source">
-            <small>NGUỒN CHÍNH THỨC</small>
+            <small>{question.source.kind === 'curriculum-judgment'
+              ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
+              : 'NGUỒN PHƯƠNG PHÁP'}</small>
             <strong>{question.source.label}</strong>
             <p>{question.source.basis}</p>
             <code>{question.source.url}</code>
@@ -2481,10 +2417,16 @@ export function LearningWindow() {
     const nextQuestion = group.questions[questionIndex + 1]
     const exitScene: Record<string, SceneId> = {
       'setup-final-assessment': 'module-1-final-summary',
+      'brief-retrieval': 'module-2-content-evidence-inventory',
+      'evidence-retrieval': 'module-2-visual-reference',
+      'reference-retrieval': 'module-2-portfolio-prd',
+      'prd-retrieval': 'module-2-implementation-contract',
+      'planning-retrieval': 'module-2-portfolio-practice',
+      'final-assessment': 'module-2-portfolio-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
-      'final-assessment': 'module-2-final-summary'
+      'legacy-final-assessment': 'module-2-final-summary'
     }
     const nextSceneId = nextQuestion?.sceneId ?? exitScene[group.id]
     if (!nextSceneId) return
@@ -2544,6 +2486,12 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
+      if (progress.sceneId === 'module-2-portfolio-practice') {
+        setReviewHistoryIndex(null)
+        setError('')
+        setPracticeBriefOpen(true)
+        return
+      }
       const nextSceneId = progress.sceneId === 'module-1-setup-checklist'
         ? 'module-1-mastery'
         : progress.sceneId === 'module-2-planning-package'
@@ -2696,6 +2644,9 @@ export function LearningWindow() {
     ? assessmentGroupById.get(scene.assessmentGroupId)
     : assessmentGroupById.get('final-assessment')
   const finalQuestionCount = finalAssessment?.questions.length ?? 0
+  const finalAnsweredCount = finalAssessment?.questions.filter((question) =>
+    Boolean(progress.decisions[assessmentDecisionKey(question.id)]))
+  .length ?? 0
   const finalCorrectCount = finalAssessment?.questions.filter((question) =>
     progress.decisions[assessmentDecisionKey(question.id)]?.startsWith('correct')
   ).length ?? 0
@@ -2703,6 +2654,7 @@ export function LearningWindow() {
     ? Math.ceil(finalAssessment.questions.length * (finalAssessment.passingScore ?? 0.8))
     : 0
   const finalPassed = finalCorrectCount >= finalPassingCount
+  const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
@@ -2879,11 +2831,16 @@ export function LearningWindow() {
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        {displayedSceneId === 'module-2-portfolio-placeholder' ? (
-          <PortfolioWorkspacePicker courseRunId={progress.courseRunId} />
+        {displayedSceneId === 'module-2-portfolio-workspace' ? (
+          <PortfolioWorkspacePicker
+            courseRunId={progress.courseRunId}
+            onContinue={() => void advanceToScene('module-2-portfolio-brief', progress.decisions)}
+          />
         ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
-            ? finalPassed
+            ? isPortfolioMasterySummary
+              ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với bảy tài liệu hiện tại và quy tắc đánh giá mức độ làm chủ của bản pilot trước khi mở Module 3.`
+              : finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
             : displayedSceneId === 'module-1-codex-examples'
@@ -2921,29 +2878,35 @@ export function LearningWindow() {
             onContinue={() => void continueAssessment(assessmentQuestion, assessmentGroup)}
           />
         ) : scene.assessmentSummary ? (
-          <div className="pixel-assessment-summary" data-result={finalPassed ? 'pass' : 'retry'}>
-            <strong>{finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
-            <span>{finalCorrectCount}/{finalQuestionCount} câu</span>
-            <button
-              className="pixel-choice is-primary"
-              disabled={busy}
-              type="button"
-              onClick={() => finalPassed
-                ? void choose({
-                    label: scene.lessonId === 'module-1' ? 'Hoàn thành Module 1' : 'Hoàn thành Module 2',
-                    next: scene.lessonId === 'module-1' ? 'module-1-complete' : 'module-2-complete',
-                    decision: scene.lessonId === 'module-1'
-                      ? { key: 'setupMastery', value: 'passed-four-of-five' }
-                      : { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
-                  })
-                : void retryFinalAssessment()}
-            >
-              {busy
-                ? 'Đang lưu…'
-                : finalPassed
-                  ? 'Tiếp tục'
-                  : `Làm lại ${finalQuestionCount} câu`}
-            </button>
+          <div className="pixel-assessment-summary" data-result={isPortfolioMasterySummary ? 'review' : finalPassed ? 'pass' : 'retry'}>
+            <strong>{isPortfolioMasterySummary ? 'ĐÃ TRẢ LỜI' : finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
+            <span>{isPortfolioMasterySummary ? finalAnsweredCount : finalCorrectCount}/{finalQuestionCount} câu</span>
+            {isPortfolioMasterySummary ? (
+              <button className="pixel-choice is-primary" type="button" onClick={() => setDestination('home')}>
+                Lưu tiến độ và về Home Base
+              </button>
+            ) : (
+              <button
+                className="pixel-choice is-primary"
+                disabled={busy}
+                type="button"
+                onClick={() => finalPassed
+                  ? void choose({
+                      label: scene.lessonId === 'module-1' ? 'Hoàn thành Module 1' : 'Hoàn thành Module 2',
+                      next: scene.lessonId === 'module-1' ? 'module-1-complete' : 'module-2-complete',
+                      decision: scene.lessonId === 'module-1'
+                        ? { key: 'setupMastery', value: 'passed-four-of-five' }
+                        : { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
+                    })
+                  : void retryFinalAssessment()}
+              >
+                {busy
+                  ? 'Đang lưu…'
+                  : finalPassed
+                    ? 'Tiếp tục'
+                    : `Làm lại ${finalQuestionCount} câu`}
+              </button>
+            )}
           </div>
         ) : (
           <div className={`pixel-lesson-actions${usesPairedLessonNavigation ? ' is-paired' : ''}`}>
@@ -2968,10 +2931,20 @@ export function LearningWindow() {
 
       {practiceBriefOpen ? (
         <PracticeBrief
-          identity={progress.currentLessonId === 'module-1'
-            ? { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }
-            : { practiceId: 'm2-planning-package', practiceVersion: '2.0.0' }}
+          identity={progress.sceneId === 'module-2-portfolio-practice'
+            ? { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
+            : { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }}
+          courseRunId={progress.sceneId === 'module-2-portfolio-practice'
+            ? progress.courseRunId
+            : undefined}
           onClose={() => setPracticeBriefOpen(false)}
+          onPortfolioComplete={async () => {
+            await advanceToScene('module-2-portfolio-mastery', {
+              ...progress.decisions,
+              portfolioPlanningPractice: 'five-current-stage-receipts'
+            })
+            setPracticeBriefOpen(false)
+          }}
         />
       ) : null}
 

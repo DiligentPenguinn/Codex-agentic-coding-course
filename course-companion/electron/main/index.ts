@@ -71,9 +71,18 @@ function practiceDefinitionsDirectory(): string {
     join(app.getAppPath(), 'content', 'practices')
 }
 
+function pilotPracticeDefinitionsDirectory(): string {
+  const candidates = [
+    resolve(app.getAppPath(), '..', 'pilot-workspace', 'course', 'practices'),
+    resolve(app.getAppPath(), '..', '..', 'pilot-workspace', 'course', 'practices'),
+    resolve(app.getAppPath(), '..', '..', '..', 'pilot-workspace', 'course', 'practices')
+  ]
+  return candidates.find((candidate) => existsSync(candidate)) ?? candidates[0]!
+}
+
 const practiceDefinitionRepository = new PracticeDefinitionRepository(
   practiceDefinitionsDirectory(),
-  resolve(app.getAppPath(), '..', 'pilot-workspace', 'course', 'practices')
+  pilotPracticeDefinitionsDirectory()
 )
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))

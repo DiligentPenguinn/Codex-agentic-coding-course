@@ -58,6 +58,10 @@ export function validateCourseModuleDefinitions(
 
     const moduleLessonIds = new Set(definition.lessons.map((lesson) => lesson.id))
     const moduleCheckpointIds = new Set(definition.checkpoints.map((checkpoint) => checkpoint.id))
+    const checkpointLessons = new Map(definition.checkpoints.map((checkpoint) => [
+      checkpoint.id,
+      checkpoint.courseLessonId
+    ]))
     const moduleSceneIds = new Set(definition.scenes.map((scene) => scene.id))
 
     for (const lesson of definition.lessons) {
@@ -78,6 +82,9 @@ export function validateCourseModuleDefinitions(
       }
       if (!moduleLessonIds.has(scene.courseLessonId)) {
         throw new Error(`Unknown course lesson for scene ${scene.id}`)
+      }
+      if (checkpointLessons.get(scene.checkpointId) !== scene.courseLessonId) {
+        throw new Error(`Scene and checkpoint use different lessons: ${scene.id}`)
       }
       if (scene.nextSceneId && !moduleSceneIds.has(scene.nextSceneId)) {
         throw new Error(`Broken scene destination from ${scene.id}`)

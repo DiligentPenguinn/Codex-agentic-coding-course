@@ -4,8 +4,8 @@
   "title": "Hoàn thiện gói planning cho portfolio",
   "version": "1.0.0",
   "checkpointId": "m2-portfolio-planning",
-  "objective": "Dùng một task Executor duy nhất để hoàn thiện năm stage planning trong thư mục portfolio đã chọn. Sau mỗi stage, Course Companion đối chiếu artifact trên filesystem và chờ bạn chấp nhận phiên bản hiện tại.",
-  "expectedOutcome": "Bảy artifact planning có nội dung trung thực, truy vết được, đã được bạn duyệt và có năm stage receipt hiện hành. Không có application code, dependency hoặc công việc deployment nào được tạo.",
+  "objective": "Dùng một task Executor duy nhất để hoàn thiện năm giai đoạn lập kế hoạch trong thư mục portfolio đã chọn. Sau mỗi giai đoạn, Course Companion đối chiếu tài liệu hiện có trên máy và chờ bạn chấp nhận đúng phiên bản hiện tại.",
+  "expectedOutcome": "Bảy tài liệu lập kế hoạch có nội dung trung thực, truy vết được, đã được bạn duyệt và có năm biên nhận giai đoạn còn hiện hành. Không có mã ứng dụng, gói phụ thuộc hoặc công việc xuất bản nào được tạo.",
   "workspaceKind": "learner-portfolio",
   "taskPolicy": "safe-workspace-write",
   "evidenceProfile": "portfolio-planning",
@@ -185,7 +185,7 @@
     },
     {
       "id": "scope-control-clean",
-      "description": "Workspace không có file ứng dụng, dependency, deployment hoặc thay đổi ngoài bảy artifact và ảnh chụp tham chiếu được phép.",
+      "description": "Thư mục portfolio không có tệp ứng dụng, gói phụ thuộc, cấu hình xuất bản hoặc thay đổi ngoài bảy tài liệu và ảnh chụp tham chiếu được phép.",
       "required": true,
       "checklistStepId": "implementation-contract",
       "acceptedEvidence": [

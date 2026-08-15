@@ -94,7 +94,7 @@ function portfolioDefinition(): MutableDefinition {
   definition.completionDestination = {
     lessonId: 'module-2',
     checkpointId: 'm2-portfolio-brief',
-    sceneId: 'module-2-portfolio-placeholder',
+    sceneId: 'module-2-portfolio-workspace',
     label: 'Tiếp tục Module 2'
   }
   definition.stages = Array.from({ length: 5 }, (_, index) => ({

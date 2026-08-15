@@ -32,7 +32,7 @@
       "questions": [
         {
           "id": "brief-retrieval-1",
-          "sceneId": "m2-check-brief-viewer",
+          "sceneId": "module-2-check-brief-viewer",
           "type": "multiple-choice",
           "prompt": "An muốn portfolio giúp mình được mời phỏng vấn vị trí phân tích dữ liệu. Nhóm nào là người xem chính rõ nhất cho phiên bản đầu?",
           "choices": [
@@ -52,7 +52,7 @@
         },
         {
           "id": "brief-retrieval-2",
-          "sceneId": "m2-check-brief-success",
+          "sceneId": "module-2-check-brief-success",
           "type": "multiple-choice",
           "prompt": "Dấu hiệu truyền đạt thành công nào có thể kiểm tra rõ nhất?",
           "choices": [
@@ -80,7 +80,7 @@
       "questions": [
         {
           "id": "evidence-retrieval-1",
-          "sceneId": "m2-check-evidence-status",
+          "sceneId": "module-2-check-evidence-status",
           "type": "multiple-choice",
           "prompt": "Bạn nhớ mình từng tăng doanh thu 30% nhưng chưa tìm được báo cáo gốc. Trạng thái phù hợp nhất lúc này là gì?",
           "choices": [
@@ -100,7 +100,7 @@
         },
         {
           "id": "evidence-retrieval-2",
-          "sceneId": "m2-check-evidence-permission",
+          "sceneId": "module-2-check-evidence-permission",
           "type": "multiple-choice",
           "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Inventory nên ghi thế nào?",
           "choices": [
@@ -128,7 +128,7 @@
       "questions": [
         {
           "id": "reference-retrieval-1",
-          "sceneId": "m2-check-reference-boundary",
+          "sceneId": "module-2-check-reference-boundary",
           "type": "multiple-choice",
           "prompt": "Cách nào dùng một portfolio tham chiếu đúng ranh giới của khóa học?",
           "choices": [
@@ -148,7 +148,7 @@
         },
         {
           "id": "reference-retrieval-2",
-          "sceneId": "m2-check-reference-record",
+          "sceneId": "module-2-check-reference-record",
           "type": "multiple-choice",
           "prompt": "Một trang tham chiếu có chuyển động và có thể thay đổi. Bằng chứng nào giúp bạn kiểm tra lại điều đã chọn?",
           "choices": [
@@ -176,7 +176,7 @@
       "questions": [
         {
           "id": "prd-retrieval-1",
-          "sceneId": "m2-check-prd-requirement",
+          "sceneId": "module-2-check-prd-requirement",
           "type": "multiple-choice",
           "prompt": "Yêu cầu nào phù hợp với PRD Module 2 nhất?",
           "choices": [
@@ -196,7 +196,7 @@
         },
         {
           "id": "prd-retrieval-2",
-          "sceneId": "m2-check-prd-accessibility",
+          "sceneId": "module-2-check-prd-accessibility",
           "type": "multiple-choice",
           "prompt": "Vì sao PRD cần nêu bàn phím, focus và văn bản thay thế trước khi xây?",
           "choices": [
@@ -224,7 +224,7 @@
       "questions": [
         {
           "id": "planning-retrieval-1",
-          "sceneId": "m2-check-delayed-scope",
+          "sceneId": "module-2-check-delayed-scope",
           "type": "multiple-choice",
           "prompt": "PRD để blog ở ngoài phạm vi nhưng implementation plan có phase xây blog. Bạn nên làm gì trước?",
           "choices": [
@@ -244,7 +244,7 @@
         },
         {
           "id": "planning-retrieval-2",
-          "sceneId": "m2-check-delayed-evidence",
+          "sceneId": "module-2-check-delayed-evidence",
           "type": "multiple-choice",
           "prompt": "Ngay trước gate, một kết quả dự án vẫn là lời tự khai và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
           "choices": [
@@ -272,7 +272,7 @@
       "questions": [
         {
           "id": "mastery-1",
-          "sceneId": "m2-mastery-scenario-viewer",
+          "sceneId": "module-2-mastery-scenario-viewer",
           "type": "multiple-choice",
           "prompt": "Linh muốn portfolio vừa xin việc thiết kế sản phẩm, bán tranh và tuyển người cho câu lạc bộ. Bước planning phù hợp nhất là gì?",
           "choices": [
@@ -292,7 +292,7 @@
         },
         {
           "id": "mastery-2",
-          "sceneId": "m2-mastery-scenario-evidence",
+          "sceneId": "module-2-mastery-scenario-evidence",
           "type": "multiple-choice",
           "prompt": "Một chứng nhận có thật, nhưng tên và mã định danh cá nhân trên ảnh không cần cho người xem. Cách xử lý nào phù hợp?",
           "choices": [
@@ -312,7 +312,7 @@
         },
         {
           "id": "mastery-3",
-          "sceneId": "m2-mastery-scenario-reference",
+          "sceneId": "module-2-mastery-scenario-reference",
           "type": "multiple-choice",
           "prompt": "Bạn thích cách một trang dùng khoảng trống và tiêu đề lớn. Yêu cầu nào giữ đúng ranh giới tham chiếu?",
           "choices": [
@@ -332,7 +332,7 @@
         },
         {
           "id": "mastery-4",
-          "sceneId": "m2-mastery-scenario-prd",
+          "sceneId": "module-2-mastery-scenario-prd",
           "type": "multiple-choice",
           "prompt": "Tiêu chí chấp nhận nào kiểm tra rõ yêu cầu điều hướng bằng bàn phím?",
           "choices": [
@@ -352,7 +352,7 @@
         },
         {
           "id": "mastery-5",
-          "sceneId": "m2-mastery-scenario-validation",
+          "sceneId": "module-2-mastery-scenario-validation",
           "type": "multiple-choice",
           "prompt": "Map có yêu cầu `REQ-07` nhưng ô cách kiểm tra đang trống. Điều gì phải xảy ra trước khi gate đạt?",
           "choices": [
@@ -372,7 +372,7 @@
         },
         {
           "id": "mastery-6",
-          "sceneId": "m2-mastery-scenario-first-task",
+          "sceneId": "module-2-mastery-scenario-first-task",
           "type": "multiple-choice",
           "prompt": "Nhiệm vụ đầu tiên nào phù hợp khi Module 3 bắt đầu từ thư mục chưa có ứng dụng?",
           "choices": [
@@ -392,7 +392,7 @@
         },
         {
           "id": "mastery-audience-choice",
-          "sceneId": "m2-mastery-owned-audience",
+          "sceneId": "module-2-mastery-owned-audience",
           "type": "short-answer",
           "prompt": "Dựa trên `planning/portfolio-brief.md` của bạn, nêu người xem chính, quyết định họ cần đưa ra và vì sao lựa chọn này phù hợp với mục tiêu portfolio của bạn.",
           "criteria": [
@@ -410,7 +410,7 @@
         },
         {
           "id": "mastery-scope-boundary",
-          "sceneId": "m2-mastery-owned-scope",
+          "sceneId": "module-2-mastery-owned-scope",
           "type": "short-answer",
           "prompt": "Chọn một mục ngoài phạm vi trong `planning/PRD.md` của bạn. Giải thích vì sao nó chưa thuộc phiên bản đầu và cách bạn kiểm tra nó không quay lại implementation plan.",
           "criteria": [
@@ -428,7 +428,7 @@
         },
         {
           "id": "mastery-evidence-gap",
-          "sceneId": "m2-mastery-owned-evidence",
+          "sceneId": "module-2-mastery-owned-evidence",
           "type": "short-answer",
           "prompt": "Chọn một khoảng trống thật trong `planning/content-evidence-inventory.md` của bạn. Nêu trạng thái hiện tại, rủi ro nếu trình bày quá chắc chắn và việc bạn sẽ làm tiếp theo.",
           "criteria": [
@@ -446,7 +446,7 @@
         },
         {
           "id": "mastery-requirement-validation",
-          "sceneId": "m2-mastery-owned-validation",
+          "sceneId": "module-2-mastery-owned-validation",
           "type": "short-answer",
           "prompt": "Chọn một requirement thật trong `planning/requirement-validation-map.md` của bạn. Nêu tiêu chí chấp nhận, cách kiểm tra và bằng chứng sẽ lưu để chứng minh requirement đó đạt.",
           "criteria": [

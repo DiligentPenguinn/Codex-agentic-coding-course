@@ -3,32 +3,67 @@ export const moduleTwoDefinition = {
   order: 2,
   titleVi: 'Xác định, giới hạn và lập kế hoạch portfolio',
   lessons: [
-    { id: 'm2-portfolio-brief', titleVi: 'Xác định portfolio cần truyền đạt điều gì' }
+    { id: 'm2-portfolio-brief', titleVi: 'Tạo bản mô tả ngắn cho portfolio' },
+    { id: 'm2-content-evidence-inventory', titleVi: 'Kiểm kê nội dung và bằng chứng' },
+    { id: 'm2-visual-reference', titleVi: 'Chọn một tham chiếu hình ảnh' },
+    { id: 'm2-portfolio-prd', titleVi: 'Tạo và duyệt PRD cho portfolio' },
+    { id: 'm2-implementation-contract', titleVi: 'Tạo hợp đồng xây dựng và kiểm chứng' }
   ],
   checkpoints: [
     { id: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-content-evidence-inventory', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-visual-reference', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-implementation-contract', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-portfolio-planning', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-portfolio-mastery', courseLessonId: 'm2-portfolio-brief' },
-    { id: 'm2-portfolio-complete', courseLessonId: 'm2-portfolio-brief' }
+    { id: 'm2-content-evidence-inventory', courseLessonId: 'm2-content-evidence-inventory' },
+    { id: 'm2-visual-reference', courseLessonId: 'm2-visual-reference' },
+    { id: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-prd' },
+    { id: 'm2-implementation-contract', courseLessonId: 'm2-implementation-contract' },
+    { id: 'm2-portfolio-planning', courseLessonId: 'm2-implementation-contract' },
+    { id: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],
   scenes: [
-    {
-      id: 'module-2-portfolio-placeholder',
-      checkpointId: 'm2-portfolio-brief',
-      courseLessonId: 'm2-portfolio-brief',
-      nextSceneId: 'module-2-portfolio-mastery'
-    },
-    {
-      id: 'module-2-portfolio-mastery',
-      checkpointId: 'm2-portfolio-mastery',
-      courseLessonId: 'm2-portfolio-brief'
-    }
+    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
+    { id: 'module-2-portfolio-brief', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief-example' },
+    { id: 'module-2-portfolio-brief-example', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-check-brief-viewer' },
+    { id: 'module-2-check-brief-viewer', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },
+    { id: 'module-2-check-brief-success', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },
+    { id: 'module-2-content-evidence-inventory', checkpointId: 'm2-content-evidence-inventory', courseLessonId: 'm2-content-evidence-inventory', nextSceneId: 'module-2-content-evidence-example' },
+    { id: 'module-2-content-evidence-example', checkpointId: 'm2-content-evidence-inventory', courseLessonId: 'm2-content-evidence-inventory', nextSceneId: 'module-2-check-evidence-status' },
+    { id: 'module-2-check-evidence-status', checkpointId: 'm2-content-evidence-inventory', courseLessonId: 'm2-content-evidence-inventory' },
+    { id: 'module-2-check-evidence-permission', checkpointId: 'm2-content-evidence-inventory', courseLessonId: 'm2-content-evidence-inventory' },
+    { id: 'module-2-visual-reference', checkpointId: 'm2-visual-reference', courseLessonId: 'm2-visual-reference', nextSceneId: 'module-2-visual-reference-example' },
+    { id: 'module-2-visual-reference-example', checkpointId: 'm2-visual-reference', courseLessonId: 'm2-visual-reference', nextSceneId: 'module-2-check-reference-boundary' },
+    { id: 'module-2-check-reference-boundary', checkpointId: 'm2-visual-reference', courseLessonId: 'm2-visual-reference' },
+    { id: 'module-2-check-reference-record', checkpointId: 'm2-visual-reference', courseLessonId: 'm2-visual-reference' },
+    { id: 'module-2-portfolio-prd', checkpointId: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-prd', nextSceneId: 'module-2-portfolio-prd-example' },
+    { id: 'module-2-portfolio-prd-example', checkpointId: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-prd', nextSceneId: 'module-2-check-prd-requirement' },
+    { id: 'module-2-check-prd-requirement', checkpointId: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-prd' },
+    { id: 'module-2-check-prd-accessibility', checkpointId: 'm2-portfolio-prd', courseLessonId: 'm2-portfolio-prd' },
+    { id: 'module-2-implementation-contract', checkpointId: 'm2-implementation-contract', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-implementation-contract-example' },
+    { id: 'module-2-implementation-contract-example', checkpointId: 'm2-implementation-contract', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-check-delayed-scope' },
+    { id: 'module-2-check-delayed-scope', checkpointId: 'm2-implementation-contract', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-check-delayed-evidence', checkpointId: 'm2-implementation-contract', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-portfolio-practice', checkpointId: 'm2-portfolio-planning', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-portfolio-mastery' },
+    { id: 'module-2-portfolio-mastery', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-mastery-scenario-viewer' },
+    { id: 'module-2-mastery-scenario-viewer', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-scenario-evidence', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-scenario-reference', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-scenario-prd', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-scenario-validation', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-scenario-first-task', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-owned-audience', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-owned-scope', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-owned-evidence', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-mastery-owned-validation', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-portfolio-mastery-summary', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
+    { id: 'module-2-portfolio-complete', checkpointId: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],
-  quizGroupIds: [],
+  quizGroupIds: [
+    'brief-retrieval',
+    'evidence-retrieval',
+    'reference-retrieval',
+    'prd-retrieval',
+    'planning-retrieval',
+    'final-assessment'
+  ],
   practice: {
     id: 'm2-portfolio-planning',
     version: '1.0.0',

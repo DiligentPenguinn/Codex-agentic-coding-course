@@ -90,7 +90,13 @@ export function PortfolioWorkspaceStatusPanel({
   )
 }
 
-export function PortfolioWorkspacePicker({ courseRunId }: { courseRunId: string }) {
+export function PortfolioWorkspacePicker({
+  courseRunId,
+  onContinue
+}: {
+  courseRunId: string
+  onContinue?: () => void
+}) {
   const [view, setView] = useState<PortfolioWorkspaceView>(() => initialView(courseRunId))
   const [busy, setBusy] = useState(true)
 
@@ -137,11 +143,18 @@ export function PortfolioWorkspacePicker({ courseRunId }: { courseRunId: string 
   }
 
   return (
-    <PortfolioWorkspaceStatusPanel
-      busy={busy}
-      view={view}
-      onChoose={() => void choose()}
-      onConfirm={() => void confirm()}
-    />
+    <>
+      <PortfolioWorkspaceStatusPanel
+        busy={busy}
+        view={view}
+        onChoose={() => void choose()}
+        onConfirm={() => void confirm()}
+      />
+      {view.status === 'ready' && onContinue ? (
+        <button className="portfolio-workspace-continue" disabled={busy} type="button" onClick={onContinue}>
+          Tiếp tục với thư mục này
+        </button>
+      ) : null}
+    </>
   )
 }

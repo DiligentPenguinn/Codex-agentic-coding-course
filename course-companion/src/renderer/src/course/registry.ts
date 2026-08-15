@@ -18,8 +18,49 @@ const rendererModules = [
     lessons: moduleTwoDefinition.lessons,
     lessonPages: {
       'm2-portfolio-brief': [
-        ['module-2-portfolio-placeholder'],
-        ['module-2-portfolio-mastery']
+        ['module-2-portfolio-workspace'],
+        ['module-2-portfolio-brief'],
+        ['module-2-portfolio-brief-example'],
+        ['module-2-check-brief-viewer'],
+        ['module-2-check-brief-success']
+      ],
+      'm2-content-evidence-inventory': [
+        ['module-2-content-evidence-inventory'],
+        ['module-2-content-evidence-example'],
+        ['module-2-check-evidence-status'],
+        ['module-2-check-evidence-permission']
+      ],
+      'm2-visual-reference': [
+        ['module-2-visual-reference'],
+        ['module-2-visual-reference-example'],
+        ['module-2-check-reference-boundary'],
+        ['module-2-check-reference-record']
+      ],
+      'm2-portfolio-prd': [
+        ['module-2-portfolio-prd'],
+        ['module-2-portfolio-prd-example'],
+        ['module-2-check-prd-requirement'],
+        ['module-2-check-prd-accessibility']
+      ],
+      'm2-implementation-contract': [
+        ['module-2-implementation-contract'],
+        ['module-2-implementation-contract-example'],
+        ['module-2-check-delayed-scope'],
+        ['module-2-check-delayed-evidence'],
+        ['module-2-portfolio-practice'],
+        ['module-2-portfolio-mastery'],
+        ['module-2-mastery-scenario-viewer'],
+        ['module-2-mastery-scenario-evidence'],
+        ['module-2-mastery-scenario-reference'],
+        ['module-2-mastery-scenario-prd'],
+        ['module-2-mastery-scenario-validation'],
+        ['module-2-mastery-scenario-first-task'],
+        ['module-2-mastery-owned-audience'],
+        ['module-2-mastery-owned-scope'],
+        ['module-2-mastery-owned-evidence'],
+        ['module-2-mastery-owned-validation'],
+        ['module-2-portfolio-mastery-summary'],
+        ['module-2-portfolio-complete']
       ]
     },
     scenes: moduleTwoScenes

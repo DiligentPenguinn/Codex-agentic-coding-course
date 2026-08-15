@@ -11,6 +11,9 @@ export type RegistryChoice = {
   next?: SceneId
   primary?: boolean
   danger?: boolean
+  action?: 'practice' | 'home' | 'review-module'
+  afterSave?: 'home'
+  decision?: { key: string; value: string }
 }
 
 export type RegistrySceneContent = {
@@ -28,6 +31,9 @@ export type RegistrySceneContent = {
   evidence: Array<{ label: string; value: string; ready?: boolean }>
   dialogue: string
   choices: RegistryChoice[]
+  assessmentQuestionId?: string
+  assessmentGroupId?: string
+  assessmentSummary?: boolean
   showTitle?: boolean
   showPanel?: boolean
 }

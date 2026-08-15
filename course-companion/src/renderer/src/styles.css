@@ -2713,6 +2713,81 @@ button:focus-visible {
 .practice-planning > time { display: block; margin-top: 9px; color: var(--pixel-muted); font-size: 10px; }
 .pixel-teacher-invalidation { margin: 8px; }
 
+.practice-portfolio-planning {
+  margin-top: 14px;
+  padding: 14px;
+  border: 2px solid #35466e;
+  background: #091329;
+}
+.practice-portfolio-planning > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.practice-portfolio-planning > header small,
+.practice-portfolio-planning > header strong { display: block; font-family: var(--pixel-font); }
+.practice-portfolio-planning > header small { color: var(--pixel-cyan); font-size: 6px; }
+.practice-portfolio-planning > header strong { margin-top: 6px; color: var(--pixel-cream); font-size: 9px; }
+.practice-portfolio-planning button {
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 2px solid var(--pixel-cyan);
+  color: var(--pixel-cream);
+  background: #15213e;
+  font: 700 6px/1.25 var(--pixel-font);
+}
+.practice-portfolio-planning button.is-primary {
+  border-color: var(--pixel-mint);
+  color: #071c1b;
+  background: var(--pixel-mint);
+}
+.practice-portfolio-planning button:disabled { cursor: wait; opacity: 0.55; }
+.practice-portfolio-planning button:focus-visible { outline: 3px solid var(--pixel-yellow); outline-offset: 2px; }
+.practice-portfolio-stages {
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+  list-style: none;
+}
+.practice-portfolio-stages > li {
+  padding: 12px;
+  border: 2px solid #2d3b60;
+  background: #0b142c;
+}
+.practice-portfolio-stages > li.is-ready { border-color: var(--pixel-yellow); }
+.practice-portfolio-stages > li.is-completed { border-color: #315d57; background: rgba(12, 38, 42, 0.72); }
+.practice-portfolio-stages > li.is-blocked,
+.practice-portfolio-stages > li.is-stale { border-color: #76533d; }
+.practice-portfolio-stages > li.is-pending { opacity: 0.55; }
+.practice-portfolio-stages > li > header {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+.practice-portfolio-stages > li > header > span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  color: var(--pixel-cyan);
+  font: 800 8px/1 var(--pixel-font);
+}
+.practice-portfolio-stages > li > header small,
+.practice-portfolio-stages > li > header strong { display: block; }
+.practice-portfolio-stages > li > header small { color: var(--pixel-muted); font: 6px/1.2 var(--pixel-font); }
+.practice-portfolio-stages > li > header strong { margin-top: 4px; color: var(--pixel-cream); font-size: 12px; }
+.practice-portfolio-stages > li > header em { color: var(--pixel-cyan); font: normal 6px/1.2 var(--pixel-font); }
+.practice-portfolio-artifacts { margin: 10px 0 0 40px; display: grid; gap: 4px; }
+.practice-portfolio-artifacts code { overflow-wrap: anywhere; color: var(--pixel-muted); font-size: 10px; }
+.practice-portfolio-issues { margin: 9px 0 0 40px; padding-left: 16px; color: var(--pixel-danger); font-size: 10px; }
+.practice-portfolio-stages > li > p { margin: 9px 0 0 40px; color: var(--pixel-danger); font-size: 10px; }
+.practice-portfolio-actions { margin: 11px 0 0 40px; display: flex; flex-wrap: wrap; gap: 7px; }
+.practice-portfolio-planning > small { display: block; margin-top: 10px; color: var(--pixel-cyan); }
+
 .practice-review-result {
   margin-top: 14px;
   padding: 12px;
@@ -2805,6 +2880,13 @@ button:focus-visible {
 .practice-progress.is-compact .practice-configuration { padding: 9px; }
 .practice-progress.is-compact .practice-configuration dl { grid-template-columns: 1fr 1fr; }
 .practice-progress.is-compact .practice-planning { padding: 9px; }
+.practice-progress.is-compact .practice-portfolio-planning { padding: 9px; }
+.practice-progress.is-compact .practice-portfolio-stages > li > header { grid-template-columns: 24px minmax(0, 1fr); }
+.practice-progress.is-compact .practice-portfolio-stages > li > header > em { grid-column: 2; }
+.practice-progress.is-compact .practice-portfolio-artifacts,
+.practice-progress.is-compact .practice-portfolio-issues,
+.practice-progress.is-compact .practice-portfolio-stages > li > p,
+.practice-progress.is-compact .practice-portfolio-actions { margin-left: 34px; }
 .practice-progress.is-compact .practice-artifacts { grid-template-columns: 1fr; }
 .practice-progress.is-compact .practice-checklist { margin-top: 10px; }
 .practice-progress.is-compact .practice-checklist li { padding: 8px; grid-template-columns: 24px 1fr; }
@@ -3472,6 +3554,21 @@ button:focus-visible {
 .portfolio-workspace-actions button:disabled {
   cursor: wait;
   opacity: 0.62;
+}
+
+.portfolio-workspace-continue {
+  width: min(100%, 720px);
+  min-height: 46px;
+  margin: 16px auto 0;
+  border: 1px solid #f7cb54;
+  background: #f7cb54;
+  color: #17140c;
+  font: 800 8px/1.2 var(--pixel-font);
+}
+
+.portfolio-workspace-continue:focus-visible {
+  outline: 3px solid #fff1a8;
+  outline-offset: 3px;
 }
 
 .portfolio-workspace-picker.is-missing .portfolio-workspace-path,

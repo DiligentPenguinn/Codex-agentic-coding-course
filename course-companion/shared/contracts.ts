@@ -51,9 +51,15 @@ const legacyCheckpointIds = [
   'm2-complete'
 ] as const
 
-// The registry placeholders are valid contract IDs but are not part of the
-// runnable learner journey until Module 2 is accepted.
-export const runnableCheckpointIds = legacyCheckpointIds
+const frozenJourneyCheckpointIds = legacyCheckpointIds.slice(0, 8)
+
+// Introduction and Module 1 stay on the frozen renderer. Modules 2–4 use the
+// typed registry; retired Module 2 IDs remain readable but no longer count as
+// runnable progress in the portfolio course.
+export const runnableCheckpointIds = [
+  ...frozenJourneyCheckpointIds,
+  ...portfolioCheckpointIds
+] as const
 
 export const checkpointIds = [
   ...legacyCheckpointIds,

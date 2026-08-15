@@ -58,7 +58,7 @@ function definition(): PracticeDefinition {
     completionDestination: {
       lessonId: 'module-2',
       checkpointId: 'm2-portfolio-brief',
-      sceneId: 'module-2-portfolio-placeholder',
+      sceneId: 'module-2-portfolio-workspace',
       label: 'Continue Module 2'
     }
   })

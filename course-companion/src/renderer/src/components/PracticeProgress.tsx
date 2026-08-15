@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type {
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
   PracticePlanningArtifactView,
   PracticeWorkspaceView
 } from '../../../../shared/contracts'
@@ -12,6 +13,10 @@ type PracticeProgressProps = {
   onReturn?: () => void
   actionBusy?: boolean
   onPlanningAction?: (action: PlanningPracticeActionRequest['action']) => void
+  onPortfolioStageAction?: (
+    stageId: string,
+    decision: PortfolioStageActionRequest['decision']
+  ) => void
   onRefresh?: () => void
 }
 
@@ -49,6 +54,34 @@ const artifactApproval: Record<PracticePlanningArtifactView['approval'], string>
   stale: 'Duyệt lại'
 }
 
+const portfolioStageLabels: Record<string, string> = {
+  'portfolio-brief': 'Bản mô tả ngắn',
+  'content-evidence-inventory': 'Nội dung và bằng chứng',
+  'visual-reference': 'Tham chiếu hình ảnh',
+  'portfolio-prd': 'PRD portfolio',
+  'implementation-contract': 'Hợp đồng xây dựng'
+}
+
+const portfolioIssueLabels: Record<string, string> = {
+  missing: 'Thiếu tệp',
+  empty: 'Tệp trống',
+  oversized: 'Tệp quá lớn',
+  directory: 'Đường dẫn không phải tệp',
+  symlink: 'Không chấp nhận liên kết tắt',
+  escaping: 'Đường dẫn ra ngoài workspace',
+  'invalid-utf8': 'Nội dung không đọc được',
+  placeholder: 'Còn nội dung mẫu',
+  'missing-section': 'Thiếu mục bắt buộc',
+  'missing-approval': 'Thiếu xác nhận của người học',
+  'invalid-evidence-label': 'Nhãn bằng chứng chưa trung thực',
+  'privacy-review-incomplete': 'Chưa kiểm tra quyền riêng tư',
+  'permission-metadata-missing': 'Thiếu nguồn hoặc quyền sử dụng',
+  'missing-reference-screenshot': 'Thiếu ảnh chụp tham chiếu',
+  'requirement-coverage': 'Requirement chưa có cách kiểm tra',
+  'invalid-plan-boundary': 'Kế hoạch vượt ranh giới',
+  'unexpected-workspace-change': 'Có thay đổi ngoài phạm vi'
+}
+
 export function PracticeProgress({
   workspace,
   compact = false,
@@ -56,6 +89,7 @@ export function PracticeProgress({
   onReturn,
   actionBusy = false,
   onPlanningAction,
+  onPortfolioStageAction,
   onRefresh
 }: PracticeProgressProps) {
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
@@ -162,7 +196,7 @@ export function PracticeProgress({
 
           {planning.unexpectedChangedPaths.length > 0 ? (
             <div className="practice-scope-warning" role="status">
-              <strong>Có thay đổi ngoài hai artifact cho phép</strong>
+              <strong>Có thay đổi ngoài hai tài liệu cho phép</strong>
               <ul>{planning.unexpectedChangedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
             </div>
           ) : null}
@@ -222,6 +256,74 @@ export function PracticeProgress({
           ) : null}
 
           {planning.observedAt ? <time dateTime={planning.observedAt}>Ghi nhận: {new Date(planning.observedAt).toLocaleString('vi-VN')}</time> : null}
+        </section>
+      ) : null}
+
+      {workspace.portfolioPlanning ? (
+        <section className="practice-portfolio-planning" aria-label="Bằng chứng lập kế hoạch portfolio" aria-live="polite">
+          <header>
+            <div>
+              <small>GÓI LẬP KẾ HOẠCH PORTFOLIO</small>
+              <strong>{workspace.portfolioPlanning.freshness === 'fresh'
+                ? 'BẰNG CHỨNG HIỆN TẠI'
+                : workspace.portfolioPlanning.freshness === 'stale'
+                  ? 'CẦN LÀM MỚI'
+                  : 'CHƯA THỂ XÁC MINH'}</strong>
+            </div>
+            {onRefresh ? <button type="button" disabled={actionBusy} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
+          </header>
+
+          {workspace.portfolioPlanning.unexpectedPaths.length > 0 ? (
+            <div className="practice-scope-warning" role="status">
+              <strong>Có tệp nằm ngoài phạm vi của Module 2</strong>
+              <ul>{workspace.portfolioPlanning.unexpectedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
+            </div>
+          ) : null}
+
+          <ol className="practice-portfolio-stages">
+            {workspace.portfolioPlanning.stages.map((stage) => (
+              <li className={`is-${stage.status}`} key={stage.stageId}>
+                <header>
+                  <span>{stage.stageIndex}</span>
+                  <div>
+                    <small>GIAI ĐOẠN {stage.stageIndex}/5</small>
+                    <strong>{portfolioStageLabels[stage.stageId] ?? stage.stageId}</strong>
+                  </div>
+                  <em>{stage.status === 'completed'
+                    ? 'ĐÃ DUYỆT'
+                    : stage.status === 'ready'
+                      ? 'SẴN SÀNG DUYỆT'
+                      : stage.status === 'stale'
+                        ? 'CẦN DUYỆT LẠI'
+                        : stage.status === 'blocked'
+                          ? 'CẦN BỔ SUNG'
+                          : 'CHƯA MỞ'}</em>
+                </header>
+                <div className="practice-portfolio-artifacts">
+                  {stage.artifactPaths.map((path) => <code key={path}>{path}</code>)}
+                </div>
+                {stage.issueCodes.length > 0 ? (
+                  <ul className="practice-portfolio-issues">
+                    {stage.issueCodes.map((code) => <li key={code}>{portfolioIssueLabels[code] ?? code}</li>)}
+                  </ul>
+                ) : null}
+                {stage.staleReason ? <p>{stage.staleReason}</p> : null}
+                {onPortfolioStageAction && stage.status !== 'completed' && stage.status !== 'pending' ? (
+                  <div className="practice-portfolio-actions">
+                    {stage.status === 'ready' ? (
+                      <button className="is-primary" disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'approved')}>
+                        Chấp nhận phiên bản hiện tại
+                      </button>
+                    ) : null}
+                    <button disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'revision-requested')}>
+                      Yêu cầu sửa
+                    </button>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+          {actionBusy ? <small>Đang đối chiếu đúng phiên bản tài liệu hiện tại…</small> : null}
         </section>
       ) : null}
 

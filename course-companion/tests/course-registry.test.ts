@@ -21,6 +21,10 @@ describe('portfolio course registry', () => {
     expect(portfolioModuleDefinitions.flatMap((module) =>
       module.lessons.map((lesson) => lesson.id))).toEqual([
       'm2-portfolio-brief',
+      'm2-content-evidence-inventory',
+      'm2-visual-reference',
+      'm2-portfolio-prd',
+      'm2-implementation-contract',
       'm3-scaffold-baseline',
       'm4-release-validation'
     ])
@@ -56,6 +60,18 @@ describe('portfolio course registry', () => {
     expect(() => validateCourseModuleDefinitions(definitions)).toThrow('Broken scene destination')
   })
 
+  it('rejects a scene routed to a different lesson than its checkpoint', () => {
+    const definitions = mutableDefinitions()
+    definitions[0] = {
+      ...definitions[0]!,
+      scenes: [{
+        ...definitions[0]!.scenes[0]!,
+        courseLessonId: 'm2-content-evidence-inventory'
+      }]
+    }
+    expect(() => validateCourseModuleDefinitions(definitions)).toThrow('different lessons')
+  })
+
   it('rejects module-order errors', () => {
     const definitions = mutableDefinitions()
     definitions.reverse()
@@ -83,5 +99,26 @@ describe('portfolio course registry', () => {
     expect(learningWindowSource).not.toContain("'module-2-portfolio-placeholder': {")
     expect(registrySource).toContain('validateRendererRegistry()')
     expect(registrySource).toContain('moduleTwoScenes')
+  })
+
+  it('renders the complete Module 2 journey and every quiz scene from the registry', () => {
+    const moduleTwo = portfolioModuleDefinitions[0]
+    expect(moduleTwo.lessons).toHaveLength(5)
+    expect(moduleTwo.quizGroupIds).toEqual([
+      'brief-retrieval',
+      'evidence-retrieval',
+      'reference-retrieval',
+      'prd-retrieval',
+      'planning-retrieval',
+      'final-assessment'
+    ])
+    expect(moduleTwo.scenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
+      'module-2-portfolio-workspace',
+      'module-2-portfolio-practice',
+      'module-2-portfolio-mastery',
+      'module-2-portfolio-mastery-summary'
+    ]))
+    expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-check-'))).toHaveLength(10)
+    expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-mastery-'))).toHaveLength(10)
   })
 })
