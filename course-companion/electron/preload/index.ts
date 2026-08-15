@@ -8,6 +8,8 @@ import type {
   LearnerProgress,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioWorkspaceRequest,
+  PortfolioWorkspaceView,
   PracticeReviewResponse,
   PracticeStartRequest,
   PracticeWorkspaceView,
@@ -69,6 +71,12 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.on('course:companion-mode-changed', listener)
     return () => ipcRenderer.removeListener('course:companion-mode-changed', listener)
   },
+  loadPortfolioWorkspace: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:load-portfolio-workspace', request) as Promise<PortfolioWorkspaceView>,
+  choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:choose-portfolio-workspace', request) as Promise<PortfolioWorkspaceView>,
+  confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:confirm-portfolio-planning', request) as Promise<PortfolioWorkspaceView>,
   loadAppSettings: () =>
     ipcRenderer.invoke('course:load-app-settings') as Promise<AppSettings>,
   saveAppSettings: (update: AppSettingsUpdate) =>

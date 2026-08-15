@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron'
 import { existsSync, mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import type {
@@ -7,6 +7,8 @@ import type {
   PracticeFixtureRequest,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioWorkspaceRequest,
+  PortfolioWorkspaceView,
   PracticeStartRequest,
   ProgressUpdate,
   RuntimeInfo,
@@ -40,6 +42,10 @@ import { TestCodexGateway } from './test-codex-gateway'
 import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
 import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
+import {
+  PortfolioWorkspaceError,
+  PortfolioWorkspaceRepository
+} from './portfolio-workspace-repository'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
   app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
@@ -68,11 +74,15 @@ const practiceDefinitionRepository = new PracticeDefinitionRepository(
 )
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
+const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
+const portfolioWorkspaceRepository = new PortfolioWorkspaceRepository(
+  app.getPath('userData'),
+  courseRoot
+)
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
-const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
 const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot)
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
@@ -340,6 +350,29 @@ function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
   )
 }
 
+function isPortfolioWorkspaceRequest(value: unknown): value is PortfolioWorkspaceRequest {
+  return isRecord(value)
+    && Object.keys(value).length === 1
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.courseRunId))
+}
+
+function portfolioWorkspaceFailure(
+  request: PortfolioWorkspaceRequest,
+  error: unknown
+): PortfolioWorkspaceView {
+  return {
+    schemaVersion: 1,
+    courseRunId: request.courseRunId,
+    status: error instanceof PortfolioWorkspaceError ? 'rejected' : 'error',
+    observedAt: new Date().toISOString(),
+    message: error instanceof PortfolioWorkspaceError
+      ? error.message
+      : 'Không thể kiểm tra thư mục này. Hãy thử lại.',
+    canChoose: true,
+    canConfirmPlanning: false
+  }
+}
+
 function isDigest(value: unknown): value is string {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
 }
@@ -405,7 +438,12 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:reset-progress', async () => {
-    await Promise.all([progressRepository.reset(), teacherService.reset(), practiceCoordinator.reset()])
+    await Promise.all([
+      progressRepository.reset(),
+      portfolioWorkspaceRepository.reset(),
+      teacherService.reset(),
+      practiceCoordinator.reset()
+    ])
     companionMode = 'compact'
     companionAlwaysOnTop = true
     applyCompanionTopmost()
@@ -420,6 +458,43 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
 
   ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
+
+  ipcMain.handle('course:load-portfolio-workspace', (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    return portfolioWorkspaceRepository.load(request).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
+
+  ipcMain.handle('course:choose-portfolio-workspace', async (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    const deterministicPath = useTestCodexGateway
+      ? process.env.COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE
+      : undefined
+    const selection = deterministicPath
+      ? { canceled: false, filePaths: [deterministicPath] }
+      : mainWindow
+        ? await dialog.showOpenDialog(mainWindow, {
+            title: 'Chọn thư mục dành cho portfolio',
+            buttonLabel: 'Chọn thư mục này',
+            properties: ['openDirectory', 'createDirectory']
+          })
+        : await dialog.showOpenDialog({
+            title: 'Chọn thư mục dành cho portfolio',
+            buttonLabel: 'Chọn thư mục này',
+            properties: ['openDirectory', 'createDirectory']
+          })
+    if (selection.canceled || !selection.filePaths[0]) {
+      return portfolioWorkspaceRepository.load(request)
+    }
+    return portfolioWorkspaceRepository.selectPath(request, selection.filePaths[0]).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
+
+  ipcMain.handle('course:confirm-portfolio-planning', (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    return portfolioWorkspaceRepository.confirmPlanning(request).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
 
   ipcMain.handle('course:load-practice-workspace', (_event, identity) => (
     practiceCoordinator.loadWorkspace(isRecord(identity) ? {

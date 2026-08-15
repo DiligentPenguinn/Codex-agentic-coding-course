@@ -815,6 +815,32 @@ export type PracticeStartRequest = {
 
 export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
 
+export type PortfolioWorkspaceStatus =
+  | 'unselected'
+  | 'awaiting-confirmation'
+  | 'ready'
+  | 'missing'
+  | 'permission-denied'
+  | 'rejected'
+  | 'error'
+
+export type PortfolioWorkspaceView = {
+  schemaVersion: 1
+  courseRunId: string
+  status: PortfolioWorkspaceStatus
+  selectedPath?: string
+  folderName?: string
+  planningPath?: string
+  observedAt: string
+  message: string
+  canChoose: boolean
+  canConfirmPlanning: boolean
+}
+
+export type PortfolioWorkspaceRequest = {
+  courseRunId: string
+}
+
 type PlanningActionIdentity = PracticeIdentity & {
   runId: string
   generation: number
@@ -881,6 +907,9 @@ export type CourseCompanionApi = {
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
   onFullTeacherRequested: (callback: () => void) => () => void
   onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => () => void
+  loadPortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
+  choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
+  confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>

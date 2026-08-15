@@ -37,6 +37,7 @@ import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementatio
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
+import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -2869,7 +2870,9 @@ export function LearningWindow() {
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        {scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
+        {displayedSceneId === 'module-2-portfolio-placeholder' ? (
+          <PortfolioWorkspacePicker courseRunId={progress.courseRunId} />
+        ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`

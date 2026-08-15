@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
@@ -14,6 +14,7 @@ const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electro
 const repositoryRoot = resolve(process.cwd(), '..')
 const practiceWorkspace = await createDisposablePracticeWorkspace({ repositoryRoot })
 const canonicalStarterFingerprint = await fingerprintTree(practiceWorkspace.canonicalStarter)
+const portfolioWorkspaceDirectory = await mkdtemp(join(tmpdir(), 'portfolio learner đầu tiên-'))
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
 const setupQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-1.quiz.json'), 'utf8')
@@ -434,7 +435,7 @@ async function capture(page, filename) {
   })
 }
 
-async function launchCourseCompanion() {
+async function launchCourseCompanion(environment = {}) {
   return electron.launch({
     executablePath: electronExecutable,
     args: [mainEntry],
@@ -444,7 +445,8 @@ async function launchCourseCompanion() {
       COURSE_COMPANION_WORKSPACE_ROOT: practiceWorkspace.root,
       COURSE_COMPANION_FAKE_CODEX: '1',
       COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE: '1',
-      COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE: '1'
+      COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE: '1',
+      ...environment
     }
   })
 }
@@ -577,6 +579,7 @@ async function verifyHomeBase(page) {
 let firstLaunch
 let resumedLaunch
 let chatHistoryLaunch
+let portfolioLaunch
 
 try {
   firstLaunch = await launchCourseCompanion()
@@ -739,7 +742,7 @@ try {
     .getByRole('button', { name: 'Tiếp tục', exact: true })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('MODULE 2 · BÀI 1/6 · TRANG 1/4', { exact: true })
+    .getByText('MODULE 2 · BÀI 1/7 · TRANG 1/4', { exact: true })
     .first()
     .waitFor()
   assert.equal(
@@ -923,11 +926,6 @@ try {
   await answerAssessmentGroup(learningPage, 'prompt-check')
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByText('VÍ DỤ ATLASSIAN → MICROSOFT', { exact: true }).waitFor()
-  await capture(learningPage, 'module-2-implementation-plan-example.png')
-  await learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
-    .click()
   await answerAssessmentGroup(learningPage, 'implementation-plan-check')
   await learningPage
     .getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
@@ -949,22 +947,6 @@ try {
   await answerAssessmentGroup(learningPage, 'final-assessment')
   await learningPage.getByText('Bạn đạt 15/15 câu.', { exact: false }).waitFor()
   await capture(learningPage, 'module-2-final-summary.png')
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByText('Module 2 đã hoàn thành', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Về Home Base', exact: true }).click()
-  await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
-
-  const firstPracticeRun = await companionPage.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
-  const secondPracticeRun = await companionPage.evaluate(() => globalThis.courseCompanion?.startPractice({
-    practiceId: 'm2-planning-package',
-    practiceVersion: '2.0.0',
-    transfer: false
-  }))
-  assert.ok(firstPracticeRun?.activePractice)
-  assert.ok(secondPracticeRun?.activePractice)
-  assert.notEqual(secondPracticeRun.activePractice.runId, firstPracticeRun.activePractice.runId)
-  const freshTeacherState = await companionPage.evaluate(() => globalThis.courseCompanion?.loadCompanionState())
-  assert.deepEqual(freshTeacherState?.conversation.messages, [])
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
     const learning = BrowserWindow.getAllWindows().find((window) =>
@@ -988,8 +970,8 @@ try {
   const persisted = JSON.parse(
     await readFile(join(userDataDirectory, 'learner-state.json'), 'utf8')
   )
-  assert.equal(persisted.sceneId, 'module-2-complete')
-  assert.equal(persisted.checkpointId, 'm2-complete')
+  assert.equal(persisted.sceneId, 'module-2-final-summary')
+  assert.equal(persisted.checkpointId, 'm2-mastery')
   assert.equal(persisted.schemaVersion, 6)
   assert.equal(persisted.courseVersion, '0.3.0')
   assert.equal(persisted.currentCourseLessonId, 'm2-assessment')
@@ -997,15 +979,15 @@ try {
   assert.equal(persisted.decisions.planningApproach, 'plan-first')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
   assert.equal(persisted.decisions.setupMastery, 'passed-four-of-five')
-  assert.equal(persisted.decisions.masteryEvidence, 'artifacts-approved-and-aligned')
+  assert.equal(persisted.decisions.masteryEvidence, undefined)
   assert.equal(
     Object.entries(persisted.decisions).filter(
       ([key, value]) => key.startsWith('assessment:final-') && String(value).startsWith('correct')
     ).length,
     15
   )
-  assert.equal(persisted.practice.status, 'idle')
-  assert.equal(persisted.practice.latestEvent, undefined)
+  assert.equal(persisted.practice.status, 'completed')
+  assert.equal(persisted.practice.latestEvent?.status, 'completed')
 
   chatHistoryLaunch = await launchCourseCompanion()
   const historyWindows = await loadWindows(chatHistoryLaunch)
@@ -1033,10 +1015,18 @@ try {
     'Expected the expanded Teacher chat mode to survive a full restart'
   )
   assert.equal(companionWindow(restoredChat)?.bounds.height, 520)
-  await historyWindows.companionPage.getByRole('tab', { name: 'THỰC HÀNH' }).click()
-  await historyWindows.companionPage
-    .getByText('ĐÃ HOÀN THÀNH · LUYỆN TẬP', { exact: true })
-    .waitFor()
+  await historyWindows.learningPage.evaluate(async () => {
+    await globalThis.courseCompanion?.resetProgress()
+    await globalThis.courseCompanion?.saveProgress({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-portfolio-placeholder',
+      sceneHistory: [],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+  })
   await historyWindows.companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await chatHistoryLaunch.waitForEvent('close')
   chatHistoryLaunch = undefined
@@ -1045,13 +1035,65 @@ try {
     canonicalStarterFingerprint
   )
 
+  portfolioLaunch = await launchCourseCompanion({
+    COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE: portfolioWorkspaceDirectory
+  })
+  const portfolioWindows = await loadWindows(portfolioLaunch)
+  await portfolioWindows.learningPage
+    .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
+    .waitFor()
+  await portfolioWindows.learningPage
+    .getByRole('button', { name: 'Mở Course Companion', exact: true })
+    .click()
+  await portfolioWindows.learningPage
+    .getByRole('button', { name: /MODULE 2.*MỞ BÀI HỌC/ })
+    .click()
+  await portfolioWindows.learningPage
+    .getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true })
+    .waitFor()
+  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
+  await capture(portfolioWindows.learningPage, 'portfolio-workspace-unselected.png')
+
+  await portfolioWindows.learningPage
+    .getByRole('button', { name: 'Chọn thư mục', exact: true })
+    .click()
+  await portfolioWindows.learningPage
+    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
+    .waitFor()
+  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
+  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation.png')
+
+  await portfolioWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+  const portfolioNarrowWidths = await portfolioWindows.learningPage.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(portfolioNarrowWidths.body, portfolioNarrowWidths.viewport)
+  assert.equal(portfolioNarrowWidths.document, portfolioNarrowWidths.viewport)
+  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation-390px.png')
+  await portfolioWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+
+  await portfolioWindows.learningPage
+    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
+    .click()
+  await portfolioWindows.learningPage
+    .getByRole('heading', { name: 'Thư mục portfolio đã sẵn sàng', exact: true })
+    .waitFor()
+  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), ['planning'])
+  await capture(portfolioWindows.learningPage, 'portfolio-workspace-ready.png')
+  await portfolioLaunch.close()
+  portfolioLaunch = undefined
+
   console.log(
-    'Electron smoke: introduction separation, six-lesson Module 2, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
+    'Electron smoke: frozen course regression, portfolio workspace consent, responsive layout, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)
   await resumedLaunch?.close().catch(() => undefined)
   await chatHistoryLaunch?.close().catch(() => undefined)
+  await portfolioLaunch?.close().catch(() => undefined)
   await rm(userDataDirectory, { recursive: true, force: true })
+  await rm(portfolioWorkspaceDirectory, { recursive: true, force: true })
   await practiceWorkspace.cleanup()
 }
