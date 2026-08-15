@@ -1,8 +1,9 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation and Module 2 are implemented; owner acceptance is
-  pending. Module 3 implementation is in progress. F0.2 was removed by decision
-  on 14 August 2026.
+- **Status:** Foundation, Module 2, and Module 3 are implemented; owner
+  acceptance is pending. The M4.0 provider rehearsal is complete and its
+  provider-flow decision is pending owner approval. F0.2 was removed by
+  decision on 14 August 2026.
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
   next module
@@ -22,8 +23,8 @@ and must never be inferred from a passing automated check.
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Present the Foundation evidence for owner review; do not infer approval. |
 | Module 2 | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
-| Module 3 | `in-progress` — curriculum contract committed; additional renderer work is uncommitted and unreviewed | `pending` | `pending` | `pending` | Reconcile the active work with the Module 3 decision and acceptance gates before any further phase transition. |
-| Module 4 | `not-started` | `pending` | `pending` | `pending` | Do not begin before Module 3 is approved and accepted. |
+| Module 3 | `implemented` | `passed` — full automated suite, production build, and Electron smoke at `659cbc9` on 15 August 2026 | `pending` | `pending` | Present Module 3 evidence for owner review; do not infer approval. |
+| Module 4 | `M4.0 rehearsal complete`; provider flow not locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` | `pending` | Approve one provider flow before M4.1 learner-facing authoring. |
 
 ## Purpose
 
@@ -889,6 +890,18 @@ proves ownership and transfer.
 ### M4.0 — Rehearse and lock one supported Vercel path
 
 This is an implementation spike, not learner content.
+
+**Rehearsal evidence:**
+[Portfolio Course Vercel Rehearsal — 16 August 2026](portfolio-course-vercel-rehearsal-2026-08-16.md)
+records the completed dashboard, linked-project CLI, CLI-only, protection,
+responsive, log, and cleanup checks. The recommended provider flow remains
+pending owner approval.
+
+**Provider constraint found:** Vercel assigned the first deployment of each new
+project to Production in both tested creation flows. Subsequent CLI deployments
+without `--prod` were Preview deployments. The pending recommendation therefore
+uses a learner-approved neutral bootstrap page so that the learner's real
+portfolio is not the unavoidable first public Production deployment.
 
 **Change**
 
