@@ -110,81 +110,81 @@
     {
       "id": "module-2",
       "kind": "module",
-      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
-      "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
-      "estimatedMinutes": 110,
+      "titleVi": "Xác định, giới hạn và lập kế hoạch portfolio",
+      "titleEn": "Define, scope, and plan the portfolio",
       "lessonPath": "course/lessons/module-2.vi.md",
       "scriptPath": "course/lesson-scripts/module-2.script.vi.md",
       "quizPath": "course/quizzes/module-2.quiz.json",
       "promptPath": "course/prompts/start-module-2.vi.md",
       "artifactPaths": [
-        "artifacts/PRD.md",
-        "artifacts/implementation-plan.md"
+        "planning/portfolio-brief.md",
+        "planning/content-evidence-inventory.md",
+        "planning/reference/reference.md",
+        "planning/PRD.md",
+        "planning/requirement-validation-map.md",
+        "planning/implementation-plan.md",
+        "planning/first-bounded-task.md"
       ],
-      "artifactGateCheckpoint": "m2-planning-package",
+      "artifactGateCheckpoint": "m2-portfolio-planning",
+      "masteryGateCheckpoint": "m2-portfolio-mastery",
+      "unlockGate": {
+        "nextLessonId": "module-3",
+        "requiresCurrentArtifactDigests": true,
+        "requiresLearnerApproval": true,
+        "requiresStageReceiptCount": 5,
+        "requiresMasteryReceipt": true
+      },
       "checkpoints": [
-        "m2-why-planning",
-        "m2-contentpilot-brief",
-        "m2-prd-concept",
-        "m2-prd-interview",
-        "m2-implementation-plan",
-        "m2-planning-package",
-        "m2-mastery",
-        "m2-complete"
+        "m2-portfolio-brief",
+        "m2-content-evidence-inventory",
+        "m2-visual-reference",
+        "m2-portfolio-prd",
+        "m2-implementation-contract",
+        "m2-portfolio-planning",
+        "m2-portfolio-mastery",
+        "m2-portfolio-complete"
       ],
       "lessons": [
         {
-          "id": "m2-when-to-plan",
-          "titleVi": "Khi nào cần planning",
-          "estimatedMinutes": 15,
+          "id": "m2-portfolio-brief",
+          "titleVi": "Tạo bản mô tả ngắn cho portfolio",
           "checkpoints": [
-            "m2-why-planning",
-            "m2-contentpilot-brief"
+            "m2-portfolio-brief"
           ]
         },
         {
-          "id": "m2-product-requirements",
-          "titleVi": "Từ ý tưởng đến PRD",
-          "estimatedMinutes": 25,
+          "id": "m2-content-evidence-inventory",
+          "titleVi": "Kiểm kê nội dung và bằng chứng",
           "checkpoints": [
-            "m2-prd-concept"
+            "m2-content-evidence-inventory"
           ]
         },
         {
-          "id": "m2-prd-prompt",
-          "titleVi": "Viết prompt để tạo PRD",
-          "estimatedMinutes": 20,
+          "id": "m2-visual-reference",
+          "titleVi": "Chọn một tham chiếu hình ảnh",
           "checkpoints": [
-            "m2-prd-interview"
+            "m2-visual-reference"
           ]
         },
         {
-          "id": "m2-implementation-plan",
-          "titleVi": "Từ PRD đến implementation plan",
-          "estimatedMinutes": 20,
+          "id": "m2-portfolio-prd",
+          "titleVi": "Tạo và duyệt PRD cho portfolio",
           "checkpoints": [
-            "m2-implementation-plan"
+            "m2-portfolio-prd"
           ]
         },
         {
-          "id": "m2-prd-review",
-          "titleVi": "Thực hành tạo planning package",
-          "estimatedMinutes": 10,
+          "id": "m2-implementation-contract",
+          "titleVi": "Tạo hợp đồng xây dựng và kiểm chứng",
           "checkpoints": [
-            "m2-planning-package"
-          ]
-        },
-        {
-          "id": "m2-assessment",
-          "titleVi": "Kiểm tra và hoàn thành Module 2",
-          "estimatedMinutes": 20,
-          "checkpoints": [
-            "m2-mastery",
-            "m2-complete"
+            "m2-implementation-contract",
+            "m2-portfolio-planning",
+            "m2-portfolio-mastery",
+            "m2-portfolio-complete"
           ]
         }
       ],
-      "nextLessonId": null
+      "nextLessonId": "module-3"
     }
   ]
 }

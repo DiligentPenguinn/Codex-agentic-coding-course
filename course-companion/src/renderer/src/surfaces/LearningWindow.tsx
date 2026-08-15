@@ -1155,6 +1155,18 @@ const introModule = courseStructure.modules.find((module) => module.id === 'intr
 const setupModule = courseStructure.modules.find((module) => module.id === 'module-1')
 const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
 
+// Temporary renderer compatibility only. The Pilot manifest owns the current
+// Module 2 contract; these legacy lessons remain reachable until M2.5 replaces
+// their hard-coded scenes with the portfolio renderer.
+const legacyPlanningLessonDefinitions: CourseLessonDefinition[] = [
+  { id: 'm2-when-to-plan', titleVi: 'Khi nào cần planning' },
+  { id: 'm2-product-requirements', titleVi: 'Từ ý tưởng đến PRD' },
+  { id: 'm2-prd-prompt', titleVi: 'Viết prompt để tạo PRD' },
+  { id: 'm2-implementation-plan', titleVi: 'Từ PRD đến implementation plan' },
+  { id: 'm2-prd-review', titleVi: 'Thực hành tạo planning package' },
+  { id: 'm2-assessment', titleVi: 'Kiểm tra và hoàn thành Module 2' }
+]
+
 const courseLessonDefinitions: CourseLessonDefinition[] = [
   ...(introModule?.lessons ?? []).map((lesson) => ({
     id: lesson.id as CourseLessonId,
@@ -1164,10 +1176,7 @@ const courseLessonDefinitions: CourseLessonDefinition[] = [
     id: lesson.id as CourseLessonId,
     titleVi: lesson.titleVi
   })),
-  ...(planningModule?.lessons ?? []).map((lesson) => ({
-    id: lesson.id as CourseLessonId,
-    titleVi: lesson.titleVi
-  })),
+  ...legacyPlanningLessonDefinitions,
   ...registryLessonDefinitions
 ]
 const courseLessonTitle = new Map(
@@ -1176,7 +1185,7 @@ const courseLessonTitle = new Map(
 const moduleLessonIds: Record<Exclude<LessonId, 'intro'>, CourseLessonId[]> = {
   'module-1': setupModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? [],
   'module-2': [
-    ...(planningModule?.lessons?.map((lesson) => lesson.id as CourseLessonId) ?? []),
+    ...legacyPlanningLessonDefinitions.map((lesson) => lesson.id),
     ...registryModuleLessonIds['module-2']
   ],
   'module-3': registryModuleLessonIds['module-3'],

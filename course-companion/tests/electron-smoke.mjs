@@ -554,10 +554,10 @@ async function verifyHomeBase(page) {
     .getByText('Bắt đầu làm việc với Codex', { exact: true })
     .waitFor()
   await page
-    .getByText('Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt', { exact: true })
+    .getByText('Xác định, giới hạn và lập kế hoạch portfolio', { exact: true })
     .waitFor()
   await page.getByText('MODULE 1 · 4 BÀI HỌC', { exact: true }).waitFor()
-  await page.getByText('MODULE 2 · 6 BÀI HỌC', { exact: true }).waitFor()
+  await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
     await page.setViewportSize({ width: 390, height: 844 })
