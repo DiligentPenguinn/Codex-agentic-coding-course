@@ -1,7 +1,8 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation implementation in progress; F0.2 removed by decision
-  on 14 August 2026
+- **Status:** Foundation and Module 2 are implemented; owner acceptance is
+  pending. Module 3 implementation is in progress. F0.2 was removed by decision
+  on 14 August 2026.
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
   next module
@@ -9,6 +10,20 @@
   completion-time promise
 - **Practice project:** One learner-owned portfolio workspace shared by Modules
   2–4
+
+## Progress ledger
+
+Update this ledger from repository evidence as part of each affected
+checkpoint's definition of done. Implementation and verification are technical
+states. Owner approval and pilot acceptance require their own explicit evidence
+and must never be inferred from a passing automated check.
+
+| Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Present the Foundation evidence for owner review; do not infer approval. |
+| Module 2 | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
+| Module 3 | `in-progress` — curriculum contract committed; additional renderer work is uncommitted and unreviewed | `pending` | `pending` | `pending` | Reconcile the active work with the Module 3 decision and acceptance gates before any further phase transition. |
+| Module 4 | `not-started` | `pending` | `pending` | `pending` | Do not begin before Module 3 is approved and accepted. |
 
 ## Purpose
 

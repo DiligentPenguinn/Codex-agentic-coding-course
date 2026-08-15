@@ -22,6 +22,30 @@
   outcomes, cost exposure, safety, external side effects, or a decision that is
   difficult to reverse.
 
+## Implementation Plan Synchronization
+
+- Updating `docs/planning/portfolio-course-implementation-plan.md` is part of
+  the definition of done for any task that implements, verifies, changes, or
+  blocks one of its numbered checkpoints or acceptance gates.
+- Before the final response and before creating a qualifying local checkpoint
+  commit:
+  1. Re-read the affected implementation-plan checkpoint.
+  2. Inspect the actual changed files and current verification output.
+  3. Update the progress ledger and any affected status text in the plan.
+  4. Record remaining gaps, blocked checks, and the next permitted action.
+  5. Include the plan update in the same scoped local commit when it can be
+     isolated safely.
+- The agent may set implementation status to `not-started`, `in-progress`, or
+  `implemented`, and verification status to `pending`, `passed`, `failed`, or
+  `blocked`, only when repository evidence supports the transition.
+- The agent must not mark owner approval as `approved` without explicit user
+  approval, or pilot acceptance as `accepted` without the required rehearsal or
+  learner evidence.
+- Do not begin the next module while the current module still requires owner
+  approval or its required acceptance gate has not passed.
+- If implementation changed but the plan cannot be updated safely, stop before
+  committing and report the mismatch.
+
 ## Vietnamese Language
 
 - When writing Vietnamese for this project, always use correct Vietnamese diacritics and tone marks.
