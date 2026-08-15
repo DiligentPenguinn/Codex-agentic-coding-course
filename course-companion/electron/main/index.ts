@@ -7,6 +7,7 @@ import type {
   PracticeFixtureRequest,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
   PortfolioWorkspaceRequest,
   PortfolioWorkspaceView,
   PracticeStartRequest,
@@ -42,6 +43,7 @@ import { TestCodexGateway } from './test-codex-gateway'
 import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
 import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
+import { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
 import {
   PortfolioWorkspaceError,
   PortfolioWorkspaceRepository
@@ -70,7 +72,8 @@ function practiceDefinitionsDirectory(): string {
 }
 
 const practiceDefinitionRepository = new PracticeDefinitionRepository(
-  practiceDefinitionsDirectory()
+  practiceDefinitionsDirectory(),
+  resolve(app.getAppPath(), '..', 'pilot-workspace', 'course', 'practices')
 )
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
@@ -165,7 +168,8 @@ const activityRepository = new ExecutorActivityRepository(app.getPath('userData'
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
   new CodexConfigurationEvidenceAdapter(activityObserver),
-  new PlanningPackageEvidenceAdapter(activityObserver)
+  new PlanningPackageEvidenceAdapter(activityObserver),
+  new PortfolioPlanningEvidenceAdapter(activityObserver)
 ])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
@@ -421,6 +425,19 @@ function isPlanningPracticeActionRequest(value: unknown): value is PlanningPract
   return false
 }
 
+function isPortfolioStageActionRequest(value: unknown): value is PortfolioStageActionRequest {
+  return isRecord(value)
+    && Object.keys(value).length === 7
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.runId))
+    && Number.isSafeInteger(value.generation)
+    && Number(value.generation) > 0
+    && value.practiceId === 'm2-portfolio-planning'
+    && value.practiceVersion === '1.0.0'
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.courseRunId))
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.stageId))
+    && (value.decision === 'approved' || value.decision === 'revision-requested')
+}
+
 async function enterPracticeCompanion(): Promise<void> {
   companionMode = 'compact'
   await teacherRepository.saveMode(companionMode)
@@ -555,6 +572,16 @@ function registerIpcHandlers(): void {
         throw new Error('Invalid Module 2 Practice action')
       }
       return practiceCoordinator.recordPlanningAction(request)
+    }
+  )
+
+  ipcMain.handle(
+    'course:record-portfolio-stage-action',
+    (_event, request: PortfolioStageActionRequest) => {
+      if (!isPortfolioStageActionRequest(request)) {
+        throw new Error('Invalid portfolio Practice stage action')
+      }
+      return practiceCoordinator.recordPortfolioStageAction(request)
     }
   )
 

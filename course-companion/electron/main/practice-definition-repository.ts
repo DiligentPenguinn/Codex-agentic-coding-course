@@ -366,14 +366,26 @@ export function parseLegacyPracticeDefinitionV1(value: unknown): LegacyPracticeD
 }
 
 export class PracticeDefinitionRepository {
-  constructor(private readonly directory: string) {}
+  constructor(
+    private readonly directory: string,
+    private readonly fallbackDirectory?: string
+  ) {}
+
+  private async readDefinition(practiceId: string): Promise<unknown> {
+    try {
+      return JSON.parse(await readFile(join(this.directory, practiceId + '.json'), 'utf8')) as unknown
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT' || !this.fallbackDirectory) throw error
+      return JSON.parse(await readFile(join(this.fallbackDirectory, practiceId + '.json'), 'utf8')) as unknown
+    }
+  }
 
   async load(practiceId: string, expectedVersion?: string): Promise<PracticeDefinition> {
     if (!ID.test(practiceId)) throw new Error('Invalid Practice id')
     if (expectedVersion !== undefined && !VERSION.test(expectedVersion)) {
       throw new Error('Invalid Practice version')
     }
-    const parsed: unknown = JSON.parse(await readFile(join(this.directory, practiceId + '.json'), 'utf8'))
+    const parsed = await this.readDefinition(practiceId)
     const definition = parsePracticeDefinition(parsed)
     if (definition.practiceId !== practiceId) throw new Error('Practice definition id mismatch')
     if (expectedVersion !== undefined && definition.version !== expectedVersion) {
@@ -384,7 +396,7 @@ export class PracticeDefinitionRepository {
 
   async loadLegacyV1(practiceId: string): Promise<LegacyPracticeDefinitionV1> {
     if (!ID.test(practiceId)) throw new Error('Invalid Practice id')
-    const parsed: unknown = JSON.parse(await readFile(join(this.directory, practiceId + '.json'), 'utf8'))
+    const parsed = await this.readDefinition(practiceId)
     const definition = parseLegacyPracticeDefinitionV1(parsed)
     if (definition.practiceId !== practiceId) throw new Error('Practice definition id mismatch')
     return definition

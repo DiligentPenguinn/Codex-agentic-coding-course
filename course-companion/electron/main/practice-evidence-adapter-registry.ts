@@ -12,7 +12,7 @@ export class PracticeEvidenceAdapterRegistry {
       }
       byProfile.set(adapter.evidenceProfile, adapter)
     }
-    for (const profile of ['codex-task-configuration', 'planning-package'] as const) {
+    for (const profile of ['codex-task-configuration', 'planning-package', 'portfolio-planning'] as const) {
       if (!byProfile.has(profile)) {
         throw new Error(`Missing Practice evidence adapter: ${profile}`)
       }

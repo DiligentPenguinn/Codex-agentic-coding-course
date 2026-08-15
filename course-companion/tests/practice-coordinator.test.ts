@@ -342,7 +342,8 @@ describe('PracticeCoordinator', () => {
       undefined,
       new PracticeEvidenceAdapterRegistry([
         adapter('codex-task-configuration'),
-        adapter('planning-package')
+        adapter('planning-package'),
+        adapter('portfolio-planning')
       ])
     )
     await coordinator.startNew({ ...m2Identity, transfer: false })
@@ -508,7 +509,8 @@ describe('PracticeCoordinator', () => {
       undefined,
       new PracticeEvidenceAdapterRegistry([
         failingAdapter('codex-task-configuration'),
-        failingAdapter('planning-package')
+        failingAdapter('planning-package'),
+        failingAdapter('portfolio-planning')
       ])
     )
     await coordinator.startNew({ ...m2Identity, transfer: false })

@@ -654,6 +654,69 @@ export type PracticeStageReceipt = {
   staleReason?: string
 }
 
+export const portfolioPlanningArtifactPaths = [
+  'planning/portfolio-brief.md',
+  'planning/content-evidence-inventory.md',
+  'planning/reference/reference.md',
+  'planning/PRD.md',
+  'planning/requirement-validation-map.md',
+  'planning/implementation-plan.md',
+  'planning/first-bounded-task.md'
+] as const
+
+export type PortfolioPlanningArtifactPath = (typeof portfolioPlanningArtifactPaths)[number]
+
+export type PortfolioPlanningArtifactSnapshot = {
+  path: string
+  digest: string
+  byteLength: number
+  modifiedAt: string
+  observedAt: string
+}
+
+export type PortfolioPlanningIssue = {
+  stageId: string
+  path: string
+  code:
+    | 'missing'
+    | 'empty'
+    | 'oversized'
+    | 'directory'
+    | 'symlink'
+    | 'escaping'
+    | 'invalid-utf8'
+    | 'placeholder'
+    | 'missing-section'
+    | 'missing-approval'
+    | 'invalid-evidence-label'
+    | 'privacy-review-incomplete'
+    | 'permission-metadata-missing'
+    | 'missing-reference-screenshot'
+    | 'requirement-coverage'
+    | 'invalid-plan-boundary'
+    | 'unexpected-workspace-change'
+  message: string
+}
+
+export type PortfolioPlanningStageEvidence = {
+  stageId: string
+  stageIndex: 1 | 2 | 3 | 4 | 5
+  status: 'ready' | 'blocked'
+  artifactDigests: Record<string, string>
+  executorReportedChecks: string[]
+  corroboratedArtifacts: Record<string, string>
+  issueCodes: PortfolioPlanningIssue['code'][]
+}
+
+export type PortfolioPlanningEvidenceState = {
+  schemaVersion: 1
+  workspaceIdentityDigest: string
+  artifacts: PortfolioPlanningArtifactSnapshot[]
+  issues: PortfolioPlanningIssue[]
+  unexpectedPaths: string[]
+  stages: PortfolioPlanningStageEvidence[]
+}
+
 export type PracticeEvidenceReference = {
   id: string
   kind: PracticeEvidenceKind
@@ -733,6 +796,7 @@ export type PracticeAdapterEvidenceState = {
   artifactIssues?: PlanningArtifactIssue[]
   unexpectedChangedPaths?: string[]
   planningActivity?: PlanningActivityEvidence
+  portfolioPlanning?: PortfolioPlanningEvidenceState
 }
 
 export type PracticeCriterionReview = {
@@ -816,6 +880,19 @@ export type PracticeWorkspaceView = {
   completion?: PracticeCompletionReceipt
   configuration?: CodexTaskConfigurationSnapshot
   planning?: PracticePlanningWorkspaceView
+  portfolioPlanning?: {
+    freshness: 'fresh' | 'stale' | 'unverifiable'
+    observedAt?: string
+    unexpectedPaths: string[]
+    stages: Array<{
+      stageId: string
+      stageIndex: 1 | 2 | 3 | 4 | 5
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      artifactPaths: string[]
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+  }
   completionDestination?: PracticeDefinition['completionDestination']
 
   activePractice?: {
@@ -902,6 +979,12 @@ export type PlanningPracticeActionRequest = PlanningActionIdentity & {
       }
 }
 
+export type PortfolioStageActionRequest = PlanningActionIdentity & {
+  courseRunId: string
+  stageId: string
+  decision: 'approved' | 'revision-requested'
+}
+
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
   panel: PracticePanel
@@ -914,6 +997,7 @@ export type PracticeWorkspaceAdapter = {
   retry: () => Promise<PracticeWorkspaceView>
   cancel: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
   selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reset: () => Promise<void>
 }
@@ -954,6 +1038,7 @@ export type CourseCompanionApi = {
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
   returnPassedPractice: () => Promise<void>

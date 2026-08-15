@@ -275,6 +275,65 @@ function isEvidence(value: unknown): value is PracticeAdapterEvidenceState {
     && Array.isArray(value.invalidations)
     && (value.configuration === undefined || (isCodexTaskConfigurationSnapshot(value.configuration)
       && value.configuration.runId === value.runId))
+    && (value.portfolioPlanning === undefined || (
+      value.evidenceProfile === 'portfolio-planning'
+      && isPortfolioPlanningEvidence(value.portfolioPlanning)
+    ))
+}
+
+function isPortfolioPlanningEvidence(value: unknown): boolean {
+  if (!isRecord(value)
+    || value.schemaVersion !== 1
+    || !DIGEST.test(String(value.workspaceIdentityDigest))
+    || !Array.isArray(value.artifacts)
+    || value.artifacts.length > 100
+    || !Array.isArray(value.issues)
+    || value.issues.length > 200
+    || !Array.isArray(value.unexpectedPaths)
+    || value.unexpectedPaths.length > 500
+    || !value.unexpectedPaths.every((path) => typeof path === 'string' && path.length <= 500)
+    || !Array.isArray(value.stages)
+    || value.stages.length !== 5) return false
+  if (!value.artifacts.every((artifact) => isRecord(artifact)
+    && typeof artifact.path === 'string'
+    && artifact.path.length > 0
+    && artifact.path.length <= 500
+    && DIGEST.test(String(artifact.digest))
+    && Number.isSafeInteger(artifact.byteLength)
+    && Number(artifact.byteLength) > 0
+    && isIso(artifact.modifiedAt)
+    && isIso(artifact.observedAt))) return false
+  if (!value.issues.every((item) => isRecord(item)
+    && ID.test(String(item.stageId))
+    && typeof item.path === 'string'
+    && item.path.length <= 500
+    && typeof item.code === 'string'
+    && item.code.length <= 100
+    && typeof item.message === 'string'
+    && item.message.length <= 1000)) return false
+  const indexes = new Set<number>()
+  const ids = new Set<string>()
+  return value.stages.every((stage) => {
+    if (!isRecord(stage)
+      || !ID.test(String(stage.stageId))
+      || ![1, 2, 3, 4, 5].includes(Number(stage.stageIndex))
+      || (stage.status !== 'ready' && stage.status !== 'blocked')
+      || !isDigestRecord(stage.artifactDigests)
+      || !isDigestRecord(stage.corroboratedArtifacts)
+      || !sameDigestRecord(stage.artifactDigests, stage.corroboratedArtifacts)
+      || !Array.isArray(stage.executorReportedChecks)
+      || stage.executorReportedChecks.length > 40
+      || !stage.executorReportedChecks.every((check) => typeof check === 'string' && check.length <= 500)
+      || !Array.isArray(stage.issueCodes)
+      || stage.issueCodes.length > 30
+      || !stage.issueCodes.every((code) => typeof code === 'string' && code.length <= 100)) return false
+    const stageIndex = Number(stage.stageIndex)
+    const stageId = String(stage.stageId)
+    if (indexes.has(stageIndex) || ids.has(stageId)) return false
+    indexes.add(stageIndex)
+    ids.add(stageId)
+    return true
+  })
 }
 
 function isInvalidations(value: unknown): value is PracticeEvidenceInvalidation[] {
@@ -547,6 +606,33 @@ function dependentStageIds(
   return affected
 }
 
+function stagedChecklist(
+  definition: PracticeDefinition,
+  checklist: PracticeChecklistStep[],
+  receipts: PracticeStageReceipt[]
+): PracticeChecklistStep[] {
+  const byStage = new Map(receipts.map((receipt) => [receipt.stageId, receipt]))
+  let priorCurrent = true
+  return checklist.map((step) => {
+    const stage = portfolioStages(definition).find((candidate) => candidate.id === step.id)
+    if (!stage) return step
+    const receipt = byStage.get(stage.id)
+    const status = receipt?.freshness === 'current'
+      ? 'completed' as const
+      : receipt?.freshness === 'stale'
+        ? 'stale' as const
+        : priorCurrent
+          ? 'current' as const
+          : 'pending' as const
+    priorCurrent = status === 'completed'
+    return {
+      ...step,
+      status,
+      ...(receipt?.staleReason ? { reason: receipt.staleReason } : { reason: undefined })
+    }
+  })
+}
+
 export class PracticeRunRepository {
   private readonly statePath: string
   private readonly temporaryPath: string
@@ -681,6 +767,7 @@ export class PracticeRunRepository {
         activeRun: {
           ...active,
           stageReceipts: nextReceipts,
+          checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
           reviewStatus: 'not-reviewed',
           reviewResult: undefined,
           completion: undefined,
@@ -725,18 +812,20 @@ export class PracticeRunRepository {
               .map(([path]) => path)
           : []))
       const reason = `Artifact đã thay đổi: ${[...changedPaths].sort().join(', ')}`
+      const nextReceipts = receipts.map((receipt) => affected.has(receipt.stageId)
+        ? {
+            ...receipt,
+            status: 'stale' as const,
+            freshness: 'stale' as const,
+            staleReason: reason
+          }
+        : receipt)
       return this.saveDirect({
         ...record,
         activeRun: {
           ...active,
-          stageReceipts: receipts.map((receipt) => affected.has(receipt.stageId)
-            ? {
-                ...receipt,
-                status: 'stale' as const,
-                freshness: 'stale' as const,
-                staleReason: reason
-              }
-            : receipt),
+          stageReceipts: nextReceipts,
+          checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
           reviewStatus: 'not-reviewed',
           reviewResult: undefined,
           completion: undefined,

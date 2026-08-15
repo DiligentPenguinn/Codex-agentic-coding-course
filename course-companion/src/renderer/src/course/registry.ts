@@ -17,7 +17,10 @@ const rendererModules = [
     titleVi: moduleTwoDefinition.titleVi,
     lessons: moduleTwoDefinition.lessons,
     lessonPages: {
-      'm2-portfolio-brief': [['module-2-portfolio-placeholder']]
+      'm2-portfolio-brief': [
+        ['module-2-portfolio-placeholder'],
+        ['module-2-portfolio-mastery']
+      ]
     },
     scenes: moduleTwoScenes
   },

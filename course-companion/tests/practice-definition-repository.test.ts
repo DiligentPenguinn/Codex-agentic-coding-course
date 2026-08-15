@@ -133,6 +133,35 @@ describe('PracticeDefinitionRepository', () => {
     expect(definition.evidenceProfile).toBe('codex-task-configuration')
   })
 
+  it('loads the portfolio Practice from the Pilot authority when the packaged copy is absent', async () => {
+    const primary = await mkdtemp(join(tmpdir(), 'practice-definitions-primary-'))
+    temporaryDirectories.push(primary)
+    const fallback = join(
+      process.cwd(),
+      '..',
+      'pilot-workspace',
+      'course',
+      'practices'
+    )
+
+    const definition = await new PracticeDefinitionRepository(primary, fallback)
+      .load('m2-portfolio-planning', '1.0.0')
+
+    expect(definition).toMatchObject({
+      practiceId: 'm2-portfolio-planning',
+      checkpointId: 'm2-portfolio-planning',
+      workspaceKind: 'learner-portfolio',
+      taskPolicy: 'safe-workspace-write',
+      evidenceProfile: 'portfolio-planning',
+      completionDestination: {
+        checkpointId: 'm2-portfolio-mastery',
+        sceneId: 'module-2-portfolio-mastery'
+      }
+    })
+    expect(definition.stages).toHaveLength(5)
+    expect(definition.stages?.flatMap((stage) => stage.requiredArtifactPaths)).toHaveLength(7)
+  })
+
   it('requires bounded learner-facing labels and rejects unknown destination fields', () => {
     const missingTitle = cloneDefinition() as Partial<MutableDefinition>
     delete missingTitle.title

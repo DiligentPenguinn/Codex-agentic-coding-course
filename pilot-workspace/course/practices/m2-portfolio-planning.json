@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 2,
+  "practiceId": "m2-portfolio-planning",
+  "title": "Hoàn thiện gói planning cho portfolio",
+  "version": "1.0.0",
+  "checkpointId": "m2-portfolio-planning",
+  "objective": "Dùng một task Executor duy nhất để hoàn thiện năm stage planning trong thư mục portfolio đã chọn. Sau mỗi stage, Course Companion đối chiếu artifact trên filesystem và chờ bạn chấp nhận phiên bản hiện tại.",
+  "expectedOutcome": "Bảy artifact planning có nội dung trung thực, truy vết được, đã được bạn duyệt và có năm stage receipt hiện hành. Không có application code, dependency hoặc công việc deployment nào được tạo.",
+  "workspaceKind": "learner-portfolio",
+  "taskPolicy": "safe-workspace-write",
+  "evidenceProfile": "portfolio-planning",
+  "stages": [
+    {
+      "id": "portfolio-brief",
+      "order": 1,
+      "dependsOn": [],
+      "requiredArtifactPaths": [
+        "planning/portfolio-brief.md"
+      ]
+    },
+    {
+      "id": "content-evidence-inventory",
+      "order": 2,
+      "dependsOn": [
+        "portfolio-brief"
+      ],
+      "requiredArtifactPaths": [
+        "planning/content-evidence-inventory.md"
+      ]
+    },
+    {
+      "id": "visual-reference",
+      "order": 3,
+      "dependsOn": [
+        "content-evidence-inventory"
+      ],
+      "requiredArtifactPaths": [
+        "planning/reference/reference.md"
+      ]
+    },
+    {
+      "id": "portfolio-prd",
+      "order": 4,
+      "dependsOn": [
+        "visual-reference"
+      ],
+      "requiredArtifactPaths": [
+        "planning/PRD.md"
+      ]
+    },
+    {
+      "id": "implementation-contract",
+      "order": 5,
+      "dependsOn": [
+        "portfolio-prd"
+      ],
+      "requiredArtifactPaths": [
+        "planning/requirement-validation-map.md",
+        "planning/implementation-plan.md",
+        "planning/first-bounded-task.md"
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "portfolio-brief",
+      "title": "Duyệt bản mô tả ngắn cho portfolio",
+      "dependsOn": []
+    },
+    {
+      "id": "content-evidence-inventory",
+      "title": "Duyệt bản kiểm kê nội dung và bằng chứng",
+      "dependsOn": [
+        "portfolio-brief"
+      ]
+    },
+    {
+      "id": "visual-reference",
+      "title": "Duyệt nguồn và ảnh chụp tham chiếu",
+      "dependsOn": [
+        "content-evidence-inventory"
+      ]
+    },
+    {
+      "id": "portfolio-prd",
+      "title": "Duyệt PRD portfolio",
+      "dependsOn": [
+        "visual-reference"
+      ]
+    },
+    {
+      "id": "implementation-contract",
+      "title": "Duyệt bản đồ kiểm chứng, kế hoạch và tác vụ đầu tiên",
+      "dependsOn": [
+        "portfolio-prd"
+      ]
+    }
+  ],
+  "criteria": [
+    {
+      "id": "brief-current-and-approved",
+      "description": "Bản mô tả ngắn có người xem, quyết định, dấu hiệu thành công, ranh giới và phê duyệt trên digest hiện tại.",
+      "required": true,
+      "checklistStepId": "portfolio-brief",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "learner-approval"
+      ],
+      "assertion": "The current portfolio brief contains the required decisions and learner approval bound to its corroborated digest.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "inventory-honest-and-publishable",
+      "description": "Inventory dùng đúng nhãn bằng chứng và kiểm tra riêng quyền riêng tư, quyền sở hữu cùng quyền công bố.",
+      "required": true,
+      "checklistStepId": "content-evidence-inventory",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "learner-approval"
+      ],
+      "assertion": "The current inventory labels evidence honestly and records privacy, ownership, permission, and publication boundaries before approval.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "reference-sourced-and-bounded",
+      "description": "Tham chiếu có URL, ảnh chụp hữu ích, metadata nguồn/quyền sử dụng và ranh giới không sao chép.",
+      "required": true,
+      "checklistStepId": "visual-reference",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "artifact",
+        "learner-approval"
+      ],
+      "assertion": "Every corroborated reference screenshot is listed with source and permission metadata, and the current reference packet prohibits copying protected expression.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "prd-semantic-contract",
+      "description": "PRD có yêu cầu, hành vi responsive và accessibility, phạm vi, non-goals, ràng buộc cùng tiêu chí chấp nhận kiểm tra được.",
+      "required": true,
+      "checklistStepId": "portfolio-prd",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "learner-approval",
+        "teacher-assessment"
+      ],
+      "assertion": "The current PRD has stable requirement IDs, testable acceptance criteria, responsive and accessibility behavior, scope boundaries, constraints, and current learner approval.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "requirements-covered-once",
+      "description": "Mọi requirement trong PRD xuất hiện đúng một lần trong bản đồ và có cách kiểm tra cùng bằng chứng dự kiến.",
+      "required": true,
+      "checklistStepId": "implementation-contract",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "artifact-alignment"
+      ],
+      "assertion": "Every current PRD requirement appears exactly once in the validation map with an observable check and planned corroborating evidence.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "plan-phased-and-bounded",
+      "description": "Kế hoạch có phase theo thứ tự, phụ thuộc, kết quả quan sát, phép kiểm tra, non-goals và các quyết định kỹ thuật được hoãn.",
+      "required": true,
+      "checklistStepId": "implementation-contract",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "scope-decision"
+      ],
+      "assertion": "The phased plan preserves PRD non-goals, orders dependencies, defines observable checks, and defers technology and application creation to Module 3 approval.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "first-task-is-bounded",
+      "description": "Tác vụ đầu tiên có một mục tiêu, ranh giới, kết quả quan sát, cách kiểm tra và điểm dừng trước khi tạo ứng dụng.",
+      "required": true,
+      "checklistStepId": "implementation-contract",
+      "acceptedEvidence": [
+        "planning-artifact",
+        "learner-approval"
+      ],
+      "assertion": "The first task is independently approvable and recoverable, and it does not execute scaffolding, install dependencies, or build portfolio features in Module 2.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "scope-control-clean",
+      "description": "Workspace không có file ứng dụng, dependency, deployment hoặc thay đổi ngoài bảy artifact và ảnh chụp tham chiếu được phép.",
+      "required": true,
+      "checklistStepId": "implementation-contract",
+      "acceptedEvidence": [
+        "workspace-confirmed-change"
+      ],
+      "assertion": "Independent filesystem inspection reports no unexpected paths outside the seven planning artifacts and sourced reference screenshots.",
+      "freshness": "fresh"
+    }
+  ],
+  "completionDestination": {
+    "lessonId": "module-2",
+    "checkpointId": "m2-portfolio-mastery",
+    "sceneId": "module-2-portfolio-mastery",
+    "label": "Làm phần kiểm tra mức độ sẵn sàng"
+  }
+}

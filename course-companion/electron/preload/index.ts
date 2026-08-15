@@ -8,6 +8,7 @@ import type {
   LearnerProgress,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
   PortfolioWorkspaceRequest,
   PortfolioWorkspaceView,
   PracticeReviewResponse,
@@ -50,6 +51,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
   recordPlanningAction: (request: PlanningPracticeActionRequest) =>
     ipcRenderer.invoke('course:record-planning-action', request) as Promise<PracticeWorkspaceView>,
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) =>
+    ipcRenderer.invoke('course:record-portfolio-stage-action', request) as Promise<PracticeWorkspaceView>,
   selectPracticePanel: (update: PracticePanelUpdate) =>
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>
