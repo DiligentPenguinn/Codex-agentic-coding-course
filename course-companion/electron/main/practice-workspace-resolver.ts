@@ -1,4 +1,4 @@
-import { realpath, stat } from 'node:fs/promises'
+import { access, realpath, stat } from 'node:fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import type { PracticeWorkspaceKind } from '../../shared/contracts'
 
@@ -13,9 +13,26 @@ export type PracticeWorkspaceResolverPort = {
 }
 
 export class PracticeWorkspaceResolver implements PracticeWorkspaceResolverPort {
-  constructor(private readonly courseRoot: string) {}
+  constructor(
+    private readonly courseRoot: string,
+    private readonly loadPortfolioPath?: () => Promise<string | null>
+  ) {}
 
   async resolve(kind: PracticeWorkspaceKind): Promise<string> {
+    if (kind === 'learner-portfolio') {
+      const selectedPath = await this.loadPortfolioPath?.()
+      if (!selectedPath || !isAbsolute(selectedPath)) {
+        throw new Error('A ready learner portfolio workspace is required')
+      }
+      const canonicalCourseRoot = await realpath(resolve(this.courseRoot))
+      const canonicalPortfolio = await realpath(resolve(selectedPath))
+      if (!(await stat(canonicalPortfolio)).isDirectory()
+        || isContained(canonicalCourseRoot, canonicalPortfolio)) {
+        throw new Error('Learner portfolio workspace is unavailable or unsafe')
+      }
+      await access(canonicalPortfolio)
+      return canonicalPortfolio
+    }
     if (kind !== 'pilot-workspace') throw new Error('Unsupported Practice workspace kind')
 
     const configuredRoot = resolve(this.courseRoot)

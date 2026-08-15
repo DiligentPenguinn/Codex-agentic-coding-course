@@ -210,4 +210,39 @@ describe('ExecutorChatCoordinator', () => {
     )
     expect(calls).toEqual(['thread/read'])
   })
+
+  it('bootstraps one reusable staged portfolio task without planning-package assumptions', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/read') {
+          return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        }
+        return {}
+      },
+      async close() {}
+    }
+    const staged: PracticeDefinition = {
+      ...definition('safe-workspace-write'),
+      practiceId: 'm3-portfolio-build',
+      version: '1.0.0',
+      workspaceKind: 'learner-portfolio',
+      evidenceProfile: 'portfolio-build',
+      stages: Array.from({ length: 5 }, (_, index) => ({
+        id: `stage-${index + 1}`,
+        order: (index + 1) as 1 | 2 | 3 | 4 | 5,
+        dependsOn: index === 0 ? [] : [`stage-${index}`],
+        requiredArtifactPaths: [`evidence/module-3/stage-${index + 1}.md`]
+      }))
+    }
+
+    await coordinator(client).prepareTarget(binding(), staged)
+
+    const turn = calls.find(([method]) => method === 'turn/start')?.[1]
+    expect(JSON.stringify(turn)).toContain('cả năm stage')
+    expect(JSON.stringify(turn)).toContain('không tạo task mới')
+    expect(JSON.stringify(turn)).not.toContain('artifacts/PRD.md')
+    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+  })
 })

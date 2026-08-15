@@ -83,7 +83,14 @@ const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
-const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot)
+const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot, async () => {
+  const progress = await progressRepository.load()
+  if (progress.status !== 'returning' && progress.status !== 'recovered') return null
+  const workspace = await portfolioWorkspaceRepository.load({
+    courseRunId: progress.progress.courseRunId
+  })
+  return workspace.status === 'ready' ? workspace.selectedPath ?? null : null
+})
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()

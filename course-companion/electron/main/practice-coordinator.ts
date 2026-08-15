@@ -139,6 +139,12 @@ function planningWorkspaceView(active: PracticeRunRecord): NonNullable<PracticeW
   }
 }
 
+function isPortfolioProfile(profile: PracticeRunRecord['evidenceProfile']): boolean {
+  return profile === 'portfolio-planning'
+    || profile === 'portfolio-build'
+    || profile === 'portfolio-release'
+}
+
 export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   private operationTail: Promise<void> = Promise.resolve()
   private lastError = ''
@@ -443,7 +449,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       learnerDecisions: {},
       learnerApprovals: {},
       evidence: null,
-      invalidations: []
+      invalidations: [],
+      ...(definition.stages ? { stageReceipts: [] } : {})
     }
     const archivedRuns = record.activeRun
       ? [
@@ -486,7 +493,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       : null
     const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
-    const canReview = Boolean(displayedRun && (
+    const canReview = Boolean(displayedRun && !isPortfolioProfile(displayedRun.evidenceProfile) && (
       displayedRun.evidenceProfile !== 'planning-package'
       || (displayedRun.learnerDecisions['scope-decision']
         && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))

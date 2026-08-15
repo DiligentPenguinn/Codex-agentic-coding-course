@@ -124,7 +124,12 @@ export class ExecutorChatCoordinator {
                       'Chỉ được thay đổi artifacts/PRD.md và artifacts/implementation-plan.md; không viết implementation code.',
                       'Dùng chính task này cho toàn bộ Practice, phỏng vấn từng câu một, và chờ các nút phê duyệt trong Course Companion. Tin nhắn trong chat không thay thế phê duyệt của người học.'
                     ]
-                  : [])
+                  : definition.stages
+                    ? [
+                        'Dùng chính task này cho cả năm stage; không tạo task mới cho từng milestone.',
+                        'Dừng sau mỗi stage để Course Companion đối chiếu artifact hiện tại và ghi nhận phê duyệt. Kết quả do Executor tự báo cáo không thay thế bằng chứng tệp được kiểm tra độc lập.'
+                      ]
+                    : [])
               ].join('\n\n')
             }]
           })

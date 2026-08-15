@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import {
   checkpointIds,
+  lessonIds,
   practiceEvidenceProfiles,
   practiceTaskPolicies,
   practiceWorkspaceKinds,
@@ -13,6 +14,7 @@ import {
   type PracticeDefinition,
   type PracticeEvidenceKind,
   type PracticeEvidenceProfile,
+  type PracticeStageDefinition,
   type PracticeTaskPolicy
 } from '../../shared/contracts'
 
@@ -34,13 +36,23 @@ const evidenceKinds = new Set<PracticeEvidenceKind>([
 ])
 const checkpoints = new Set<string>(checkpointIds)
 const scenes = new Set<string>(sceneIds)
+const lessons = new Set<string>(lessonIds)
 const workspaceKinds = new Set<string>(practiceWorkspaceKinds)
 const taskPolicies = new Set<string>(practiceTaskPolicies)
 const evidenceProfiles = new Set<string>(practiceEvidenceProfiles)
 const supportedPolicyByProfile: Record<PracticeEvidenceProfile, PracticeTaskPolicy> = {
   'codex-task-configuration': 'inherit-configuration-only',
-  'planning-package': 'safe-workspace-write'
+  'planning-package': 'safe-workspace-write',
+  'portfolio-planning': 'safe-workspace-write',
+  'portfolio-build': 'safe-workspace-write',
+  'portfolio-release': 'safe-workspace-write'
 }
+const portfolioProfiles = new Set<PracticeEvidenceProfile>([
+  'portfolio-planning',
+  'portfolio-build',
+  'portfolio-release'
+])
+const ARTIFACT_PATH = /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]{1,240}$/
 
 function record(value: unknown): Record<string, unknown> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -177,6 +189,49 @@ function parseCriteria(value: unknown, checklist: PracticeChecklistDefinition[])
   return criteria
 }
 
+function parseStages(value: unknown): PracticeStageDefinition[] {
+  if (!Array.isArray(value) || value.length !== 5) {
+    throw new Error('Portfolio Practice requires exactly five stages')
+  }
+  const stages = value.map((entry, index) => {
+    const stage = record(entry)
+    if (!stage || !exactKeys(stage, ['dependsOn', 'id', 'order', 'requiredArtifactPaths'])) {
+      throw new Error('Invalid Practice stage shape')
+    }
+    if (!bounded(stage.id, 160) || !ID.test(stage.id) || stage.order !== index + 1) {
+      throw new Error('Invalid Practice stage order')
+    }
+    if (!Array.isArray(stage.dependsOn)
+      || stage.dependsOn.length > 4
+      || !stage.dependsOn.every((dependency) => bounded(dependency, 160) && ID.test(dependency))
+      || new Set(stage.dependsOn).size !== stage.dependsOn.length) {
+      throw new Error('Invalid Practice stage dependencies')
+    }
+    if (!Array.isArray(stage.requiredArtifactPaths)
+      || stage.requiredArtifactPaths.length < 1
+      || stage.requiredArtifactPaths.length > 40
+      || !stage.requiredArtifactPaths.every((path) => typeof path === 'string' && ARTIFACT_PATH.test(path))
+      || new Set(stage.requiredArtifactPaths).size !== stage.requiredArtifactPaths.length) {
+      throw new Error('Invalid Practice stage artifact paths')
+    }
+    return {
+      id: stage.id,
+      order: stage.order as PracticeStageDefinition['order'],
+      dependsOn: [...stage.dependsOn] as string[],
+      requiredArtifactPaths: [...stage.requiredArtifactPaths] as string[]
+    }
+  })
+  const ids = new Set(stages.map((stage) => stage.id))
+  if (ids.size !== stages.length) throw new Error('Duplicate Practice stage')
+  for (const stage of stages) {
+    const priorIds = new Set(stages.slice(0, stage.order - 1).map((candidate) => candidate.id))
+    if (stage.dependsOn.some((dependency) => !priorIds.has(dependency))) {
+      throw new Error('Practice stage dependency must reference an earlier stage')
+    }
+  }
+  return stages
+}
+
 function parseDestination(
   value: unknown,
   legacy: false
@@ -199,9 +254,8 @@ function parseDestination(
   if (!legacy && !boundedLearnerLabel(destination.label, 200)) {
     throw new Error('Invalid Practice completion destination label')
   }
-  if ((destination.lessonId !== 'intro'
-      && destination.lessonId !== 'module-1'
-      && destination.lessonId !== 'module-2')
+  if (typeof destination.lessonId !== 'string'
+    || !lessons.has(destination.lessonId)
     || typeof destination.checkpointId !== 'string'
     || !checkpoints.has(destination.checkpointId)
     || typeof destination.sceneId !== 'string'
@@ -215,7 +269,7 @@ function parseDestination(
 
 export function parsePracticeDefinition(value: unknown): PracticeDefinition {
   const input = record(value)
-  if (!input || !exactKeys(input, [
+  if (!input || !exactOptionalKeys(input, [
     'checkpointId',
     'checklist',
     'completionDestination',
@@ -229,7 +283,7 @@ export function parsePracticeDefinition(value: unknown): PracticeDefinition {
     'title',
     'version',
     'workspaceKind'
-  ])) throw new Error('Invalid Practice definition shape')
+  ], ['stages'])) throw new Error('Invalid Practice definition shape')
   if (input.schemaVersion !== 2) throw new Error('Unsupported current Practice definition schema')
   if (!bounded(input.practiceId, 160) || !ID.test(input.practiceId)) throw new Error('Invalid Practice id')
   if (!boundedLearnerLabel(input.title, 160)) throw new Error('Invalid Practice title')
@@ -252,11 +306,22 @@ export function parsePracticeDefinition(value: unknown): PracticeDefinition {
   if (supportedPolicyByProfile[input.evidenceProfile as PracticeEvidenceProfile] !== input.taskPolicy) {
     throw new Error('Unsupported Practice task policy and evidence profile combination')
   }
+  const evidenceProfile = input.evidenceProfile as PracticeEvidenceProfile
+  const usesPortfolioWorkspace = input.workspaceKind === 'learner-portfolio'
+  const usesPortfolioProfile = portfolioProfiles.has(evidenceProfile)
+  if (usesPortfolioWorkspace !== usesPortfolioProfile) {
+    throw new Error('Unsupported Practice workspace and evidence profile combination')
+  }
+  if (!usesPortfolioProfile && input.stages !== undefined) {
+    throw new Error('Legacy Practice profiles cannot declare stages')
+  }
+  const stages = usesPortfolioProfile ? parseStages(input.stages) : undefined
   const checklist = parseChecklist(input.checklist, false)
   const criteria = parseCriteria(input.criteria, checklist)
   const completionDestination = parseDestination(input.completionDestination, false)
   return structuredClone({
     ...input,
+    ...(stages ? { stages } : {}),
     checklist,
     criteria,
     completionDestination

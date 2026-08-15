@@ -552,14 +552,17 @@ export type PracticeCriterionDefinition = {
   freshness: 'fresh' | 'any'
 }
 
-export const practiceWorkspaceKinds = ['pilot-workspace'] as const
+export const practiceWorkspaceKinds = ['pilot-workspace', 'learner-portfolio'] as const
 export const practiceTaskPolicies = [
   'inherit-configuration-only',
   'safe-workspace-write'
 ] as const
 export const practiceEvidenceProfiles = [
   'codex-task-configuration',
-  'planning-package'
+  'planning-package',
+  'portfolio-planning',
+  'portfolio-build',
+  'portfolio-release'
 ] as const
 
 export type PracticeWorkspaceKind = (typeof practiceWorkspaceKinds)[number]
@@ -600,6 +603,13 @@ export type PracticeCompletionDestination = {
   sceneId: SceneId
 }
 
+export type PracticeStageDefinition = {
+  id: string
+  order: 1 | 2 | 3 | 4 | 5
+  dependsOn: string[]
+  requiredArtifactPaths: string[]
+}
+
 export type PracticeDefinition = {
   schemaVersion: 2
   practiceId: string
@@ -611,9 +621,37 @@ export type PracticeDefinition = {
   workspaceKind: PracticeWorkspaceKind
   taskPolicy: PracticeTaskPolicy
   evidenceProfile: PracticeEvidenceProfile
+  stages?: PracticeStageDefinition[]
   checklist: PracticeChecklistDefinition[]
   criteria: PracticeCriterionDefinition[]
   completionDestination: PracticeCompletionDestination & { label: string }
+}
+
+export type PracticeStageReceipt = {
+  schemaVersion: 1
+  courseRunId: string
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  stageId: string
+  stageIndex: 1 | 2 | 3 | 4 | 5
+  workspace: {
+    canonicalPath: string
+    identityDigest: string
+  }
+  artifactDigests: Record<string, string>
+  approval: {
+    approvedAt: string
+    artifactDigests: Record<string, string>
+  }
+  evidence: {
+    executorReportedChecks: string[]
+    corroboratedArtifacts: Record<string, string>
+  }
+  status: 'completed' | 'stale'
+  freshness: 'current' | 'stale'
+  observedAt: string
+  staleReason?: string
 }
 
 export type PracticeEvidenceReference = {

@@ -1,7 +1,4 @@
-import {
-  practiceEvidenceProfiles,
-  type PracticeEvidenceProfile
-} from '../../shared/contracts'
+import type { PracticeEvidenceProfile } from '../../shared/contracts'
 import type { PracticeEvidenceAdapter } from './practice-evidence-adapter'
 
 export class PracticeEvidenceAdapterRegistry {
@@ -15,7 +12,7 @@ export class PracticeEvidenceAdapterRegistry {
       }
       byProfile.set(adapter.evidenceProfile, adapter)
     }
-    for (const profile of practiceEvidenceProfiles) {
+    for (const profile of ['codex-task-configuration', 'planning-package'] as const) {
       if (!byProfile.has(profile)) {
         throw new Error(`Missing Practice evidence adapter: ${profile}`)
       }
