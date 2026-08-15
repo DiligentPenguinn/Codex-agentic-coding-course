@@ -70,7 +70,7 @@ const rendererModules = [
     titleVi: moduleThreeDefinition.titleVi,
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
-      'm3-scaffold-baseline': [['module-3-placeholder']]
+      'm3-scaffold-baseline': [['module-3-readiness']]
     },
     scenes: moduleThreeScenes
   },

@@ -44,6 +44,7 @@ import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-reg
 import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
 import { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
+import { PortfolioModuleCompletionService } from './portfolio-module-completion-service'
 import {
   PortfolioWorkspaceError,
   PortfolioWorkspaceRepository
@@ -175,10 +176,11 @@ const executorChatCoordinator = new ExecutorChatCoordinator(
 )
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
+const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(activityObserver)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
   new CodexConfigurationEvidenceAdapter(activityObserver),
   new PlanningPackageEvidenceAdapter(activityObserver),
-  new PortfolioPlanningEvidenceAdapter(activityObserver)
+  portfolioPlanningEvidenceAdapter
 ])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
@@ -196,6 +198,13 @@ const practiceCoordinator = new PracticeCoordinator(
   },
   evidenceAdapters,
   (receipt) => progressRepository.revokePracticeCompletion(receipt)
+)
+const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
+  progressRepository,
+  portfolioWorkspaceRepository,
+  practiceRunRepository,
+  practiceDefinitionRepository,
+  portfolioPlanningEvidenceAdapter
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
@@ -469,6 +478,9 @@ function registerIpcHandlers(): void {
     if (!isProgressUpdate(update)) throw new Error('Invalid learner progress update')
     return progressRepository.save(update)
   })
+
+  ipcMain.handle('course:complete-portfolio-planning-module', () =>
+    portfolioModuleCompletionService.completeModuleTwo())
 
   ipcMain.handle('course:reset-progress', async () => {
     await Promise.all([

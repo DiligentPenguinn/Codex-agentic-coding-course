@@ -238,8 +238,12 @@ const instructionalScenes = {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-complete', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Sẵn sàng bắt đầu xây',
     objective: 'Module 2 đã hoàn thành', panelLabel: 'ĐẦU VÀO MODULE 3',
-    panelStatus: 'CHỜ M2.6', tone: 'neutral', request: 'M2.6 sẽ tạo receipt hoàn thành nguyên tử.',
-    evidence: [], dialogue: 'Gói planning và mastery đã sẵn sàng để được đối chiếu trong gate hoàn thành.', choices: []
+    panelStatus: 'ĐÃ LƯU AN TOÀN', tone: 'good', request: 'Biên nhận hoàn thành gắn đúng thư mục, bảy tệp, năm lần duyệt và kết quả làm chủ hiện tại.',
+    evidence: [
+      { label: 'THƯ MỤC', value: 'Đã gắn đúng đường dẫn', ready: true },
+      { label: 'TỆP', value: '7 phiên bản hiện tại', ready: true },
+      { label: 'BÀN GIAO', value: 'Không chứa lịch sử chat', ready: true }
+    ], dialogue: 'Cửa kiểm tra đã lưu biên nhận hoàn thành trước khi mở điểm sẵn sàng của Module 3.', choices: []
   }
 } as const satisfies Partial<Record<SceneId, RegistrySceneContent>>
 

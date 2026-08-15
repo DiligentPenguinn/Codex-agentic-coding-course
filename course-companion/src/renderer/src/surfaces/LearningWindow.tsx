@@ -1761,7 +1761,7 @@ function AssessmentControls({
   result?: string
   busy: boolean
   continueLabel: string
-  onConfirmWritten: () => void
+  onConfirmWritten: (answer: string) => void
   onChoose: (index: number) => void
   onContinue: () => void
 }) {
@@ -1791,6 +1791,7 @@ function AssessmentControls({
             disabled={busy || reviewing}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Viết bằng lời của bạn trước khi xem tiêu chí…"
+            maxLength={450}
             rows={4}
             value={draft}
           />
@@ -1832,7 +1833,7 @@ function AssessmentControls({
           ) : (
             <div className="pixel-assessment-review-actions">
               <button disabled={busy} type="button" onClick={() => setReviewing(false)}>Viết lại</button>
-              <button className="is-primary" disabled={busy} type="button" onClick={onConfirmWritten}>
+              <button className="is-primary" disabled={busy} type="button" onClick={() => onConfirmWritten(draft.trim())}>
                 Câu trả lời đáp ứng đủ tiêu chí
               </button>
             </div>
@@ -1914,13 +1915,7 @@ function EntryScreen({
   )
 }
 
-const futureModules = [
-  'Implementation và debugging',
-  'Dùng công cụ và đánh giá bằng chứng',
-  'Chia nhỏ việc và kiểm soát đầu ra',
-  'Làm việc đa phương thức và giữ quyền duyệt',
-  'Chẩn đoán lỗi và chứng minh kết quả'
-]
+const futureModules = ['Kiểm chứng, phát hành và chứng minh quyền làm chủ']
 
 const decisionLabels: Record<string, string> = {
   modelChoice: 'Cấu hình ContentPilot',
@@ -2015,7 +2010,7 @@ function PixelAppShell({
   const currentModuleId = progress.currentLessonId === 'intro' ? 'module-1' : progress.currentLessonId
   const moduleOneComplete = completed.has('m1-complete')
   const moduleOneMigrated = progress.decisions.setupModuleMigration === 'continued-existing-planning-progress'
-  const moduleTwoComplete = completed.has('m2-complete')
+  const moduleTwoComplete = completed.has('m2-portfolio-complete')
   const moduleOneLessonCount = setupModule?.lessons?.length ?? 5
   const moduleTwoLessonCount = planningModule?.lessons?.length ?? 6
   const practice = progress.practice
@@ -2086,13 +2081,22 @@ function PixelAppShell({
                   <span>02</span><div><small>MODULE 2 · {moduleTwoLessonCount} BÀI HỌC</small><strong>{planningModule?.titleVi ?? 'Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt'}</strong><p>Bài {learningPosition.lessonIndex}/{moduleTwoLessonCount} · {learningPosition.lessonTitle} · Trang {learningPosition.page}/{learningPosition.totalPages}</p></div><em>{moduleTwoComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
                 </button>
               ) : (
+                <article className={moduleTwoComplete ? 'is-complete' : 'is-locked'}>
+                  <span>02</span><div><small>MODULE 2 · {moduleTwoLessonCount} BÀI HỌC</small><strong>{planningModule?.titleVi ?? 'Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt'}</strong><p>{moduleTwoComplete ? 'Bộ tài liệu planning và kết quả làm chủ đã được lưu trong biên nhận hoàn thành.' : 'Hoàn thành Module 1 để mở phần Planning.'}</p></div><em>{moduleTwoComplete ? 'HOÀN THÀNH' : 'SẮP TỚI'}</em>
+                </article>
+              )}
+              {currentModuleId === 'module-3' ? (
+                <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
+                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Bảy tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                </button>
+              ) : (
                 <article className="is-locked">
-                  <span>02</span><div><small>MODULE 2 · {moduleTwoLessonCount} BÀI HỌC</small><strong>{planningModule?.titleVi ?? 'Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt'}</strong><p>Hoàn thành Module 1 để mở phần Planning.</p></div><em>SẮP TỚI</em>
+                  <span>03</span><div><small>MODULE 3</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Hoàn thành gate bằng chứng và mastery của Module 2 để mở.</p></div><em>SẮP TỚI</em>
                 </article>
               )}
               {futureModules.map((title, index) => (
                 <article className="is-locked" key={title}>
-                  <span>{String(index + 3).padStart(2, '0')}</span><div><small>MODULE {index + 3}</small><strong>{title}</strong><p>Sẽ mở trong phần học tiếp theo</p></div><em>SẮP TỚI</em>
+                  <span>{String(index + 4).padStart(2, '0')}</span><div><small>MODULE {index + 4}</small><strong>{title}</strong><p>Sẽ mở trong phần học tiếp theo</p></div><em>SẮP TỚI</em>
                 </article>
               ))}
             </div>
@@ -2359,6 +2363,22 @@ export function LearningWindow() {
       setAppSettings(saved)
     } catch {
       setError('Không thể lưu cài đặt Triết nổi.')
+    }
+  }
+
+  const completePortfolioPlanningModule = async () => {
+    if (!window.courseCompanion || busy) return
+    setBusy(true)
+    setError('')
+    try {
+      const completed = await window.courseCompanion.completePortfolioPlanningModule()
+      setProgress(completed)
+      setReviewHistoryIndex(null)
+      setDestination('lesson')
+    } catch {
+      setError('Gate chưa đạt. Hãy làm lại câu chưa đúng và làm mới Practice nếu artifact hoặc biên nhận đã thay đổi.')
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -2655,6 +2675,9 @@ export function LearningWindow() {
     : 0
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
+  const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
+    receipt.practiceId === 'm2-portfolio-planning'
+    && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
@@ -2843,6 +2866,8 @@ export function LearningWindow() {
               : finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
+            : displayedSceneId === 'module-3-readiness' && portfolioPlanningHandoff
+              ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : scene.dialogue}</p>
@@ -2874,7 +2899,7 @@ export function LearningWindow() {
                 index === assessmentQuestion.answerIndex ? `correct:${index}` : `incorrect:${index}`
               )
             }}
-            onConfirmWritten={() => void saveAssessmentResult(assessmentQuestion, 'correct:self-review')}
+            onConfirmWritten={(answer) => void saveAssessmentResult(assessmentQuestion, `correct:self-review:${answer}`)}
             onContinue={() => void continueAssessment(assessmentQuestion, assessmentGroup)}
           />
         ) : scene.assessmentSummary ? (
@@ -2882,9 +2907,14 @@ export function LearningWindow() {
             <strong>{isPortfolioMasterySummary ? 'ĐÃ TRẢ LỜI' : finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
             <span>{isPortfolioMasterySummary ? finalAnsweredCount : finalCorrectCount}/{finalQuestionCount} câu</span>
             {isPortfolioMasterySummary ? (
-              <button className="pixel-choice is-primary" type="button" onClick={() => setDestination('home')}>
-                Lưu tiến độ và về Home Base
-              </button>
+              <div className="pixel-assessment-review-actions">
+                <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
+                  Làm lại 10 câu
+                </button>
+                <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
+                  {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
+                </button>
+              </div>
             ) : (
               <button
                 className="pixel-choice is-primary"

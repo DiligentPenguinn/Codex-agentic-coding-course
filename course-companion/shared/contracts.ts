@@ -837,6 +837,42 @@ export type PracticeCompletionReceipt = {
   masterySummary: string
   destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
+  portfolioPlanningHandoff?: PortfolioPlanningHandoff
+}
+
+export type PortfolioPlanningHandoff = {
+  schemaVersion: 1
+  workspace: {
+    canonicalPath: string
+    identityDigest: string
+  }
+  artifacts: Array<{
+    path: PortfolioPlanningArtifactPath
+    digest: string
+  }>
+  stageReceipts: Array<{
+    stageId: string
+    stageIndex: 1 | 2 | 3 | 4 | 5
+    observedAt: string
+    artifactDigests: Record<string, string>
+  }>
+  mastery: {
+    questionIds: string[]
+    answerDigest: string
+  }
+  summary: {
+    learnerDecision: string
+    evidenceBoundary: string
+    firstBuild: string
+    deliberatelyOutOfScope: string
+  }
+  moduleThreeInput: {
+    workspacePath: string
+    artifactReferences: Array<{
+      path: PortfolioPlanningArtifactPath
+      digest: string
+    }>
+  }
 }
 
 export type PracticeChecklistStep = {
@@ -1028,6 +1064,7 @@ export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
   saveProgress: (update: ProgressUpdate) => Promise<LearnerProgress>
+  completePortfolioPlanningModule: () => Promise<LearnerProgress>
   resetProgress: () => Promise<void>
   loadCompanionState: () => Promise<CompanionState>
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>

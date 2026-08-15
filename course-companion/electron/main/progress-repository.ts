@@ -6,7 +6,7 @@ import {
   rm,
   writeFile
 } from 'node:fs/promises'
-import { join } from 'node:path'
+import { isAbsolute, join } from 'node:path'
 import {
   checkpointIds,
   courseLessonIdForScene,
@@ -14,6 +14,7 @@ import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
   lessonIds,
+  portfolioPlanningArtifactPaths,
   sceneCheckpoint,
   sceneIds,
   type CourseLessonId,
@@ -37,6 +38,19 @@ const lessonSet = new Set<string>(lessonIds)
 const RETIRED_PERMISSION_SCENES = new Set(['module-1-permissions', 'module-1-approval-choice'])
 const RETIRED_PERMISSION_CHECKPOINT = 'm1-permissions'
 const RETIRED_PERMISSION_LESSON = 'm1-workspace-permissions'
+const DIGEST = /^[a-f0-9]{64}$/
+const moduleTwoMasteryQuestionIds = [
+  'mastery-1',
+  'mastery-2',
+  'mastery-3',
+  'mastery-4',
+  'mastery-5',
+  'mastery-6',
+  'mastery-audience-choice',
+  'mastery-scope-boundary',
+  'mastery-evidence-gap',
+  'mastery-requirement-validation'
+] as const
 
 function hasRetiredSceneReferences(value: Record<string, unknown>): boolean {
   return (
@@ -87,6 +101,81 @@ function isIsoDate(value: unknown): value is string {
   return typeof value === 'string' && !Number.isNaN(Date.parse(value))
 }
 
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort()
+  const expected = [...keys].sort()
+  return actual.length === expected.length
+    && actual.every((key, index) => key === expected[index])
+}
+
+function isDigestRecord(value: unknown): value is Record<string, string> {
+  return isRecord(value)
+    && Object.keys(value).length <= 20
+    && Object.values(value).every((digest) => typeof digest === 'string' && DIGEST.test(digest))
+}
+
+function isPortfolioPlanningHandoff(value: unknown): boolean {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'schemaVersion',
+    'workspace',
+    'artifacts',
+    'stageReceipts',
+    'mastery',
+    'summary',
+    'moduleThreeInput'
+  ]) || value.schemaVersion !== 1) return false
+  const workspace = isRecord(value.workspace) ? value.workspace : null
+  const mastery = isRecord(value.mastery) ? value.mastery : null
+  const summary = isRecord(value.summary) ? value.summary : null
+  const input = isRecord(value.moduleThreeInput) ? value.moduleThreeInput : null
+  if (!workspace || !hasExactKeys(workspace, ['canonicalPath', 'identityDigest'])
+    || typeof workspace.canonicalPath !== 'string'
+    || !isAbsolute(workspace.canonicalPath)
+    || !DIGEST.test(String(workspace.identityDigest))) return false
+  if (!Array.isArray(value.artifacts)
+    || value.artifacts.length !== portfolioPlanningArtifactPaths.length) return false
+  const artifactMap = new Map<string, string>()
+  for (const artifact of value.artifacts) {
+    if (!isRecord(artifact) || !hasExactKeys(artifact, ['path', 'digest'])
+      || !portfolioPlanningArtifactPaths.includes(artifact.path as never)
+      || !DIGEST.test(String(artifact.digest))
+      || artifactMap.has(String(artifact.path))) return false
+    artifactMap.set(String(artifact.path), String(artifact.digest))
+  }
+  if (!portfolioPlanningArtifactPaths.every((path) => artifactMap.has(path))) return false
+  if (!Array.isArray(value.stageReceipts) || value.stageReceipts.length !== 5) return false
+  const stageIndexes = new Set<number>()
+  const stageIds = new Set<string>()
+  for (const receipt of value.stageReceipts) {
+    if (!isRecord(receipt) || !hasExactKeys(receipt, [
+      'stageId', 'stageIndex', 'observedAt', 'artifactDigests'
+    ]) || !SAFE_ID.test(String(receipt.stageId))
+      || ![1, 2, 3, 4, 5].includes(Number(receipt.stageIndex))
+      || !isIsoDate(receipt.observedAt)
+      || !isDigestRecord(receipt.artifactDigests)
+      || stageIds.has(String(receipt.stageId))
+      || stageIndexes.has(Number(receipt.stageIndex))) return false
+    stageIds.add(String(receipt.stageId))
+    stageIndexes.add(Number(receipt.stageIndex))
+  }
+  if (!mastery || !hasExactKeys(mastery, ['questionIds', 'answerDigest'])
+    || !Array.isArray(mastery.questionIds)) return false
+  const masteryQuestionValues = mastery.questionIds
+  if (masteryQuestionValues.length !== moduleTwoMasteryQuestionIds.length
+    || !masteryQuestionValues.every((id) => typeof id === 'string')
+    || !moduleTwoMasteryQuestionIds.every((id) => masteryQuestionValues.includes(id))
+    || !DIGEST.test(String(mastery.answerDigest))) return false
+  if (!summary || !hasExactKeys(summary, [
+    'learnerDecision', 'evidenceBoundary', 'firstBuild', 'deliberatelyOutOfScope'
+  ]) || !Object.values(summary).every((item) =>
+    typeof item === 'string' && item.trim().length > 0 && item.length <= 700)) return false
+  if (!input || !hasExactKeys(input, ['workspacePath', 'artifactReferences'])
+    || input.workspacePath !== workspace.canonicalPath
+    || !Array.isArray(input.artifactReferences)
+    || JSON.stringify(input.artifactReferences) !== JSON.stringify(value.artifacts)) return false
+  return true
+}
+
 function isLessonId(value: unknown): value is LessonId {
   return typeof value === 'string' && lessonSet.has(value)
 }
@@ -126,6 +215,8 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
         && destination.sceneId.startsWith(`${destination.lessonId}-`)))
     && (value.approvedConfiguration === undefined ||
       isApprovedCodexConfiguration(value.approvedConfiguration))
+    && (value.portfolioPlanningHandoff === undefined
+      || isPortfolioPlanningHandoff(value.portfolioPlanningHandoff))
 }
 
 function completionKey(receipt: PracticeCompletionReceipt): string {
@@ -158,6 +249,23 @@ function assertModuleTwoCompletionGate(update: ProgressUpdate, current: LearnerP
   if (moduleTwoMasteryScore(update.decisions) < 12
     || !update.completedCheckpointIds.includes('m2-mastery')) {
     throw new Error('Module 2 requires a 12/15 mastery score before completion')
+  }
+}
+
+function hasPortfolioModuleCompletion(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm2-portfolio-planning'
+    && receipt.checkpointId === 'm2-portfolio-complete'
+    && receipt.destination.lessonId === 'module-3'
+    && receipt.destination.sceneId === 'module-3-readiness'
+    && receipt.portfolioPlanningHandoff !== undefined)
+}
+
+function assertModuleThreeUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.currentLessonId !== 'module-3') return
+  if (!current || !hasPortfolioModuleCompletion(current)) {
+    throw new Error('Module 3 requires an atomic Module 2 completion receipt')
   }
 }
 
@@ -383,6 +491,7 @@ export class ProgressRepository {
   private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
     assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
+    assertModuleThreeUnlockGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
@@ -410,6 +519,57 @@ export class ProgressRepository {
 
     await this.appendActivity('progress_saved', progress)
     return progress
+  }
+
+  completePortfolioPlanning(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)
+      || receipt.practiceId !== 'm2-portfolio-planning'
+      || receipt.checkpointId !== 'm2-portfolio-complete'
+      || receipt.destination.lessonId !== 'module-3'
+      || receipt.destination.checkpointId !== 'm3-scaffold-baseline'
+      || receipt.destination.sceneId !== 'module-3-readiness'
+      || !receipt.portfolioPlanningHandoff) {
+      return Promise.reject(new Error('Invalid Module 2 completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is unavailable')
+      const progress = current.progress
+      if (progress.sceneId !== 'module-2-portfolio-mastery-summary'
+        || receipt.courseRunId !== progress.courseRunId) {
+        throw new Error('Module 2 completion does not match the current learner checkpoint')
+      }
+      const allMasteryCurrent = moduleTwoMasteryQuestionIds.every((questionId) =>
+        progress.decisions[`assessment:${questionId}`]?.startsWith('correct'))
+      if (!allMasteryCurrent) throw new Error('Module 2 mastery evidence is incomplete')
+
+      const completedCheckpointIds = [...new Set([
+        ...progress.completedCheckpointIds,
+        'm2-portfolio-planning' as CheckpointId,
+        'm2-portfolio-mastery' as CheckpointId,
+        'm2-portfolio-complete' as CheckpointId
+      ])]
+      const completions = progress.practiceCompletions.filter((candidate) =>
+        !(candidate.courseRunId === receipt.courseRunId
+          && candidate.practiceId === receipt.practiceId
+          && candidate.runId === receipt.runId))
+      const updated: LearnerProgress = {
+        ...progress,
+        currentLessonId: 'module-3',
+        currentCourseLessonId: 'm3-scaffold-baseline',
+        checkpointId: 'm3-scaffold-baseline',
+        sceneId: 'module-3-readiness',
+        sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
+        completedCheckpointIds,
+        practiceCompletions: [...completions, structuredClone(receipt)],
+        updatedAt: this.now().toISOString()
+      }
+      if (!isLearnerProgress(updated)) throw new Error('Invalid completed Module 2 progress')
+      await this.writeAtomic(this.backupPath, this.backupTempPath, progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, updated)
+      await this.appendActivity('module_2_completed', updated)
+      return updated
+    })
   }
 
   async loadPracticeState(): Promise<PracticeState> {

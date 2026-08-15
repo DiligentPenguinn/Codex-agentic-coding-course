@@ -10,7 +10,7 @@ export const moduleThreeDefinition = {
   ],
   scenes: [
     {
-      id: 'module-3-placeholder',
+      id: 'module-3-readiness',
       checkpointId: 'm3-scaffold-baseline',
       courseLessonId: 'm3-scaffold-baseline'
     }
