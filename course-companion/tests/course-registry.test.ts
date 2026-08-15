@@ -26,6 +26,10 @@ describe('portfolio course registry', () => {
       'm2-portfolio-prd',
       'm2-implementation-contract',
       'm3-scaffold-baseline',
+      'm3-complete-first-version',
+      'm3-whole-page-revision',
+      'm3-evidence-debugging',
+      'm3-independent-enhancement',
       'm4-release-validation'
     ])
   })

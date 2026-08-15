@@ -660,6 +660,22 @@ export type PracticeStageReceipt = {
   staleReason?: string
 }
 
+export const portfolioBuildSliceIds = [
+  'foundation-hero',
+  'selected-work',
+  'about-contact-footer',
+  'responsive-accessibility'
+] as const
+
+export type PortfolioBuildSliceId = (typeof portfolioBuildSliceIds)[number]
+
+export type PracticeBuildSliceReceipt = Omit<PracticeStageReceipt, 'stageId' | 'stageIndex'> & {
+  stageId: 'complete-first-version'
+  stageIndex: 2
+  sliceId: PortfolioBuildSliceId
+  sliceIndex: 1 | 2 | 3 | 4
+}
+
 export const portfolioPlanningArtifactPaths = [
   'planning/portfolio-brief.md',
   'planning/content-evidence-inventory.md',
@@ -803,6 +819,7 @@ export type PracticeAdapterEvidenceState = {
   unexpectedChangedPaths?: string[]
   planningActivity?: PlanningActivityEvidence
   portfolioPlanning?: PortfolioPlanningEvidenceState
+  portfolioBuild?: PortfolioPlanningEvidenceState
 }
 
 export type PracticeCriterionReview = {
@@ -838,6 +855,17 @@ export type PracticeCompletionReceipt = {
   destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
   portfolioPlanningHandoff?: PortfolioPlanningHandoff
+  portfolioBuildHandoff?: PortfolioBuildHandoff
+}
+
+export type PortfolioBuildHandoff = {
+  schemaVersion: 1
+  workspace: { canonicalPath: string; identityDigest: string }
+  artifactDigests: Record<string, string>
+  stageReceiptIds: string[]
+  buildSliceReceiptIds: PortfolioBuildSliceId[]
+  sourceCheckpoint: string
+  moduleFourInput: { workspacePath: string; sourceCheckpoint: string }
 }
 
 export type PortfolioPlanningHandoff = {
@@ -935,6 +963,26 @@ export type PracticeWorkspaceView = {
       staleReason?: string
     }>
   }
+  portfolioBuild?: {
+    freshness: 'fresh' | 'stale' | 'unverifiable'
+    observedAt?: string
+    unexpectedPaths: string[]
+    stages: Array<{
+      stageId: string
+      stageIndex: 1 | 2 | 3 | 4 | 5
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      artifactPaths: string[]
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+    slices: Array<{
+      sliceId: PortfolioBuildSliceId
+      sliceIndex: 1 | 2 | 3 | 4
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+  }
   completionDestination?: PracticeDefinition['completionDestination']
 
   activePractice?: {
@@ -1024,6 +1072,7 @@ export type PlanningPracticeActionRequest = PlanningActionIdentity & {
 export type PortfolioStageActionRequest = PlanningActionIdentity & {
   courseRunId: string
   stageId: string
+  sliceId?: PortfolioBuildSliceId
   decision: 'approved' | 'revision-requested'
 }
 
@@ -1065,6 +1114,7 @@ export type CourseCompanionApi = {
   loadProgress: () => Promise<ProgressLoadResult>
   saveProgress: (update: ProgressUpdate) => Promise<LearnerProgress>
   completePortfolioPlanningModule: () => Promise<LearnerProgress>
+  completePortfolioBuildModule: () => Promise<LearnerProgress>
   resetProgress: () => Promise<void>
   loadCompanionState: () => Promise<CompanionState>
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>

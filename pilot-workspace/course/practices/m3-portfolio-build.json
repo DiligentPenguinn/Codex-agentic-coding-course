@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "practiceId": "m3-portfolio-build",
+  "title": "Xây portfolio theo từng phần đã kiểm chứng",
+  "version": "1.0.0",
+  "checkpointId": "m3-portfolio-build",
+  "objective": "Dùng một task Executor để tạo nền ứng dụng, xây bốn phần theo thứ tự, cải thiện toàn trang, gỡ một lỗi và hoàn thành một cải tiến nhỏ trong thư mục portfolio đã chọn.",
+  "expectedOutcome": "Portfolio React, TypeScript và Vite hoàn chỉnh với tám artifact hiện tại, năm biên nhận giai đoạn, bốn biên nhận phần xây dựng, npm run check hiện tại và bằng chứng trình duyệt ở 1440 × 900 cùng 390 × 844.",
+  "workspaceKind": "learner-portfolio",
+  "taskPolicy": "safe-workspace-write",
+  "evidenceProfile": "portfolio-build",
+  "stages": [
+    {
+      "id": "scaffold-baseline",
+      "order": 1,
+      "dependsOn": [],
+      "requiredArtifactPaths": ["evidence/module-3/scaffold-report.md"]
+    },
+    {
+      "id": "complete-first-version",
+      "order": 2,
+      "dependsOn": ["scaffold-baseline"],
+      "requiredArtifactPaths": [
+        "evidence/module-3/design-direction.md",
+        "evidence/module-3/build-log.md",
+        "evidence/module-3/browser-validation.md"
+      ]
+    },
+    {
+      "id": "whole-page-revision",
+      "order": 3,
+      "dependsOn": ["complete-first-version"],
+      "requiredArtifactPaths": ["evidence/module-3/revision-record.md"]
+    },
+    {
+      "id": "evidence-debugging",
+      "order": 4,
+      "dependsOn": ["whole-page-revision"],
+      "requiredArtifactPaths": ["evidence/module-3/debugging-report.md"]
+    },
+    {
+      "id": "independent-enhancement",
+      "order": 5,
+      "dependsOn": ["evidence-debugging"],
+      "requiredArtifactPaths": [
+        "evidence/module-3/enhancement-plan.md",
+        "evidence/module-3/final-change-summary.md"
+      ]
+    }
+  ],
+  "checklist": [
+    { "id": "scaffold-baseline", "title": "Duyệt nền ứng dụng trung tính", "dependsOn": [] },
+    { "id": "complete-first-version", "title": "Duyệt thiết kế và bốn phần xây dựng", "dependsOn": ["scaffold-baseline"] },
+    { "id": "whole-page-revision", "title": "Duyệt một lần cải thiện toàn trang", "dependsOn": ["complete-first-version"] },
+    { "id": "evidence-debugging", "title": "Duyệt một vòng gỡ lỗi có bằng chứng", "dependsOn": ["whole-page-revision"] },
+    { "id": "independent-enhancement", "title": "Duyệt một cải tiến độc lập", "dependsOn": ["evidence-debugging"] }
+  ],
+  "criteria": [
+    {
+      "id": "neutral-scaffold-current",
+      "description": "Scaffold React, TypeScript và Vite đúng đề xuất, có trang trung tính, các lệnh dev, typecheck, lint, build, preview và check, nhưng chưa xây portfolio sớm.",
+      "required": true,
+      "checklistStepId": "scaffold-baseline",
+      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
+      "assertion": "The neutral scaffold and its current command evidence match the learner-approved proposal without portfolio features or deployment configuration.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "four-slices-current",
+      "description": "Thiết kế đã duyệt và đủ bốn phần xây dựng có biên nhận riêng, bằng chứng trình duyệt đúng hai viewport và portfolio core đầy đủ.",
+      "required": true,
+      "checklistStepId": "complete-first-version",
+      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
+      "assertion": "Four ordered slice receipts, current browser evidence, and the implemented portfolio core corroborate the complete first version.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "revision-current",
+      "description": "Một phản hồi quan sát được đã dẫn đến thay đổi có giới hạn, kiểm tra hồi quy và lời chấp nhận hiện tại.",
+      "required": true,
+      "checklistStepId": "whole-page-revision",
+      "acceptedEvidence": ["artifact", "executor-reported-verification", "learner-approval"],
+      "assertion": "The current revision record links before evidence, a bounded approved change, after evidence, regression checks, and learner acceptance.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "debugging-current",
+      "description": "Báo cáo gỡ lỗi ghi tái hiện, mong đợi/thực tế, bằng chứng, một giả thuyết, bản sửa nhỏ nhất và kiểm tra lại.",
+      "required": true,
+      "checklistStepId": "evidence-debugging",
+      "acceptedEvidence": ["artifact", "executor-reported-verification", "learner-approval"],
+      "assertion": "The current debugging report causally connects reproduced evidence to the smallest justified fix and passing original plus regression checks.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "enhancement-and-summary-current",
+      "description": "Một cải tiến nhỏ không có backend đã đạt tiêu chí, không phá portfolio core và có bản tóm tắt thay đổi đủ năm phần.",
+      "required": true,
+      "checklistStepId": "independent-enhancement",
+      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
+      "assertion": "The bounded browser-only enhancement and five-part summary are current, accepted, and preserve the portfolio core.",
+      "freshness": "fresh"
+    }
+  ],
+  "completionDestination": {
+    "lessonId": "module-3",
+    "checkpointId": "m3-mastery",
+    "sceneId": "module-3-portfolio-mastery",
+    "label": "Làm phần kiểm tra mức độ làm chủ Module 3"
+  }
+}

@@ -70,7 +70,36 @@ const rendererModules = [
     titleVi: moduleThreeDefinition.titleVi,
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
-      'm3-scaffold-baseline': [['module-3-readiness']]
+      'm3-scaffold-baseline': [
+        ['module-3-readiness'],
+        ['module-3-scaffold-intro'],
+        ['module-3-check-scaffold-boundary']
+      ],
+      'm3-complete-first-version': [
+        ['module-3-first-version-intro'],
+        ['module-3-check-slice-gate']
+      ],
+      'm3-whole-page-revision': [
+        ['module-3-revision-intro'],
+        ['module-3-check-revision-scope']
+      ],
+      'm3-evidence-debugging': [
+        ['module-3-debugging-intro'],
+        ['module-3-check-debug-order']
+      ],
+      'm3-independent-enhancement': [
+        ['module-3-enhancement-intro'],
+        ['module-3-check-enhancement-boundary'],
+        ['module-3-portfolio-practice'],
+        ['module-3-portfolio-mastery'],
+        ['module-3-mastery-scaffold'],
+        ['module-3-mastery-slice'],
+        ['module-3-mastery-debug'],
+        ['module-3-mastery-owned-revision'],
+        ['module-3-mastery-owned-enhancement'],
+        ['module-3-mastery-summary'],
+        ['module-3-complete']
+      ]
     },
     scenes: moduleThreeScenes
   },

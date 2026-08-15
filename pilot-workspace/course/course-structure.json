@@ -195,6 +195,7 @@
       "scriptPath": "course/lesson-scripts/module-3.script.vi.md",
       "quizPath": "course/quizzes/module-3.quiz.json",
       "promptPath": "course/prompts/start-module-3.vi.md",
+      "practicePath": "course/practices/m3-portfolio-build.json",
       "artifactPaths": [
         "evidence/module-3/scaffold-report.md",
         "evidence/module-3/design-direction.md",

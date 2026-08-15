@@ -15,7 +15,8 @@ type PracticeProgressProps = {
   onPlanningAction?: (action: PlanningPracticeActionRequest['action']) => void
   onPortfolioStageAction?: (
     stageId: string,
-    decision: PortfolioStageActionRequest['decision']
+    decision: PortfolioStageActionRequest['decision'],
+    sliceId?: PortfolioStageActionRequest['sliceId']
   ) => void
   onRefresh?: () => void
 }
@@ -59,7 +60,19 @@ const portfolioStageLabels: Record<string, string> = {
   'content-evidence-inventory': 'Nội dung và bằng chứng',
   'visual-reference': 'Tham chiếu hình ảnh',
   'portfolio-prd': 'PRD portfolio',
-  'implementation-contract': 'Hợp đồng xây dựng'
+  'implementation-contract': 'Hợp đồng xây dựng',
+  'scaffold-baseline': 'Nền ứng dụng trung tính',
+  'complete-first-version': 'Phiên bản đầu tiên',
+  'whole-page-revision': 'Cải thiện toàn trang',
+  'evidence-debugging': 'Gỡ lỗi có bằng chứng',
+  'independent-enhancement': 'Cải tiến độc lập'
+}
+
+const buildSliceLabels: Record<string, string> = {
+  'foundation-hero': 'Nền trang và Hero',
+  'selected-work': 'Selected Work',
+  'about-contact-footer': 'About, Contact và footer',
+  'responsive-accessibility': 'Responsive và accessibility'
 }
 
 const portfolioIssueLabels: Record<string, string> = {
@@ -100,6 +113,7 @@ export function PracticeProgress({
   const configurationFresh = configuration?.freshness === 'fresh'
     && configuration.connection === 'connected'
   const planning = workspace.planning
+  const portfolioStages = workspace.portfolioPlanning ?? workspace.portfolioBuild
   const currentPlanningStep = workspace.checklist.find((step) =>
     step.status === 'current' || step.status === 'stale')
   const actionContext = planning?.actionContext
@@ -259,29 +273,29 @@ export function PracticeProgress({
         </section>
       ) : null}
 
-      {workspace.portfolioPlanning ? (
-        <section className="practice-portfolio-planning" aria-label="Bằng chứng lập kế hoạch portfolio" aria-live="polite">
+      {portfolioStages ? (
+        <section className="practice-portfolio-planning" aria-label={workspace.portfolioBuild ? 'Bằng chứng xây dựng portfolio' : 'Bằng chứng lập kế hoạch portfolio'} aria-live="polite">
           <header>
             <div>
-              <small>GÓI LẬP KẾ HOẠCH PORTFOLIO</small>
-              <strong>{workspace.portfolioPlanning.freshness === 'fresh'
+              <small>{workspace.portfolioBuild ? 'XÂY DỰNG PORTFOLIO' : 'GÓI LẬP KẾ HOẠCH PORTFOLIO'}</small>
+              <strong>{portfolioStages.freshness === 'fresh'
                 ? 'BẰNG CHỨNG HIỆN TẠI'
-                : workspace.portfolioPlanning.freshness === 'stale'
+                : portfolioStages.freshness === 'stale'
                   ? 'CẦN LÀM MỚI'
                   : 'CHƯA THỂ XÁC MINH'}</strong>
             </div>
             {onRefresh ? <button type="button" disabled={actionBusy} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
           </header>
 
-          {workspace.portfolioPlanning.unexpectedPaths.length > 0 ? (
+          {portfolioStages.unexpectedPaths.length > 0 ? (
             <div className="practice-scope-warning" role="status">
-              <strong>Có tệp nằm ngoài phạm vi của Module 2</strong>
-              <ul>{workspace.portfolioPlanning.unexpectedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
+              <strong>Có tệp nằm ngoài phạm vi Practice</strong>
+              <ul>{portfolioStages.unexpectedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
             </div>
           ) : null}
 
           <ol className="practice-portfolio-stages">
-            {workspace.portfolioPlanning.stages.map((stage) => (
+            {portfolioStages.stages.map((stage) => (
               <li className={`is-${stage.status}`} key={stage.stageId}>
                 <header>
                   <span>{stage.stageIndex}</span>
@@ -302,6 +316,23 @@ export function PracticeProgress({
                 <div className="practice-portfolio-artifacts">
                   {stage.artifactPaths.map((path) => <code key={path}>{path}</code>)}
                 </div>
+                {workspace.portfolioBuild && stage.stageId === 'complete-first-version' ? (
+                  <ol className="practice-build-slices" aria-label="Bốn phần xây dựng">
+                    {workspace.portfolioBuild.slices.map((slice) => (
+                      <li className={`is-${slice.status}`} key={slice.sliceId}>
+                        <span>{slice.sliceIndex}/4</span>
+                        <strong>{buildSliceLabels[slice.sliceId]}</strong>
+                        <em>{slice.status === 'completed' ? 'ĐÃ DUYỆT' : slice.status === 'ready' ? 'SẴN SÀNG' : slice.status === 'stale' ? 'DUYỆT LẠI' : slice.status === 'blocked' ? 'CẦN BỔ SUNG' : 'CHƯA MỞ'}</em>
+                        {onPortfolioStageAction && slice.status !== 'completed' && slice.status !== 'pending' ? (
+                          <div className="practice-portfolio-actions">
+                            {slice.status === 'ready' ? <button className="is-primary" disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'approved', slice.sliceId)}>Chấp nhận phần này</button> : null}
+                            <button disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'revision-requested', slice.sliceId)}>Yêu cầu sửa</button>
+                          </div>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
                 {stage.issueCodes.length > 0 ? (
                   <ul className="practice-portfolio-issues">
                     {stage.issueCodes.map((code) => <li key={code}>{portfolioIssueLabels[code] ?? code}</li>)}

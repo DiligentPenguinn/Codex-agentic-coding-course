@@ -269,6 +269,22 @@ function assertModuleThreeUnlockGate(update: ProgressUpdate, current: LearnerPro
   }
 }
 
+function hasPortfolioBuildCompletion(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm3-portfolio-build'
+    && receipt.checkpointId === 'm3-complete'
+    && receipt.destination.sceneId === 'module-3-complete'
+    && receipt.portfolioBuildHandoff !== undefined)
+}
+
+function assertModuleFourUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.currentLessonId !== 'module-4') return
+  if (!current || !hasPortfolioBuildCompletion(current)) {
+    throw new Error('Module 4 requires an atomic Module 3 completion receipt')
+  }
+}
+
 function courseRunId(startedAt: string): string {
   return `course-${startedAt.replace(/[^0-9]/g, '').slice(0, 17)}`
 }
@@ -492,6 +508,7 @@ export class ProgressRepository {
     const current = await this.readProgress(this.statePath)
     assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
     assertModuleThreeUnlockGate(update, current.status === 'valid' ? current.progress : null)
+    assertModuleFourUnlockGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
@@ -568,6 +585,54 @@ export class ProgressRepository {
       await this.writeAtomic(this.backupPath, this.backupTempPath, progress)
       await this.writeAtomic(this.statePath, this.stateTempPath, updated)
       await this.appendActivity('module_2_completed', updated)
+      return updated
+    })
+  }
+
+  completePortfolioBuild(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)
+      || receipt.practiceId !== 'm3-portfolio-build'
+      || receipt.checkpointId !== 'm3-complete'
+      || receipt.destination.lessonId !== 'module-3'
+      || receipt.destination.checkpointId !== 'm3-complete'
+      || receipt.destination.sceneId !== 'module-3-complete'
+      || !receipt.portfolioBuildHandoff) {
+      return Promise.reject(new Error('Invalid Module 3 completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is unavailable')
+      const progress = current.progress
+      if (progress.sceneId !== 'module-3-mastery-summary' || receipt.courseRunId !== progress.courseRunId) {
+        throw new Error('Module 3 completion does not match the current learner checkpoint')
+      }
+      const masteryIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+      if (!masteryIds.every((id) => progress.decisions[`assessment:${id}`]?.startsWith('correct'))) {
+        throw new Error('Module 3 mastery evidence is incomplete')
+      }
+      const completedCheckpointIds = [...new Set([
+        ...progress.completedCheckpointIds,
+        'm3-portfolio-build' as CheckpointId,
+        'm3-mastery' as CheckpointId,
+        'm3-complete' as CheckpointId
+      ])]
+      const completions = progress.practiceCompletions.filter((item) =>
+        !(item.courseRunId === receipt.courseRunId && item.practiceId === receipt.practiceId && item.runId === receipt.runId))
+      const updated: LearnerProgress = {
+        ...progress,
+        currentLessonId: 'module-3',
+        currentCourseLessonId: 'm3-independent-enhancement',
+        checkpointId: 'm3-complete',
+        sceneId: 'module-3-complete',
+        sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
+        completedCheckpointIds,
+        practiceCompletions: [...completions, structuredClone(receipt)],
+        updatedAt: this.now().toISOString()
+      }
+      if (!isLearnerProgress(updated)) throw new Error('Invalid completed Module 3 progress')
+      await this.writeAtomic(this.backupPath, this.backupTempPath, progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, updated)
+      await this.appendActivity('module_3_completed', updated)
       return updated
     })
   }

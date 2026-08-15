@@ -162,13 +162,13 @@
       ]
     },
     {
-      "id": "final-assessment",
+      "id": "m3-final-assessment",
       "title": "Mastery Module 3",
       "placement": "after-passed-m3-portfolio-build",
       "mode": "mastery",
       "questions": [
         {
-          "id": "mastery-1",
+          "id": "m3-mastery-1",
           "sceneId": "module-3-mastery-scaffold",
           "type": "multiple-choice",
           "prompt": "`npm run check` đạt nhưng trang trung tính không mở được trong trình duyệt. Gate scaffold nên xử lý thế nào?",
@@ -188,7 +188,7 @@
           }
         },
         {
-          "id": "mastery-2",
+          "id": "m3-mastery-2",
           "sceneId": "module-3-mastery-slice",
           "type": "multiple-choice",
           "prompt": "Codex báo đã xây xong toàn bộ portfolio trong một lần và mọi check đều đạt. Bằng chứng nào vẫn bắt buộc?",
@@ -208,7 +208,7 @@
           }
         },
         {
-          "id": "mastery-3",
+          "id": "m3-mastery-3",
           "sceneId": "module-3-mastery-debug",
           "type": "multiple-choice",
           "prompt": "Sau bản sửa, lỗi gốc đã hết nhưng navigation bàn phím bị hỏng. Kết luận phù hợp là gì?",
@@ -228,7 +228,7 @@
           }
         },
         {
-          "id": "mastery-owned-revision",
+          "id": "m3-mastery-owned-revision",
           "sceneId": "module-3-mastery-owned-revision",
           "type": "short-answer",
           "prompt": "Dựa trên `revision-record.md` của bạn, nêu điều bạn quan sát trước khi sửa, thay đổi có giới hạn đã duyệt và bằng chứng cho thấy kết quả mới tốt hơn.",
@@ -246,7 +246,7 @@
           }
         },
         {
-          "id": "mastery-owned-enhancement",
+          "id": "m3-mastery-owned-enhancement",
           "sceneId": "module-3-mastery-owned-enhancement",
           "type": "short-answer",
           "prompt": "Dựa trên `enhancement-plan.md` của bạn, giải thích vì sao bạn chọn cải tiến này, tiêu chí nào quyết định thành công và cách bạn biết portfolio core không bị phá vỡ.",

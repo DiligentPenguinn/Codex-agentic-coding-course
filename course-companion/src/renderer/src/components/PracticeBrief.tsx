@@ -134,7 +134,8 @@ export function PracticeBrief({
 
   const recordPortfolioStage = async (
     stageId: string,
-    decision: 'approved' | 'revision-requested'
+    decision: 'approved' | 'revision-requested',
+    sliceId?: import('../../../../shared/contracts').PortfolioBuildSliceId
   ) => {
     const active = workspace?.activePractice
     if (!active || !courseRunId || busy || !window.courseCompanion) return
@@ -148,11 +149,12 @@ export function PracticeBrief({
         practiceVersion: active.practiceVersion,
         courseRunId,
         stageId,
+        ...(sliceId ? { sliceId } : {}),
         decision
       })
       setWorkspace(next)
       if (decision === 'approved'
-        && next.portfolioPlanning?.stages.every((stage) => stage.status === 'completed')) {
+        && (next.portfolioPlanning ?? next.portfolioBuild)?.stages.every((stage) => stage.status === 'completed')) {
         await onPortfolioComplete?.()
       }
     } catch {
@@ -214,7 +216,7 @@ export function PracticeBrief({
       <PracticeProgress
         workspace={workspace}
         actionBusy={busy}
-        onPortfolioStageAction={courseRunId ? (stageId, decision) => void recordPortfolioStage(stageId, decision) : undefined}
+        onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
         onRefresh={() => void load()}
       />
 

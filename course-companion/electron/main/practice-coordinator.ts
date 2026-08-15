@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { portfolioBuildSliceIds } from '../../shared/contracts'
 import type {
   ApprovedCodexConfiguration,
   PracticeAdapterEvidenceState,
@@ -184,6 +185,71 @@ function portfolioPlanningWorkspaceView(
   }
 }
 
+function portfolioBuildWorkspaceView(
+  active: PracticeRunRecord,
+  definition: PracticeDefinition
+): NonNullable<PracticeWorkspaceView['portfolioBuild']> {
+  const evidence = active.evidence?.portfolioBuild
+  const stageEvidence = new Map(evidence?.stages.map((stage) => [stage.stageId, stage]))
+  const receipts = new Map(active.stageReceipts?.map((receipt) => [receipt.stageId, receipt]))
+  let priorCurrent = true
+  const stages = (definition.stages ?? []).map((stage) => {
+    const receipt = receipts.get(stage.id)
+    const observed = stageEvidence.get(stage.id)
+    const status = receipt?.freshness === 'current'
+      ? 'completed' as const
+      : receipt?.freshness === 'stale'
+        ? 'stale' as const
+        : !priorCurrent
+          ? 'pending' as const
+          : observed?.status === 'ready'
+            ? 'ready' as const
+            : 'blocked' as const
+    priorCurrent = status === 'completed'
+    return {
+      stageId: stage.id,
+      stageIndex: stage.order,
+      status,
+      artifactPaths: [...stage.requiredArtifactPaths],
+      issueCodes: [...(observed?.issueCodes ?? [])],
+      ...(receipt?.staleReason ? { staleReason: receipt.staleReason } : {})
+    }
+  })
+  let priorSliceCurrent = true
+  const slices = portfolioBuildSliceIds.map((sliceId, index) => {
+    const receipt = active.buildSliceReceipts?.find((item) => item.sliceId === sliceId)
+    const issueCodes = (evidence?.issues ?? [])
+      .filter((item) => item.path === `evidence/module-3/build-log.${sliceId}`)
+      .map((item) => item.code)
+    const hasDigest = evidence?.artifacts.some((item) =>
+      item.path === `evidence/module-3/build-log.${sliceId}` && item.byteLength > 0)
+    const status = receipt?.freshness === 'current'
+      ? 'completed' as const
+      : receipt?.freshness === 'stale'
+        ? 'stale' as const
+        : !priorSliceCurrent
+          ? 'pending' as const
+          : hasDigest && issueCodes.length === 0
+            ? 'ready' as const
+            : 'blocked' as const
+    priorSliceCurrent = status === 'completed'
+    return {
+      sliceId,
+      sliceIndex: (index + 1) as 1 | 2 | 3 | 4,
+      status,
+      issueCodes: [...new Set(issueCodes)],
+      ...(receipt?.staleReason ? { staleReason: receipt.staleReason } : {})
+    }
+  })
+  return {
+    freshness: active.evidence?.freshness ?? 'unverifiable',
+    ...(active.evidence?.observedAt ? { observedAt: active.evidence.observedAt } : {}),
+    unexpectedPaths: [...(evidence?.unexpectedPaths ?? [])],
+    stages,
+    slices
+  }
+}
+
 export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   private operationTail: Promise<void> = Promise.resolve()
   private lastError = ''
@@ -250,7 +316,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           ...pending,
           pendingTransition: { ...transition, stage: 'target-created', targetBinding }
         })
-        if (definition.evidenceProfile === 'planning-package' || definition.evidenceProfile === 'portfolio-planning') {
+        if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
           await this.prepareExecutor?.(targetBinding, definition.evidenceProfile === 'planning-package')
         }
         await this.executor.prepareTarget(targetBinding, definition)
@@ -295,7 +361,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       if (transition.stage === 'target-created' && transition.targetBinding) {
         let committed
         try {
-          if (definition.evidenceProfile === 'planning-package' || definition.evidenceProfile === 'portfolio-planning') {
+          if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
             await this.prepareExecutor?.(transition.targetBinding, definition.evidenceProfile === 'planning-package')
           }
           await this.executor.prepareTarget(transition.targetBinding, definition)
@@ -324,7 +390,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       })
       let committed
       try {
-        if (definition.evidenceProfile === 'planning-package' || definition.evidenceProfile === 'portfolio-planning') {
+        if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
           await this.prepareExecutor?.(targetBinding, definition.evidenceProfile === 'planning-package')
         }
         await this.executor.prepareTarget(targetBinding, definition)
@@ -406,7 +472,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         || active.generation !== request.generation
         || active.practiceId !== request.practiceId
         || active.practiceVersion !== request.practiceVersion
-        || active.evidenceProfile !== 'portfolio-planning'
+        || (active.evidenceProfile !== 'portfolio-planning' && active.evidenceProfile !== 'portfolio-build')
         || !this.evidenceAdapters) {
         throw new Error('Portfolio stage action does not belong to the active Practice run')
       }
@@ -419,7 +485,9 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         throw new Error('Practice changed while portfolio evidence was refreshed')
       }
       const stage = definition.stages?.find((candidate) => candidate.id === request.stageId)
-      const portfolioEvidence = active.evidence?.portfolioPlanning
+      const portfolioEvidence = active.evidenceProfile === 'portfolio-build'
+        ? active.evidence?.portfolioBuild
+        : active.evidence?.portfolioPlanning
       const observed = portfolioEvidence?.stages.find((candidate) =>
         candidate.stageId === request.stageId)
       if (!stage || !observed || !portfolioEvidence) throw new Error('Unknown portfolio Practice stage')
@@ -436,11 +504,52 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         return this.toView(saved)
       }
       if (active.evidence?.freshness !== 'fresh'
-        || observed.status !== 'ready'
         || Object.keys(observed.artifactDigests).length === 0) {
         throw new Error('Portfolio stage does not have fresh, corroborated artifact evidence')
       }
       const approvedAt = this.now().toISOString()
+      if (active.evidenceProfile === 'portfolio-build' && request.sliceId) {
+        const sliceIndex = portfolioBuildSliceIds.indexOf(request.sliceId) + 1
+        const path = `evidence/module-3/build-log.${request.sliceId}`
+        const artifact = portfolioEvidence.artifacts.find((item) => item.path === path)
+        const sliceIssues = portfolioEvidence.issues.filter((item) => item.path === path)
+        if (stage.id !== 'complete-first-version' || sliceIndex < 1 || !artifact || sliceIssues.length > 0) {
+          throw new Error('Build slice does not have fresh corroborated evidence')
+        }
+        const digests = {
+          'planning/PRD.md': portfolioEvidence.artifacts.find((item) => item.path === 'planning/PRD.md')?.digest ?? '',
+          'evidence/module-3/design-direction.md': portfolioEvidence.artifacts.find((item) => item.path === 'evidence/module-3/design-direction.md')?.digest ?? '',
+          [path]: artifact.digest
+        }
+        if (Object.values(digests).some((value) => !value)) throw new Error('Build slice inputs are incomplete')
+        const saved = await this.repository.saveBuildSliceReceipt({
+          runId: active.runId,
+          generation: active.generation,
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion,
+          receipt: {
+            schemaVersion: 1,
+            courseRunId: request.courseRunId,
+            practiceId: active.practiceId,
+            practiceVersion: active.practiceVersion,
+            runId: active.runId,
+            stageId: 'complete-first-version',
+            stageIndex: 2,
+            sliceId: request.sliceId,
+            sliceIndex: sliceIndex as 1 | 2 | 3 | 4,
+            workspace: { canonicalPath: active.binding.workspaceRoot, identityDigest: portfolioEvidence.workspaceIdentityDigest },
+            artifactDigests: digests,
+            approval: { approvedAt, artifactDigests: { ...digests } },
+            evidence: { executorReportedChecks: [...observed.executorReportedChecks], corroboratedArtifacts: { ...digests } },
+            status: 'completed',
+            freshness: 'current',
+            observedAt: active.evidence.observedAt
+          },
+          updatedAt: approvedAt
+        })
+        return this.toView(saved)
+      }
+      if (observed.status !== 'ready') throw new Error('Portfolio stage is not ready')
       const saved = await this.repository.saveStageReceipt({
         runId: active.runId,
         generation: active.generation,
@@ -507,7 +616,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       return record
     }
     const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
-    if (active.evidenceProfile === 'portfolio-planning') {
+    if (active.evidenceProfile === 'portfolio-planning' || active.evidenceProfile === 'portfolio-build') {
       return this.refreshPortfolioEvidence(record, definition)
     }
     if (active.evidenceProfile !== 'planning-package') return record
@@ -530,11 +639,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     definition: PracticeDefinition
   ): Promise<PracticeWorkspaceRecord> {
     const active = record.activeRun
-    if (!active || active.evidenceProfile !== 'portfolio-planning' || !this.evidenceAdapters) {
+    if (!active || (active.evidenceProfile !== 'portfolio-planning' && active.evidenceProfile !== 'portfolio-build') || !this.evidenceAdapters) {
       return record
     }
     await this.prepareExecutor?.(active.binding, false)
-    const evidence = await this.evidenceAdapters.resolve('portfolio-planning').collect({
+    const evidence = await this.evidenceAdapters.resolve(active.evidenceProfile).collect({
       definition,
       runId: active.runId,
       generation: active.generation,
@@ -550,7 +659,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       return refreshed
     }
     const currentArtifactDigests = Object.fromEntries(
-      (evidence.portfolioPlanning?.artifacts ?? []).map((artifact) => [artifact.path, artifact.digest])
+      ((evidence.portfolioPlanning ?? evidence.portfolioBuild)?.artifacts ?? []).map((artifact) => [artifact.path, artifact.digest])
     )
     refreshed = await this.repository.reconcileStageArtifacts({
       runId: current.runId,
@@ -613,7 +722,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       learnerApprovals: {},
       evidence: null,
       invalidations: [],
-      ...(definition.stages ? { stageReceipts: [] } : {})
+      ...(definition.stages ? { stageReceipts: [] } : {}),
+      ...(definition.evidenceProfile === 'portfolio-build' ? { buildSliceReceipts: [] } : {})
     }
     const archivedRuns = record.activeRun
       ? [
@@ -695,6 +805,9 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         : {}),
       ...(displayedRun?.evidenceProfile === 'portfolio-planning' && definition
         ? { portfolioPlanning: portfolioPlanningWorkspaceView(displayedRun, definition) }
+        : {}),
+      ...(displayedRun?.evidenceProfile === 'portfolio-build' && definition
+        ? { portfolioBuild: portfolioBuildWorkspaceView(displayedRun, definition) }
         : {}),
       ...(record.activeRun
         ? {

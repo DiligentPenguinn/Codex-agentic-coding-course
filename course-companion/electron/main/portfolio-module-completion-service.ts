@@ -8,6 +8,7 @@ import {
   type PracticeCompletionReceipt
 } from '../../shared/contracts'
 import type { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
+import type { PortfolioBuildEvidenceAdapter } from './portfolio-build-evidence-adapter'
 import type { PortfolioWorkspaceRepository } from './portfolio-workspace-repository'
 import type { PracticeDefinitionRepository } from './practice-definition-repository'
 import { practiceWorkspaceIdentityDigest, type PracticeRunRepository } from './practice-run-repository'
@@ -63,7 +64,8 @@ export class PortfolioModuleCompletionService {
     private readonly practiceRunRepository: PracticeRunRepository,
     private readonly definitionRepository: PracticeDefinitionRepository,
     private readonly evidenceAdapter: PortfolioPlanningEvidenceAdapter,
-    private readonly now: () => Date = () => new Date()
+    private readonly now: () => Date = () => new Date(),
+    private readonly buildEvidenceAdapter?: PortfolioBuildEvidenceAdapter
   ) {}
 
   async completeModuleTwo(): Promise<LearnerProgress> {
@@ -209,5 +211,74 @@ export class PortfolioModuleCompletionService {
       }
     }
     return this.progressRepository.completePortfolioPlanning(receipt)
+  }
+
+  async completeModuleThree(): Promise<LearnerProgress> {
+    if (!this.buildEvidenceAdapter) throw new Error('Module 3 evidence adapter is unavailable')
+    const progressResult = await this.progressRepository.load()
+    if (progressResult.status !== 'returning' && progressResult.status !== 'recovered') throw new Error('Learner progress is unavailable')
+    const progress = progressResult.progress
+    if (progress.sceneId !== 'module-3-mastery-summary') throw new Error('Finish Module 3 mastery before completing the module')
+    const workspace = await this.workspaceRepository.load({ courseRunId: progress.courseRunId })
+    if (workspace.status !== 'ready' || !workspace.selectedPath) throw new Error('The selected portfolio workspace is not ready')
+    const canonicalPath = resolve(workspace.selectedPath)
+    const record = await this.practiceRunRepository.load()
+    const active = record.activeRun
+    if (!active || active.practiceId !== 'm3-portfolio-build' || active.practiceVersion !== '1.0.0'
+      || resolve(active.binding.workspaceRoot) !== canonicalPath) throw new Error('The active build Practice does not match this portfolio workspace')
+    const definition = await this.definitionRepository.load(active.practiceId, active.practiceVersion)
+    const fresh = await this.buildEvidenceAdapter.collect({
+      definition, runId: active.runId, generation: active.generation, workspaceRoot: canonicalPath,
+      task: { threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot }
+    })
+    const build = fresh.portfolioBuild
+    if (fresh.freshness !== 'fresh' || !build || build.issues.length > 0 || build.unexpectedPaths.length > 0) {
+      throw new Error('The current portfolio build has missing or invalid evidence')
+    }
+    const digests = new Map(build.artifacts.map((artifact) => [artifact.path, artifact.digest]))
+    const requiredArtifacts = definition.stages?.flatMap((stage) => stage.requiredArtifactPaths) ?? []
+    if (!requiredArtifacts.every((path) => digests.has(path))) throw new Error('All eight Module 3 artifacts are required')
+    const receipts = active.stageReceipts ?? []
+    if (receipts.length !== 5 || !definition.stages?.every((stage) => {
+      const receipt = receipts.find((item) => item.stageId === stage.id)
+      return receipt?.courseRunId === progress.courseRunId && receipt.freshness === 'current'
+        && receipt.workspace.identityDigest === build.workspaceIdentityDigest
+        && sameDigests(receipt.artifactDigests, digests)
+    })) throw new Error('Five current stage receipts are required')
+    const slices = active.buildSliceReceipts ?? []
+    if (slices.length !== 4 || !slices.every((receipt, index) => receipt.courseRunId === progress.courseRunId
+      && receipt.sliceIndex === index + 1 && receipt.freshness === 'current'
+      && sameDigests(receipt.artifactDigests, digests))) throw new Error('Four current build slice receipts are required')
+    const questionIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+    const answers = questionIds.map((id) => progress.decisions[`assessment:${id}`] ?? '')
+    if (answers.some((answer) => !answer.startsWith('correct'))
+      || answers.slice(3).some((answer) => answer.slice('correct:self-review:'.length).trim().length < 20)) {
+      throw new Error('Module 3 mastery evidence is incomplete')
+    }
+    const sourceCheckpoint = receipts.find((item) => item.stageId === 'independent-enhancement')?.evidence.executorReportedChecks.find((item) => /checkpoint|commit/i.test(item))
+      ?? `practice-${active.runId}`
+    const completedAt = this.now().toISOString()
+    return this.progressRepository.completePortfolioBuild({
+      schemaVersion: 1,
+      courseRunId: progress.courseRunId,
+      practiceId: active.practiceId,
+      practiceVersion: active.practiceVersion,
+      runId: active.runId,
+      checkpointId: 'm3-complete',
+      status: 'completed',
+      completedAt,
+      evidenceSummary: 'Đã đối chiếu tám artifact, năm stage, bốn phần xây dựng, npm run check và bằng chứng trình duyệt hiện tại.',
+      masterySummary: 'Đã lưu ba câu tình huống và hai câu giải thích từ artifact của người học.',
+      destination: { lessonId: 'module-3', checkpointId: 'm3-complete', sceneId: 'module-3-complete' },
+      portfolioBuildHandoff: {
+        schemaVersion: 1,
+        workspace: { canonicalPath, identityDigest: build.workspaceIdentityDigest },
+        artifactDigests: Object.fromEntries(digests),
+        stageReceiptIds: receipts.sort((a, b) => a.stageIndex - b.stageIndex).map((item) => item.stageId),
+        buildSliceReceiptIds: slices.sort((a, b) => a.sliceIndex - b.sliceIndex).map((item) => item.sliceId),
+        sourceCheckpoint,
+        moduleFourInput: { workspacePath: canonicalPath, sourceCheckpoint }
+      }
+    })
   }
 }

@@ -44,6 +44,7 @@ import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-reg
 import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
 import { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
+import { PortfolioBuildEvidenceAdapter } from './portfolio-build-evidence-adapter'
 import { PortfolioModuleCompletionService } from './portfolio-module-completion-service'
 import {
   PortfolioWorkspaceError,
@@ -177,10 +178,12 @@ const executorChatCoordinator = new ExecutorChatCoordinator(
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
 const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(activityObserver)
+const portfolioBuildEvidenceAdapter = new PortfolioBuildEvidenceAdapter(activityObserver)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
   new CodexConfigurationEvidenceAdapter(activityObserver),
   new PlanningPackageEvidenceAdapter(activityObserver),
-  portfolioPlanningEvidenceAdapter
+  portfolioPlanningEvidenceAdapter,
+  portfolioBuildEvidenceAdapter
 ])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
@@ -204,7 +207,9 @@ const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
   portfolioWorkspaceRepository,
   practiceRunRepository,
   practiceDefinitionRepository,
-  portfolioPlanningEvidenceAdapter
+  portfolioPlanningEvidenceAdapter,
+  undefined,
+  portfolioBuildEvidenceAdapter
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
@@ -445,14 +450,15 @@ function isPlanningPracticeActionRequest(value: unknown): value is PlanningPract
 
 function isPortfolioStageActionRequest(value: unknown): value is PortfolioStageActionRequest {
   return isRecord(value)
-    && Object.keys(value).length === 7
+    && (Object.keys(value).length === 7 || Object.keys(value).length === 8)
     && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.runId))
     && Number.isSafeInteger(value.generation)
     && Number(value.generation) > 0
-    && value.practiceId === 'm2-portfolio-planning'
+    && (value.practiceId === 'm2-portfolio-planning' || value.practiceId === 'm3-portfolio-build')
     && value.practiceVersion === '1.0.0'
     && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.courseRunId))
     && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.stageId))
+    && (value.sliceId === undefined || ['foundation-hero', 'selected-work', 'about-contact-footer', 'responsive-accessibility'].includes(String(value.sliceId)))
     && (value.decision === 'approved' || value.decision === 'revision-requested')
 }
 
@@ -481,6 +487,9 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle('course:complete-portfolio-planning-module', () =>
     portfolioModuleCompletionService.completeModuleTwo())
+
+  ipcMain.handle('course:complete-portfolio-build-module', () =>
+    portfolioModuleCompletionService.completeModuleThree())
 
   ipcMain.handle('course:reset-progress', async () => {
     await Promise.all([

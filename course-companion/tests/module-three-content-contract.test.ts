@@ -152,10 +152,10 @@ describe('Module 3 content and evidence contract', () => {
       requiresPracticeReceipt: true
     })
     expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(5)
-    const final = quiz.groups.find((group) => group.id === 'final-assessment')!
+    const final = quiz.groups.find((group) => group.id === 'm3-final-assessment')!
     expect(final.questions).toHaveLength(5)
     expect(final.questions.filter((question) => question.type === 'short-answer').map((question) => question.id)).toEqual([
-      'mastery-owned-revision', 'mastery-owned-enhancement'
+      'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement'
     ])
     for (const question of quiz.groups.flatMap((group) => group.questions)) {
       const source = question.source as { kind: string; url: string; basis: string }

@@ -2786,6 +2786,31 @@ button:focus-visible {
 .practice-portfolio-issues { margin: 9px 0 0 40px; padding-left: 16px; color: var(--pixel-danger); font-size: 10px; }
 .practice-portfolio-stages > li > p { margin: 9px 0 0 40px; color: var(--pixel-danger); font-size: 10px; }
 .practice-portfolio-actions { margin: 11px 0 0 40px; display: flex; flex-wrap: wrap; gap: 7px; }
+.practice-build-slices {
+  margin: 12px 0 0 40px;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+.practice-build-slices > li {
+  padding: 9px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border-left: 3px solid #2d3b60;
+  background: rgba(20, 31, 58, 0.8);
+}
+.practice-build-slices > li.is-ready { border-left-color: var(--pixel-yellow); }
+.practice-build-slices > li.is-completed { border-left-color: var(--pixel-mint); }
+.practice-build-slices > li.is-stale,
+.practice-build-slices > li.is-blocked { border-left-color: var(--pixel-danger); }
+.practice-build-slices > li.is-pending { opacity: 0.52; }
+.practice-build-slices span,
+.practice-build-slices em { color: var(--pixel-cyan); font: normal 6px/1.2 var(--pixel-font); }
+.practice-build-slices strong { color: var(--pixel-cream); font-size: 10px; }
+.practice-build-slices .practice-portfolio-actions { grid-column: 2 / -1; margin: 3px 0 0; }
 .practice-portfolio-planning > small { display: block; margin-top: 10px; color: var(--pixel-cyan); }
 
 .practice-review-result {
@@ -2886,7 +2911,11 @@ button:focus-visible {
 .practice-progress.is-compact .practice-portfolio-artifacts,
 .practice-progress.is-compact .practice-portfolio-issues,
 .practice-progress.is-compact .practice-portfolio-stages > li > p,
+.practice-progress.is-compact .practice-build-slices,
 .practice-progress.is-compact .practice-portfolio-actions { margin-left: 34px; }
+.practice-progress.is-compact .practice-build-slices > li { grid-template-columns: 24px minmax(0, 1fr); }
+.practice-progress.is-compact .practice-build-slices > li > em { grid-column: 2; }
+.practice-progress.is-compact .practice-build-slices .practice-portfolio-actions { margin-left: 0; }
 .practice-progress.is-compact .practice-artifacts { grid-template-columns: 1fr; }
 .practice-progress.is-compact .practice-checklist { margin-top: 10px; }
 .practice-progress.is-compact .practice-checklist li { padding: 8px; grid-template-columns: 24px 1fr; }

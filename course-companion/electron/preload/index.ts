@@ -32,6 +32,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:save-progress', update) as Promise<LearnerProgress>,
   completePortfolioPlanningModule: () =>
     ipcRenderer.invoke('course:complete-portfolio-planning-module') as Promise<LearnerProgress>,
+  completePortfolioBuildModule: () =>
+    ipcRenderer.invoke('course:complete-portfolio-build-module') as Promise<LearnerProgress>,
   resetProgress: () => ipcRenderer.invoke('course:reset-progress') as Promise<void>,
   loadCompanionState: () =>
     ipcRenderer.invoke('course:load-companion-state') as Promise<CompanionState>,

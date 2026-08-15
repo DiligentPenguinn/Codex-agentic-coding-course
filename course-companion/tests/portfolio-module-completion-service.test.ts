@@ -7,6 +7,8 @@ import { PortfolioModuleCompletionService } from '../electron/main/portfolio-mod
 import { ProgressRepository } from '../electron/main/progress-repository'
 import {
   portfolioPlanningArtifactPaths,
+  portfolioBuildSliceIds,
+  type PracticeBuildSliceReceipt,
   type PortfolioPlanningEvidenceState,
   type PracticeStageReceipt,
   type ProgressUpdate
@@ -156,6 +158,99 @@ async function fixture() {
   return { root, workspace, progressRepository, progress, planning, receipts, dependencies, service }
 }
 
+async function moduleThreeFixture() {
+  const base = await fixture()
+  const moduleThreeReady = await base.service.completeModuleTwo()
+  const decisions = {
+    ...moduleThreeReady.decisions,
+    'assessment:m3-mastery-1': 'correct:1',
+    'assessment:m3-mastery-2': 'correct:1',
+    'assessment:m3-mastery-3': 'correct:1',
+    'assessment:m3-mastery-owned-revision': 'correct:self-review:Tôi đưa dự án lên sớm hơn và kiểm tra lại navigation ở hai viewport.',
+    'assessment:m3-mastery-owned-enhancement': 'correct:self-review:Tôi thêm link CV tĩnh và kiểm tra tải file, keyboard cùng npm run check.'
+  }
+  const mastery = await base.progressRepository.save({
+    currentLessonId: 'module-3',
+    currentCourseLessonId: 'm3-independent-enhancement',
+    checkpointId: 'm3-mastery',
+    sceneId: 'module-3-mastery-summary',
+    sceneHistory: ['module-3-portfolio-practice'],
+    completedCheckpointIds: [...moduleThreeReady.completedCheckpointIds, 'm3-portfolio-build'],
+    decisions
+  })
+  const stageIds = ['scaffold-baseline', 'complete-first-version', 'whole-page-revision', 'evidence-debugging', 'independent-enhancement'] as const
+  const stageArtifactPaths = [
+    ['evidence/module-3/scaffold-report.md'],
+    ['evidence/module-3/design-direction.md', 'evidence/module-3/build-log.md', 'evidence/module-3/browser-validation.md'],
+    ['evidence/module-3/revision-record.md'],
+    ['evidence/module-3/debugging-report.md'],
+    ['evidence/module-3/enhancement-plan.md', 'evidence/module-3/final-change-summary.md']
+  ] as const
+  const allPaths = [
+    'planning/PRD.md', 'planning/implementation-plan.md',
+    ...stageArtifactPaths.flat(),
+    ...portfolioBuildSliceIds.map((id) => `evidence/module-3/build-log.${id}`)
+  ]
+  const digestMap = new Map(allPaths.map((path) => [path, sha256(`current:${path}`)]))
+  const workspaceDigest = sha256(base.workspace)
+  const receipts: PracticeStageReceipt[] = stageIds.map((stageId, index) => {
+    const artifactDigests = Object.fromEntries([
+      'planning/PRD.md', 'planning/implementation-plan.md', ...stageArtifactPaths[index]!
+    ].map((path) => [path, digestMap.get(path)!]))
+    return {
+      schemaVersion: 1, courseRunId: mastery.courseRunId, practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0',
+      runId: 'run-build', stageId, stageIndex: (index + 1) as 1 | 2 | 3 | 4 | 5,
+      workspace: { canonicalPath: base.workspace, identityDigest: workspaceDigest }, artifactDigests,
+      approval: { approvedAt: observedAt, artifactDigests },
+      evidence: { executorReportedChecks: ['npm run check passed', 'checkpoint commit-build'], corroboratedArtifacts: artifactDigests },
+      status: 'completed', freshness: 'current', observedAt
+    }
+  })
+  const slices: PracticeBuildSliceReceipt[] = portfolioBuildSliceIds.map((sliceId, index) => {
+    const artifactDigests = Object.fromEntries([
+      ['planning/PRD.md', digestMap.get('planning/PRD.md')!],
+      ['evidence/module-3/design-direction.md', digestMap.get('evidence/module-3/design-direction.md')!],
+      [`evidence/module-3/build-log.${sliceId}`, digestMap.get(`evidence/module-3/build-log.${sliceId}`)!]
+    ])
+    return {
+      schemaVersion: 1, courseRunId: mastery.courseRunId, practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0', runId: 'run-build',
+      stageId: 'complete-first-version', stageIndex: 2, sliceId, sliceIndex: (index + 1) as 1 | 2 | 3 | 4,
+      workspace: { canonicalPath: base.workspace, identityDigest: workspaceDigest }, artifactDigests,
+      approval: { approvedAt: observedAt, artifactDigests }, evidence: { executorReportedChecks: ['npm run check passed'], corroboratedArtifacts: artifactDigests },
+      status: 'completed', freshness: 'current', observedAt
+    }
+  })
+  const build = {
+    schemaVersion: 1 as const,
+    workspaceIdentityDigest: workspaceDigest,
+    artifacts: allPaths.map((path) => ({ path, digest: digestMap.get(path)!, byteLength: 100, modifiedAt: observedAt, observedAt })),
+    issues: [], unexpectedPaths: [],
+    stages: stageIds.map((stageId, index) => ({
+      stageId, stageIndex: (index + 1) as 1 | 2 | 3 | 4 | 5, status: 'ready' as const,
+      artifactDigests: receipts[index]!.artifactDigests, executorReportedChecks: ['npm run check passed'],
+      corroboratedArtifacts: receipts[index]!.artifactDigests, issueCodes: []
+    }))
+  }
+  const definition = {
+    practiceId: 'm3-portfolio-build', version: '1.0.0',
+    stages: stageIds.map((id, index) => ({ id, order: (index + 1) as 1 | 2 | 3 | 4 | 5, dependsOn: index ? [stageIds[index - 1]!] : [], requiredArtifactPaths: [...stageArtifactPaths[index]!] }))
+  }
+  const active = {
+    runId: 'run-build', generation: 1, practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0',
+    binding: { threadId: 'thread-build', workspaceRoot: base.workspace }, stageReceipts: receipts, buildSliceReceipts: slices
+  }
+  const service = new PortfolioModuleCompletionService(
+    base.progressRepository,
+    { load: async () => ({ status: 'ready', selectedPath: base.workspace }) } as never,
+    { load: async () => ({ activeRun: active }) } as never,
+    { load: async () => definition } as never,
+    base.dependencies.evidenceAdapter as never,
+    () => new Date(observedAt),
+    { collect: async () => ({ freshness: 'fresh', portfolioBuild: build }) } as never
+  )
+  return { ...base, mastery, receipts, slices, build, service }
+}
+
 describe('PortfolioModuleCompletionService', () => {
   it('atomically saves the receipt and opens Module 3 readiness with explicit artifact inputs only', async () => {
     const test = await fixture()
@@ -232,5 +327,22 @@ describe('PortfolioModuleCompletionService', () => {
 
     await expect(test.progressRepository.load()).resolves.toEqual({ status: 'new' })
     await expect(readFile(join(test.root, 'data', 'learner-state.json'), 'utf8')).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('atomically completes Module 3 only with five stages, four slices and current mastery', async () => {
+    const test = await moduleThreeFixture()
+    const completed = await test.service.completeModuleThree()
+    expect(completed).toMatchObject({ sceneId: 'module-3-complete', completedCheckpointIds: expect.arrayContaining(['m3-portfolio-build', 'm3-mastery', 'm3-complete']) })
+    expect(completed.practiceCompletions.at(-1)?.portfolioBuildHandoff).toMatchObject({
+      workspace: { canonicalPath: test.workspace },
+      buildSliceReceiptIds: portfolioBuildSliceIds
+    })
+  })
+
+  it('keeps Module 3 locked when a nested build slice receipt is missing', async () => {
+    const test = await moduleThreeFixture()
+    test.slices.pop()
+    await expect(test.service.completeModuleThree()).rejects.toThrow('Four current build slice receipts')
+    await expect(test.progressRepository.load()).resolves.toMatchObject({ status: 'returning', progress: { sceneId: 'module-3-mastery-summary' } })
   })
 })

@@ -9,6 +9,7 @@ import type {
   PracticeEvidenceProfile,
   PracticeDefinition,
   PracticeLearnerApproval,
+  PracticeBuildSliceReceipt,
   PracticeStageReceipt,
   PlanningPracticeActionRequest,
   PracticePanel,
@@ -17,6 +18,7 @@ import type {
   PracticeWorkspaceKind
 } from '../../shared/contracts'
 import {
+  portfolioBuildSliceIds,
   practiceEvidenceProfiles,
   practiceTaskPolicies,
   practiceWorkspaceKinds
@@ -55,6 +57,7 @@ export type PracticeRunRecord = {
   evidence: PracticeAdapterEvidenceState | null
   invalidations: PracticeEvidenceInvalidation[]
   stageReceipts?: PracticeStageReceipt[]
+  buildSliceReceipts?: PracticeBuildSliceReceipt[]
   reviewStatus: 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
   reviewResult?: PracticeReviewResult
   completion?: PracticeCompletionReceipt
@@ -243,6 +246,34 @@ function isStageReceipts(value: unknown, active: {
   })
 }
 
+function isBuildSliceReceipts(value: unknown, active: {
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  workspaceRoot: string
+}): value is PracticeBuildSliceReceipt[] {
+  if (!Array.isArray(value) || value.length > 4) return false
+  const ids = new Set<string>()
+  const indexes = new Set<number>()
+  return value.every((receipt) => {
+    if (!isPracticeStageReceipt(receipt)) return false
+    const slice = receipt as PracticeBuildSliceReceipt
+    if (slice.stageId !== 'complete-first-version'
+      || slice.stageIndex !== 2
+      || !portfolioBuildSliceIds.includes(slice.sliceId)
+      || ![1, 2, 3, 4].includes(slice.sliceIndex)
+      || ids.has(slice.sliceId)
+      || indexes.has(slice.sliceIndex)) return false
+    ids.add(slice.sliceId)
+    indexes.add(slice.sliceIndex)
+    return slice.practiceId === active.practiceId
+      && slice.practiceVersion === active.practiceVersion
+      && slice.runId === active.runId
+      && resolve(slice.workspace.canonicalPath) === resolve(active.workspaceRoot)
+      && slice.workspace.identityDigest === practiceWorkspaceIdentityDigest(slice.workspace.canonicalPath)
+  })
+}
+
 function isApprovals(value: unknown): boolean {
   return isRecord(value)
     && Object.keys(value).length <= 20
@@ -278,6 +309,10 @@ function isEvidence(value: unknown): value is PracticeAdapterEvidenceState {
     && (value.portfolioPlanning === undefined || (
       value.evidenceProfile === 'portfolio-planning'
       && isPortfolioPlanningEvidence(value.portfolioPlanning)
+    ))
+    && (value.portfolioBuild === undefined || (
+      value.evidenceProfile === 'portfolio-build'
+      && isPortfolioPlanningEvidence(value.portfolioBuild)
     ))
 }
 
@@ -418,7 +453,14 @@ function isRun(value: unknown): value is PracticeRunRecord {
           practiceVersion: String(value.practiceVersion),
           runId: String(value.runId),
           workspaceRoot: (value.binding as ExecutorChatBinding).workspaceRoot
-        })
+        }) && (value.evidenceProfile !== 'portfolio-build'
+          ? value.buildSliceReceipts === undefined
+          : isBuildSliceReceipts(value.buildSliceReceipts, {
+              practiceId: String(value.practiceId),
+              practiceVersion: String(value.practiceVersion),
+              runId: String(value.runId),
+              workspaceRoot: (value.binding as ExecutorChatBinding).workspaceRoot
+            }))
       : value.stageReceipts === undefined) &&
     ['not-reviewed', 'reviewing', 'needs-work', 'passed'].includes(String(value.reviewStatus)) &&
     (value.reviewResult === undefined || isReviewResult(value.reviewResult)) &&
@@ -743,6 +785,12 @@ export class PracticeRunRepository {
         && receipt.evidence.corroboratedArtifacts[path] === receipt.artifactDigests[path])) {
         throw new Error('Stage receipt is missing corroborated artifact evidence')
       }
+      if (active.evidenceProfile === 'portfolio-build'
+        && stage.id === 'complete-first-version'
+        && !portfolioBuildSliceIds.every((sliceId) =>
+          active.buildSliceReceipts?.find((item) => item.sliceId === sliceId)?.freshness === 'current')) {
+        throw new Error('Four current build slice receipts are required')
+      }
 
       const previous = currentByStage.get(stage.id)
       const changedStage = Boolean(previous
@@ -768,6 +816,46 @@ export class PracticeRunRepository {
           ...active,
           stageReceipts: nextReceipts,
           checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
+          reviewStatus: 'not-reviewed',
+          reviewResult: undefined,
+          completion: undefined,
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  saveBuildSliceReceipt(input: RunIdentity & {
+    receipt: PracticeBuildSliceReceipt
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      const receipt = input.receipt
+      if (!matchesRun(active, input)
+        || active.evidenceProfile !== 'portfolio-build'
+        || !isBuildSliceReceipts([receipt], {
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion,
+          runId: active.runId,
+          workspaceRoot: active.binding.workspaceRoot
+        })) throw new Error('Invalid portfolio build slice receipt')
+      const scaffold = active.stageReceipts?.find((item) => item.stageId === 'scaffold-baseline')
+      if (scaffold?.freshness !== 'current') throw new Error('The scaffold stage must be current')
+      const current = active.buildSliceReceipts ?? []
+      if (!portfolioBuildSliceIds.slice(0, receipt.sliceIndex - 1).every((sliceId) =>
+        current.find((item) => item.sliceId === sliceId)?.freshness === 'current')) {
+        throw new Error('Build slices must be accepted in order')
+      }
+      const next = current.filter((item) => item.sliceId !== receipt.sliceId)
+      next.push(structuredClone(receipt))
+      next.sort((left, right) => left.sliceIndex - right.sliceIndex)
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          buildSliceReceipts: next,
           reviewStatus: 'not-reviewed',
           reviewResult: undefined,
           completion: undefined,
@@ -803,7 +891,16 @@ export class PracticeRunRepository {
           && Object.entries(receipt.artifactDigests).some(([path, digest]) =>
             input.currentArtifactDigests[path] !== digest))
         .map((receipt) => receipt.stageId))
-      if (directlyChanged.size === 0) return record
+      const changedSliceIndex = active.evidenceProfile === 'portfolio-build'
+        ? (active.buildSliceReceipts ?? []).reduce<number | null>((earliest, receipt) => {
+            const changed = Object.entries(receipt.artifactDigests).some(([path, digest]) =>
+              input.currentArtifactDigests[path] !== digest)
+            return changed && (earliest === null || receipt.sliceIndex < earliest)
+              ? receipt.sliceIndex
+              : earliest
+          }, null)
+        : null
+      if (directlyChanged.size === 0 && changedSliceIndex === null) return record
       const affected = dependentStageIds(input.definition, directlyChanged)
       const changedPaths = new Set(receipts.flatMap((receipt) =>
         directlyChanged.has(receipt.stageId)
@@ -820,11 +917,22 @@ export class PracticeRunRepository {
             staleReason: reason
           }
         : receipt)
+      const nextSlices = changedSliceIndex === null
+        ? active.buildSliceReceipts
+        : (active.buildSliceReceipts ?? []).map((receipt) => receipt.sliceIndex >= changedSliceIndex
+          ? {
+              ...receipt,
+              status: 'stale' as const,
+              freshness: 'stale' as const,
+              staleReason: 'Bằng chứng của phần xây dựng này hoặc một phần trước đó đã thay đổi.'
+            }
+          : receipt)
       return this.saveDirect({
         ...record,
         activeRun: {
           ...active,
           stageReceipts: nextReceipts,
+          ...(nextSlices ? { buildSliceReceipts: nextSlices } : {}),
           checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
           reviewStatus: 'not-reviewed',
           reviewResult: undefined,

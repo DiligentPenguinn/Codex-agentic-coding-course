@@ -20,6 +20,7 @@ import courseStructure from '../../../../../pilot-workspace/course/course-struct
 import setupPracticeDefinitionSource from '../../../../../pilot-workspace/course/practices/m1-codex-safe-setup.json'
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
+import buildQuiz from '../../../../../pilot-workspace/course/quizzes/module-3.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
@@ -171,7 +172,8 @@ const setupAssessmentGroup: AssessmentGroup = {
 
 const assessmentGroups = [
   setupAssessmentGroup,
-  ...(planningQuiz.groups as AssessmentGroup[])
+  ...(planningQuiz.groups as AssessmentGroup[]),
+  ...(buildQuiz.groups as AssessmentGroup[])
 ]
 const assessmentQuestions = assessmentGroups.flatMap((group) => group.questions)
 const assessmentQuestionById = new Map(assessmentQuestions.map((question) => [question.id, question]))
@@ -2382,6 +2384,22 @@ export function LearningWindow() {
     }
   }
 
+  const completePortfolioBuildModule = async () => {
+    if (!window.courseCompanion || busy) return
+    setBusy(true)
+    setError('')
+    try {
+      const completed = await window.courseCompanion.completePortfolioBuildModule()
+      setProgress(completed)
+      setReviewHistoryIndex(null)
+      setDestination('lesson')
+    } catch {
+      setError('Gate Module 3 chưa đạt. Hãy làm mới Practice và bổ sung artifact, biên nhận phần xây dựng hoặc câu trả lời còn thiếu.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const advanceToScene = async (nextSceneId: SceneId, decisions: Record<string, string>) => {
     if (!progress) return
     const currentScene = scenes[progress.sceneId]
@@ -2443,6 +2461,12 @@ export function LearningWindow() {
       'prd-retrieval': 'module-2-implementation-contract',
       'planning-retrieval': 'module-2-portfolio-practice',
       'final-assessment': 'module-2-portfolio-mastery-summary',
+      'scaffold-retrieval': 'module-3-first-version-intro',
+      'first-version-retrieval': 'module-3-revision-intro',
+      'revision-retrieval': 'module-3-debugging-intro',
+      'debugging-retrieval': 'module-3-enhancement-intro',
+      'enhancement-retrieval': 'module-3-portfolio-practice',
+      'm3-final-assessment': 'module-3-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
@@ -2506,7 +2530,8 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
-      if (progress.sceneId === 'module-2-portfolio-practice') {
+      if (progress.sceneId === 'module-2-portfolio-practice'
+        || progress.sceneId === 'module-3-portfolio-practice') {
         setReviewHistoryIndex(null)
         setError('')
         setPracticeBriefOpen(true)
@@ -2675,6 +2700,7 @@ export function LearningWindow() {
     : 0
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
+    || displayedSceneId === 'module-3-mastery-summary'
   const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
     && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
@@ -2909,11 +2935,17 @@ export function LearningWindow() {
             {isPortfolioMasterySummary ? (
               <div className="pixel-assessment-review-actions">
                 <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
-                  Làm lại 10 câu
+                  Làm lại {finalQuestionCount} câu
                 </button>
-                <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
-                  {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
-                </button>
+                {displayedSceneId === 'module-2-portfolio-mastery-summary' ? (
+                  <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
+                    {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
+                  </button>
+                ) : (
+                  <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioBuildModule()}>
+                    {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 3'}
+                  </button>
+                )}
               </div>
             ) : (
               <button
@@ -2963,15 +2995,20 @@ export function LearningWindow() {
         <PracticeBrief
           identity={progress.sceneId === 'module-2-portfolio-practice'
             ? { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
-            : { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }}
+            : progress.sceneId === 'module-3-portfolio-practice'
+              ? { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }
+              : { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }}
           courseRunId={progress.sceneId === 'module-2-portfolio-practice'
+            || progress.sceneId === 'module-3-portfolio-practice'
             ? progress.courseRunId
             : undefined}
           onClose={() => setPracticeBriefOpen(false)}
           onPortfolioComplete={async () => {
-            await advanceToScene('module-2-portfolio-mastery', {
+            const isModuleThree = progress.sceneId === 'module-3-portfolio-practice'
+            await advanceToScene(isModuleThree ? 'module-3-portfolio-mastery' : 'module-2-portfolio-mastery', {
               ...progress.decisions,
-              portfolioPlanningPractice: 'five-current-stage-receipts'
+              [isModuleThree ? 'portfolioBuildPractice' : 'portfolioPlanningPractice']:
+                isModuleThree ? 'five-stages-four-slices-current' : 'five-current-stage-receipts'
             })
             setPracticeBriefOpen(false)
           }}

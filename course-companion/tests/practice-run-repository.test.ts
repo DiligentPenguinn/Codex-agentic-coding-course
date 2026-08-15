@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   defaultPracticeWorkspaceRecord,
+  practiceWorkspaceIdentityDigest,
   PracticeRunRepository,
   type PracticeRunRecord,
   type PracticeWorkspaceRecord
@@ -69,6 +70,65 @@ describe('PracticeRunRepository', () => {
     await expect(repository.save(record)).resolves.toEqual(record)
     await expect(repository.load()).resolves.toEqual(record)
     expect(JSON.parse(await readFile(join(directory, 'practice-runs.json'), 'utf8'))).toEqual(record)
+  })
+
+  it('persists ordered Module 3 build slice receipts across a repository relaunch', async () => {
+    const directory = await temporaryDirectory()
+    const workspace = await temporaryDirectory()
+    const repository = new PracticeRunRepository(directory)
+    const identity = { runId: 'run-build', generation: 1, practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }
+    const workspaceIdentity = practiceWorkspaceIdentityDigest(workspace)
+    const scaffoldDigests = {
+      'planning/PRD.md': 'a'.repeat(64),
+      'planning/implementation-plan.md': 'b'.repeat(64),
+      'evidence/module-3/scaffold-report.md': 'c'.repeat(64)
+    }
+    const scaffold = {
+      schemaVersion: 1 as const, courseRunId: 'course-1', ...identity,
+      stageId: 'scaffold-baseline', stageIndex: 1 as const,
+      workspace: { canonicalPath: workspace, identityDigest: workspaceIdentity },
+      artifactDigests: scaffoldDigests,
+      approval: { approvedAt: '2026-08-15T00:00:00.000Z', artifactDigests: scaffoldDigests },
+      evidence: { executorReportedChecks: ['npm run check passed'], corroboratedArtifacts: scaffoldDigests },
+      status: 'completed' as const, freshness: 'current' as const, observedAt: '2026-08-15T00:00:00.000Z'
+    }
+    await repository.save(activeRecord(activeRun({
+      ...identity,
+      workspaceKind: 'learner-portfolio', taskPolicy: 'safe-workspace-write', evidenceProfile: 'portfolio-build',
+      binding: { runId: identity.runId, threadId: 'thread-build', name: 'Practice build', workspaceRoot: workspace, createdAt: '2026-08-15T00:00:00.000Z' },
+      checklist: [
+        { id: 'scaffold-baseline', title: 'Scaffold', status: 'completed', dependencyInputs: {} },
+        { id: 'complete-first-version', title: 'Build', status: 'current', dependencyInputs: {} },
+        { id: 'whole-page-revision', title: 'Revision', status: 'pending', dependencyInputs: {} },
+        { id: 'evidence-debugging', title: 'Debug', status: 'pending', dependencyInputs: {} },
+        { id: 'independent-enhancement', title: 'Enhancement', status: 'pending', dependencyInputs: {} }
+      ],
+      stageReceipts: [scaffold], buildSliceReceipts: []
+    })))
+    const saveSlice = async (sliceId: 'foundation-hero' | 'selected-work', sliceIndex: 1 | 2) => {
+      const artifactDigests = {
+        'planning/PRD.md': 'a'.repeat(64),
+        'evidence/module-3/design-direction.md': 'd'.repeat(64),
+        [`evidence/module-3/build-log.${sliceId}`]: String(sliceIndex).repeat(64)
+      }
+      return repository.saveBuildSliceReceipt({
+        ...identity,
+        updatedAt: `2026-08-15T00:0${sliceIndex}:00.000Z`,
+        receipt: {
+          schemaVersion: 1, courseRunId: 'course-1', ...identity,
+          stageId: 'complete-first-version', stageIndex: 2, sliceId, sliceIndex,
+          workspace: { canonicalPath: workspace, identityDigest: workspaceIdentity }, artifactDigests,
+          approval: { approvedAt: `2026-08-15T00:0${sliceIndex}:00.000Z`, artifactDigests },
+          evidence: { executorReportedChecks: ['npm run check passed'], corroboratedArtifacts: artifactDigests },
+          status: 'completed', freshness: 'current', observedAt: `2026-08-15T00:0${sliceIndex}:00.000Z`
+        }
+      })
+    }
+    await saveSlice('foundation-hero', 1)
+    await saveSlice('selected-work', 2)
+    await expect(new PracticeRunRepository(directory).load()).resolves.toMatchObject({
+      activeRun: { buildSliceReceipts: [{ sliceId: 'foundation-hero' }, { sliceId: 'selected-work' }] }
+    })
   })
 
   it('archives a historical schema-1 active run instead of reinterpreting it', async () => {
