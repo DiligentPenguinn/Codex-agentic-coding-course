@@ -1,240 +1,375 @@
-# Kịch bản — Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt
+# Kịch bản Teacher — Module 2: Xác định, giới hạn và lập kế hoạch portfolio
 
-## Bước 1 — Hiểu vì sao planning quan trọng (`m2-why-planning`)
+## Hợp đồng điều phối
 
-Teacher nói: "Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây
-sẽ giúp coding agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng
-tốn thời gian, nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một
-ứng dụng không vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn
-thời gian hơn nhiều so với planning kỹ ngay từ đầu."
+Teacher mở module bằng cách xác nhận:
 
-Teacher nói: "Không phải việc nào cũng cần planning. Bạn có thể giao trực tiếp
-cho coding agent nếu yêu cầu nhỏ và kết quả đã rõ. Hãy lập kế hoạch trước khi
-bắt đầu xây một sản phẩm mới. Bạn cũng nên planning nếu chưa xác định được
-hướng đi hoặc thứ tự thực hiện."
+> “Kết thúc module này, bạn sẽ có một gói planning đủ rõ để Codex bắt đầu xây
+> portfolio ở Module 3. Hôm nay chúng ta chỉ lập kế hoạch trong thư mục
+> `planning/`; chưa chọn công nghệ, chưa cài đặt và chưa tạo ứng dụng.”
 
-Teacher nói: "Hướng dẫn thiết kế của Microsoft cũng dùng cách phân biệt này:
-không phải công việc nào cũng cần một bản thiết kế, nhưng planning có ích khi
-yêu cầu còn mơ hồ, có nhiều điều chưa biết hoặc người thực hiện chưa thể chỉ ra
-đầy đủ các bước cần làm. Vì vậy, trước khi planning, hãy nhìn vào độ rõ của
-công việc thay vì chỉ nhìn vào độ dài của yêu cầu."
+Teacher phải tuân theo các quy tắc sau trong toàn bộ module:
 
-Teacher nói: "Ví dụ, tạo một ứng dụng mới từ đầu cần planning. Bạn còn phải
-quyết định người dùng sẽ làm gì, dữ liệu đi vào từ đâu, kết quả nào được tạo ra
-và phiên bản đầu dừng ở đâu. Ngược lại, bạn có thể giao trực tiếp việc sửa chữ
-hoặc màu của một nút nhỏ nếu vị trí và kết quả mới đã rõ."
+1. Hỏi đúng một câu mỗi lượt và chờ Learner trả lời.
+2. Không hỏi lại điều đã có thể đọc từ artifact hoặc bằng chứng hiện tại.
+3. Với quyết định làm thay đổi mục tiêu, phạm vi, quyền riêng tư hoặc đầu ra,
+   nêu vấn đề, phương án đề xuất, hệ quả, lựa chọn có ý nghĩa và chỉ hỏi một câu.
+4. Chấp nhận câu trả lời bằng ngôn ngữ thông thường; không bắt Learner dùng
+   thuật ngữ sản phẩm, thiết kế hay kỹ thuật.
+5. Dùng hint theo mức tăng dần. Không đưa câu trả lời thay Learner trước khi họ
+   tự thử.
+6. Không yêu cầu Learner đọc code hoặc diff. Codex thực hiện kiểm tra kỹ thuật
+   và tóm tắt bằng ngôn ngữ thông thường.
+7. Chỉ công nhận bằng chứng mới nhất gắn với đúng course run, practice run,
+   workspace và digest artifact hiện tại.
+8. Một lời khẳng định trong chat không thay thế file, nguồn, quyền công bố hoặc
+   receipt cần thiết.
+9. Nếu artifact thay đổi sau khi duyệt, đánh dấu stage liên quan và mọi stage
+   phụ thuộc là stale; quay về bước đầu tiên cần phục hồi trong cùng Practice.
 
-[Đây là phần dạy, không phải bài kiểm tra. Không mở Assessment State. Tiếp tục
-sang ý tưởng ContentPilot và lưu checkpoint `m2-why-planning`.]
+Teacher dùng sáu khái niệm nhất quán:
 
-## Bước 2 — Nhìn ra điều còn thiếu trong ý tưởng ContentPilot (`m2-contentpilot-brief`)
+- `đã kiểm chứng`: có nguồn phù hợp;
+- `lời tự khai`: Learner xác nhận nhưng chưa có nguồn độc lập;
+- `giả định`: tạm dùng để planning và cần kiểm chứng;
+- `còn thiếu`: chưa có nội dung hoặc bằng chứng;
+- `riêng tư`: không được đưa vào phần công khai;
+- quyền công bố: `được phép`, `không được phép` hoặc `chưa rõ`.
 
-Teacher nói: "Bây giờ ta áp dụng planning vào dự án thực hành. ContentPilot là
-công cụ giúp người sáng tạo phân tích các bài viết hiện có trên profile — hoặc
-một profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý tưởng nội dung có khả
-năng bắt kịp xu hướng. Đây mới là ý tưởng một câu, chưa phải kế hoạch."
+Trạng thái sự thật và quyền công bố phải được kiểm tra riêng.
 
-Teacher nói: "Một ý tưởng như vậy chưa cho ta biết luồng sử dụng, đầu vào cụ thể,
-đầu ra cụ thể, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. Bạn chưa cần biết
-code hay chọn công nghệ. Trước tiên, ta cần một tài liệu giữ các quyết định về
-sản phẩm. Tài liệu đó gọi là PRD."
+## Milestone 1 — Tạo bản mô tả ngắn cho portfolio (`m2-portfolio-brief`)
 
-[Đây là bước nối kiến thức, không phải bài kiểm tra. Nếu muốn Learner tham gia,
-hỏi họ chọn một điểm muốn làm rõ trước và chấp nhận mọi lựa chọn liên quan đến
-luồng sử dụng, đầu vào, đầu ra, phạm vi hoặc dấu hiệu hoàn thành. Không mở
-Assessment State. Sau đó lưu checkpoint `m2-contentpilot-brief`.]
+### Explain
 
-## Bước 3 — Hiểu PRD trước khi phân loại (`m2-prd-concept`)
+Teacher nói:
 
-Teacher nói: "PRD, viết tắt của Product Requirements Document, là tài liệu mô
-tả chúng ta đang xây sản phẩm gì, vì sao sản phẩm cần tồn tại, phạm vi phiên bản
-đầu và làm sao biết sản phẩm đáp ứng yêu cầu. PRD giữ các quyết định về sản phẩm
-trước khi coding agent chọn cách xây."
+> “Portfolio sẽ rõ hơn khi nó giúp một nhóm người xem chính đưa ra một quyết
+> định cụ thể. Ta chưa cần persona hay nghiên cứu dài. Ta chỉ cần một giả thuyết
+> tập trung và gọi đúng tên điều chưa có bằng chứng.”
 
-Teacher nói: "Trong bài này, mình dùng mẫu PRD một trang có tám phần: ý tưởng
-sản phẩm, luồng sử dụng cốt lõi, đầu vào, đầu ra, phạm vi phiên bản 1, ngoài
-phạm vi, Done When và câu hỏi còn mở. Ở bước này, mình chưa yêu cầu bạn viết
-persona để bạn tập trung vào việc làm rõ sản phẩm."
+Teacher giải thích mối nối: mục đích → người xem chính → quyết định của người
+xem → dấu hiệu truyền đạt thành công → ranh giới phiên bản đầu.
 
-Teacher nói: "Ví dụ trong mẫu PRD của Atlassian bắt đầu từ một giả định: phần
-lớn người dùng truy cập bằng máy tính bảng. Từ giả định đó, nhóm có thể ghi yêu
-cầu giao diện phải hiển thị tốt trên máy tính bảng. Mẫu này cũng yêu cầu ghi câu
-hỏi còn mở và những gì nằm ngoài phạm vi để tránh sản phẩm tự lớn dần ngoài ý
-định ban đầu."
+### Ví dụ hoàn chỉnh nhưng không thể sao chép
 
-Teacher nói: "Để coding agent bớt phải đoán, hãy cho nó xem một vài ví dụ phù
-hợp. Không cần gom thật nhiều. Mỗi ví dụ cần đi cùng lời giải thích về điều bạn
-muốn học theo."
+Teacher kể ví dụ Mai điều phối chương trình phục hồi rạn san hô cho trường học.
+Đọc đủ năm quyết định từ bài học, sau đó hỏi:
 
-Teacher nói: "Dạng đầu tiên là ví dụ bằng hình ảnh. Bạn có thể dùng ảnh chụp
-giao diện hoặc bản thiết kế để cho thấy bố cục và luồng mong muốn. Pinterest
-giúp tìm ý tưởng. Mobbin có màn hình và luồng từ sản phẩm thật. Dribbble có các
-bản thiết kế giao diện. OpenAI Docs cũng khuyên dùng ảnh rõ ràng và đưa thêm
-những trạng thái thật sự cần thiết."
+> “Trong ví dụ này, vì sao ‘giáo viên phụ trách hoạt động ngoại khóa’ hữu ích
+> hơn câu ‘mọi người yêu môi trường’?”
 
-Teacher nói: "Dạng thứ hai là ví dụ bằng code. Đó có thể là một đoạn HTML, một
-thành phần giao diện hoặc repository có cách làm gần với điều bạn muốn. Hãy chỉ
-đúng tệp hoặc đoạn cần xem. Sau đó, nói rõ bạn muốn học theo cách sắp xếp hay
-cách phần đó hoạt động. Ví dụ này không bắt coding agent dùng cùng cách xây.
-Repository công khai không tự động có nghĩa là được phép sao chép code, vì vậy
-hãy kiểm tra giấy phép trước khi dùng lại."
+[Đây là câu retrieval, không chấm điểm. Chấp nhận câu trả lời cho thấy nhóm
+người xem hẹp giúp chọn thông tin và hành động rõ hơn. Nếu Learner chưa trả lời
+được, gợi ý lần lượt: quyết định cần đưa ra → thông tin cần ưu tiên.]
 
-Teacher nói: "Bạn có thể đặt ảnh hoặc đường dẫn ngay dưới yêu cầu liên quan
-trong PRD. Ví dụ giúp làm rõ yêu cầu; ví dụ không thay thế cho việc nói rõ mục
-tiêu, phạm vi và Done When."
+### Guided application
 
-Teacher nói: "Ta đã học xong hai vùng kiến thức đầu tiên: khi nào cần planning
-và cách làm PRD rõ hơn. Bây giờ mới đến ba câu kiểm tra ngắn."
+Teacher hỏi câu đầu tiên:
 
-[Dùng nhóm `planning-prd-check` trong
-`course/quizzes/module-2.quiz.json`. Mở Assessment State cho từng câu và hỏi
-đúng một câu mỗi lượt. Sau khi Learner trả lời, đưa lời giải cùng nguồn của câu
-đó rồi mới tiếp tục. Đây là ba câu kiểm tra đầu tiên của module. Khi hoàn tất,
-lưu checkpoint `m2-prd-concept`.]
+> “Bạn muốn portfolio này giúp mình đạt điều gì?”
 
-## Bước 4 — Hiểu prompt trước khi tự viết (`m2-prd-interview`)
+[Chờ Learner. Sau đó chỉ hỏi câu tiếp theo chưa có câu trả lời: người xem chính,
+quyết định cần đưa ra, dấu hiệu thành công, ranh giới phiên bản đầu.]
 
-Teacher nói: "Bây giờ bạn đã biết PRD cần làm rõ điều gì. Bước tiếp theo là
-viết prompt để coding agent giúp bạn tạo PRD. Prompt là lời giao việc cho coding
-agent. Prompt engineering là cách làm lời giao việc đó đủ rõ để agent hiểu đúng
-và trả lại kết quả bạn có thể kiểm tra."
+Nếu Learner chọn nhiều người xem ngang nhau, Teacher đưa decision packet ngắn:
 
-Teacher nói: "Thay vì nhớ các nhãn khó hiểu, hãy trả lời năm câu hỏi:
+> “Vấn đề là một phiên bản đầu khó ưu tiên thông tin cho nhiều nhóm có quyết
+> định khác nhau. Mình đề xuất chọn nhóm gần nhất với mục tiêu bạn vừa nêu; các
+> nhóm còn lại vẫn có thể xem nhưng không điều khiển cấu trúc. Cách này giúp PRD
+> và tiêu chí chấp nhận rõ hơn, đổi lại phiên bản đầu sẽ không tối ưu cho tất cả.
+> Bạn có đồng ý chọn nhóm đó làm người xem chính không?”
 
-1. Bạn muốn coding agent giúp làm việc gì?
-2. Coding agent cần biết những thông tin nào?
-3. Coding agent nên làm việc với bạn như thế nào?
-4. Coding agent không được tự làm điều gì?
-5. Kết quả cuối cùng cần có những gì?"
+### Learner artifact
 
-Teacher nói: "Tài liệu chính thức của OpenAI cũng khuyên prompt nên nêu rõ mục
-tiêu, bối cảnh, ràng buộc, bằng chứng cần có, tiêu chí thành công và định dạng
-đầu ra. Một ví dụ chính thức yêu cầu agent xem xét kế hoạch chuyển dữ liệu, tìm
-nguy cơ gây mất dữ liệu hoặc gián đoạn, dẫn lại bước liên quan và trả về năm rủi
-ro quan trọng nhất theo thứ tự. Ví dụ đó cho thấy agent biết việc cần làm, điều
-cần tìm và kết quả phải trình bày ra sao. Mình diễn đạt lại nguyên tắc này thành
-năm câu hỏi để bạn dễ áp dụng."
+[Mở Stage 1 trong Practice `m2-portfolio-planning`. Executor chỉ được tạo hoặc
+sửa `planning/portfolio-brief.md`. Không tạo file ứng dụng. Learner phải tự xác
+nhận nội dung và quyết định `chấp nhận` hoặc `sửa`.]
 
-Teacher nói: "Áp dụng vào ContentPilot: việc cần làm là hỗ trợ tạo PRD. Thông
-tin ban đầu là ý tưởng một câu. Cách làm việc là hỏi một câu mỗi lượt. Agent
-không được tự quyết định thay bạn hoặc viết code. Kết quả cuối là PRD một trang
-có đủ tám phần."
+### Fresh evidence và accept/revise
 
-Teacher nói: "Bạn đã học xong prompt engineering. Bây giờ là ba câu kiểm tra
-ngắn trước khi bạn tự viết prompt cho ContentPilot."
+Codex kiểm tra đủ heading, ranh giới, privacy checklist, approval và digest.
+Teacher tóm tắt năm phần: đã thay đổi, cần chú ý, giữ nguyên, kiểm tra/kết quả,
+rủi ro còn lại. Hỏi:
 
-[Dùng nhóm `prompt-check` trong `course/quizzes/module-2.quiz.json`. Mở
-Assessment State cho từng câu và hỏi đúng một câu mỗi lượt. Sau mỗi câu, đưa
-lời giải cùng nguồn. Khi hoàn tất ba câu, lưu checkpoint `m2-prd-interview`.
-Chưa yêu cầu Learner viết prompt, chưa mở cuộc phỏng vấn và chưa tạo artifact;
-các hành động đó thuộc Practice duy nhất ở Bước 6.]
+> “Bạn chấp nhận bản mô tả ngắn hiện tại, hay muốn sửa một điểm?”
 
-## Bước 5 — Hiểu implementation plan trước khi yêu cầu tạo plan
-(`m2-implementation-plan`)
+[Chỉ cấp receipt `m2-portfolio-brief` khi Learner chấp nhận đúng digest hiện
+tại. Nếu sửa, kiểm tra lại và hỏi lại trên bản mới.]
 
-Teacher nói: "PRD đã duyệt là nguồn giữ phạm vi sản phẩm. Implementation plan
-biến phạm vi đó thành những bước xây dựng có thứ tự. Mình sẽ hướng dẫn bạn viết
-mỗi bước với bốn phần: mục tiêu, thành phần hoặc file dự kiến, kết quả có thể
-quan sát và cách kiểm tra kết quả."
+## Milestone 2 — Kiểm kê nội dung và bằng chứng (`m2-content-evidence-inventory`)
 
-Teacher nói: "Mẫu Task Design Review của Microsoft tách rõ phần trong phạm vi,
-ngoài phạm vi, phương án thực hiện, thành phần cần thay đổi và câu hỏi còn mở.
-Mình dùng phiên bản ngắn hơn để bạn dễ bắt đầu. Mục đích vẫn giữ nguyên: mỗi
-bước phải giải thích nó phục vụ yêu cầu nào và sẽ được kiểm tra ra sao."
+### Explain
 
-Teacher nói: "Quay lại ví dụ máy tính bảng của Atlassian: nếu PRD yêu cầu giao
-diện hiển thị tốt trên máy tính bảng, plan có thể có một bước chỉnh bố cục và
-một phép kiểm tra ở chiều rộng máy tính bảng. PRD nói kết quả sản phẩm cần đạt;
-plan nói cách tạo và kiểm tra kết quả đó."
+Teacher nói:
 
-Teacher nói: "Bạn đã học xong implementation plan. Bây giờ là hai câu kiểm tra
-ngắn về phạm vi và cách đối chiếu plan với PRD."
+> “Một portfolio đáng tin phải phân biệt điều có nguồn, điều do chính bạn xác
+> nhận, giả định và khoảng trống. Sau đó ta kiểm tra riêng quyền riêng tư và
+> quyền công bố. Bằng chứng thật không tự động có nghĩa là được phép đăng.”
 
-Teacher nói: "Khi đối chiếu hai tài liệu, hãy kiểm tra bốn điều: mọi yêu cầu
-trong phạm vi PRD đều có bước tương ứng; mọi bước đều truy ngược về PRD; nội
-dung ngoài phạm vi không quay trở lại; và mỗi Done When đều trở thành một phép
-kiểm tra trong plan. Trong Practice, chính bạn sẽ dùng bốn điều này để quyết
-định sửa PRD hay sửa plan nếu hai tài liệu lệch nhau."
+Teacher liên hệ nguồn GOV.UK: ý kiến không xuất phát từ bằng chứng người dùng
+phải được coi là giả định cần kiểm chứng. Đây là nguyên tắc phân loại, không phải
+yêu cầu Learner làm một dự án nghiên cứu người dùng.
 
-[Dùng nhóm `implementation-plan-check` trong
-`course/quizzes/module-2.quiz.json`. Mở Assessment State cho từng câu. Sau mỗi
-câu, đưa lời giải cùng nguồn. Khi hoàn tất hai câu, lưu checkpoint
-`m2-implementation-plan`. Chưa yêu cầu tạo plan hoặc sửa file; mọi thao tác với
-artifact thuộc Practice ở bước tiếp theo.]
+### Ví dụ hoàn chỉnh nhưng không thể sao chép
 
-## Bước 6 — Hoàn thành một Practice planning package (`m2-planning-package`)
+Teacher trình bày đủ bốn hàng inventory của Mai trong bài học. Sau đó hỏi:
 
-Teacher nói: "Bạn đã học xong cả ba phần và hoàn thành đủ 3 + 3 + 2 câu kiểm
-tra. Bây giờ ta chuyển sang một Practice duy nhất, có thể tạm dừng và tiếp tục.
-Trong Practice này, bạn sẽ biến ý tưởng ContentPilot thành PRD và implementation
-plan đã duyệt mà chưa viết code."
+> “Ảnh học sinh đã được xác nhận là ảnh thật. Vì sao ảnh đó vẫn chưa được đưa
+> vào bản công khai?”
 
-Teacher nói: "Course Companion sẽ tạo task Executor với model, mức suy luận và
-speed đã được Triết duyệt ở Module 1. Task này dùng approval `on-request`, chỉ
-được ghi trong workspace và không bật Full access. Bạn không cần chụp ảnh hay
-nhập lại cấu hình. Nếu chưa có receipt cấu hình Module 1 hoặc metadata hiệu lực
-không an toàn, Course Companion sẽ dừng trước khi gửi bất kỳ prompt nào và hướng
-bạn quay lại bước thiết lập."
+[Chờ Learner. Đáp án cần nêu quyền riêng tư hoặc quyền sử dụng chưa rõ. Chỉ đưa
+giải thích đầy đủ sau khi Learner trả lời.]
 
-Teacher nói: "Practice có tám bước nối tiếp nhau: tự viết prompt tạo PRD; hoàn
-thành phỏng vấn từng câu; xem xét, duyệt và lưu PRD; yêu cầu tạo plan từ PRD;
-đối chiếu bốn điểm alignment; duyệt và lưu plan; giải thích một quyết định phạm
-vi rồi yêu cầu Triết duyệt; cuối cùng quay lại khóa học. Course Companion giữ
-trạng thái từng bước, nên nếu tạm dừng bạn sẽ tiếp tục tại bước chưa hoàn thành
-đầu tiên."
+### Guided application
 
-[Mở Practice `m2-planning-package` phiên bản `2.0.0`. Không thực hiện các hành
-động dưới đây trong thread dạy học. Bên trong đúng Practice run hiện tại:
+Teacher bắt đầu từ nội dung ảnh hưởng trực tiếp tới quyết định của người xem:
 
-1. Learner tự viết prompt tạo PRD bằng lời của họ. Dùng hint ladder, không đưa
-   prompt hoàn chỉnh trước khi Learner thử. Prompt đạt khi nói rõ việc cần làm,
-   thông tin agent cần biết, cách làm việc một câu mỗi lượt, điều agent không
-   được tự làm và kết quả PRD một trang có tám phần.
-2. Executor dùng nguyên văn prompt của Learner và hỏi đúng một câu mỗi lượt.
-   Tiếp tục tới khi đủ thông tin rồi đưa bản nháp PRD để review.
-3. Learner kiểm tra đủ tám phần, Done When, câu hỏi còn mở và ràng buộc chưa
-   code. Chỉ sau lời duyệt rõ ràng “Duyệt và lưu PRD” mới tạo
-   `artifacts/PRD.md`. Nếu Learner yêu cầu sửa, chỉ sửa nội dung họ nêu rồi quay
-   lại review.
-4. Learner yêu cầu Executor đọc PRD đã duyệt làm nguồn phạm vi duy nhất và tạo
-   bản nháp implementation plan. Mỗi bước phải có mục tiêu, thành phần hoặc file
-   dự kiến, kết quả quan sát, cách kiểm tra, phụ thuộc và yêu cầu PRD liên quan;
-   plan phải nêu rủi ro, giả định, câu hỏi mở, kiểm tra end-to-end và chưa code.
-5. Learner đối chiếu bốn điểm alignment. Nếu lệch, Learner quyết định sửa đúng
-   tài liệu; Executor không được âm thầm chọn thay.
-6. Chỉ sau lời duyệt rõ ràng “Duyệt và lưu implementation plan” mới tạo
-   `artifacts/implementation-plan.md`.
-7. Learner giải thích bằng lời của mình ít nhất một quyết định phạm vi rồi yêu
-   cầu Triết duyệt. Triết chỉ đọc gói bằng chứng đã giới hạn gồm hai artifact,
-   digest hiện tại, phê duyệt, alignment, quyết định phạm vi và provenance của
-   task; Triết không dùng công cụ và không sửa file. Nếu review chưa đạt hoặc
-   artifact thay đổi, giữ cùng run và quay lại bước đầu tiên bị stale.
-8. Chỉ khi review semantic đạt trên đúng hai digest hiện tại mới cho phép quay
-   lại khóa học. Khi quay lại, lưu checkpoint `m2-planning-package` và mở phần
-   kiểm tra cuối.]
+> “Nội dung hoặc dự án nào quan trọng nhất để người xem chính đưa ra quyết định
+> bạn đã chọn?”
 
-## Bước 7 — Kiểm tra cuối Module 2 (`m2-mastery`)
+[Mỗi lượt chỉ hỏi về một nội dung. Tiếp tục qua vai trò, kết quả, nguồn, media,
+liên kết, quyền riêng tư và quyền sử dụng. Không biến khoảng trống thành câu chữ
+marketing.]
 
-Teacher nói: "Phần kiểm tra cuối giúp bạn vận dụng planning, PRD, prompt và
-implementation plan trong những tình huống mới. Phần này có 15 câu: mười câu
-lựa chọn, ba câu trả lời ngắn và hai câu dùng chính planning package vừa tạo."
+Khi Learner muốn dùng một con số chưa có nguồn, Teacher đề xuất:
 
-[Dùng nhóm `final-assessment` trong `course/quizzes/module-2.quiz.json`. Hỏi
-đúng một câu mỗi lượt. Chỉ hiện lời giải, căn cứ và nguồn sau khi Learner đã trả
-lời. Với câu tự luận, yêu cầu Learner viết trước rồi tự đối chiếu với tiêu chí
-công khai. Learner cần đạt ít nhất 12/15 câu. Khi pass theo
-`course/pedagogy/rubrics/mastery-rubric.vi.md`, lưu checkpoint `m2-mastery`.]
+> “Con số này có thể làm portfolio thuyết phục hơn nhưng hiện chưa có bằng
+> chứng. Mình đề xuất đánh dấu `còn thiếu` và chưa công khai; nếu sau này tìm
+> được nguồn, bạn có thể đưa lại vào. Giữ nó như một sự thật ngay bây giờ sẽ làm
+> giảm độ tin cậy. Bạn muốn theo đề xuất này hay loại hẳn con số khỏi phạm vi?”
 
-## Bước 8 — Hoàn thành Module 2 (`m2-complete`)
+### Learner artifact
 
-Teacher nói: "Bạn đã biến một ý tưởng một câu thành hai tài liệu đủ rõ để coding
-agent bắt đầu xây mà chưa cần bạn biết lập trình. PRD giữ sản phẩm đi đúng
-hướng; prompt giúp bạn giao việc rõ ràng; implementation plan biến hướng đó
-thành các bước có thể thực hiện và kiểm tra. Ở module tiếp theo, hai tài liệu
-này sẽ là điểm xuất phát cho implementation và debugging."
+[Mở Stage 2. Executor chỉ sửa
+`planning/content-evidence-inventory.md`. Mỗi hàng phải có trạng thái, nguồn,
+quyền công bố, quyền sở hữu/quyền sử dụng và việc tiếp theo.]
 
-[Xác nhận receipt của Practice chứng minh hai artifact, phê duyệt, alignment,
-quyết định phạm vi và semantic review đều đạt trên đúng run hiện tại. Xác nhận
-Learner đạt ít nhất 12/15 câu và checkpoint `m2-mastery`. Chạy lệnh complete;
-hard gate trong progress repository sẽ từ chối nếu thiếu Practice pass hoặc
-mastery score. Chỉ sau khi lệnh thành công mới thông báo hoàn thành.]
+### Fresh evidence và accept/revise
+
+Codex kiểm tra hàng thiếu nhãn, kết quả định lượng, dữ liệu cá nhân, bí mật,
+media và quyền sử dụng trên digest hiện tại. Teacher không đọc nội dung riêng tư
+ra ngoài phạm vi review cần thiết. Hỏi:
+
+> “Bạn chấp nhận inventory hiện tại, hay muốn sửa một nội dung hoặc ranh giới
+> công bố?”
+
+[Cấp receipt `m2-content-evidence-inventory` sau khi Learner chấp nhận.]
+
+## Milestone 3 — Chọn và lưu một tham chiếu hình ảnh (`m2-visual-reference`)
+
+### Explain
+
+Teacher nói:
+
+> “Bạn chỉ cần chọn một tham chiếu chính và mô tả điều mình thích bằng lời bình
+> thường. Tham chiếu giúp định hướng, không cấp quyền sao chép nội dung, thương
+> hiệu, hình ảnh, bố cục độc quyền hay mã nguồn. Module 3 mới diễn giải chi tiết
+> cách áp dụng tham chiếu vào thiết kế của bạn.”
+
+### Ví dụ hoàn chỉnh nhưng không thể sao chép
+
+Teacher kể đầy đủ ví dụ Mai chọn trang bảo tàng, lưu URL, hai trạng thái cần
+thiết và lời mô tả bằng ngôn ngữ thường. Hỏi:
+
+> “Mai đang học theo điều gì, và điều gì Mai chủ động không sao chép?”
+
+[Chờ Learner. Nếu cần, gợi ý phân biệt thứ bậc/điểm nhấn với tài sản và biểu đạt
+cụ thể của nguồn.]
+
+### Guided application
+
+Teacher hỏi:
+
+> “Nguồn tham chiếu nào khiến bạn thấy gần với hướng portfolio mình muốn nhất?”
+
+[Nếu Learner chưa có nguồn, Teacher hướng dẫn tìm nhưng không tự chọn thay. Chỉ
+sau khi có một ứng viên mới hỏi phần nào cần lưu và Learner thích điều gì. Không
+yêu cầu thuật ngữ thiết kế.]
+
+Nếu Learner muốn sao chép nguyên trang, Teacher nêu ranh giới:
+
+> “Cách đó nhanh nhưng làm mất quyền sở hữu thiết kế và có thể vi phạm quyền của
+> nguồn. Mình đề xuất chỉ ghi đặc điểm bạn thích và giữ nội dung, thương hiệu,
+> hình ảnh, bố cục độc quyền cùng mã nguồn ở ngoài phạm vi sử dụng. Bạn có đồng
+> ý giữ ranh giới này không?”
+
+### Learner artifact
+
+[Mở Stage 3. Executor sửa `planning/reference/reference.md`; ảnh chụp nếu có chỉ
+được lưu dưới `planning/reference/screenshots/`. Mọi ảnh phải truy được về URL
+nguồn. Không tải hoặc sao chép tài sản để dùng trong app.]
+
+### Fresh evidence và accept/revise
+
+Codex kiểm tra URL, ảnh chụp, lời mô tả của Learner và checklist không sao chép.
+Hỏi:
+
+> “Bạn chấp nhận gói tham chiếu hiện tại, hay muốn đổi nguồn hoặc sửa ranh giới
+sử dụng?”
+
+[Cấp receipt `m2-visual-reference` trên digest hiện tại.]
+
+## Milestone 4 — Tạo và duyệt PRD portfolio (`m2-portfolio-prd`)
+
+### Explain
+
+Teacher nói:
+
+> “PRD mô tả kết quả sản phẩm cần đạt trước khi Codex quyết định cách xây. Yêu
+> cầu cần truy được về mục tiêu và nội dung đã duyệt; tiêu chí chấp nhận phải
+> quan sát hoặc kiểm tra được. Framework, thư viện và cấu trúc code vẫn để mở.”
+
+Teacher giải thích khả năng tiếp cận từ đầu: bàn phím, focus hiển thị, cấu trúc
+nội dung, văn bản thay thế phù hợp và hành vi ở màn hình rộng/hẹp là kết quả sản
+phẩm, không phải phần trang trí để thêm sau.
+
+### Ví dụ hoàn chỉnh nhưng không thể sao chép
+
+Teacher đọc ví dụ `REQ-03` và `AC-03` của Mai trong bài học. Hỏi:
+
+> “Điểm nào khiến `AC-03` kiểm chứng được thay vì chỉ là lời hứa ‘hiển thị đẹp
+> trên điện thoại’?”
+
+[Chờ Learner. Chấp nhận câu trả lời nêu trạng thái, thông tin cần thấy, chiều
+rộng hẹp hoặc không cuộn ngang.]
+
+### Guided application
+
+[Codex đọc ba artifact đã duyệt. Không hỏi lại dữ kiện đã có.]
+
+Teacher hỏi câu đầu tiên chưa được giải quyết có ảnh hưởng lớn nhất. Với mỗi
+quyết định, dùng cấu trúc:
+
+> “Vấn đề cần quyết định là … Mình đề xuất … vì … Hệ quả là … Lựa chọn còn lại
+> sẽ … Bạn có đồng ý với hướng đề xuất không?”
+
+Chỉ hỏi một câu. Không gộp lựa chọn về phạm vi, nội dung và hành vi vào cùng một
+lượt nếu Learner không thể đánh giá chúng như một quyết định.
+
+### Learner artifact
+
+[Mở Stage 4. Executor tạo bản nháp `planning/PRD.md` từ ba artifact hiện tại.
+Không tự điền câu hỏi mở, không chọn công nghệ và không tạo app.]
+
+### Fresh evidence và accept/revise
+
+Codex thực hiện semantic review trên digest PRD hiện tại, kiểm tra:
+
+- yêu cầu có mã và nối với mục tiêu;
+- hành vi rộng/hẹp và khả năng tiếp cận;
+- phạm vi, non-goals, ràng buộc;
+- tiêu chí chấp nhận quan sát được;
+- mâu thuẫn, từ mơ hồ, giả định và câu hỏi còn mở.
+
+Teacher tóm tắt review rồi hỏi:
+
+> “Bạn duyệt PRD hiện tại, hay muốn sửa một điểm?”
+
+[Cấp receipt `m2-portfolio-prd` chỉ sau lời duyệt rõ ràng trên digest hiện tại.]
+
+## Milestone 5 — Tạo hợp đồng xây dựng và kiểm chứng (`m2-implementation-contract`)
+
+### Explain
+
+Teacher nói:
+
+> “Ta sẽ nối từng yêu cầu với một phép kiểm tra, chia công việc thành các phase
+> nhỏ và viết nhiệm vụ đầu tiên đủ hẹp để thực hiện độc lập. Plan phải giữ đúng
+> phạm vi PRD; chưa được chọn công nghệ hay bắt đầu xây.”
+
+Teacher liên hệ nguồn Microsoft: task review giữ rõ vấn đề, mục tiêu, phạm vi,
+ngoài phạm vi, lựa chọn và câu hỏi mở; test planning xuất phát từ tiêu chí chấp
+nhận để phát hiện điểm mơ hồ trước khi triển khai.
+
+### Ví dụ hoàn chỉnh nhưng không thể sao chép
+
+Teacher trình bày mạch `REQ-03` → `AC-03` → kiểm tra màn hình hẹp → ảnh chụp và
+ghi nhận không cuộn ngang → phase liên quan → nhiệm vụ scaffold trung tính. Hỏi:
+
+> “Vì sao nhiệm vụ đầu tiên của Mai không xây luôn toàn bộ trang?”
+
+[Chờ Learner. Đáp án cần cho thấy nhiệm vụ hẹp dễ duyệt, kiểm tra và khôi phục,
+đồng thời tránh quyết định chưa được phê duyệt.]
+
+### Guided application
+
+[Codex đọc PRD đã duyệt và tạo bản nháp ba artifact.]
+
+Teacher lần lượt hỏi đúng một câu về:
+
+1. yêu cầu nào chưa có phép kiểm tra phù hợp;
+2. phase nào đang gộp nhiều kết quả quan sát;
+3. phụ thuộc hoặc rủi ro nào chưa được ghi;
+4. nhiệm vụ đầu tiên có dừng trước khi xây tính năng portfolio hay không.
+
+Nếu nhiệm vụ đầu quá rộng, Teacher đề xuất thu hẹp về một baseline trung tính có
+lệnh, tệp dự kiến, kết quả quan sát và cách kiểm tra sẽ được đề xuất để Learner
+duyệt ở Module 3. Không quyết định stack trong Module 2.
+
+### Learner artifact
+
+[Mở Stage 5. Executor tạo hoặc sửa:
+`planning/requirement-validation-map.md`, `planning/implementation-plan.md` và
+`planning/first-bounded-task.md`. Không ghi ngoài `planning/`.]
+
+### Fresh evidence và accept/revise
+
+Codex kiểm tra đủ bảy artifact, current digests, traceability, stage
+dependencies, phê duyệt và provenance. Codex phân biệt evidence Executor báo
+cáo với artifact mà Course Companion tự xác nhận trên filesystem.
+
+Teacher yêu cầu Learner giải thích một quyết định phạm vi bằng lời của mình:
+
+> “Hãy chọn một điều nằm ngoài phiên bản đầu và giải thích vì sao bạn giữ nó ở
+> ngoài phạm vi.”
+
+[Đây phải là câu trả lời do Learner tự viết. Không cho đáp án mẫu trước.]
+
+Sau đó Teacher đưa bản tóm tắt năm phần và hỏi:
+
+> “Bạn chấp nhận hợp đồng xây dựng hiện tại, hay muốn sửa một điểm?”
+
+[Cấp receipt `m2-implementation-contract` và receipt tổng
+`m2-portfolio-planning` chỉ khi đủ năm stage receipt, mọi digest còn hiện hành,
+Learner đã duyệt và câu tự giải thích đạt rubric.]
+
+## Mastery và handoff
+
+[Chỉ mở nhóm assessment của M2.3 sau khi receipt tổng hợp hợp lệ. Hỏi đúng một
+câu mỗi lượt. Chỉ đưa feedback và căn cứ sau câu trả lời. Không dùng ngưỡng cố
+định chưa được pilot phê duyệt.]
+
+Khi mastery đạt, Teacher xác nhận gate kết hợp:
+
+- năm stage receipt hợp lệ;
+- bảy artifact có digest hiện tại;
+- phê duyệt của Learner trên đúng phiên bản;
+- mastery receipt hợp lệ.
+
+Teacher kết thúc:
+
+> “Gói planning của bạn đã sẵn sàng làm đầu vào cho Module 3. Module tiếp theo
+> sẽ bắt đầu từ workspace chưa có ứng dụng và yêu cầu Codex đề xuất scaffold để
+> bạn duyệt trước khi tạo. Chưa có công nghệ hay file ứng dụng nào được ngầm
+> chọn trong Module 2.”
+
+## Phục hồi
+
+- Thiếu bằng chứng: quay về hàng hoặc artifact đầu tiên bị thiếu, không làm lại
+  toàn bộ module.
+- Artifact đổi digest: vô hiệu receipt phụ thuộc và review lại phiên bản mới.
+- Thư mục portfolio bị thiếu hoặc mất quyền truy cập: dừng mọi ghi file, hiển
+  thị đúng đường dẫn đã chọn và yêu cầu khôi phục hoặc chọn lại qua flow an toàn.
+- Learner không chấp nhận: giữ cùng Practice run, sửa đúng điểm được nêu và tạo
+  fresh evidence mới.
+- Mastery chưa đạt: quay về khái niệm liên quan và cho Learner tự sửa câu trả lời
+  hoặc artifact; không tự mở Module 3.
+
+## Nguồn Teacher dùng khi giải thích
+
+- OpenAI Prompting: <https://learn.chatgpt.com/docs/prompting>
+- GOV.UK User needs: <https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs>
+- Microsoft Task Design Review: <https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/>
+- Microsoft Test Planning: <https://microsoft.github.io/code-with-engineering-playbook/automated-testing/test-planning/>
+- W3C WAI Evaluating Accessibility: <https://www.w3.org/WAI/test-evaluate/>

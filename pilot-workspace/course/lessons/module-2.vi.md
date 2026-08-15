@@ -1,263 +1,264 @@
-# Module 2 — Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt
-
-## Vì sao planning lại quan trọng?
-
-Cũng giống như con người, có một kế hoạch kỹ càng trước khi xây sẽ giúp coding
-agent tránh phạm những sai lầm ngớ ngẩn sau này. Nó tưởng chừng tốn thời gian,
-nhưng thực chất planning kỹ sẽ giúp bạn đỡ phải debug và sửa một ứng dụng không
-vừa ý mình. Tin mình đi, sửa một ứng dụng đã đi sai hướng sẽ tốn thời gian hơn
-nhiều so với planning kỹ ngay từ đầu.
-
-Không phải việc nào cũng cần planning. Nếu yêu cầu nhỏ và dễ làm lại khi có lỗi,
-bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, khi bắt đầu xây một sản
-phẩm hoặc khi công việc còn nhiều quyết định chưa rõ và nhiều bước phụ thuộc
-nhau, hãy lập kế hoạch trước. Nhờ đó, coding agent có thể hiểu đúng vấn đề rồi
-mới viết code.
-
-[Microsoft Engineering Fundamentals](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/engagement-process/)
-cũng khuyên chỉ xem xét thiết kế khi cần. Những dấu hiệu đáng planning gồm yêu
-cầu còn mơ hồ, có nhiều điều chưa biết hoặc người thực hiện chưa thể chỉ ra đầy
-đủ các bước cần làm.
-
-Ví dụ, tạo một ứng dụng mới từ đầu cần planning. Bạn còn phải quyết định luồng
-sử dụng, đầu vào, đầu ra và phạm vi phiên bản đầu. Trong khi đó, bạn có thể giao
-trực tiếp việc sửa chữ hoặc màu của một nút nhỏ nếu vị trí và kết quả mới đã
-rõ.
+# Module 2 — Xác định, giới hạn và lập kế hoạch portfolio
 
 ## Kết quả của module
 
-Module này kéo dài khoảng 90–120 phút và có thể tạm dừng giữa các checkpoint. Khi
-hoàn thành, bạn có thể:
+Bạn sẽ biến một ý tưởng portfolio còn mơ hồ thành một hợp đồng xây dựng trung
+thực, có bằng chứng và đủ rõ để Codex bắt đầu triển khai ở Module 3 mà không phải
+tự đoán những quyết định quan trọng.
 
-- giải thích khi nào cần planning và khi nào một yêu cầu trực tiếp là đủ,
-- giải thích PRD giữ những quyết định nào,
-- dùng hình ảnh hoặc code để làm yêu cầu trong PRD rõ hơn,
-- dùng năm câu hỏi đơn giản để viết prompt planning,
-- dùng coding agent như một người phỏng vấn để làm rõ ý tưởng sản phẩm,
-- tạo và duyệt một PRD một trang,
-- yêu cầu coding agent chuyển PRD thành implementation plan, và
-- kiểm tra PRD với implementation plan có khớp nhau trước khi bắt đầu code.
+Module này chỉ tạo nội dung trong thư mục `planning/`. Bạn chưa chọn công nghệ,
+chưa cài gói phụ thuộc và chưa tạo ứng dụng.
 
-Module này dừng ở planning. Bạn chưa cần đọc code, chọn công nghệ, cài gói phụ
-thuộc hay xây giao diện. Implementation và debugging sẽ được học ở bước tiếp
-theo của khóa học.
+## Cách học trong từng milestone
 
-## Ý tưởng thực hành: ContentPilot
+Mỗi milestone dùng cùng một vòng làm việc:
 
-Mình gợi ý bạn bắt đầu với ý tưởng sau:
+1. Hiểu mục đích của tài liệu cần tạo.
+2. Xem một ví dụ hoàn chỉnh nhưng không thể sao chép thành câu trả lời của bạn.
+3. Trả lời từng câu hỏi ngắn bằng ngôn ngữ thông thường.
+4. Tự tạo hoặc sửa tài liệu trong portfolio của mình.
+5. Để Codex kiểm tra bằng chứng mới nhất trên đúng phiên bản tài liệu đó.
+6. Tự quyết định chấp nhận hay yêu cầu sửa.
 
-> ContentPilot là công cụ giúp người sáng tạo phân tích các bài viết hiện có
-> trên profile — hoặc một profile mẫu nếu chưa có dữ liệu — rồi đề xuất những ý
-> tưởng nội dung có khả năng bắt kịp xu hướng.
+Khi một lựa chọn có thể thay đổi phạm vi hoặc kết quả của portfolio, giáo viên sẽ
+hỏi một câu mỗi lượt và đưa ra phương án đề xuất cùng hệ quả. Bạn luôn là người
+quyết định cuối cùng.
 
-Đây mới là ý tưởng, chưa phải kế hoạch. Ý tưởng chưa xác định luồng sử dụng,
-đầu vào, đầu ra, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. PRD sẽ giữ những
-quyết định này trước khi coding agent đề xuất cách xây.
+## Quy ước về tính trung thực và quyền công bố
 
-## PRD là gì?
+Mọi nội dung dự định đưa vào portfolio cần được phân biệt rõ:
 
-PRD, viết tắt của *Product Requirements Document*, là tài liệu mô tả sản phẩm
-cần đạt kết quả gì, vì sao sản phẩm cần tồn tại, phạm vi phiên bản đầu và cách
-nhận biết sản phẩm đã đáp ứng yêu cầu. PRD tập trung vào quyết định về sản phẩm,
-không đi sâu vào code hoặc công nghệ.
+- `đã kiểm chứng`: có nguồn phù hợp để đối chiếu;
+- `lời tự khai`: đúng theo lời bạn nhưng chưa có nguồn độc lập;
+- `giả định`: điều đang được dùng để lập kế hoạch nhưng chưa được xác nhận;
+- `còn thiếu`: chưa có nội dung hoặc bằng chứng cần thiết;
+- `riêng tư`: có thật nhưng không nên đưa vào bản công khai;
+- quyền công bố: `được phép`, `không được phép` hoặc `chưa rõ`.
 
-PRD một trang của bạn cần có:
+Trạng thái nội dung và quyền công bố là hai việc khác nhau. Một ảnh có thể là
+bằng chứng thật nhưng vẫn không được phép công khai. Codex không được biến lời
+tự khai, giả định hoặc khoảng trống thành sự thật chắc chắn.
 
-1. Ý tưởng sản phẩm.
-2. Luồng sử dụng cốt lõi.
-3. Đầu vào.
-4. Đầu ra.
-5. Phạm vi phiên bản 1.
-6. Ngoài phạm vi.
-7. `Done When` — các dấu hiệu hoàn thành có thể quan sát và kiểm tra.
-8. Câu hỏi còn mở.
+## Milestone 1 — Tạo bản mô tả ngắn cho portfolio
 
-Ở bước này, mình chưa yêu cầu bạn viết persona. Mục tiêu là luyện cách làm rõ
-sản phẩm và giao tiếp với coding agent, không phải hoàn thành mọi loại tài liệu
-product.
+### Điều cần hiểu
 
-Mẫu PRD của
-[Atlassian](https://www.atlassian.com/software/confluence/templates/product-requirements?category=services)
-đưa ra một ví dụ: nếu nhóm giả định phần lớn người dùng truy cập bằng máy tính
-bảng, một yêu cầu có thể là giao diện phải hiển thị tốt trên máy tính bảng. Mẫu
-cũng dành riêng chỗ cho câu hỏi còn mở và phần ngoài phạm vi nhằm hạn chế phạm
-vi tự phình ra ngoài ý định ban đầu.
+Portfolio phiên bản đầu không cần phục vụ tất cả mọi người. Chọn một nhóm người
+xem chính giúp bạn quyết định thông tin nào cần nổi bật. Hãy xác định:
 
-## Cho coding agent xem ví dụ
+- portfolio cần giúp bạn đạt điều gì;
+- một nhóm người xem quan trọng nhất;
+- quyết định họ cần đưa ra sau khi xem;
+- dấu hiệu có thể quan sát cho thấy thông điệp đã được truyền đạt;
+- điều cần có, chưa làm và còn chưa chắc trong phiên bản đầu.
 
-Ví dụ phù hợp giúp coding agent bớt phải đoán. Bạn không cần gom thật nhiều ví
-dụ. Hãy chọn ví dụ liên quan và nói rõ điều bạn muốn học theo.
+Đây là một giả thuyết tập trung, không phải một dự án nghiên cứu người dùng đầy
+đủ. Nếu lựa chọn chỉ dựa trên mong muốn của bạn, hãy ghi rõ đó là giả định.
 
-### Ví dụ bằng hình ảnh
+### Ví dụ hoàn chỉnh, không phải đáp án mẫu
 
-Ảnh chụp hoặc bản thiết kế có thể cho thấy bố cục, cách sắp xếp thông tin và
-luồng bạn muốn. Bạn có thể dùng:
+Mai đang điều phối một nhóm phục hồi rạn san hô và cần một trang giới thiệu cho
+các trường học. Mục đích là giúp giáo viên đánh giá liệu chương trình tham quan
+có phù hợp với học sinh 12–15 tuổi hay không. Người xem chính là giáo viên phụ
+trách hoạt động ngoại khóa. Quyết định cần đưa ra là có yêu cầu một buổi tư vấn
+hay không. Dấu hiệu thành công là người xem tìm được mục tiêu học tập, yêu cầu an
+toàn và cách liên hệ mà không phải hỏi lại thông tin cơ bản. Phiên bản đầu không
+có đăng ký hay thanh toán trực tuyến.
 
-- [Pinterest](https://help.pinterest.com/en/guide/all-about-pinterest) để tìm ý
-  tưởng bằng hình ảnh,
-- [Mobbin](https://mobbin.com/) để xem màn hình và luồng từ sản phẩm thật, hoặc
-- [Dribbble](https://dribbble.com/shots/popular/web-design) để xem bản thiết kế
-  giao diện.
+Ví dụ này hoàn chỉnh vì các quyết định liên kết với nhau. Bạn không thể sao chép
+nó vì người xem, bằng chứng và mục tiêu của bạn khác Mai.
 
-[OpenAI Docs](https://learn.chatgpt.com/use-cases/frontend-designs) khuyên dùng
-những ảnh rõ nhất cho giao diện mong muốn. Một ảnh có thể đủ cho thay đổi nhỏ.
-Với một luồng lớn hơn, bạn có thể thêm bố cục trên máy tính và điện thoại. Bạn
-cũng có thể thêm trạng thái trống hoặc đang tải nếu chúng thật sự quan trọng.
+### Áp dụng vào portfolio của bạn
 
-Khi đưa ảnh, hãy nói rõ phần muốn học theo. Đó có thể là bố cục, cách sắp xếp
-thông tin hoặc thứ tự các bước. Đừng chỉ nói “làm giống ảnh này”.
+Giáo viên bắt đầu bằng câu hỏi: “Bạn muốn portfolio này giúp mình đạt điều gì?”
+Sau mỗi câu trả lời, giáo viên chỉ hỏi câu tiếp theo cần thiết. Khi phải chọn giữa
+nhiều người xem, giáo viên đề xuất một nhóm chính dựa trên mục tiêu đã nêu và giải
+thích điều gì sẽ được ưu tiên hoặc hoãn lại.
 
-### Ví dụ bằng code
+Bạn hoàn thành `planning/portfolio-brief.md`, rồi tự kiểm tra:
 
-Bạn cũng có thể đưa một đoạn HTML, một thành phần giao diện hoặc repository có
-cách làm gần với điều bạn muốn. Hãy chỉ đúng tệp hoặc đoạn cần xem. Sau đó, nói
-rõ bạn muốn học theo cách sắp xếp hay cách phần đó hoạt động. Ví dụ không bắt
-coding agent dùng cùng cách xây.
+- mục đích, người xem và quyết định của họ có khớp nhau không;
+- dấu hiệu thành công có thể quan sát được không;
+- ranh giới phiên bản đầu có ngăn phạm vi tự mở rộng không;
+- giả định và nội dung riêng tư đã được đánh dấu chưa.
 
-Repository công khai không tự động có nghĩa là bạn được sao chép code. Theo
-[GitHub Docs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository),
-nếu repository không có giấy phép thì luật bản quyền vẫn bảo vệ code.
-Vì vậy, hãy kiểm tra tệp giấy phép trước khi dùng lại code.
+Codex kiểm tra đúng mã nhận diện nội dung mới nhất của tài liệu. Bạn đọc bản tóm tắt bằng ngôn
+ngữ thông thường, sau đó chọn chấp nhận hoặc yêu cầu sửa. Milestone chỉ đạt khi
+bạn duyệt phiên bản hiện tại.
 
-Bạn có thể đặt ảnh hoặc đường dẫn ngay dưới yêu cầu liên quan trong PRD. Ví dụ
-giúp làm rõ yêu cầu. Nó không thay thế mục tiêu, phạm vi hoặc `Done When`.
+## Milestone 2 — Kiểm kê nội dung và bằng chứng
 
-## Prompt engineering là gì?
+### Điều cần hiểu
 
-Prompt là lời giao việc cho coding agent. Prompt engineering là cách làm lời
-giao việc đó đủ rõ để agent hiểu đúng và trả lại kết quả bạn có thể kiểm tra.
-Với một việc planning, hãy trả lời năm câu hỏi:
+Một portfolio đáng tin không chỉ cần câu chữ hay. Mỗi tuyên bố quan trọng cần có
+trạng thái, nguồn nếu có, quyền công bố và việc tiếp theo. Hãy kiểm kê tiểu sử,
+kỹ năng, dự án, vai trò, kết quả, hình ảnh, tài liệu và liên kết trước khi viết
+nội dung trang.
 
-1. **Bạn muốn coding agent giúp làm việc gì?**
-2. **Coding agent cần biết những thông tin nào?**
-3. **Coding agent nên làm việc với bạn như thế nào?**
-4. **Coding agent không được tự làm điều gì?**
-5. **Kết quả cuối cùng cần có những gì?**
+Không có bằng chứng không có nghĩa là nội dung chắc chắn sai. Điều đó chỉ có
+nghĩa bạn phải gọi đúng tên trạng thái hiện tại và tránh trình bày nó như một sự
+thật đã được kiểm chứng.
 
-Không phải prompt nào cũng cần viết dài. Một yêu cầu nhỏ có thể chỉ cần một câu.
-Năm câu hỏi trên hữu ích khi công việc còn nhiều quyết định hoặc cần nhiều lượt
-trao đổi.
+### Ví dụ hoàn chỉnh, không phải đáp án mẫu
 
-[Tài liệu chính thức của OpenAI](https://developers.openai.com/api/docs/guides/latest-model)
-khuyên prompt hướng đến kết quả nên nêu mục tiêu, bối cảnh, ràng buộc, bằng chứng
-cần có, tiêu chí thành công và định dạng đầu ra. Một ví dụ trong tài liệu yêu
-cầu agent xem xét kế hoạch chuyển dữ liệu, tìm nguy cơ mất dữ liệu hoặc gián
-đoạn, dẫn lại bước liên quan và xếp năm rủi ro quan trọng nhất theo thứ tự.
+Trong bản kiểm kê của Mai:
 
-Mình diễn đạt lại hướng dẫn đó thành năm câu hỏi để bạn dễ áp dụng. Với
-ContentPilot:
+| Nội dung | Trạng thái | Bằng chứng | Công khai | Quyền sử dụng | Việc tiếp theo |
+| --- | --- | --- | --- | --- | --- |
+| Điều phối 18 buổi học ngoài trời | đã kiểm chứng | Báo cáo hoạt động 2025 | Có | Tự sở hữu | Trích đúng phạm vi và năm |
+| “Học sinh tự tin hơn sau chuyến đi” | lời tự khai | Ghi chú quan sát cá nhân | Có | Tự sở hữu | Không trình bày như kết quả nghiên cứu |
+| Ảnh học sinh trên thuyền | đã kiểm chứng | Kho ảnh nội bộ | Không | Chưa rõ | Xin quyền hoặc thay ảnh khác |
+| Tỉ lệ hài lòng 95% | còn thiếu | Chưa tìm thấy khảo sát gốc | Không | Chưa rõ | Không dùng cho đến khi có nguồn |
 
-- việc cần làm là hỗ trợ tạo PRD,
-- thông tin ban đầu là ý tưởng một câu,
-- cách làm việc là hỏi một câu mỗi lượt,
-- coding agent không được tự quyết định thay bạn hoặc viết code, và
-- kết quả cuối là PRD một trang có đủ tám phần.
+Ví dụ cho thấy trạng thái bằng chứng không thay thế kiểm tra quyền riêng tư và
+quyền sử dụng.
 
-Bạn giữ quyền quyết định sản phẩm. Coding agent giúp đặt câu hỏi, phát hiện điểm
-mơ hồ và tổ chức câu trả lời thành tài liệu.
+### Áp dụng vào portfolio của bạn
 
-## Implementation plan là gì?
+Bạn hoàn thành `planning/content-evidence-inventory.md`. Giáo viên chỉ hỏi về một
+nhóm nội dung mỗi lượt, bắt đầu từ những nội dung cần để người xem chính đưa ra
+quyết định. Nếu một tuyên bố định lượng chưa có nguồn, phương án đề xuất là đánh
+dấu `còn thiếu` và chưa đưa vào phạm vi công khai.
 
-Implementation plan là kế hoạch biến PRD đã duyệt thành những bước xây dựng có
-thứ tự. PRD giữ quyết định về sản phẩm; implementation plan giữ cách thực hiện
-và kiểm tra.
+Codex kiểm tra tài liệu mới nhất, chỉ ra:
 
-Bạn chưa cần biết tên file hay cách viết code. Coding agent có trách nhiệm đề
-xuất và giải thích các thành phần kỹ thuật bằng ngôn ngữ dành cho người mới. Mỗi
-bước trong plan cần nêu:
+- hàng chưa có trạng thái rõ ràng;
+- tuyên bố quan trọng thiếu nguồn hoặc bị trình bày quá chắc chắn;
+- dữ liệu cá nhân, tài liệu mật hoặc thông tin liên hệ cần cân nhắc;
+- hình ảnh và nội dung chưa rõ quyền sở hữu hoặc quyền sử dụng.
 
-- mục tiêu của bước,
-- thành phần hoặc file dự kiến liên quan,
-- kết quả có thể quan sát sau bước đó, và
-- cách kiểm tra kết quả.
+Bạn quyết định bổ sung, loại bỏ, giữ riêng tư hoặc chấp nhận khoảng trống đã được
+ghi rõ. Milestone chỉ đạt sau khi bạn duyệt bản kiểm kê hiện tại.
 
-Plan cũng phải nêu thứ tự phụ thuộc, giả định, rủi ro, quyết định kỹ thuật còn
-mở và cách kiểm tra toàn bộ luồng. Plan không được tự thêm tính năng nằm ngoài
-PRD và chưa được phép chứa code triển khai.
+## Milestone 3 — Chọn và lưu một tham chiếu hình ảnh
 
-[Mẫu Task Design Review của Microsoft](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/)
-tách rõ mục tiêu, trong phạm vi, ngoài phạm vi, phương án, thành phần cần thay
-đổi và câu hỏi còn mở. Mình dùng phiên bản ngắn hơn để bạn dễ bắt đầu. Mục đích
-vẫn giữ nguyên: mỗi bước phải gắn với một yêu cầu và một cách kiểm tra.
+### Điều cần hiểu
 
-Quay lại ví dụ máy tính bảng của Atlassian: PRD có thể yêu cầu giao diện hiển
-thị tốt trên máy tính bảng. Implementation plan sẽ nêu bước chỉnh bố cục và
-cách kiểm tra ở chiều rộng máy tính bảng. Đây là mối liên hệ giữa điều sản phẩm
-cần đạt và cách chứng minh điều đó đã được thực hiện.
+Một tham chiếu tốt giúp bạn diễn đạt cảm giác, thứ tự thông tin hoặc điểm nhấn
+mà không cần biết thuật ngữ thiết kế. Chọn một nguồn chính, lưu URL và chỉ chụp
+những trạng thái thật sự hữu ích. Nếu trang thay đổi, có chuyển động hoặc khó
+kiểm tra lại, ảnh chụp giúp giữ bằng chứng về điều bạn đã xem.
 
-## Các phần kiểm tra
+Tham chiếu không cấp quyền sao chép. Bạn không được sao chép nội dung, thương
+hiệu, hình ảnh, bố cục độc quyền hoặc mã nguồn. Module 2 cũng chưa yêu cầu bạn
+giải thích chi tiết cách chuyển tham chiếu thành thiết kế; việc đó thuộc Module
+3.
 
-Module không kiểm tra ngay sau từng câu giải thích. Mỗi phần kiểm tra chỉ xuất
-hiện sau khi bạn đã học xong một cụm kiến thức:
+### Ví dụ hoàn chỉnh, không phải đáp án mẫu
 
-- 3 câu sau Planning và PRD.
-- 3 câu sau Prompt engineering.
-- 2 câu sau Implementation plan.
-- 15 câu tổng hợp sau khi bạn hoàn thành planning package.
+Mai chọn một trang bảo tàng làm tham chiếu, lưu URL nguồn và hai ảnh chụp: màn
+hình mở đầu trên máy tính và danh sách chương trình trên điện thoại. Mai ghi:
+“Tôi thích việc trang cho biết đối tượng và hành động tiếp theo ngay ở phần đầu;
+trên điện thoại, các chương trình vẫn dễ phân biệt.” Mai không tải ảnh của bảo
+tàng để dùng lại, không sao chép chữ và không yêu cầu Codex làm giao diện giống
+hệt.
 
-Tám câu đầu giúp bạn kiểm tra từng cụm kiến thức. Phần cuối gồm mười câu lựa
-chọn, ba câu trả lời ngắn và hai câu đối chiếu artifact của chính bạn. Bạn cần
-đạt ít nhất 12/15 câu cuối.
+### Áp dụng vào portfolio của bạn
 
-Mỗi câu hỏi đều ghi căn cứ và đường dẫn đến nguồn chính thức. Mình biên soạn câu
-hỏi bằng tiếng Việt dựa trên các nguồn đó. Đây không phải trích dẫn nguyên văn.
-Lời giải và nguồn chỉ hiện sau khi bạn trả lời.
+Bạn chọn đúng một tham chiếu chính và hoàn thành
+`planning/reference/reference.md`. Ảnh chụp, nếu cần, chỉ được lưu trong
+`planning/reference/screenshots/` và phải đi kèm URL nguồn.
 
-## Một Practice planning package từ đầu đến cuối
+Giáo viên hỏi một câu mỗi lượt: nguồn nào bạn thích, phần nào đáng lưu và bạn
+thích điều gì bằng lời của mình. Nếu nguồn không rõ hoặc quyền sử dụng gây nhầm
+lẫn, phương án đề xuất là chỉ lưu liên kết cùng ảnh chụp phục vụ phân tích nội
+bộ, không đưa tài sản của nguồn vào portfolio công khai.
 
-Chỉ sau khi hoàn thành ba cụm kiến thức và đủ 3 + 3 + 2 câu kiểm tra, bạn mới
-mở Practice `m2-planning-package`. Toàn bộ phần áp dụng nằm trong cùng một
-Practice run để bạn có thể tạm dừng và tiếp tục tại bước chưa hoàn thành đầu
-tiên:
+Codex kiểm tra nguồn, đường dẫn ảnh và ranh giới sử dụng trên tài liệu mới nhất.
+Bạn chấp nhận hoặc sửa trước khi qua milestone tiếp theo.
 
-1. Tự viết prompt tạo PRD.
-2. Trả lời cuộc phỏng vấn từng câu với Executor.
-3. Xem xét, duyệt và lưu `artifacts/PRD.md`.
-4. Yêu cầu tạo implementation plan từ PRD đã duyệt.
-5. Đối chiếu bốn điểm alignment giữa PRD và plan.
-6. Duyệt và lưu `artifacts/implementation-plan.md`.
-7. Giải thích một quyết định phạm vi và yêu cầu Triết duyệt planning package.
-8. Quay lại khóa học để làm 15 câu kiểm tra cuối.
+## Milestone 4 — Tạo và duyệt PRD portfolio
 
-Task Executor của Practice dùng cấu hình model, mức suy luận và speed đã được
-duyệt ở Module 1, cùng approval `on-request`, quyền ghi trong workspace và Full
-access tắt. Bạn không cần chụp ảnh hoặc nhập lại cấu hình. Triết xử lý trực tiếp
-gói bằng chứng giới hạn của Practice; Triết không sửa artifact hoặc thay quyết
-định của bạn.
+### Điều cần hiểu
 
-## Checkpoint hoàn thành
+PRD giữ các quyết định về sản phẩm trước khi Codex quyết định cách xây. PRD của
+portfolio cần nêu:
 
-Bạn hoàn thành Module 2 khi có một **planning package** gồm:
+- mục đích, người xem và nội dung đầu vào;
+- yêu cầu có mã ổn định;
+- hành vi cần đạt trên màn hình rộng và hẹp;
+- khả năng dùng bằng bàn phím, focus hiển thị, cấu trúc nội dung và văn bản thay
+  thế phù hợp;
+- phạm vi, ngoài phạm vi, ràng buộc và câu hỏi còn mở;
+- tiêu chí chấp nhận có thể quan sát và truy ngược về yêu cầu.
 
-- `artifacts/PRD.md`, và
-- `artifacts/implementation-plan.md`.
+Một yêu cầu nói về kết quả người xem cần nhận được, không khóa trước công nghệ,
+thư viện hay cấu trúc mã nguồn. Những lựa chọn kỹ thuật thuộc Module 3.
 
-PRD đạt khi đủ tám phần ở trên, ngắn gọn trong khoảng một trang, không chứa chi
-tiết triển khai và đã được bạn duyệt rõ ràng.
+### Ví dụ hoàn chỉnh, không phải đáp án mẫu
 
-Implementation plan đạt khi:
+PRD của Mai có yêu cầu `REQ-03`: “Trên màn hình hẹp, giáo viên vẫn đọc được mục
+tiêu, độ tuổi phù hợp và yêu cầu an toàn của từng chương trình mà không cuộn
+ngang.” Tiêu chí `AC-03` yêu cầu kiểm tra ba thông tin đó ở chiều rộng điện
+thoại và xác nhận không có nội dung tràn ngang. PRD ghi form đăng ký và thanh
+toán là ngoài phạm vi. Cách dựng bố cục và thư viện giao diện vẫn là câu hỏi của
+giai đoạn triển khai.
 
-- dùng `PRD.md` đã duyệt làm nguồn,
-- có cách tiếp cận tổng thể bằng ngôn ngữ dễ hiểu,
-- chia công việc thành các bước nhỏ có thứ tự,
-- mỗi bước có mục tiêu, thành phần hoặc file, kết quả quan sát và cách kiểm tra,
-- nêu phụ thuộc, giả định, rủi ro và câu hỏi kỹ thuật còn mở,
-- có kiểm tra toàn bộ luồng từ đầu đến cuối, và
-- không mở rộng phạm vi hoặc bắt đầu viết code.
+### Áp dụng vào portfolio của bạn
 
-Hai tài liệu khớp nhau khi mọi yêu cầu trong phạm vi PRD đều xuất hiện trong
-plan, mọi bước của plan đều truy ngược được về PRD, phần ngoài phạm vi không bị
-đưa trở lại và các mục `Done When` trở thành bằng chứng kiểm tra trong plan.
+Codex đọc ba tài liệu đã duyệt làm nguồn, rồi hỏi từng câu cần thiết để tạo bản
+nháp `planning/PRD.md`. Với mỗi quyết định hệ trọng, Codex đưa ra phương án đề
+xuất, hệ quả và một câu hỏi. Codex không tự điền khoảng trống bằng chứng hay tự
+chọn công nghệ.
 
-Trước khi qua module tiếp theo, bạn cần duyệt cả hai tài liệu và giải thích bằng
-lời của mình ít nhất một quyết định về phạm vi. Triết phải xác nhận semantic
-review đạt trên đúng hai digest artifact hiện tại, sau đó bạn mới làm 15 câu
-kiểm tra cuối và đạt ít nhất 12/15 câu.
+Bạn xem bản tóm tắt gồm yêu cầu, điều ngoài phạm vi, câu hỏi còn mở và cách kiểm
+tra. Sau đó Codex rà soát mâu thuẫn, từ ngữ mơ hồ và tiêu chí không thể kiểm
+chứng trên đúng mã nhận diện nội dung hiện tại. Bạn yêu cầu sửa hoặc duyệt PRD.
 
-## Nguồn và lựa chọn sư phạm
+## Milestone 5 — Tạo hợp đồng xây dựng và kiểm chứng
 
-Các nguyên tắc về planning, PRD, prompt và thiết kế công việc trong module dựa
-trên các nguồn chính thức được liên kết ngay tại phần liên quan. Mình chọn PRD
-một trang có tám phần, chưa dùng persona và diễn đạt prompt thành năm câu hỏi.
-Cách chia checkpoint cùng cấu trúc 3 + 3 + 2 + 15 cũng là lựa chọn sư phạm của
-mình. Căn cứ và đáp án của từng câu nằm trong ngân hàng câu hỏi có nguồn.
+### Điều cần hiểu
+
+Milestone cuối biến PRD đã duyệt thành ba tài liệu liên kết:
+
+- `planning/requirement-validation-map.md`: mỗi yêu cầu nối với tiêu chí chấp
+  nhận, cách kiểm tra và bằng chứng cần lưu;
+- `planning/implementation-plan.md`: các giai đoạn nhỏ có mục tiêu, phụ thuộc, vùng
+  dự kiến thay đổi, kết quả quan sát và cách kiểm tra;
+- `planning/first-bounded-task.md`: một nhiệm vụ đầu tiên đủ nhỏ để phê duyệt,
+  triển khai, kiểm tra và khôi phục độc lập ở Module 3.
+
+Plan không được đưa nội dung ngoài phạm vi trở lại, không bỏ sót yêu cầu và
+không bắt đầu tạo ứng dụng. Nếu một lựa chọn kỹ thuật chưa được duyệt, hãy ghi
+nó là câu hỏi mở.
+
+### Ví dụ hoàn chỉnh, không phải đáp án mẫu
+
+Trong bản đồ của Mai, `REQ-03` nối với `AC-03`, kiểm tra trực tiếp ở màn hình
+hẹp và bằng chứng là ảnh chụp cùng ghi nhận không cuộn ngang. Phase liên quan
+chỉ nói “xây phần danh sách chương trình đáp ứng trạng thái rộng và hẹp”; chưa
+chọn thư viện. Nhiệm vụ đầu tiên của Mai là đề xuất và xác minh scaffold trung
+tính, không phải xây luôn trang hoàn chỉnh.
+
+### Áp dụng vào portfolio của bạn
+
+Codex tạo bản nháp ba tài liệu từ PRD hiện tại. Bạn đối chiếu từng yêu cầu với
+một phép kiểm tra, xem thứ tự các giai đoạn và chọn nhiệm vụ đầu tiên. Khi một giai đoạn quá
+lớn hoặc trộn nhiều kết quả, phương án đề xuất là tách theo một kết quả có thể
+quan sát và kiểm chứng độc lập.
+
+Codex kiểm tra bằng chứng mới trên đúng bảy tài liệu hiện tại và báo bằng ngôn
+ngữ thông thường:
+
+- điều đã thay đổi;
+- điều cần chú ý;
+- điều vẫn giữ nguyên;
+- kiểm tra và kết quả;
+- rủi ro hoặc khoảng trống còn lại.
+
+Bạn giải thích bằng lời của mình một quyết định phạm vi, rồi chấp nhận hoặc yêu
+cầu sửa. Module 3 chỉ mở khi đủ dấu xác nhận của năm giai đoạn, các mã nhận diện nội dung vẫn còn hiện hành,
+bạn đã duyệt toàn bộ gói planning và mastery receipt đạt.
+
+## Nguồn phương pháp
+
+- [OpenAI — Prompting](https://learn.chatgpt.com/docs/prompting): mục tiêu, bối
+  cảnh, ràng buộc, kết quả mong đợi và kiểm tra cuối cần được nói rõ cho công
+  việc lớn.
+- [GOV.UK — Learning about users and their needs](https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs): bắt đầu từ người dùng và mục tiêu; ý kiến chưa có bằng chứng phải được coi là giả định.
+- [Microsoft Engineering Playbook — Task Design Review](https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/): giữ rõ vấn đề, mục tiêu, phạm vi, ngoài phạm vi, lựa chọn và câu hỏi mở.
+- [Microsoft Engineering Playbook — Test planning](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/test-planning/): phép kiểm tra cần xuất phát từ tiêu chí chấp nhận và có thể làm lộ điểm mơ hồ trước khi triển khai.
+- [W3C WAI — Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/): đánh giá khả năng tiếp cận cần bắt đầu sớm, kết hợp công cụ với kiểm tra của con người.
+
+Các nguồn trên hỗ trợ cách làm. Cấu trúc năm milestone và bảy tài liệu là quyết
+định chương trình cần tiếp tục được kiểm chứng qua pilot với người học.
