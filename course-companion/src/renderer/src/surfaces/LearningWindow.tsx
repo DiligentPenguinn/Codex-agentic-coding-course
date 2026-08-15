@@ -81,6 +81,7 @@ type Choice = {
   label: string
   next?: SceneId
   primary?: boolean
+  preservePrimaryLabel?: boolean
   danger?: boolean
   action?: 'practice' | 'home' | 'review-module'
   afterSave?: 'home'
@@ -89,6 +90,7 @@ type Choice = {
 
 function yellowChoiceLabel(choice: Choice): string {
   if (!choice.primary) return choice.label
+  if (choice.preservePrimaryLabel) return choice.label
   if (choice.action === 'practice') return 'Chuyển sang Codex để thực hành'
   if (choice.next) return 'Tiếp tục'
   return choice.label
@@ -242,8 +244,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
       { label: 'KẾT QUẢ', value: 'Cấu hình được Triết duyệt' }
     ],
-    dialogue: 'Khóa học này không chỉ dành cho content creator. Content automation app chỉ là một dự án trong khóa học. Sau khi hoàn thành dự án này, bạn sẽ có bộ kỹ năng và hiểu biết cần thiết để xây dựng bất kỳ ứng dụng nào bạn mong muốn.',
-    choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true }],
+    dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.',
+    choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }],
     showTitle: false,
     showPanel: false
   },

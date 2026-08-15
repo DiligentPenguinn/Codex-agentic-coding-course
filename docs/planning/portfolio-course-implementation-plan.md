@@ -65,7 +65,18 @@ there first and remain synchronized with Course Companion.
 ### Frozen and permitted surfaces
 
 - The introduction before Module 1 is frozen. Do not change its content, UI,
-  images, navigation, behavior, or tests.
+  images, navigation, behavior, or tests, except for the explicitly approved
+  `intro-learning-method` positioning update recorded below.
+- On 16 August 2026, the owner explicitly reopened only
+  `intro-learning-method`. The approved copy now introduces the course for
+  beginners, names the personal portfolio as the practice project, and states
+  the intended transfer to other coding agents and applications. The final
+  action keeps its existing destination but displays `Bắt đầu Module 1`
+  instead of the generic `Tiếp tục`. The renderer contract, frozen-journey
+  assertion, exact-copy Electron assertion, restart path, and desktop/mobile
+  overflow checks were updated and passed. This scoped approval does not mark
+  overall Foundation owner approval or pilot acceptance as complete; every
+  other introduction and Module 1 surface remains frozen.
 - Module 1 teaching content, exercise, Practice, assessment, and checkpoints
   remain unchanged.
 - One narrow Module 1 exception is approved: forward-looking transition copy

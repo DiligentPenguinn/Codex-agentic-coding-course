@@ -695,13 +695,13 @@ try {
     .getByRole('button', { name: 'Tiếp tục', exact: true })
     .click()
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
+    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Khóa học này không chỉ dành cho content creator. Content automation app chỉ là một dự án trong khóa học. Sau khi hoàn thành dự án này, bạn sẽ có bộ kỹ năng và hiểu biết cần thiết để xây dựng bất kỳ ứng dụng nào bạn mong muốn.'
+    'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
@@ -717,7 +717,7 @@ try {
     assert.equal(introductionNarrowWidths.body, introductionNarrowWidths.viewport)
     assert.equal(introductionNarrowWidths.document, introductionNarrowWidths.viewport)
     const narrowStartButton = await firstWindows.learningPage
-      .getByRole('button', { name: 'Tiếp tục', exact: true })
+      .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
       .boundingBox()
     const narrowChoiceArea = await firstWindows.learningPage
       .locator('.pixel-choices')
@@ -735,7 +735,7 @@ try {
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
   await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
+    .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .click()
   await verifyHomeBase(firstWindows.learningPage)
   await completeSetupModule(firstWindows.learningPage, firstWindows.companionPage, firstLaunch, true)
@@ -795,7 +795,7 @@ try {
   await learningPage.getByRole('button', { name: 'Cùng bắt đầu nhé' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục' }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await learningPage.getByRole('button', { name: 'Bắt đầu Module 1', exact: true }).click()
   await learningPage.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   await completeSetupModule(learningPage, companionPage, resumedLaunch)
   assert.equal(await fingerprintTree(practiceWorkspace.canonicalStarter), canonicalStarterFingerprint)
