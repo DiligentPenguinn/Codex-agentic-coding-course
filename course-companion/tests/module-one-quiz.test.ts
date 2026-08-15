@@ -14,6 +14,7 @@ type QuizQuestion = {
   expectedSignals?: string[]
   explanation?: string
   source: {
+    kind?: 'authoritative-source' | 'curriculum-judgment'
     label: string
     url: string
     basis: string
@@ -27,16 +28,28 @@ type QuizGroup = {
   questions: QuizQuestion[]
 }
 
+type MasteryPolicy = {
+  strategy: 'pilot-configured'
+  configurationKey: string
+  publishThreshold: boolean
+  fallback: string
+  requiresCurrentArtifactDigests: boolean
+  requiresPracticeReceipt: boolean
+  manualReviewTypes: string[]
+}
+
 async function loadQuiz(moduleId: 'module-1' | 'module-2'): Promise<{
   passingScore?: number
   questions?: QuizQuestion[]
   groups?: QuizGroup[]
+  masteryPolicy?: MasteryPolicy
 }> {
   const path = join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', `${moduleId}.quiz.json`)
   return JSON.parse(await readFile(path, 'utf8')) as {
     passingScore?: number
     questions?: QuizQuestion[]
     groups?: QuizGroup[]
+    masteryPolicy?: MasteryPolicy
   }
 }
 
@@ -111,15 +124,17 @@ describe('Course module assessment banks', () => {
     for (const visualFile of visualFiles) expect(sources).toContain(`\`${visualFile}\``)
   })
 
-  it('keeps the approved 3 + 3 + 2 + 15 assessment rhythm', async () => {
+  it('places retrieval checks after each milestone and delayed checks near the gate', async () => {
     const quiz = await loadQuiz('module-2')
     expect(Object.fromEntries((quiz.groups ?? []).map((group) => [group.id, group.questions.length]))).toEqual({
-      'planning-prd-check': 3,
-      'prompt-check': 3,
-      'implementation-plan-check': 2,
-      'final-assessment': 15
+      'brief-retrieval': 2,
+      'evidence-retrieval': 2,
+      'reference-retrieval': 2,
+      'prd-retrieval': 2,
+      'planning-retrieval': 2,
+      'final-assessment': 10
     })
-    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(23)
+    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(20)
   })
 
   it('gives every question an answer contract and approved source', async () => {
@@ -135,7 +150,9 @@ describe('Course module assessment banks', () => {
       'openai.com',
       'microsoft.github.io',
       'www.freecodecamp.org',
-      'www.atlassian.com'
+      'www.atlassian.com',
+      'www.gov.uk',
+      'www.w3.org'
     ])
 
     expect(new Set(questions.map((question) => question.id)).size).toBe(questions.length)
@@ -144,7 +161,12 @@ describe('Course module assessment banks', () => {
     for (const question of questions) {
       if (question.explanation) expect(question.explanation.length).toBeGreaterThan(40)
       expect(question.source.basis.length).toBeGreaterThan(40)
-      expect(allowedHosts.has(new URL(question.source.url).host)).toBe(true)
+      if (question.source.kind === 'curriculum-judgment') {
+        expect(question.source.label).toMatch(/Quyết định chương trình|Kết luận kiểm toán nguồn/)
+        expect(question.source.url).toMatch(/^docs\/planning\/portfolio-course-v1\/(?:DECISION_LOG|RESEARCH_SOURCES)\.md#/)
+      } else {
+        expect(allowedHosts.has(new URL(question.source.url).host)).toBe(true)
+      }
       if (question.type === 'multiple-choice') {
         expect(question.choices).toHaveLength(4)
         expect(question.answerIndex).toBeGreaterThanOrEqual(0)
@@ -155,7 +177,7 @@ describe('Course module assessment banks', () => {
     }
   })
 
-  it('uses explicit mastery thresholds for setup and planning', async () => {
+  it('keeps Module 1 fixed while making the Module 2 threshold pilot-configurable', async () => {
     const setupQuiz = await loadQuiz('module-1')
     const planningQuiz = await loadQuiz('module-2')
     const setupQuestions = setupQuiz.questions ?? []
@@ -163,10 +185,18 @@ describe('Course module assessment banks', () => {
     expect(setupQuiz.passingScore).toBe(4)
     expect(setupQuestions.filter((question) => question.type === 'multiple-choice')).toHaveLength(3)
     expect(setupQuestions.filter((question) => question.type === 'short-answer')).toHaveLength(2)
-    expect(finalGroup?.passingScore).toBe(0.8)
-    expect(finalGroup?.questions.filter((question) => question.type === 'multiple-choice')).toHaveLength(10)
-    expect(finalGroup?.questions.filter((question) => question.type === 'short-answer')).toHaveLength(3)
-    expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(2)
+    expect(finalGroup?.passingScore).toBeUndefined()
+    expect(planningQuiz.masteryPolicy).toMatchObject({
+      strategy: 'pilot-configured',
+      configurationKey: 'course.module-2.mastery.minimum',
+      publishThreshold: false,
+      fallback: 'manual-review-required',
+      requiresCurrentArtifactDigests: true,
+      requiresPracticeReceipt: true
+    })
+    expect(finalGroup?.questions.filter((question) => question.type === 'multiple-choice')).toHaveLength(6)
+    expect(finalGroup?.questions.filter((question) => question.type === 'short-answer')).toHaveLength(4)
+    expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(0)
   })
 
   it('keeps all five Module 1 review questions at Bloom level 2 or higher', async () => {
