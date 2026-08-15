@@ -185,6 +185,85 @@
         }
       ],
       "nextLessonId": "module-3"
+    },
+    {
+      "id": "module-3",
+      "kind": "module",
+      "titleVi": "Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng",
+      "titleEn": "Build and debug in verified slices",
+      "lessonPath": "course/lessons/module-3.vi.md",
+      "scriptPath": "course/lesson-scripts/module-3.script.vi.md",
+      "quizPath": "course/quizzes/module-3.quiz.json",
+      "promptPath": "course/prompts/start-module-3.vi.md",
+      "artifactPaths": [
+        "evidence/module-3/scaffold-report.md",
+        "evidence/module-3/design-direction.md",
+        "evidence/module-3/build-log.md",
+        "evidence/module-3/browser-validation.md",
+        "evidence/module-3/revision-record.md",
+        "evidence/module-3/debugging-report.md",
+        "evidence/module-3/enhancement-plan.md",
+        "evidence/module-3/final-change-summary.md"
+      ],
+      "viewportContract": {
+        "desktop": { "width": 1440, "height": 900 },
+        "mobile": { "width": 390, "height": 844 }
+      },
+      "artifactGateCheckpoint": "m3-portfolio-build",
+      "masteryGateCheckpoint": "m3-mastery",
+      "unlockGate": {
+        "nextLessonId": "module-4",
+        "requiresCurrentArtifactDigests": true,
+        "requiresLearnerApproval": true,
+        "requiresStageReceiptCount": 5,
+        "requiresNestedBuildSliceReceiptCount": 4,
+        "requiresCurrentCheck": true,
+        "requiresBrowserValidation": true,
+        "requiresMasteryReceipt": true
+      },
+      "checkpoints": [
+        "m3-scaffold-baseline",
+        "m3-complete-first-version",
+        "m3-whole-page-revision",
+        "m3-evidence-debugging",
+        "m3-independent-enhancement",
+        "m3-portfolio-build",
+        "m3-mastery",
+        "m3-complete"
+      ],
+      "lessons": [
+        {
+          "id": "m3-scaffold-baseline",
+          "titleVi": "Tạo nền ứng dụng có thể kiểm chứng",
+          "checkpoints": ["m3-scaffold-baseline"]
+        },
+        {
+          "id": "m3-complete-first-version",
+          "titleVi": "Xây phiên bản đầu tiên theo bốn phần",
+          "checkpoints": ["m3-complete-first-version"]
+        },
+        {
+          "id": "m3-whole-page-revision",
+          "titleVi": "Xem lại và cải thiện toàn trang",
+          "checkpoints": ["m3-whole-page-revision"]
+        },
+        {
+          "id": "m3-evidence-debugging",
+          "titleVi": "Gỡ một lỗi từ bằng chứng",
+          "checkpoints": ["m3-evidence-debugging"]
+        },
+        {
+          "id": "m3-independent-enhancement",
+          "titleVi": "Tự định hướng một cải tiến nhỏ",
+          "checkpoints": [
+            "m3-independent-enhancement",
+            "m3-portfolio-build",
+            "m3-mastery",
+            "m3-complete"
+          ]
+        }
+      ],
+      "nextLessonId": "module-4"
     }
   ]
 }
