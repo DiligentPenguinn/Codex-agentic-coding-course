@@ -317,8 +317,8 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByRole('button', { name: /Giữ Full access tắt/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
-  await page.getByText(/Bạn có hai việc: thiết kế cách người xem khám phá một portfolio cá nhân/).waitFor()
-  await page.getByLabel('Câu trả lời của bạn').fill('Dùng Sol và High cho việc còn mơ hồ; dùng lựa chọn tiết kiệm hơn cho việc theo mẫu đã duyệt.')
+  await page.getByText(/Bạn cần chọn giữa 5.6 Sol và 5.6 Luna cho hai nhiệm vụ/).waitFor()
+  await page.getByLabel('Câu trả lời của bạn').fill('Dùng 5.6 Sol cho portfolio còn mơ hồ vì cần phân tích và phán đoán; dùng 5.6 Luna cho 100 mô tả theo mẫu vì công việc rõ, lặp lại và có khối lượng lớn.')
   await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
   await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()

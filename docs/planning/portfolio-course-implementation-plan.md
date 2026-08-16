@@ -107,15 +107,15 @@ there first and remain synchronized with Course Companion.
   or Teacher-spoken script lines. Typecheck, lint, 274 unit tests, nine startup
   tests, production build, and Electron smoke passed. This scoped approval does
   not mark overall owner approval or pilot acceptance complete.
-- On 16 August 2026, the owner approved a narrow Module 1 quiz correction that
-  removes the retired ContentPilot application from question `m1-q4`. The
-  replacement compares designing how a viewer explores a personal portfolio
-  while requirements remain unclear with editing 20 project descriptions from
-  an approved template. The Bloom level, expected answer signals, five-question
-  structure, and 4/5 mastery gate are unchanged. Frozen-source regression,
-  274 unit tests, nine startup tests, production build, and Electron smoke
-  passed. This scoped approval does not mark overall Foundation owner approval
-  or pilot acceptance complete.
+- On 16 August 2026, the owner approved replacing Module 1 question `m1-q4`
+  with a direct comparison between 5.6 Sol and 5.6 Luna. The revised scenario
+  distinguishes an ambiguous portfolio-structure task that needs analysis and
+  judgment from a clear, repeatable, high-volume transformation task with a
+  fixed output. It no longer mixes model selection with an Effort decision.
+  The Bloom level, five-question structure, and 4/5 mastery gate are unchanged.
+  Frozen-source regression, 274 unit tests, nine startup tests, production
+  build, and Electron smoke passed. This scoped approval does not mark overall
+  Foundation owner approval or pilot acceptance complete.
 - On 16 August 2026, the owner approved one cross-cutting visual exception for
   Course Companion: UI chrome uses only yellow, white, and black, with neutral
   gray hierarchy produced from white/black opacity. Raster artwork and

@@ -77,17 +77,17 @@
       "type": "short-answer",
       "bloomLevel": 3,
       "bloomLabel": "Vận dụng",
-      "prompt": "Bạn có hai việc: thiết kế cách người xem khám phá một portfolio cá nhân khi yêu cầu còn chưa rõ, và chỉnh 20 đoạn mô tả dự án theo mẫu đã duyệt. Hãy chọn model cùng mức Effort phù hợp cho từng việc, rồi giải thích một đánh đổi trong lựa chọn của bạn.",
-      "explanation": "Công việc mơ hồ, nhiều bước thường cần model có năng lực cao hơn và mức suy luận lớn hơn. Công việc rõ, lặp lại có thể dùng lựa chọn tiết kiệm hơn nếu kết quả vẫn đạt yêu cầu.",
+      "prompt": "Bạn cần chọn giữa 5.6 Sol và 5.6 Luna cho hai nhiệm vụ. Nhiệm vụ thứ nhất là xác định cấu trúc và câu chuyện cho một portfolio khi yêu cầu còn nhiều điểm chưa rõ. Nhiệm vụ thứ hai là chuyển 100 mô tả dự án sang một mẫu đã duyệt với đầu ra cố định. Bạn chọn model nào cho từng nhiệm vụ? Hãy giải thích dựa trên tính chất của công việc.",
+      "explanation": "5.6 Sol phù hợp với nhiệm vụ portfolio còn mơ hồ vì công việc cần phân tích, phán đoán và hoàn thiện chất lượng. 5.6 Luna phù hợp với 100 mô tả có mẫu và đầu ra cố định vì đây là công việc rõ ràng, lặp lại và có khối lượng lớn.",
       "expectedSignals": [
-        "Chọn Sol và mức Effort cao hơn cho việc thiết kế còn mơ hồ, nhiều bước",
-        "Chọn model hoặc mức Effort tiết kiệm hơn cho việc rõ và lặp lại, kèm điều kiện kết quả vẫn đạt yêu cầu",
-        "Giải thích ít nhất một đánh đổi về chất lượng, thời gian hoặc mức sử dụng"
+        "Chọn 5.6 Sol cho nhiệm vụ portfolio còn mơ hồ",
+        "Chọn 5.6 Luna cho nhiệm vụ chuyển 100 mô tả theo mẫu đã duyệt",
+        "Giải thích Sol phù hợp với việc mở, cần phân tích hoặc phán đoán; Luna phù hợp với việc rõ, lặp lại hoặc có khối lượng lớn"
       ],
       "source": {
         "label": "OpenAI Docs — Models",
         "url": "https://learn.chatgpt.com/docs/models",
-        "basis": "Tài liệu hướng dẫn chọn model và mức suy luận theo độ phức tạp của tác vụ cùng chất lượng kết quả cần đạt."
+        "basis": "Tài liệu khuyên dùng Sol cho công việc phức tạp, mở và cần thêm phân tích hoặc phán đoán; dùng Luna cho công việc cụ thể, lặp lại, khối lượng lớn khi đã biết kết quả tốt trông như thế nào."
       }
     },
     {
