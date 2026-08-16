@@ -429,9 +429,11 @@ async function capture(page, filename) {
     )
   })
   const families = Object.keys(palette)
-  assert.ok(
-    families.length <= 3,
-    `${filename} uses ${families.length} UI color families: ${JSON.stringify(palette)}`
+  const unexpectedFamilies = families.filter((family) => !['neutral', 'yellow'].includes(family))
+  assert.deepEqual(
+    unexpectedFamilies,
+    [],
+    `${filename} uses colors outside neutral and yellow: ${JSON.stringify(palette)}`
   )
   if (!screenshotDirectory) return
   await mkdir(screenshotDirectory, { recursive: true })
@@ -622,7 +624,7 @@ try {
     }
   })
   assert.equal(welcomeSurface.shellIsWelcome, true)
-  assert.equal(welcomeSurface.panelBackground, 'rgba(6, 6, 6, 0.97)')
+  assert.equal(welcomeSurface.panelBackground, 'rgba(0, 0, 0, 0.97)')
   assert.equal(welcomeSurface.panelBorderRadius, '16px')
   assert.equal(welcomeSurface.primaryBorderRadius, '10px')
   assert.match(welcomeSurface.worldFilter, /saturate\(0\.66\)/)

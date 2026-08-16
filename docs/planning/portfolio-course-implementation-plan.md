@@ -21,9 +21,9 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Present the Foundation evidence for owner review; do not infer approval. |
-| Module 2 | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
-| Module 3 | `implemented` | `passed` — full automated suite, production build, and Electron smoke at `659cbc9` on 15 August 2026 | `pending` | `pending` | Present Module 3 evidence for owner review; do not infer approval. |
+| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
+| Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
+| Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; Codex-operated CLI flow with a neutral public bootstrap locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` overall; M4.0 provider flow approved on 16 August 2026 | `pending` | Close the Module 3 owner-review and acceptance gates before M4.1 learner-facing authoring. |
 
 ## Purpose
@@ -83,6 +83,13 @@ there first and remain synchronized with Course Companion.
 - One narrow Module 1 exception is approved: forward-looking transition copy
   may stop saying that Module 2 plans ContentPilot and may point to the new
   portfolio Module 2. No other Module 1 wording may change under this plan.
+- On 16 August 2026, the owner approved one cross-cutting visual exception for
+  Course Companion: UI chrome uses only yellow, white, and black, with neutral
+  gray hierarchy produced from white/black opacity. Raster artwork and
+  instructional screenshots retain their source colors. This exception changes
+  no lesson copy, images, navigation, checkpoints, or course behavior. Statuses
+  remain understandable through labels and border styles instead of relying on
+  additional semantic colors.
 - Modules 2–4 may be replaced or created according to the approved curriculum.
 - Existing ContentPilot code and historical planning contracts must not be
   deleted as incidental cleanup. They are retired from the runnable path first;
@@ -116,6 +123,10 @@ The following decisions are settled for this implementation:
    Adding one requires a separate scope and security review.
 8. Learners advance through evidence gates, not elapsed time. Course UI and
    content must not promise fixed-duration lessons.
+9. Course Companion uses one strict UI palette: yellow, white, and black only.
+   Neutral grays come from white/black opacity; raster artwork and instructional
+   screenshots are exempt. Automated source and rendered-surface checks prevent
+   other UI color families from returning.
 
 ## Current-to-target impact map
 
