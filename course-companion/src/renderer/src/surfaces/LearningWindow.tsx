@@ -436,18 +436,18 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 5,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Ôn tập cuối Module 1',
-    objective: 'Sẵn sàng cho 5 câu ôn tập',
+    objective: 'Sẵn sàng cho 4 câu ôn tập',
     panelLabel: 'PRACTICE ĐÃ ĐƯỢC DUYỆT',
     panelStatus: 'ĐÃ ĐẠT · TIẾP TỤC ÔN TẬP',
     tone: 'good',
-    request: 'Năm câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
+    request: 'Bốn câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
     evidence: [
       { label: 'MODEL', value: '5.6 Sol · High', ready: true },
       { label: 'SPEED', value: 'Standard', ready: true },
       { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Codex. Bây giờ, bạn sẽ trả lời năm câu ôn tập. Bạn cần đạt ít nhất bốn câu để hoàn thành Module 1.',
-    choices: [{ label: 'Bắt đầu 5 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
+    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Codex. Bây giờ, bạn sẽ trả lời bốn câu ôn tập. Bạn cần đạt ít nhất ba câu để hoàn thành Module 1.',
+    choices: [{ label: 'Bắt đầu 4 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
   },
   'module-1-complete': {
     lessonId: 'module-1',
@@ -1032,7 +1032,7 @@ const scenes = {
     mission: 'Kết quả kiểm tra thiết lập Codex',
     objective: 'Đối chiếu kết quả trước khi hoàn thành',
     panelLabel: 'KẾT QUẢ',
-    panelStatus: '5 CÂU · MỐC ĐẠT 4/5',
+    panelStatus: '4 CÂU · MỐC ĐẠT 3/4',
     tone: 'neutral',
     request: 'Mỗi câu đúng hoặc tự đối chiếu đạt được tính một điểm.',
     evidence: [],
@@ -1188,7 +1188,6 @@ const courseLessonPages = {
     ['module-1-final-2'],
     ['module-1-final-3'],
     ['module-1-final-4'],
-    ['module-1-final-5'],
     ['module-1-final-summary'],
     ['module-1-complete']
   ],
@@ -1780,6 +1779,7 @@ const decisionValues: Record<string, string> = {
   'repeatable-workflow': 'Skill cho quy trình có thể tái sử dụng',
   'reviewed-in-companion': 'Đã xem lại trong Course Companion',
   'passed-four-of-five': 'Đạt ít nhất 4/5 câu',
+  'passed-three-of-four': 'Đạt ít nhất 3/4 câu',
   'continued-existing-planning-progress': 'Đã chuyển tiếp từ lộ trình Planning cũ',
   'plan-first': 'Planning trước khi code',
   'product-requirements': 'Luồng sử dụng, đầu vào, đầu ra và phạm vi V1',
@@ -2762,7 +2762,7 @@ export function LearningWindow() {
                       label: scene.lessonId === 'module-1' ? 'Hoàn thành Module 1' : 'Hoàn thành Module 2',
                       next: scene.lessonId === 'module-1' ? 'module-1-complete' : 'module-2-complete',
                       decision: scene.lessonId === 'module-1'
-                        ? { key: 'setupMastery', value: 'passed-four-of-five' }
+                        ? { key: 'setupMastery', value: 'passed-three-of-four' }
                         : { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
                     })
                   : void retryFinalAssessment()}

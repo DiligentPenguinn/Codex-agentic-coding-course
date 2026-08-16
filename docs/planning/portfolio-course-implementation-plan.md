@@ -116,6 +116,16 @@ there first and remain synchronized with Course Companion.
   Frozen-source regression, 274 unit tests, nine startup tests, production
   build, and Electron smoke passed. This scoped approval does not mark overall
   Foundation owner approval or pilot acceptance complete.
+- On 16 August 2026, the owner approved removing question `m1-q5` and reducing
+  the Module 1 review to four questions. The mastery gate is now 3/4, so a
+  learner may still miss one question rather than being required to earn a
+  perfect score. The runnable quiz, lesson, script, Teacher contract, mastery
+  rubric, renderer scenes, saved decision label, and frozen-source regression
+  are synchronized. Progress paused on the retired fifth-question scene moves
+  safely to the four-question summary. Frozen-source regression, lint, 275
+  unit tests, nine startup tests, production build, and Electron smoke passed.
+  This scoped approval does not mark overall Foundation owner approval or
+  pilot acceptance complete.
 - On 16 August 2026, the owner approved one cross-cutting visual exception for
   Course Companion: UI chrome uses only yellow, white, and black, with neutral
   gray hierarchy produced from white/black opacity. Raster artwork and

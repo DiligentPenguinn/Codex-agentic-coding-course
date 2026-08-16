@@ -43,6 +43,9 @@ const RETIRED_MODULE_ONE_SCENES = new Set([
   'module-1-harness-codex',
   'module-1-skills'
 ])
+const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
+  'module-1-final-5'
+])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
   'm1-agents-guidance',
@@ -68,11 +71,17 @@ const moduleTwoMasteryQuestionIds = [
 
 function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean {
   return (
-    (typeof value.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(value.sceneId)) ||
+    (typeof value.sceneId === 'string' && (
+      RETIRED_MODULE_ONE_SCENES.has(value.sceneId)
+      || RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(value.sceneId)
+    )) ||
     (typeof value.checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(value.checkpointId)) ||
     (typeof value.currentCourseLessonId === 'string' && RETIRED_MODULE_ONE_LESSONS.has(value.currentCourseLessonId)) ||
     (Array.isArray(value.sceneHistory) && value.sceneHistory.some(
-      (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(sceneId)
+      (sceneId) => typeof sceneId === 'string' && (
+        RETIRED_MODULE_ONE_SCENES.has(sceneId)
+        || RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(sceneId)
+      )
     )) ||
     (Array.isArray(value.completedCheckpointIds) && value.completedCheckpointIds.some(
       (checkpointId) => typeof checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
@@ -84,9 +93,11 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
   if (!hasRetiredModuleOneReferences(raw)) return raw
   return {
     ...raw,
-    sceneId: typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
-      ? 'module-1-model-choice'
-      : raw.sceneId,
+    sceneId: typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(raw.sceneId)
+      ? 'module-1-final-summary'
+      : typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
+        ? 'module-1-model-choice'
+        : raw.sceneId,
     checkpointId: typeof raw.checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(raw.checkpointId)
       ? 'm1-model-choice'
       : raw.checkpointId,
@@ -94,7 +105,10 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
       ? 'm1-skills-and-checklist'
       : raw.currentCourseLessonId,
     sceneHistory: Array.isArray(raw.sceneHistory)
-      ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_ONE_SCENES.has(sceneId))
+      ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || (
+          !RETIRED_MODULE_ONE_SCENES.has(sceneId)
+          && !RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(sceneId)
+        ))
       : raw.sceneHistory,
     completedCheckpointIds: Array.isArray(raw.completedCheckpointIds)
       ? raw.completedCheckpointIds.filter(

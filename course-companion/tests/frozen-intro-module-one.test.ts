@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': 'b9ffe54be2c4e6b72d4c896f29efa3dedcc79db63e708f9284055bccb4d373c8',
+  '../pilot-workspace/course/lessons/module-1.vi.md': '694c933a706a1b52143f08a1f2596a7093167406ac6be4bb4af98198bcfdb0e6',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': 'e20c4d123467ca0f4b315b733c418c9ce7384378c49a255600c04df62eed21f5',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': 'fda22dbbef9e7067e5f94ec5dd45b7e26a2c38e2cb8eca6eb2863ac9d63ad598',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
-  '../pilot-workspace/course/prompts/start-module-1.vi.md': 'fce8cba4107cbc56c6e05c073d63e2b7568033c0fd7df5d73118519db375d5a8',
+  '../pilot-workspace/course/prompts/start-module-1.vi.md': '6ffa73d0ae953be42e2206f23ed1a34f4188b490e9df56a76b34bc0ef886f3c1',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
-  '../pilot-workspace/course/quizzes/module-1.quiz.json': 'e6cba65a765d13e71d8914ff24103833d0e9b1be053ead2f4469231e0f985b9f',
+  '../pilot-workspace/course/quizzes/module-1.quiz.json': '5c0f3fd8032320c4a8b71f45c55e8d7f1977fc785f717c4b0e0b09b22fcd227a',
   '../pilot-workspace/course/practices/m1-codex-safe-setup.json': 'e38108154ecab20070d2820b1ec8118c0383dd727d267ff02bcea8f9660cad65',
   'content/practices/m1-codex-safe-setup.json': 'a93062fa4386ac54e085b31cfb9a26690d03ba79f2a8810f2b4991d2b04d0d28',
   '../pilot-workspace/course/codex-setup/app.js': '76ee417775f75c302be3758c31442564dbc6371e83ae8942b2c87baccfd7424d',
@@ -59,7 +59,7 @@ describe('frozen introduction and Module 1', () => {
       source.indexOf("  'module-2-why-planning'")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('f5b4cf111ef720082e60c96ea57602c33f91b50e3126fef6646e2a426a2b746e')
+    expect(digest(scenes)).toBe('8bf3274d20619f99955bc92eb10727485cfbd651e52244a791aa78d32f963bca')
     expect(scenes).toContain("dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'")
     expect(scenes).toContain("choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }]")
     expect(scenes).toContain("dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.'")

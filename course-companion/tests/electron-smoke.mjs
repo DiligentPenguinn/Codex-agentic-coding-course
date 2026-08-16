@@ -266,7 +266,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/9', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/8', { exact: true }).first().waitFor()
   const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
@@ -301,7 +301,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   }
 
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
-  await page.getByText('Sẵn sàng cho 5 câu ôn tập', { exact: true }).waitFor()
+  await page.getByText('Sẵn sàng cho 4 câu ôn tập', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
 
@@ -321,15 +321,9 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByLabel('Câu trả lời của bạn').fill('Dùng 5.6 Sol cho portfolio còn mơ hồ vì cần phân tích và phán đoán; dùng 5.6 Luna cho 100 mô tả theo mẫu vì công việc rõ, lặp lại và có khối lượng lớn.')
   await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
   await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
-  await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
+  await page.getByRole('button', { name: 'Xem kết quả 4 câu', exact: true }).click()
 
-  await page.getByText(/Báo cáo Verification ghi 5.6 Sol/).waitFor()
-  await page.getByLabel('Câu trả lời của bạn').fill('Chưa thể duyệt. Cần thêm ảnh Approval–Full access và xác nhận Full access đang tắt rồi mới kiểm tra lại.')
-  await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
-  await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
-  await page.getByRole('button', { name: 'Xem kết quả 5 câu', exact: true }).click()
-
-  await page.getByText(/Bạn đạt 5\/5 câu/).waitFor()
+  await page.getByText(/Bạn đạt 4\/4 câu/).waitFor()
   await capture(page, 'module-1-final-review.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
@@ -929,7 +923,7 @@ try {
   assert.ok(persisted.sceneHistory.length > 10)
   assert.equal(persisted.decisions.portfolioPlanningPractice, 'five-current-stage-receipts')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
-  assert.equal(persisted.decisions.setupMastery, 'passed-four-of-five')
+  assert.equal(persisted.decisions.setupMastery, 'passed-three-of-four')
   assert.equal(persisted.decisions.masteryEvidence, undefined)
   assert.equal(
     Object.entries(persisted.decisions).filter(

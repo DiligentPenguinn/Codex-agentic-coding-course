@@ -115,6 +115,45 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('m1-agents-guidance')
   })
 
+  it('moves progress paused on the retired fifth Module 1 question to the summary', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    const retiredProgress = {
+      ...started,
+      currentCourseLessonId: 'm1-assessment',
+      checkpointId: 'm1-mastery',
+      sceneId: 'module-1-final-5',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-1-final-4',
+        'module-1-final-5'
+      ],
+      decisions: {
+        ...started.decisions,
+        'assessment:m1-q1': 'correct:0',
+        'assessment:m1-q2': 'correct:0',
+        'assessment:m1-q3': 'correct:0',
+        'assessment:m1-q4': 'correct:self-review:Câu trả lời của người học.'
+      }
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-mastery',
+        sceneId: 'module-1-final-summary',
+        sceneHistory: ['intro-visual-onboarding', 'module-1-final-4']
+      }
+    })
+  })
+
   it('resumes an exact page inside the opening introduction', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     await repository.save(introStart)

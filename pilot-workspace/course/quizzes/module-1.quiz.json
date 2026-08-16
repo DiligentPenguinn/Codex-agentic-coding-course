@@ -2,14 +2,14 @@
   "schemaVersion": "1.1.0",
   "moduleId": "module-1",
   "title": "Bài ôn tập cuối Module 1 — Làm việc với Codex",
-  "passingScore": 4,
+  "passingScore": 3,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
     "feedbackTiming": "Chỉ hiện phản hồi, lời giải và nguồn sau khi Learner đã trả lời câu hiện tại.",
     "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
     "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học.",
-    "retryPolicy": "Learner cần đạt ít nhất 4/5 câu. Nếu chưa đạt, cho làm lại bài ôn tập trước khi hoàn thành Module 1."
+    "retryPolicy": "Learner cần đạt ít nhất 3/4 câu. Nếu chưa đạt, cho làm lại bài ôn tập trước khi hoàn thành Module 1."
   },
   "questions": [
     {
@@ -88,24 +88,6 @@
         "label": "OpenAI Docs — Models",
         "url": "https://learn.chatgpt.com/docs/models",
         "basis": "Tài liệu khuyên dùng Sol cho công việc phức tạp, mở và cần thêm phân tích hoặc phán đoán; dùng Luna cho công việc cụ thể, lặp lại, khối lượng lớn khi đã biết kết quả tốt trông như thế nào."
-      }
-    },
-    {
-      "id": "m1-q5",
-      "type": "short-answer",
-      "bloomLevel": 4,
-      "bloomLabel": "Phân tích",
-      "prompt": "Báo cáo Verification ghi 5.6 Sol, High, Standard và Approve for me. Tuy nhiên, báo cáo không nhắc đến Full access và task chỉ có một ảnh. Bạn có thể duyệt cấu hình này không? Hãy nêu bằng chứng còn thiếu và bước tiếp theo.",
-      "explanation": "Chưa thể duyệt vì không được suy đoán trạng thái Full access từ bốn mục còn lại. Bằng chứng cũng chưa đáp ứng yêu cầu hai ảnh của Practice.",
-      "expectedSignals": [
-        "Kết luận chưa thể duyệt cấu hình",
-        "Chỉ ra còn thiếu trạng thái Full access và ảnh Approval–Full access",
-        "Yêu cầu bổ sung đúng bằng chứng còn thiếu rồi kiểm tra lại, không tự suy đoán"
-      ],
-      "source": {
-        "label": "OpenAI Docs — Sandboxing and approvals",
-        "url": "https://learn.chatgpt.com/docs/sandboxing",
-        "basis": "Tài liệu phân biệt trạng thái Full access với chính sách approval, nên không thể suy ra một trạng thái từ trạng thái còn lại."
       }
     }
   ]

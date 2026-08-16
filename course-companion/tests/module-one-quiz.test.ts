@@ -181,9 +181,9 @@ describe('Course module assessment banks', () => {
     const planningQuiz = await loadQuiz('module-2')
     const setupQuestions = setupQuiz.questions ?? []
     const finalGroup = planningQuiz.groups?.find((group) => group.id === 'final-assessment')
-    expect(setupQuiz.passingScore).toBe(4)
+    expect(setupQuiz.passingScore).toBe(3)
     expect(setupQuestions.filter((question) => question.type === 'multiple-choice')).toHaveLength(3)
-    expect(setupQuestions.filter((question) => question.type === 'short-answer')).toHaveLength(2)
+    expect(setupQuestions.filter((question) => question.type === 'short-answer')).toHaveLength(1)
     expect(finalGroup?.passingScore).toBeUndefined()
     expect(planningQuiz.masteryPolicy).toMatchObject({
       strategy: 'pilot-configured',
@@ -198,12 +198,12 @@ describe('Course module assessment banks', () => {
     expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(0)
   })
 
-  it('keeps all five Module 1 review questions at Bloom level 2 or higher', async () => {
+  it('keeps all four Module 1 review questions at Bloom level 2 or higher', async () => {
     const setupQuiz = await loadQuiz('module-1')
     const setupQuestions = setupQuiz.questions ?? []
 
-    expect(setupQuestions).toHaveLength(5)
-    expect(setupQuestions.map((question) => question.bloomLevel)).toEqual([2, 3, 3, 3, 4])
+    expect(setupQuestions).toHaveLength(4)
+    expect(setupQuestions.map((question) => question.bloomLevel)).toEqual([2, 3, 3, 3])
     expect(setupQuestions.every((question) => (question.bloomLevel ?? 0) >= 2)).toBe(true)
     expect(setupQuestions.every((question) => Boolean(question.bloomLabel))).toBe(true)
   })
