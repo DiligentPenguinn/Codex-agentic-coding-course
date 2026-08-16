@@ -97,7 +97,7 @@ export function PracticeBrief({
           : workspace
       )
     } catch {
-      setError('Không thể mở Executor chat đang hoạt động. Hãy thử lại.')
+      setError('Không thể mở task Codex đang hoạt động. Hãy thử lại.')
       await load()
     } finally {
       setBusy(false)

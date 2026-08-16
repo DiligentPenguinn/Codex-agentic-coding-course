@@ -4,7 +4,7 @@
   "title": "Hoàn thiện gói planning cho portfolio",
   "version": "1.0.0",
   "checkpointId": "m2-portfolio-planning",
-  "objective": "Dùng một task Executor duy nhất để hoàn thiện năm giai đoạn lập kế hoạch trong thư mục portfolio đã chọn. Sau mỗi giai đoạn, Course Companion đối chiếu tài liệu hiện có trên máy và chờ bạn chấp nhận đúng phiên bản hiện tại.",
+  "objective": "Dùng một task Codex duy nhất để hoàn thiện năm giai đoạn lập kế hoạch trong thư mục portfolio đã chọn. Sau mỗi giai đoạn, Course Companion đối chiếu tài liệu hiện có trên máy và chờ bạn chấp nhận đúng phiên bản hiện tại.",
   "expectedOutcome": "Bảy tài liệu lập kế hoạch có nội dung trung thực, truy vết được, đã được bạn duyệt và có năm biên nhận giai đoạn còn hiện hành. Không có mã ứng dụng, gói phụ thuộc hoặc công việc xuất bản nào được tạo.",
   "workspaceKind": "learner-portfolio",
   "taskPolicy": "safe-workspace-write",

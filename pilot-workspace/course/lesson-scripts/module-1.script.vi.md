@@ -70,11 +70,11 @@ hành, không phải thiết lập mặc định của mọi tài khoản Codex.
 
 ## Bước 3 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
-Teacher nói: "Bây giờ Course Companion sẽ mở một task Executor riêng để bạn cài
+Teacher nói: "Bây giờ Course Companion sẽ mở một task Codex riêng để bạn cài
 cấu hình thật. Ứng dụng chỉ đọc metadata cấu hình hiệu lực của đúng task này;
-không đọc ảnh, không cần Executor lập báo cáo và không tự thay đổi cài đặt."
+không đọc ảnh, không cần Codex lập báo cáo và không tự thay đổi cài đặt."
 
-Teacher nói: "Trong task Executor, lần lượt chọn 5.6 Sol, High, Standard,
+Teacher nói: "Trong task Codex, lần lượt chọn 5.6 Sol, High, Standard,
 Approve for me và giữ Full access ở trạng thái tắt. Sau mỗi thay đổi, quay lại
 Course Companion để xem giá trị được phát hiện và mục nào còn chưa khớp."
 

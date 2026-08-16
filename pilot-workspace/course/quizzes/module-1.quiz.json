@@ -57,9 +57,9 @@
       "type": "multiple-choice",
       "bloomLevel": 3,
       "bloomLabel": "Vận dụng",
-      "prompt": "Một task Executor chỉ cần đọc hai ảnh đã nằm trong workspace nhưng lại yêu cầu bật Full access. Cách xử lý nào phù hợp nhất?",
+      "prompt": "Một task Codex chỉ cần đọc hai ảnh đã nằm trong workspace nhưng lại yêu cầu bật Full access. Cách xử lý nào phù hợp nhất?",
       "choices": [
-        "Giữ Full access tắt, xem lý do xin quyền và yêu cầu Executor làm việc trong phạm vi hẹp hơn nếu có thể.",
+        "Giữ Full access tắt, xem lý do xin quyền và yêu cầu Codex làm việc trong phạm vi hẹp hơn nếu có thể.",
         "Bật Full access vì mọi yêu cầu từ Codex đều cần quyền này.",
         "Duyệt ngay mà không đọc vì task chỉ kiểm tra ảnh.",
         "Tắt sandbox vĩnh viễn để lần sau không bị gián đoạn."

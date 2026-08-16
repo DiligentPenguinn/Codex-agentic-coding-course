@@ -4,16 +4,16 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
-  '../pilot-workspace/course/lessons/intro.vi.md': 'cc0f8091cf142fa673cb50818907a86007485ed139b57950294ff8883768dba8',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '265ca2877fa90c5a4fc895290754175a38a65b67e537ed8e47a97dc9569f4b69',
-  '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': '1226d3c8511b0bd43107d018e6a9f2a673abf861930aff5f2d73f7f8c013cbda',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '8ac5f090151a5baf7aeb20e2d656db512c43ae70c6f254064b7067d5cb9b8bbb',
+  '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
+  '../pilot-workspace/course/lessons/module-1.vi.md': 'b9ffe54be2c4e6b72d4c896f29efa3dedcc79db63e708f9284055bccb4d373c8',
+  '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': 'e20c4d123467ca0f4b315b733c418c9ce7384378c49a255600c04df62eed21f5',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
-  '../pilot-workspace/course/prompts/start-module-1.vi.md': '792bb07e9197e5ae65002f0aa2e5ac52be6bc6f4896fbbc28b41c70da45bdccf',
+  '../pilot-workspace/course/prompts/start-module-1.vi.md': 'fce8cba4107cbc56c6e05c073d63e2b7568033c0fd7df5d73118519db375d5a8',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
-  '../pilot-workspace/course/quizzes/module-1.quiz.json': '9114e69cfb0f81e500c85dcb5a453b468b77117c62780a57014a1f09f0fa1fa0',
-  '../pilot-workspace/course/practices/m1-codex-safe-setup.json': '14f57b5c4e6964ee6954bea5b35eec84fe145b64bda25412c946e69e49c6557b',
-  'content/practices/m1-codex-safe-setup.json': 'a8419692c19539945fb5689efcb4880f3cd34178ae1d2ff3ff5aee1bad23b6b6',
+  '../pilot-workspace/course/quizzes/module-1.quiz.json': '3439e7ab0f488fb8aaa94fe6076d45fea9bb8a3736b14f61837db109472b78fd',
+  '../pilot-workspace/course/practices/m1-codex-safe-setup.json': 'e38108154ecab20070d2820b1ec8118c0383dd727d267ff02bcea8f9660cad65',
+  'content/practices/m1-codex-safe-setup.json': 'a93062fa4386ac54e085b31cfb9a26690d03ba79f2a8810f2b4991d2b04d0d28',
   '../pilot-workspace/course/codex-setup/app.js': '76ee417775f75c302be3758c31442564dbc6371e83ae8942b2c87baccfd7424d',
   '../pilot-workspace/course/codex-setup/images/SOURCES.md': '22d0b74bcef710bb411938ae98d4905ba782af85471d7c03bd9b0885800af3e8',
   '../pilot-workspace/course/codex-setup/images/approval-menu.png': 'aa54394758b3d17e9c67aeeaa8ea93090ef7bc2f01f3d5990986c9ea280581f6',
@@ -21,7 +21,7 @@ const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/codex-setup/images/model-settings.png': '02ee7752a4cb5870408b1e6b11998db3c55021a446a2e44b0f2a618c7ffb9134',
   '../pilot-workspace/course/codex-setup/images/reasoning-levels.png': '5f14317e0c72cfbefeb40e4562eca54078209b375944302fdb71afc8d9bb78be',
   '../pilot-workspace/course/codex-setup/images/slash-commands.png': '5f9baca5927a058019c411c7ef8d5d76d7bc0c60553557d183cb8656b37660c9',
-  '../pilot-workspace/course/codex-setup/index.html': '48162cc7eb5cb6ed652fc62e26fabc6173cf4b15d7e775f59ff6dd52ee9f2558',
+  '../pilot-workspace/course/codex-setup/index.html': '5aeec9e4573ad84665d1fc11e7b1a94e04172cee51c80355cf1f4f02d2af0701',
   '../pilot-workspace/course/codex-setup/styles.css': '3c40f22cf620789ff94a7e12eca49c160611a5212d4f94e7a551eff3e17e1676',
   '../pilot-workspace/course/onboarding/app.js': '75006ce0ec2f1f224c54265e9a61202ed6cfb8a4ff9c63a202095ad9586441e2',
   '../pilot-workspace/course/onboarding/images/SOURCES.md': 'e256b39a05931c56083ad7f53ba75998f103f712cb64f19ebb5f062187ddadfb',
@@ -59,7 +59,7 @@ describe('frozen introduction and Module 1', () => {
       source.indexOf("  'module-2-why-planning'")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('610325d1aef151e9baafa86bb7fd07dd07a3fbbd3f3d9464a16752b5ee104eff')
+    expect(digest(scenes)).toBe('f5b4cf111ef720082e60c96ea57602c33f91b50e3126fef6646e2a426a2b746e')
     expect(scenes).toContain("dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'")
     expect(scenes).toContain("choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }]")
     expect(scenes).toContain("dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.'")

@@ -13,7 +13,7 @@
 
 ## Nguồn metadata
 
-- Task Executor được liên kết:
+- Task Codex được liên kết:
 - Nguồn: metadata cấu hình hiệu lực do Codex App Server trả về
 - Thời điểm Course Companion ghi nhận:
 - Độ mới: Mới / Đã cũ / Không xác minh được

@@ -313,7 +313,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByRole('button', { name: /Dùng \/status để xem mức sử dụng context/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
-  await page.getByText(/task Executor chỉ cần đọc hai ảnh/).waitFor()
+  await page.getByText(/task Codex chỉ cần đọc hai ảnh/).waitFor()
   await page.getByRole('button', { name: /Giữ Full access tắt/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
@@ -858,7 +858,7 @@ try {
     .getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
     .click()
   await learningPage.locator('.practice-brief-overlay').waitFor()
-  await learningPage.getByRole('heading', { name: /Dùng một task Executor duy nhất/ }).waitFor()
+  await learningPage.getByRole('heading', { name: /Dùng một task Codex duy nhất/ }).waitFor()
   await learningPage.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).waitFor()
   await capture(learningPage, 'module-2-portfolio-practice-brief.png')
   await learningPage.getByRole('button', { name: 'Đóng trang Practice', exact: true }).click()

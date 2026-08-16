@@ -286,7 +286,7 @@ describe('PracticeCoordinator', () => {
       harness({ failCreate: true }).executor
     )
     await expect(failing.startNew({ ...m2Identity, transfer: false }))
-      .rejects.toThrow('Không thể tạo Executor chat mới')
+      .rejects.toThrow('Không thể tạo task Codex mới')
     expect((await repository.load()).activeRun?.practiceId).toBe('m1-codex-safe-setup')
     await expect(failing.cancel()).resolves.toMatchObject({
       activePractice: { practiceId: 'm1-codex-safe-setup' }

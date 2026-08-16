@@ -125,15 +125,15 @@ Full access giữ ranh giới an toàn.
 
 ## Practice cuối Module 1
 
-Bạn sẽ mở một task Executor riêng trong Codex và chỉnh trực tiếp năm thiết lập
+Bạn sẽ mở một task Codex riêng và chỉnh trực tiếp năm thiết lập
 của task: Model, Effort, Speed, Approval và Full access. Bạn không cần chụp ảnh,
-đính kèm tệp hay yêu cầu Executor lập báo cáo.
+đính kèm tệp hay yêu cầu Codex lập báo cáo.
 
-Course Companion chỉ đọc metadata cấu hình hiệu lực của đúng task Executor đang
+Course Companion chỉ đọc metadata cấu hình hiệu lực của đúng task Codex đang
 được liên kết. Ứng dụng hiển thị năm giá trị được phát hiện, độ mới và mục nào
 chưa khớp; ứng dụng không tự thay đổi cài đặt của bạn.
 
-Course Companion không gửi task hay lệnh nào vào Executor trước khi cấu hình
+Course Companion không gửi task hay lệnh nào vào Codex trước khi cấu hình
 đạt. Cơ chế này không chặn việc bạn tự nhập vào Codex, vì vậy ở bước thiết lập
 hãy chỉ đổi năm cài đặt rồi quay lại chọn **Yêu cầu Triết duyệt tiến độ**.
 
@@ -162,7 +162,7 @@ Bạn hoàn thành Module 1 khi:
 - dùng `/status` để xem mức sử dụng context và `/goal` để tạo mục tiêu bền vững,
 - chọn Approve for me và không bật Full access,
 - dùng cấu hình Sol, High và Standard cho ContentPilot,
-- nộp đủ hai ảnh trong đúng task Executor, và
+- nộp đủ hai ảnh trong đúng task Codex, và
 - được mình duyệt bằng chứng, và
 - đạt ít nhất 4/5 câu trong bài ôn tập cuối Module 1.
 

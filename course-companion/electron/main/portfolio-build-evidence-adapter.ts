@@ -118,7 +118,7 @@ export class PortfolioBuildEvidenceAdapter implements PracticeEvidenceAdapter {
       ? (activity?.reportedVerificationEvidence ?? []).slice(-30).map((item) => item.slice(0, 500))
       : []
     if (!reportedChecks.some((item) => /npm run check/i.test(item))) {
-      issues.push(issue('independent-enhancement', 'package.json', 'missing-approval', 'Chưa có kết quả npm run check hiện tại do Executor báo cáo.'))
+      issues.push(issue('independent-enhancement', 'package.json', 'missing-approval', 'Chưa có kết quả npm run check hiện tại do Codex báo cáo.'))
     }
 
     const buildLog = artifacts.get('evidence/module-3/build-log.md')

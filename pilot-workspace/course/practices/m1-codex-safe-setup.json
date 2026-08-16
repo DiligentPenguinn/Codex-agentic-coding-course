@@ -3,8 +3,8 @@
   "practiceId": "m1-codex-safe-setup",
   "version": "2.0.0",
   "checkpointId": "m1-setup-checklist",
-  "objective": "Chứng minh Codex đã được thiết lập đúng cho dự án ContentPilot. Bạn sẽ dùng một task Executor để kiểm tra bằng chứng mà không thay đổi cài đặt.",
-  "expectedOutcome": "Một báo cáo dưới tiêu đề Verification trong đúng task Executor của bài thực hành. Báo cáo phải dựa trên hai ảnh được gửi trong task đó và xác nhận đủ năm thiết lập.",
+  "objective": "Chứng minh Codex đã được thiết lập đúng cho dự án ContentPilot. Bạn sẽ dùng một task Codex để kiểm tra bằng chứng mà không thay đổi cài đặt.",
+  "expectedOutcome": "Một báo cáo dưới tiêu đề Verification trong đúng task Codex của bài thực hành. Báo cáo phải dựa trên hai ảnh được gửi trong task đó và xác nhận đủ năm thiết lập.",
   "reportTitle": "Verification",
   "requiredSettings": [
     {
@@ -36,7 +36,7 @@
   "checklist": [
     {
       "id": "open-executor",
-      "title": "Mở đúng task Executor dành cho bài thực hành"
+      "title": "Mở đúng task Codex dành cho bài thực hành"
     },
     {
       "id": "attach-settings",
@@ -44,7 +44,7 @@
     },
     {
       "id": "verify-settings",
-      "title": "Yêu cầu Executor chỉ quan sát và báo cáo đủ năm thiết lập"
+      "title": "Yêu cầu Codex chỉ quan sát và báo cáo đủ năm thiết lập"
     },
     {
       "id": "review-evidence",
@@ -54,7 +54,7 @@
   "criteria": [
     {
       "id": "executor-bound",
-      "description": "Có hoạt động mới trong đúng task Executor của bài thực hành.",
+      "description": "Có hoạt động mới trong đúng task Codex của bài thực hành.",
       "required": true,
       "checklistStepId": "open-executor",
       "acceptedEvidence": ["bound-thread-activity"],
@@ -72,7 +72,7 @@
     },
     {
       "id": "read-only-request",
-      "description": "Yêu cầu Executor ghi rõ: “Chỉ quan sát, không thay đổi cài đặt.”",
+      "description": "Yêu cầu Codex ghi rõ: “Chỉ quan sát, không thay đổi cài đặt.”",
       "required": true,
       "checklistStepId": "verify-settings",
       "acceptedEvidence": ["learner-request"],

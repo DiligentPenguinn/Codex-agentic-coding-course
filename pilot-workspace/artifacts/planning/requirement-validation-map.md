@@ -12,7 +12,7 @@ Mỗi yêu cầu trong PRD phải xuất hiện đúng một lần. Một yêu c
 
 - [ ] Không thiếu yêu cầu nào trong PRD hiện tại.
 - [ ] Không có hàng nào tự thêm yêu cầu ngoài PRD.
-- [ ] Cách kiểm chứng không chỉ dựa vào lời Executor tự báo cáo.
+- [ ] Cách kiểm chứng không chỉ dựa vào lời Codex tự báo cáo.
 - [ ] Yêu cầu về màn hình hẹp, bàn phím, focus, nội dung và quyền riêng tư có bằng chứng dự kiến.
 
 ## Phê duyệt phiên bản hiện tại

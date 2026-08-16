@@ -159,7 +159,7 @@ export function PracticeProgress({
             </span>
           </header>
           <p>
-            Course Companion chỉ đọc metadata hiệu lực của task Executor đang liên kết;
+            Course Companion chỉ đọc metadata hiệu lực của task Codex đang liên kết;
             ứng dụng không tự thay đổi cài đặt của bạn.
           </p>
           <dl>
@@ -264,7 +264,7 @@ export function PracticeProgress({
                   <button type="button" disabled={actionBusy || scopeDecision.trim().length === 0} onClick={() => planningAction({ type: 'record-scope-decision', value: scopeDecision.trim(), expectedPrdDigest: actionContext.prdDigest!, expectedPlanDigest: actionContext.planDigest! })}>Ghi nhận quyết định phạm vi</button>
                 </label>
               ) : null}
-              {currentPlanningStep.id === 'draft-plan' ? <p>Quay lại Executor để tạo implementation plan từ PRD đã duyệt, rồi chọn “Làm mới bằng chứng”.</p> : null}
+              {currentPlanningStep.id === 'draft-plan' ? <p>Quay lại Codex để tạo implementation plan từ PRD đã duyệt, rồi chọn “Làm mới bằng chứng”.</p> : null}
               {actionBusy ? <small>Đang xác nhận bằng chứng hiện tại…</small> : null}
             </div>
           ) : null}
@@ -400,7 +400,7 @@ export function PracticeProgress({
 
       {workspace.activePractice ? (
         <details className="practice-receipt">
-          <summary>Executor chat đang hoạt động</summary>
+          <summary>Task Codex đang hoạt động</summary>
           <p>{workspace.activePractice.executorChatName}</p>
         </details>
       ) : null}

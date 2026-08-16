@@ -4,7 +4,7 @@
   "title": "Xây portfolio theo từng phần đã kiểm chứng",
   "version": "1.0.0",
   "checkpointId": "m3-portfolio-build",
-  "objective": "Dùng một task Executor để tạo nền ứng dụng, xây bốn phần theo thứ tự, cải thiện toàn trang, gỡ một lỗi và hoàn thành một cải tiến nhỏ trong thư mục portfolio đã chọn.",
+  "objective": "Dùng một task Codex để tạo nền ứng dụng, xây bốn phần theo thứ tự, cải thiện toàn trang, gỡ một lỗi và hoàn thành một cải tiến nhỏ trong thư mục portfolio đã chọn.",
   "expectedOutcome": "Portfolio React, TypeScript và Vite hoàn chỉnh với tám artifact hiện tại, năm biên nhận giai đoạn, bốn biên nhận phần xây dựng, npm run check hiện tại và bằng chứng trình duyệt ở 1440 × 900 cùng 390 × 844.",
   "workspaceKind": "learner-portfolio",
   "taskPolicy": "safe-workspace-write",

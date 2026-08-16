@@ -44,7 +44,7 @@ hỏi thành bài đánh đố. Dùng hint ladder nếu cần.]
 của workspace. Không sửa file, không cài dependency, không dùng network. Báo
 ba bằng chứng: tên workspace, phần học hiện có và các đường dẫn đã đọc.]
 
-Teacher nói: "Executor vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
+Teacher nói: "Codex vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
 chi tiết cụ thể trong báo cáo cho thấy nó đã đọc đúng dự án."
 
 [Dừng chờ Learner. Chấp nhận một bằng chứng cụ thể từ output như tên
@@ -53,7 +53,7 @@ ContentPilot, phần giới thiệu + bài học đầu tiên hoặc đường d
 
 ## Bước 3 — Chọn thời lượng học hôm nay (`intro-time-budget`)
 
-Teacher nói: "Bạn vừa hoàn thành vòng cộng tác đầu tiên: dự đoán, cho Executor
+Teacher nói: "Bạn vừa hoàn thành vòng cộng tác đầu tiên: dự đoán, cho Codex
 đọc và kiểm tra bằng chứng. Tiếp theo, chúng ta sẽ gắn nội dung khóa học với
 một quy trình nội dung thật của bạn."
 

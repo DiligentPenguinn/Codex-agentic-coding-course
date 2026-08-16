@@ -23,7 +23,7 @@ _Nêu non-goals, nội dung đã duyệt và khu vực không bị sửa._
 
 | Kiểm tra | Nguồn | Kết quả | Bằng chứng |
 | --- | --- | --- | --- |
-| `npm run check` | Course Companion hoặc Executor | | |
+| `npm run check` | Course Companion hoặc Codex | | |
 | Trình duyệt `1440 × 900` | Kiểm tra trực tiếp | | |
 | Trình duyệt `390 × 844` | Kiểm tra trực tiếp | | |
 

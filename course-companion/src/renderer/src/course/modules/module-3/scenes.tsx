@@ -104,8 +104,8 @@ export const moduleThreeScenes = {
     lessonLabel: 'MODULE 3 · PRACTICE', mission: 'Xây portfolio trong một task xuyên suốt', objective: 'Hoàn thành năm milestone và bốn phần xây dựng',
     panelLabel: 'BẰNG CHỨNG', panelStatus: '8 TỆP · 5 STAGE · 4 PHẦN', tone: 'good',
     request: 'Course Companion đọc lại filesystem, lệnh, browser evidence và lời duyệt trước khi cấp từng biên nhận.',
-    evidence: [{ label: 'TASK', value: 'Một Executor task' }, { label: 'CHECKPOINT', value: 'Có thể khôi phục' }, { label: 'REVIEW', value: 'Tóm tắt năm phần' }],
-    dialogue: 'Mở Practice để thực hiện hành trình thật trong thư mục portfolio đã chọn. Lời báo cáo của Executor không tự trở thành bằng chứng đã kiểm chứng.',
+    evidence: [{ label: 'TASK', value: 'Một task Codex' }, { label: 'CHECKPOINT', value: 'Có thể khôi phục' }, { label: 'REVIEW', value: 'Tóm tắt năm phần' }],
+    dialogue: 'Mở Practice để thực hiện hành trình thật trong thư mục portfolio đã chọn. Lời báo cáo của Codex không tự trở thành bằng chứng đã kiểm chứng.',
     choices: [{ label: 'Mở Practice xây portfolio', action: 'practice', primary: true }]
   },
   'module-3-portfolio-mastery': {

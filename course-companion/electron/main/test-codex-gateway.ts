@@ -429,19 +429,19 @@ function teacherAnswer(input: string): string {
         const confirmation = confirmedFiles.length > 0
           ? 'Workspace xác nhận tệp đang thay đổi: ' + confirmedFiles.join(', ') + '.'
           : 'Course Companion chưa xác nhận độc lập thay đổi tệp trong workspace.'
-        return 'Executor báo đã thay đổi: ' + reportedFiles.join(', ') + '. ' + confirmation
-          + ' Bằng chứng kiểm tra do Executor báo cáo, chưa được Course Companion chạy lại: '
+        return 'Codex báo đã thay đổi: ' + reportedFiles.join(', ') + '. ' + confirmation
+          + ' Bằng chứng kiểm tra do Codex báo cáo, chưa được Course Companion chạy lại: '
           + reportedEvidence.join(' ')
       }
       if (envelope.freshness !== 'fresh') {
         const disclosure = envelope.freshness === 'disconnected'
-          ? 'Ngữ cảnh Executor hiện bị mất kết nối.'
-          : 'Ngữ cảnh Executor hiện đã cũ.'
+          ? 'Ngữ cảnh Codex hiện bị mất kết nối.'
+          : 'Ngữ cảnh Codex hiện đã cũ.'
         return latest
           ? `${disclosure} Bản ghi gần nhất: ${latest} Số tệp thay đổi: ${changed}.`
           : `${disclosure} Tôi chưa thể xác nhận trạng thái mới nhất.`
       }
-      if (latest) return `Tôi đang theo dõi đúng Practice hiện tại. Executor báo: ${latest} Số tệp thay đổi: ${changed}.`
+      if (latest) return `Tôi đang theo dõi đúng Practice hiện tại. Codex báo: ${latest} Số tệp thay đổi: ${changed}.`
     } catch {
       // The fake response remains bounded and deterministic if its test envelope is malformed.
     }

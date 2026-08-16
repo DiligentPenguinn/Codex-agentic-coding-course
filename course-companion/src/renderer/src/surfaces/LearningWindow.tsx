@@ -446,7 +446,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'SPEED', value: 'Standard', ready: true },
       { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Executor. Bây giờ, bạn sẽ trả lời năm câu ôn tập. Bạn cần đạt ít nhất bốn câu để hoàn thành Module 1.',
+    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Codex. Bây giờ, bạn sẽ trả lời năm câu ôn tập. Bạn cần đạt ít nhất bốn câu để hoàn thành Module 1.',
     choices: [{ label: 'Bắt đầu 5 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
   },
   'module-1-complete': {

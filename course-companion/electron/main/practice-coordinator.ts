@@ -39,8 +39,8 @@ function initialChecklist(definition: PracticeDefinition): PracticeChecklistStep
 
 function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
   return stage === 'creating-target'
-    ? 'Đang tạo Executor chat mới…'
-    : 'Đang xác nhận Executor chat mới…'
+    ? 'Đang tạo task Codex mới…'
+    : 'Đang xác nhận task Codex mới…'
 }
 
 function safeCreationError(error: unknown): string {
@@ -53,22 +53,22 @@ function safeCreationError(error: unknown): string {
     return 'Codex chưa áp dụng đúng cấu hình an toàn đã duyệt ở Module 1. Không có chỉ dẫn nào được gửi vào task.'
   }
   if (message === 'Codex created the Executor task in an unexpected workspace') {
-    return 'Executor task không nằm trong Pilot workspace đã được Course Companion xác nhận. Không có chỉ dẫn nào được gửi.'
+    return 'Task Codex không nằm trong Pilot workspace đã được Course Companion xác nhận. Không có chỉ dẫn nào được gửi.'
   }
   if (message === 'Codex could not read the Executor chat after creation') {
-    return 'Executor chat đã được tạo nhưng Codex chưa đọc lại được dữ liệu đã lưu. Hãy thử lại.'
+    return 'Task Codex đã được tạo nhưng ứng dụng chưa đọc lại được dữ liệu đã lưu. Hãy thử lại.'
   }
   if (message === 'Invalid Executor chat binding') {
-    return 'Executor chat đã lưu không còn hợp lệ. Hãy hủy lần chuyển này và bắt đầu lại.'
+    return 'Task Codex đã lưu không còn hợp lệ. Hãy hủy lần chuyển này và bắt đầu lại.'
   }
   if (message === 'Codex Executor bootstrap did not close') {
-    return 'Course Companion chưa bàn giao được Executor chat cho Codex desktop. Hãy thử lại.'
+    return 'Course Companion chưa bàn giao được task cho Codex desktop. Hãy thử lại.'
   }
   if (message === 'Codex did not create the Executor chat' ||
       message === 'Codex created an invalid Executor chat') {
-    return 'Codex App Server không trả về một Executor chat hợp lệ. Hãy thử lại.'
+    return 'Codex App Server không trả về một task Codex hợp lệ. Hãy thử lại.'
   }
-  return 'Không thể tạo Executor chat mới. Practice cũ vẫn được giữ nguyên.'
+  return 'Không thể tạo task Codex mới. Practice cũ vẫn được giữ nguyên.'
 }
 
 function planningWorkspaceView(active: PracticeRunRecord): NonNullable<PracticeWorkspaceView['planning']> {
@@ -268,7 +268,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
-      const refreshError = 'Chưa thể làm mới bằng chứng từ Executor. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
+      const refreshError = 'Chưa thể làm mới bằng chứng từ Codex. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
       let record = await this.repository.load()
       if (record.pendingTransition && !this.lastError) {
         this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
@@ -605,7 +605,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       this.lastError = ''
     } catch {
       this.lastError =
-        'Executor chat đã được tạo nhưng Codex chưa mở được. Hãy dùng Tiếp tục Practice để thử lại.'
+        'Task Codex đã được tạo nhưng chưa mở được. Hãy dùng Tiếp tục Practice để thử lại.'
       throw new Error(this.lastError)
     }
   }

@@ -14,7 +14,7 @@ Trong lời learner-facing, phải gọi đây là **cấu hình mình đề xu�
 ContentPilot**. Không gọi đây là thiết lập mặc định của mọi tài khoản Codex.
 
 Phần cuối phải mở Practice `m1-codex-safe-setup`. Learner nộp hai ảnh trong
-đúng task Executor. Triết chỉ duyệt Practice sau khi bằng chứng còn mới và xác
+đúng task Codex. Triết chỉ duyệt Practice sau khi bằng chứng còn mới và xác
 nhận đủ năm thiết lập. Không dùng nút tự xác nhận thay cho đánh giá của Triết.
 
 Sau khi Practice được duyệt, dùng đủ năm câu trong

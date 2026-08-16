@@ -127,7 +127,7 @@ export class ExecutorChatCoordinator {
                   : definition.stages
                     ? [
                         'Dùng chính task này cho cả năm stage; không tạo task mới cho từng milestone.',
-                        'Dừng sau mỗi stage để Course Companion đối chiếu artifact hiện tại và ghi nhận phê duyệt. Kết quả do Executor tự báo cáo không thay thế bằng chứng tệp được kiểm tra độc lập.',
+                        'Dừng sau mỗi stage để Course Companion đối chiếu artifact hiện tại và ghi nhận phê duyệt. Kết quả do Codex tự báo cáo không thay thế bằng chứng tệp được kiểm tra độc lập.',
                         ...(definition.evidenceProfile === 'portfolio-planning'
                           ? [
                               `Chỉ được tạo hoặc sửa các tệp sau: ${definition.stages.flatMap((stage) => stage.requiredArtifactPaths).join(', ')}; ảnh chụp tham chiếu chỉ được lưu dưới planning/reference/screenshots/.`,

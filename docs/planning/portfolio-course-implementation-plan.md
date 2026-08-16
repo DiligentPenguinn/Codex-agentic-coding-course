@@ -21,9 +21,9 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke after the approved Module 1 Harness removal on 16 August 2026 | `pending` overall; the global Course Companion palette and scoped Harness removal were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
-| Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
+| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved learner-facing Codex terminology correction on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
+| Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
+| Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; Codex-operated CLI flow with a neutral public bootstrap locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` overall; M4.0 provider flow approved on 16 August 2026 | `pending` | Close the Module 3 owner-review and acceptance gates before M4.1 learner-facing authoring. |
 
 ## Purpose
@@ -95,6 +95,18 @@ there first and remain synchronized with Course Companion.
   copy may stop saying that Module 2 plans ContentPilot and may point to the new
   portfolio Module 2. No other Module 1 wording may change beyond the recorded
   exceptions under this plan.
+- On 16 August 2026, the owner confirmed that `Executor` is an internal
+  architecture term and must not be introduced to learners. Learner-facing
+  lessons, scripts, quiz copy, Practice labels, artifact templates, Teacher
+  responses, status messages, and recovery copy now use `Codex` or `task Codex`.
+  Internal class names, IDs, evidence kinds, agent configuration, and
+  architecture documentation retain `Executor`. The frozen Intro and Module 1
+  digests, Course Companion assertions, and Electron smoke journey were
+  synchronized. The terminology audit found no remaining `Executor` references
+  in renderer copy, learner lessons, quizzes, the Codex setup page, artifacts,
+  or Teacher-spoken script lines. Typecheck, lint, 274 unit tests, nine startup
+  tests, production build, and Electron smoke passed. This scoped approval does
+  not mark overall owner approval or pilot acceptance complete.
 - On 16 August 2026, the owner approved one cross-cutting visual exception for
   Course Companion: UI chrome uses only yellow, white, and black, with neutral
   gray hierarchy produced from white/black opacity. Raster artwork and
