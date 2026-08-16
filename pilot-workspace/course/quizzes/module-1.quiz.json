@@ -77,7 +77,7 @@
       "type": "short-answer",
       "bloomLevel": 3,
       "bloomLabel": "Vận dụng",
-      "prompt": "Bạn có hai việc: thiết kế một luồng ContentPilot còn nhiều điểm chưa rõ và chỉnh 20 đoạn nội dung theo mẫu đã duyệt. Hãy chọn model cùng mức Effort phù hợp cho từng việc, rồi giải thích một đánh đổi trong lựa chọn của bạn.",
+      "prompt": "Bạn có hai việc: thiết kế cách người xem khám phá một portfolio cá nhân khi yêu cầu còn chưa rõ, và chỉnh 20 đoạn mô tả dự án theo mẫu đã duyệt. Hãy chọn model cùng mức Effort phù hợp cho từng việc, rồi giải thích một đánh đổi trong lựa chọn của bạn.",
       "explanation": "Công việc mơ hồ, nhiều bước thường cần model có năng lực cao hơn và mức suy luận lớn hơn. Công việc rõ, lặp lại có thể dùng lựa chọn tiết kiệm hơn nếu kết quả vẫn đạt yêu cầu.",
       "expectedSignals": [
         "Chọn Sol và mức Effort cao hơn cho việc thiết kế còn mơ hồ, nhiều bước",

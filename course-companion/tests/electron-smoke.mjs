@@ -317,7 +317,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByRole('button', { name: /Giữ Full access tắt/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
-  await page.getByText(/Bạn có hai việc: thiết kế một luồng ContentPilot/).waitFor()
+  await page.getByText(/Bạn có hai việc: thiết kế cách người xem khám phá một portfolio cá nhân/).waitFor()
   await page.getByLabel('Câu trả lời của bạn').fill('Dùng Sol và High cho việc còn mơ hồ; dùng lựa chọn tiết kiệm hơn cho việc theo mẫu đã duyệt.')
   await page.getByRole('button', { name: 'Đối chiếu với tiêu chí', exact: true }).click()
   await page.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
