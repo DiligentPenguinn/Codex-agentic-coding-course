@@ -82,6 +82,21 @@ describe('Module 1 Practice renderer', () => {
     expect(source).not.toContain('PRACTICE · 2 ẢNH')
   })
 
+  it('opens the real Practice workflow instead of marking the checkpoint complete locally', async () => {
+    const source = await readFile(join(
+      process.cwd(),
+      'src',
+      'renderer',
+      'src',
+      'surfaces',
+      'LearningWindow.tsx'
+    ), 'utf8')
+    expect(source).toContain('if (practiceScene.practice')
+    expect(source).toContain('practiceVersion: activePracticeDefinition.version')
+    expect(source).not.toContain('mock-completed')
+    expect(source).not.toContain('practicePreview:')
+  })
+
   it('defines an announced loading state before workspace metadata is available', async () => {
     const source = await readFile(join(
       process.cwd(),

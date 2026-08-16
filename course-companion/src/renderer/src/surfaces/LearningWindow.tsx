@@ -53,6 +53,7 @@ type EvidenceItem = {
 
 type PracticeDefinition = {
   practiceId: string
+  version: string
   objective: string
   expectedOutcome: string
   reportTitle: string
@@ -2355,38 +2356,13 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
-      if (progress.sceneId === 'module-2-portfolio-practice'
+      const practiceScene = scenes[progress.sceneId]
+      if (practiceScene.practice
+        || progress.sceneId === 'module-2-portfolio-practice'
         || progress.sceneId === 'module-3-portfolio-practice') {
         setReviewHistoryIndex(null)
         setError('')
         setPracticeBriefOpen(true)
-        return
-      }
-      const nextSceneId = progress.sceneId === 'module-1-setup-checklist'
-        ? 'module-1-mastery'
-        : progress.sceneId === 'module-2-planning-package'
-          ? 'module-2-mastery'
-          : null
-      if (!nextSceneId) return
-
-      setBusy(true)
-      setReviewHistoryIndex(null)
-      setError('')
-      try {
-        if (progress.sceneId === 'module-2-planning-package') {
-          await window.courseCompanion?.emitPracticeFixture({ scenario: 'success' })
-        }
-        await advanceToScene(nextSceneId, {
-          ...progress.decisions,
-          [`practicePreview:${progress.checkpointId}`]: 'mock-completed'
-        })
-        setApprovalFocus(null)
-        setVisualExpanded(false)
-        setSecondaryVisualExpanded(false)
-      } catch {
-        setError('Không thể hoàn thành bài thực hành mô phỏng. Hãy thử lại.')
-      } finally {
-        setBusy(false)
       }
       return
     }
@@ -2479,6 +2455,7 @@ export function LearningWindow() {
   const currentReviewIndex = reviewHistoryIndex ?? progress.sceneHistory.length
   const displayedSceneId = reviewingSceneId ?? progress.sceneId
   const scene = scenes[displayedSceneId]
+  const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]
   const canOpenPreviousPage = isReviewing
     ? currentReviewIndex > 0
@@ -2798,11 +2775,14 @@ export function LearningWindow() {
 
       {practiceBriefOpen ? (
         <PracticeBrief
-          identity={progress.sceneId === 'module-2-portfolio-practice'
-            ? { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
-            : progress.sceneId === 'module-3-portfolio-practice'
-              ? { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }
-              : { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }}
+          identity={activePracticeDefinition
+            ? {
+                practiceId: activePracticeDefinition.practiceId,
+                practiceVersion: activePracticeDefinition.version
+              }
+            : progress.sceneId === 'module-2-portfolio-practice'
+              ? { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
+              : { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }}
           courseRunId={progress.sceneId === 'module-2-portfolio-practice'
             || progress.sceneId === 'module-3-portfolio-practice'
             ? progress.courseRunId

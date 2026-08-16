@@ -301,6 +301,24 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   }
 
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
+  await page.locator('.practice-brief-overlay').waitFor()
+  await page.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).click()
+  await waitForSnapshot(
+    electronApp,
+    (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
+    'Expected Module 1 Practice to leave the lesson and open the Codex companion'
+  )
+  await companionPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành', exact: true }).click()
+  await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ', exact: true }).waitFor()
+  await companionPage.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ', exact: true }).click()
+  await companionPage.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
+  await companionPage.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
+  await waitForSnapshot(
+    electronApp,
+    (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
+    'Expected the passed Module 1 Practice to return to the lesson'
+  )
+  await companionPage.evaluate(() => globalThis.courseCompanion?.setCompanionMode('compact'))
   await page.getByText('Sẵn sàng cho 4 câu ôn tập', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
@@ -417,6 +435,7 @@ async function launchCourseCompanion(environment = {}) {
       COURSE_COMPANION_USER_DATA_DIR: userDataDirectory,
       COURSE_COMPANION_WORKSPACE_ROOT: practiceWorkspace.root,
       COURSE_COMPANION_FAKE_CODEX: '1',
+      COURSE_COMPANION_FAKE_CONFIGURATION_READY: '1',
       COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE: '1',
       COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE: '1',
       ...environment
