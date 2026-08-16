@@ -21,7 +21,7 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
+| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke after the approved Module 1 Harness removal on 16 August 2026 | `pending` overall; the global Course Companion palette and scoped Harness removal were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
 | Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette audit, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette was approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; Codex-operated CLI flow with a neutral public bootstrap locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` overall; M4.0 provider flow approved on 16 August 2026 | `pending` | Close the Module 3 owner-review and acceptance gates before M4.1 learner-facing authoring. |
@@ -67,7 +67,8 @@ there first and remain synchronized with Course Companion.
 
 - The introduction before Module 1 is frozen. Do not change its content, UI,
   images, navigation, behavior, or tests, except for the explicitly approved
-  `intro-learning-method` positioning update recorded below.
+  `intro-learning-method` positioning update and removal of the obsolete
+  Harness reference recorded below.
 - On 16 August 2026, the owner explicitly reopened only
   `intro-learning-method`. The approved copy now introduces the course for
   beginners, names the personal portfolio as the practice project, and states
@@ -76,13 +77,24 @@ there first and remain synchronized with Course Companion.
   instead of the generic `Tiếp tục`. The renderer contract, frozen-journey
   assertion, exact-copy Electron assertion, restart path, and desktop/mobile
   overflow checks were updated and passed. This scoped approval does not mark
-  overall Foundation owner approval or pilot acceptance as complete; every
-  other introduction and Module 1 surface remains frozen.
-- Module 1 teaching content, exercise, Practice, assessment, and checkpoints
-  remain unchanged.
-- One narrow Module 1 exception is approved: forward-looking transition copy
-  may stop saying that Module 2 plans ContentPilot and may point to the new
-  portfolio Module 2. No other Module 1 wording may change under this plan.
+  overall Foundation owner approval or pilot acceptance as complete.
+- On 16 August 2026, the owner approved removing the complete Harness
+  Engineering lesson from Module 1. The runnable course now has three Module 1
+  lessons and an estimated 38 minutes; `/` and `@` route directly to the Codex
+  configuration lesson. The retired lesson, visual, two checkpoints and
+  Harness assessment topic were removed. Existing progress at those retired
+  IDs migrates to `m1-model-choice`, and the five-question gate remains intact
+  with a source-backed `/status` and `/goal` question. The related introduction
+  script reference, Course Companion renderer, static guide, contracts and
+  regression expectations were synchronized. Typecheck, lint, 274 unit tests,
+  nine startup tests, production build and full Electron smoke passed. This
+  scoped approval does not mark overall Foundation owner approval or pilot
+  acceptance complete; every other introduction and Module 1 surface remains
+  frozen.
+- A separate narrow Module 1 exception is approved: forward-looking transition
+  copy may stop saying that Module 2 plans ContentPilot and may point to the new
+  portfolio Module 2. No other Module 1 wording may change beyond the recorded
+  exceptions under this plan.
 - On 16 August 2026, the owner approved one cross-cutting visual exception for
   Course Companion: UI chrome uses only yellow, white, and black, with neutral
   gray hierarchy produced from white/black opacity. Raster artwork and
@@ -1238,7 +1250,9 @@ This course migration is complete only when:
 2. The occupation-neutral target learner is reflected consistently in internal
    guidance and Modules 2–4.
 3. Introduction and Module 1 remain unchanged except for the approved Module 2
-   transition copy.
+   transition copy and the approved removal of the Harness Engineering lesson
+   with its synchronized references, checkpoints, assessment topic and progress
+   migration.
 4. State from the `0.2.0` test course starts fresh without a migration notice,
    and old ContentPilot evidence cannot pass a portfolio gate.
 5. Modules 2, 3, and 4 each pass their own acceptance gate before the next is

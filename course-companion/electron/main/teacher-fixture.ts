@@ -103,9 +103,6 @@ function replyFor(context?: TeacherContext): string {
   if (context.checkpointId === 'm1-model-choice') {
     return 'Mình đề xuất 5.6 Sol, High và Standard cho ContentPilot. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
-  if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
-    return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
-  }
   if (context.checkpointId === 'm1-setup-checklist') {
     return 'Hãy sửa từng giá trị trong đúng task Executor. Triết sẽ đối chiếu trực tiếp Model, Effort, Speed, Approval và Full access; nội dung chat không thể tự đánh dấu đạt.'
   }

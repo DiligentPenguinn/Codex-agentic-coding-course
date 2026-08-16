@@ -34,8 +34,6 @@ const legacyCheckpointIds = [
   'intro-visual-onboarding',
   'm1-codex-orientation',
   'm1-model-choice',
-  'm1-agents-guidance',
-  'm1-skills',
   'm1-setup-checklist',
   'm1-mastery',
   'm1-complete',
@@ -51,7 +49,7 @@ const legacyCheckpointIds = [
   'm2-complete'
 ] as const
 
-const frozenJourneyCheckpointIds = legacyCheckpointIds.slice(0, 8)
+const frozenJourneyCheckpointIds = legacyCheckpointIds.slice(0, 6)
 
 // Introduction and Module 1 stay on the frozen renderer. Modules 2–4 use the
 // typed registry; retired Module 2 IDs remain readable but no longer count as
@@ -74,14 +72,10 @@ const legacySceneIds = [
   'module-1-codex-examples',
   'module-1-codex-model-intro',
   'module-1-codex-slash-commands',
-  'module-1-harness-intro',
-  'module-1-harness-codex',
   'module-1-model-choice',
   'module-1-model-use-cases',
   'module-1-reasoning-effort',
   'module-1-project-setup',
-  'module-1-agents-guidance',
-  'module-1-skills',
   'module-1-setup-checklist',
   'module-1-mastery',
   'module-1-final-1',
@@ -159,7 +153,6 @@ export type SceneId = (typeof sceneIds)[number]
 const legacyCourseLessonIds = [
   'intro-overview',
   'm1-understand-codex',
-  'm1-agents-guidance',
   'm1-skills-and-checklist',
   'm1-assessment',
   'm2-when-to-plan',
@@ -185,14 +178,10 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-1-codex-examples': 'm1-codex-orientation',
   'module-1-codex-model-intro': 'm1-codex-orientation',
   'module-1-codex-slash-commands': 'm1-codex-orientation',
-  'module-1-harness-intro': 'm1-agents-guidance',
-  'module-1-harness-codex': 'm1-agents-guidance',
   'module-1-model-choice': 'm1-model-choice',
   'module-1-model-use-cases': 'm1-model-choice',
   'module-1-reasoning-effort': 'm1-model-choice',
   'module-1-project-setup': 'm1-model-choice',
-  'module-1-agents-guidance': 'm1-agents-guidance',
-  'module-1-skills': 'm1-skills',
   'module-1-setup-checklist': 'm1-setup-checklist',
   'module-1-mastery': 'm1-mastery',
   'module-1-final-1': 'm1-mastery',
@@ -257,8 +246,6 @@ export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'intro-visual-onboarding': 'intro-overview',
   'm1-codex-orientation': 'm1-understand-codex',
   'm1-model-choice': 'm1-skills-and-checklist',
-  'm1-agents-guidance': 'm1-agents-guidance',
-  'm1-skills': 'm1-agents-guidance',
   'm1-setup-checklist': 'm1-assessment',
   'm1-mastery': 'm1-assessment',
   'm1-complete': 'm1-assessment',

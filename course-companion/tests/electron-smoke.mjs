@@ -70,7 +70,7 @@ async function answerAssessmentGroup(page, groupId) {
 
 async function completeSetupModule(page, companionPage, electronApp, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
-  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 1/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 1/4', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
     'Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
@@ -101,7 +101,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   }
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 2/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 2/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   assert.equal(await page.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha/)
@@ -172,7 +172,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 3/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 3/4', { exact: true }).first().waitFor()
   const modelIntroBoard = page.locator('.pixel-model-board')
   await modelIntroBoard.waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 0)
@@ -216,7 +216,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 4/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 4/4', { exact: true }).first().waitFor()
   const commandVisuals = page.locator('.pixel-lesson-visual-group .pixel-lesson-visual')
   assert.equal(await commandVisuals.count(), 2)
   const commandDialogueText = await page.locator('.pixel-dialogue > p').textContent()
@@ -258,44 +258,15 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 1/1', { exact: true }).first().waitFor()
-  const harnessBoard = page.locator('.pixel-harness-board')
-  await harnessBoard.waitFor()
-  const harnessText = await harnessBoard.textContent()
-  assert.match(harnessText, /Harness Engineering thực ra là gì/)
-  assert.match(harnessText, /Model là bộ não của agent/)
-  assert.match(harnessText, /Workspace, tệp và chỉ dẫn/)
-  assert.match(harnessText, /Sandbox và approval/)
-  assert.match(harnessText, /Đừng chỉ đổi model/)
-  assert.equal(await page.getByRole('button', { name: 'Harness là gì?', exact: true }).count(), 0)
-  assert.equal(await page.getByRole('button', { name: 'Xem harness của Codex', exact: true }).count(), 0)
-  await capture(page, 'module-1-harness-engineering.png')
-  if (verifyResponsiveLayout) {
-    await page.setViewportSize({ width: 390, height: 844 })
-    const harnessNarrowWidths = await page.evaluate(() => {
-      const browserDocument = globalThis.document
-      return {
-        body: browserDocument.body.scrollWidth,
-        document: browserDocument.documentElement.scrollWidth,
-        viewport: globalThis.innerWidth
-      }
-    })
-    assert.equal(harnessNarrowWidths.body, harnessNarrowWidths.viewport)
-    assert.equal(harnessNarrowWidths.document, harnessNarrowWidths.viewport)
-    const harnessNarrowBoardBounds = await harnessBoard.boundingBox()
-    assert.ok(harnessNarrowBoardBounds)
-    assert.ok(harnessNarrowBoardBounds.width <= harnessNarrowWidths.viewport)
-    assert.ok(harnessNarrowBoardBounds.width >= harnessNarrowWidths.viewport - 24)
-    await capture(page, 'module-1-harness-engineering-390px.png')
-    await page.setViewportSize({ width: 1180, height: 780 })
-  }
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 1/1', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-harness-board').count(), 0)
   await page.getByText('Dùng cấu hình đã chọn', { exact: true }).waitFor()
   assert.equal(await page.locator('.pixel-model-board').count(), 1)
   assert.match(await page.locator('.pixel-model-board').textContent(), /Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex/)
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/9', { exact: true }).first().waitFor()
   const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
@@ -338,8 +309,8 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await page.getByRole('button', { name: /Codex đọc các tệp liên quan/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
-  await page.getByText(/workspace thiếu chỉ dẫn dự án và không có cách kiểm tra kết quả/).waitFor()
-  await page.getByRole('button', { name: /Bổ sung chỉ dẫn cùng cách kiểm tra rõ ràng/ }).click()
+  await page.getByText(/xem cuộc trò chuyện đã dùng bao nhiêu context/).waitFor()
+  await page.getByRole('button', { name: /Dùng \/status để xem mức sử dụng context/ }).click()
   await page.getByRole('button', { name: 'Câu tiếp theo', exact: true }).click()
 
   await page.getByText(/task Executor chỉ cần đọc hai ảnh/).waitFor()
@@ -564,7 +535,7 @@ async function verifyHomeBase(page) {
   await page
     .getByText('Xác định, giới hạn và lập kế hoạch portfolio', { exact: true })
     .waitFor()
-  await page.getByText('MODULE 1 · 4 BÀI HỌC', { exact: true }).waitFor()
+  await page.getByText('MODULE 1 · 3 BÀI HỌC', { exact: true }).waitFor()
   await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {

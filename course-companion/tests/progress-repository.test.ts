@@ -74,6 +74,47 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
+  it('moves retired Harness progress to the configuration lesson', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    const retiredProgress = {
+      ...started,
+      currentCourseLessonId: 'm1-agents-guidance',
+      checkpointId: 'm1-agents-guidance',
+      sceneId: 'module-1-harness-codex',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-1-agents-guidance',
+        'module-1-harness-intro'
+      ],
+      completedCheckpointIds: [
+        ...started.completedCheckpointIds,
+        'm1-agents-guidance',
+        'm1-skills'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-skills-and-checklist',
+        checkpointId: 'm1-model-choice',
+        sceneId: 'module-1-model-choice',
+        sceneHistory: ['intro-visual-onboarding'],
+        completedCheckpointIds: ['intro-visual-onboarding']
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('harness')
+    expect(JSON.stringify(migrated)).not.toContain('m1-agents-guidance')
+  })
+
   it('resumes an exact page inside the opening introduction', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     await repository.save(introStart)

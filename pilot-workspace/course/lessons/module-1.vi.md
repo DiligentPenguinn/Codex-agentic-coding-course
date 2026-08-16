@@ -93,29 +93,20 @@ Trong những lần mình thử nghiệm, Fast thường chỉ nhanh hơn Standa
 [OpenAI Docs — Speed](https://learn.chatgpt.com/docs/agent-configuration/speed)
 giải thích tốc độ và mức dùng credit của hai chế độ.
 
-## Trước khi tiếp tục: Harness Engineering là gì?
+## Lệnh `/` và `@`: mở nhanh chức năng cần dùng
 
-Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một thuật ngữ được
-nhắc đến nhiều gần đây: Harness Engineering. Nghe có vẻ phức tạp, nhưng hiểu
-đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm việc.
+Trong ô soạn tin, bạn có thể gõ `/` để mở danh sách lệnh nhanh. Hai lệnh hữu
+ích khi làm việc với Codex là:
 
-Ở phần trước, bạn đã tìm hiểu model và approval. Model là bộ não của agent, còn
-approval là một phần của harness. Harness còn gồm:
+- `/status` để xem mức sử dụng context của cuộc trò chuyện; và
+- `/goal` để đặt một mục tiêu bền vững mà Codex tiếp tục theo đuổi qua nhiều
+  lượt.
 
-- workspace chứa dự án và các tệp;
-- công cụ để đọc, sửa và chạy code;
-- terminal cùng chỉ dẫn của dự án;
-- sandbox để giới hạn quyền truy cập; và
-- test cùng diff để kiểm tra kết quả.
+Dấu `@` mở thêm các nguồn và công cụ mà bạn có thể đưa vào cuộc trò chuyện.
+Chẳng hạn, bạn có thể chọn một skill hoặc một đoạn chat liên quan.
 
-Các thành phần này cho model nơi hành động, ranh giới cần tuân theo và cách kiểm
-tra kết quả. Vì vậy, khi Codex làm chưa tốt, bạn đừng chỉ đổi model. Hãy xem
-agent có thiếu bối cảnh, công cụ, quyền truy cập hoặc cách kiểm tra hay không.
-
-Khái niệm này dựa trên [bài Harness Engineering bằng tiếng Việt của
-OpenAI](https://openai.com/vi-VN/index/harness-engineering/). [Bài giải thích
-nhập môn trên Viblo](https://viblo.asia/p/agent-harness-la-gi-tai-sao-ai-agent-can-harness-de-hoat-dong-hieu-qua-bA468BMMLKv)
-được dùng để diễn đạt các thành phần của harness theo cách gần gũi hơn.
+[OpenAI Docs — Slash commands](https://learn.chatgpt.com/docs/reference/slash-commands)
+giải thích cách mở danh sách lệnh và chức năng của `/status` cùng `/goal`.
 
 ## Cấu hình mình đề xuất cho ContentPilot
 
@@ -168,7 +159,7 @@ lại bài ôn tập sau khi xem phản hồi.
 Bạn hoàn thành Module 1 khi:
 
 - mô tả được Codex là coding agent của OpenAI,
-- giải thích được model và harness giữ hai vai trò khác nhau,
+- dùng `/status` để xem mức sử dụng context và `/goal` để tạo mục tiêu bền vững,
 - chọn Approve for me và không bật Full access,
 - dùng cấu hình Sol, High và Standard cho ContentPilot,
 - nộp đủ hai ảnh trong đúng task Executor, và
@@ -177,6 +168,6 @@ Bạn hoàn thành Module 1 khi:
 
 ## Nguồn và lựa chọn mình đưa ra
 
-Khái niệm Codex, Harness Engineering, approval, model và reasoning effort dựa
-trên các nguồn được liên kết tại từng phần. Việc chọn Sol, High, Standard và
-Approve for me là lựa chọn sư phạm mình đưa ra cho dự án ContentPilot.
+Khái niệm Codex, approval, model và reasoning effort dựa trên các nguồn được
+liên kết tại từng phần. Việc chọn Sol, High, Standard và Approve for me là lựa
+chọn sư phạm mình đưa ra cho dự án ContentPilot.

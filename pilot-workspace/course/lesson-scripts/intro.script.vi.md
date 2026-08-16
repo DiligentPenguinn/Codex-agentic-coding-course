@@ -129,10 +129,10 @@ câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 
 Teacher nói: "Bạn đã có đích đến, dự án thực hành và quyền quyết định rõ ràng.
 Module 1 sẽ giúp bạn thiết lập môi trường làm việc với Codex: hiểu Codex là gì,
-hiểu Harness Engineering, chọn approval an toàn, tìm hiểu model và reasoning
-effort rồi nộp cấu hình thật để mình duyệt. Module 2 mới đi vào planning, PRD
-và implementation plan cho ContentPilot. Bạn chưa cần biết code hoặc chuẩn bị
-dữ liệu."
+chọn approval an toàn, tìm hiểu model, reasoning effort cùng các lệnh nhanh rồi
+nộp cấu hình thật để mình duyệt. Module 2 mới đi vào planning, PRD và
+implementation plan cho ContentPilot. Bạn chưa cần biết code hoặc chuẩn bị dữ
+liệu."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

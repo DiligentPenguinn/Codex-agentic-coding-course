@@ -223,15 +223,6 @@ code {
   align-content: center;
 }
 
-.harness-grid article:first-child {
-  border-color: var(--border);
-  box-shadow: none;
-}
-
-.harness-intro-copy > p:not(.kicker) {
-  max-width: 820px;
-}
-
 .setup-grid {
   margin-left: 0;
   padding-left: 0;

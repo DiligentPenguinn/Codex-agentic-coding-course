@@ -545,107 +545,6 @@ button:focus-visible {
 .pixel-model-board__actions .pixel-choice { width: min(310px, 100%); text-align: center; }
 .pixel-dialogue.is-model-board-source { display: none; }
 
-.pixel-harness-board {
-  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-}
-.pixel-harness-board .pixel-model-board__copy header > p + p { margin-top: 7px; }
-.pixel-harness-board .pixel-model-board__media {
-  padding-left: 8px;
-  align-content: start;
-  gap: 10px;
-  overflow-y: auto;
-}
-.pixel-harness-board .pixel-model-board__media figure img {
-  height: 150px;
-  aspect-ratio: auto;
-}
-.pixel-harness-comparison {
-  margin-top: 18px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: stretch;
-  gap: 9px;
-}
-.pixel-harness-comparison article {
-  padding: 13px;
-  border-top: 3px solid var(--pixel-accent);
-  background: #000;
-}
-.pixel-harness-comparison article:last-child { border-color: var(--pixel-yellow); }
-.pixel-harness-comparison > span {
-  align-self: center;
-  color: var(--pixel-muted);
-  font: 800 15px/1 var(--pixel-font);
-}
-.pixel-harness-comparison small,
-.pixel-harness-comparison strong { display: block; }
-.pixel-harness-comparison small {
-  color: var(--pixel-accent);
-  font: 800 7px/1 var(--pixel-font);
-  letter-spacing: 0.1em;
-}
-.pixel-harness-comparison strong {
-  margin-top: 8px;
-  color: var(--pixel-white);
-  font-size: 16px;
-}
-.pixel-harness-comparison p {
-  margin: 6px 0 0;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1.4;
-}
-.pixel-harness-components {
-  padding: 12px;
-  border: 2px solid #ffd666;
-  background: #000;
-}
-.pixel-harness-components h2 {
-  margin: 0;
-  color: var(--pixel-white);
-  font-size: 15px;
-}
-.pixel-harness-components > div {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
-}
-.pixel-harness-components article {
-  min-width: 0;
-  padding: 9px;
-  border-left: 3px solid var(--pixel-accent);
-  background: #000;
-}
-.pixel-harness-components small,
-.pixel-harness-components strong { display: block; }
-.pixel-harness-components small {
-  color: var(--pixel-accent);
-  font: 800 7px/1 var(--pixel-font);
-}
-.pixel-harness-components strong {
-  margin-top: 6px;
-  color: #fff;
-  font-size: 11px;
-  line-height: 1.35;
-}
-.pixel-harness-diagnosis {
-  padding: 11px 13px;
-  border-left: 3px solid var(--pixel-yellow);
-  background: rgba(255, 214, 102, .08);
-}
-.pixel-harness-diagnosis small {
-  color: var(--pixel-yellow);
-  font: 800 7px/1 var(--pixel-font);
-  letter-spacing: 0.1em;
-}
-.pixel-harness-diagnosis p {
-  margin: 7px 0 0;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1.45;
-}
-
 .pixel-visual-expand {
   position: absolute;
   z-index: 4;
@@ -2361,12 +2260,6 @@ button:focus-visible {
   }
   .pixel-model-board__actions .pixel-page-back,
   .pixel-model-board__actions .pixel-choice { width: 100%; }
-  .pixel-harness-board { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
-  .pixel-harness-board .pixel-model-board__media { padding: 0 16px 18px; overflow: visible; }
-  .pixel-harness-board .pixel-model-board__media figure img { height: auto; aspect-ratio: 16 / 9; }
-  .pixel-harness-comparison { grid-template-columns: 1fr; }
-  .pixel-harness-comparison > span { justify-self: center; }
-  .pixel-harness-components > div { grid-template-columns: 1fr; }
   .pixel-consequence { position: relative; top: auto; right: auto; width: 100%; padding: 12px; }
   .pixel-lesson-visual-group {
     position: relative;
@@ -3027,7 +2920,6 @@ button:focus-visible {
 .pixel-entry-panel,
 .pixel-scene-title,
 .pixel-model-board,
-.pixel-harness-board,
 .pixel-dialogue,
 .pixel-visual-lightbox__panel,
 .pixel-home-heading,
@@ -3056,9 +2948,6 @@ button:focus-visible {
 .pixel-model-board__tradeoffs > section,
 .pixel-model-board__recommendation,
 .pixel-model-board__media figure,
-.pixel-harness-comparison article,
-.pixel-harness-components article,
-.pixel-harness-diagnosis,
 .pixel-request,
 .pixel-evidence-grid div,
 .pixel-practice-brief > section,
@@ -3124,8 +3013,6 @@ button:focus-visible {
 .pixel-model-board__definitions > div,
 .pixel-model-board__models article,
 .pixel-model-board__tradeoffs > section,
-.pixel-harness-comparison article,
-.pixel-harness-components article,
 .pixel-request,
 .pixel-evidence-grid div,
 .pixel-practice-brief > section,
@@ -3160,8 +3047,7 @@ button:focus-visible {
 }
 
 .pixel-model-board__tradeoffs aside,
-.pixel-model-board__actions,
-.pixel-harness-components {
+.pixel-model-board__actions {
   border-color: var(--obsidian-line-soft);
   background: var(--obsidian-surface);
 }
@@ -3434,7 +3320,6 @@ button:focus-visible {
 @media (max-width: 640px) {
   .pixel-entry-panel,
   .pixel-model-board,
-  .pixel-harness-board,
   .pixel-dialogue,
   .pixel-home-heading,
   .pixel-surface-heading,

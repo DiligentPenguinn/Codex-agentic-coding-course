@@ -7,13 +7,12 @@ const progressBar = document.querySelector("#progressBar");
 const stepHint = document.querySelector("#stepHint");
 const copyLine = document.querySelector("#copyLine");
 const copyStatus = document.querySelector("#copyStatus");
-const storageKey = "codex-setup-step-v3";
+const storageKey = "codex-setup-step-v4";
 
 const hints = [
   "Hiểu Codex trước khi đi vào thiết lập.",
   "Chọn model theo loại công việc.",
   "Dùng mức reasoning vừa đủ cho nhiệm vụ.",
-  "Nhìn toàn bộ môi trường làm việc quanh model.",
   "Chốt cấu hình dành riêng cho ContentPilot.",
   "Nộp bằng chứng thật để mình duyệt."
 ];
@@ -67,14 +66,20 @@ try {
   if (currentSavedStep !== null) {
     savedStep = Number(currentSavedStep);
   } else {
-    const previousSavedStep = localStorage.getItem("codex-setup-step-v2");
+    const previousSavedStep = localStorage.getItem("codex-setup-step-v3");
     if (previousSavedStep !== null) {
-      const migratedPreviousSteps = [0, 1, 1, 2, 3, 4, 5];
+      const migratedPreviousSteps = [0, 1, 2, 3, 3, 4];
       savedStep = migratedPreviousSteps[Number(previousSavedStep)] ?? 0;
     } else {
-      const legacyStep = Number(localStorage.getItem("codex-setup-step") ?? 0);
-      const migratedLegacySteps = [0, 3, 3, 1, 1, 2, 4, 5];
-      savedStep = migratedLegacySteps[legacyStep] ?? 0;
+      const versionTwoStep = localStorage.getItem("codex-setup-step-v2");
+      if (versionTwoStep !== null) {
+        const migratedVersionTwoSteps = [0, 1, 1, 2, 3, 3, 4];
+        savedStep = migratedVersionTwoSteps[Number(versionTwoStep)] ?? 0;
+      } else {
+        const legacyStep = Number(localStorage.getItem("codex-setup-step") ?? 0);
+        const migratedLegacySteps = [0, 3, 3, 1, 1, 2, 3, 4];
+        savedStep = migratedLegacySteps[legacyStep] ?? 0;
+      }
     }
   }
 } catch {

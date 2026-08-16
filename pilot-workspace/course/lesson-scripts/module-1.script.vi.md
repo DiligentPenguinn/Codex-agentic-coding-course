@@ -44,37 +44,22 @@ này dùng credit ở mức 2,5 lần Standard. Trong những lần mình thử,
 chỉ nhanh hơn Standard khoảng 0,5 giây. Vì vậy, mình không chọn Fast làm mặc
 định."
 
+Teacher nói: "Trong ô soạn tin, dấu `/` mở danh sách lệnh nhanh. `/status` cho
+bạn xem mức sử dụng context của cuộc trò chuyện. `/goal` đặt một mục tiêu bền
+vững để Codex tiếp tục theo đuổi qua nhiều lượt. Dấu `@` mở thêm các nguồn và
+công cụ mà bạn có thể đưa vào cuộc trò chuyện."
+
 [Trình bày toàn bộ phần Model, Effort, Speed và cấu hình đề xuất trên một màn
 hình lớn. Đặt nội dung cạnh ảnh `model-settings.png`. Teacher Triết chỉ xuất
 hiện như một nhân vật nhỏ ở góc, không có nhãn.]
 
-[Dừng chờ Learner xem phần giới thiệu Codex và màn hình Model, Effort, Speed.
+[Dừng chờ Learner xem phần giới thiệu Codex, màn hình Model, Effort, Speed và
+các lệnh nhanh.
 Sau đó hỏi: "Coding agent khác một chatbot chỉ trả lời ở điểm nào?" Đạt khi
 Learner nêu được ít nhất một khả năng hành động như đọc tệp, dùng công cụ, chạy
 lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
-## Bước 2 — Harness Engineering (`m1-agents-guidance`, `m1-skills`)
-
-Teacher nói: "Trước khi tiếp tục khóa học, mình muốn giải thích với bạn một
-thuật ngữ được nhắc đến nhiều gần đây: Harness Engineering. Nghe có vẻ phức
-tạp, nhưng hiểu đơn giản, đây là cách thiết kế môi trường giúp một AI agent làm
-việc."
-
-Teacher nói: "Ở phần trước, bạn đã tìm hiểu model và approval. Model là bộ não
-của agent, còn approval là một phần của harness. Harness còn gồm workspace,
-công cụ đọc và sửa tệp, terminal, chỉ dẫn của dự án, sandbox, test và diff."
-
-Teacher nói: "Các thành phần này cho model nơi hành động, ranh giới cần tuân
-theo và cách kiểm tra kết quả. Vì vậy, khi Codex làm chưa tốt, bạn đừng chỉ đổi
-model. Hãy xem agent có thiếu bối cảnh, công cụ, quyền truy cập hoặc cách kiểm
-tra hay không."
-
-[Trình bày toàn bộ phần Harness Engineering trên một màn hình. Dừng chờ Learner.
-Hỏi một câu: "Nếu model là bộ não, hãy nêu hai phần thuộc harness của Codex."
-Đạt khi Learner nêu đúng hai thành phần. Ghi checkpoint `m1-agents-guidance`,
-sau đó `m1-skills`.]
-
-## Bước 3 — Áp dụng cấu hình Codex (`m1-model-choice`)
+## Bước 2 — Áp dụng cấu hình Codex (`m1-model-choice`)
 
 Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
 Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
@@ -83,7 +68,7 @@ hành, không phải thiết lập mặc định của mọi tài khoản Codex.
 [Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
 định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
 
-## Bước 4 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
+## Bước 3 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
 Teacher nói: "Bây giờ Course Companion sẽ mở một task Executor riêng để bạn cài
 cấu hình thật. Ứng dụng chỉ đọc metadata cấu hình hiệu lực của đúng task này;
@@ -100,7 +85,7 @@ Course Companion để xem giá trị được phát hiện và mục nào còn 
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi metadata mới của task đã có đủ năm mục.]
 
-## Bước 5 — Triết duyệt bằng chứng
+## Bước 4 — Triết duyệt bằng chứng
 
 [Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu metadata hiệu lực
 theo Practice definition. Không nhận lời tự xác nhận thay cho dữ liệu của đúng
@@ -112,7 +97,7 @@ Approve for me và Full access đang tắt. Metadata đến từ đúng task và
 
 [Lưu kết quả Practice đạt. Chưa hoàn thành checkpoint `m1-mastery`.]
 
-## Bước 6 — Ôn tập cuối Module 1 (`m1-mastery`)
+## Bước 5 — Ôn tập cuối Module 1 (`m1-mastery`)
 
 Teacher nói: "Bạn đã thiết lập Codex và kiểm tra bằng chứng thật. Bây giờ, năm
 câu ôn tập sẽ giúp bạn giải thích, áp dụng và phân tích những gì vừa học. Bạn
@@ -123,11 +108,11 @@ cho từng câu và hỏi từng câu một. Chỉ hiện phản hồi, lời gi
 Learner đã trả lời. Nếu chưa đạt 4/5, cho làm lại bài ôn tập. Khi đạt, lưu
 checkpoint `m1-mastery`.]
 
-## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
+## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
 
 Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
-hơn, bạn hiểu model là bộ não còn harness là môi trường giúp coding agent hành
-động và kiểm tra kết quả."
+hơn, bạn biết cách chọn model, mức suy luận và quyền truy cập phù hợp trước khi
+giao việc cho Codex."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-2`."
 
