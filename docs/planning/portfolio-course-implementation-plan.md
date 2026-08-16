@@ -1,9 +1,9 @@
 # Portfolio Course Implementation Plan
 
 - **Status:** Foundation, Module 2, and Module 3 are implemented; owner
-  acceptance is pending. The M4.0 provider rehearsal is complete and its
-  provider-flow decision is pending owner approval. F0.2 was removed by
-  decision on 14 August 2026.
+  acceptance is pending. The M4.0 provider rehearsal is complete, and the
+  Codex-operated CLI flow with a neutral public bootstrap was approved on
+  16 August 2026. F0.2 was removed by decision on 14 August 2026.
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
   next module
@@ -24,7 +24,7 @@ and must never be inferred from a passing automated check.
 | Foundation | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Present the Foundation evidence for owner review; do not infer approval. |
 | Module 2 | `implemented` | `passed` — full automated suite at `d2c4903` on 15 August 2026 | `pending` | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
 | Module 3 | `implemented` | `passed` — full automated suite, production build, and Electron smoke at `659cbc9` on 15 August 2026 | `pending` | `pending` | Present Module 3 evidence for owner review; do not infer approval. |
-| Module 4 | `M4.0 rehearsal complete`; provider flow not locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` | `pending` | Approve one provider flow before M4.1 learner-facing authoring. |
+| Module 4 | `M4.0 complete`; Codex-operated CLI flow with a neutral public bootstrap locked; learner content not started | `passed` for the macOS provider rehearsal on 16 August 2026; Windows remains unverified | `pending` overall; M4.0 provider flow approved on 16 August 2026 | `pending` | Close the Module 3 owner-review and acceptance gates before M4.1 learner-facing authoring. |
 
 ## Purpose
 
@@ -894,14 +894,16 @@ This is an implementation spike, not learner content.
 **Rehearsal evidence:**
 [Portfolio Course Vercel Rehearsal — 16 August 2026](portfolio-course-vercel-rehearsal-2026-08-16.md)
 records the completed dashboard, linked-project CLI, CLI-only, protection,
-responsive, log, and cleanup checks. The recommended provider flow remains
-pending owner approval.
+responsive, log, and cleanup checks. On 16 August 2026, the owner approved the
+recommended Codex-operated CLI flow with a neutral public bootstrap deployment,
+Vercel Authentication verification before the real portfolio Preview, dashboard
+inspection and recovery, and a separate optional Production decision.
 
 **Provider constraint found:** Vercel assigned the first deployment of each new
 project to Production in both tested creation flows. Subsequent CLI deployments
-without `--prod` were Preview deployments. The pending recommendation therefore
-uses a learner-approved neutral bootstrap page so that the learner's real
-portfolio is not the unavoidable first public Production deployment.
+without `--prod` were Preview deployments. The approved flow therefore uses a
+learner-approved neutral bootstrap page so that the learner's real portfolio is
+not the unavoidable first public Production deployment.
 
 **Change**
 
@@ -1207,11 +1209,10 @@ choice silently:
 1. Exact desktop and mobile viewport values, before Module 3 visual assertions.
 2. Final numeric quiz/mastery thresholds, after representative beginner pilot
    evidence.
-3. Exact Vercel interaction path and recovery route, after the M4.0 rehearsal.
-4. Distribution and contents of the fallback scaffold recovery snapshot.
-5. Whether and when historical ContentPilot starters, artifacts, and planning
+3. Distribution and contents of the fallback scaffold recovery snapshot.
+4. Whether and when historical ContentPilot starters, artifacts, and planning
    contracts are moved to an archive or deleted.
-6. Public marketing wording and any published course-duration range.
+5. Public marketing wording and any published course-duration range.
 
 Each decision must be presented as one consequence-based packet with a
 recommendation, alternatives, tradeoffs, and downstream effects before the

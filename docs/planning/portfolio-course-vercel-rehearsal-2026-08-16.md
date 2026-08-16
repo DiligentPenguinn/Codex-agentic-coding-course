@@ -1,6 +1,7 @@
 # Portfolio Course Vercel Rehearsal — 16 August 2026
 
-- **Status:** Rehearsal complete; provider-flow decision pending owner approval
+- **Status:** Rehearsal complete; recommended provider flow approved by the
+  owner on 16 August 2026
 - **Scope:** Disposable Vite applications, a temporary private GitHub repository,
   and temporary Vercel projects only
 - **Course repository:** Not pushed or deployed
@@ -111,10 +112,10 @@ disposable neutral rehearsal material.
 | Recovery | Delete project in dashboard or CLI | `vercel remove` with explicit approval |
 | Beginner risk | Git permissions and `main` can publish the portfolio immediately | First deployment still publishes whatever bootstrap source is used |
 
-## Recommended decision for approval
+## Approved provider decision
 
 Use a **Codex-operated CLI flow with a neutral bootstrap deployment** as the
-primary Module 4 path:
+primary Module 4 path. The owner approved this direction on 16 August 2026:
 
 1. Pass local release checks and the privacy checklist.
 2. Explain and obtain approval for all external and local side effects.
