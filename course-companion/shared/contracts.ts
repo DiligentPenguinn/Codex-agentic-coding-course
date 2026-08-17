@@ -843,6 +843,54 @@ export type PracticeGuideStateRecord = PracticeGuideStateIdentity & {
   updatedAt: string
 }
 
+export type PracticeGuideView = {
+  schemaVersion: 1
+  guideId: string
+  guideVersion: string
+  courseRunId: string
+  practiceId: string
+  practiceRunId: string
+  status: PracticeGuideStatus
+  currentStageId: string | null
+  step: number
+  stepCount: number
+  presentation: PracticeGuidePresentationType | null
+  anchor: PracticeGuideAnchorId | null
+  title: string | null
+  body: string | null
+  primaryLabel: string | null
+  secondaryLabel: string | null
+  replay: boolean
+  masteryConfirmation: 'pending' | 'dismissed' | null
+  error?: string
+}
+
+export type PracticeGuideContext = {
+  progress: LearnerProgress | null
+  workspace: PracticeWorkspaceView | null
+  surface: 'full' | 'compact' | 'learning'
+  activeTab?: 'teacher' | 'progress'
+}
+
+export type PracticeGuideUpdateRequest =
+  | { type: 'start' }
+  | { type: 'continue'; expectedStageId: string }
+  | { type: 'pause'; expectedStageId: string }
+  | { type: 'resume' }
+  | { type: 'skip'; expectedStageId: string }
+  | { type: 'replay' }
+  | { type: 'dismiss-confirmation' }
+  | { type: 'teacher-tab-selected'; expectedStageId: string }
+  | { type: 'progress-tab-selected'; expectedStageId: string }
+  | { type: 'review-requested'; expectedStageId: string }
+  | { type: 'course-returned'; expectedStageId: string }
+
+export type PracticeGuideCoordinatorAdapter = {
+  load: (context: PracticeGuideContext) => Promise<PracticeGuideView | null>
+  update: (request: PracticeGuideUpdateRequest, context: PracticeGuideContext) => Promise<PracticeGuideView | null>
+  reset: () => Promise<void>
+}
+
 type PlanningActionIdentity = PracticeIdentity & {
   runId: string
   generation: number
