@@ -12,6 +12,8 @@ import {
   type LessonId,
   type ProgressLoadResult,
   type ProgressUpdate,
+  type PracticeGuideUpdateRequest,
+  type PracticeGuideView,
   type RuntimeInfo,
   type SceneId
 } from '../../../../shared/contracts'
@@ -34,6 +36,7 @@ import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementatio
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
+import { PracticeGuide } from '../components/PracticeGuide'
 
 type EvidenceItem = {
   label: string
@@ -1820,6 +1823,7 @@ export function LearningWindow() {
   const [practiceFullOpen, setPracticeFullOpen] = useState(false)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
+  const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
@@ -1884,6 +1888,9 @@ export function LearningWindow() {
 
         const loadedProgress = await advanceFromCompletedPractice(loadResult.progress)
         setProgress(loadedProgress)
+        if (api) {
+          setPracticeGuide(await api.loadPracticeGuide({ surface: 'learning' }))
+        }
         setRecovered(loadResult.status === 'recovered')
         setView('resume')
       } catch {
@@ -1909,10 +1916,13 @@ export function LearningWindow() {
   useEffect(() => {
     const unsubscribe = window.courseCompanion?.onPracticeReturned(() => {
       void (async () => {
+        const api = window.courseCompanion
+        if (!api) return
         try {
-          const loadResult = await window.courseCompanion?.loadProgress()
+          const loadResult = await api.loadProgress()
           if (!loadResult || (loadResult.status !== 'returning' && loadResult.status !== 'recovered')) return
           setProgress(loadResult.progress)
+          setPracticeGuide(await api.loadPracticeGuide({ surface: 'learning' }))
           setPracticeBriefOpen(false)
           setPracticeFullOpen(false)
           setTeacherOpen(false)
@@ -1925,6 +1935,15 @@ export function LearningWindow() {
     })
     return () => unsubscribe?.()
   }, [])
+
+  const updatePracticeGuide = async (request: PracticeGuideUpdateRequest) => {
+    if (!window.courseCompanion) return
+    try {
+      setPracticeGuide(await window.courseCompanion.updatePracticeGuide(request, { surface: 'learning' }))
+    } catch {
+      // The lesson and its navigation remain authoritative if optional guidance fails.
+    }
+  }
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
     const saved = window.courseCompanion
       ? await window.courseCompanion.saveProgress(update)
@@ -1956,6 +1975,7 @@ export function LearningWindow() {
     try {
       await window.courseCompanion?.resetProgress()
       setProgress(null)
+      setPracticeGuide(null)
       setAppSettings(defaultAppSettings)
       setDestination('home')
       setTeacherOpen(false)
@@ -2273,6 +2293,7 @@ export function LearningWindow() {
       {scene.showTitle === false ? null : (
         <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{scene.objective}</strong></section>
       )}
+      <PracticeGuide view={practiceGuide} onUpdate={(request) => void updatePracticeGuide(request)} />
       {assessmentQuestion || scene.assessmentSummary
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}

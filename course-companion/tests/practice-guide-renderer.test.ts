@@ -45,5 +45,15 @@ describe('PracticeGuide renderer', () => {
     expect(progress).toContain("practiceGuideAnchor('configuration-evidence')")
     expect(progress).toContain("practiceGuideAnchor('return-to-course')")
   })
+
+  it('restores and dismisses mastery confirmation without changing lesson navigation', async () => {
+    const learning = await source('src/renderer/src/surfaces/LearningWindow.tsx')
+    expect(learning).toContain("loadPracticeGuide({ surface: 'learning' })")
+    expect(learning).toContain('<PracticeGuide view={practiceGuide}')
+    expect(learning).toContain('setPracticeGuide(null)')
+    const component = await source('src/renderer/src/components/PracticeGuide.tsx')
+    expect(component).toContain("update('dismiss-confirmation')")
+    expect(component).toContain('role="status"')
+  })
 })
 
