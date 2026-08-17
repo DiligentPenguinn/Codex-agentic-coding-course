@@ -824,6 +824,24 @@ export type PracticeGuideDefinition = {
   replayPolicy: 'once-per-course-run'
   stages: PracticeGuideStageDefinition[]
 }
+export type PracticeGuideStatus = 'not-started' | 'in-progress' | 'paused' | 'skipped' | 'completed'
+
+export type PracticeGuideStateIdentity = {
+  guideId: string
+  guideVersion: string
+  courseRunId: string
+  practiceId: string
+  practiceRunId: string
+}
+
+export type PracticeGuideStateRecord = PracticeGuideStateIdentity & {
+  schemaVersion: 1
+  status: PracticeGuideStatus
+  lastStageId: string
+  masteryConfirmation: 'pending' | 'dismissed' | null
+  createdAt: string
+  updatedAt: string
+}
 
 type PlanningActionIdentity = PracticeIdentity & {
   runId: string
