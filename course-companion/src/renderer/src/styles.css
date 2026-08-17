@@ -99,7 +99,7 @@ button:focus-visible {
   min-height: 72px;
   padding: 13px 22px;
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(280px, 540px) minmax(150px, 1fr);
+  grid-template-columns: minmax(180px, 1fr) auto minmax(280px, 420px);
   align-items: center;
   gap: 22px;
   border-bottom: 3px solid #ffd666;
@@ -134,7 +134,7 @@ button:focus-visible {
 .pixel-brand strong { font-size: 10px; letter-spacing: 0.08em; }
 .pixel-brand small { margin-top: 4px; color: var(--pixel-muted); font-size: 7px; letter-spacing: 0.12em; }
 
-.pixel-mission-meta { text-align: center; font-family: var(--pixel-font); }
+.pixel-mission-meta { width: 100%; justify-self: end; text-align: right; font-family: var(--pixel-font); }
 .pixel-mission-meta span { color: var(--pixel-yellow); font-size: 8px; letter-spacing: 0.16em; }
 .pixel-mission-meta strong { margin: 5px 0 8px; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .pixel-progress { height: 6px; border: 2px solid #ffd666; background: #000; }
@@ -1813,7 +1813,7 @@ button:focus-visible {
 .pixel-brand--button:hover strong { color: var(--pixel-accent); }
 
 .pixel-hud-actions {
-  justify-self: end;
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2237,20 +2237,20 @@ button:focus-visible {
   .pixel-settings-confirm button { width: 100%; }
   .pixel-learning-shell { min-height: 650px; }
   .pixel-learning-shell:not(.pixel-entry-shell) {
-    padding: 78px 12px 14px;
+    padding: 78px 12px 40px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     overflow-x: hidden;
     overflow-y: auto;
   }
-  .pixel-hud { min-height: 66px; padding: 10px 12px; grid-template-columns: 1fr auto; gap: 10px; }
+  .pixel-hud { min-height: 66px; padding: 10px 12px; grid-template-columns: auto auto minmax(118px, 1fr); gap: 10px; }
   .pixel-brand small,
   .pixel-quit { display: none; }
   .pixel-brand strong { max-width: 170px; font-size: 8px; }
   .pixel-brand__mark { width: 34px; height: 34px; }
   .pixel-mission-meta { text-align: right; }
-  .pixel-mission-meta strong { max-width: 220px; font-size: 8px; }
+  .pixel-mission-meta strong { display: none; }
   .pixel-hud-actions { display: block; }
   .pixel-hud-teacher { min-height: 32px; font-size: 6px; }
   .pixel-learning-shell:not(.pixel-entry-shell) .pixel-hud { position: fixed; }
@@ -2348,6 +2348,10 @@ button:focus-visible {
   .pixel-entry-actions { margin-top: 18px; flex-direction: column-reverse; }
   .pixel-entry-primary,
   .pixel-entry-secondary { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  .pixel-brand--button > span:last-child { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -19,6 +19,7 @@ const rendererModules = [
     lessonPages: {
       'm2-portfolio-brief': [
         ['module-2-portfolio-workspace'],
+        ['module-2-portfolio-folder'],
         ['module-2-portfolio-brief'],
         ['module-2-portfolio-brief-example'],
         ['module-2-check-brief-viewer'],

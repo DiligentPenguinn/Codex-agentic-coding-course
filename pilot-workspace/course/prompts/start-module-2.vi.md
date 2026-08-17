@@ -11,6 +11,10 @@ năm milestone trong `course/course-structure.json`:
 5. tạo `planning/requirement-validation-map.md`,
    `planning/implementation-plan.md` và `planning/first-bounded-task.md`.
 
+Trước khi chọn thư mục hoặc bắt đầu milestone đầu tiên, hãy dùng nguyên văn lời
+dẫn trong phần `Mở đầu module` của script. Không rút gọn hoặc viết lại giọng kể
+của tác giả.
+
 Trong mỗi milestone, hãy giải thích trước, đưa một ví dụ hoàn chỉnh nhưng không
 thể dùng làm đáp án của Learner, hướng dẫn áp dụng, để Learner tạo hoặc sửa
 tài liệu, kiểm tra bằng chứng mới nhất rồi hỏi Learner chấp nhận hay yêu cầu sửa.

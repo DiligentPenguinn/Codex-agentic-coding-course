@@ -1081,7 +1081,7 @@ type LearningPosition = {
 type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
 
 const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
-  'module-2': 'module-2-portfolio-brief',
+  'module-2': 'module-2-portfolio-workspace',
   'module-3': 'module-3-scaffold-intro',
   'module-4': 'module-4-release-intro'
 }
@@ -2656,16 +2656,16 @@ export function LearningWindow() {
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
-        <div className="pixel-mission-meta" aria-label={lessonContextLabel}>
-          <span>{lessonContextLabel}</span>
-          <strong>{learningPosition.lessonTitle}</strong>
-          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
-        </div>
         <div className="pixel-hud-actions">
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
             THOÁT · v{runtime?.appVersion ?? '…'}
           </button>
+        </div>
+        <div className="pixel-mission-meta" aria-label={lessonContextLabel}>
+          <span>{lessonContextLabel}</span>
+          <strong>{learningPosition.lessonTitle}</strong>
+          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
         </div>
       </header>
 
@@ -2770,7 +2770,7 @@ export function LearningWindow() {
 
       <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
         <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        {displayedSceneId === 'module-2-portfolio-workspace' ? (
+        {displayedSceneId === 'module-2-portfolio-folder' ? (
           <PortfolioWorkspacePicker
             courseRunId={progress.courseRunId}
             onContinue={() => void advanceToScene('module-2-portfolio-brief', progress.decisions)}

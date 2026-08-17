@@ -29,7 +29,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
+| Module 2 | `implemented` | `passed` — 285 unit tests, nine startup tests, typecheck, lint, production build, frozen Module 1 regression, desktop and `390 × 844` responsive checks, and Electron smoke after the Module 2 opening/progress revision on 17 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026; the verbatim Module 2 opening and upper-right lesson progress treatment were approved on 17 August 2026 | `pending` | Continue the learner-facing content review and required rehearsal before overall acceptance. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -664,6 +664,13 @@ assumptions, missing evidence, private material, and publication permission.
 **Checkpoint output:** Complete source-first Module 2 instruction aligned with
 the seven artifact contracts.
 
+**Progress note — 17 August 2026:** The owner-approved Module 2 opening now
+appears verbatim before workspace selection in the lesson, Teacher script,
+start prompt, and rendered registry scene. The five milestone sequence and
+seven-artifact contract are unchanged. Focused instruction/registry/frozen
+tests, the full unit/startup suites, typecheck, lint, production build, and
+Electron smoke passed.
+
 ### M2.3 — Build formative checks and the mastery assessment
 
 **Change**
@@ -739,6 +746,14 @@ artifact evidence.
 - Module 1 frozen-content diff/snapshot check.
 
 **Checkpoint output:** Complete learner-facing Module 2 in Course Companion.
+
+**Progress note — 17 August 2026:** The existing Module 2 entry scene now
+provides the narrative opening before a new workspace-selection page, preserving
+the frozen Module 1 destination and resumable scene identity. The shared lesson
+HUD places page progress at the upper right on desktop and narrow layouts.
+Electron smoke verifies right-side placement, no horizontal overflow at
+`390 × 844`, a fully reachable primary action after scrolling, and the complete
+transition into workspace selection.
 
 ### M2.6 — Complete the Module 2 gate and handoff
 

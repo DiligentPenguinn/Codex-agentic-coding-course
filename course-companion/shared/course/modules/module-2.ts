@@ -20,7 +20,8 @@ export const moduleTwoDefinition = {
     { id: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],
   scenes: [
-    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
+    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
+    { id: 'module-2-portfolio-folder', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
     { id: 'module-2-portfolio-brief', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief-example' },
     { id: 'module-2-portfolio-brief-example', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-check-brief-viewer' },
     { id: 'module-2-check-brief-viewer', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },

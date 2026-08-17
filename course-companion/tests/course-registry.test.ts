@@ -122,6 +122,7 @@ describe('portfolio course registry', () => {
     ])
     expect(moduleTwo.scenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'module-2-portfolio-workspace',
+      'module-2-portfolio-folder',
       'module-2-portfolio-practice',
       'module-2-portfolio-mastery',
       'module-2-portfolio-mastery-summary'

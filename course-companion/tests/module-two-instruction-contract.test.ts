@@ -27,7 +27,24 @@ const artifactPaths = [
   'planning/first-bounded-task.md'
 ]
 
+const approvedModuleOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+
 describe('Module 2 instruction contract', () => {
+  it('opens with the approved author wording before workspace selection', async () => {
+    const [lesson, script, prompt] = await Promise.all([
+      readCourseFile('lessons/module-2.vi.md'),
+      readCourseFile('lesson-scripts/module-2.script.vi.md'),
+      readCourseFile('prompts/start-module-2.vi.md')
+    ])
+
+    expect(lesson).toContain(approvedModuleOpening)
+    expect(script).toContain(approvedModuleOpening)
+    expect(lesson.indexOf(approvedModuleOpening)).toBeLessThan(lesson.indexOf('## Kết quả của module'))
+    expect(script.indexOf(approvedModuleOpening)).toBeLessThan(script.indexOf('## Hợp đồng điều phối'))
+    expect(prompt).toContain('Trước khi chọn thư mục')
+    expect(prompt).toContain('Không rút gọn hoặc viết lại giọng kể')
+  })
+
   it('keeps all five milestones once and in the approved order', async () => {
     const [lesson, script] = await Promise.all([
       readCourseFile('lessons/module-2.vi.md'),

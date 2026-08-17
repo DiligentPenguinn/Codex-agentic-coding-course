@@ -52,6 +52,20 @@ const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
 const instructionalScenes = {
   'module-2-portfolio-workspace': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Bắt đầu hành trình xây Portfolio',
+    objective: 'Vì sao cần planning trước khi bắt tay vào xây?', panelLabel: 'MỘT KẾ HOẠCH TỐT',
+    panelStatus: 'MỤC TIÊU · PHẠM VI · CÁCH KIỂM TRA', tone: 'neutral',
+    request: 'Vậy, như thế nào là một kế hoạch tốt?',
+    evidence: [
+      { label: 'MỤC TIÊU', value: 'Sản phẩm cần giúp bạn đạt điều gì' },
+      { label: 'RANH GIỚI', value: 'Điều sẽ làm và chưa làm' },
+      { label: 'KIỂM CHỨNG', value: 'Dấu hiệu cho thấy kết quả đúng' }
+    ],
+    dialogue: 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.',
+    choices: [{ label: 'Tiếp tục để tìm hiểu về PRD', next: 'module-2-portfolio-folder', primary: true }]
+  },
+  'module-2-portfolio-folder': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Chọn nơi làm portfolio',
     objective: 'Dành một thư mục trống cho hành trình của bạn', panelLabel: 'KHÔNG GIAN LÀM VIỆC',
     panelStatus: 'CHỜ BẠN CHỌN', tone: 'neutral',
