@@ -5,6 +5,9 @@ import type {
   CompanionMode,
   AppSettingsUpdate,
   PracticeFixtureRequest,
+  PracticeGuideContext,
+  PracticeGuideSurfaceContext,
+  PracticeGuideUpdateRequest,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PracticeStartRequest,
@@ -20,6 +23,9 @@ import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
 import { PracticeRunRepository } from './practice-run-repository'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
+import { PracticeGuideDefinitionRepository } from './practice-guide-definition-repository'
+import { PracticeGuideStateRepository } from './practice-guide-state-repository'
+import { PracticeGuideCoordinator } from './practice-guide-coordinator'
 import { PracticeWorkspaceResolver } from './practice-workspace-resolver'
 import {
   DeterministicPracticeReviewEvaluator,
@@ -79,6 +85,11 @@ const practiceDefinitionRepository = new PracticeDefinitionRepository(
 )
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
+const practiceGuideDefinitionRepository = new PracticeGuideDefinitionRepository(practiceGuidesDirectory())
+const practiceGuideStateRepository = new PracticeGuideStateRepository(app.getPath('userData'))
+const practiceGuideCoordinator = new PracticeGuideCoordinator(
+  practiceGuideDefinitionRepository, practiceGuideStateRepository
+)
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 
@@ -392,6 +403,45 @@ function isPlanningPracticeActionRequest(value: unknown): value is PlanningPract
   return false
 }
 
+function isPracticeGuideSurfaceContext(value: unknown): value is PracticeGuideSurfaceContext {
+  return isRecord(value)
+    && (value.surface === 'full' || value.surface === 'compact' || value.surface === 'learning')
+    && (value.activeTab === undefined || value.activeTab === 'teacher' || value.activeTab === 'progress')
+    && Object.keys(value).every((key) => key === 'surface' || key === 'activeTab')
+}
+
+function isPracticeGuideUpdateRequest(value: unknown): value is PracticeGuideUpdateRequest {
+  if (!isRecord(value) || typeof value.type !== 'string') return false
+  const withoutStage = new Set(['start', 'resume', 'replay', 'dismiss-confirmation'])
+  if (withoutStage.has(value.type)) return Object.keys(value).length === 1
+  const withStage = new Set([
+    'continue', 'pause', 'skip', 'teacher-tab-selected', 'progress-tab-selected',
+    'review-requested', 'course-returned'
+  ])
+  return withStage.has(value.type)
+    && Object.keys(value).length === 2
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.expectedStageId))
+}
+
+async function authoritativeGuideContext(
+  surface: PracticeGuideSurfaceContext
+): Promise<PracticeGuideContext> {
+  const result = await progressRepository.load()
+  const progress = result.status === 'returning' || result.status === 'recovered'
+    ? result.progress
+    : null
+  let workspace = null
+  if (surface.surface !== 'learning') {
+    workspace = await practiceCoordinator.loadWorkspace().catch(() => null)
+  }
+  return { progress, workspace, ...surface }
+}
+
+async function reconcilePracticeGuide(surface: PracticeGuideSurfaceContext): Promise<void> {
+  const context = await authoritativeGuideContext(surface)
+  await practiceGuideCoordinator.load(context).catch(() => null)
+}
+
 async function enterPracticeCompanion(): Promise<void> {
   companionMode = 'compact'
   await teacherRepository.saveMode(companionMode)
@@ -416,7 +466,12 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:reset-progress', async () => {
-    await Promise.all([progressRepository.reset(), teacherService.reset(), practiceCoordinator.reset()])
+    await Promise.all([
+      progressRepository.reset(),
+      teacherService.reset(),
+      practiceCoordinator.reset(),
+      practiceGuideCoordinator.reset()
+    ])
     companionMode = 'compact'
     companionAlwaysOnTop = true
     applyCompanionTopmost()
@@ -491,15 +546,31 @@ function registerIpcHandlers(): void {
     if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
     return practiceCoordinator.selectPanel(update)
   })
+
+  ipcMain.handle('course:load-practice-guide', async (_event, surface) => {
+    if (!isPracticeGuideSurfaceContext(surface)) throw new Error('Invalid Practice guide surface')
+    return practiceGuideCoordinator.load(await authoritativeGuideContext(surface))
+  })
+
+  ipcMain.handle('course:update-practice-guide', async (_event, request, surface) => {
+    if (!isPracticeGuideUpdateRequest(request)) throw new Error('Invalid Practice guide update')
+    if (!isPracticeGuideSurfaceContext(surface)) throw new Error('Invalid Practice guide surface')
+    return practiceGuideCoordinator.update(request, await authoritativeGuideContext(surface))
+  })
   ipcMain.handle('course:review-practice', async () => {
     if (!useTestCodexGateway) await ensureAppServer()
-    return practiceReviewService.review()
+    const response = await practiceReviewService.review()
+    await reconcilePracticeGuide({ surface: 'full' })
+    return response
   })
 
   ipcMain.handle('course:return-passed-practice', async () => {
     if (pendingPracticeReturn) return pendingPracticeReturn
     const operation = (async () => {
       const completedRun = (await practiceRunRepository.load()).activeRun
+      const guideBeforeReturn = await practiceGuideCoordinator.load(
+        await authoritativeGuideContext({ surface: 'full' })
+      ).catch(() => null)
       const receipt = await practiceReviewService.returnPassedPractice()
       if (!completedRun
         || completedRun.runId !== receipt.runId
@@ -511,6 +582,12 @@ function registerIpcHandlers(): void {
       const authoritative = await progressRepository.load()
       if (authoritative.status !== 'returning' && authoritative.status !== 'recovered') {
         throw new Error('Authoritative learner progress is unavailable after Practice return.')
+      }
+      if (guideBeforeReturn?.currentStageId === 'return-to-course') {
+        await practiceGuideCoordinator.update(
+          { type: 'course-returned', expectedStageId: 'return-to-course' },
+          { progress: authoritative.progress, workspace: null, surface: 'learning' }
+        ).catch(() => null)
       }
       mainWindow?.show()
       mainWindow?.focus()

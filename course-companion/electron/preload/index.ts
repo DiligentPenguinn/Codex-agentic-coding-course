@@ -9,6 +9,9 @@ import type {
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PracticeReviewResponse,
+  PracticeGuideSurfaceContext,
+  PracticeGuideUpdateRequest,
+  PracticeGuideView,
   PracticeStartRequest,
   PracticeWorkspaceView,
   PracticeFixtureRequest,
@@ -52,6 +55,10 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>
     ipcRenderer.invoke('course:review-practice') as Promise<PracticeReviewResponse>,
+  loadPracticeGuide: (context: PracticeGuideSurfaceContext) =>
+    ipcRenderer.invoke('course:load-practice-guide', context) as Promise<PracticeGuideView | null>,
+  updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext) =>
+    ipcRenderer.invoke('course:update-practice-guide', request, context) as Promise<PracticeGuideView | null>,
   returnPassedPractice: () =>
     ipcRenderer.invoke('course:return-passed-practice') as Promise<void>,
   onPracticeReturned: (callback: () => void) => {

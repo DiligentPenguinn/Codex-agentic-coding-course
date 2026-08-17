@@ -865,6 +865,11 @@ export type PracticeGuideView = {
   error?: string
 }
 
+export type PracticeGuideSurfaceContext = {
+  surface: 'full' | 'compact' | 'learning'
+  activeTab?: 'teacher' | 'progress'
+}
+
 export type PracticeGuideContext = {
   progress: LearnerProgress | null
   workspace: PracticeWorkspaceView | null
@@ -965,6 +970,11 @@ export type CourseCompanionApi = {
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
+  loadPracticeGuide: (
+    context: PracticeGuideSurfaceContext
+  ) => Promise<PracticeGuideView | null>
+  updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext)
+    => Promise<PracticeGuideView | null>
   returnPassedPractice: () => Promise<void>
   onPracticeReturned: (callback: () => void) => () => void
   loadAppSettings: () => Promise<AppSettings>
