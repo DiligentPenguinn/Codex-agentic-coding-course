@@ -290,4 +290,3 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     await this.states.reset()
   }
 }
-

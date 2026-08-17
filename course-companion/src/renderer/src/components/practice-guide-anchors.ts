@@ -5,4 +5,3 @@ export const PRACTICE_GUIDE_ANCHOR_ATTRIBUTE = 'data-practice-guide-anchor'
 export function practiceGuideAnchor(id: PracticeGuideAnchorId) {
   return { [PRACTICE_GUIDE_ANCHOR_ATTRIBUTE]: id }
 }
-

@@ -179,4 +179,3 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
     </>
   )
 }
-

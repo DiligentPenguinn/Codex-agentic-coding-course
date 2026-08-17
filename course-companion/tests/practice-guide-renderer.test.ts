@@ -56,4 +56,3 @@ describe('PracticeGuide renderer', () => {
     expect(component).toContain('role="status"')
   })
 })
-
