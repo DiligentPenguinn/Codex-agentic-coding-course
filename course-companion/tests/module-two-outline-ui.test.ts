@@ -4,11 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { moduleTwoOutlineSections } from '../shared/course/modules/module-2'
 
 describe('Module 2 outline menu', () => {
-  it('shows the five approved concept-first parts without status labels', () => {
+  it('shows the four approved concept-first parts without status labels', () => {
     expect(moduleTwoOutlineSections).toEqual([
       'Tại sao cần planning trước khi code với AI?',
       'PRD là gì và dùng để làm gì?',
-      'Một PRD tốt cần có những gì?',
       'Dùng coding agent để tạo, review và duyệt PRD',
       'Thực hành: Lập kế hoạch cho portfolio'
     ])

@@ -28,7 +28,7 @@ const releaseQuiz = JSON.parse(
 )
 const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
 
-async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 5) {
+async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 4) {
   for (let index = 0; index < stepsRemaining; index += 1) {
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   }
@@ -321,7 +321,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
 
   const progressBeforeBypass = await page.evaluate(async () => globalThis.courseCompanion?.loadProgress())
   await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true }).click()
-  await page.getByText('MODULE 2 · PHẦN 1/5', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 2 · PHẦN 1/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
   assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
   await page.locator('.pixel-brand').click()
@@ -794,7 +794,7 @@ try {
     .getByText('Vì sao cần planning trước khi bắt tay vào xây?', { exact: true })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('MODULE 2 · PHẦN 1/5', { exact: true })
+    .getByText('MODULE 2 · PHẦN 1/4', { exact: true })
     .first()
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
@@ -809,7 +809,7 @@ try {
   assert.ok(desktopActionsBounds.x > desktopOutlineBounds.x + desktopOutlineBounds.width)
   assert.ok(Math.abs((desktopActionsBounds.x + desktopActionsBounds.width) - (desktopHudBounds.x + desktopHudBounds.width - 22)) <= 2)
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 5)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 4)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-opening.png')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
@@ -852,11 +852,11 @@ try {
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-complete').count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 3)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 2)
   await capture(firstWindows.learningPage, 'module-2-part-2-outline.png')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
-  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 4)
-  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 5/5', { exact: true }).first().waitFor()
+  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 3)
+  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 4/4', { exact: true }).first().waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-portfolio-workspace-entry.png')

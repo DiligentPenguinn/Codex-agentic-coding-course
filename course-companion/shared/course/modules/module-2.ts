@@ -1,7 +1,6 @@
 export const moduleTwoOutlineSections = [
   'Tại sao cần planning trước khi code với AI?',
   'PRD là gì và dùng để làm gì?',
-  'Một PRD tốt cần có những gì?',
   'Dùng coding agent để tạo, review và duyệt PRD',
   'Thực hành: Lập kế hoạch cho portfolio'
 ] as const
@@ -29,8 +28,7 @@ export const moduleTwoDefinition = {
   ],
   scenes: [
     { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-introduction' },
-    { id: 'module-2-prd-introduction', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-anatomy' },
-    { id: 'module-2-prd-anatomy', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-agent-workflow' },
+    { id: 'module-2-prd-introduction', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-agent-workflow' },
     { id: 'module-2-prd-agent-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-practice-intro' },
     { id: 'module-2-portfolio-practice-intro', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
     { id: 'module-2-portfolio-folder', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },

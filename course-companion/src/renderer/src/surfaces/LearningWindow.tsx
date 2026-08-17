@@ -1082,9 +1082,8 @@ type LearningPosition = {
 const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
   'module-2-portfolio-workspace': 0,
   'module-2-prd-introduction': 1,
-  'module-2-prd-anatomy': 2,
-  'module-2-prd-agent-workflow': 3,
-  'module-2-portfolio-practice-intro': 4
+  'module-2-prd-agent-workflow': 2,
+  'module-2-portfolio-practice-intro': 3
 }
 
 function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
