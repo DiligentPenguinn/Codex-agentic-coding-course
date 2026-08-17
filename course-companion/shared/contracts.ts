@@ -1,3 +1,16 @@
+import {
+  portfolioCheckpointCourseLesson,
+  portfolioCheckpointIds,
+  portfolioCourseLessonIds,
+  portfolioModuleDefinitions,
+  portfolioSceneCheckpoint,
+  portfolioSceneIds,
+  type PortfolioCheckpointId,
+  type PortfolioCourseLessonId,
+  type PortfolioModuleId,
+  type PortfolioSceneId
+} from './course/registry'
+
 export type RuntimeInfo = {
   appVersion: string
   platform: string
@@ -14,16 +27,13 @@ export type AppSettings = {
 
 export type AppSettingsUpdate = Pick<AppSettings, 'companionAlwaysOnTop'>
 
-export const COURSE_VERSION = '0.2.0'
-export const LEARNER_STATE_SCHEMA_VERSION = 5
+export const COURSE_VERSION = '0.3.0'
+export const LEARNER_STATE_SCHEMA_VERSION = 6
 
-export const checkpointIds = [
+const legacyCheckpointIds = [
   'intro-visual-onboarding',
   'm1-codex-orientation',
   'm1-model-choice',
-  'm1-permissions',
-  'm1-agents-guidance',
-  'm1-skills',
   'm1-setup-checklist',
   'm1-mastery',
   'm1-complete',
@@ -39,29 +49,39 @@ export const checkpointIds = [
   'm2-complete'
 ] as const
 
-export const sceneIds = [
+const frozenJourneyCheckpointIds = legacyCheckpointIds.slice(0, 6)
+
+// Introduction and Module 1 stay on the frozen renderer. Modules 2–4 use the
+// typed registry; retired Module 2 IDs remain readable but no longer count as
+// runnable progress in the portfolio course.
+export const runnableCheckpointIds = [
+  ...frozenJourneyCheckpointIds,
+  ...portfolioCheckpointIds
+] as const
+
+export const checkpointIds = [
+  ...legacyCheckpointIds,
+  ...portfolioCheckpointIds
+] as const satisfies readonly (typeof legacyCheckpointIds[number] | PortfolioCheckpointId)[]
+
+const legacySceneIds = [
   'intro-visual-onboarding',
   'intro-course-overview-2',
   'intro-learning-method',
   'module-1-codex-orientation',
   'module-1-codex-examples',
-  'module-1-harness-intro',
-  'module-1-harness-codex',
+  'module-1-codex-model-intro',
+  'module-1-codex-slash-commands',
   'module-1-model-choice',
   'module-1-model-use-cases',
   'module-1-reasoning-effort',
   'module-1-project-setup',
-  'module-1-permissions',
-  'module-1-approval-choice',
-  'module-1-agents-guidance',
-  'module-1-skills',
   'module-1-setup-checklist',
   'module-1-mastery',
   'module-1-final-1',
   'module-1-final-2',
   'module-1-final-3',
   'module-1-final-4',
-  'module-1-final-5',
   'module-1-final-summary',
   'module-1-complete',
   'module-2-why-planning',
@@ -114,15 +134,24 @@ export const sceneIds = [
   'module-2-complete'
 ] as const
 
-export type LessonId = 'intro' | 'module-1' | 'module-2'
+export const sceneIds = [
+  ...legacySceneIds,
+  ...portfolioSceneIds
+] as const satisfies readonly (typeof legacySceneIds[number] | PortfolioSceneId)[]
+
+export const lessonIds = [
+  'intro',
+  'module-1',
+  ...portfolioModuleDefinitions.map((module) => module.id)
+] as const satisfies readonly ('intro' | 'module-1' | PortfolioModuleId)[]
+
+export type LessonId = (typeof lessonIds)[number]
 export type CheckpointId = (typeof checkpointIds)[number]
 export type SceneId = (typeof sceneIds)[number]
 
-export const courseLessonIds = [
+const legacyCourseLessonIds = [
   'intro-overview',
   'm1-understand-codex',
-  'm1-workspace-permissions',
-  'm1-agents-guidance',
   'm1-skills-and-checklist',
   'm1-assessment',
   'm2-when-to-plan',
@@ -133,6 +162,11 @@ export const courseLessonIds = [
   'm2-assessment'
 ] as const
 
+export const courseLessonIds = [
+  ...legacyCourseLessonIds,
+  ...portfolioCourseLessonIds
+] as const satisfies readonly (typeof legacyCourseLessonIds[number] | PortfolioCourseLessonId)[]
+
 export type CourseLessonId = (typeof courseLessonIds)[number]
 
 export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
@@ -141,23 +175,18 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'intro-learning-method': 'intro-visual-onboarding',
   'module-1-codex-orientation': 'm1-codex-orientation',
   'module-1-codex-examples': 'm1-codex-orientation',
-  'module-1-harness-intro': 'm1-agents-guidance',
-  'module-1-harness-codex': 'm1-agents-guidance',
+  'module-1-codex-model-intro': 'm1-codex-orientation',
+  'module-1-codex-slash-commands': 'm1-codex-orientation',
   'module-1-model-choice': 'm1-model-choice',
   'module-1-model-use-cases': 'm1-model-choice',
   'module-1-reasoning-effort': 'm1-model-choice',
   'module-1-project-setup': 'm1-model-choice',
-  'module-1-permissions': 'm1-permissions',
-  'module-1-approval-choice': 'm1-permissions',
-  'module-1-agents-guidance': 'm1-agents-guidance',
-  'module-1-skills': 'm1-skills',
   'module-1-setup-checklist': 'm1-setup-checklist',
   'module-1-mastery': 'm1-mastery',
   'module-1-final-1': 'm1-mastery',
   'module-1-final-2': 'm1-mastery',
   'module-1-final-3': 'm1-mastery',
   'module-1-final-4': 'm1-mastery',
-  'module-1-final-5': 'm1-mastery',
   'module-1-final-summary': 'm1-mastery',
   'module-1-complete': 'm1-complete',
   'module-2-why-planning': 'm2-why-planning',
@@ -207,16 +236,14 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-2-final-14': 'm2-mastery',
   'module-2-final-15': 'm2-mastery',
   'module-2-final-summary': 'm2-mastery',
-  'module-2-complete': 'm2-complete'
+  'module-2-complete': 'm2-complete',
+  ...portfolioSceneCheckpoint
 }
 
 export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'intro-visual-onboarding': 'intro-overview',
   'm1-codex-orientation': 'm1-understand-codex',
   'm1-model-choice': 'm1-skills-and-checklist',
-  'm1-permissions': 'm1-workspace-permissions',
-  'm1-agents-guidance': 'm1-agents-guidance',
-  'm1-skills': 'm1-agents-guidance',
   'm1-setup-checklist': 'm1-assessment',
   'm1-mastery': 'm1-assessment',
   'm1-complete': 'm1-assessment',
@@ -229,8 +256,11 @@ export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'm2-alignment-review': 'm2-implementation-plan',
   'm2-planning-package': 'm2-prd-review',
   'm2-mastery': 'm2-assessment',
-  'm2-complete': 'm2-assessment'
+  'm2-complete': 'm2-assessment',
+  ...portfolioCheckpointCourseLesson
 }
+
+export { portfolioModuleDefinitions }
 
 export function courseLessonIdForScene(sceneId: SceneId): CourseLessonId {
   return checkpointCourseLesson[sceneCheckpoint[sceneId]]
@@ -513,14 +543,17 @@ export type PracticeCriterionDefinition = {
   freshness: 'fresh' | 'any'
 }
 
-export const practiceWorkspaceKinds = ['pilot-workspace'] as const
+export const practiceWorkspaceKinds = ['pilot-workspace', 'learner-portfolio'] as const
 export const practiceTaskPolicies = [
   'inherit-configuration-only',
   'safe-workspace-write'
 ] as const
 export const practiceEvidenceProfiles = [
   'codex-task-configuration',
-  'planning-package'
+  'planning-package',
+  'portfolio-planning',
+  'portfolio-build',
+  'portfolio-release'
 ] as const
 
 export type PracticeWorkspaceKind = (typeof practiceWorkspaceKinds)[number]
@@ -561,6 +594,13 @@ export type PracticeCompletionDestination = {
   sceneId: SceneId
 }
 
+export type PracticeStageDefinition = {
+  id: string
+  order: 1 | 2 | 3 | 4 | 5
+  dependsOn: string[]
+  requiredArtifactPaths: string[]
+}
+
 export type PracticeDefinition = {
   schemaVersion: 2
   practiceId: string
@@ -572,9 +612,116 @@ export type PracticeDefinition = {
   workspaceKind: PracticeWorkspaceKind
   taskPolicy: PracticeTaskPolicy
   evidenceProfile: PracticeEvidenceProfile
+  stages?: PracticeStageDefinition[]
   checklist: PracticeChecklistDefinition[]
   criteria: PracticeCriterionDefinition[]
   completionDestination: PracticeCompletionDestination & { label: string }
+}
+
+export type PracticeStageReceipt = {
+  schemaVersion: 1
+  courseRunId: string
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  stageId: string
+  stageIndex: 1 | 2 | 3 | 4 | 5
+  workspace: {
+    canonicalPath: string
+    identityDigest: string
+  }
+  artifactDigests: Record<string, string>
+  approval: {
+    approvedAt: string
+    artifactDigests: Record<string, string>
+  }
+  evidence: {
+    executorReportedChecks: string[]
+    corroboratedArtifacts: Record<string, string>
+  }
+  status: 'completed' | 'stale'
+  freshness: 'current' | 'stale'
+  observedAt: string
+  staleReason?: string
+}
+
+export const portfolioBuildSliceIds = [
+  'foundation-hero',
+  'selected-work',
+  'about-contact-footer',
+  'responsive-accessibility'
+] as const
+
+export type PortfolioBuildSliceId = (typeof portfolioBuildSliceIds)[number]
+
+export type PracticeBuildSliceReceipt = Omit<PracticeStageReceipt, 'stageId' | 'stageIndex'> & {
+  stageId: 'complete-first-version'
+  stageIndex: 2
+  sliceId: PortfolioBuildSliceId
+  sliceIndex: 1 | 2 | 3 | 4
+}
+
+export const portfolioPlanningArtifactPaths = [
+  'planning/portfolio-brief.md',
+  'planning/content-evidence-inventory.md',
+  'planning/reference/reference.md',
+  'planning/PRD.md',
+  'planning/requirement-validation-map.md',
+  'planning/implementation-plan.md',
+  'planning/first-bounded-task.md'
+] as const
+
+export type PortfolioPlanningArtifactPath = (typeof portfolioPlanningArtifactPaths)[number]
+
+export type PortfolioPlanningArtifactSnapshot = {
+  path: string
+  digest: string
+  byteLength: number
+  modifiedAt: string
+  observedAt: string
+}
+
+export type PortfolioPlanningIssue = {
+  stageId: string
+  path: string
+  code:
+    | 'missing'
+    | 'empty'
+    | 'oversized'
+    | 'directory'
+    | 'symlink'
+    | 'escaping'
+    | 'invalid-utf8'
+    | 'placeholder'
+    | 'missing-section'
+    | 'missing-approval'
+    | 'invalid-evidence-label'
+    | 'privacy-review-incomplete'
+    | 'permission-metadata-missing'
+    | 'missing-reference-screenshot'
+    | 'requirement-coverage'
+    | 'invalid-plan-boundary'
+    | 'unexpected-workspace-change'
+  message: string
+}
+
+export type PortfolioPlanningStageEvidence = {
+  stageId: string
+  stageIndex: 1 | 2 | 3 | 4 | 5
+  status: 'ready' | 'blocked'
+  artifactDigests: Record<string, string>
+  executorReportedChecks: string[]
+  corroboratedArtifacts: Record<string, string>
+  issueCodes: PortfolioPlanningIssue['code'][]
+}
+
+export type PortfolioPlanningEvidenceState = {
+  schemaVersion: 1
+  workspaceIdentityDigest: string
+  artifacts: PortfolioPlanningArtifactSnapshot[]
+  issues: PortfolioPlanningIssue[]
+  unexpectedPaths: string[]
+  stages: PortfolioPlanningStageEvidence[]
 }
 
 export type PracticeEvidenceReference = {
@@ -656,6 +803,8 @@ export type PracticeAdapterEvidenceState = {
   artifactIssues?: PlanningArtifactIssue[]
   unexpectedChangedPaths?: string[]
   planningActivity?: PlanningActivityEvidence
+  portfolioPlanning?: PortfolioPlanningEvidenceState
+  portfolioBuild?: PortfolioPlanningEvidenceState
 }
 
 export type PracticeCriterionReview = {
@@ -690,6 +839,53 @@ export type PracticeCompletionReceipt = {
   masterySummary: string
   destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
+  portfolioPlanningHandoff?: PortfolioPlanningHandoff
+  portfolioBuildHandoff?: PortfolioBuildHandoff
+}
+
+export type PortfolioBuildHandoff = {
+  schemaVersion: 1
+  workspace: { canonicalPath: string; identityDigest: string }
+  artifactDigests: Record<string, string>
+  stageReceiptIds: string[]
+  buildSliceReceiptIds: PortfolioBuildSliceId[]
+  sourceCheckpoint: string
+  moduleFourInput: { workspacePath: string; sourceCheckpoint: string }
+}
+
+export type PortfolioPlanningHandoff = {
+  schemaVersion: 1
+  workspace: {
+    canonicalPath: string
+    identityDigest: string
+  }
+  artifacts: Array<{
+    path: PortfolioPlanningArtifactPath
+    digest: string
+  }>
+  stageReceipts: Array<{
+    stageId: string
+    stageIndex: 1 | 2 | 3 | 4 | 5
+    observedAt: string
+    artifactDigests: Record<string, string>
+  }>
+  mastery: {
+    questionIds: string[]
+    answerDigest: string
+  }
+  summary: {
+    learnerDecision: string
+    evidenceBoundary: string
+    firstBuild: string
+    deliberatelyOutOfScope: string
+  }
+  moduleThreeInput: {
+    workspacePath: string
+    artifactReferences: Array<{
+      path: PortfolioPlanningArtifactPath
+      digest: string
+    }>
+  }
 }
 
 export type PracticeChecklistStep = {
@@ -739,6 +935,39 @@ export type PracticeWorkspaceView = {
   completion?: PracticeCompletionReceipt
   configuration?: CodexTaskConfigurationSnapshot
   planning?: PracticePlanningWorkspaceView
+  portfolioPlanning?: {
+    freshness: 'fresh' | 'stale' | 'unverifiable'
+    observedAt?: string
+    unexpectedPaths: string[]
+    stages: Array<{
+      stageId: string
+      stageIndex: 1 | 2 | 3 | 4 | 5
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      artifactPaths: string[]
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+  }
+  portfolioBuild?: {
+    freshness: 'fresh' | 'stale' | 'unverifiable'
+    observedAt?: string
+    unexpectedPaths: string[]
+    stages: Array<{
+      stageId: string
+      stageIndex: 1 | 2 | 3 | 4 | 5
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      artifactPaths: string[]
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+    slices: Array<{
+      sliceId: PortfolioBuildSliceId
+      sliceIndex: 1 | 2 | 3 | 4
+      status: 'completed' | 'ready' | 'blocked' | 'stale' | 'pending'
+      issueCodes: PortfolioPlanningIssue['code'][]
+      staleReason?: string
+    }>
+  }
   completionDestination?: PracticeDefinition['completionDestination']
 
   activePractice?: {
@@ -896,6 +1125,32 @@ export type PracticeGuideCoordinatorAdapter = {
   reset: () => Promise<void>
 }
 
+export type PortfolioWorkspaceStatus =
+  | 'unselected'
+  | 'awaiting-confirmation'
+  | 'ready'
+  | 'missing'
+  | 'permission-denied'
+  | 'rejected'
+  | 'error'
+
+export type PortfolioWorkspaceView = {
+  schemaVersion: 1
+  courseRunId: string
+  status: PortfolioWorkspaceStatus
+  selectedPath?: string
+  folderName?: string
+  planningPath?: string
+  observedAt: string
+  message: string
+  canChoose: boolean
+  canConfirmPlanning: boolean
+}
+
+export type PortfolioWorkspaceRequest = {
+  courseRunId: string
+}
+
 type PlanningActionIdentity = PracticeIdentity & {
   runId: string
   generation: number
@@ -919,6 +1174,13 @@ export type PlanningPracticeActionRequest = PlanningActionIdentity & {
       }
 }
 
+export type PortfolioStageActionRequest = PlanningActionIdentity & {
+  courseRunId: string
+  stageId: string
+  sliceId?: PortfolioBuildSliceId
+  decision: 'approved' | 'revision-requested'
+}
+
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
   panel: PracticePanel
@@ -931,6 +1193,7 @@ export type PracticeWorkspaceAdapter = {
   retry: () => Promise<PracticeWorkspaceView>
   cancel: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
   selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reset: () => Promise<void>
 }
@@ -955,6 +1218,8 @@ export type CourseCompanionApi = {
   getRuntimeInfo: () => Promise<RuntimeInfo>
   loadProgress: () => Promise<ProgressLoadResult>
   saveProgress: (update: ProgressUpdate) => Promise<LearnerProgress>
+  completePortfolioPlanningModule: () => Promise<LearnerProgress>
+  completePortfolioBuildModule: () => Promise<LearnerProgress>
   resetProgress: () => Promise<void>
   loadCompanionState: () => Promise<CompanionState>
   sendTeacherMessage: (request: TeacherSendRequest) => Promise<TeacherSendResult>
@@ -962,12 +1227,16 @@ export type CourseCompanionApi = {
   emitPracticeFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
   onFullTeacherRequested: (callback: () => void) => () => void
   onCompanionModeChanged: (callback: (mode: CompanionMode) => void) => () => void
+  loadPortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
+  choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
+  confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
   loadPracticeGuide: (

@@ -5,7 +5,9 @@ import { PracticeSwitchDialog } from './PracticeSwitchDialog'
 
 type PracticeBriefProps = {
   identity: PracticeIdentity
+  courseRunId?: string
   onClose: () => void
+  onPortfolioComplete?: () => void | Promise<void>
 }
 
 const previewWorkspace: PracticeWorkspaceView = {
@@ -24,7 +26,12 @@ const previewWorkspace: PracticeWorkspaceView = {
   }
 }
 
-export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
+export function PracticeBrief({
+  identity,
+  courseRunId,
+  onClose,
+  onPortfolioComplete
+}: PracticeBriefProps) {
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [busy, setBusy] = useState(false)
   const [switchOpen, setSwitchOpen] = useState(false)
@@ -90,7 +97,7 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
           : workspace
       )
     } catch {
-      setError('Không thể mở Executor chat đang hoạt động. Hãy thử lại.')
+      setError('Không thể mở task Codex đang hoạt động. Hãy thử lại.')
       await load()
     } finally {
       setBusy(false)
@@ -120,6 +127,39 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
       setWorkspace(await window.courseCompanion.cancelPracticeSwitch())
     } catch {
       setError('Không thể hủy lần chuyển ở giai đoạn hiện tại.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const recordPortfolioStage = async (
+    stageId: string,
+    decision: 'approved' | 'revision-requested',
+    sliceId?: import('../../../../shared/contracts').PortfolioBuildSliceId
+  ) => {
+    const active = workspace?.activePractice
+    if (!active || !courseRunId || busy || !window.courseCompanion) return
+    setBusy(true)
+    setError('')
+    try {
+      const next = await window.courseCompanion.recordPortfolioStageAction({
+        runId: active.runId,
+        generation: active.generation,
+        practiceId: active.practiceId,
+        practiceVersion: active.practiceVersion,
+        courseRunId,
+        stageId,
+        ...(sliceId ? { sliceId } : {}),
+        decision
+      })
+      setWorkspace(next)
+      if (decision === 'approved'
+        && (next.portfolioPlanning ?? next.portfolioBuild)?.stages.every((stage) => stage.status === 'completed')) {
+        await onPortfolioComplete?.()
+      }
+    } catch {
+      setError('Không thể ghi nhận quyết định trên bằng chứng hiện tại. Hãy làm mới rồi thử lại.')
+      await load()
     } finally {
       setBusy(false)
     }
@@ -173,7 +213,12 @@ export function PracticeBrief({ identity, onClose }: PracticeBriefProps) {
         {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
       </section>
 
-      <PracticeProgress workspace={workspace} onRefresh={() => void load()} />
+      <PracticeProgress
+        workspace={workspace}
+        actionBusy={busy}
+        onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
+        onRefresh={() => void load()}
+      />
 
       {switchOpen ? (
         <PracticeSwitchDialog

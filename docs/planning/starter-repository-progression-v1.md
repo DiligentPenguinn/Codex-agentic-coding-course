@@ -1,5 +1,10 @@
 # ContentPilot Starter Repository Progression v1
 
+> **Retired from the runnable course direction.** This starter contract remains
+> historical planning evidence. The portfolio course creates the learner
+> application from scratch in Module 3; see
+> [Portfolio Course v1](./portfolio-course-v1/README.md).
+
 **Status:** Locked planning contract; initial baseline implemented and validated
 on 27 July 2026  
 **Decision:** Runnable foundation with learner-built product behavior  

@@ -33,18 +33,20 @@ function adapter(evidenceProfile: PracticeEvidenceProfile): PracticeEvidenceAdap
 describe('PracticeEvidenceAdapterRegistry', () => {
   const configuration = adapter('codex-task-configuration')
   const planning = adapter('planning-package')
+  const portfolioPlanning = adapter('portfolio-planning')
 
-  it('resolves both supported profiles without fallback', () => {
-    const registry = new PracticeEvidenceAdapterRegistry([configuration, planning])
+  it('resolves every live evidence profile without falling back to Executor claims', () => {
+    const registry = new PracticeEvidenceAdapterRegistry([configuration, planning, portfolioPlanning])
     expect(registry.resolve('codex-task-configuration')).toBe(configuration)
     expect(registry.resolve('planning-package')).toBe(planning)
+    expect(registry.resolve('portfolio-planning')).toBe(portfolioPlanning)
     expect(() => registry.resolve('unknown-profile')).toThrow('Unsupported Practice evidence profile')
   })
 
-  it('requires exactly one adapter for every supported profile', () => {
-    expect(() => new PracticeEvidenceAdapterRegistry([configuration]))
+  it('requires exactly one adapter for every adapter-backed profile', () => {
+    expect(() => new PracticeEvidenceAdapterRegistry([configuration, portfolioPlanning]))
       .toThrow('Missing Practice evidence adapter: planning-package')
-    expect(() => new PracticeEvidenceAdapterRegistry([configuration, configuration, planning]))
+    expect(() => new PracticeEvidenceAdapterRegistry([configuration, configuration, planning, portfolioPlanning]))
       .toThrow('Duplicate Practice evidence adapter: codex-task-configuration')
   })
 })

@@ -124,7 +124,18 @@ export class ExecutorChatCoordinator {
                       'Chỉ được thay đổi artifacts/PRD.md và artifacts/implementation-plan.md; không viết implementation code.',
                       'Dùng chính task này cho toàn bộ Practice, phỏng vấn từng câu một, và chờ các nút phê duyệt trong Course Companion. Tin nhắn trong chat không thay thế phê duyệt của người học.'
                     ]
-                  : [])
+                  : definition.stages
+                    ? [
+                        'Dùng chính task này cho cả năm stage; không tạo task mới cho từng milestone.',
+                        'Dừng sau mỗi stage để Course Companion đối chiếu artifact hiện tại và ghi nhận phê duyệt. Kết quả do Codex tự báo cáo không thay thế bằng chứng tệp được kiểm tra độc lập.',
+                        ...(definition.evidenceProfile === 'portfolio-planning'
+                          ? [
+                              `Chỉ được tạo hoặc sửa các tệp sau: ${definition.stages.flatMap((stage) => stage.requiredArtifactPaths).join(', ')}; ảnh chụp tham chiếu chỉ được lưu dưới planning/reference/screenshots/.`,
+                              'Không tạo application code, package manifest, dependency, build output, cấu hình deployment hoặc tệp nào khác. Nếu cần việc ngoài phạm vi, hãy dừng và báo cho người học.'
+                            ]
+                          : [])
+                      ]
+                    : [])
               ].join('\n\n')
             }]
           })

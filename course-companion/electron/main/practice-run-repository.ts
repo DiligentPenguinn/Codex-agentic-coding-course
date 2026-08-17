@@ -1,17 +1,27 @@
+import { createHash } from 'node:crypto'
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { isAbsolute, join, resolve } from 'node:path'
 import type {
   PracticeAdapterEvidenceState,
   PracticeChecklistStep,
   PracticeCompletionReceipt,
   PracticeEvidenceInvalidation,
   PracticeEvidenceProfile,
+  PracticeDefinition,
   PracticeLearnerApproval,
+  PracticeBuildSliceReceipt,
+  PracticeStageReceipt,
   PlanningPracticeActionRequest,
   PracticePanel,
   PracticeReviewResult,
   PracticeTaskPolicy,
   PracticeWorkspaceKind
+} from '../../shared/contracts'
+import {
+  portfolioBuildSliceIds,
+  practiceEvidenceProfiles,
+  practiceTaskPolicies,
+  practiceWorkspaceKinds
 } from '../../shared/contracts'
 import { isApprovedCodexConfiguration } from './practice-task-policy'
 import { isCodexTaskConfigurationSnapshot } from './codex-configuration-normalizer'
@@ -46,6 +56,8 @@ export type PracticeRunRecord = {
   learnerApprovals: Record<string, PracticeLearnerApproval>
   evidence: PracticeAdapterEvidenceState | null
   invalidations: PracticeEvidenceInvalidation[]
+  stageReceipts?: PracticeStageReceipt[]
+  buildSliceReceipts?: PracticeBuildSliceReceipt[]
   reviewStatus: 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
   reviewResult?: PracticeReviewResult
   completion?: PracticeCompletionReceipt
@@ -88,6 +100,20 @@ const ID = /^[A-Za-z0-9_-]{1,160}$/
 const VERSION = /^[0-9]+\.[0-9]+\.[0-9]+$/
 const THREAD_ID = /^[A-Za-z0-9_-]{1,160}$/
 const STEP_STATUSES = new Set(['completed', 'current', 'pending', 'stale', 'upcoming'])
+const WORKSPACE_KINDS = new Set<string>(practiceWorkspaceKinds)
+const TASK_POLICIES = new Set<string>(practiceTaskPolicies)
+const EVIDENCE_PROFILES = new Set<string>(practiceEvidenceProfiles)
+const PORTFOLIO_PROFILES = new Set<PracticeEvidenceProfile>([
+  'portfolio-planning',
+  'portfolio-build',
+  'portfolio-release'
+])
+const DIGEST = /^[a-f0-9]{64}$/
+const ARTIFACT_PATH = /^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]{1,240}$/
+
+export function practiceWorkspaceIdentityDigest(canonicalPath: string): string {
+  return createHash('sha256').update(resolve(canonicalPath)).digest('hex')
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -147,6 +173,107 @@ function isStringRecord(value: unknown, maximumEntries: number, maximumText: num
     ))
 }
 
+function isDigestRecord(value: unknown, maximumEntries = 80): value is Record<string, string> {
+  return isRecord(value)
+    && Object.keys(value).length <= maximumEntries
+    && Object.keys(value).every((path) => ARTIFACT_PATH.test(path))
+    && Object.values(value).every((digest) => typeof digest === 'string' && DIGEST.test(digest))
+}
+
+function sameDigestRecord(left: Record<string, string>, right: Record<string, string>): boolean {
+  const keys = Object.keys(left).sort()
+  return keys.length === Object.keys(right).length
+    && keys.every((key) => left[key] === right[key])
+}
+
+export function isPracticeStageReceipt(value: unknown): value is PracticeStageReceipt {
+  if (!isRecord(value) || !isRecord(value.workspace) || !isRecord(value.approval)
+    || !isRecord(value.evidence)) return false
+  if (value.schemaVersion !== 1
+    || !ID.test(String(value.courseRunId))
+    || !ID.test(String(value.practiceId))
+    || !VERSION.test(String(value.practiceVersion))
+    || !ID.test(String(value.runId))
+    || !ID.test(String(value.stageId))
+    || ![1, 2, 3, 4, 5].includes(Number(value.stageIndex))
+    || typeof value.workspace.canonicalPath !== 'string'
+    || !isAbsolute(value.workspace.canonicalPath)
+    || !DIGEST.test(String(value.workspace.identityDigest))
+    || !isDigestRecord(value.artifactDigests)
+    || !isIso(value.approval.approvedAt)
+    || !isDigestRecord(value.approval.artifactDigests)
+    || !sameDigestRecord(value.artifactDigests, value.approval.artifactDigests)
+    || !Array.isArray(value.evidence.executorReportedChecks)
+    || value.evidence.executorReportedChecks.length > 40
+    || !value.evidence.executorReportedChecks.every((check) =>
+      typeof check === 'string' && check.length > 0 && check.length <= 500)
+    || !isDigestRecord(value.evidence.corroboratedArtifacts)
+    || !Object.entries(value.evidence.corroboratedArtifacts).every(([path, digest]) =>
+      (value.artifactDigests as Record<string, string>)[path] === digest)
+    || !isIso(value.observedAt)) return false
+  if (value.status === 'completed') {
+    return value.freshness === 'current' && value.staleReason === undefined
+  }
+  return value.status === 'stale'
+    && value.freshness === 'stale'
+    && typeof value.staleReason === 'string'
+    && value.staleReason.length > 0
+    && value.staleReason.length <= 1000
+}
+
+function isStageReceipts(value: unknown, active: {
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  workspaceRoot: string
+}): value is PracticeStageReceipt[] {
+  if (!Array.isArray(value) || value.length > 5 || !value.every(isPracticeStageReceipt)) return false
+  const stageIds = new Set<string>()
+  const stageIndexes = new Set<number>()
+  const courseRunIds = new Set(value.map((receipt) => receipt.courseRunId))
+  const workspaceDigests = new Set(value.map((receipt) => receipt.workspace.identityDigest))
+  if (courseRunIds.size > 1 || workspaceDigests.size > 1) return false
+  return value.every((receipt) => {
+    if (stageIds.has(receipt.stageId)) return false
+    if (stageIndexes.has(receipt.stageIndex)) return false
+    stageIds.add(receipt.stageId)
+    stageIndexes.add(receipt.stageIndex)
+    return receipt.practiceId === active.practiceId
+      && receipt.practiceVersion === active.practiceVersion
+      && receipt.runId === active.runId
+      && resolve(receipt.workspace.canonicalPath) === resolve(active.workspaceRoot)
+      && receipt.workspace.identityDigest === practiceWorkspaceIdentityDigest(receipt.workspace.canonicalPath)
+  })
+}
+
+function isBuildSliceReceipts(value: unknown, active: {
+  practiceId: string
+  practiceVersion: string
+  runId: string
+  workspaceRoot: string
+}): value is PracticeBuildSliceReceipt[] {
+  if (!Array.isArray(value) || value.length > 4) return false
+  const ids = new Set<string>()
+  const indexes = new Set<number>()
+  return value.every((receipt) => {
+    if (!isPracticeStageReceipt(receipt)) return false
+    const slice = receipt as PracticeBuildSliceReceipt
+    if (slice.stageId !== 'complete-first-version'
+      || slice.stageIndex !== 2
+      || !portfolioBuildSliceIds.includes(slice.sliceId)
+      || ![1, 2, 3, 4].includes(slice.sliceIndex)
+      || ids.has(slice.sliceId)
+      || indexes.has(slice.sliceIndex)) return false
+    ids.add(slice.sliceId)
+    indexes.add(slice.sliceIndex)
+    return slice.practiceId === active.practiceId
+      && slice.practiceVersion === active.practiceVersion
+      && slice.runId === active.runId
+      && resolve(slice.workspace.canonicalPath) === resolve(active.workspaceRoot)
+      && slice.workspace.identityDigest === practiceWorkspaceIdentityDigest(slice.workspace.canonicalPath)
+  })
+}
+
 function isApprovals(value: unknown): boolean {
   return isRecord(value)
     && Object.keys(value).length <= 20
@@ -170,7 +297,7 @@ function isEvidence(value: unknown): value is PracticeAdapterEvidenceState {
     && ID.test(String(value.practiceId))
     && VERSION.test(String(value.practiceVersion))
     && ID.test(String(value.runId))
-    && (value.evidenceProfile === 'codex-task-configuration' || value.evidenceProfile === 'planning-package')
+    && EVIDENCE_PROFILES.has(String(value.evidenceProfile))
     && isIso(value.observedAt)
     && ['fresh', 'stale', 'unverifiable'].includes(String(value.freshness))
     && (value.sourceDigest === null || /^[a-f0-9]{64}$/.test(String(value.sourceDigest)))
@@ -179,6 +306,69 @@ function isEvidence(value: unknown): value is PracticeAdapterEvidenceState {
     && Array.isArray(value.invalidations)
     && (value.configuration === undefined || (isCodexTaskConfigurationSnapshot(value.configuration)
       && value.configuration.runId === value.runId))
+    && (value.portfolioPlanning === undefined || (
+      value.evidenceProfile === 'portfolio-planning'
+      && isPortfolioPlanningEvidence(value.portfolioPlanning)
+    ))
+    && (value.portfolioBuild === undefined || (
+      value.evidenceProfile === 'portfolio-build'
+      && isPortfolioPlanningEvidence(value.portfolioBuild)
+    ))
+}
+
+function isPortfolioPlanningEvidence(value: unknown): boolean {
+  if (!isRecord(value)
+    || value.schemaVersion !== 1
+    || !DIGEST.test(String(value.workspaceIdentityDigest))
+    || !Array.isArray(value.artifacts)
+    || value.artifacts.length > 100
+    || !Array.isArray(value.issues)
+    || value.issues.length > 200
+    || !Array.isArray(value.unexpectedPaths)
+    || value.unexpectedPaths.length > 500
+    || !value.unexpectedPaths.every((path) => typeof path === 'string' && path.length <= 500)
+    || !Array.isArray(value.stages)
+    || value.stages.length !== 5) return false
+  if (!value.artifacts.every((artifact) => isRecord(artifact)
+    && typeof artifact.path === 'string'
+    && artifact.path.length > 0
+    && artifact.path.length <= 500
+    && DIGEST.test(String(artifact.digest))
+    && Number.isSafeInteger(artifact.byteLength)
+    && Number(artifact.byteLength) > 0
+    && isIso(artifact.modifiedAt)
+    && isIso(artifact.observedAt))) return false
+  if (!value.issues.every((item) => isRecord(item)
+    && ID.test(String(item.stageId))
+    && typeof item.path === 'string'
+    && item.path.length <= 500
+    && typeof item.code === 'string'
+    && item.code.length <= 100
+    && typeof item.message === 'string'
+    && item.message.length <= 1000)) return false
+  const indexes = new Set<number>()
+  const ids = new Set<string>()
+  return value.stages.every((stage) => {
+    if (!isRecord(stage)
+      || !ID.test(String(stage.stageId))
+      || ![1, 2, 3, 4, 5].includes(Number(stage.stageIndex))
+      || (stage.status !== 'ready' && stage.status !== 'blocked')
+      || !isDigestRecord(stage.artifactDigests)
+      || !isDigestRecord(stage.corroboratedArtifacts)
+      || !sameDigestRecord(stage.artifactDigests, stage.corroboratedArtifacts)
+      || !Array.isArray(stage.executorReportedChecks)
+      || stage.executorReportedChecks.length > 40
+      || !stage.executorReportedChecks.every((check) => typeof check === 'string' && check.length <= 500)
+      || !Array.isArray(stage.issueCodes)
+      || stage.issueCodes.length > 30
+      || !stage.issueCodes.every((code) => typeof code === 'string' && code.length <= 100)) return false
+    const stageIndex = Number(stage.stageIndex)
+    const stageId = String(stage.stageId)
+    if (indexes.has(stageIndex) || ids.has(stageId)) return false
+    indexes.add(stageIndex)
+    ids.add(stageId)
+    return true
+  })
 }
 
 function isInvalidations(value: unknown): value is PracticeEvidenceInvalidation[] {
@@ -237,11 +427,14 @@ function isRun(value: unknown): value is PracticeRunRecord {
     value.status === 'active' &&
     ID.test(String(value.practiceId)) &&
     VERSION.test(String(value.practiceVersion)) &&
-    value.workspaceKind === 'pilot-workspace' &&
-    (value.taskPolicy === 'inherit-configuration-only' || value.taskPolicy === 'safe-workspace-write') &&
-    (value.evidenceProfile === 'codex-task-configuration' || value.evidenceProfile === 'planning-package') &&
+    WORKSPACE_KINDS.has(String(value.workspaceKind)) &&
+    TASK_POLICIES.has(String(value.taskPolicy)) &&
+    EVIDENCE_PROFILES.has(String(value.evidenceProfile)) &&
     ((value.evidenceProfile === 'codex-task-configuration' && value.taskPolicy === 'inherit-configuration-only')
-      || (value.evidenceProfile === 'planning-package' && value.taskPolicy === 'safe-workspace-write')) &&
+      || (value.evidenceProfile === 'planning-package' && value.taskPolicy === 'safe-workspace-write')
+      || (PORTFOLIO_PROFILES.has(value.evidenceProfile as PracticeEvidenceProfile)
+        && value.workspaceKind === 'learner-portfolio'
+        && value.taskPolicy === 'safe-workspace-write')) &&
     isBinding(value.binding) &&
     value.binding.runId === value.runId &&
     isIso(value.startedAt) &&
@@ -254,6 +447,21 @@ function isRun(value: unknown): value is PracticeRunRecord {
       && value.evidence.runId === value.runId
       && value.evidence.evidenceProfile === value.evidenceProfile)) &&
     isInvalidations(value.invalidations) &&
+    (PORTFOLIO_PROFILES.has(value.evidenceProfile as PracticeEvidenceProfile)
+      ? isStageReceipts(value.stageReceipts, {
+          practiceId: String(value.practiceId),
+          practiceVersion: String(value.practiceVersion),
+          runId: String(value.runId),
+          workspaceRoot: (value.binding as ExecutorChatBinding).workspaceRoot
+        }) && (value.evidenceProfile !== 'portfolio-build'
+          ? value.buildSliceReceipts === undefined
+          : isBuildSliceReceipts(value.buildSliceReceipts, {
+              practiceId: String(value.practiceId),
+              practiceVersion: String(value.practiceVersion),
+              runId: String(value.runId),
+              workspaceRoot: (value.binding as ExecutorChatBinding).workspaceRoot
+            }))
+      : value.stageReceipts === undefined) &&
     ['not-reviewed', 'reviewing', 'needs-work', 'passed'].includes(String(value.reviewStatus)) &&
     (value.reviewResult === undefined || isReviewResult(value.reviewResult)) &&
     (value.completion === undefined || isCompletion(value.completion)) &&
@@ -412,6 +620,61 @@ function matchesRun(active: PracticeRunRecord | null, identity: RunIdentity): ac
     && active.practiceVersion === identity.practiceVersion)
 }
 
+function portfolioStages(definition: PracticeDefinition): NonNullable<PracticeDefinition['stages']> {
+  if (!PORTFOLIO_PROFILES.has(definition.evidenceProfile)
+    || definition.workspaceKind !== 'learner-portfolio'
+    || definition.taskPolicy !== 'safe-workspace-write'
+    || definition.stages?.length !== 5) {
+    throw new Error('Practice definition does not support staged portfolio receipts')
+  }
+  return definition.stages
+}
+
+function dependentStageIds(
+  definition: PracticeDefinition,
+  changedStageIds: Set<string>
+): Set<string> {
+  const affected = new Set(changedStageIds)
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const stage of portfolioStages(definition)) {
+      if (!affected.has(stage.id) && stage.dependsOn.some((dependency) => affected.has(dependency))) {
+        affected.add(stage.id)
+        changed = true
+      }
+    }
+  }
+  return affected
+}
+
+function stagedChecklist(
+  definition: PracticeDefinition,
+  checklist: PracticeChecklistStep[],
+  receipts: PracticeStageReceipt[]
+): PracticeChecklistStep[] {
+  const byStage = new Map(receipts.map((receipt) => [receipt.stageId, receipt]))
+  let priorCurrent = true
+  return checklist.map((step) => {
+    const stage = portfolioStages(definition).find((candidate) => candidate.id === step.id)
+    if (!stage) return step
+    const receipt = byStage.get(stage.id)
+    const status = receipt?.freshness === 'current'
+      ? 'completed' as const
+      : receipt?.freshness === 'stale'
+        ? 'stale' as const
+        : priorCurrent
+          ? 'current' as const
+          : 'pending' as const
+    priorCurrent = status === 'completed'
+    return {
+      ...step,
+      status,
+      ...(receipt?.staleReason ? { reason: receipt.staleReason } : { reason: undefined })
+    }
+  })
+}
+
 export class PracticeRunRepository {
   private readonly statePath: string
   private readonly temporaryPath: string
@@ -466,6 +729,216 @@ export class PracticeRunRepository {
       return this.saveDirect({
         ...record,
         activeRun: { ...record.activeRun, checklist, updatedAt: input.updatedAt }
+      })
+    })
+  }
+
+  saveStageReceipt(input: RunIdentity & {
+    definition: PracticeDefinition
+    receipt: PracticeStageReceipt
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!matchesRun(active, input)) {
+        throw new Error('Stage receipt does not belong to the active Practice run')
+      }
+      const stages = portfolioStages(input.definition)
+      const receipt = input.receipt
+      const stage = stages.find((candidate) => candidate.id === receipt.stageId)
+      if (!stage || !isPracticeStageReceipt(receipt)
+        || receipt.status !== 'completed'
+        || receipt.freshness !== 'current'
+        || receipt.stageIndex !== stage.order
+        || receipt.practiceId !== active.practiceId
+        || receipt.practiceVersion !== active.practiceVersion
+        || receipt.runId !== active.runId
+        || input.definition.practiceId !== active.practiceId
+        || input.definition.version !== active.practiceVersion
+        || input.definition.evidenceProfile !== active.evidenceProfile
+        || resolve(receipt.workspace.canonicalPath) !== resolve(active.binding.workspaceRoot)
+        || receipt.workspace.identityDigest !== practiceWorkspaceIdentityDigest(active.binding.workspaceRoot)) {
+        throw new Error('Invalid Practice stage receipt identity')
+      }
+      const receipts = active.stageReceipts ?? []
+      const establishedCourseRunId = receipts[0]?.courseRunId
+      const establishedWorkspaceDigest = receipts[0]?.workspace.identityDigest
+      if ((establishedCourseRunId && establishedCourseRunId !== receipt.courseRunId)
+        || (establishedWorkspaceDigest
+          && establishedWorkspaceDigest !== receipt.workspace.identityDigest)) {
+        throw new Error('Stage receipt changed its course run or workspace identity')
+      }
+      const priorStages = stages.filter((candidate) => candidate.order < stage.order)
+      const currentByStage = new Map(receipts.map((candidate) => [candidate.stageId, candidate]))
+      if (!priorStages.every((candidate) => {
+        const prior = currentByStage.get(candidate.id)
+        return prior?.status === 'completed' && prior.freshness === 'current'
+      }) || !stage.dependsOn.every((dependency) => {
+        const prior = currentByStage.get(dependency)
+        return prior?.status === 'completed' && prior.freshness === 'current'
+      })) {
+        throw new Error('Practice stages must be completed in order with current dependencies')
+      }
+      if (!stage.requiredArtifactPaths.every((path) =>
+        receipt.artifactDigests[path]
+        && receipt.evidence.corroboratedArtifacts[path] === receipt.artifactDigests[path])) {
+        throw new Error('Stage receipt is missing corroborated artifact evidence')
+      }
+      if (active.evidenceProfile === 'portfolio-build'
+        && stage.id === 'complete-first-version'
+        && !portfolioBuildSliceIds.every((sliceId) =>
+          active.buildSliceReceipts?.find((item) => item.sliceId === sliceId)?.freshness === 'current')) {
+        throw new Error('Four current build slice receipts are required')
+      }
+
+      const previous = currentByStage.get(stage.id)
+      const changedStage = Boolean(previous
+        && !sameDigestRecord(previous.artifactDigests, receipt.artifactDigests))
+      const affected = changedStage
+        ? dependentStageIds(input.definition, new Set([stage.id]))
+        : new Set<string>()
+      const nextReceipts = receipts
+        .filter((candidate) => candidate.stageId !== stage.id)
+        .map((candidate) => affected.has(candidate.stageId)
+          ? {
+              ...candidate,
+              status: 'stale' as const,
+              freshness: 'stale' as const,
+              staleReason: `Artifact của stage ${stage.id} đã thay đổi.`
+            }
+          : candidate)
+      nextReceipts.push(structuredClone(receipt))
+      nextReceipts.sort((left, right) => left.stageIndex - right.stageIndex)
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          stageReceipts: nextReceipts,
+          checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
+          reviewStatus: 'not-reviewed',
+          reviewResult: undefined,
+          completion: undefined,
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  saveBuildSliceReceipt(input: RunIdentity & {
+    receipt: PracticeBuildSliceReceipt
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      const receipt = input.receipt
+      if (!matchesRun(active, input)
+        || active.evidenceProfile !== 'portfolio-build'
+        || !isBuildSliceReceipts([receipt], {
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion,
+          runId: active.runId,
+          workspaceRoot: active.binding.workspaceRoot
+        })) throw new Error('Invalid portfolio build slice receipt')
+      const scaffold = active.stageReceipts?.find((item) => item.stageId === 'scaffold-baseline')
+      if (scaffold?.freshness !== 'current') throw new Error('The scaffold stage must be current')
+      const current = active.buildSliceReceipts ?? []
+      if (!portfolioBuildSliceIds.slice(0, receipt.sliceIndex - 1).every((sliceId) =>
+        current.find((item) => item.sliceId === sliceId)?.freshness === 'current')) {
+        throw new Error('Build slices must be accepted in order')
+      }
+      const next = current.filter((item) => item.sliceId !== receipt.sliceId)
+      next.push(structuredClone(receipt))
+      next.sort((left, right) => left.sliceIndex - right.sliceIndex)
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          buildSliceReceipts: next,
+          reviewStatus: 'not-reviewed',
+          reviewResult: undefined,
+          completion: undefined,
+          updatedAt: input.updatedAt
+        }
+      })
+    })
+  }
+
+  reconcileStageArtifacts(input: RunIdentity & {
+    definition: PracticeDefinition
+    currentArtifactDigests: Record<string, string>
+    updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    if (!isDigestRecord(input.currentArtifactDigests)) {
+      return Promise.reject(new Error('Invalid current artifact digest set'))
+    }
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!matchesRun(active, input)) {
+        throw new Error('Artifact reconciliation does not belong to the active Practice run')
+      }
+      portfolioStages(input.definition)
+      if (input.definition.practiceId !== active.practiceId
+        || input.definition.version !== active.practiceVersion
+        || input.definition.evidenceProfile !== active.evidenceProfile) {
+        throw new Error('Artifact reconciliation uses the wrong Practice definition')
+      }
+      const receipts = active.stageReceipts ?? []
+      const directlyChanged = new Set(receipts
+        .filter((receipt) => receipt.status === 'completed'
+          && Object.entries(receipt.artifactDigests).some(([path, digest]) =>
+            input.currentArtifactDigests[path] !== digest))
+        .map((receipt) => receipt.stageId))
+      const changedSliceIndex = active.evidenceProfile === 'portfolio-build'
+        ? (active.buildSliceReceipts ?? []).reduce<number | null>((earliest, receipt) => {
+            const changed = Object.entries(receipt.artifactDigests).some(([path, digest]) =>
+              input.currentArtifactDigests[path] !== digest)
+            return changed && (earliest === null || receipt.sliceIndex < earliest)
+              ? receipt.sliceIndex
+              : earliest
+          }, null)
+        : null
+      if (directlyChanged.size === 0 && changedSliceIndex === null) return record
+      const affected = dependentStageIds(input.definition, directlyChanged)
+      const changedPaths = new Set(receipts.flatMap((receipt) =>
+        directlyChanged.has(receipt.stageId)
+          ? Object.entries(receipt.artifactDigests)
+              .filter(([path, digest]) => input.currentArtifactDigests[path] !== digest)
+              .map(([path]) => path)
+          : []))
+      const reason = `Artifact đã thay đổi: ${[...changedPaths].sort().join(', ')}`
+      const nextReceipts = receipts.map((receipt) => affected.has(receipt.stageId)
+        ? {
+            ...receipt,
+            status: 'stale' as const,
+            freshness: 'stale' as const,
+            staleReason: reason
+          }
+        : receipt)
+      const nextSlices = changedSliceIndex === null
+        ? active.buildSliceReceipts
+        : (active.buildSliceReceipts ?? []).map((receipt) => receipt.sliceIndex >= changedSliceIndex
+          ? {
+              ...receipt,
+              status: 'stale' as const,
+              freshness: 'stale' as const,
+              staleReason: 'Bằng chứng của phần xây dựng này hoặc một phần trước đó đã thay đổi.'
+            }
+          : receipt)
+      return this.saveDirect({
+        ...record,
+        activeRun: {
+          ...active,
+          stageReceipts: nextReceipts,
+          ...(nextSlices ? { buildSliceReceipts: nextSlices } : {}),
+          checklist: stagedChecklist(input.definition, active.checklist, nextReceipts),
+          reviewStatus: 'not-reviewed',
+          reviewResult: undefined,
+          completion: undefined,
+          updatedAt: input.updatedAt
+        }
       })
     })
   }

@@ -17,7 +17,7 @@
     },
     {
       "id": "complete-interview",
-      "title": "Hoàn thành cuộc phỏng vấn từng câu với Executor",
+      "title": "Hoàn thành cuộc phỏng vấn từng câu với Codex",
       "dependsOn": ["write-prd-prompt"]
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "id": "draft-plan",
-      "title": "Yêu cầu Executor tạo plan từ PRD đã duyệt",
+      "title": "Yêu cầu Codex tạo plan từ PRD đã duyệt",
       "dependsOn": ["approve-prd"]
     },
     {

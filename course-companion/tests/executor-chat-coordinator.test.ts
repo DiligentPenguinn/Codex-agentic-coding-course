@@ -210,4 +210,84 @@ describe('ExecutorChatCoordinator', () => {
     )
     expect(calls).toEqual(['thread/read'])
   })
+
+  it('bootstraps one reusable staged portfolio task without planning-package assumptions', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/read') {
+          return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        }
+        return {}
+      },
+      async close() {}
+    }
+    const staged: PracticeDefinition = {
+      ...definition('safe-workspace-write'),
+      practiceId: 'm3-portfolio-build',
+      version: '1.0.0',
+      workspaceKind: 'learner-portfolio',
+      evidenceProfile: 'portfolio-build',
+      stages: Array.from({ length: 5 }, (_, index) => ({
+        id: `stage-${index + 1}`,
+        order: (index + 1) as 1 | 2 | 3 | 4 | 5,
+        dependsOn: index === 0 ? [] : [`stage-${index}`],
+        requiredArtifactPaths: [`evidence/module-3/stage-${index + 1}.md`]
+      }))
+    }
+
+    await coordinator(client).prepareTarget(binding(), staged)
+
+    const turn = calls.find(([method]) => method === 'turn/start')?.[1]
+    expect(JSON.stringify(turn)).toContain('cả năm stage')
+    expect(JSON.stringify(turn)).toContain('không tạo task mới')
+    expect(JSON.stringify(turn)).not.toContain('artifacts/PRD.md')
+    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+  })
+
+  it('limits the portfolio-planning bootstrap to approved artifacts and reference screenshots', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/read') {
+          return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        }
+        return {}
+      },
+      async close() {}
+    }
+    const paths = [
+      'planning/portfolio-brief.md',
+      'planning/content-evidence-inventory.md',
+      'planning/reference/reference.md',
+      'planning/PRD.md',
+      'planning/requirement-validation-map.md',
+      'planning/implementation-plan.md',
+      'planning/first-task-brief.md'
+    ]
+    const staged: PracticeDefinition = {
+      ...definition('safe-workspace-write'),
+      practiceId: 'm2-portfolio-planning',
+      version: '1.0.0',
+      workspaceKind: 'learner-portfolio',
+      evidenceProfile: 'portfolio-planning',
+      stages: Array.from({ length: 5 }, (_, index) => ({
+        id: `stage-${index + 1}`,
+        order: (index + 1) as 1 | 2 | 3 | 4 | 5,
+        dependsOn: index === 0 ? [] : [`stage-${index}`],
+        requiredArtifactPaths: index < 3 ? [paths[index]!] : index === 3 ? [paths[3]!] : paths.slice(4)
+      }))
+    }
+
+    await coordinator(client).prepareTarget(binding(), staged)
+
+    const instruction = JSON.stringify(calls.find(([method]) => method === 'turn/start')?.[1])
+    for (const path of paths) expect(instruction).toContain(path)
+    expect(instruction).toContain('planning/reference/screenshots/')
+    expect(instruction).toContain('Không tạo application code')
+    expect(instruction).toContain('không tạo task mới')
+    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+  })
 })

@@ -21,6 +21,12 @@ type MutableDefinition = {
   workspaceKind: string
   taskPolicy: string
   evidenceProfile: string
+  stages?: Array<{
+    id: string
+    order: number
+    dependsOn: string[]
+    requiredArtifactPaths: string[]
+  }>
   checklist: Array<{ id: string; title: string; dependsOn?: string[] }>
   criteria: Array<{
     id: string
@@ -77,6 +83,29 @@ function cloneDefinition(): MutableDefinition {
   return structuredClone(validDefinition)
 }
 
+function portfolioDefinition(): MutableDefinition {
+  const definition = cloneDefinition()
+  definition.practiceId = 'm2-portfolio-planning'
+  definition.version = '1.0.0'
+  definition.checkpointId = 'm2-portfolio-brief'
+  definition.workspaceKind = 'learner-portfolio'
+  definition.taskPolicy = 'safe-workspace-write'
+  definition.evidenceProfile = 'portfolio-planning'
+  definition.completionDestination = {
+    lessonId: 'module-2',
+    checkpointId: 'm2-portfolio-brief',
+    sceneId: 'module-2-portfolio-workspace',
+    label: 'Tiếp tục Module 2'
+  }
+  definition.stages = Array.from({ length: 5 }, (_, index) => ({
+    id: `stage-${index + 1}`,
+    order: index + 1,
+    dependsOn: index === 0 ? [] : [`stage-${index}`],
+    requiredArtifactPaths: [`planning/stage-${index + 1}.md`]
+  }))
+  return definition
+}
+
 afterEach(async () => {
   await Promise.all(
     temporaryDirectories.splice(0).map((directory) => rm(directory, { recursive: true, force: true }))
@@ -102,6 +131,35 @@ describe('PracticeDefinitionRepository', () => {
     expect(definition.checklist[0]!.dependsOn).toEqual([])
     expect(definition.checklist[1]!.dependsOn).toEqual(['open-task'])
     expect(definition.evidenceProfile).toBe('codex-task-configuration')
+  })
+
+  it('loads the portfolio Practice from the Pilot authority when the packaged copy is absent', async () => {
+    const primary = await mkdtemp(join(tmpdir(), 'practice-definitions-primary-'))
+    temporaryDirectories.push(primary)
+    const fallback = join(
+      process.cwd(),
+      '..',
+      'pilot-workspace',
+      'course',
+      'practices'
+    )
+
+    const definition = await new PracticeDefinitionRepository(primary, fallback)
+      .load('m2-portfolio-planning', '1.0.0')
+
+    expect(definition).toMatchObject({
+      practiceId: 'm2-portfolio-planning',
+      checkpointId: 'm2-portfolio-planning',
+      workspaceKind: 'learner-portfolio',
+      taskPolicy: 'safe-workspace-write',
+      evidenceProfile: 'portfolio-planning',
+      completionDestination: {
+        checkpointId: 'm2-portfolio-mastery',
+        sceneId: 'module-2-portfolio-mastery'
+      }
+    })
+    expect(definition.stages).toHaveLength(5)
+    expect(definition.stages?.flatMap((stage) => stage.requiredArtifactPaths)).toHaveLength(7)
   })
 
   it('requires bounded learner-facing labels and rejects unknown destination fields', () => {
@@ -203,6 +261,45 @@ describe('PracticeDefinitionRepository', () => {
     const mismatched = cloneDefinition()
     mismatched.taskPolicy = 'safe-workspace-write'
     expect(() => parsePracticeDefinition(mismatched)).toThrow('policy and evidence profile combination')
+  })
+
+  it('accepts all three staged portfolio profiles only with the learner workspace and five ordered stages', () => {
+    for (const profile of ['portfolio-planning', 'portfolio-build', 'portfolio-release']) {
+      const definition = portfolioDefinition()
+      definition.evidenceProfile = profile
+      expect(parsePracticeDefinition(definition)).toMatchObject({
+        workspaceKind: 'learner-portfolio',
+        taskPolicy: 'safe-workspace-write',
+        evidenceProfile: profile,
+        stages: expect.arrayContaining([expect.objectContaining({ order: 5 })])
+      })
+    }
+  })
+
+  it('rejects portfolio profile, workspace, stage-count, order, dependency, and path mismatches', () => {
+    const missingStages = portfolioDefinition()
+    delete missingStages.stages
+    expect(() => parsePracticeDefinition(missingStages)).toThrow('exactly five stages')
+
+    const legacyWorkspace = portfolioDefinition()
+    legacyWorkspace.workspaceKind = 'pilot-workspace'
+    expect(() => parsePracticeDefinition(legacyWorkspace)).toThrow('workspace and evidence profile')
+
+    const legacyWithStages = cloneDefinition()
+    legacyWithStages.stages = portfolioDefinition().stages
+    expect(() => parsePracticeDefinition(legacyWithStages)).toThrow('cannot declare stages')
+
+    const wrongOrder = portfolioDefinition()
+    wrongOrder.stages![2]!.order = 4
+    expect(() => parsePracticeDefinition(wrongOrder)).toThrow('stage order')
+
+    const forwardDependency = portfolioDefinition()
+    forwardDependency.stages![1]!.dependsOn = ['stage-3']
+    expect(() => parsePracticeDefinition(forwardDependency)).toThrow('earlier stage')
+
+    const escapingArtifact = portfolioDefinition()
+    escapingArtifact.stages![0]!.requiredArtifactPaths = ['../outside.md']
+    expect(() => parsePracticeDefinition(escapingArtifact)).toThrow('artifact paths')
   })
 
   it('parses schema 1 only through the explicit legacy migration entrypoint', () => {

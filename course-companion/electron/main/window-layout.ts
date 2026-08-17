@@ -2,7 +2,7 @@ import type { Rectangle } from 'electron'
 import type { CompanionMode } from '../../shared/contracts'
 
 const WINDOW_SIZE: Record<CompanionMode, { width: number; height: number }> = {
-  compact: { width: 72, height: 72 },
+  compact: { width: 168, height: 188 },
   expanded: { width: 380, height: 520 }
 }
 

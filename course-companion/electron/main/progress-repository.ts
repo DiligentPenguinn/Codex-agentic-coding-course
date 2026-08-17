@@ -6,13 +6,15 @@ import {
   rm,
   writeFile
 } from 'node:fs/promises'
-import { join } from 'node:path'
+import { isAbsolute, join } from 'node:path'
 import {
   checkpointIds,
   courseLessonIdForScene,
   courseLessonIds,
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
+  lessonIds,
+  portfolioPlanningArtifactPaths,
   sceneCheckpoint,
   sceneIds,
   type CourseLessonId,
@@ -32,7 +34,89 @@ const checkpointSet = new Set<string>(checkpointIds)
 const sceneSet = new Set<string>(sceneIds)
 const SAFE_ID = /^[A-Za-z0-9_-]{1,160}$/
 const courseLessonSet = new Set<string>(courseLessonIds)
-const LEGACY_COURSE_VERSION = '0.1.0'
+const lessonSet = new Set<string>(lessonIds)
+const RETIRED_MODULE_ONE_SCENES = new Set([
+  'module-1-permissions',
+  'module-1-approval-choice',
+  'module-1-agents-guidance',
+  'module-1-harness-intro',
+  'module-1-harness-codex',
+  'module-1-skills'
+])
+const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
+  'module-1-final-5'
+])
+const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
+  'm1-permissions',
+  'm1-agents-guidance',
+  'm1-skills'
+])
+const RETIRED_MODULE_ONE_LESSONS = new Set([
+  'm1-workspace-permissions',
+  'm1-agents-guidance'
+])
+const DIGEST = /^[a-f0-9]{64}$/
+const moduleTwoMasteryQuestionIds = [
+  'mastery-1',
+  'mastery-2',
+  'mastery-3',
+  'mastery-4',
+  'mastery-5',
+  'mastery-6',
+  'mastery-audience-choice',
+  'mastery-scope-boundary',
+  'mastery-evidence-gap',
+  'mastery-requirement-validation'
+] as const
+
+function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean {
+  return (
+    (typeof value.sceneId === 'string' && (
+      RETIRED_MODULE_ONE_SCENES.has(value.sceneId)
+      || RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(value.sceneId)
+    )) ||
+    (typeof value.checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(value.checkpointId)) ||
+    (typeof value.currentCourseLessonId === 'string' && RETIRED_MODULE_ONE_LESSONS.has(value.currentCourseLessonId)) ||
+    (Array.isArray(value.sceneHistory) && value.sceneHistory.some(
+      (sceneId) => typeof sceneId === 'string' && (
+        RETIRED_MODULE_ONE_SCENES.has(sceneId)
+        || RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(sceneId)
+      )
+    )) ||
+    (Array.isArray(value.completedCheckpointIds) && value.completedCheckpointIds.some(
+      (checkpointId) => typeof checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
+    ))
+  )
+}
+
+function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Record<string, unknown> {
+  if (!hasRetiredModuleOneReferences(raw)) return raw
+  return {
+    ...raw,
+    sceneId: typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(raw.sceneId)
+      ? 'module-1-final-summary'
+      : typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
+        ? 'module-1-model-choice'
+        : raw.sceneId,
+    checkpointId: typeof raw.checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(raw.checkpointId)
+      ? 'm1-model-choice'
+      : raw.checkpointId,
+    currentCourseLessonId: typeof raw.currentCourseLessonId === 'string' && RETIRED_MODULE_ONE_LESSONS.has(raw.currentCourseLessonId)
+      ? 'm1-skills-and-checklist'
+      : raw.currentCourseLessonId,
+    sceneHistory: Array.isArray(raw.sceneHistory)
+      ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || (
+          !RETIRED_MODULE_ONE_SCENES.has(sceneId)
+          && !RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(sceneId)
+        ))
+      : raw.sceneHistory,
+    completedCheckpointIds: Array.isArray(raw.completedCheckpointIds)
+      ? raw.completedCheckpointIds.filter(
+          (checkpointId) => typeof checkpointId !== 'string' || !RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
+        )
+      : raw.completedCheckpointIds
+  }
+}
 
 export function defaultPracticeState(): PracticeState {
   return {
@@ -49,8 +133,83 @@ function isIsoDate(value: unknown): value is string {
   return typeof value === 'string' && !Number.isNaN(Date.parse(value))
 }
 
+function hasExactKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort()
+  const expected = [...keys].sort()
+  return actual.length === expected.length
+    && actual.every((key, index) => key === expected[index])
+}
+
+function isDigestRecord(value: unknown): value is Record<string, string> {
+  return isRecord(value)
+    && Object.keys(value).length <= 20
+    && Object.values(value).every((digest) => typeof digest === 'string' && DIGEST.test(digest))
+}
+
+function isPortfolioPlanningHandoff(value: unknown): boolean {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'schemaVersion',
+    'workspace',
+    'artifacts',
+    'stageReceipts',
+    'mastery',
+    'summary',
+    'moduleThreeInput'
+  ]) || value.schemaVersion !== 1) return false
+  const workspace = isRecord(value.workspace) ? value.workspace : null
+  const mastery = isRecord(value.mastery) ? value.mastery : null
+  const summary = isRecord(value.summary) ? value.summary : null
+  const input = isRecord(value.moduleThreeInput) ? value.moduleThreeInput : null
+  if (!workspace || !hasExactKeys(workspace, ['canonicalPath', 'identityDigest'])
+    || typeof workspace.canonicalPath !== 'string'
+    || !isAbsolute(workspace.canonicalPath)
+    || !DIGEST.test(String(workspace.identityDigest))) return false
+  if (!Array.isArray(value.artifacts)
+    || value.artifacts.length !== portfolioPlanningArtifactPaths.length) return false
+  const artifactMap = new Map<string, string>()
+  for (const artifact of value.artifacts) {
+    if (!isRecord(artifact) || !hasExactKeys(artifact, ['path', 'digest'])
+      || !portfolioPlanningArtifactPaths.includes(artifact.path as never)
+      || !DIGEST.test(String(artifact.digest))
+      || artifactMap.has(String(artifact.path))) return false
+    artifactMap.set(String(artifact.path), String(artifact.digest))
+  }
+  if (!portfolioPlanningArtifactPaths.every((path) => artifactMap.has(path))) return false
+  if (!Array.isArray(value.stageReceipts) || value.stageReceipts.length !== 5) return false
+  const stageIndexes = new Set<number>()
+  const stageIds = new Set<string>()
+  for (const receipt of value.stageReceipts) {
+    if (!isRecord(receipt) || !hasExactKeys(receipt, [
+      'stageId', 'stageIndex', 'observedAt', 'artifactDigests'
+    ]) || !SAFE_ID.test(String(receipt.stageId))
+      || ![1, 2, 3, 4, 5].includes(Number(receipt.stageIndex))
+      || !isIsoDate(receipt.observedAt)
+      || !isDigestRecord(receipt.artifactDigests)
+      || stageIds.has(String(receipt.stageId))
+      || stageIndexes.has(Number(receipt.stageIndex))) return false
+    stageIds.add(String(receipt.stageId))
+    stageIndexes.add(Number(receipt.stageIndex))
+  }
+  if (!mastery || !hasExactKeys(mastery, ['questionIds', 'answerDigest'])
+    || !Array.isArray(mastery.questionIds)) return false
+  const masteryQuestionValues = mastery.questionIds
+  if (masteryQuestionValues.length !== moduleTwoMasteryQuestionIds.length
+    || !masteryQuestionValues.every((id) => typeof id === 'string')
+    || !moduleTwoMasteryQuestionIds.every((id) => masteryQuestionValues.includes(id))
+    || !DIGEST.test(String(mastery.answerDigest))) return false
+  if (!summary || !hasExactKeys(summary, [
+    'learnerDecision', 'evidenceBoundary', 'firstBuild', 'deliberatelyOutOfScope'
+  ]) || !Object.values(summary).every((item) =>
+    typeof item === 'string' && item.trim().length > 0 && item.length <= 700)) return false
+  if (!input || !hasExactKeys(input, ['workspacePath', 'artifactReferences'])
+    || input.workspacePath !== workspace.canonicalPath
+    || !Array.isArray(input.artifactReferences)
+    || JSON.stringify(input.artifactReferences) !== JSON.stringify(value.artifacts)) return false
+  return true
+}
+
 function isLessonId(value: unknown): value is LessonId {
-  return value === 'intro' || value === 'module-1' || value === 'module-2'
+  return typeof value === 'string' && lessonSet.has(value)
 }
 
 function isCheckpointId(value: unknown): value is CheckpointId {
@@ -84,10 +243,12 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
     && isSceneId(destination.sceneId)
     && sceneCheckpoint[destination.sceneId] === destination.checkpointId
     && ((destination.lessonId === 'intro' && destination.sceneId.startsWith('intro-'))
-      || (destination.lessonId === 'module-1' && destination.sceneId.startsWith('module-1-'))
-      || (destination.lessonId === 'module-2' && destination.sceneId.startsWith('module-2-')))
+      || (destination.lessonId !== 'intro'
+        && destination.sceneId.startsWith(`${destination.lessonId}-`)))
     && (value.approvedConfiguration === undefined ||
       isApprovedCodexConfiguration(value.approvedConfiguration))
+    && (value.portfolioPlanningHandoff === undefined
+      || isPortfolioPlanningHandoff(value.portfolioPlanningHandoff))
 }
 
 function completionKey(receipt: PracticeCompletionReceipt): string {
@@ -120,6 +281,39 @@ function assertModuleTwoCompletionGate(update: ProgressUpdate, current: LearnerP
   if (moduleTwoMasteryScore(update.decisions) < 12
     || !update.completedCheckpointIds.includes('m2-mastery')) {
     throw new Error('Module 2 requires a 12/15 mastery score before completion')
+  }
+}
+
+function hasPortfolioModuleCompletion(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm2-portfolio-planning'
+    && receipt.checkpointId === 'm2-portfolio-complete'
+    && receipt.destination.lessonId === 'module-3'
+    && receipt.destination.sceneId === 'module-3-readiness'
+    && receipt.portfolioPlanningHandoff !== undefined)
+}
+
+function assertModuleThreeUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.currentLessonId !== 'module-3') return
+  if (!current || !hasPortfolioModuleCompletion(current)) {
+    throw new Error('Module 3 requires an atomic Module 2 completion receipt')
+  }
+}
+
+function hasPortfolioBuildCompletion(progress: LearnerProgress): boolean {
+  return progress.practiceCompletions.some((receipt) =>
+    receipt.courseRunId === progress.courseRunId
+    && receipt.practiceId === 'm3-portfolio-build'
+    && receipt.checkpointId === 'm3-complete'
+    && receipt.destination.sceneId === 'module-3-complete'
+    && receipt.portfolioBuildHandoff !== undefined)
+}
+
+function assertModuleFourUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.currentLessonId !== 'module-4') return
+  if (!current || !hasPortfolioBuildCompletion(current)) {
+    throw new Error('Module 4 requires an atomic Module 3 completion receipt')
   }
 }
 
@@ -180,8 +374,8 @@ export function isProgressUpdate(value: unknown): value is ProgressUpdate {
   if (!isCourseLessonId(value.currentCourseLessonId)) return false
   if (courseLessonIdForScene(value.sceneId) !== value.currentCourseLessonId) return false
   if (value.currentLessonId === 'intro' && !value.sceneId.startsWith('intro-')) return false
-  if (value.currentLessonId === 'module-1' && !value.sceneId.startsWith('module-1-')) return false
-  if (value.currentLessonId === 'module-2' && !value.sceneId.startsWith('module-2-')) return false
+  if (value.currentLessonId !== 'intro'
+    && !value.sceneId.startsWith(`${value.currentLessonId}-`)) return false
   if (!Array.isArray(value.sceneHistory) || value.sceneHistory.length > 200) return false
   if (!value.sceneHistory.every(isSceneId)) return false
   if (!Array.isArray(value.completedCheckpointIds)) return false
@@ -203,89 +397,6 @@ export function isLearnerProgress(value: unknown): value is LearnerProgress {
   const practice = value.practice
   if (!isProgressUpdate(value)) return false
   return isPracticeState(practice)
-}
-
-function translateLegacySceneId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('module-1-')
-    ? value.replace(/^module-1-/, 'module-2-')
-    : value
-}
-
-function translateLegacyCheckpointId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('m1-')
-    ? value.replace(/^m1-/, 'm2-')
-    : value
-}
-
-function translateLegacyCourseLessonId(value: unknown): unknown {
-  return typeof value === 'string' && value.startsWith('m1-')
-    ? value.replace(/^m1-/, 'm2-')
-    : value
-}
-
-function translateLegacyPractice(value: unknown): PracticeState | null {
-  if (!isRecord(value)) return null
-  const translated = {
-    ...value,
-    missionId: value.missionId === 'm1-planning-package' ? 'm2-planning-package' : value.missionId,
-    ...(isRecord(value.latestEvent)
-      ? {
-          latestEvent: {
-            ...value.latestEvent,
-            missionId: value.latestEvent.missionId === 'm1-planning-package'
-              ? 'm2-planning-package'
-              : value.latestEvent.missionId
-          }
-        }
-      : {})
-  }
-  return isPracticeState(translated) ? translated : null
-}
-
-function migrateLegacyPlanningProgress(raw: Record<string, unknown>): LearnerProgress | null {
-  const startedAt = raw.startedAt
-  const updatedAt = raw.updatedAt
-  const translatedSceneId = translateLegacySceneId(raw.sceneId)
-  const translatedCheckpointId = translateLegacyCheckpointId(raw.checkpointId)
-  const translatedCourseLessonId = translateLegacyCourseLessonId(raw.currentCourseLessonId)
-  const translatedLessonId = raw.currentLessonId === 'module-1' ? 'module-2' : raw.currentLessonId
-  const translatedHistory = Array.isArray(raw.sceneHistory)
-    ? raw.sceneHistory.map(translateLegacySceneId)
-    : []
-  const translatedCompleted = Array.isArray(raw.completedCheckpointIds)
-    ? raw.completedCheckpointIds.map(translateLegacyCheckpointId)
-    : []
-  const translatedPractice = translateLegacyPractice(raw.practice)
-  if (!isIsoDate(startedAt) || !isIsoDate(updatedAt) || !translatedPractice || !decisionsAreValid(raw.decisions)) {
-    return null
-  }
-
-  const update = {
-    currentLessonId: translatedLessonId,
-    currentCourseLessonId: translatedCourseLessonId,
-    checkpointId: translatedCheckpointId,
-    sceneId: translatedSceneId,
-    sceneHistory: translatedHistory,
-    completedCheckpointIds: translatedCompleted,
-    decisions: {
-      ...raw.decisions,
-      ...(translatedLessonId === 'module-2'
-        ? { setupModuleMigration: 'continued-existing-planning-progress' }
-        : {})
-    }
-  }
-  if (!isProgressUpdate(update)) return null
-
-  return {
-    ...update,
-    schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
-    courseVersion: COURSE_VERSION,
-    practice: translatedPractice,
-    courseRunId: courseRunId(startedAt),
-    practiceCompletions: [],
-    startedAt,
-    updatedAt
-  }
 }
 
 function normalizeCurrentModuleTwoOrder(raw: Record<string, unknown>): Record<string, unknown> {
@@ -339,69 +450,30 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
   if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
-    const normalized = normalizeCurrentModuleTwoOrder(raw)
-    return isLearnerProgress(normalized) ? normalized : null
-  }
-
-  if ((schemaVersion === 3 || schemaVersion === 4) && courseVersion === LEGACY_COURSE_VERSION) {
-    const translatedSceneId = translateLegacySceneId(raw.sceneId)
-    if (!isSceneId(translatedSceneId)) return null
-    const legacyRaw = schemaVersion === 3
-      ? { ...raw, currentCourseLessonId: courseLessonIdForScene(translatedSceneId) }
-      : raw
-    return migrateLegacyPlanningProgress(legacyRaw)
-  }
-
-  if (
-    (schemaVersion === 1 || schemaVersion === 2) &&
-    courseVersion === LEGACY_COURSE_VERSION &&
-    decisionsAreValid(raw.decisions)
-  ) {
-    const oldSceneId = typeof raw.sceneId === 'string' ? raw.sceneId : ''
-    const resumeOnboarding = [
-      'intro-visual-onboarding',
-      'intro-course-overview-2',
-      'intro-learning-method'
-    ].includes(oldSceneId)
-    const update: ProgressUpdate = resumeOnboarding
-      ? {
-          currentLessonId: 'intro',
-          currentCourseLessonId: 'intro-overview',
-          checkpointId: 'intro-visual-onboarding',
-          sceneId: oldSceneId as ProgressUpdate['sceneId'],
-          sceneHistory: [],
-          completedCheckpointIds: [],
-          decisions: raw.decisions
-        }
-      : {
-          currentLessonId: 'module-2',
-          currentCourseLessonId: 'm2-when-to-plan',
-          checkpointId: 'm2-why-planning',
-          sceneId: 'module-2-why-planning',
-          sceneHistory: [],
-          completedCheckpointIds: ['intro-visual-onboarding'],
-          decisions: {
-            ...raw.decisions,
-            setupModuleMigration: 'continued-existing-planning-progress'
-          }
-        }
-    return {
-      ...update,
-      schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
-      courseVersion: COURSE_VERSION,
-      practice: defaultPracticeState(),
-      courseRunId: courseRunId(startedAt),
-      startedAt,
-      practiceCompletions: [],
-      updatedAt
+    const redirected = redirectRetiredModuleOneReferences(raw)
+    const compatible = {
+      ...redirected,
+      ...(redirected.courseRunId === undefined ? { courseRunId: courseRunId(startedAt) } : {}),
+      ...(redirected.practiceCompletions === undefined ? { practiceCompletions: [] } : {})
     }
+    const normalized = normalizeCurrentModuleTwoOrder(compatible)
+    return isLearnerProgress(normalized) ? normalized : null
   }
 
   return null
 }
 
+function isObsoleteCourseProgress(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.courseVersion === 'string'
+    && typeof value.schemaVersion === 'number'
+    && (value.courseVersion !== COURSE_VERSION
+      || value.schemaVersion !== LEARNER_STATE_SCHEMA_VERSION)
+}
+
 type ReadResult =
   | { status: 'missing' }
+  | { status: 'obsolete' }
   | { status: 'invalid' }
   | { status: 'valid'; progress: LearnerProgress; migrated: boolean }
 
@@ -446,7 +518,8 @@ export class ProgressRepository {
       return { status: 'recovered', progress: backup.progress }
     }
 
-    if (primary.status === 'missing' && backup.status === 'missing') {
+    if ((primary.status === 'missing' || primary.status === 'obsolete')
+      && (backup.status === 'missing' || backup.status === 'obsolete')) {
       return { status: 'new' }
     }
 
@@ -466,6 +539,8 @@ export class ProgressRepository {
   private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
     assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
+    assertModuleThreeUnlockGate(update, current.status === 'valid' ? current.progress : null)
+    assertModuleFourUnlockGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
@@ -493,6 +568,105 @@ export class ProgressRepository {
 
     await this.appendActivity('progress_saved', progress)
     return progress
+  }
+
+  completePortfolioPlanning(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)
+      || receipt.practiceId !== 'm2-portfolio-planning'
+      || receipt.checkpointId !== 'm2-portfolio-complete'
+      || receipt.destination.lessonId !== 'module-3'
+      || receipt.destination.checkpointId !== 'm3-scaffold-baseline'
+      || receipt.destination.sceneId !== 'module-3-readiness'
+      || !receipt.portfolioPlanningHandoff) {
+      return Promise.reject(new Error('Invalid Module 2 completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is unavailable')
+      const progress = current.progress
+      if (progress.sceneId !== 'module-2-portfolio-mastery-summary'
+        || receipt.courseRunId !== progress.courseRunId) {
+        throw new Error('Module 2 completion does not match the current learner checkpoint')
+      }
+      const allMasteryCurrent = moduleTwoMasteryQuestionIds.every((questionId) =>
+        progress.decisions[`assessment:${questionId}`]?.startsWith('correct'))
+      if (!allMasteryCurrent) throw new Error('Module 2 mastery evidence is incomplete')
+
+      const completedCheckpointIds = [...new Set([
+        ...progress.completedCheckpointIds,
+        'm2-portfolio-planning' as CheckpointId,
+        'm2-portfolio-mastery' as CheckpointId,
+        'm2-portfolio-complete' as CheckpointId
+      ])]
+      const completions = progress.practiceCompletions.filter((candidate) =>
+        !(candidate.courseRunId === receipt.courseRunId
+          && candidate.practiceId === receipt.practiceId
+          && candidate.runId === receipt.runId))
+      const updated: LearnerProgress = {
+        ...progress,
+        currentLessonId: 'module-3',
+        currentCourseLessonId: 'm3-scaffold-baseline',
+        checkpointId: 'm3-scaffold-baseline',
+        sceneId: 'module-3-readiness',
+        sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
+        completedCheckpointIds,
+        practiceCompletions: [...completions, structuredClone(receipt)],
+        updatedAt: this.now().toISOString()
+      }
+      if (!isLearnerProgress(updated)) throw new Error('Invalid completed Module 2 progress')
+      await this.writeAtomic(this.backupPath, this.backupTempPath, progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, updated)
+      await this.appendActivity('module_2_completed', updated)
+      return updated
+    })
+  }
+
+  completePortfolioBuild(receipt: PracticeCompletionReceipt): Promise<LearnerProgress> {
+    if (!isPracticeCompletionReceipt(receipt)
+      || receipt.practiceId !== 'm3-portfolio-build'
+      || receipt.checkpointId !== 'm3-complete'
+      || receipt.destination.lessonId !== 'module-3'
+      || receipt.destination.checkpointId !== 'm3-complete'
+      || receipt.destination.sceneId !== 'module-3-complete'
+      || !receipt.portfolioBuildHandoff) {
+      return Promise.reject(new Error('Invalid Module 3 completion receipt'))
+    }
+    return this.runExclusive(async () => {
+      const current = await this.readProgress(this.statePath)
+      if (current.status !== 'valid') throw new Error('Learner progress is unavailable')
+      const progress = current.progress
+      if (progress.sceneId !== 'module-3-mastery-summary' || receipt.courseRunId !== progress.courseRunId) {
+        throw new Error('Module 3 completion does not match the current learner checkpoint')
+      }
+      const masteryIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+      if (!masteryIds.every((id) => progress.decisions[`assessment:${id}`]?.startsWith('correct'))) {
+        throw new Error('Module 3 mastery evidence is incomplete')
+      }
+      const completedCheckpointIds = [...new Set([
+        ...progress.completedCheckpointIds,
+        'm3-portfolio-build' as CheckpointId,
+        'm3-mastery' as CheckpointId,
+        'm3-complete' as CheckpointId
+      ])]
+      const completions = progress.practiceCompletions.filter((item) =>
+        !(item.courseRunId === receipt.courseRunId && item.practiceId === receipt.practiceId && item.runId === receipt.runId))
+      const updated: LearnerProgress = {
+        ...progress,
+        currentLessonId: 'module-3',
+        currentCourseLessonId: 'm3-independent-enhancement',
+        checkpointId: 'm3-complete',
+        sceneId: 'module-3-complete',
+        sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
+        completedCheckpointIds,
+        practiceCompletions: [...completions, structuredClone(receipt)],
+        updatedAt: this.now().toISOString()
+      }
+      if (!isLearnerProgress(updated)) throw new Error('Invalid completed Module 3 progress')
+      await this.writeAtomic(this.backupPath, this.backupTempPath, progress)
+      await this.writeAtomic(this.statePath, this.stateTempPath, updated)
+      await this.appendActivity('module_3_completed', updated)
+      return updated
+    })
   }
 
   async loadPracticeState(): Promise<PracticeState> {
@@ -664,7 +838,9 @@ export class ProgressRepository {
             progress,
             migrated: isRecord(parsed) && JSON.stringify(parsed) !== JSON.stringify(progress)
           }
-        : { status: 'invalid' }
+        : isObsoleteCourseProgress(parsed)
+          ? { status: 'obsolete' }
+          : { status: 'invalid' }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') return { status: 'missing' }
       return { status: 'invalid' }

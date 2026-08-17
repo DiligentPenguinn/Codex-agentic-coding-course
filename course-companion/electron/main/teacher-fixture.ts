@@ -101,16 +101,10 @@ function replyFor(context?: TeacherContext): string {
     return 'Codex là coding agent của OpenAI. Nó có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả trong phạm vi bạn cho phép.'
   }
   if (context.checkpointId === 'm1-model-choice') {
-    return 'Cấu hình khóa học đề xuất cho ContentPilot là 5.6 Sol, High và Standard. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
-  }
-  if (context.checkpointId === 'm1-permissions') {
-    return 'Người mới nên dùng Approve for me và không bật Full access. Trong Practice, Course Companion đọc trực tiếp metadata hiệu lực của task; bạn không cần chụp ảnh.'
-  }
-  if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
-    return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
+    return 'Mình đề xuất 5.6 Sol, High và Standard cho ContentPilot. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
   if (context.checkpointId === 'm1-setup-checklist') {
-    return 'Hãy sửa từng giá trị trong đúng task Executor. Triết sẽ đối chiếu trực tiếp Model, Effort, Speed, Approval và Full access; nội dung chat không thể tự đánh dấu đạt.'
+    return 'Hãy sửa từng giá trị trong đúng task Codex. Triết sẽ đối chiếu trực tiếp Model, Effort, Speed, Approval và Full access; nội dung chat không thể tự đánh dấu đạt.'
   }
 
   if (context.checkpointId === 'm2-prd-interview') {

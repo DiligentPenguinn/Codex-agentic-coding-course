@@ -17,12 +17,6 @@ nhau.
 
 ## Ảnh chính thức của OpenAI
 
-- `m1-workspace-permissions.webp`: ảnh tham khảo cũ của phần Permission modes
-  tại <https://learn.chatgpt.com/docs/permission-modes>. Course Companion hiện
-  dùng ảnh menu do tác giả khóa học cung cấp.
-- `m1-agents-guidance.webp`: ảnh chụp phần hướng dẫn dự án tại
-  <https://learn.chatgpt.com/docs/agent-configuration/agents-md>. Bài Harness
-  dùng ảnh này để minh họa một lớp chỉ dẫn trong môi trường Codex.
 - `m1-skills-and-checklist.webp`: ảnh tham khảo cũ của phần Skills & Plugins tại
   <https://learn.chatgpt.com/docs/skills-and-plugins>. Tệp được giữ để không làm
   hỏng bản build cũ nhưng không còn là ảnh chính của Module 1.

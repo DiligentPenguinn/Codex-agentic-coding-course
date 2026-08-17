@@ -5,8 +5,8 @@
 Trong khoảng 25 phút, bạn sẽ:
 
 - xem phần giới thiệu trực quan,
-- hiểu cách khóa học giúp bạn làm việc cùng coding agent và vai trò của dự án
-  thực hành ContentPilot,
+- hiểu cách mình sẽ hướng dẫn bạn làm việc cùng coding agent và vai trò của dự
+  án thực hành ContentPilot,
 - nhận ra phần việc bạn quyết định và phần việc coding agent có thể thực thi,
 - hoàn thành một bài thực hành chỉ đọc mà không thay đổi workspace, và
 - tạo một phiếu định hướng để gắn khóa học với công việc thật:
@@ -45,7 +45,7 @@ máy. Trang dùng ảnh giao diện Codex để giới thiệu:
 - nơi giao yêu cầu, theo dõi tiến độ, review thay đổi và xem terminal, và
 - luật đầu tiên: đọc trước khi sửa.
 
-Trang này không đóng vai Teacher hoặc Executor và không thể đọc, sửa hay chạy
+Trang này không đóng vai Triết hoặc Codex và không thể đọc, sửa hay chạy
 bất kỳ thứ gì trong workspace. Nó không cần máy chủ, gói phụ thuộc hoặc API
 key. Tiến độ của trang được lưu trong trình duyệt; tiến độ khóa học chỉ được lưu
 sau khi bạn quay lại task Codex và hoàn thành từng bước.
@@ -53,7 +53,7 @@ sau khi bạn quay lại task Codex và hoàn thành từng bước.
 ## Bài thực hành chỉ đọc đầu tiên
 
 Sau khi rời trang hướng dẫn và quay lại task Codex, bạn sẽ dự đoán kết quả rồi
-cho Executor đọc và kiểm tra workspace ở chế độ chỉ đọc. Mục tiêu là giúp bạn
+cho Codex đọc và kiểm tra workspace ở chế độ chỉ đọc. Mục tiêu là giúp bạn
 thấy ngay ba điều:
 
 - Codex có thể đọc bối cảnh thật từ file,

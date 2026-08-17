@@ -1,5 +1,10 @@
 # UI, UX, and Course Interaction Review Index
 
+> **Current curriculum direction:**
+> [Portfolio Course v1](./portfolio-course-v1/README.md). ContentPilot plans and
+> prototypes indexed below remain historical or implemented-state references;
+> they do not override the portfolio curriculum migration.
+
 **Audit date:** 28 July 2026
 **Scope:** Course-learning experience, ContentPilot product experience, visual
 prototypes, interaction rules, learner state, assessment behavior, and
@@ -56,10 +61,11 @@ but they no longer participate in current lesson resolution.
 | Evidence layer | Status | What it should govern |
 |---|---|---|
 | [Planning handoff](./content-automation-course-handoff.md) | Current planning snapshot | Overall product, course, starter, pilot, cost, and graduation status |
-| [Version A curriculum](./version-a-curriculum-blueprint.md) | Approved public-course direction | Prologue + six-module learner progression |
-| [Starter progression](./starter-repository-progression-v1.md) | Locked implementation contract | Screen, route, component, and behavior progression from starter to graduation |
-| [Artifact and run-state contract](./artifact-schema-and-run-state-v1.md) | Locked state contract | Workflow states, transitions, revisions, reruns, and recovery |
-| [Graduation assessment](./graduation-assessment-v1.md) | Locked assessment contract | Evidence gates, defense, scoring, and resubmission |
+| [Portfolio Course v1](./portfolio-course-v1/README.md) | Current curriculum authority | Beginner portfolio Modules 2–4 and their approved evidence gates |
+| [Version A curriculum](./version-a-curriculum-blueprint.md) | Superseded historical direction | ContentPilot prologue + six-module learner progression |
+| [Starter progression](./starter-repository-progression-v1.md) | Retired historical contract | ContentPilot screen, route, component, and behavior progression |
+| [Artifact and run-state contract](./artifact-schema-and-run-state-v1.md) | Superseded historical contract | ContentPilot workflow states, revisions, reruns, and recovery |
+| [Graduation assessment](./graduation-assessment-v1.md) | Superseded historical contract | ContentPilot evidence gates, defense, scoring, and resubmission |
 | [Pilot 0.1 start page](../../pilot-workspace/START_HERE.md) and [course map](../../pilot-workspace/course/course-structure.json) | Current private-pilot runtime | The actual intro + Module 1 learner experience |
 | [Real starter README](../../starters/contentpilot/README.md) and source | Current implemented product baseline | The UI and behavior that exist before learners build product features |
 | [MVP 2 workflow prototype](../../prototypes/mvp-2-content-workflow-prototype/README.md) | Disposable visual reference | General visual direction and simulated review interaction |
@@ -607,7 +613,7 @@ when they serve the same review purpose.
 | Pedagogy | [Teacher prompt](../../pilot-workspace/course/pedagogy/teacher/teacher-system-prompt.vi.md), [delivery contract](../../pilot-workspace/course/pedagogy/teacher/scripted-delivery-contract.vi.md), [hint ladder](../../pilot-workspace/course/pedagogy/rubrics/hint-ladder.vi.md), [quiz protocol](../../pilot-workspace/course/pedagogy/rubrics/quiz-delivery-protocol.vi.md), [mastery rubric](../../pilot-workspace/course/pedagogy/rubrics/mastery-rubric.vi.md) |
 | Runtime skills | [Start course](../../pilot-workspace/.agents/skills/start-course-lesson/SKILL.md), [Course Teacher](../../pilot-workspace/.agents/skills/course-teacher/SKILL.md) |
 | State | [State helper](../../pilot-workspace/.agents/skills/start-course-lesson/scripts/course-state.mjs), [example state](../../pilot-workspace/.course/learner-state.example.json) |
-| Learner artifacts | [Quest-card template](../../pilot-workspace/artifacts/quest-card.template.md), [Module 1 evidence template](../../pilot-workspace/artifacts/module-1-evidence.template.md) |
+| Learner artifacts | [Quest-card template](../../pilot-workspace/artifacts/quest-card.template.md), [Module 1 setup-checklist template](../../pilot-workspace/artifacts/codex-setup-checklist.template.md) |
 
 ### Current product starter sources
 

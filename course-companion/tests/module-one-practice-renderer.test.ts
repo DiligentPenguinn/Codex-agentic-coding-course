@@ -82,6 +82,21 @@ describe('Module 1 Practice renderer', () => {
     expect(source).not.toContain('PRACTICE · 2 ẢNH')
   })
 
+  it('opens the real Practice workflow instead of marking the checkpoint complete locally', async () => {
+    const source = await readFile(join(
+      process.cwd(),
+      'src',
+      'renderer',
+      'src',
+      'surfaces',
+      'LearningWindow.tsx'
+    ), 'utf8')
+    expect(source).toContain('if (practiceScene.practice')
+    expect(source).toContain('practiceVersion: activePracticeDefinition.version')
+    expect(source).not.toContain('mock-completed')
+    expect(source).not.toContain('practicePreview:')
+  })
+
   it('defines an announced loading state before workspace metadata is available', async () => {
     const source = await readFile(join(
       process.cwd(),
@@ -262,5 +277,59 @@ describe('Module 2 Practice renderer', () => {
     expect(html).toContain('practice-progress is-compact')
     expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
     expect(html).toContain('CẦN BỔ SUNG')
+  })
+})
+
+describe('Portfolio planning Practice renderer', () => {
+  it('shows five ordered stages and exposes approval only for fresh ready evidence', () => {
+    const portfolioWorkspace: PracticeWorkspaceView = {
+      schemaVersion: 1,
+      phase: 'active',
+      title: 'Hoàn thiện gói planning cho portfolio',
+      objective: 'Hoàn thiện năm giai đoạn.',
+      expectedOutcome: 'Bảy tài liệu hiện hành.',
+      checklist: [],
+      review: { status: 'not-reviewed', canReview: false, canReturn: false },
+      portfolioPlanning: {
+        freshness: 'fresh',
+        observedAt,
+        unexpectedPaths: ['package.json'],
+        stages: [
+          { stageId: 'portfolio-brief', stageIndex: 1, status: 'completed', artifactPaths: ['planning/portfolio-brief.md'], issueCodes: [] },
+          { stageId: 'content-evidence-inventory', stageIndex: 2, status: 'ready', artifactPaths: ['planning/content-evidence-inventory.md'], issueCodes: [] },
+          { stageId: 'visual-reference', stageIndex: 3, status: 'blocked', artifactPaths: ['planning/reference/reference.md'], issueCodes: ['permission-metadata-missing'] },
+          { stageId: 'portfolio-prd', stageIndex: 4, status: 'pending', artifactPaths: ['planning/PRD.md'], issueCodes: [] },
+          { stageId: 'implementation-contract', stageIndex: 5, status: 'pending', artifactPaths: ['planning/implementation-plan.md'], issueCodes: [] }
+        ]
+      },
+      activePractice: {
+        runId: 'run-portfolio',
+        generation: 1,
+        practiceId: 'm2-portfolio-planning',
+        practiceVersion: '1.0.0',
+        executorChatName: 'Practice · Module 2 · portfolio',
+        startedAt: observedAt
+      },
+      presentation: { fullPanel: 'teacher', compactPanel: 'teacher' },
+      capabilities: {
+        canStartNew: true,
+        canResume: true,
+        selectiveTransferAvailable: false,
+        selectiveTransferReason: 'Không khả dụng.'
+      }
+    }
+
+    const html = renderToStaticMarkup(createElement(PracticeProgress, {
+      workspace: portfolioWorkspace,
+      onPortfolioStageAction: () => undefined,
+      onRefresh: () => undefined
+    }))
+    expect(html).toContain('GÓI LẬP KẾ HOẠCH PORTFOLIO')
+    expect(html).toContain('GIAI ĐOẠN 5/5')
+    expect(html).toContain('package.json')
+    expect(html).toContain('Thiếu nguồn hoặc quyền sử dụng')
+    expect(html.match(/Chấp nhận phiên bản hiện tại/g)).toHaveLength(1)
+    expect(html.match(/Yêu cầu sửa/g)).toHaveLength(2)
+    expect(html).toContain('Làm mới bằng chứng')
   })
 })

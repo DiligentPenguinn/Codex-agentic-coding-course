@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type {
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
   PracticePlanningArtifactView,
   PracticeWorkspaceView
 } from '../../../../shared/contracts'
@@ -13,6 +14,11 @@ type PracticeProgressProps = {
   onReturn?: () => void
   actionBusy?: boolean
   onPlanningAction?: (action: PlanningPracticeActionRequest['action']) => void
+  onPortfolioStageAction?: (
+    stageId: string,
+    decision: PortfolioStageActionRequest['decision'],
+    sliceId?: PortfolioStageActionRequest['sliceId']
+  ) => void
   onRefresh?: () => void
 }
 
@@ -50,6 +56,46 @@ const artifactApproval: Record<PracticePlanningArtifactView['approval'], string>
   stale: 'Duyệt lại'
 }
 
+const portfolioStageLabels: Record<string, string> = {
+  'portfolio-brief': 'Bản mô tả ngắn',
+  'content-evidence-inventory': 'Nội dung và bằng chứng',
+  'visual-reference': 'Tham chiếu hình ảnh',
+  'portfolio-prd': 'PRD portfolio',
+  'implementation-contract': 'Hợp đồng xây dựng',
+  'scaffold-baseline': 'Nền ứng dụng trung tính',
+  'complete-first-version': 'Phiên bản đầu tiên',
+  'whole-page-revision': 'Cải thiện toàn trang',
+  'evidence-debugging': 'Gỡ lỗi có bằng chứng',
+  'independent-enhancement': 'Cải tiến độc lập'
+}
+
+const buildSliceLabels: Record<string, string> = {
+  'foundation-hero': 'Nền trang và Hero',
+  'selected-work': 'Selected Work',
+  'about-contact-footer': 'About, Contact và footer',
+  'responsive-accessibility': 'Responsive và accessibility'
+}
+
+const portfolioIssueLabels: Record<string, string> = {
+  missing: 'Thiếu tệp',
+  empty: 'Tệp trống',
+  oversized: 'Tệp quá lớn',
+  directory: 'Đường dẫn không phải tệp',
+  symlink: 'Không chấp nhận liên kết tắt',
+  escaping: 'Đường dẫn ra ngoài workspace',
+  'invalid-utf8': 'Nội dung không đọc được',
+  placeholder: 'Còn nội dung mẫu',
+  'missing-section': 'Thiếu mục bắt buộc',
+  'missing-approval': 'Thiếu xác nhận của người học',
+  'invalid-evidence-label': 'Nhãn bằng chứng chưa trung thực',
+  'privacy-review-incomplete': 'Chưa kiểm tra quyền riêng tư',
+  'permission-metadata-missing': 'Thiếu nguồn hoặc quyền sử dụng',
+  'missing-reference-screenshot': 'Thiếu ảnh chụp tham chiếu',
+  'requirement-coverage': 'Requirement chưa có cách kiểm tra',
+  'invalid-plan-boundary': 'Kế hoạch vượt ranh giới',
+  'unexpected-workspace-change': 'Có thay đổi ngoài phạm vi'
+}
+
 export function PracticeProgress({
   workspace,
   compact = false,
@@ -57,6 +103,7 @@ export function PracticeProgress({
   onReturn,
   actionBusy = false,
   onPlanningAction,
+  onPortfolioStageAction,
   onRefresh
 }: PracticeProgressProps) {
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
@@ -67,6 +114,7 @@ export function PracticeProgress({
   const configurationFresh = configuration?.freshness === 'fresh'
     && configuration.connection === 'connected'
   const planning = workspace.planning
+  const portfolioStages = workspace.portfolioPlanning ?? workspace.portfolioBuild
   const currentPlanningStep = workspace.checklist.find((step) =>
     step.status === 'current' || step.status === 'stale')
   const actionContext = planning?.actionContext
@@ -112,7 +160,7 @@ export function PracticeProgress({
             </span>
           </header>
           <p>
-            Course Companion chỉ đọc metadata hiệu lực của task Executor đang liên kết;
+            Course Companion chỉ đọc metadata hiệu lực của task Codex đang liên kết;
             ứng dụng không tự thay đổi cài đặt của bạn.
           </p>
           <dl>
@@ -163,7 +211,7 @@ export function PracticeProgress({
 
           {planning.unexpectedChangedPaths.length > 0 ? (
             <div className="practice-scope-warning" role="status">
-              <strong>Có thay đổi ngoài hai artifact cho phép</strong>
+              <strong>Có thay đổi ngoài hai tài liệu cho phép</strong>
               <ul>{planning.unexpectedChangedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
             </div>
           ) : null}
@@ -217,12 +265,97 @@ export function PracticeProgress({
                   <button type="button" disabled={actionBusy || scopeDecision.trim().length === 0} onClick={() => planningAction({ type: 'record-scope-decision', value: scopeDecision.trim(), expectedPrdDigest: actionContext.prdDigest!, expectedPlanDigest: actionContext.planDigest! })}>Ghi nhận quyết định phạm vi</button>
                 </label>
               ) : null}
-              {currentPlanningStep.id === 'draft-plan' ? <p>Quay lại Executor để tạo implementation plan từ PRD đã duyệt, rồi chọn “Làm mới bằng chứng”.</p> : null}
+              {currentPlanningStep.id === 'draft-plan' ? <p>Quay lại Codex để tạo implementation plan từ PRD đã duyệt, rồi chọn “Làm mới bằng chứng”.</p> : null}
               {actionBusy ? <small>Đang xác nhận bằng chứng hiện tại…</small> : null}
             </div>
           ) : null}
 
           {planning.observedAt ? <time dateTime={planning.observedAt}>Ghi nhận: {new Date(planning.observedAt).toLocaleString('vi-VN')}</time> : null}
+        </section>
+      ) : null}
+
+      {portfolioStages ? (
+        <section className="practice-portfolio-planning" aria-label={workspace.portfolioBuild ? 'Bằng chứng xây dựng portfolio' : 'Bằng chứng lập kế hoạch portfolio'} aria-live="polite">
+          <header>
+            <div>
+              <small>{workspace.portfolioBuild ? 'XÂY DỰNG PORTFOLIO' : 'GÓI LẬP KẾ HOẠCH PORTFOLIO'}</small>
+              <strong>{portfolioStages.freshness === 'fresh'
+                ? 'BẰNG CHỨNG HIỆN TẠI'
+                : portfolioStages.freshness === 'stale'
+                  ? 'CẦN LÀM MỚI'
+                  : 'CHƯA THỂ XÁC MINH'}</strong>
+            </div>
+            {onRefresh ? <button type="button" disabled={actionBusy} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
+          </header>
+
+          {portfolioStages.unexpectedPaths.length > 0 ? (
+            <div className="practice-scope-warning" role="status">
+              <strong>Có tệp nằm ngoài phạm vi Practice</strong>
+              <ul>{portfolioStages.unexpectedPaths.map((path) => <li key={path}>{path}</li>)}</ul>
+            </div>
+          ) : null}
+
+          <ol className="practice-portfolio-stages">
+            {portfolioStages.stages.map((stage) => (
+              <li className={`is-${stage.status}`} key={stage.stageId}>
+                <header>
+                  <span>{stage.stageIndex}</span>
+                  <div>
+                    <small>GIAI ĐOẠN {stage.stageIndex}/5</small>
+                    <strong>{portfolioStageLabels[stage.stageId] ?? stage.stageId}</strong>
+                  </div>
+                  <em>{stage.status === 'completed'
+                    ? 'ĐÃ DUYỆT'
+                    : stage.status === 'ready'
+                      ? 'SẴN SÀNG DUYỆT'
+                      : stage.status === 'stale'
+                        ? 'CẦN DUYỆT LẠI'
+                        : stage.status === 'blocked'
+                          ? 'CẦN BỔ SUNG'
+                          : 'CHƯA MỞ'}</em>
+                </header>
+                <div className="practice-portfolio-artifacts">
+                  {stage.artifactPaths.map((path) => <code key={path}>{path}</code>)}
+                </div>
+                {workspace.portfolioBuild && stage.stageId === 'complete-first-version' ? (
+                  <ol className="practice-build-slices" aria-label="Bốn phần xây dựng">
+                    {workspace.portfolioBuild.slices.map((slice) => (
+                      <li className={`is-${slice.status}`} key={slice.sliceId}>
+                        <span>{slice.sliceIndex}/4</span>
+                        <strong>{buildSliceLabels[slice.sliceId]}</strong>
+                        <em>{slice.status === 'completed' ? 'ĐÃ DUYỆT' : slice.status === 'ready' ? 'SẴN SÀNG' : slice.status === 'stale' ? 'DUYỆT LẠI' : slice.status === 'blocked' ? 'CẦN BỔ SUNG' : 'CHƯA MỞ'}</em>
+                        {onPortfolioStageAction && slice.status !== 'completed' && slice.status !== 'pending' ? (
+                          <div className="practice-portfolio-actions">
+                            {slice.status === 'ready' ? <button className="is-primary" disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'approved', slice.sliceId)}>Chấp nhận phần này</button> : null}
+                            <button disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'revision-requested', slice.sliceId)}>Yêu cầu sửa</button>
+                          </div>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ol>
+                ) : null}
+                {stage.issueCodes.length > 0 ? (
+                  <ul className="practice-portfolio-issues">
+                    {stage.issueCodes.map((code) => <li key={code}>{portfolioIssueLabels[code] ?? code}</li>)}
+                  </ul>
+                ) : null}
+                {stage.staleReason ? <p>{stage.staleReason}</p> : null}
+                {onPortfolioStageAction && stage.status !== 'completed' && stage.status !== 'pending' ? (
+                  <div className="practice-portfolio-actions">
+                    {stage.status === 'ready' ? (
+                      <button className="is-primary" disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'approved')}>
+                        Chấp nhận phiên bản hiện tại
+                      </button>
+                    ) : null}
+                    <button disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'revision-requested')}>
+                      Yêu cầu sửa
+                    </button>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+          {actionBusy ? <small>Đang đối chiếu đúng phiên bản tài liệu hiện tại…</small> : null}
         </section>
       ) : null}
 
@@ -268,7 +401,7 @@ export function PracticeProgress({
 
       {workspace.activePractice ? (
         <details className="practice-receipt">
-          <summary>Executor chat đang hoạt động</summary>
+          <summary>Task Codex đang hoạt động</summary>
           <p>{workspace.activePractice.executorChatName}</p>
         </details>
       ) : null}

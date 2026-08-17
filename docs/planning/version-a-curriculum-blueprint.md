@@ -1,5 +1,9 @@
 # Version A Curriculum Blueprint — Agentic Coding Through Practice
 
+> **Superseded for the runnable course.** This ContentPilot curriculum remains
+> historical planning evidence. The current curriculum authority is
+> [Portfolio Course v1](./portfolio-course-v1/README.md).
+
 **Status:** Approved direction translated into a buildable course map  
 **Path:** Course introduction + 6 skill-based modules with resumable chapters
 **Estimated learner time:** 14 hours 20 minutes  

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "2.0.0",
-  "pilotVersion": "0.2.0",
+  "pilotVersion": "0.3.0",
   "title": "Vibecoding 101 — Học agentic coding cùng Codex",
   "languagePriority": ["vi", "en"],
   "defaultLessonId": "intro",
@@ -53,16 +53,13 @@
       "kind": "module",
       "titleVi": "Bắt đầu làm việc với Codex",
       "titleEn": "Getting started with Codex",
-      "estimatedMinutes": 50,
+      "estimatedMinutes": 38,
       "lessonPath": "course/lessons/module-1.vi.md",
       "scriptPath": "course/lesson-scripts/module-1.script.vi.md",
       "quizPath": "course/quizzes/module-1.quiz.json",
       "promptPath": "course/prompts/start-module-1.vi.md",
       "checkpoints": [
         "m1-codex-orientation",
-        "m1-agents-guidance",
-        "m1-skills",
-        "m1-permissions",
         "m1-model-choice",
         "m1-setup-checklist",
         "m1-mastery",
@@ -72,40 +69,24 @@
         {
           "id": "m1-understand-codex",
           "titleVi": "Codex và coding agent",
-          "estimatedMinutes": 8,
+          "estimatedMinutes": 16,
           "checkpoints": [
             "m1-codex-orientation"
           ]
         },
         {
-          "id": "m1-agents-guidance",
-          "titleVi": "Harness Engineering và Harness của Codex",
-          "estimatedMinutes": 12,
-          "checkpoints": [
-            "m1-agents-guidance",
-            "m1-skills"
-          ]
-        },
-        {
-          "id": "m1-workspace-permissions",
-          "titleVi": "Approval và quyền truy cập an toàn",
-          "estimatedMinutes": 8,
-          "checkpoints": [
-            "m1-permissions"
-          ]
-        },
-        {
           "id": "m1-skills-and-checklist",
-          "titleVi": "Model và mức suy luận",
-          "estimatedMinutes": 12,
+          "titleVi": "Áp dụng cấu hình Codex",
+          "estimatedMinutes": 4,
           "checkpoints": [
             "m1-model-choice"
           ]
         },
         {
           "id": "m1-assessment",
-          "titleVi": "Nộp cấu hình để Triết duyệt",
-          "estimatedMinutes": 10,
+          "titleVi": "Thực hành và ôn tập cuối Module 1",
+          "estimatedMinutes": 18,
+          "practicePath": "course/practices/m1-codex-safe-setup.json",
           "checkpoints": [
             "m1-setup-checklist",
             "m1-mastery",
@@ -118,81 +99,161 @@
     {
       "id": "module-2",
       "kind": "module",
-      "titleVi": "Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt",
-      "titleEn": "Communicate effectively with a coding agent: Planning, PRDs, and prompts",
-      "estimatedMinutes": 110,
+      "titleVi": "Xác định, giới hạn và lập kế hoạch portfolio",
+      "titleEn": "Define, scope, and plan the portfolio",
       "lessonPath": "course/lessons/module-2.vi.md",
       "scriptPath": "course/lesson-scripts/module-2.script.vi.md",
       "quizPath": "course/quizzes/module-2.quiz.json",
       "promptPath": "course/prompts/start-module-2.vi.md",
       "artifactPaths": [
-        "artifacts/PRD.md",
-        "artifacts/implementation-plan.md"
+        "planning/portfolio-brief.md",
+        "planning/content-evidence-inventory.md",
+        "planning/reference/reference.md",
+        "planning/PRD.md",
+        "planning/requirement-validation-map.md",
+        "planning/implementation-plan.md",
+        "planning/first-bounded-task.md"
       ],
-      "artifactGateCheckpoint": "m2-planning-package",
+      "artifactGateCheckpoint": "m2-portfolio-planning",
+      "masteryGateCheckpoint": "m2-portfolio-mastery",
+      "unlockGate": {
+        "nextLessonId": "module-3",
+        "requiresCurrentArtifactDigests": true,
+        "requiresLearnerApproval": true,
+        "requiresStageReceiptCount": 5,
+        "requiresMasteryReceipt": true
+      },
       "checkpoints": [
-        "m2-why-planning",
-        "m2-contentpilot-brief",
-        "m2-prd-concept",
-        "m2-prd-interview",
-        "m2-implementation-plan",
-        "m2-planning-package",
-        "m2-mastery",
-        "m2-complete"
+        "m2-portfolio-brief",
+        "m2-content-evidence-inventory",
+        "m2-visual-reference",
+        "m2-portfolio-prd",
+        "m2-implementation-contract",
+        "m2-portfolio-planning",
+        "m2-portfolio-mastery",
+        "m2-portfolio-complete"
       ],
       "lessons": [
         {
-          "id": "m2-when-to-plan",
-          "titleVi": "Khi nào cần planning",
-          "estimatedMinutes": 15,
+          "id": "m2-portfolio-brief",
+          "titleVi": "Tạo bản mô tả ngắn cho portfolio",
           "checkpoints": [
-            "m2-why-planning",
-            "m2-contentpilot-brief"
+            "m2-portfolio-brief"
           ]
         },
         {
-          "id": "m2-product-requirements",
-          "titleVi": "Từ ý tưởng đến PRD",
-          "estimatedMinutes": 25,
+          "id": "m2-content-evidence-inventory",
+          "titleVi": "Kiểm kê nội dung và bằng chứng",
           "checkpoints": [
-            "m2-prd-concept"
+            "m2-content-evidence-inventory"
           ]
         },
         {
-          "id": "m2-prd-prompt",
-          "titleVi": "Viết prompt để tạo PRD",
-          "estimatedMinutes": 20,
+          "id": "m2-visual-reference",
+          "titleVi": "Chọn một tham chiếu hình ảnh",
           "checkpoints": [
-            "m2-prd-interview"
+            "m2-visual-reference"
           ]
         },
         {
-          "id": "m2-implementation-plan",
-          "titleVi": "Từ PRD đến implementation plan",
-          "estimatedMinutes": 20,
+          "id": "m2-portfolio-prd",
+          "titleVi": "Tạo và duyệt PRD cho portfolio",
           "checkpoints": [
-            "m2-implementation-plan"
+            "m2-portfolio-prd"
           ]
         },
         {
-          "id": "m2-prd-review",
-          "titleVi": "Thực hành tạo planning package",
-          "estimatedMinutes": 10,
+          "id": "m2-implementation-contract",
+          "titleVi": "Tạo hợp đồng xây dựng và kiểm chứng",
           "checkpoints": [
-            "m2-planning-package"
-          ]
-        },
-        {
-          "id": "m2-assessment",
-          "titleVi": "Kiểm tra và hoàn thành Module 2",
-          "estimatedMinutes": 20,
-          "checkpoints": [
-            "m2-mastery",
-            "m2-complete"
+            "m2-implementation-contract",
+            "m2-portfolio-planning",
+            "m2-portfolio-mastery",
+            "m2-portfolio-complete"
           ]
         }
       ],
-      "nextLessonId": null
+      "nextLessonId": "module-3"
+    },
+    {
+      "id": "module-3",
+      "kind": "module",
+      "titleVi": "Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng",
+      "titleEn": "Build and debug in verified slices",
+      "lessonPath": "course/lessons/module-3.vi.md",
+      "scriptPath": "course/lesson-scripts/module-3.script.vi.md",
+      "quizPath": "course/quizzes/module-3.quiz.json",
+      "promptPath": "course/prompts/start-module-3.vi.md",
+      "practicePath": "course/practices/m3-portfolio-build.json",
+      "artifactPaths": [
+        "evidence/module-3/scaffold-report.md",
+        "evidence/module-3/design-direction.md",
+        "evidence/module-3/build-log.md",
+        "evidence/module-3/browser-validation.md",
+        "evidence/module-3/revision-record.md",
+        "evidence/module-3/debugging-report.md",
+        "evidence/module-3/enhancement-plan.md",
+        "evidence/module-3/final-change-summary.md"
+      ],
+      "viewportContract": {
+        "desktop": { "width": 1440, "height": 900 },
+        "mobile": { "width": 390, "height": 844 }
+      },
+      "artifactGateCheckpoint": "m3-portfolio-build",
+      "masteryGateCheckpoint": "m3-mastery",
+      "unlockGate": {
+        "nextLessonId": "module-4",
+        "requiresCurrentArtifactDigests": true,
+        "requiresLearnerApproval": true,
+        "requiresStageReceiptCount": 5,
+        "requiresNestedBuildSliceReceiptCount": 4,
+        "requiresCurrentCheck": true,
+        "requiresBrowserValidation": true,
+        "requiresMasteryReceipt": true
+      },
+      "checkpoints": [
+        "m3-scaffold-baseline",
+        "m3-complete-first-version",
+        "m3-whole-page-revision",
+        "m3-evidence-debugging",
+        "m3-independent-enhancement",
+        "m3-portfolio-build",
+        "m3-mastery",
+        "m3-complete"
+      ],
+      "lessons": [
+        {
+          "id": "m3-scaffold-baseline",
+          "titleVi": "Tạo nền ứng dụng có thể kiểm chứng",
+          "checkpoints": ["m3-scaffold-baseline"]
+        },
+        {
+          "id": "m3-complete-first-version",
+          "titleVi": "Xây phiên bản đầu tiên theo bốn phần",
+          "checkpoints": ["m3-complete-first-version"]
+        },
+        {
+          "id": "m3-whole-page-revision",
+          "titleVi": "Xem lại và cải thiện toàn trang",
+          "checkpoints": ["m3-whole-page-revision"]
+        },
+        {
+          "id": "m3-evidence-debugging",
+          "titleVi": "Gỡ một lỗi từ bằng chứng",
+          "checkpoints": ["m3-evidence-debugging"]
+        },
+        {
+          "id": "m3-independent-enhancement",
+          "titleVi": "Tự định hướng một cải tiến nhỏ",
+          "checkpoints": [
+            "m3-independent-enhancement",
+            "m3-portfolio-build",
+            "m3-mastery",
+            "m3-complete"
+          ]
+        }
+      ],
+      "nextLessonId": "module-4"
     }
   ]
 }

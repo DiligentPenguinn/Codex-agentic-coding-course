@@ -286,7 +286,7 @@ describe('PracticeCoordinator', () => {
       harness({ failCreate: true }).executor
     )
     await expect(failing.startNew({ ...m2Identity, transfer: false }))
-      .rejects.toThrow('Không thể tạo Executor chat mới')
+      .rejects.toThrow('Không thể tạo task Codex mới')
     expect((await repository.load()).activeRun?.practiceId).toBe('m1-codex-safe-setup')
     await expect(failing.cancel()).resolves.toMatchObject({
       activePractice: { practiceId: 'm1-codex-safe-setup' }
@@ -342,7 +342,8 @@ describe('PracticeCoordinator', () => {
       undefined,
       new PracticeEvidenceAdapterRegistry([
         adapter('codex-task-configuration'),
-        adapter('planning-package')
+        adapter('planning-package'),
+        adapter('portfolio-planning')
       ])
     )
     await coordinator.startNew({ ...m2Identity, transfer: false })
@@ -508,7 +509,8 @@ describe('PracticeCoordinator', () => {
       undefined,
       new PracticeEvidenceAdapterRegistry([
         failingAdapter('codex-task-configuration'),
-        failingAdapter('planning-package')
+        failingAdapter('planning-package'),
+        failingAdapter('portfolio-planning')
       ])
     )
     await coordinator.startNew({ ...m2Identity, transfer: false })

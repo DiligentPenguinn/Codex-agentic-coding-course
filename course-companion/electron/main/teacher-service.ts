@@ -351,7 +351,7 @@ export class TeacherService {
       const proposal = await this.summaryInference.summarize([
         'FROZEN_PRACTICE_RUN',
         JSON.stringify(frozen),
-        'Return JSON with approach, learnerDecisions, strengths, mistakes, approvals, changedFiles, verificationEvidence, unresolvedIssues, and nextAttemptGuidance arrays. changedFiles may use only structured or workspace-confirmed files. verificationEvidence may use only structured receipts; put Executor-reported verification in unresolvedIssues and label it not independently rerun.'
+        'Return JSON with approach, learnerDecisions, strengths, mistakes, approvals, changedFiles, verificationEvidence, unresolvedIssues, and nextAttemptGuidance arrays. changedFiles may use only structured or workspace-confirmed files. verificationEvidence may use only structured receipts; put Codex-reported verification in unresolvedIssues and label it not independently rerun.'
       ].join('\n'))
       validateProposal(proposal, activity)
       const summary: PracticeRunSummary = {
@@ -421,7 +421,7 @@ export class TeacherService {
           const proposal = await this.summaryInference.summarize([
             'FROZEN_PRACTICE_RUN',
             JSON.stringify(frozen),
-            'Return JSON with approach, learnerDecisions, strengths, mistakes, approvals, changedFiles, verificationEvidence, unresolvedIssues, and nextAttemptGuidance arrays. changedFiles may use only structured or workspace-confirmed files. verificationEvidence may use only structured receipts; put Executor-reported verification in unresolvedIssues and label it not independently rerun.'
+            'Return JSON with approach, learnerDecisions, strengths, mistakes, approvals, changedFiles, verificationEvidence, unresolvedIssues, and nextAttemptGuidance arrays. changedFiles may use only structured or workspace-confirmed files. verificationEvidence may use only structured receipts; put Codex-reported verification in unresolvedIssues and label it not independently rerun.'
           ].join('\n'))
           validateProposal(proposal, activity)
           if (generation !== this.generation) return
@@ -567,7 +567,7 @@ function groundedUnresolvedIssues(
   return [...new Set([
     ...proposed,
     ...(activity?.reportedVerificationEvidence ?? []).map((item) => (
-      'Executor-reported verification, not independently rerun: ' + item
+      'Codex-reported verification, not independently rerun: ' + item
     )),
     ...(activity?.workspaceCurrentlyDirtyReportedFiles ?? []).map((item) => (
       'Currently dirty and report-matching, but not attributable without a Practice baseline: ' + item

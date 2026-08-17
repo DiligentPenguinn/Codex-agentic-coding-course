@@ -8,6 +8,9 @@ import type {
   LearnerProgress,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
+  PortfolioWorkspaceRequest,
+  PortfolioWorkspaceView,
   PracticeReviewResponse,
   PracticeGuideSurfaceContext,
   PracticeGuideUpdateRequest,
@@ -30,6 +33,10 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:load-progress') as Promise<ProgressLoadResult>,
   saveProgress: (update: ProgressUpdate) =>
     ipcRenderer.invoke('course:save-progress', update) as Promise<LearnerProgress>,
+  completePortfolioPlanningModule: () =>
+    ipcRenderer.invoke('course:complete-portfolio-planning-module') as Promise<LearnerProgress>,
+  completePortfolioBuildModule: () =>
+    ipcRenderer.invoke('course:complete-portfolio-build-module') as Promise<LearnerProgress>,
   resetProgress: () => ipcRenderer.invoke('course:reset-progress') as Promise<void>,
   loadCompanionState: () =>
     ipcRenderer.invoke('course:load-companion-state') as Promise<CompanionState>,
@@ -51,6 +58,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:cancel-practice-switch') as Promise<PracticeWorkspaceView>,
   recordPlanningAction: (request: PlanningPracticeActionRequest) =>
     ipcRenderer.invoke('course:record-planning-action', request) as Promise<PracticeWorkspaceView>,
+  recordPortfolioStageAction: (request: PortfolioStageActionRequest) =>
+    ipcRenderer.invoke('course:record-portfolio-stage-action', request) as Promise<PracticeWorkspaceView>,
   selectPracticePanel: (update: PracticePanelUpdate) =>
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>
@@ -76,6 +85,12 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.on('course:companion-mode-changed', listener)
     return () => ipcRenderer.removeListener('course:companion-mode-changed', listener)
   },
+  loadPortfolioWorkspace: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:load-portfolio-workspace', request) as Promise<PortfolioWorkspaceView>,
+  choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:choose-portfolio-workspace', request) as Promise<PortfolioWorkspaceView>,
+  confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) =>
+    ipcRenderer.invoke('course:confirm-portfolio-planning', request) as Promise<PortfolioWorkspaceView>,
   loadAppSettings: () =>
     ipcRenderer.invoke('course:load-app-settings') as Promise<AppSettings>,
   saveAppSettings: (update: AppSettingsUpdate) =>

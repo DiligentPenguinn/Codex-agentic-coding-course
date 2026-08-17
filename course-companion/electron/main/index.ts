@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron'
 import { existsSync, mkdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import type {
@@ -10,6 +10,9 @@ import type {
   PracticeGuideUpdateRequest,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
+  PortfolioStageActionRequest,
+  PortfolioWorkspaceRequest,
+  PortfolioWorkspaceView,
   PracticeStartRequest,
   ProgressUpdate,
   RuntimeInfo,
@@ -46,6 +49,13 @@ import { TestCodexGateway } from './test-codex-gateway'
 import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
 import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidence-adapter'
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
+import { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
+import { PortfolioBuildEvidenceAdapter } from './portfolio-build-evidence-adapter'
+import { PortfolioModuleCompletionService } from './portfolio-module-completion-service'
+import {
+  PortfolioWorkspaceError,
+  PortfolioWorkspaceRepository
+} from './portfolio-workspace-repository'
 
 if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
   app.setPath('userData', process.env.COURSE_COMPANION_USER_DATA_DIR)
@@ -69,6 +79,16 @@ function practiceDefinitionsDirectory(): string {
     join(app.getAppPath(), 'content', 'practices')
 }
 
+function pilotPracticeDefinitionsDirectory(): string {
+  const candidates = [
+    resolve(app.getAppPath(), '..', 'pilot-workspace', 'course', 'practices'),
+    resolve(app.getAppPath(), '..', '..', 'pilot-workspace', 'course', 'practices'),
+    resolve(app.getAppPath(), '..', '..', '..', 'pilot-workspace', 'course', 'practices')
+  ]
+  return candidates.find((candidate) => existsSync(candidate)) ?? candidates[0]!
+}
+
+
 function practiceGuidesDirectory(): string {
   const override = process.env.COURSE_COMPANION_PRACTICE_GUIDES_DIR
   if (override) return resolve(override)
@@ -81,21 +101,33 @@ function practiceGuidesDirectory(): string {
     join(app.getAppPath(), 'content', 'practice-guides')
 }
 const practiceDefinitionRepository = new PracticeDefinitionRepository(
-  practiceDefinitionsDirectory()
+  practiceDefinitionsDirectory(),
+  pilotPracticeDefinitionsDirectory()
 )
 let companionAlwaysOnTop = true
 const progressRepository = new ProgressRepository(app.getPath('userData'))
+const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
 const practiceGuideDefinitionRepository = new PracticeGuideDefinitionRepository(practiceGuidesDirectory())
 const practiceGuideStateRepository = new PracticeGuideStateRepository(app.getPath('userData'))
 const practiceGuideCoordinator = new PracticeGuideCoordinator(
   practiceGuideDefinitionRepository, practiceGuideStateRepository
 )
+const portfolioWorkspaceRepository = new PortfolioWorkspaceRepository(
+  app.getPath('userData'),
+  courseRoot
+)
 const practiceAdapter = new FixturePracticeAdapter(progressRepository)
 const teacherRepository = new TeacherChatRepository(app.getPath('userData'))
 
 const practiceRunRepository = new PracticeRunRepository(app.getPath('userData'))
-const courseRoot = process.env.COURSE_COMPANION_WORKSPACE_ROOT || resolve(app.getAppPath(), '..')
-const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot)
+const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot, async () => {
+  const progress = await progressRepository.load()
+  if (progress.status !== 'returning' && progress.status !== 'recovered') return null
+  const workspace = await portfolioWorkspaceRepository.load({
+    courseRunId: progress.progress.courseRunId
+  })
+  return workspace.status === 'ready' ? workspace.selectedPath ?? null : null
+})
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()
@@ -168,9 +200,13 @@ const executorChatCoordinator = new ExecutorChatCoordinator(
 )
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
+const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(activityObserver)
+const portfolioBuildEvidenceAdapter = new PortfolioBuildEvidenceAdapter(activityObserver)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
   new CodexConfigurationEvidenceAdapter(activityObserver),
-  new PlanningPackageEvidenceAdapter(activityObserver)
+  new PlanningPackageEvidenceAdapter(activityObserver),
+  portfolioPlanningEvidenceAdapter,
+  portfolioBuildEvidenceAdapter
 ])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
@@ -188,6 +224,15 @@ const practiceCoordinator = new PracticeCoordinator(
   },
   evidenceAdapters,
   (receipt) => progressRepository.revokePracticeCompletion(receipt)
+)
+const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
+  progressRepository,
+  portfolioWorkspaceRepository,
+  practiceRunRepository,
+  practiceDefinitionRepository,
+  portfolioPlanningEvidenceAdapter,
+  undefined,
+  portfolioBuildEvidenceAdapter
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
@@ -362,6 +407,29 @@ function isPracticePanelUpdate(value: unknown): value is PracticePanelUpdate {
   )
 }
 
+function isPortfolioWorkspaceRequest(value: unknown): value is PortfolioWorkspaceRequest {
+  return isRecord(value)
+    && Object.keys(value).length === 1
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.courseRunId))
+}
+
+function portfolioWorkspaceFailure(
+  request: PortfolioWorkspaceRequest,
+  error: unknown
+): PortfolioWorkspaceView {
+  return {
+    schemaVersion: 1,
+    courseRunId: request.courseRunId,
+    status: error instanceof PortfolioWorkspaceError ? 'rejected' : 'error',
+    observedAt: new Date().toISOString(),
+    message: error instanceof PortfolioWorkspaceError
+      ? error.message
+      : 'Không thể kiểm tra thư mục này. Hãy thử lại.',
+    canChoose: true,
+    canConfirmPlanning: false
+  }
+}
+
 function isDigest(value: unknown): value is string {
   return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
 }
@@ -401,6 +469,20 @@ function isPlanningPracticeActionRequest(value: unknown): value is PlanningPract
       && isDigest(action.expectedPlanDigest)
   }
   return false
+}
+
+function isPortfolioStageActionRequest(value: unknown): value is PortfolioStageActionRequest {
+  return isRecord(value)
+    && (Object.keys(value).length === 7 || Object.keys(value).length === 8)
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.runId))
+    && Number.isSafeInteger(value.generation)
+    && Number(value.generation) > 0
+    && (value.practiceId === 'm2-portfolio-planning' || value.practiceId === 'm3-portfolio-build')
+    && value.practiceVersion === '1.0.0'
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.courseRunId))
+    && /^[A-Za-z0-9_-]{1,160}$/.test(String(value.stageId))
+    && (value.sliceId === undefined || ['foundation-hero', 'selected-work', 'about-contact-footer', 'responsive-accessibility'].includes(String(value.sliceId)))
+    && (value.decision === 'approved' || value.decision === 'revision-requested')
 }
 
 function isPracticeGuideSurfaceContext(value: unknown): value is PracticeGuideSurfaceContext {
@@ -465,9 +547,16 @@ function registerIpcHandlers(): void {
     return progressRepository.save(update)
   })
 
+  ipcMain.handle('course:complete-portfolio-planning-module', () =>
+    portfolioModuleCompletionService.completeModuleTwo())
+
+  ipcMain.handle('course:complete-portfolio-build-module', () =>
+    portfolioModuleCompletionService.completeModuleThree())
+
   ipcMain.handle('course:reset-progress', async () => {
     await Promise.all([
       progressRepository.reset(),
+      portfolioWorkspaceRepository.reset(),
       teacherService.reset(),
       practiceCoordinator.reset(),
       practiceGuideCoordinator.reset()
@@ -486,6 +575,43 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:load-practice-state', () => practiceAdapter.loadState())
 
   ipcMain.handle('course:load-app-settings', () => teacherRepository.loadSettings())
+
+  ipcMain.handle('course:load-portfolio-workspace', (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    return portfolioWorkspaceRepository.load(request).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
+
+  ipcMain.handle('course:choose-portfolio-workspace', async (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    const deterministicPath = useTestCodexGateway
+      ? process.env.COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE
+      : undefined
+    const selection = deterministicPath
+      ? { canceled: false, filePaths: [deterministicPath] }
+      : mainWindow
+        ? await dialog.showOpenDialog(mainWindow, {
+            title: 'Chọn thư mục dành cho portfolio',
+            buttonLabel: 'Chọn thư mục này',
+            properties: ['openDirectory', 'createDirectory']
+          })
+        : await dialog.showOpenDialog({
+            title: 'Chọn thư mục dành cho portfolio',
+            buttonLabel: 'Chọn thư mục này',
+            properties: ['openDirectory', 'createDirectory']
+          })
+    if (selection.canceled || !selection.filePaths[0]) {
+      return portfolioWorkspaceRepository.load(request)
+    }
+    return portfolioWorkspaceRepository.selectPath(request, selection.filePaths[0]).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
+
+  ipcMain.handle('course:confirm-portfolio-planning', (_event, request: PortfolioWorkspaceRequest) => {
+    if (!isPortfolioWorkspaceRequest(request)) throw new Error('Invalid portfolio workspace request')
+    return portfolioWorkspaceRepository.confirmPlanning(request).catch((error) =>
+      portfolioWorkspaceFailure(request, error))
+  })
 
   ipcMain.handle('course:load-practice-workspace', (_event, identity) => (
     practiceCoordinator.loadWorkspace(isRecord(identity) ? {
@@ -542,6 +668,16 @@ function registerIpcHandlers(): void {
     }
   )
 
+  ipcMain.handle(
+    'course:record-portfolio-stage-action',
+    (_event, request: PortfolioStageActionRequest) => {
+      if (!isPortfolioStageActionRequest(request)) {
+        throw new Error('Invalid portfolio Practice stage action')
+      }
+      return practiceCoordinator.recordPortfolioStageAction(request)
+    }
+  )
+
   ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
     if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
     return practiceCoordinator.selectPanel(update)
@@ -557,6 +693,7 @@ function registerIpcHandlers(): void {
     if (!isPracticeGuideSurfaceContext(surface)) throw new Error('Invalid Practice guide surface')
     return practiceGuideCoordinator.update(request, await authoritativeGuideContext(surface))
   })
+
   ipcMain.handle('course:review-practice', async () => {
     if (!useTestCodexGateway) await ensureAppServer()
     const response = await practiceReviewService.review()

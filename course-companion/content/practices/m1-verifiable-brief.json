@@ -12,7 +12,7 @@
     },
     {
       "id": "open-executor",
-      "title": "M\u1edf Executor chat ri\u00eang cho Practice"
+      "title": "M\u1edf task Codex ri\u00eang cho Practice"
     },
     {
       "id": "build-and-verify",
@@ -37,7 +37,7 @@
     },
     {
       "id": "executor-bound",
-      "description": "C\u00f3 ho\u1ea1t \u0111\u1ed9ng trong \u0111\u00fang Executor chat \u0111\u01b0\u1ee3c li\u00ean k\u1ebft v\u1edbi Practice.",
+      "description": "C\u00f3 ho\u1ea1t \u0111\u1ed9ng trong \u0111\u00fang task Codex \u0111\u01b0\u1ee3c li\u00ean k\u1ebft v\u1edbi Practice.",
       "required": true,
       "checklistStepId": "open-executor",
       "acceptedEvidence": [
@@ -59,7 +59,7 @@
     },
     {
       "id": "expected-verification",
-      "description": "Executor b\u00e1o c\u00e1o b\u1eb1ng ch\u1ee9ng ki\u1ec3m ch\u1ee9ng kh\u1edbp v\u1edbi k\u1ebft qu\u1ea3 mong \u0111\u1ee3i.",
+      "description": "Codex b\u00e1o c\u00e1o b\u1eb1ng ch\u1ee9ng ki\u1ec3m ch\u1ee9ng kh\u1edbp v\u1edbi k\u1ebft qu\u1ea3 mong \u0111\u1ee3i.",
       "required": true,
       "checklistStepId": "build-and-verify",
       "acceptedEvidence": [

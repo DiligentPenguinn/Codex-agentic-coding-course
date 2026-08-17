@@ -50,7 +50,7 @@ const cockpitSteps = [
     alt: "Ảnh giao diện terminal tích hợp chính thức trong Codex",
     kicker: "NƠI LỆNH THẬT CHẠY",
     title: "Terminal nằm ngay trong Codex",
-    description: "Terminal hiển thị thư mục, lệnh và kết quả thật. Trong khóa học, bạn sẽ được giải thích trước khi một lệnh có thể thay đổi workspace hoặc hệ thống."
+    description: "Terminal hiển thị thư mục, lệnh và kết quả thật. Mình sẽ giải thích trước khi bạn chạy một lệnh có thể thay đổi workspace hoặc hệ thống."
   }
 ];
 

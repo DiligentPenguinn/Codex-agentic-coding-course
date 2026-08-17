@@ -409,12 +409,12 @@ export function TeacherWorkspace({
     live: {
       label: 'TEACHER · LIVE',
       strong: 'TRIẾT ĐANG TRỰC TUYẾN',
-      detail: 'Triết đang dùng ngữ cảnh Practice và hoạt động Executor hiện tại.'
+      detail: 'Triết đang dùng ngữ cảnh Practice và hoạt động Codex hiện tại.'
     },
     stale: {
       label: 'TEACHER \u00b7 NG\u1eee C\u1ea2NH C\u0168',
-      strong: 'NG\u1eee C\u1ea2NH EXECUTOR \u0110\u00c3 C\u0168',
-      detail: 'Triết vẫn có thể trả lời, nhưng sự kiện Executor mới nhất chưa được xác nhận.'
+      strong: 'NG\u1eee C\u1ea2NH CODEX \u0110\u00c3 C\u0168',
+      detail: 'Triết vẫn có thể trả lời, nhưng hoạt động Codex mới nhất chưa được xác nhận.'
     },
     offline: {
       label: 'TEACHER \u00b7 NGO\u1ea0I TUY\u1ebeN',
@@ -424,9 +424,9 @@ export function TeacherWorkspace({
   }
   const currentTeacherStatus = teacherStatus[teacherRuntime.connection]
   const contextFreshnessNote = teacherRuntime.contextFreshness === 'stale'
-    ? 'Ngữ cảnh Executor đã cũ.'
+    ? 'Ngữ cảnh Codex đã cũ.'
     : teacherRuntime.contextFreshness === 'disconnected'
-      ? 'Mất kết nối với ngữ cảnh Executor; Triết vẫn có thể trả lời từ dữ liệu đã lưu.'
+      ? 'Mất kết nối với ngữ cảnh Codex; Triết vẫn có thể trả lời từ dữ liệu đã lưu.'
       : ''
   const teacherStatusDetail = teacherRuntime.error ?? [
     currentTeacherStatus.detail,

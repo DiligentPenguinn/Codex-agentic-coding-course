@@ -150,7 +150,7 @@ code {
 
 .progress-track span {
   display: block;
-  width: 12.5%;
+  width: 14.2857%;
   height: 100%;
   background: var(--accent);
   transition: width 180ms ease;
@@ -221,11 +221,6 @@ code {
 .panel.is-wide {
   grid-template-columns: 1fr;
   align-content: center;
-}
-
-.harness-grid article:first-child {
-  border-color: var(--border);
-  box-shadow: none;
 }
 
 .setup-grid {
@@ -588,7 +583,7 @@ summary:focus-visible {
   }
 
   .steps {
-    grid-template-columns: repeat(8, minmax(44px, 1fr));
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
     overflow-x: auto;
   }
 

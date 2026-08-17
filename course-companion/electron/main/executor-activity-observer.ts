@@ -1,4 +1,4 @@
-import { isAbsolute, normalize, relative, resolve } from 'node:path'
+import { isAbsolute, normalize, relative, resolve, win32 } from 'node:path'
 import type { ExecutorActivitySnapshot, WorkspaceEvidenceBaseline } from '../../shared/contracts'
 import type { CodexConnectionState, CodexNotification } from './codex-app-server-client'
 import type { ExecutorChatBinding } from './practice-run-repository'
@@ -39,8 +39,18 @@ function safeRelativePath(value: unknown, workspaceRoot: string): string | null 
   if (typeof value !== 'string' || !value.trim()) return null
   const withoutLocation = value.trim().replace(/^['"`]|['"`,.;]$/g, '').replace(/:\d+(?::\d+)?$/, '')
   if (!withoutLocation || withoutLocation.length > 500) return null
-  const absolute = isAbsolute(withoutLocation) ? normalize(withoutLocation) : resolve(workspaceRoot, withoutLocation)
-  const result = relative(workspaceRoot, absolute).replaceAll('\\', '/')
+  const windowsWorkspace = win32.isAbsolute(workspaceRoot)
+  if (!windowsWorkspace && win32.isAbsolute(withoutLocation)) return null
+  const absolute = windowsWorkspace
+    ? win32.isAbsolute(withoutLocation)
+      ? win32.normalize(withoutLocation)
+      : win32.resolve(workspaceRoot, withoutLocation)
+    : isAbsolute(withoutLocation)
+      ? normalize(withoutLocation)
+      : resolve(workspaceRoot, withoutLocation)
+  const result = (windowsWorkspace
+    ? win32.relative(workspaceRoot, absolute)
+    : relative(workspaceRoot, absolute)).replaceAll('\\', '/')
   if (!result || result.startsWith('..') || isAbsolute(result) || result.split('/').includes('..')) return null
   return result.length <= 500 ? result : null
 }

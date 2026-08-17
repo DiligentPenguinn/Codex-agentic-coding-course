@@ -46,6 +46,7 @@ export class TestCodexGateway implements CodexRequestClient {
   private readonly connectionListeners = new Set<CodexConnectionListener>()
   private sequence = 0
   private readonly unsafeLaterTask: boolean
+  private readonly configurationReady = process.env.COURSE_COMPANION_FAKE_CONFIGURATION_READY === '1'
 
   constructor(
     private readonly workspaceRoot: string,
@@ -84,18 +85,18 @@ export class TestCodexGateway implements CodexRequestClient {
         && typeof params.model !== 'string'
       const model = typeof params.model === 'string'
         ? params.model
-        : configurationExercise ? 'gpt-5.6-terra' : 'gpt-5.6-sol'
+        : configurationExercise && !this.configurationReady ? 'gpt-5.6-terra' : 'gpt-5.6-sol'
       const reasoningEffort = typeof config.model_reasoning_effort === 'string'
         ? config.model_reasoning_effort
-        : configurationExercise ? 'medium' : 'high'
+        : configurationExercise && !this.configurationReady ? 'medium' : 'high'
       const serviceTier = typeof params.serviceTier === 'string'
         ? params.serviceTier
-        : configurationExercise ? 'fast' : null
+        : configurationExercise ? this.configurationReady ? 'standard' : 'fast' : null
       const approvalPolicy = params.approvalPolicy
-        ?? (configurationExercise ? 'never' : 'on-request')
+        ?? (configurationExercise && !this.configurationReady ? 'never' : 'on-request')
       const requestedSandbox = typeof params.sandbox === 'string'
         ? params.sandbox
-        : configurationExercise ? 'danger-full-access' : 'workspace-write'
+        : configurationExercise && !this.configurationReady ? 'danger-full-access' : 'workspace-write'
       const sandboxMode = this.unsafeLaterTask
         && params.serviceName === 'content_builder_academy_practice'
         && typeof params.model === 'string'
@@ -124,7 +125,7 @@ export class TestCodexGateway implements CodexRequestClient {
         sandbox,
         turns: [],
         configurationExercise,
-        configurationStage: 0
+        configurationStage: configurationExercise && this.configurationReady ? 5 : 0
       }
       this.threads.set(id, thread)
       return effectiveThread(thread)
@@ -429,19 +430,19 @@ function teacherAnswer(input: string): string {
         const confirmation = confirmedFiles.length > 0
           ? 'Workspace xác nhận tệp đang thay đổi: ' + confirmedFiles.join(', ') + '.'
           : 'Course Companion chưa xác nhận độc lập thay đổi tệp trong workspace.'
-        return 'Executor báo đã thay đổi: ' + reportedFiles.join(', ') + '. ' + confirmation
-          + ' Bằng chứng kiểm tra do Executor báo cáo, chưa được Course Companion chạy lại: '
+        return 'Codex báo đã thay đổi: ' + reportedFiles.join(', ') + '. ' + confirmation
+          + ' Bằng chứng kiểm tra do Codex báo cáo, chưa được Course Companion chạy lại: '
           + reportedEvidence.join(' ')
       }
       if (envelope.freshness !== 'fresh') {
         const disclosure = envelope.freshness === 'disconnected'
-          ? 'Ngữ cảnh Executor hiện bị mất kết nối.'
-          : 'Ngữ cảnh Executor hiện đã cũ.'
+          ? 'Ngữ cảnh Codex hiện bị mất kết nối.'
+          : 'Ngữ cảnh Codex hiện đã cũ.'
         return latest
           ? `${disclosure} Bản ghi gần nhất: ${latest} Số tệp thay đổi: ${changed}.`
           : `${disclosure} Tôi chưa thể xác nhận trạng thái mới nhất.`
       }
-      if (latest) return `Tôi đang theo dõi đúng Practice hiện tại. Executor báo: ${latest} Số tệp thay đổi: ${changed}.`
+      if (latest) return `Tôi đang theo dõi đúng Practice hiện tại. Codex báo: ${latest} Số tệp thay đổi: ${changed}.`
     } catch {
       // The fake response remains bounded and deterministic if its test envelope is malformed.
     }

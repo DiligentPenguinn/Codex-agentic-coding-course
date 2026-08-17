@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, symlink } from 'node:fs/promises'
+import { mkdtemp, mkdir, realpath, rm, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -17,7 +17,7 @@ describe('PracticeWorkspaceResolver', () => {
     const expected = join(root, 'pilot-workspace')
     await mkdir(expected)
 
-    await expect(new PracticeWorkspaceResolver(root).resolve('pilot-workspace')).resolves.toBe(expected)
+    await expect(new PracticeWorkspaceResolver(root).resolve('pilot-workspace')).resolves.toBe(await realpath(expected))
   })
 
   it('rejects unknown workspace kinds and missing Pilot workspaces', async () => {
@@ -37,5 +37,26 @@ describe('PracticeWorkspaceResolver', () => {
 
     await expect(new PracticeWorkspaceResolver(root).resolve('pilot-workspace'))
       .rejects.toThrow('escapes the validated course root')
+  })
+
+  it('resolves only the persisted learner portfolio path for staged Practices', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'course-root-'))
+    const portfolio = await mkdtemp(join(tmpdir(), 'learner portfolio đầu tiên-'))
+    roots.push(root, portfolio)
+
+    await expect(new PracticeWorkspaceResolver(root, async () => portfolio)
+      .resolve('learner-portfolio')).resolves.toBe(await realpath(portfolio))
+    await expect(new PracticeWorkspaceResolver(root, async () => null)
+      .resolve('learner-portfolio')).rejects.toThrow('ready learner portfolio')
+  })
+
+  it('rejects a learner portfolio path inside the course repository', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'course-root-'))
+    const portfolio = join(root, 'learner-portfolio')
+    roots.push(root)
+    await mkdir(portfolio)
+
+    await expect(new PracticeWorkspaceResolver(root, async () => portfolio)
+      .resolve('learner-portfolio')).rejects.toThrow('unavailable or unsafe')
   })
 })

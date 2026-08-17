@@ -183,7 +183,8 @@ async function harness(mutateDuringReview: boolean) {
   })
   const registry = new PracticeEvidenceAdapterRegistry([
     adapter('codex-task-configuration', () => current),
-    adapter('planning-package', () => current)
+    adapter('planning-package', () => current),
+    adapter('portfolio-planning', () => current)
   ])
   const observer = {
     async bind(): Promise<ExecutorActivitySnapshot> {

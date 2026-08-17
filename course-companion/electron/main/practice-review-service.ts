@@ -33,7 +33,7 @@ const configurationChecks = [
     label: 'Model',
     expected: 'gpt-5.6-sol',
     expectedLabel: '5.6 Sol',
-    action: 'Trong task Executor, mở bộ chọn Model và chọn 5.6 Sol.'
+    action: 'Trong task Codex, mở bộ chọn Model và chọn 5.6 Sol.'
   },
   {
     field: 'reasoningEffort',
@@ -41,7 +41,7 @@ const configurationChecks = [
     label: 'Effort',
     expected: 'high',
     expectedLabel: 'High',
-    action: 'Trong task Executor, mở Effort và chọn High.'
+    action: 'Trong task Codex, mở Effort và chọn High.'
   },
   {
     field: 'serviceTier',
@@ -49,7 +49,7 @@ const configurationChecks = [
     label: 'Speed',
     expected: 'standard',
     expectedLabel: 'Standard',
-    action: 'Trong task Executor, mở Speed và chọn Standard.'
+    action: 'Trong task Codex, mở Speed và chọn Standard.'
   },
   {
     field: 'approvalPolicy',
@@ -57,7 +57,7 @@ const configurationChecks = [
     label: 'Approval',
     expected: 'on-request',
     expectedLabel: 'Approve for me',
-    action: 'Trong task Executor, mở Approval và chọn Approve for me.'
+    action: 'Trong task Codex, mở Approval và chọn Approve for me.'
   },
   {
     field: 'fullAccess',
@@ -65,7 +65,7 @@ const configurationChecks = [
     label: 'Full access',
     expected: 'off',
     expectedLabel: 'Off',
-    action: 'Trong task Executor, tắt Full access.'
+    action: 'Trong task Codex, tắt Full access.'
   }
 ] as const
 
@@ -438,7 +438,7 @@ export class PracticeReviewService {
           : []),
         ...details,
         ...(reported
-          ? ['L\u01b0u \u00fd: k\u1ebft qu\u1ea3 ki\u1ec3m ch\u1ee9ng n\u00e0y do Executor b\u00e1o c\u00e1o; Course Companion ch\u01b0a t\u1ef1 ch\u1ea1y l\u1ea1i c\u00e1c ki\u1ec3m tra.']
+          ? ['L\u01b0u \u00fd: k\u1ebft qu\u1ea3 ki\u1ec3m ch\u1ee9ng n\u00e0y do Codex b\u00e1o c\u00e1o; Course Companion ch\u01b0a t\u1ef1 ch\u1ea1y l\u1ea1i c\u00e1c ki\u1ec3m tra.']
           : []),
         ...(result.verdict === 'passed'
           ? ['Bạn đã vượt qua Practice. Dùng biểu tượng quay lại khóa học để tiếp tục phần mastery.']
