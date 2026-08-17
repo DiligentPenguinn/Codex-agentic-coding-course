@@ -55,9 +55,6 @@ const RETIRED_MODULE_ONE_LESSONS = new Set([
   'm1-workspace-permissions',
   'm1-agents-guidance'
 ])
-const RETIRED_MODULE_TWO_SCENE_REDIRECTS = new Map([
-  ['module-2-prd-anatomy', 'module-2-prd-agent-workflow']
-])
 const DIGEST = /^[a-f0-9]{64}$/
 const moduleTwoMasteryQuestionIds = [
   'mastery-1',
@@ -118,27 +115,6 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
           (checkpointId) => typeof checkpointId !== 'string' || !RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
         )
       : raw.completedCheckpointIds
-  }
-}
-
-function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Record<string, unknown> {
-  const hasRetiredScene = (
-    (typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENE_REDIRECTS.has(raw.sceneId))
-    || (Array.isArray(raw.sceneHistory) && raw.sceneHistory.some(
-      (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_TWO_SCENE_REDIRECTS.has(sceneId)
-    ))
-  )
-  if (!hasRetiredScene) return raw
-  return {
-    ...raw,
-    sceneId: typeof raw.sceneId === 'string'
-      ? RETIRED_MODULE_TWO_SCENE_REDIRECTS.get(raw.sceneId) ?? raw.sceneId
-      : raw.sceneId,
-    sceneHistory: Array.isArray(raw.sceneHistory)
-      ? raw.sceneHistory.filter(
-          (sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_TWO_SCENE_REDIRECTS.has(sceneId)
-        )
-      : raw.sceneHistory
   }
 }
 
@@ -474,9 +450,7 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
   if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
-    const redirected = redirectRetiredModuleTwoReferences(
-      redirectRetiredModuleOneReferences(raw)
-    )
+    const redirected = redirectRetiredModuleOneReferences(raw)
     const compatible = {
       ...redirected,
       ...(redirected.courseRunId === undefined ? { courseRunId: courseRunId(startedAt) } : {}),

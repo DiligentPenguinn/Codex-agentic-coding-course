@@ -154,7 +154,7 @@ describe('ProgressRepository', () => {
     })
   })
 
-  it('moves progress paused on the retired PRD anatomy page to the next page', async () => {
+  it('resumes progress on the restored PRD anatomy page without skipping it', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save({
@@ -166,18 +166,18 @@ describe('ProgressRepository', () => {
       completedCheckpointIds: [],
       decisions: {}
     })
-    const retiredProgress = {
+    const anatomyProgress = {
       ...started,
       sceneId: 'module-2-prd-anatomy',
       sceneHistory: [
         ...started.sceneHistory,
         'module-2-prd-introduction',
-        'module-2-prd-anatomy'
+        'module-2-prd-definition'
       ]
     }
     await writeFile(
       join(directory, 'learner-state.json'),
-      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      `${JSON.stringify(anatomyProgress, null, 2)}\n`,
       'utf8'
     )
 
@@ -186,12 +186,14 @@ describe('ProgressRepository', () => {
       progress: {
         currentCourseLessonId: 'm2-portfolio-brief',
         checkpointId: 'm2-portfolio-brief',
-        sceneId: 'module-2-prd-agent-workflow',
-        sceneHistory: ['module-2-portfolio-workspace', 'module-2-prd-introduction']
+        sceneId: 'module-2-prd-anatomy',
+        sceneHistory: [
+          'module-2-portfolio-workspace',
+          'module-2-prd-introduction',
+          'module-2-prd-definition'
+        ]
       }
     })
-    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
-    expect(JSON.stringify(migrated)).not.toContain('module-2-prd-anatomy')
   })
 
   it('resumes an exact page inside the opening introduction', async () => {

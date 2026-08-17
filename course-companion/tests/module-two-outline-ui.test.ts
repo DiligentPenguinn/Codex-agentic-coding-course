@@ -4,11 +4,15 @@ import { describe, expect, it } from 'vitest'
 import { moduleTwoOutlineSections } from '../shared/course/modules/module-2'
 
 describe('Module 2 outline menu', () => {
-  it('shows the three approved explanation pages without status labels', () => {
+  it('shows every approved explanation and Practice transition page without status labels', () => {
     expect(moduleTwoOutlineSections).toEqual([
       'Lập kế hoạch trước khi xây',
       'Một task Codex, năm lần duyệt',
-      'Năm giai đoạn, năm tài liệu'
+      'PRD là gì và dùng để làm gì?',
+      'Một PRD tốt cần có những gì?',
+      'Dùng coding agent để tạo, review và duyệt PRD',
+      'Năm giai đoạn, năm tài liệu',
+      'Thực hành: Lập kế hoạch cho portfolio'
     ])
     expect(moduleTwoOutlineSections.join(' ')).not.toMatch(/Đang học|Đã hoàn thành|Sắp tới|Chưa học/)
   })

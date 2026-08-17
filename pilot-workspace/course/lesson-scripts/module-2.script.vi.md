@@ -27,7 +27,23 @@ hằng ngày.” Teacher chỉ ra rằng đây mới là ý tưởng vì chưa c
 luồng sử dụng, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. Không nhắc đến
 portfolio trong phần giải thích khái niệm này.
 
-## Phần 3 — Dùng coding agent để tạo, review và duyệt PRD
+## Phần 3 — Một PRD tốt cần có những gì?
+
+Teacher trình bày bảy vùng thông tin:
+
+1. vấn đề và lý do sản phẩm cần tồn tại;
+2. người dùng chính và mục tiêu của họ;
+3. kết quả sản phẩm cần tạo ra;
+4. yêu cầu và hành vi có thể quan sát;
+5. phạm vi, ngoài phạm vi và ràng buộc;
+6. tiêu chí chấp nhận có thể kiểm tra; và
+7. giả định hoặc câu hỏi còn mở.
+
+Teacher nhấn mạnh rằng PRD giữ quyết định về sản phẩm, chưa chọn framework, thư
+viện, cấu trúc code hoặc tên tệp. Mỗi yêu cầu quan trọng phải có một cách kiểm
+tra để Learner không phụ thuộc vào lời khẳng định “đã xong” của coding agent.
+
+## Phần 4 — Dùng coding agent để tạo, review và duyệt PRD
 
 Teacher hướng dẫn quy trình bốn bước:
 
@@ -40,7 +56,7 @@ Teacher hướng dẫn quy trình bốn bước:
 Teacher phải nói rõ rằng coding agent hỗ trợ phân tích và soạn thảo, còn Learner
 giữ quyền quyết định mục tiêu, người dùng, phạm vi và tiêu chí chấp nhận.
 
-## Phần 4 — Thực hành: Lập kế hoạch cho portfolio
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
 
 Teacher chuyển sang dự án thực hành bằng nguyên văn câu của tác giả:
 

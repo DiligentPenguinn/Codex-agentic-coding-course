@@ -27,7 +27,23 @@ là một ý tưởng. Coding agent vẫn chưa biết ai sẽ dùng ứng dụn
 ghi lại như thế nào, phiên bản đầu cần làm gì và dấu hiệu nào cho thấy sản phẩm
 đã đáp ứng yêu cầu. PRD giữ những quyết định đó.
 
-## Phần 3 — Dùng coding agent để tạo, review và duyệt PRD
+## Phần 3 — Một PRD tốt cần có những gì?
+
+Một PRD tốt không cần dài, nhưng cần đủ rõ để coding agent không tự đoán những
+quyết định quan trọng. Tài liệu nên có:
+
+- vấn đề và lý do sản phẩm cần tồn tại;
+- người dùng chính và mục tiêu của họ;
+- kết quả sản phẩm cần tạo ra;
+- yêu cầu và hành vi có thể quan sát;
+- phạm vi, ngoài phạm vi và ràng buộc;
+- tiêu chí chấp nhận có thể kiểm tra; và
+- giả định hoặc câu hỏi còn mở.
+
+Mỗi yêu cầu quan trọng cần đi cùng một cách kiểm tra. Nhờ đó, bạn có thể đối
+chiếu kết quả thật thay vì chỉ hỏi coding agent rằng mọi thứ đã xong chưa.
+
+## Phần 4 — Dùng coding agent để tạo, review và duyệt PRD
 
 Bạn không cần tự viết PRD từ một trang giấy trắng. Trước tiên, hãy cung cấp ý
 tưởng và những thông tin đã biết. Sau đó, yêu cầu coding agent hỏi từng câu để
@@ -39,7 +55,7 @@ người dùng, phạm vi và tiêu chí chấp nhận. Chỉ sau khi bạn duy�
 agent mới nên chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm
 tra.
 
-## Phần 4 — Thực hành: Lập kế hoạch cho portfolio
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
 
 Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Bạn sẽ dùng portfolio
 làm dự án thực hành để áp dụng quy trình planning và PRD vừa học. Những kỹ năng

@@ -31,6 +31,12 @@
 - Read `docs/internal/target-learner-definition.md` before curriculum, product, or learner-experience decisions. Keep it internal and out of learner-facing or public packages.
 - Treat `starters/contentpilot/` as the real application baseline. Treat `prototypes/` and `codex_content_creator_course_plan_v8.html` as historical references only; never fall back to them when current Pilot material is missing.
 
+## Page preservation
+
+- Never remove an existing application or course page, learner-facing lesson scene, route, or navigation target unless the user explicitly requests removal of that exact page.
+- Changes to adjacent content must not merge away, hide, skip, orphan, repurpose, or otherwise make an unrequested page unreachable.
+- Before committing a changed learner flow, compare the affected page and scene inventory with the baseline and restore any removal that the user did not explicitly approve.
+
 ## Vietnamese
 
 - Write learner-facing Vietnamese naturally with complete diacritics and tone marks.
