@@ -213,10 +213,11 @@ export function TeacherWorkspace({
         surface: embedded ? 'full' : 'compact',
         panel: next
       }))
-      if (embedded && practiceGuide?.currentStageId) {
+      if (embedded && practiceGuide) {
         const type = next === 'teacher' ? 'teacher-tab-selected' : 'progress-tab-selected'
+        const expectedStageId = next === 'teacher' ? 'ask-teacher' : 'inspect-progress'
         setPracticeGuide(await window.courseCompanion.updatePracticeGuide(
-          { type, expectedStageId: practiceGuide.currentStageId },
+          { type, expectedStageId },
           { surface: 'full', activeTab: next }
         ))
       }
@@ -654,7 +655,11 @@ export function TeacherWorkspace({
       )}
 
       {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
-      {embedded && workspace?.activePractice?.practiceId === 'm1-codex-safe-setup' ? (
+      {embedded
+        && workspace?.activePractice?.practiceId === 'm1-codex-safe-setup'
+        && practiceGuide
+        && !practiceGuide.replay
+        && (practiceGuide.status === 'skipped' || practiceGuide.status === 'completed') ? (
         <button className="practice-guide-replay" type="button" onClick={() => void updatePracticeGuide({ type: 'replay' })}>
           Xem lại hướng dẫn Practice
         </button>

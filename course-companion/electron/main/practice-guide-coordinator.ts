@@ -82,6 +82,25 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     return courseRunId + ':' + GUIDE_ID
   }
 
+  private initialRecord(
+    definition: PracticeGuideDefinition,
+    context: PracticeGuideContext
+  ): PracticeGuideStateRecord | null {
+    if (!eligible(definition, context)) return null
+    const nextIdentity = identity(definition, context)
+    if (!nextIdentity) return null
+    const timestamp = new Date().toISOString()
+    return {
+      schemaVersion: 1,
+      ...nextIdentity,
+      status: 'in-progress',
+      lastStageId: definition.stages[0]!.id,
+      masteryConfirmation: null,
+      createdAt: timestamp,
+      updatedAt: timestamp
+    }
+  }
+
   private async state(
     definition: PracticeGuideDefinition,
     context: PracticeGuideContext
@@ -91,15 +110,24 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     try {
       let current = await this.states.load(context.progress.courseRunId, definition.guideId)
       if (!current) {
-        if (!eligible(definition, context)) return null
-        const nextIdentity = identity(definition, context)
-        if (!nextIdentity) return null
-        current = await this.states.start(nextIdentity, definition.stages[0]!.id)
+        const cached = this.volatile.get(key)
+        if (cached) return { record: cached, error: WARNING }
+        const initial = this.initialRecord(definition, context)
+        if (!initial) return null
+        this.volatile.set(key, initial)
+        current = await this.states.start({
+          guideId: initial.guideId,
+          guideVersion: initial.guideVersion,
+          courseRunId: initial.courseRunId,
+          practiceId: initial.practiceId,
+          practiceRunId: initial.practiceRunId
+        }, initial.lastStageId)
       }
       this.volatile.set(key, current)
       return { record: current }
     } catch {
-      const current = this.volatile.get(key)
+      const current = this.volatile.get(key) ?? this.initialRecord(definition, context)
+      if (current) this.volatile.set(key, current)
       return current ? { record: current, error: WARNING } : null
     }
   }
@@ -244,7 +272,10 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
 
     if (replayIndex !== undefined) {
       if (request.type === 'skip') this.replayStages.delete(key)
-      else if (
+      else if (request.type === 'dismiss-confirmation'
+        && definition.stages[replayIndex]?.presentation === 'mastery-confirmation') {
+        this.replayStages.delete(key)
+      } else if (
         request.type === 'continue'
         || request.type === 'teacher-tab-selected'
         || request.type === 'progress-tab-selected'
@@ -280,7 +311,37 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
       this.volatile.set(key, record)
       return this.load(context)
     } catch {
-      return { ...this.view(definition, record, context, false), error: WARNING }
+      const timestamp = new Date().toISOString()
+      let fallback = record
+      if (request.type === 'pause' && record.lastStageId === request.expectedStageId) {
+        fallback = { ...record, status: 'paused', updatedAt: timestamp }
+      } else if (request.type === 'resume') {
+        fallback = {
+          ...record,
+          status: record.status === 'paused' ? 'in-progress' : record.status,
+          updatedAt: timestamp
+        }
+      } else if (request.type === 'skip' && record.lastStageId === request.expectedStageId) {
+        fallback = { ...record, status: 'skipped', updatedAt: timestamp }
+      } else if (request.type === 'dismiss-confirmation') {
+        fallback = {
+          ...record,
+          masteryConfirmation: record.status === 'completed' ? 'dismissed' : record.masteryConfirmation,
+          updatedAt: timestamp
+        }
+      } else if (request.type === 'course-returned' && record.lastStageId === request.expectedStageId) {
+        fallback = { ...record, status: 'completed', masteryConfirmation: 'pending', updatedAt: timestamp }
+      } else if (request.type !== 'start') {
+        const index = definition.stages.findIndex((stage) => stage.id === record.lastStageId)
+        const stage = definition.stages[index]
+        const eventMatches = request.expectedStageId === stage?.id && request.type === stage.advancement
+        const reviewPassed = request.type !== 'review-requested' || context.workspace?.review?.status === 'passed'
+        if (eventMatches && reviewPassed && index < definition.stages.length - 1) {
+          fallback = { ...record, status: 'in-progress', lastStageId: definition.stages[index + 1]!.id, updatedAt: timestamp }
+        }
+      }
+      this.volatile.set(key, fallback)
+      return { ...this.view(definition, fallback, context, false), error: WARNING }
     }
   }
 

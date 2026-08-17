@@ -116,6 +116,35 @@ describe('PracticeGuideCoordinator', () => {
     expect(replay?.status).toBe('in-progress')
   })
 
+  it('dismisses the final replay confirmation without changing durable skip state', async () => {
+    const guide = await coordinator()
+    await guide.load(context())
+    await guide.update({ type: 'skip', expectedStageId: 'practice-introduction' }, context())
+    await guide.update({ type: 'replay' }, context())
+    const events = [
+      { type: 'continue', expectedStageId: 'practice-introduction' },
+      { type: 'continue', expectedStageId: 'executor-orientation' },
+      { type: 'teacher-tab-selected', expectedStageId: 'ask-teacher' },
+      { type: 'progress-tab-selected', expectedStageId: 'inspect-progress' },
+      { type: 'continue', expectedStageId: 'configuration-evidence' },
+      { type: 'review-requested', expectedStageId: 'request-review' },
+      { type: 'course-returned', expectedStageId: 'return-to-course' }
+    ] as const
+    for (const event of events) await guide.update(event, context({ workspace: workspace('passed') }))
+    const mastery = context({
+      progress: progress('module-1', 'module-1-mastery'),
+      workspace: null,
+      surface: 'learning'
+    })
+    const confirmation = await guide.load(mastery)
+    expect(confirmation?.presentation).toBe('mastery-confirmation')
+    expect(confirmation?.replay).toBe(true)
+    const dismissed = await guide.update({ type: 'dismiss-confirmation' }, mastery)
+    expect(dismissed?.presentation).toBeNull()
+    expect(dismissed?.replay).toBe(false)
+    expect(dismissed?.status).toBe('skipped')
+  })
+
   it('reconciles an early pass directly to return', async () => {
     const guide = await coordinator()
     await guide.load(context())
@@ -157,5 +186,35 @@ describe('PracticeGuideCoordinator', () => {
       new PracticeGuideStateRepository(directory)
     )
     expect(await guide.load(context())).toBeNull()
+  })
+
+  it('continues in volatile state with a warning when the first state write fails', async () => {
+    const guide = new PracticeGuideCoordinator(definitions, {
+      load: async () => null,
+      start: async () => { throw new Error('read-only') },
+      advance: async () => { throw new Error('read-only') },
+      pause: async () => { throw new Error('read-only') },
+      resume: async () => { throw new Error('read-only') },
+      skip: async () => { throw new Error('read-only') },
+      complete: async () => { throw new Error('read-only') },
+      dismissConfirmation: async () => { throw new Error('read-only') },
+      reset: async () => undefined
+    })
+    const intro = await guide.load(context())
+    expect(intro?.currentStageId).toBe('practice-introduction')
+    expect(intro?.error).toContain('không thể lưu')
+    const orientation = await guide.update(
+      { type: 'continue', expectedStageId: 'practice-introduction' },
+      context()
+    )
+    expect(orientation?.currentStageId).toBe('executor-orientation')
+    expect(orientation?.error).toContain('không thể lưu')
+    const paused = await guide.update(
+      { type: 'pause', expectedStageId: 'executor-orientation' },
+      context()
+    )
+    expect(paused?.status).toBe('paused')
+    expect((await guide.update({ type: 'resume' }, context()))?.currentStageId)
+      .toBe('executor-orientation')
   })
 })
