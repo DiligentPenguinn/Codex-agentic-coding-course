@@ -280,6 +280,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.match(await practiceBrief.textContent(), /SpeedStandard/)
   assert.match(await practiceBrief.textContent(), /ApprovalApprove for me/)
   assert.match(await practiceBrief.textContent(), /Full accessTắt/)
+  await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-practice.png')
 
   if (verifyResponsiveLayout) {
@@ -301,8 +302,24 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     assert.ok(narrowPracticeActionBounds)
     assert.ok(narrowPracticeActionBounds.y >= 0)
     assert.ok(narrowPracticeActionBounds.y + narrowPracticeActionBounds.height <= 844)
+    const narrowBypassAction = page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true })
+    await narrowBypassAction.scrollIntoViewIfNeeded()
+    const narrowBypassActionBounds = await narrowBypassAction.boundingBox()
+    assert.ok(narrowBypassActionBounds)
+    assert.ok(narrowBypassActionBounds.y >= 0)
+    assert.ok(narrowBypassActionBounds.y + narrowBypassActionBounds.height <= 844)
     await page.setViewportSize({ width: 1180, height: 780 })
   }
+
+  const progressBeforeBypass = await page.evaluate(async () => globalThis.courseCompanion?.loadProgress())
+  await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true }).click()
+  await page.getByText('DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT', { exact: true }).waitFor()
+  await page.getByText('MODULE 2 · BÀI 1/5 · TRANG 2/5', { exact: true }).first().waitFor()
+  await page.getByRole('button', { name: 'THOÁT DUYỆT NỘI DUNG', exact: true }).click()
+  await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
+  assert.deepEqual(await page.evaluate(async () => globalThis.courseCompanion?.loadProgress()), progressBeforeBypass)
+  await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
+  await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
 
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
   await page.locator('.practice-brief-overlay').waitFor()

@@ -1078,6 +1078,38 @@ type LearningPosition = {
   totalPages: number
 }
 
+type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
+
+const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
+  'module-2': 'module-2-portfolio-brief',
+  'module-3': 'module-3-scaffold-intro',
+  'module-4': 'module-4-release-intro'
+}
+
+// Temporary review-only scaffolding for practice-disabled-content-development.
+// Do not merge this map or its button into the original branch; merge learner content only.
+const practiceReviewDestinationByScene: Partial<Record<SceneId, {
+  label: string
+  sceneId: SceneId
+}>> = {
+  'module-1-setup-checklist': {
+    label: 'Bỏ qua Practice · Duyệt Module 2',
+    sceneId: contentReviewStartSceneByModule['module-2']
+  },
+  'module-2-portfolio-practice': {
+    label: 'Bỏ qua Practice · Duyệt Module 3',
+    sceneId: contentReviewStartSceneByModule['module-3']
+  },
+  'module-3-portfolio-practice': {
+    label: 'Bỏ qua Practice · Duyệt Module 4',
+    sceneId: contentReviewStartSceneByModule['module-4']
+  },
+  'module-4-portfolio-practice': {
+    label: 'Bỏ qua Practice · Duyệt bài ôn tập',
+    sceneId: 'module-4-portfolio-mastery'
+  }
+}
+
 const introModule = courseStructure.modules.find((module) => module.id === 'intro')
 const setupModule = courseStructure.modules.find((module) => module.id === 'module-1')
 const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
@@ -2175,14 +2207,8 @@ export function LearningWindow() {
     return saved
   }
 
-  const startContentReview = (moduleId: 'module-2' | 'module-3' | 'module-4') => {
+  const startContentReviewAtScene = (firstSceneId: SceneId) => {
     if (!progress) return
-    const firstSceneByModule: Record<typeof moduleId, SceneId> = {
-      'module-2': 'module-2-portfolio-brief',
-      'module-3': 'module-3-scaffold-intro',
-      'module-4': 'module-4-release-intro'
-    }
-    const firstSceneId = firstSceneByModule[moduleId]
     const firstScene = scenes[firstSceneId]
     if (!contentReviewMode) savedProgressBeforeContentReview.current = progress
     setProgress(previewProgress({
@@ -2198,6 +2224,10 @@ export function LearningWindow() {
     setReviewHistoryIndex(null)
     setError('')
     setDestination('lesson')
+  }
+
+  const startContentReview = (moduleId: ContentReviewModuleId) => {
+    startContentReviewAtScene(contentReviewStartSceneByModule[moduleId])
   }
 
   const exitContentReview = () => {
@@ -2585,6 +2615,9 @@ export function LearningWindow() {
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
   const usesLessonBoard = usesModelLessonBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
+  const practiceReviewDestination = contentReviewMode
+    ? undefined
+    : practiceReviewDestinationByScene[displayedSceneId]
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
@@ -2873,6 +2906,16 @@ export function LearningWindow() {
                   {busy ? 'Đang lưu checkpoint…' : yellowChoiceLabel(choice)}
                 </button>
               ))}
+              {practiceReviewDestination ? (
+                <button
+                  className="pixel-choice pixel-practice-bypass"
+                  disabled={busy}
+                  type="button"
+                  onClick={() => startContentReviewAtScene(practiceReviewDestination.sceneId)}
+                >
+                  {practiceReviewDestination.label}
+                </button>
+              ) : null}
             </div>
           </div>
         )}

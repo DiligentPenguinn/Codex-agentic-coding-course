@@ -992,6 +992,15 @@ button:focus-visible {
 .pixel-choice.is-primary { border-color: var(--pixel-yellow); color: #000; background: var(--pixel-yellow); }
 .pixel-choice.is-primary:hover { background: #ffd666; }
 .pixel-choice.is-danger { border-color: var(--pixel-status); }
+.pixel-choice.pixel-practice-bypass {
+  border-color: rgba(255, 255, 255, .72);
+  color: rgba(255, 255, 255, .88);
+  background: #000;
+}
+.pixel-choice.pixel-practice-bypass:hover {
+  border-color: var(--pixel-yellow);
+  color: var(--pixel-yellow);
+}
 .pixel-choice:disabled { cursor: wait; opacity: 0.72; }
 
 .pixel-dialogue.has-single-choice .pixel-choices {

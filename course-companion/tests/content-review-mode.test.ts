@@ -22,6 +22,24 @@ describe('session-only content review mode', () => {
     expect(learningWindow).toContain('savedProgressBeforeContentReview')
   })
 
+  it('offers a session-only bypass at every current Practice boundary', async () => {
+    const learningWindow = await source('course-companion/src/renderer/src/surfaces/LearningWindow.tsx')
+    expect(learningWindow).toContain("'module-1-setup-checklist': {\n    label: 'Bỏ qua Practice · Duyệt Module 2'")
+    expect(learningWindow).toContain("'module-2-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt Module 3'")
+    expect(learningWindow).toContain("'module-3-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt Module 4'")
+    expect(learningWindow).toContain("'module-4-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt bài ôn tập'")
+    expect(learningWindow).toContain('onClick={() => startContentReviewAtScene(practiceReviewDestination.sceneId)}')
+    expect(learningWindow).toContain('Do not merge this map or its button into the original branch')
+  })
+
+  it('records the content-only merge boundary for the temporary review branch', async () => {
+    const plan = await source('docs/planning/portfolio-course-implementation-plan.md')
+    expect(plan).toContain('### Merge boundary — bring back content, not Practice bypasses')
+    expect(plan).toContain('`practiceReviewDestinationByScene`')
+    expect(plan).toContain('Do not cherry-pick a whole mixed commit')
+    expect(plan).toContain('or merge a whole mixed file')
+  })
+
   it('leaves the atomic Module 2 and Module 3 gates intact', async () => {
     const repository = await source('course-companion/electron/main/progress-repository.ts')
     expect(repository).toContain('assertModuleThreeUnlockGate(update')

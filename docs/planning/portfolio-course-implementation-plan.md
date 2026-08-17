@@ -3,7 +3,8 @@
 - **Status:** Foundation, Module 2, and Module 3 are implemented; owner
   acceptance is pending. On the `practice-disabled-content-development` branch,
   Module 4 learner content, five formative checks, and a six-question final
-  review are implemented for session-only content review. Module 4 Practice,
+  review are implemented for session-only content review. Temporary review-only
+  bypasses are available at every current Practice boundary. Module 4 Practice,
   artifact templates, completion, and graduation wiring remain deferred. The
   M4.0 provider rehearsal is complete, and the Codex-operated CLI flow with a
   neutral public bootstrap was approved on 16 August 2026. F0.2 was removed by
@@ -30,7 +31,7 @@ and must never be inferred from a passing automated check.
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
 | Module 2 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Review the learner-facing content and complete the required rehearsal before acceptance. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
-| Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and session-only content-review route implemented on `practice-disabled-content-development`; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 282 unit tests, nine startup tests, production build, strict-palette/responsive Electron smoke, and byte-for-byte persisted-progress preservation; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow and temporary content-first sequencing were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
+| Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, strict-palette/responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting the Module 1 bypass; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow and temporary content-first sequencing were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
 ## Temporary content-first authoring exception
 
@@ -53,10 +54,42 @@ This exception is intentionally narrow:
    acceptance only for content review. It does not permit official Module 4
    progression, external deployment, owner acceptance, pilot acceptance, or
    graduation claims.
+6. Every current Practice boundary exposes a temporary secondary action for the
+   owner to continue reviewing: Module 1 opens Module 2, Module 2 opens Module
+   3, Module 3 opens Module 4, and Module 4 opens its final review. Each action
+   enters the same session-only review mode and leaves saved progress unchanged.
+
+### Merge boundary — bring back content, not Practice bypasses
+
+When this branch is integrated into the original branch, merge learner content
+and approved question revisions only. Do not merge any temporary mechanism that
+skips, disables, simulates, or routes around Practice.
+
+The non-mergeable review scaffolding includes:
+
+- the Home Base content-review launcher and `contentReviewMode` session routing;
+- `contentReviewStartSceneByModule`, `practiceReviewDestinationByScene`,
+  `startContentReviewAtScene`, and the `pixel-practice-bypass` button;
+- tests and smoke steps whose sole purpose is to prove Practice bypass or
+  persisted-progress preservation while review mode is active;
+- learner-facing notices that say Practice is disabled on the content branch.
+
+The mergeable scope includes approved lesson, Teacher-script, prompt, quiz,
+source, and typed scene-content changes. Do not cherry-pick a whole mixed commit
+or merge a whole mixed file merely because it contains approved content. Inspect
+the diff by responsibility, retain the real Practice coordinators and completion
+gates, and exclude the review-only identifiers above. Before completing the
+merge, verify that no `pixel-practice-bypass` control remains and that every
+module still requires authoritative Practice evidence for official progression.
 
 Electron smoke verifies the content-review path at desktop and `390 × 844`,
 answers a Module 4 formative question, exits to Home Base, and confirms that
-`learner-state.json` is byte-for-byte unchanged.
+`learner-state.json` is byte-for-byte unchanged. On 17 August 2026, the same
+smoke journey also exercised the Module 1 bypass, opened Module 2 review, exited,
+restored the exact Practice checkpoint, and then completed the real Practice
+path. Typecheck, lint, 284 unit tests, nine startup tests, production build, and
+Electron smoke passed. This verification does not mark Foundation or any module
+as owner-approved or pilot-accepted.
 
 ## Purpose
 
@@ -1036,12 +1069,13 @@ deployment path.
 
 **Content-first implementation note — 17 August 2026:** The manifest, five
 learner content milestones, Teacher script, start prompt, five formative checks,
-six-question final review, typed renderer scenes, and session-only review route
-are implemented on `practice-disabled-content-development`. Artifact templates,
-the `m4-portfolio-release` Practice definition file, evidence adapters, official
+six-question final review, typed renderer scenes, session-only review route, and
+temporary per-Practice review bypasses are implemented on
+`practice-disabled-content-development`. Artifact templates, the
+`m4-portfolio-release` Practice definition file, evidence adapters, official
 completion service, and graduation receipt remain deferred. Therefore M4.1 is
 `in-progress`, not complete. Focused verification passed with typecheck, lint,
-282 unit tests, nine startup tests, production build, and Electron smoke. The
+284 unit tests, nine startup tests, production build, and Electron smoke. The
 content itself still requires owner review.
 
 **Change**
