@@ -919,15 +919,6 @@ button:focus-visible {
   .pixel-visual-lightbox { animation: none; }
 }
 
-.pixel-review-notice {
-  position: relative;
-  z-index: 1;
-  margin-top: 10px;
-  color: var(--pixel-accent);
-  font: 800 7px/1.4 var(--pixel-font);
-  letter-spacing: 0.1em;
-}
-
 .pixel-review-return {
   position: relative;
   z-index: 1;
@@ -1839,16 +1830,6 @@ button:focus-visible {
 }
 .pixel-hud-teacher:hover { background: #ffd666; }
 
-.pixel-content-review-exit {
-  min-height: 36px;
-  padding: 8px 10px;
-  border: 2px solid rgba(255, 255, 255, .72);
-  color: var(--pixel-white);
-  background: #000;
-  font: 800 7px/1 var(--pixel-font);
-}
-.pixel-content-review-exit:hover { border-color: var(--pixel-yellow); color: var(--pixel-yellow); }
-
 .pixel-course-app {
   position: relative;
   width: 100vw;
@@ -1997,18 +1978,6 @@ button:focus-visible {
   font-size: 7px;
 }
 .pixel-content-review-actions button:hover { border-color: var(--pixel-yellow); color: var(--pixel-yellow); }
-
-.pixel-content-review-notice {
-  position: relative;
-  z-index: 1;
-  margin-top: 10px;
-  padding: 8px 10px;
-  border: 1px solid var(--pixel-yellow);
-  color: var(--pixel-yellow);
-  background: rgba(0, 0, 0, .72);
-  font: 800 7px/1.45 var(--pixel-font);
-  letter-spacing: .08em;
-}
 
 .pixel-home-teacher {
   position: fixed;
@@ -3015,7 +2984,6 @@ button:focus-visible {
 .pixel-practice-brief > section,
 .pixel-practice-report-title,
 .pixel-practice-settings div,
-.pixel-review-notice,
 .pixel-assessment-options button,
 .pixel-assessment-feedback,
 .pixel-assessment-source,

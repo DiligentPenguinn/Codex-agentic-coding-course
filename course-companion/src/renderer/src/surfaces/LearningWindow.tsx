@@ -2662,9 +2662,6 @@ export function LearningWindow() {
           <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
         </div>
         <div className="pixel-hud-actions">
-          {contentReviewMode ? (
-            <button className="pixel-content-review-exit" type="button" onClick={exitContentReview}>THOÁT DUYỆT NỘI DUNG</button>
-          ) : null}
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
             THOÁT · v{runtime?.appVersion ?? '…'}
@@ -2797,8 +2794,6 @@ export function LearningWindow() {
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : scene.dialogue}</p>
         )}
-        {contentReviewMode ? <div className="pixel-content-review-notice">DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT</div> : null}
-        {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
           <div className="pixel-review-return">

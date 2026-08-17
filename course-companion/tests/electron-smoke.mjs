@@ -313,9 +313,9 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
 
   const progressBeforeBypass = await page.evaluate(async () => globalThis.courseCompanion?.loadProgress())
   await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true }).click()
-  await page.getByText('DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT', { exact: true }).waitFor()
   await page.getByText('MODULE 2 · BÀI 1/5 · TRANG 2/5', { exact: true }).first().waitFor()
-  await page.getByRole('button', { name: 'THOÁT DUYỆT NỘI DUNG', exact: true }).click()
+  assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
+  await page.locator('.pixel-brand').click()
   await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   assert.deepEqual(await page.evaluate(async () => globalThis.courseCompanion?.loadProgress()), progressBeforeBypass)
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
@@ -593,8 +593,8 @@ async function verifyContentReviewMode(page) {
   const statePath = join(userDataDirectory, 'learner-state.json')
   const before = await readFile(statePath, 'utf8')
   await page.getByRole('button', { name: 'Duyệt nội dung Module 4', exact: true }).click()
-  await page.getByText('DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT', { exact: true }).waitFor()
   await page.getByText('MODULE 4 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
   assert.equal(await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).count(), 0)
   await capture(page, 'module-4-content-review.png')
 
@@ -612,7 +612,7 @@ async function verifyContentReviewMode(page) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await answerAssessmentGroup(page, 'release-validation-retrieval')
   await page.getByText('KIỂM TRA TRƯỚC MỌI HÀNH ĐỘNG MẠNG', { exact: true }).waitFor()
-  await page.getByRole('button', { name: 'THOÁT DUYỆT NỘI DUNG', exact: true }).click()
+  await page.locator('.pixel-brand').click()
   await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   assert.equal(await readFile(statePath, 'utf8'), before)
 }
@@ -710,8 +710,9 @@ try {
     .waitFor()
   await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).click()
   await firstWindows.learningPage
-    .getByText('ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN', { exact: true })
+    .getByRole('button', { name: 'Quay lại trang đang học', exact: true })
     .waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-review-notice').count(), 0)
   await capture(firstWindows.learningPage, 'lesson-review-mode.png')
   await firstWindows.learningPage
     .getByRole('button', { name: 'Quay lại trang đang học', exact: true })
