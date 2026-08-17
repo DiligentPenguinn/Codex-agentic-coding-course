@@ -2116,3 +2116,163 @@ button:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .practice-loading-orbit { animation: none; border-color: var(--pixel-cyan); }
 }
+.practice-guide-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(7, 12, 19, 0.72);
+  backdrop-filter: blur(1px);
+}
+
+.practice-guide {
+  z-index: 91;
+  width: min(390px, calc(100vw - 32px));
+  border: 3px solid var(--pixel-cyan);
+  border-radius: 3px;
+  padding: 18px;
+  color: var(--pixel-cream);
+  background: #101b2a;
+  box-shadow: 8px 8px 0 rgba(5, 9, 15, 0.72);
+  font-family: var(--sans-font);
+}
+.practice-guide.is-intro-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.practice-guide.is-orientation-card {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+}
+.practice-guide.is-coach-mark {
+  position: fixed;
+  top: var(--guide-top);
+  left: var(--guide-left);
+}
+.practice-guide.is-coach-mark:not(.is-fallback)::before {
+  position: absolute;
+  top: -10px;
+  left: 22px;
+  width: 14px;
+  height: 14px;
+  border-top: 3px solid var(--pixel-cyan);
+  border-left: 3px solid var(--pixel-cyan);
+  background: #101b2a;
+  content: "";
+  transform: rotate(45deg);
+}
+.practice-guide.is-fallback {
+  position: sticky;
+  top: 12px;
+  left: auto;
+  margin: 12px auto;
+}
+.practice-guide header small,
+.practice-guide header h2 {
+  display: block;
+  font-family: var(--pixel-font);
+}
+.practice-guide header small {
+  color: var(--pixel-cyan);
+  font-size: 7px;
+  line-height: 1.5;
+}
+.practice-guide header h2 {
+  margin: 10px 0 0;
+  color: var(--pixel-yellow);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.practice-guide > p {
+  margin: 14px 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.practice-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.practice-guide-actions button,
+.practice-guide-mastery button {
+  min-height: 40px;
+  border: 2px solid var(--pixel-cyan);
+  padding: 8px 12px;
+  color: #071019;
+  background: var(--pixel-cyan);
+  font: 8px/1.4 var(--pixel-font);
+  cursor: pointer;
+}
+.practice-guide-actions button.is-secondary {
+  color: var(--pixel-cream);
+  background: transparent;
+}
+.practice-guide-actions button:focus-visible,
+.practice-guide-mastery button:focus-visible {
+  outline: 3px solid var(--pixel-yellow);
+  outline-offset: 3px;
+}
+.practice-guide-escape {
+  display: block;
+  margin-top: 12px;
+  color: var(--pixel-muted);
+  font-size: 11px;
+}
+.practice-guide-warning {
+  margin: 10px 0;
+  border-left: 3px solid var(--pixel-yellow);
+  padding: 8px;
+  color: var(--pixel-yellow);
+  font-size: 11px;
+}
+.practice-guide-mastery {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 16px 0;
+  border: 3px solid var(--pixel-mint);
+  padding: 16px;
+  color: var(--pixel-cream);
+  background: #12241f;
+  box-shadow: 5px 5px 0 rgba(5, 9, 15, 0.42);
+}
+.practice-guide-mastery small,
+.practice-guide-mastery h2 {
+  font-family: var(--pixel-font);
+}
+.practice-guide-mastery small {
+  color: var(--pixel-mint);
+  font-size: 7px;
+}
+.practice-guide-mastery h2 {
+  margin: 8px 0;
+  color: var(--pixel-yellow);
+  font-size: 12px;
+}
+.practice-guide-mastery p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .practice-guide.is-orientation-card {
+    right: 16px;
+    bottom: 16px;
+  }
+  .practice-guide-mastery {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .practice-guide,
+  .practice-guide-scrim {
+    animation: none;
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
