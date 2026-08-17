@@ -254,6 +254,68 @@
         }
       ],
       "nextLessonId": "module-4"
+    },
+    {
+      "id": "module-4",
+      "kind": "module",
+      "titleVi": "Kiểm chứng, phát hành và chứng minh quyền sở hữu",
+      "titleEn": "Validate, publish, and prove ownership",
+      "lessonPath": "course/lessons/module-4.vi.md",
+      "scriptPath": "course/lesson-scripts/module-4.script.vi.md",
+      "quizPath": "course/quizzes/module-4.quiz.json",
+      "promptPath": "course/prompts/start-module-4.vi.md",
+      "viewportContract": {
+        "desktop": { "width": 1440, "height": 900 },
+        "mobile": { "width": 390, "height": 844 }
+      },
+      "contentDevelopment": {
+        "practiceWiring": "deferred",
+        "officialCompletion": "disabled",
+        "reviewMode": "session-only"
+      },
+      "checkpoints": [
+        "m4-release-validation",
+        "m4-security-publication",
+        "m4-preview-deployment",
+        "m4-production-decision",
+        "m4-ownership-transfer",
+        "m4-portfolio-release",
+        "m4-mastery",
+        "m4-complete"
+      ],
+      "lessons": [
+        {
+          "id": "m4-release-validation",
+          "titleVi": "Kiểm chứng phiên bản phát hành",
+          "checkpoints": ["m4-release-validation"]
+        },
+        {
+          "id": "m4-security-publication",
+          "titleVi": "Duyệt an toàn và phạm vi công bố",
+          "checkpoints": ["m4-security-publication"]
+        },
+        {
+          "id": "m4-preview-deployment",
+          "titleVi": "Tạo và kiểm chứng Preview",
+          "checkpoints": ["m4-preview-deployment"]
+        },
+        {
+          "id": "m4-production-decision",
+          "titleVi": "Quyết định có đưa lên Production hay không",
+          "checkpoints": ["m4-production-decision"]
+        },
+        {
+          "id": "m4-ownership-transfer",
+          "titleVi": "Chứng minh quyền sở hữu và chuyển giao kỹ năng",
+          "checkpoints": [
+            "m4-ownership-transfer",
+            "m4-portfolio-release",
+            "m4-mastery",
+            "m4-complete"
+          ]
+        }
+      ],
+      "nextLessonId": null
     }
   ]
 }

@@ -108,7 +108,36 @@ const rendererModules = [
     titleVi: moduleFourDefinition.titleVi,
     lessons: moduleFourDefinition.lessons,
     lessonPages: {
-      'm4-release-validation': [['module-4-placeholder']]
+      'm4-release-validation': [
+        ['module-4-release-intro'],
+        ['module-4-check-release-evidence']
+      ],
+      'm4-security-publication': [
+        ['module-4-security-intro'],
+        ['module-4-check-protection-scope']
+      ],
+      'm4-preview-deployment': [
+        ['module-4-preview-intro'],
+        ['module-4-check-preview-evidence']
+      ],
+      'm4-production-decision': [
+        ['module-4-production-intro'],
+        ['module-4-check-production-choice']
+      ],
+      'm4-ownership-transfer': [
+        ['module-4-ownership-intro'],
+        ['module-4-check-transfer-boundary'],
+        ['module-4-portfolio-practice'],
+        ['module-4-portfolio-mastery'],
+        ['module-4-mastery-release'],
+        ['module-4-mastery-security'],
+        ['module-4-mastery-preview'],
+        ['module-4-mastery-production'],
+        ['module-4-mastery-owned-release'],
+        ['module-4-mastery-owned-transfer'],
+        ['module-4-mastery-summary'],
+        ['module-4-complete']
+      ]
     },
     scenes: moduleFourScenes
   }

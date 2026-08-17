@@ -23,6 +23,9 @@ const setupQuiz = JSON.parse(
 const planningQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-2.quiz.json'), 'utf8')
 )
+const releaseQuiz = JSON.parse(
+  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-4.quiz.json'), 'utf8')
+)
 
 function assessmentGroup(groupId) {
   if (groupId === 'setup-final-assessment') {
@@ -32,7 +35,8 @@ function assessmentGroup(groupId) {
       questions: setupQuiz.questions
     }
   }
-  const group = planningQuiz.groups.find((candidate) => candidate.id === groupId)
+  const group = [...planningQuiz.groups, ...releaseQuiz.groups]
+    .find((candidate) => candidate.id === groupId)
   assert.ok(group, `Expected assessment group ${groupId}`)
   return group
 }
@@ -568,6 +572,34 @@ async function verifyHomeBase(page) {
   }
 }
 
+async function verifyContentReviewMode(page) {
+  const statePath = join(userDataDirectory, 'learner-state.json')
+  const before = await readFile(statePath, 'utf8')
+  await page.getByRole('button', { name: 'Duyệt nội dung Module 4', exact: true }).click()
+  await page.getByText('DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT', { exact: true }).waitFor()
+  await page.getByText('MODULE 4 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
+  assert.equal(await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).count(), 0)
+  await capture(page, 'module-4-content-review.png')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  const narrowWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(narrowWidths.body, narrowWidths.viewport)
+  assert.equal(narrowWidths.document, narrowWidths.viewport)
+  await capture(page, 'module-4-content-review-390px.png')
+  await page.setViewportSize({ width: 1180, height: 780 })
+
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await answerAssessmentGroup(page, 'release-validation-retrieval')
+  await page.getByText('KIỂM TRA TRƯỚC MỌI HÀNH ĐỘNG MẠNG', { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'THOÁT DUYỆT NỘI DUNG', exact: true }).click()
+  await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
+  assert.equal(await readFile(statePath, 'utf8'), before)
+}
+
 let firstLaunch
 let resumedLaunch
 let chatHistoryLaunch
@@ -727,6 +759,7 @@ try {
   await completeSetupModule(firstWindows.learningPage, firstWindows.companionPage, firstLaunch, true)
   assert.equal(await fingerprintTree(practiceWorkspace.canonicalStarter), canonicalStarterFingerprint)
   await verifyHomeBase(firstWindows.learningPage)
+  await verifyContentReviewMode(firstWindows.learningPage)
   await firstWindows.learningPage
     .getByRole('button', { name: /MODULE 2.*MỞ BÀI HỌC/ })
     .click()

@@ -1830,6 +1830,16 @@ button:focus-visible {
 }
 .pixel-hud-teacher:hover { background: #ffd666; }
 
+.pixel-content-review-exit {
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 2px solid rgba(255, 255, 255, .72);
+  color: var(--pixel-white);
+  background: #000;
+  font: 800 7px/1 var(--pixel-font);
+}
+.pixel-content-review-exit:hover { border-color: var(--pixel-yellow); color: var(--pixel-yellow); }
+
 .pixel-course-app {
   position: relative;
   width: 100vw;
@@ -1950,6 +1960,46 @@ button:focus-visible {
 .pixel-course-progress strong { display: block; font-family: var(--pixel-font); }
 .pixel-course-progress small { color: var(--pixel-accent); font-size: 6px; letter-spacing: 0.1em; }
 .pixel-course-progress strong { margin-top: 6px; color: var(--pixel-white); font-size: 8px; line-height: 1.25; }
+
+.pixel-content-review-launcher {
+  margin-bottom: 18px;
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  border: 1px solid var(--pixel-yellow);
+  border-radius: var(--obsidian-radius-panel);
+  background: rgba(0, 0, 0, .97);
+}
+.pixel-content-review-launcher small,
+.pixel-content-review-launcher h2,
+.pixel-content-review-actions button { font-family: var(--pixel-font); }
+.pixel-content-review-launcher small { color: var(--pixel-yellow); font-size: 7px; letter-spacing: .12em; }
+.pixel-content-review-launcher h2 { margin: 8px 0 0; font-size: 13px; line-height: 1.4; }
+.pixel-content-review-launcher p { max-width: 620px; margin: 8px 0 0; color: rgba(255, 255, 255, .72); font-size: 12px; line-height: 1.55; }
+.pixel-content-review-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.pixel-content-review-actions button {
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid rgba(255, 255, 255, .34);
+  color: var(--pixel-white);
+  background: #000;
+  font-size: 7px;
+}
+.pixel-content-review-actions button:hover { border-color: var(--pixel-yellow); color: var(--pixel-yellow); }
+
+.pixel-content-review-notice {
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--pixel-yellow);
+  color: var(--pixel-yellow);
+  background: rgba(0, 0, 0, .72);
+  font: 800 7px/1.45 var(--pixel-font);
+  letter-spacing: .08em;
+}
 
 .pixel-home-teacher {
   position: fixed;
@@ -2174,6 +2224,9 @@ button:focus-visible {
   .pixel-home-heading h1 { font-size: 18px; }
   .pixel-home-heading p { font-size: 12px; }
   .pixel-course-progress { align-self: flex-start; }
+  .pixel-content-review-launcher { grid-template-columns: 1fr; padding: 14px; }
+  .pixel-content-review-actions { justify-content: stretch; }
+  .pixel-content-review-actions button { flex: 1 1 130px; }
   .pixel-home-teacher {
     position: relative;
     right: auto;

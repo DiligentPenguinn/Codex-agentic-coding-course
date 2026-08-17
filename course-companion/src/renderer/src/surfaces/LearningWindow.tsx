@@ -21,6 +21,7 @@ import setupPracticeDefinitionSource from '../../../../../pilot-workspace/course
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import buildQuiz from '../../../../../pilot-workspace/course/quizzes/module-3.quiz.json'
+import releaseQuiz from '../../../../../pilot-workspace/course/quizzes/module-4.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
@@ -175,7 +176,8 @@ const setupAssessmentGroup: AssessmentGroup = {
 const assessmentGroups = [
   setupAssessmentGroup,
   ...(planningQuiz.groups as AssessmentGroup[]),
-  ...(buildQuiz.groups as AssessmentGroup[])
+  ...(buildQuiz.groups as AssessmentGroup[]),
+  ...(releaseQuiz.groups as AssessmentGroup[])
 ]
 const assessmentQuestions = assessmentGroups.flatMap((group) => group.questions)
 const assessmentQuestionById = new Map(assessmentQuestions.map((question) => [question.id, question]))
@@ -1818,6 +1820,7 @@ type PixelAppShellProps = {
   onQuit: () => void
   onReset: () => void
   onSettingsChange: (alwaysOnTop: boolean) => void
+  onStartContentReview: (moduleId: 'module-2' | 'module-3' | 'module-4') => void
 }
 
 function PixelAppShell({
@@ -1831,7 +1834,8 @@ function PixelAppShell({
   onCloseTeacher,
   onQuit,
   onReset,
-  onSettingsChange
+  onSettingsChange,
+  onStartContentReview
 }: PixelAppShellProps) {
   const [confirmReset, setConfirmReset] = useState(false)
   const scene = scenes[progress.sceneId]
@@ -1899,6 +1903,19 @@ function PixelAppShell({
                 <strong>{completed.size}/{runnableCheckpointIds.length} checkpoint · {progressPercent}%</strong>
               </div>
             </div>
+
+            <section className="pixel-content-review-launcher" aria-labelledby="contentReviewTitle">
+              <div>
+                <small>CHẾ ĐỘ SOẠN NỘI DUNG</small>
+                <h2 id="contentReviewTitle">Duyệt nội dung mà không chạy Practice</h2>
+                <p>Câu trả lời và chuyển trang chỉ tồn tại trong phiên duyệt. Tiến độ, biên nhận và điều kiện hoàn thành thật không thay đổi.</p>
+              </div>
+              <div className="pixel-content-review-actions">
+                <button type="button" onClick={() => onStartContentReview('module-2')}>Duyệt nội dung Module 2</button>
+                <button type="button" onClick={() => onStartContentReview('module-3')}>Duyệt nội dung Module 3</button>
+                <button type="button" onClick={() => onStartContentReview('module-4')}>Duyệt nội dung Module 4</button>
+              </div>
+            </section>
 
             <div className="pixel-roadmap" aria-label="Lộ trình học">
               {currentModuleId === 'module-1' ? (
@@ -2038,7 +2055,9 @@ export function LearningWindow() {
   const [visualExpanded, setVisualExpanded] = useState(false)
   const [secondaryVisualExpanded, setSecondaryVisualExpanded] = useState(false)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
+  const [contentReviewMode, setContentReviewMode] = useState(false)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
+  const savedProgressBeforeContentReview = useRef<LearnerProgress | null>(null)
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
     if (current.sceneId !== 'module-2-planning-package' || current.practice.status !== 'completed') return current
@@ -2144,11 +2163,51 @@ export function LearningWindow() {
     return () => unsubscribe?.()
   }, [])
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
+    if (contentReviewMode) {
+      const reviewed = previewProgress(update, progress ?? undefined)
+      setProgress(reviewed)
+      return reviewed
+    }
     const saved = window.courseCompanion
       ? await window.courseCompanion.saveProgress(update)
       : previewProgress(update, progress ?? undefined)
     setProgress(saved)
     return saved
+  }
+
+  const startContentReview = (moduleId: 'module-2' | 'module-3' | 'module-4') => {
+    if (!progress) return
+    const firstSceneByModule: Record<typeof moduleId, SceneId> = {
+      'module-2': 'module-2-portfolio-brief',
+      'module-3': 'module-3-scaffold-intro',
+      'module-4': 'module-4-release-intro'
+    }
+    const firstSceneId = firstSceneByModule[moduleId]
+    const firstScene = scenes[firstSceneId]
+    if (!contentReviewMode) savedProgressBeforeContentReview.current = progress
+    setProgress(previewProgress({
+      currentLessonId: firstScene.lessonId,
+      currentCourseLessonId: courseLessonIdForScene(firstSceneId),
+      checkpointId: firstScene.checkpointId,
+      sceneId: firstSceneId,
+      sceneHistory: [],
+      completedCheckpointIds: [],
+      decisions: {}
+    }, progress))
+    setContentReviewMode(true)
+    setReviewHistoryIndex(null)
+    setError('')
+    setDestination('lesson')
+  }
+
+  const exitContentReview = () => {
+    const saved = savedProgressBeforeContentReview.current
+    if (saved) setProgress(saved)
+    savedProgressBeforeContentReview.current = null
+    setContentReviewMode(false)
+    setReviewHistoryIndex(null)
+    setError('')
+    setDestination('home')
   }
 
   const startNew = async () => {
@@ -2285,14 +2344,20 @@ export function LearningWindow() {
       'evidence-retrieval': 'module-2-visual-reference',
       'reference-retrieval': 'module-2-portfolio-prd',
       'prd-retrieval': 'module-2-implementation-contract',
-      'planning-retrieval': 'module-2-portfolio-practice',
+      'planning-retrieval': contentReviewMode ? 'module-2-portfolio-mastery' : 'module-2-portfolio-practice',
       'final-assessment': 'module-2-portfolio-mastery-summary',
       'scaffold-retrieval': 'module-3-first-version-intro',
       'first-version-retrieval': 'module-3-revision-intro',
       'revision-retrieval': 'module-3-debugging-intro',
       'debugging-retrieval': 'module-3-enhancement-intro',
-      'enhancement-retrieval': 'module-3-portfolio-practice',
+      'enhancement-retrieval': contentReviewMode ? 'module-3-portfolio-mastery' : 'module-3-portfolio-practice',
       'm3-final-assessment': 'module-3-mastery-summary',
+      'release-validation-retrieval': 'module-4-security-intro',
+      'security-publication-retrieval': 'module-4-preview-intro',
+      'preview-deployment-retrieval': 'module-4-production-intro',
+      'production-decision-retrieval': 'module-4-ownership-intro',
+      'ownership-transfer-retrieval': contentReviewMode ? 'module-4-portfolio-mastery' : 'module-4-portfolio-practice',
+      'm4-final-assessment': 'module-4-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
@@ -2356,6 +2421,10 @@ export function LearningWindow() {
       return
     }
     if (choice.action === 'practice') {
+      if (contentReviewMode) {
+        setError('Practice đang tắt trong chế độ duyệt nội dung. Hãy tiếp tục tới phần ôn tập.')
+        return
+      }
       const practiceScene = scenes[progress.sceneId]
       if (practiceScene.practice
         || progress.sceneId === 'module-2-portfolio-practice'
@@ -2444,6 +2513,7 @@ export function LearningWindow() {
         onQuit={() => void window.courseCompanion?.quitApp()}
         onReset={() => void reset()}
         onSettingsChange={(alwaysOnTop) => void updateAppSettings(alwaysOnTop)}
+        onStartContentReview={startContentReview}
       />
     )
   }
@@ -2503,6 +2573,7 @@ export function LearningWindow() {
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
     || displayedSceneId === 'module-3-mastery-summary'
+    || displayedSceneId === 'module-4-mastery-summary'
   const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
     && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
@@ -2538,6 +2609,10 @@ export function LearningWindow() {
 
       <header className="pixel-hud">
         <button className="pixel-brand pixel-brand--button" type="button" onClick={() => {
+          if (contentReviewMode) {
+            exitContentReview()
+            return
+          }
           setApprovalFocus(null)
           setVisualExpanded(false)
           setSecondaryVisualExpanded(false)
@@ -2554,6 +2629,9 @@ export function LearningWindow() {
           <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
         </div>
         <div className="pixel-hud-actions">
+          {contentReviewMode ? (
+            <button className="pixel-content-review-exit" type="button" onClick={exitContentReview}>THOÁT DUYỆT NỘI DUNG</button>
+          ) : null}
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
             THOÁT · v{runtime?.appVersion ?? '…'}
@@ -2670,7 +2748,13 @@ export function LearningWindow() {
         ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
-              ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với bảy tài liệu hiện tại và quy tắc đánh giá mức độ làm chủ của bản pilot trước khi mở Module 3.`
+              ? contentReviewMode
+                ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu trong phiên duyệt. Kết quả này không tạo biên nhận, không mở khóa module và không thay đổi tiến độ đã lưu.`
+                : displayedSceneId === 'module-2-portfolio-mastery-summary'
+                  ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với bảy tài liệu hiện tại trước khi mở Module 3.`
+                  : displayedSceneId === 'module-3-mastery-summary'
+                    ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với tám tài liệu và bằng chứng tạo bản dựng hiện tại.`
+                    : `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Practice và điều kiện tốt nghiệp Module 4 chưa được nối trong branch soạn nội dung.`
               : finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
@@ -2680,6 +2764,7 @@ export function LearningWindow() {
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : scene.dialogue}</p>
         )}
+        {contentReviewMode ? <div className="pixel-content-review-notice">DUYỆT NỘI DUNG · KHÔNG LƯU TIẾN ĐỘ · PRACTICE ĐANG TẮT</div> : null}
         {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
@@ -2714,7 +2799,24 @@ export function LearningWindow() {
           <div className="pixel-assessment-summary" data-result={isPortfolioMasterySummary ? 'review' : finalPassed ? 'pass' : 'retry'}>
             <strong>{isPortfolioMasterySummary ? 'ĐÃ TRẢ LỜI' : finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
             <span>{isPortfolioMasterySummary ? finalAnsweredCount : finalCorrectCount}/{finalQuestionCount} câu</span>
-            {isPortfolioMasterySummary ? (
+            {contentReviewMode ? (
+              <div className="pixel-assessment-review-actions">
+                <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
+                  Làm lại {finalQuestionCount} câu
+                </button>
+                {displayedSceneId === 'module-2-portfolio-mastery-summary' ? (
+                  <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => startContentReview('module-3')}>
+                    Duyệt nội dung Module 3
+                  </button>
+                ) : displayedSceneId === 'module-3-mastery-summary' ? (
+                  <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => startContentReview('module-4')}>
+                    Duyệt nội dung Module 4
+                  </button>
+                ) : (
+                  <button className="pixel-choice is-primary" type="button" onClick={exitContentReview}>Kết thúc duyệt nội dung</button>
+                )}
+              </div>
+            ) : isPortfolioMasterySummary ? (
               <div className="pixel-assessment-review-actions">
                 <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
                   Làm lại {finalQuestionCount} câu
@@ -2723,9 +2825,13 @@ export function LearningWindow() {
                   <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
                     {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
                   </button>
-                ) : (
+                ) : displayedSceneId === 'module-3-mastery-summary' ? (
                   <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioBuildModule()}>
                     {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 3'}
+                  </button>
+                ) : (
+                  <button className="pixel-choice is-primary" disabled type="button">
+                    Chờ nối Practice và điều kiện tốt nghiệp
                   </button>
                 )}
               </div>
