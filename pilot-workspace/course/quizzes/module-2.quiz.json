@@ -54,7 +54,7 @@
           "id": "brief-retrieval-2",
           "sceneId": "module-2-check-brief-success",
           "type": "multiple-choice",
-          "prompt": "Dấu hiệu truyền đạt thành công nào có thể kiểm tra rõ nhất?",
+          "prompt": "Sau khi xem portfolio, người xem cần hiểu hoặc làm được điều gì để bạn biết trang đã truyền đạt đúng thông điệp?",
           "choices": [
             "Portfolio trông thật chuyên nghiệp.",
             "Ai cũng thích portfolio.",
@@ -62,7 +62,7 @@
             "Portfolio tạo cảm giác tuyệt vời."
           ],
           "answerIndex": 2,
-          "explanation": "Dấu hiệu đúng mô tả thông tin và hành động có thể quan sát. Những từ như chuyên nghiệp, thích hoặc tuyệt vời chưa cho biết phải kiểm tra điều gì.",
+          "explanation": "Câu trả lời rõ nêu thông tin người xem cần hiểu hoặc hành động họ cần làm được. Những từ như chuyên nghiệp, thích hoặc tuyệt vời chưa cho biết trang cần truyền đạt điều gì.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Quyết định chương trình D-008 — Module 2",
@@ -84,13 +84,13 @@
           "type": "multiple-choice",
           "prompt": "Bạn nhớ mình từng tăng doanh thu 30% nhưng chưa tìm được báo cáo gốc. Trạng thái phù hợp nhất lúc này là gì?",
           "choices": [
-            "Đã kiểm chứng.",
+            "Có bằng chứng.",
             "Còn thiếu bằng chứng và chưa công khai như một sự thật chắc chắn.",
             "Được phép công khai nên chắc chắn đúng.",
             "Không cần ghi vào inventory."
           ],
           "answerIndex": 1,
-          "explanation": "Khi chưa có nguồn phù hợp, con số không nên được trình bày như một sự thật đã kiểm chứng. Ghi rõ khoảng trống giữ cho kế hoạch trung thực và tạo một việc tiếp theo cụ thể.",
+          "explanation": "Khi chưa có nguồn phù hợp, con số không nên được trình bày như một sự thật đã có bằng chứng. Ghi rõ khoảng trống giữ cho kế hoạch trung thực và tạo một việc tiếp theo cụ thể.",
           "source": {
             "kind": "authoritative-source",
             "label": "GOV.UK — Learning about users and their needs",
@@ -102,11 +102,11 @@
           "id": "evidence-retrieval-2",
           "sceneId": "module-2-check-evidence-permission",
           "type": "multiple-choice",
-          "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Inventory nên ghi thế nào?",
+          "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Tài liệu nên ghi thế nào?",
           "choices": [
-            "Đã kiểm chứng và được phép công khai.",
-            "Đã kiểm chứng, nhưng quyền công bố chưa rõ nên chưa dùng công khai.",
-            "Giả định và được phép công khai.",
+            "Có bằng chứng và được phép công khai.",
+            "Có bằng chứng, nhưng quyền công bố chưa rõ nên chưa dùng công khai.",
+            "Đang giả định và được phép công khai.",
             "Xóa thông tin nguồn để tránh phải xin phép."
           ],
           "answerIndex": 1,
@@ -246,11 +246,11 @@
           "id": "planning-retrieval-2",
           "sceneId": "module-2-check-delayed-evidence",
           "type": "multiple-choice",
-          "prompt": "Ngay trước gate, một kết quả dự án vẫn là lời tự khai và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
+          "prompt": "Ngay trước gate, một kết quả dự án vẫn chỉ do bạn xác nhận và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
           "choices": [
             "Đủ sẵn sàng vì PRD đã viết xong.",
             "Giữ đúng nhãn, chặn nội dung chưa có quyền khỏi bản công khai và ghi việc cần làm trước khi xây.",
-            "Đổi cả hai thành đã kiểm chứng để qua gate.",
+            "Đổi cả hai thành Có bằng chứng để qua gate.",
             "Bỏ qua vì đây chỉ là planning."
           ],
           "answerIndex": 1,
@@ -297,7 +297,7 @@
           "prompt": "Một chứng nhận có thật, nhưng tên và mã định danh cá nhân trên ảnh không cần cho người xem. Cách xử lý nào phù hợp?",
           "choices": [
             "Đăng ảnh gốc vì chứng nhận là thật.",
-            "Ghi bằng chứng là đã kiểm chứng, nhưng che hoặc loại dữ liệu không cần thiết trước khi công khai.",
+            "Ghi trạng thái Có bằng chứng, nhưng che hoặc loại dữ liệu không cần thiết trước khi công khai.",
             "Đổi trạng thái thành giả định.",
             "Không cần ghi quyền riêng tư trong planning."
           ],
@@ -354,7 +354,7 @@
           "id": "mastery-5",
           "sceneId": "module-2-mastery-scenario-validation",
           "type": "multiple-choice",
-          "prompt": "Map có yêu cầu `REQ-07` nhưng ô cách kiểm tra đang trống. Điều gì phải xảy ra trước khi gate đạt?",
+          "prompt": "Phần kiểm chứng trong kế hoạch triển khai có yêu cầu `REQ-07` nhưng cách kiểm tra đang để trống. Điều gì phải xảy ra trước khi gate đạt?",
           "choices": [
             "Cho đạt vì requirement đã có mã.",
             "Bổ sung tiêu chí, cách kiểm tra và bằng chứng phù hợp; nếu không kiểm tra được thì làm rõ lại yêu cầu.",
@@ -374,15 +374,15 @@
           "id": "mastery-6",
           "sceneId": "module-2-mastery-scenario-first-task",
           "type": "multiple-choice",
-          "prompt": "Nhiệm vụ đầu tiên nào phù hợp khi Module 3 bắt đầu từ thư mục chưa có ứng dụng?",
+          "prompt": "Module 2 đã có kế hoạch triển khai được duyệt. Điều gì nên xảy ra tiếp theo?",
           "choices": [
-            "Tạo luôn toàn bộ portfolio và tự chọn mọi dependency.",
-            "Đề xuất scaffold tối thiểu, nêu lệnh, dependency, tệp và kiểm tra rồi dừng chờ Learner duyệt.",
-            "Triển khai lên production trước khi có baseline.",
-            "Sao chép một template đầy đủ mà không review."
+            "Module 2 tạo luôn task đầu tiên và bắt đầu viết code.",
+            "Module 2 dừng ở kế hoạch; Module 3 đọc năm tài liệu, đề xuất task đầu tiên và chờ người học duyệt.",
+            "Module 2 tự chọn công nghệ để Module 3 không cần hỏi nữa.",
+            "Module 3 bỏ qua tài liệu và bắt đầu từ một template đầy đủ."
           ],
           "answerIndex": 1,
-          "explanation": "Nhiệm vụ hẹp giữ lựa chọn kỹ thuật ở trạng thái đề xuất, tạo một baseline trung tính có thể kiểm tra và dừng trước khi xây nội dung portfolio.",
+          "explanation": "Module 2 chỉ hoàn thành phần lập kế hoạch. Module 3 mới dùng năm tài liệu đã duyệt để đề xuất task đầu tiên, giải thích các hệ quả kỹ thuật và chờ người học đồng ý trước khi viết code.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Quyết định chương trình D-009 — Scaffold từ đầu",
@@ -448,9 +448,9 @@
           "id": "mastery-requirement-validation",
           "sceneId": "module-2-mastery-owned-validation",
           "type": "short-answer",
-          "prompt": "Chọn một requirement thật trong `planning/requirement-validation-map.md` của bạn. Nêu tiêu chí chấp nhận, cách kiểm tra và bằng chứng sẽ lưu để chứng minh requirement đó đạt.",
+          "prompt": "Chọn một requirement thật trong phần kiểm chứng của `planning/implementation-plan.md`. Nêu tiêu chí chấp nhận, cách kiểm tra và bằng chứng sẽ lưu để chứng minh requirement đó đạt.",
           "criteria": [
-            "Dẫn chiếu một requirement ID thật trong map hiện tại của Learner.",
+            "Dẫn chiếu một requirement ID thật trong kế hoạch triển khai hiện tại của Learner.",
             "Nối đúng requirement với tiêu chí chấp nhận và một cách kiểm tra phù hợp.",
             "Nêu bằng chứng có thể quan sát hoặc lưu lại; không dùng `REQ-03` của ví dụ Mai."
           ],

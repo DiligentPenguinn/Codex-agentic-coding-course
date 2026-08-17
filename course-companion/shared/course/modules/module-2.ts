@@ -1,8 +1,7 @@
 export const moduleTwoOutlineSections = [
-  'Tại sao cần planning trước khi code với AI?',
-  'PRD là gì và dùng để làm gì?',
-  'Dùng coding agent để tạo, review và duyệt PRD',
-  'Thực hành: Lập kế hoạch cho portfolio'
+  'Lập kế hoạch trước khi xây',
+  'Một task Codex, năm lần duyệt',
+  'Năm giai đoạn, năm tài liệu'
 ] as const
 
 export const moduleTwoDefinition = {
@@ -10,11 +9,11 @@ export const moduleTwoDefinition = {
   order: 2,
   titleVi: 'Planning và PRD trước khi code với AI',
   lessons: [
-    { id: 'm2-portfolio-brief', titleVi: 'Tạo bản mô tả ngắn cho portfolio' },
-    { id: 'm2-content-evidence-inventory', titleVi: 'Kiểm kê nội dung và bằng chứng' },
-    { id: 'm2-visual-reference', titleVi: 'Chọn một tham chiếu hình ảnh' },
-    { id: 'm2-portfolio-prd', titleVi: 'Tạo và duyệt PRD cho portfolio' },
-    { id: 'm2-implementation-contract', titleVi: 'Tạo hợp đồng xây dựng và kiểm chứng' }
+    { id: 'm2-portfolio-brief', titleVi: 'Mục đích của portfolio này là gì?' },
+    { id: 'm2-content-evidence-inventory', titleVi: 'Hiện tại bạn đang có những gì?' },
+    { id: 'm2-visual-reference', titleVi: 'Bạn muốn portfolio của mình trông như thế nào?' },
+    { id: 'm2-portfolio-prd', titleVi: 'Hoàn thành PRD' },
+    { id: 'm2-implementation-contract', titleVi: 'Tạo kế hoạch triển khai' }
   ],
   checkpoints: [
     { id: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },

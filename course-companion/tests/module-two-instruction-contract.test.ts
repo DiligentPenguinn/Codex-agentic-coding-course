@@ -32,7 +32,6 @@ const artifactPaths = [
 ]
 
 const approvedPlanningOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
-const approvedPrdTransition = 'Để có một plan tốt, chúng ta sẽ cùng nhau tìm hiểu một khái niệm mới, đó là PRD. PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến chi tiết như framework, thư viện hoặc cấu trúc code.'
 const approvedPortfolioTransition = 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.'
 const conceptualParts = [
   'Phần 1 — Tại sao cần planning trước khi code với AI?',
@@ -42,7 +41,7 @@ const conceptualParts = [
 ]
 
 describe('Module 2 instruction contract', () => {
-  it('teaches planning and PRD before transitioning into portfolio practice', async () => {
+  it('keeps the current Teacher integration baseline while rendering the approved three-page redesign', async () => {
     const [lesson, script, prompt, moduleTwoScenes] = await Promise.all([
       readCourseFile('lessons/module-2.vi.md'),
       readCourseFile('lesson-scripts/module-2.script.vi.md'),
@@ -61,7 +60,14 @@ describe('Module 2 instruction contract', () => {
     expect(prompt).toMatch(/dạy đủ ba phần kiến\s+thức tổng quát/)
     expect(normalizedPrompt).toContain(approvedPortfolioTransition)
     expect(normalizedPrompt).toContain('Không rút gọn hoặc viết lại giọng kể')
-    expect(moduleTwoScenes).toContain(approvedPrdTransition)
+    for (const page of [
+      'Lập kế hoạch trước khi xây',
+      'Một task Codex, năm lần duyệt',
+      'Năm giai đoạn, năm tài liệu'
+    ]) expect(moduleTwoScenes).toContain(page)
+    expect(moduleTwoScenes).toContain("next: 'module-2-portfolio-practice-intro'")
+    expect(moduleTwoScenes).toContain('Pafolios')
+    expect(moduleTwoScenes).toContain('Awwwards')
   })
 
   it('keeps all five milestones once and in the approved order', async () => {

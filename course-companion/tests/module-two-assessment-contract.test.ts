@@ -99,7 +99,7 @@ describe('Module 2 portfolio assessment contract', () => {
       expect.stringContaining('portfolio-brief.md'),
       expect.stringContaining('PRD.md'),
       expect.stringContaining('content-evidence-inventory.md'),
-      expect.stringContaining('requirement-validation-map.md')
+      expect.stringContaining('implementation-plan.md')
     ])
     for (const question of learnerOwned) {
       expect(question.criteria?.join(' ')).toMatch(/hiện tại|thật/i)

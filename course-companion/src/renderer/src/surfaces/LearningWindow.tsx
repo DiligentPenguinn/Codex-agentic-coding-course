@@ -1083,7 +1083,7 @@ const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
   'module-2-portfolio-workspace': 0,
   'module-2-prd-introduction': 1,
   'module-2-prd-agent-workflow': 2,
-  'module-2-portfolio-practice-intro': 3
+  'module-2-portfolio-practice-intro': 2
 }
 
 function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
@@ -1985,7 +1985,7 @@ function PixelAppShell({
               )}
               {currentModuleId === 'module-3' ? (
                 <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Bảy tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Năm tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               ) : (
                 <article className="is-locked">
@@ -2489,7 +2489,12 @@ export function LearningWindow() {
       const decisions = choice.decision
         ? { ...progress.decisions, [choice.decision.key]: choice.decision.value }
         : progress.decisions
-      await advanceToScene(choice.next, decisions)
+      const nextSceneId = contentReviewMode
+        && progress.sceneId === 'module-2-prd-agent-workflow'
+        && choice.next === 'module-2-portfolio-practice-intro'
+        ? 'module-2-portfolio-practice'
+        : choice.next
+      await advanceToScene(nextSceneId, decisions)
       setApprovalFocus(null)
       setVisualExpanded(false)
       setSecondaryVisualExpanded(false)
@@ -2642,8 +2647,11 @@ export function LearningWindow() {
   const usesLessonBoard = usesModelLessonBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const practiceReviewDestination = contentReviewMode
-    ? undefined
-    : practiceReviewDestinationByScene[displayedSceneId]
+    && displayedSceneId === 'module-2-portfolio-practice'
+    ? { label: 'Bỏ qua Practice · Duyệt bài ôn tập', sceneId: 'module-2-portfolio-mastery' as SceneId }
+    : contentReviewMode
+      ? undefined
+      : practiceReviewDestinationByScene[displayedSceneId]
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
@@ -2829,7 +2837,7 @@ export function LearningWindow() {
               ? contentReviewMode
                 ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu trong phiên duyệt. Kết quả này không tạo biên nhận, không mở khóa module và không thay đổi tiến độ đã lưu.`
                 : displayedSceneId === 'module-2-portfolio-mastery-summary'
-                  ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với bảy tài liệu hiện tại trước khi mở Module 3.`
+                  ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với năm tài liệu hiện tại trước khi mở Module 3.`
                   : displayedSceneId === 'module-3-mastery-summary'
                     ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với tám tài liệu và bằng chứng tạo bản dựng hiện tại.`
                     : `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Practice và điều kiện tốt nghiệp Module 4 chưa được nối trong branch soạn nội dung.`

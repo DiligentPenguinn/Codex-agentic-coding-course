@@ -52,59 +52,60 @@ const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
 const instructionalScenes = {
   'module-2-portfolio-workspace': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Planning trước khi code với AI',
-    objective: 'Vì sao cần planning trước khi bắt tay vào xây?', panelLabel: 'MỘT KẾ HOẠCH TỐT',
-    panelStatus: 'MỤC TIÊU · PHẠM VI · CÁCH KIỂM TRA', tone: 'neutral',
-    request: 'Vậy, như thế nào là một kế hoạch tốt?',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Lập kế hoạch trước khi xây',
+    objective: 'Chốt điều cần làm trước khi Codex chọn cách làm', panelLabel: 'RANH GIỚI MODULE 2',
+    panelStatus: 'KẾ HOẠCH TRƯỚC · CODE SAU', tone: 'neutral',
+    request: 'Module 2 kết thúc ở kế hoạch triển khai. Module 3 mới bắt đầu xây.',
     evidence: [
-      { label: 'MỤC TIÊU', value: 'Sản phẩm cần giúp bạn đạt điều gì' },
-      { label: 'RANH GIỚI', value: 'Điều sẽ làm và chưa làm' },
-      { label: 'KIỂM CHỨNG', value: 'Dấu hiệu cho thấy kết quả đúng' }
+      { label: 'MỤC TIÊU', value: 'Portfolio cần truyền đạt điều gì' },
+      { label: 'PHẠM VI', value: 'Điều thuộc và chưa thuộc phiên bản đầu' },
+      { label: 'KIỂM CHỨNG', value: 'Cách biết từng yêu cầu đã đạt' }
     ],
-    dialogue: 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.',
-    choices: [{ label: 'Tìm hiểu về PRD', next: 'module-2-prd-introduction', primary: true }]
+    dialogue: 'Sau Module 1, bạn đã biết cách làm việc với Codex. Bây giờ, đừng vội yêu cầu Codex tạo ứng dụng. Nếu mục tiêu, nội dung và ranh giới còn mơ hồ, một bản dựng nhanh vẫn có thể sai hướng và khiến bạn phải làm lại. Trong Module 2, bạn sẽ chốt portfolio cần đạt điều gì, nội dung nào được phép dùng và cách kiểm tra kết quả. Chúng ta chỉ lập kế hoạch; chưa chọn công nghệ, chưa viết code và chưa tạo ứng dụng.',
+    choices: [{ label: 'Xem cách Module 2 diễn ra', next: 'module-2-prd-introduction', primary: true }]
   },
   'module-2-prd-introduction': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'PRD là gì?',
-    objective: 'Giữ quyết định về sản phẩm trước khi chọn cách xây', panelLabel: 'PRD',
-    panelStatus: 'PRODUCT REQUIREMENTS DOCUMENT', tone: 'neutral',
-    request: 'PRD mô tả sản phẩm cần giải quyết vấn đề gì và kết quả nào phải đạt được.',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Một task Codex, năm lần duyệt',
+    objective: 'Bạn quyết định; Executor soạn; Course Companion kiểm tra', panelLabel: 'AI HỖ TRỢ, BẠN LÀM CHỦ',
+    panelStatus: 'TRẢ LỜI · XEM LẠI · CHẤP NHẬN', tone: 'neutral',
+    request: 'Bạn chỉ cần trả lời từng câu bằng lời bình thường. Bạn không phải mở biểu mẫu hoặc điền thông tin kỹ thuật.',
     evidence: [
-      { label: 'VẤN ĐỀ', value: 'Vì sao sản phẩm cần tồn tại' },
-      { label: 'KẾT QUẢ', value: 'Người dùng cần làm được gì' },
-      { label: 'RANH GIỚI', value: 'Điều thuộc và không thuộc phiên bản đầu' }
+      { label: 'BẠN', value: 'Trả lời từng câu và giữ quyền quyết định' },
+      { label: 'EXECUTOR', value: 'Tạo và cập nhật năm tài liệu planning' },
+      { label: 'COURSE COMPANION', value: 'Kiểm tra tệp thật trước khi bạn duyệt' }
     ],
-    dialogue: 'Để có một plan tốt, chúng ta sẽ cùng nhau tìm hiểu một khái niệm mới, đó là PRD. PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến chi tiết như framework, thư viện hoặc cấu trúc code.',
-    choices: [{ label: 'Xem cách làm PRD cùng coding agent', next: 'module-2-prd-agent-workflow', primary: true }]
+    dialogue: 'Cả năm giai đoạn diễn ra trong cùng một task Codex để Executor luôn có các quyết định trước đó. Sau mỗi giai đoạn, Course Companion đọc tài liệu thật trên máy và tóm tắt điều đã chốt, điều còn thiếu và ranh giới cần giữ. Bạn chọn Chấp nhận để đi tiếp hoặc Yêu cầu sửa để tiếp tục trao đổi trong chính task đó. PRD và kế hoạch triển khai được tạo từ những câu trả lời đã duyệt, không phải từ một biểu mẫu bạn tự điền.',
+    choices: [{ label: 'Xem năm giai đoạn', next: 'module-2-prd-agent-workflow', primary: true }]
   },
   'module-2-prd-agent-workflow': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Tạo và review PRD cùng coding agent',
-    objective: 'Để AI hỗ trợ mà không giao luôn quyền quyết định', panelLabel: 'QUY TRÌNH 4 BƯỚC',
-    panelStatus: 'BỐI CẢNH · HỎI · REVIEW · DUYỆT', tone: 'neutral',
-    request: 'Coding agent soạn bản nháp; bạn giữ quyền quyết định mục tiêu, phạm vi và tiêu chí chấp nhận.',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Năm giai đoạn, năm tài liệu',
+    objective: 'Từ mục đích đến kế hoạch triển khai', panelLabel: 'LỘ TRÌNH MODULE 2',
+    panelStatus: '5 GIAI ĐOẠN · 5 TÀI LIỆU', tone: 'neutral',
+    request: 'Sau Giai đoạn 5, Module 2 dừng. Module 3 mới đề xuất task đầu tiên.',
     evidence: [
-      { label: '1 · BỐI CẢNH', value: 'Nêu ý tưởng và thông tin đã biết' },
-      { label: '2 · LÀM RÕ', value: 'Yêu cầu hỏi từng câu còn thiếu' },
-      { label: '3 · REVIEW', value: 'Tìm điểm mơ hồ, mâu thuẫn và tự ý mở rộng' },
-      { label: '4 · DUYỆT', value: 'Chỉ chuyển sang plan khi bạn đồng ý' }
+      { label: '1 · MỤC ĐÍCH', value: 'Bản định hướng portfolio' },
+      { label: '2 · HIỆN CÓ', value: 'Những gì bạn đang có' },
+      { label: '3 · THAM KHẢO', value: 'Nguồn tham khảo cho portfolio' },
+      { label: '4 · PRD', value: 'PRD của portfolio' },
+      { label: '5 · KẾ HOẠCH', value: 'Kế hoạch triển khai' }
     ],
-    dialogue: 'Bạn có thể yêu cầu coding agent phỏng vấn mình từng câu, soạn bản nháp PRD rồi tự rà soát những điểm còn mơ hồ. Tuy nhiên, agent không được tự quyết định mục tiêu, người dùng hoặc phạm vi thay bạn. Sau khi PRD được duyệt, agent mới chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm tra.',
-    choices: [{ label: 'Áp dụng vào dự án thực hành', next: 'module-2-portfolio-practice-intro', primary: true }]
+    dialogue: 'Ở Giai đoạn 3, bạn có thể tìm portfolio đẹp trên Pafolios hoặc xem Awwwards để mở rộng ý tưởng. Hãy nói rõ điều bạn thích và điều không phù hợp; bạn không cần bắt chước hiệu ứng phức tạp. Nguồn tham khảo không cho phép sao chép chữ, hình ảnh, thương hiệu, mã nguồn hoặc toàn bộ cách thể hiện. Giai đoạn 4 tổng hợp PRD; Giai đoạn 5 tạo kế hoạch triển khai có cách kiểm tra từng yêu cầu. Module 2 vẫn chưa thiết kế giao diện hoặc viết code.',
+    choices: [{ label: 'Xem phạm vi Practice', next: 'module-2-portfolio-practice-intro', primary: true }]
   },
   'module-2-portfolio-practice-intro': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · THỰC HÀNH', mission: 'Lập kế hoạch cho portfolio',
-    objective: 'Áp dụng quy trình PRD vào một sản phẩm thật', panelLabel: 'DỰ ÁN THỰC HÀNH',
-    panelStatus: 'PORTFOLIO CỦA BẠN', tone: 'good',
-    request: 'Portfolio là nơi bạn thực hành quy trình planning, không phải kiến thức duy nhất của module.',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Sẵn sàng vào Practice',
+    objective: 'Chọn nơi lưu các tài liệu planning', panelLabel: 'BƯỚC TIẾP THEO',
+    panelStatus: '3 TRANG · 1 PRACTICE', tone: 'good',
+    request: 'Nội dung mới đi thẳng từ ba trang giải thích tới một Practice duy nhất.',
     evidence: [
-      { label: 'ÁP DỤNG', value: 'Planning và PRD vừa học' },
-      { label: 'ĐẦU RA', value: 'Bảy tài liệu trong planning/' },
+      { label: 'ĐẦU RA', value: 'Năm tài liệu trong planning/' },
+      { label: 'CÁCH LÀM', value: 'Một task Codex xuyên suốt' },
       { label: 'CHƯA LÀM', value: 'Chưa chọn công nghệ hoặc viết ứng dụng' }
     ],
-    dialogue: 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Bạn sẽ dùng portfolio làm dự án thực hành để áp dụng quy trình planning và PRD vừa học. Những kỹ năng này không chỉ dành cho portfolio; bạn có thể dùng lại khi làm việc với coding agent trên các sản phẩm khác.',
+    dialogue: 'Tiếp theo, bạn sẽ chọn thư mục portfolio. Course Companion dùng đúng thư mục đó để kiểm tra tài liệu qua năm giai đoạn. Bạn vẫn chỉ trả lời trong task Codex; không phải tự mở hay điền các tệp planning.',
     choices: [{ label: 'Chọn thư mục portfolio', next: 'module-2-portfolio-folder', primary: true }]
   },
   'module-2-portfolio-folder': {
@@ -125,7 +126,7 @@ const instructionalScenes = {
     evidence: [
       { label: 'MỤC TIÊU', value: 'Điều portfolio cần giúp bạn đạt được' },
       { label: 'NGƯỜI XEM', value: 'Một nhóm quan trọng nhất' },
-      { label: 'THÀNH CÔNG', value: 'Một dấu hiệu có thể quan sát' }
+      { label: 'SAU KHI XEM', value: 'Điều họ cần hiểu hoặc làm được' }
     ],
     dialogue: 'Một nhóm người xem chính giúp bạn biết nội dung nào cần nổi bật và nội dung nào nên hoãn. Đây là giả thuyết tập trung cho phiên bản đầu, không phải lời khẳng định rằng bạn đã nghiên cứu đầy đủ mọi người dùng.',
     choices: [{ label: 'Xem một ví dụ khác portfolio của tôi', next: 'module-2-portfolio-brief-example', primary: true }]
@@ -151,7 +152,7 @@ const instructionalScenes = {
     panelStatus: 'CÓ THẬT? · CÓ ĐƯỢC CÔNG KHAI?', tone: 'neutral',
     request: 'Một nội dung có thật vẫn có thể chứa dữ liệu riêng tư hoặc chưa có quyền sử dụng.',
     evidence: [
-      { label: 'TRẠNG THÁI', value: 'Đã kiểm chứng · lời tự khai · giả định · còn thiếu' },
+      { label: 'TRẠNG THÁI', value: 'Có bằng chứng · Do bạn xác nhận · Đang giả định · Còn thiếu' },
       { label: 'CÔNG BỐ', value: 'Được phép · không được phép · chưa rõ' },
       { label: 'VIỆC TIẾP', value: 'Bổ sung · giữ riêng · loại bỏ' }
     ],
@@ -230,16 +231,16 @@ const instructionalScenes = {
   },
   'module-2-implementation-contract': {
     lessonId: 'module-2', checkpointId: 'm2-implementation-contract', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Chuyển PRD thành hợp đồng xây dựng',
-    objective: 'Nối mỗi yêu cầu với cách kiểm tra và một nhiệm vụ đầu tiên', panelLabel: 'BA TÀI LIỆU LIÊN KẾT',
-    panelStatus: 'MAP · PLAN · FIRST TASK', tone: 'neutral',
-    request: 'Plan không được đưa nội dung ngoài phạm vi trở lại hoặc bắt đầu tạo ứng dụng.',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Tạo kế hoạch triển khai',
+    objective: 'Nối mỗi yêu cầu với cách kiểm tra và các giai đoạn triển khai', panelLabel: 'MỘT TÀI LIỆU LIÊN KẾT',
+    panelStatus: 'YÊU CẦU · KIỂM CHỨNG · GIAI ĐOẠN', tone: 'neutral',
+    request: 'Kế hoạch không được đưa nội dung ngoài phạm vi trở lại hoặc bắt đầu tạo ứng dụng.',
     evidence: [
-      { label: 'MAP', value: 'Requirement → tiêu chí → kiểm tra → bằng chứng' },
-      { label: 'PLAN', value: 'Giai đoạn nhỏ, phụ thuộc và điều không làm' },
-      { label: 'FIRST TASK', value: 'Đủ nhỏ để duyệt, kiểm tra và khôi phục' }
+      { label: 'KIỂM CHỨNG', value: 'Requirement → tiêu chí → kiểm tra → bằng chứng' },
+      { label: 'GIAI ĐOẠN', value: 'Thứ tự, phụ thuộc và điều không làm' },
+      { label: 'ĐIỂM DỪNG', value: 'Chưa tạo task triển khai hoặc viết code' }
     ],
-    dialogue: 'Hợp đồng cuối Module 2 phải đủ rõ để Codex đề xuất bước xây đầu tiên mà không tự đoán phạm vi. Mọi lựa chọn kỹ thuật chưa được duyệt vẫn là câu hỏi mở.',
+    dialogue: 'Kế hoạch cuối Module 2 phải đủ rõ để Module 3 có thể đề xuất bước xây đầu tiên mà không tự đoán phạm vi. Mọi lựa chọn kỹ thuật chưa được duyệt vẫn là câu hỏi mở.',
     choices: [{ label: 'Xem một lát cắt kiểm chứng', next: 'module-2-implementation-contract-example', primary: true }]
   },
   'module-2-implementation-contract-example': {
@@ -251,17 +252,17 @@ const instructionalScenes = {
     evidence: [
       { label: 'PHASE', value: 'Xây danh sách chương trình ở trạng thái rộng và hẹp' },
       { label: 'CHƯA CHỌN', value: 'Thư viện giao diện' },
-      { label: 'NHIỆM VỤ ĐẦU', value: 'Đề xuất scaffold trung tính rồi dừng chờ duyệt' }
+      { label: 'ĐIỂM DỪNG', value: 'Module 3 mới đề xuất task đầu tiên' }
     ],
-    dialogue: 'Kế hoạch tốt giữ được đường nối từ yêu cầu đến phép kiểm tra và bằng chứng. Nhiệm vụ đầu tiên không xây luôn toàn bộ portfolio; nó tạo một điểm bắt đầu nhỏ và có thể phục hồi.',
+    dialogue: 'Kế hoạch tốt giữ được đường nối từ yêu cầu đến phép kiểm tra và bằng chứng. Module 2 dừng tại đây; Module 3 mới đọc kế hoạch, đề xuất task đầu tiên và chờ bạn duyệt.',
     choices: [{ label: 'Kiểm tra trước khi thực hành', next: 'module-2-check-delayed-scope', primary: true }]
   },
   'module-2-portfolio-practice': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-planning', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Tạo gói planning của bạn',
-    objective: 'Hoàn thành năm giai đoạn trong một Practice', panelLabel: 'PHẠM VI ĐƯỢC PHÉP',
-    panelStatus: '7 TÀI LIỆU · 1 THƯ MỤC ẢNH', tone: 'good',
-    request: 'Codex chỉ được sửa bảy tài liệu planning và ảnh chụp tham chiếu.',
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Hoàn thành năm tài liệu planning',
+    objective: 'Dùng một task Codex qua năm giai đoạn', panelLabel: 'PHẠM VI ĐƯỢC PHÉP',
+    panelStatus: '5 TÀI LIỆU · 1 TASK · 5 LẦN DUYỆT', tone: 'good',
+    request: 'Executor tạo và cập nhật tài liệu; Course Companion kiểm tra tệp thật trước mỗi lần bạn duyệt.',
     evidence: [
       { label: 'TASK', value: 'Một task xuyên suốt năm giai đoạn', ready: true },
       { label: 'ỨNG DỤNG', value: 'Chưa được tạo', ready: true },
@@ -278,7 +279,7 @@ const instructionalScenes = {
     request: 'Bạn cần áp dụng nguyên tắc và dẫn chiếu các quyết định thật trong planning package của mình.',
     evidence: [
       { label: 'PRACTICE', value: 'Năm giai đoạn đã được duyệt', ready: true },
-      { label: 'ARTIFACT', value: 'Bảy phiên bản hiện tại', ready: true },
+      { label: 'ARTIFACT', value: 'Năm phiên bản hiện tại', ready: true },
       { label: 'MASTERY', value: 'Không được thay bằng receipt Practice' }
     ],
     dialogue: 'Phần cuối không yêu cầu bạn đọc mã nguồn. Sáu câu tình huống kiểm tra cách áp dụng; bốn câu còn lại yêu cầu bạn dùng chính tài liệu hiện tại thay vì lặp lại ví dụ Mai.',
@@ -295,10 +296,10 @@ const instructionalScenes = {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-complete', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Sẵn sàng bắt đầu xây',
     objective: 'Module 2 đã hoàn thành', panelLabel: 'ĐẦU VÀO MODULE 3',
-    panelStatus: 'ĐÃ LƯU AN TOÀN', tone: 'good', request: 'Biên nhận hoàn thành gắn đúng thư mục, bảy tệp, năm lần duyệt và kết quả làm chủ hiện tại.',
+    panelStatus: 'ĐÃ LƯU AN TOÀN', tone: 'good', request: 'Biên nhận hoàn thành gắn đúng thư mục, năm tệp, năm lần duyệt và kết quả làm chủ hiện tại.',
     evidence: [
       { label: 'THƯ MỤC', value: 'Đã gắn đúng đường dẫn', ready: true },
-      { label: 'TỆP', value: '7 phiên bản hiện tại', ready: true },
+      { label: 'TỆP', value: '5 phiên bản hiện tại', ready: true },
       { label: 'BÀN GIAO', value: 'Không chứa lịch sử chat', ready: true }
     ], dialogue: 'Cửa kiểm tra đã lưu biên nhận hoàn thành trước khi mở điểm sẵn sàng của Module 3.', choices: []
   }

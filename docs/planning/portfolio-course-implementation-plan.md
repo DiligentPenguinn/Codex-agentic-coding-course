@@ -1,9 +1,12 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation and Module 3 are implemented. Module 2's previous
-  seven-artifact baseline remains implemented, but the owner-approved
-  five-stage/five-document redesign is not yet implemented; Module 2 is now
-  `in-progress` and owner acceptance remains pending. On the
+- **Status:** Foundation and Module 3 are implemented. Module 2's three-page
+  Course Companion content slice, learner-facing stage names, agent-independent
+  assessment revisions, and detailed Teacher/Executor integration handoff are
+  implemented and verified for content review. The previous seven-artifact
+  runtime remains active until the delegated integration plan is implemented;
+  Module 2 is therefore still `in-progress` and owner acceptance remains
+  pending. On the
   `practice-disabled-content-development` branch,
   Module 4 learner content, five formative checks, and a six-question final
   review are implemented for session-only content review. Temporary review-only
@@ -32,7 +35,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — the previous seven-artifact flow remains runnable; the approved five-stage/five-document redesign is documented but not implemented | `pending` for the redesign; the superseded baseline previously passed 288 unit tests, nine startup tests, typecheck, lint, production build, and full Electron smoke on 17 August 2026 | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, and Module 2/3 boundary were explicitly approved on 17 August 2026, but implementation has not been reviewed or accepted | `pending` | Obtain final implementation confirmation, then implement only the approved Module 2 redesign and its narrow Module 3 handoff updates; do not claim acceptance from the design approval. |
+| Module 2 | `in-progress` — the three-page Course Companion content slice, approved stage names, agent-independent question revisions, and detailed integration handoff are implemented; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the content-only slice on 17 August 2026: 288 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, desktop screenshots, and `390 × 844` responsive checks; `pending` for the delegated integration and new completion gate | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, Module 2/3 boundary, and content-vs-integration ownership split were explicitly approved on 17 August 2026, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -690,6 +693,23 @@ the implementation scope above, followed by bounded implementation and focused
 checkpoint commits. Pilot acceptance remains `pending` until a real disposable
 workspace rehearsal and required learner evidence pass.
 
+### Delegated Teacher/Executor integration boundary — 17 August 2026
+
+The owner approved a split implementation. This repository checkpoint owns the
+three Course Companion explanation pages, outline/navigation for content review,
+learner-facing stage names, questions that do not require a live agent, and a
+detailed technical handoff. It does **not** implement Teacher orchestration, the
+persistent Executor task, document creation/update, filesystem digest review,
+accept/revise receipts, stale/resume/completion behavior, progress migration,
+or the Module 3 runtime handoff.
+
+The delegated work is specified in
+`docs/planning/module-2-teacher-executor-integration-handoff.md`, including the
+state machine, five document contracts, file ownership, checkpoint order, test
+matrix, atomic completion gate, and Module 3 first-task boundary. Until those
+checkpoints pass, the redesigned Module 2 is reviewable content, not a runnable
+or accepted learner flow.
+
 ### M2.1 — Lock the module manifest and artifact contracts
 
 **Change**
@@ -802,6 +822,16 @@ checkpoint and are now superseded by the approved redesign above. Focused tests,
 all 288 unit tests, nine startup tests, typecheck, lint, production build, and
 full Electron smoke passed.
 
+**Content-redesign progress note — 17 August 2026:** The renderer now presents
+the approved three-page narrative: planning before building; one Codex task with
+five learner approvals; and the five-stage/five-document map. The third page
+mentions Pafolios and Awwwards with complexity and copying boundaries, then
+routes directly to the Practice scope in session-only content review. A legacy
+transition remains on the runnable seven-artifact path solely to avoid claiming
+that the delegated Practice migration already exists. The Teacher lesson,
+script, prompt, templates, and live Practice contract remain explicitly
+delegated rather than partially rewritten here.
+
 ### M2.3 — Build formative checks and the mastery assessment
 
 **Change**
@@ -830,6 +860,14 @@ full Electron smoke passed.
   substitute for current artifacts.
 
 **Checkpoint output:** Portfolio-specific formative and mastery assessment.
+
+**Content-redesign progress note — 17 August 2026:** Agent-independent Module 2
+questions now use the approved Stage 1 outcome wording and evidence labels.
+Mastery validation reads the relevant section of
+`planning/implementation-plan.md`, and the former first-task scenario now tests
+the Module 2/3 boundary. The live artifact review and mastery completion service
+still use the old runtime contract until delegated integration checkpoints
+I1–I6 are implemented.
 
 ### M2.4 — Implement the `m2-portfolio-planning` Practice
 
@@ -916,6 +954,14 @@ PRD-anatomy page redirects to the coding-agent PRD workflow and removes the old
 scene from history. Focused progress tests and the full automated/Electron suite
 passed. This is evidence for the superseded four-part baseline, not verification
 of the approved three-page redesign.
+
+**Content-redesign progress note — 17 August 2026:** The Module 2 outline now
+contains exactly three learner-facing entries, the shared lesson labels use the
+five approved stage names, and the Practice/mastery/completion copy describes
+five target documents. Desktop and `390 × 844` screenshots and full Electron
+smoke passed. This verifies layout, navigation and content only; shared artifact
+paths, Practice version, evidence adapters and completion remain intentionally
+unchanged for the delegated integration owner.
 
 ### M2.6 — Complete the Module 2 gate and handoff
 
