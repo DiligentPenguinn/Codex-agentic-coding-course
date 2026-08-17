@@ -1,17 +1,71 @@
-# Kịch bản Teacher — Module 2: Xác định, giới hạn và lập kế hoạch portfolio
+# Kịch bản Teacher — Module 2: Planning và PRD trước khi code với AI
 
-## Mở đầu module
+## Phần 1 — Tại sao cần planning trước khi code với AI?
 
 Teacher mở đầu bằng nguyên văn lời dẫn của tác giả:
 
-> Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.
+> Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.
 
 Teacher chuyển tiếp bằng câu hỏi:
 
 > “Vậy, như thế nào là một kế hoạch tốt?”
 
-Sau lời dẫn, Teacher cho Learner chọn thư mục portfolio rồi mới bắt đầu năm
-milestone. Không sửa lại lời dẫn hoặc thay giọng kể của tác giả.
+Teacher giải thích rằng yêu cầu nhỏ, rõ ràng và dễ làm lại có thể được giao trực
+tiếp. Sản phẩm mới hoặc công việc có nhiều quyết định phụ thuộc nhau nên được
+planning trước.
+
+## Phần 2 — PRD là gì và dùng để làm gì?
+
+Teacher nói:
+
+> “PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản
+> phẩm. PRD giúp bạn và coding agent thống nhất sản phẩm cần giải quyết vấn đề
+> gì, dành cho ai và kết quả nào phải đạt được trước khi chọn cách xây.”
+
+Teacher dùng ví dụ trung tính: “Hãy tạo một ứng dụng giúp tôi theo dõi thói quen
+hằng ngày.” Teacher chỉ ra rằng đây mới là ý tưởng vì chưa có người dùng chính,
+luồng sử dụng, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. Không nhắc đến
+portfolio trong phần giải thích khái niệm này.
+
+## Phần 3 — Một PRD tốt cần có những gì?
+
+Teacher trình bày bảy vùng thông tin:
+
+1. vấn đề và lý do sản phẩm cần tồn tại;
+2. người dùng chính và mục tiêu của họ;
+3. kết quả sản phẩm cần tạo ra;
+4. yêu cầu và hành vi có thể quan sát;
+5. phạm vi, ngoài phạm vi và ràng buộc;
+6. tiêu chí chấp nhận có thể kiểm tra; và
+7. giả định hoặc câu hỏi còn mở.
+
+Teacher nhấn mạnh rằng PRD giữ quyết định về sản phẩm, chưa chọn framework, thư
+viện, cấu trúc code hoặc tên tệp. Mỗi yêu cầu quan trọng phải có một cách kiểm
+tra để Learner không phụ thuộc vào lời khẳng định “đã xong” của coding agent.
+
+## Phần 4 — Dùng coding agent để tạo, review và duyệt PRD
+
+Teacher hướng dẫn quy trình bốn bước:
+
+1. Learner cung cấp ý tưởng và bối cảnh đã biết.
+2. Coding agent hỏi từng câu để làm rõ phần còn thiếu.
+3. Coding agent soạn bản nháp rồi rà soát điểm mơ hồ, mâu thuẫn, tiêu chí chưa
+   thể kiểm tra và nội dung tự ý mở rộng.
+4. Learner sửa hoặc duyệt PRD trước khi agent tạo implementation plan.
+
+Teacher phải nói rõ rằng coding agent hỗ trợ phân tích và soạn thảo, còn Learner
+giữ quyền quyết định mục tiêu, người dùng, phạm vi và tiêu chí chấp nhận.
+
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
+
+Teacher chuyển sang dự án thực hành bằng nguyên văn câu của tác giả:
+
+> Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.
+
+Teacher giải thích portfolio là nơi áp dụng quy trình vừa học. Planning và PRD
+là kỹ năng dùng được cho các sản phẩm khác, không phải kiến thức chỉ dành cho
+portfolio. Sau đó, Teacher cho Learner chọn thư mục portfolio rồi mới bắt đầu
+năm milestone.
 
 ## Hợp đồng điều phối
 

@@ -27,22 +27,35 @@ const artifactPaths = [
   'planning/first-bounded-task.md'
 ]
 
-const approvedModuleOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedPlanningOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedPortfolioTransition = 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.'
+const conceptualParts = [
+  'Phần 1 — Tại sao cần planning trước khi code với AI?',
+  'Phần 2 — PRD là gì và dùng để làm gì?',
+  'Phần 3 — Một PRD tốt cần có những gì?',
+  'Phần 4 — Dùng coding agent để tạo, review và duyệt PRD',
+  'Phần 5 — Thực hành: Lập kế hoạch cho portfolio'
+]
 
 describe('Module 2 instruction contract', () => {
-  it('opens with the approved author wording before workspace selection', async () => {
+  it('teaches planning and PRD before transitioning into portfolio practice', async () => {
     const [lesson, script, prompt] = await Promise.all([
       readCourseFile('lessons/module-2.vi.md'),
       readCourseFile('lesson-scripts/module-2.script.vi.md'),
       readCourseFile('prompts/start-module-2.vi.md')
     ])
 
-    expect(lesson).toContain(approvedModuleOpening)
-    expect(script).toContain(approvedModuleOpening)
-    expect(lesson.indexOf(approvedModuleOpening)).toBeLessThan(lesson.indexOf('## Kết quả của module'))
-    expect(script.indexOf(approvedModuleOpening)).toBeLessThan(script.indexOf('## Hợp đồng điều phối'))
-    expect(prompt).toContain('Trước khi chọn thư mục')
-    expect(prompt).toContain('Không rút gọn hoặc viết lại giọng kể')
+    for (const content of [lesson, script]) {
+      expect(content).toContain(approvedPlanningOpening)
+      expect(content).toContain(approvedPortfolioTransition)
+      expect(content.indexOf(approvedPlanningOpening)).toBeLessThan(content.indexOf('PRD là gì'))
+      expect(content.indexOf('PRD là gì')).toBeLessThan(content.indexOf(approvedPortfolioTransition))
+    }
+    for (const part of conceptualParts) expect(lesson).toContain(part)
+    const normalizedPrompt = prompt.replace(/\s+/g, ' ')
+    expect(prompt).toMatch(/dạy đủ bốn phần kiến\s+thức tổng quát/)
+    expect(normalizedPrompt).toContain(approvedPortfolioTransition)
+    expect(normalizedPrompt).toContain('Không rút gọn hoặc viết lại giọng kể')
   })
 
   it('keeps all five milestones once and in the approved order', async () => {

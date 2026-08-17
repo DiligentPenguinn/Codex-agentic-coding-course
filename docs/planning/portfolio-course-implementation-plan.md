@@ -29,7 +29,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `implemented` | `passed` — 285 unit tests, nine startup tests, typecheck, lint, production build, frozen Module 1 regression, desktop and `390 × 844` responsive checks, and Electron smoke after the Module 2 opening/progress revision on 17 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026; the verbatim Module 2 opening and upper-right lesson progress treatment were approved on 17 August 2026 | `pending` | Continue the learner-facing content review and required rehearsal before overall acceptance. |
+| Module 2 | `implemented` | `passed` — 287 unit tests, nine startup tests, typecheck, lint, production build, frozen Module 1 regression, desktop and `390 × 844` responsive checks, and Electron smoke after the concept-first curriculum and outline-menu revision on 17 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026; the five-part concept-first structure, portfolio-as-practice boundary, author-copy placement, outline-menu progress signals, and right-edge Teacher/Quit controls were approved on 17 August 2026 | `pending` | Continue the learner-facing content review and required rehearsal before overall acceptance. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -591,12 +591,14 @@ Do not begin Module 2 content implementation until:
 
 ---
 
-## Module 2 — Define, scope, and plan the portfolio
+## Module 2 — Learn planning and PRDs before portfolio practice
 
 ### Module outcome
 
-The learner turns a vague portfolio idea into an honest, evidence-backed build
-contract that Codex can implement without inventing important requirements.
+The learner first understands when planning is useful, what a PRD does, what a
+good PRD contains, and how to create, review, and approve one with a coding
+agent. The learner then applies that transferable workflow to turn a vague
+portfolio idea into an honest, evidence-backed build contract.
 
 ### M2.1 — Lock the module manifest and artifact contracts
 
@@ -622,12 +624,21 @@ contract that Codex can implement without inventing important requirements.
 **Checkpoint output:** A machine-readable Module 2 contract and solution-free
 artifact templates.
 
-### M2.2 — Author the five milestone lessons and Teacher script
+### M2.2 — Author the concept-first journey and five practice milestones
 
 **Change**
 
 Create or replace the Module 2 lesson, Teacher script, and start prompt in
 natural Vietnamese:
+
+1. Explain why planning matters before coding with AI.
+2. Introduce PRDs independently of the portfolio project.
+3. Explain the parts of a good PRD.
+4. Teach the learner to create, review, and approve a PRD with a coding agent.
+5. Introduce the portfolio as the practice project, then complete the five
+   artifact milestones below.
+
+The nested portfolio milestones are:
 
 1. Create the portfolio brief.
 2. Build the content and evidence inventory.
@@ -664,12 +675,13 @@ assumptions, missing evidence, private material, and publication permission.
 **Checkpoint output:** Complete source-first Module 2 instruction aligned with
 the seven artifact contracts.
 
-**Progress note — 17 August 2026:** The owner-approved Module 2 opening now
-appears verbatim before workspace selection in the lesson, Teacher script,
-start prompt, and rendered registry scene. The five milestone sequence and
-seven-artifact contract are unchanged. Focused instruction/registry/frozen
-tests, the full unit/startup suites, typecheck, lint, production build, and
-Electron smoke passed.
+**Progress note — 17 August 2026:** The owner-approved five-part structure now
+teaches planning and PRD concepts before introducing the portfolio practice.
+The author's opening language remains in Part 1, while “Bây giờ, chúng ta sẽ
+chính thức bắt tay vào tạo Portfolio.” moves to the Part 5 transition. The five
+nested portfolio milestones and seven-artifact contract are unchanged. Focused
+instruction/registry/frozen tests, 287 unit tests, nine startup tests,
+typecheck, lint, production build, and Electron smoke passed.
 
 ### M2.3 — Build formative checks and the mastery assessment
 
@@ -747,13 +759,16 @@ artifact evidence.
 
 **Checkpoint output:** Complete learner-facing Module 2 in Course Companion.
 
-**Progress note — 17 August 2026:** The existing Module 2 entry scene now
-provides the narrative opening before a new workspace-selection page, preserving
-the frozen Module 1 destination and resumable scene identity. The shared lesson
-HUD places page progress at the upper right on desktop and narrow layouts.
-Electron smoke verifies right-side placement, no horizontal overflow at
-`390 × 844`, a fully reachable primary action after scrolling, and the complete
-transition into workspace selection.
+**Progress note — 17 August 2026:** The existing Module 2 entry scene now starts
+four general planning/PRD parts before the Part 5 portfolio transition and
+workspace-selection page, preserving the frozen Module 1 destination and
+resumable scene identity. The lesson HUD keeps Teacher and Quit at the upper
+right and places a five-part outline trigger in the center. Its open menu uses a
+small circle for every part, bold yellow treatment for the current part, reduced
+opacity for completed parts, and normal treatment for upcoming parts without
+status labels. Electron smoke verifies desktop and `390 × 844` placement, all
+three progress states, no horizontal overflow, reachable navigation, and the
+complete transition into workspace selection.
 
 ### M2.6 — Complete the Module 2 gate and handoff
 

@@ -39,6 +39,7 @@ import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
+import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -1076,6 +1077,21 @@ type LearningPosition = {
   totalLessons: number
   page: number
   totalPages: number
+}
+
+const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
+  'module-2-portfolio-workspace': 0,
+  'module-2-prd-introduction': 1,
+  'module-2-prd-anatomy': 2,
+  'module-2-prd-agent-workflow': 3,
+  'module-2-portfolio-practice-intro': 4
+}
+
+function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
+  if (sceneId.startsWith('module-2-')) {
+    return moduleTwoOutlinePartByScene[sceneId] ?? moduleTwoOutlineSections.length - 1
+  }
+  return Math.max(0, position.lessonIndex - 1)
 }
 
 type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
@@ -2557,6 +2573,15 @@ export function LearningWindow() {
   const scene = scenes[displayedSceneId]
   const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]
+  const outlineItems = scene.lessonId === 'module-2'
+    ? [...moduleTwoOutlineSections]
+    : scene.lessonId === 'intro'
+      ? [learningPosition.lessonTitle]
+      : moduleLessonIds[scene.lessonId].map((lessonId) => courseLessonTitle.get(lessonId) ?? lessonId)
+  const outlineCurrentIndex = outlinePartIndex(displayedSceneId, learningPosition)
+  const outlineModuleLabel = scene.lessonId === 'intro'
+    ? 'GIỚI THIỆU'
+    : `MODULE ${scene.lessonId.slice(-1)}`
   const canOpenPreviousPage = isReviewing
     ? currentReviewIndex > 0
     : progress.sceneHistory.length > 0
@@ -2567,7 +2592,9 @@ export function LearningWindow() {
     setSecondaryVisualExpanded(false)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
-  const lessonContextLabel = scene.lessonId === 'intro'
+  const lessonContextLabel = scene.lessonId === 'module-2'
+    ? moduleTwoOutlineSections[outlineCurrentIndex]!
+    : scene.lessonId === 'intro'
     ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
     : `MODULE ${scene.lessonId.slice(-1)} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
   const assessmentQuestion = scene.assessmentQuestionId
@@ -2656,16 +2683,38 @@ export function LearningWindow() {
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
+        <details className="pixel-outline">
+          <summary aria-label={`Mở mục lục ${outlineModuleLabel}`}>
+            <span className="pixel-outline__dots" aria-hidden="true">•••</span>
+            <span>{scene.lessonId === 'module-2'
+              ? `${outlineModuleLabel} · PHẦN ${outlineCurrentIndex + 1}/${outlineItems.length}`
+              : lessonContextLabel}</span>
+          </summary>
+          <div className="pixel-outline-menu">
+            <strong>{outlineModuleLabel} · {outlineItems.length} PHẦN</strong>
+            <ol>
+              {outlineItems.map((item, index) => (
+                <li
+                  className={index < outlineCurrentIndex
+                    ? 'is-complete'
+                    : index === outlineCurrentIndex
+                      ? 'is-active'
+                      : 'is-upcoming'}
+                  aria-current={index === outlineCurrentIndex ? 'step' : undefined}
+                  key={item}
+                >
+                  <i aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </details>
         <div className="pixel-hud-actions">
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
-            THOÁT · v{runtime?.appVersion ?? '…'}
+            THOÁT <span className="pixel-quit-version">· v{runtime?.appVersion ?? '…'}</span>
           </button>
-        </div>
-        <div className="pixel-mission-meta" aria-label={lessonContextLabel}>
-          <span>{lessonContextLabel}</span>
-          <strong>{learningPosition.lessonTitle}</strong>
-          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
         </div>
       </header>
 

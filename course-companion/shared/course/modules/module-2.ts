@@ -1,7 +1,15 @@
+export const moduleTwoOutlineSections = [
+  'Tại sao cần planning trước khi code với AI?',
+  'PRD là gì và dùng để làm gì?',
+  'Một PRD tốt cần có những gì?',
+  'Dùng coding agent để tạo, review và duyệt PRD',
+  'Thực hành: Lập kế hoạch cho portfolio'
+] as const
+
 export const moduleTwoDefinition = {
   id: 'module-2',
   order: 2,
-  titleVi: 'Xác định, giới hạn và lập kế hoạch portfolio',
+  titleVi: 'Planning và PRD trước khi code với AI',
   lessons: [
     { id: 'm2-portfolio-brief', titleVi: 'Tạo bản mô tả ngắn cho portfolio' },
     { id: 'm2-content-evidence-inventory', titleVi: 'Kiểm kê nội dung và bằng chứng' },
@@ -20,7 +28,11 @@ export const moduleTwoDefinition = {
     { id: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],
   scenes: [
-    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
+    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-introduction' },
+    { id: 'module-2-prd-introduction', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-anatomy' },
+    { id: 'module-2-prd-anatomy', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-agent-workflow' },
+    { id: 'module-2-prd-agent-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-practice-intro' },
+    { id: 'module-2-portfolio-practice-intro', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
     { id: 'module-2-portfolio-folder', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
     { id: 'module-2-portfolio-brief', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief-example' },
     { id: 'module-2-portfolio-brief-example', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-check-brief-viewer' },

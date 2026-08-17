@@ -19,6 +19,10 @@ const rendererModules = [
     lessonPages: {
       'm2-portfolio-brief': [
         ['module-2-portfolio-workspace'],
+        ['module-2-prd-introduction'],
+        ['module-2-prd-anatomy'],
+        ['module-2-prd-agent-workflow'],
+        ['module-2-portfolio-practice-intro'],
         ['module-2-portfolio-folder'],
         ['module-2-portfolio-brief'],
         ['module-2-portfolio-brief-example'],

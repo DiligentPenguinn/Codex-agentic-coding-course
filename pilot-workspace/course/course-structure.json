@@ -99,8 +99,8 @@
     {
       "id": "module-2",
       "kind": "module",
-      "titleVi": "Xác định, giới hạn và lập kế hoạch portfolio",
-      "titleEn": "Define, scope, and plan the portfolio",
+      "titleVi": "Planning và PRD trước khi code với AI",
+      "titleEn": "Planning and PRDs before coding with AI",
       "lessonPath": "course/lessons/module-2.vi.md",
       "scriptPath": "course/lesson-scripts/module-2.script.vi.md",
       "quizPath": "course/quizzes/module-2.quiz.json",

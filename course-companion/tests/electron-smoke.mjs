@@ -26,7 +26,14 @@ const planningQuiz = JSON.parse(
 const releaseQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-4.quiz.json'), 'utf8')
 )
-const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+
+async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 5) {
+  for (let index = 0; index < stepsRemaining; index += 1) {
+    await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  }
+  await page.getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true }).waitFor()
+}
 
 function assessmentGroup(groupId) {
   if (groupId === 'setup-final-assessment') {
@@ -314,7 +321,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
 
   const progressBeforeBypass = await page.evaluate(async () => globalThis.courseCompanion?.loadProgress())
   await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt Module 2', exact: true }).click()
-  await page.getByText('MODULE 2 · BÀI 1/5 · TRANG 1/6', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 2 · PHẦN 1/5', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
   assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
   await page.locator('.pixel-brand').click()
@@ -569,7 +576,7 @@ async function verifyHomeBase(page) {
     .getByText('Bắt đầu làm việc với Codex', { exact: true })
     .waitFor()
   await page
-    .getByText('Xác định, giới hạn và lập kế hoạch portfolio', { exact: true })
+    .getByText('Planning và PRD trước khi code với AI', { exact: true })
     .waitFor()
   await page.getByText('MODULE 1 · 3 BÀI HỌC', { exact: true }).waitFor()
   await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
@@ -787,21 +794,25 @@ try {
     .getByText('Vì sao cần planning trước khi bắt tay vào xây?', { exact: true })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('MODULE 2 · BÀI 1/5 · TRANG 1/6', { exact: true })
+    .getByText('MODULE 2 · PHẦN 1/5', { exact: true })
     .first()
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 0)
   const desktopHudBounds = await firstWindows.learningPage.locator('.pixel-hud').boundingBox()
-  const desktopProgressBounds = await firstWindows.learningPage.locator('.pixel-mission-meta').boundingBox()
+  const desktopOutlineBounds = await firstWindows.learningPage.locator('.pixel-outline').boundingBox()
   const desktopActionsBounds = await firstWindows.learningPage.locator('.pixel-hud-actions').boundingBox()
   assert.ok(desktopHudBounds)
-  assert.ok(desktopProgressBounds)
+  assert.ok(desktopOutlineBounds)
   assert.ok(desktopActionsBounds)
-  assert.ok(desktopProgressBounds.x > desktopActionsBounds.x)
-  assert.ok(Math.abs((desktopProgressBounds.x + desktopProgressBounds.width) - (desktopHudBounds.x + desktopHudBounds.width - 22)) <= 2)
+  assert.ok(desktopActionsBounds.x > desktopOutlineBounds.x + desktopOutlineBounds.width)
+  assert.ok(Math.abs((desktopActionsBounds.x + desktopActionsBounds.width) - (desktopHudBounds.x + desktopHudBounds.width - 22)) <= 2)
+  await firstWindows.learningPage.locator('.pixel-outline summary').click()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 5)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-opening.png')
+  await firstWindows.learningPage.locator('.pixel-outline summary').click()
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
     const moduleTwoNarrowWidths = await firstWindows.learningPage.evaluate(() => {
@@ -814,12 +825,16 @@ try {
     })
     assert.equal(moduleTwoNarrowWidths.body, moduleTwoNarrowWidths.viewport)
     assert.equal(moduleTwoNarrowWidths.document, moduleTwoNarrowWidths.viewport)
-    const narrowProgressBounds = await firstWindows.learningPage.locator('.pixel-mission-meta').boundingBox()
+    const narrowOutlineBounds = await firstWindows.learningPage.locator('.pixel-outline').boundingBox()
     const narrowActionsBounds = await firstWindows.learningPage.locator('.pixel-hud-actions').boundingBox()
-    assert.ok(narrowProgressBounds)
+    assert.ok(narrowOutlineBounds)
     assert.ok(narrowActionsBounds)
-    assert.ok(narrowProgressBounds.x > narrowActionsBounds.x)
+    assert.ok(narrowActionsBounds.x > narrowOutlineBounds.x)
+    assert.equal(await firstWindows.learningPage.getByRole('button', { name: 'HỎI TRIẾT', exact: true }).isVisible(), true)
+    assert.equal(await firstWindows.learningPage.getByRole('button', { name: 'THOÁT', exact: true }).isVisible(), true)
+    await firstWindows.learningPage.locator('.pixel-outline summary').click()
     await capture(firstWindows.learningPage, 'module-2-opening-390px.png')
+    await firstWindows.learningPage.locator('.pixel-outline summary').click()
     const narrowContinueButton = firstWindows.learningPage
       .getByRole('button', { name: 'Tiếp tục', exact: true })
     await narrowContinueButton.scrollIntoViewIfNeeded()
@@ -832,16 +847,16 @@ try {
     )
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await firstWindows.learningPage
-    .getByRole('button', { name: 'Tiếp tục', exact: true })
-    .click()
-  await firstWindows.learningPage
-    .getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true })
-    .waitFor()
-  await firstWindows.learningPage
-    .getByText('MODULE 2 · BÀI 1/5 · TRANG 2/6', { exact: true })
-    .first()
-    .waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
+  await firstWindows.learningPage.locator('.pixel-outline summary').click()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-complete').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 3)
+  await capture(firstWindows.learningPage, 'module-2-part-2-outline.png')
+  await firstWindows.learningPage.locator('.pixel-outline summary').click()
+  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 4)
+  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 5/5', { exact: true }).first().waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-portfolio-workspace-entry.png')
@@ -908,10 +923,7 @@ try {
     .getByText('Vì sao cần planning trước khi bắt tay vào xây?', { exact: true })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage
-    .getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true })
-    .waitFor()
+  await openModuleTwoPortfolioWorkspace(learningPage)
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
 
@@ -1109,10 +1121,7 @@ try {
     .getByText('Vì sao cần planning trước khi bắt tay vào xây?', { exact: true })
     .waitFor()
   assert.equal(await portfolioWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await portfolioWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await portfolioWindows.learningPage
-    .getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true })
-    .waitFor()
+  await openModuleTwoPortfolioWorkspace(portfolioWindows.learningPage)
   assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
   await capture(portfolioWindows.learningPage, 'portfolio-workspace-unselected.png')
 

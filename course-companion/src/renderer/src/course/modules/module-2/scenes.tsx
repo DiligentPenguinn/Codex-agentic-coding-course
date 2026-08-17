@@ -52,7 +52,7 @@ const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
 const instructionalScenes = {
   'module-2-portfolio-workspace': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Bắt đầu hành trình xây Portfolio',
+    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Planning trước khi code với AI',
     objective: 'Vì sao cần planning trước khi bắt tay vào xây?', panelLabel: 'MỘT KẾ HOẠCH TỐT',
     panelStatus: 'MỤC TIÊU · PHẠM VI · CÁCH KIỂM TRA', tone: 'neutral',
     request: 'Vậy, như thế nào là một kế hoạch tốt?',
@@ -61,8 +61,65 @@ const instructionalScenes = {
       { label: 'RANH GIỚI', value: 'Điều sẽ làm và chưa làm' },
       { label: 'KIỂM CHỨNG', value: 'Dấu hiệu cho thấy kết quả đúng' }
     ],
-    dialogue: 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.',
-    choices: [{ label: 'Tiếp tục để tìm hiểu về PRD', next: 'module-2-portfolio-folder', primary: true }]
+    dialogue: 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.',
+    choices: [{ label: 'Tìm hiểu về PRD', next: 'module-2-prd-introduction', primary: true }]
+  },
+  'module-2-prd-introduction': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'PRD là gì?',
+    objective: 'Giữ quyết định về sản phẩm trước khi chọn cách xây', panelLabel: 'PRD',
+    panelStatus: 'PRODUCT REQUIREMENTS DOCUMENT', tone: 'neutral',
+    request: 'PRD mô tả sản phẩm cần giải quyết vấn đề gì và kết quả nào phải đạt được.',
+    evidence: [
+      { label: 'VẤN ĐỀ', value: 'Vì sao sản phẩm cần tồn tại' },
+      { label: 'KẾT QUẢ', value: 'Người dùng cần làm được gì' },
+      { label: 'RANH GIỚI', value: 'Điều thuộc và không thuộc phiên bản đầu' }
+    ],
+    dialogue: 'PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến framework, thư viện hoặc cấu trúc code. PRD không phải một bản mô tả kỹ thuật và cũng không phải lời nhắc để AI xây toàn bộ ứng dụng ngay lập tức.',
+    choices: [{ label: 'Xem một PRD tốt cần có gì', next: 'module-2-prd-anatomy', primary: true }]
+  },
+  'module-2-prd-anatomy': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Một PRD tốt cần có gì?',
+    objective: 'Biến một ý tưởng mơ hồ thành yêu cầu có thể kiểm tra', panelLabel: 'CẤU TRÚC PRD',
+    panelStatus: 'MỤC TIÊU → YÊU CẦU → TIÊU CHÍ', tone: 'neutral',
+    request: '“Hãy tạo một ứng dụng giúp tôi theo dõi thói quen” mới chỉ là ý tưởng ban đầu.',
+    evidence: [
+      { label: 'BỐI CẢNH', value: 'Vấn đề · người dùng · mục tiêu' },
+      { label: 'PHẠM VI', value: 'Yêu cầu · ngoài phạm vi · ràng buộc' },
+      { label: 'HOÀN THÀNH', value: 'Tiêu chí chấp nhận có thể quan sát' }
+    ],
+    dialogue: 'Một PRD tốt làm rõ bối cảnh, người dùng, mục tiêu, yêu cầu, điều ngoài phạm vi, ràng buộc và câu hỏi còn mở. Mỗi yêu cầu quan trọng cần đi cùng tiêu chí chấp nhận. Nhờ đó, bạn có thể kiểm tra sản phẩm bằng hành vi quan sát được thay vì chỉ hỏi coding agent rằng mọi thứ đã xong chưa.',
+    choices: [{ label: 'Xem cách làm PRD cùng coding agent', next: 'module-2-prd-agent-workflow', primary: true }]
+  },
+  'module-2-prd-agent-workflow': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Tạo và review PRD cùng coding agent',
+    objective: 'Để AI hỗ trợ mà không giao luôn quyền quyết định', panelLabel: 'QUY TRÌNH 4 BƯỚC',
+    panelStatus: 'BỐI CẢNH · HỎI · REVIEW · DUYỆT', tone: 'neutral',
+    request: 'Coding agent soạn bản nháp; bạn giữ quyền quyết định mục tiêu, phạm vi và tiêu chí chấp nhận.',
+    evidence: [
+      { label: '1 · BỐI CẢNH', value: 'Nêu ý tưởng và thông tin đã biết' },
+      { label: '2 · LÀM RÕ', value: 'Yêu cầu hỏi từng câu còn thiếu' },
+      { label: '3 · REVIEW', value: 'Tìm điểm mơ hồ, mâu thuẫn và tự ý mở rộng' },
+      { label: '4 · DUYỆT', value: 'Chỉ chuyển sang plan khi bạn đồng ý' }
+    ],
+    dialogue: 'Bạn có thể yêu cầu coding agent phỏng vấn mình từng câu, soạn bản nháp PRD rồi tự rà soát những điểm còn mơ hồ. Tuy nhiên, agent không được tự quyết định mục tiêu, người dùng hoặc phạm vi thay bạn. Sau khi PRD được duyệt, agent mới chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm tra.',
+    choices: [{ label: 'Áp dụng vào dự án thực hành', next: 'module-2-portfolio-practice-intro', primary: true }]
+  },
+  'module-2-portfolio-practice-intro': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · THỰC HÀNH', mission: 'Lập kế hoạch cho portfolio',
+    objective: 'Áp dụng quy trình PRD vào một sản phẩm thật', panelLabel: 'DỰ ÁN THỰC HÀNH',
+    panelStatus: 'PORTFOLIO CỦA BẠN', tone: 'good',
+    request: 'Portfolio là nơi bạn thực hành quy trình planning, không phải kiến thức duy nhất của module.',
+    evidence: [
+      { label: 'ÁP DỤNG', value: 'Planning và PRD vừa học' },
+      { label: 'ĐẦU RA', value: 'Bảy tài liệu trong planning/' },
+      { label: 'CHƯA LÀM', value: 'Chưa chọn công nghệ hoặc viết ứng dụng' }
+    ],
+    dialogue: 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Bạn sẽ dùng portfolio làm dự án thực hành để áp dụng quy trình planning và PRD vừa học. Những kỹ năng này không chỉ dành cho portfolio; bạn có thể dùng lại khi làm việc với coding agent trên các sản phẩm khác.',
+    choices: [{ label: 'Chọn thư mục portfolio', next: 'module-2-portfolio-folder', primary: true }]
   },
   'module-2-portfolio-folder': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,

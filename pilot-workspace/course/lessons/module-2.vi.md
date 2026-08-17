@@ -1,10 +1,66 @@
-# Module 2 — Xác định, giới hạn và lập kế hoạch portfolio
+# Module 2 — Planning và PRD trước khi code với AI
 
-## Mở đầu
+## Phần 1 — Tại sao cần planning trước khi code với AI?
 
-Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.
+Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.
 
 Vậy, như thế nào là một kế hoạch tốt?
+
+Không phải việc nào cũng cần planning. Nếu yêu cầu nhỏ, kết quả đã rõ và dễ làm
+lại khi có lỗi, bạn có thể giao trực tiếp cho coding agent. Tuy nhiên, bạn nên
+lập kế hoạch trước khi xây một sản phẩm mới hoặc xử lý công việc có nhiều quyết
+định phụ thuộc nhau.
+
+## Phần 2 — PRD là gì và dùng để làm gì?
+
+PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản
+phẩm. Tài liệu này mô tả sản phẩm cần giải quyết vấn đề gì, dành cho ai và kết
+quả nào phải đạt được. PRD giúp bạn và coding agent thống nhất điều cần xây
+trước khi chọn cách xây.
+
+PRD không phải bản mô tả kỹ thuật. Nó chưa quyết định framework, thư viện, cấu
+trúc code hoặc tên tệp. PRD cũng không phải một prompt để AI xây toàn bộ ứng
+dụng ngay lập tức.
+
+Ví dụ, câu “Hãy tạo một ứng dụng giúp tôi theo dõi thói quen hằng ngày” mới chỉ
+là một ý tưởng. Coding agent vẫn chưa biết ai sẽ dùng ứng dụng, thói quen được
+ghi lại như thế nào, phiên bản đầu cần làm gì và dấu hiệu nào cho thấy sản phẩm
+đã đáp ứng yêu cầu. PRD giữ những quyết định đó.
+
+## Phần 3 — Một PRD tốt cần có những gì?
+
+Một PRD tốt không cần dài, nhưng cần đủ rõ để coding agent không tự đoán những
+quyết định quan trọng. Tài liệu nên có:
+
+- vấn đề và lý do sản phẩm cần tồn tại;
+- người dùng chính và mục tiêu của họ;
+- kết quả sản phẩm cần tạo ra;
+- yêu cầu và hành vi có thể quan sát;
+- phạm vi, ngoài phạm vi và ràng buộc;
+- tiêu chí chấp nhận có thể kiểm tra; và
+- giả định hoặc câu hỏi còn mở.
+
+Mỗi yêu cầu quan trọng cần đi cùng một cách kiểm tra. Nhờ đó, bạn có thể đối
+chiếu kết quả thật thay vì chỉ hỏi coding agent rằng mọi thứ đã xong chưa.
+
+## Phần 4 — Dùng coding agent để tạo, review và duyệt PRD
+
+Bạn không cần tự viết PRD từ một trang giấy trắng. Trước tiên, hãy cung cấp ý
+tưởng và những thông tin đã biết. Sau đó, yêu cầu coding agent hỏi từng câu để
+làm rõ phần còn thiếu, rồi soạn một bản nháp để bạn review.
+
+Khi review, hãy yêu cầu agent tìm yêu cầu mơ hồ, điểm mâu thuẫn, tiêu chí chưa
+thể kiểm tra và nội dung tự ý mở rộng. Bạn vẫn là người quyết định mục tiêu,
+người dùng, phạm vi và tiêu chí chấp nhận. Chỉ sau khi bạn duyệt PRD, coding
+agent mới nên chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm
+tra.
+
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
+
+Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Bạn sẽ dùng portfolio
+làm dự án thực hành để áp dụng quy trình planning và PRD vừa học. Những kỹ năng
+này không chỉ dành cho portfolio; bạn có thể dùng lại khi làm việc với coding
+agent trên các sản phẩm khác.
 
 ## Kết quả của module
 
