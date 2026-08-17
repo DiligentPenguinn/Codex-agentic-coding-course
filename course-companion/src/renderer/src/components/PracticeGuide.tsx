@@ -8,9 +8,9 @@ type PracticeGuideProps = {
   onUpdate: (request: PracticeGuideUpdateRequest) => void
 }
 
-type Placement = { left: number; top: number; fallback: boolean }
+type Placement = { left: number; top: number; fallback: boolean; above: boolean }
 
-const initialPlacement: Placement = { left: 24, top: 24, fallback: true }
+const initialPlacement: Placement = { left: 24, top: 24, fallback: true, above: false }
 function findPracticeGuideAnchor(id: PracticeGuideAnchorId): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[${PRACTICE_GUIDE_ANCHOR_ATTRIBUTE}="${id}"]`)
 }
@@ -42,10 +42,11 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
         Math.max(margin, window.innerWidth - panelBounds.width - margin)
       )
       const below = targetBounds.bottom + margin
-      const top = below + panelBounds.height <= window.innerHeight
-        ? below
-        : Math.max(margin, targetBounds.top - panelBounds.height - margin)
-      setPlacement({ left, top, fallback: false })
+      const above = below + panelBounds.height > window.innerHeight
+      const top = above
+        ? Math.max(margin, targetBounds.top - panelBounds.height - margin)
+        : below
+      setPlacement({ left, top, fallback: false, above })
     }
     const schedule = () => {
       cancelAnimationFrame(frame)
@@ -149,7 +150,7 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
         aria-describedby="practice-guide-body"
         aria-labelledby="practice-guide-title"
         aria-modal={isDialog || undefined}
-        className={`practice-guide is-${view.presentation}${placement.fallback && view.presentation === 'coach-mark' ? ' is-fallback' : ''}`}
+        className={`practice-guide is-${view.presentation}${placement.fallback && view.presentation === 'coach-mark' ? ' is-fallback' : ''}${placement.above && view.presentation === 'coach-mark' ? ' is-above' : ''}`}
         onKeyDown={trapFocus}
         ref={panelRef}
         role={isDialog ? 'dialog' : 'region'}

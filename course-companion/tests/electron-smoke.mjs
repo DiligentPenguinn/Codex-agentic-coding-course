@@ -138,26 +138,42 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     'Expected Module 1 Practice to open the Teacher bubble'
   )
   await companionPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' }).click()
+  await companionPage.getByRole('button', { name: 'Mở Triết toàn màn hình' }).click()
   await waitForSnapshot(
     electronApp,
-    (windows) => companionWindow(windows)?.bounds.width === 380,
-    'Expected Module 1 Teacher progress to expand'
+    (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
+    'Expected Module 1 guide to open on the full Teacher surface'
   )
-  await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
-  await companionPage.getByText('Thiết lập Codex an toàn', { exact: true }).waitFor()
-  await companionPage.getByText('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN', { exact: true }).waitFor()
-  await companionPage.getByText('Cần High', { exact: true }).waitFor()
-  const review = companionPage.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ' })
-  const returnToCourse = companionPage.getByRole('button', { name: 'Quay lại khóa học', exact: true })
+  const moduleOneTeacher = page.locator('.pixel-teacher-overlay.is-practice-full')
+  await moduleOneTeacher.waitFor()
+  const guide = page.locator('.practice-guide')
+  await guide.getByRole('heading', { name: 'Làm quen với Practice Mode' }).waitFor()
+  await capture(page, 'module-1-practice-guide-intro.png')
+  const untouchedWorkspace = await page.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
+  assert.equal(untouchedWorkspace?.review?.status, 'not-reviewed')
+  await guide.getByRole('button', { name: 'Bắt đầu hướng dẫn', exact: true }).click()
+  await guide.getByRole('heading', { name: 'Executor là nơi bạn thực hành' }).waitFor()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('heading', { name: 'Hỏi Triết khi cần làm rõ' }).waitFor()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('heading', { name: 'Xem bằng chứng trong Tiến độ' }).waitFor()
+  await moduleOneTeacher.getByRole('tab', { name: 'TIẾN ĐỘ' }).click()
+  await guide.getByRole('heading', { name: 'Bằng chứng cập nhật từ đúng task' }).waitFor()
+  await capture(page, 'module-1-practice-guide-evidence.png')
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('heading', { name: 'Nhờ Triết duyệt bằng chứng' }).waitFor()
+  const review = moduleOneTeacher.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ' })
+  const returnToCourse = moduleOneTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true }).first()
   for (let attempt = 0; attempt < 7 && await returnToCourse.count() === 0; attempt += 1) {
     await review.click()
-    await companionPage.waitForFunction(() => {
+    await page.waitForFunction(() => {
       const button = globalThis.document.querySelector('button[aria-label="Yêu cầu Triết duyệt tiến độ"]')
       return button instanceof globalThis.HTMLButtonElement && !button.disabled
     })
   }
   await returnToCourse.waitFor()
-  const approvedWorkspace = await companionPage.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
+  await guide.getByRole('heading', { name: 'Quay lại đúng phần tiếp theo' }).waitFor()
+  const approvedWorkspace = await page.evaluate(() => globalThis.courseCompanion?.loadPracticeWorkspace())
   assert.equal(approvedWorkspace?.configuration?.model.protocolValue, 'gpt-5.6-sol')
   assert.equal(approvedWorkspace?.configuration?.reasoningEffort.protocolValue, 'high')
   assert.equal(approvedWorkspace?.configuration?.serviceTier.protocolValue, 'standard')
@@ -169,6 +185,10 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
     'Expected Module 1 return to restore the destination lesson'
   )
+  await page.getByRole('heading', { name: 'Bạn đã hoàn thành vòng Practice' }).waitFor()
+  await capture(page, 'module-1-practice-guide-mastery.png')
+  await page.getByRole('button', { name: 'Đã hiểu', exact: true }).click()
+  await page.getByRole('heading', { name: 'Bạn đã hoàn thành vòng Practice' }).waitFor({ state: 'detached' })
   await page.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
   await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Hoàn thành Module 1', exact: true }).click()

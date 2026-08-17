@@ -68,6 +68,7 @@ button:focus-visible {
   image-rendering: pixelated;
   filter: saturate(0.94) brightness(0.8);
   transform: scale(1.015);
+  pointer-events: none;
 }
 
 .pixel-scene-world::after {
@@ -2163,6 +2164,11 @@ button:focus-visible {
   content: "";
   transform: rotate(45deg);
 }
+.practice-guide.is-coach-mark.is-above::before {
+  top: auto;
+  bottom: -10px;
+  transform: rotate(225deg);
+}
 .practice-guide.is-fallback {
   position: sticky;
   top: 12px;
@@ -2210,6 +2216,7 @@ button:focus-visible {
   background: transparent;
 }
 .practice-guide-actions button:focus-visible,
+.practice-guide [data-guide-primary]:focus,
 .practice-guide-mastery button:focus-visible {
   outline: 3px solid var(--pixel-yellow);
   outline-offset: 3px;
@@ -2238,6 +2245,15 @@ button:focus-visible {
   color: var(--pixel-cream);
   background: #12241f;
   box-shadow: 5px 5px 0 rgba(5, 9, 15, 0.42);
+.pixel-learning-shell > .practice-guide-mastery {
+  position: absolute;
+  z-index: 12;
+  top: 185px;
+  right: 4vw;
+  width: min(460px, 43vw);
+  margin: 0;
+}
+
 }
 .practice-guide-mastery small,
 .practice-guide-mastery h2 {
@@ -2265,6 +2281,13 @@ button:focus-visible {
   .practice-guide-mastery {
     align-items: stretch;
     flex-direction: column;
+  .pixel-learning-shell > .practice-guide-mastery {
+    top: 150px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+
   }
 }
 
