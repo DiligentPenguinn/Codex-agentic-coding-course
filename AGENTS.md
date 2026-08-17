@@ -1,81 +1,37 @@
 # Repository Guidance
 
-## Decision Scope
+## Instruction routing
 
-- Do not ask the user to decide small, isolated details that can be resolved from
-  repository evidence, established constraints, or a safe and reversible
-  default.
-- Group tightly connected, consequential choices into one decision packet so
-  the user can evaluate the direction rather than approve implementation
-  details one by one.
-- For each decision packet, provide the recommended direction, meaningful
-  alternatives, tradeoffs, and the downstream decisions it would settle.
-- When recommending a product, curriculum, architecture, workflow, or
-  implementation direction, explain why the decision matters before requesting
-  approval. State the problem it addresses, why the option is recommended, its
-  concrete consequences, the tradeoffs of meaningful alternatives, and which
-  downstream decisions it settles. Do not present option labels without
-  explaining their practical effects.
-- Ask one decision-packet question at a time. A packet may contain multiple
-  linked choices when they share the same product or curriculum consequence.
-- Escalate a choice separately only when it changes product scope, learner
-  outcomes, cost exposure, safety, external side effects, or a decision that is
-  difficult to reverse.
+- Before changing files under `pilot-workspace/`, read `pilot-workspace/AGENTS.md`, even when the task starts from the repository root.
+- Before changing files under `course-companion/`, read `course-companion/AGENTS.md`.
+- Before changing files under `starters/contentpilot/` or a runnable scaffold under `prototypes/`, read the closest nested `AGENTS.md`.
+- Apply the closest scoped guidance together with this file; keep cross-repository rules here and specialized implementation details near the files they govern.
 
-## Implementation Plan Synchronization
+## Consequential decisions
 
-- Updating `docs/planning/portfolio-course-implementation-plan.md` is part of
-  the definition of done for any task that implements, verifies, changes, or
-  blocks one of its numbered checkpoints or acceptance gates.
-- Before the final response and before creating a qualifying local checkpoint
-  commit:
-  1. Re-read the affected implementation-plan checkpoint.
-  2. Inspect the actual changed files and current verification output.
-  3. Update the progress ledger and any affected status text in the plan.
-  4. Record remaining gaps, blocked checks, and the next permitted action.
-  5. Include the plan update in the same scoped local commit when it can be
-     isolated safely.
-- The agent may set implementation status to `not-started`, `in-progress`, or
-  `implemented`, and verification status to `pending`, `passed`, `failed`, or
-  `blocked`, only when repository evidence supports the transition.
-- The agent must not mark owner approval as `approved` without explicit user
-  approval, or pilot acceptance as `accepted` without the required rehearsal or
-  learner evidence.
-- Do not begin the next module while the current module still requires owner
-  approval or its required acceptance gate has not passed.
-- If implementation changed but the plan cannot be updated safely, stop before
-  committing and report the mismatch.
+- Resolve small, reversible details from repository evidence or a safe default.
+- For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
+- Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
 
-## Vietnamese Language
+## Implementation-plan synchronization
 
-- When writing Vietnamese for this project, always use correct Vietnamese diacritics and tone marks.
-- Do not write ASCII-only Vietnamese such as "Xin chao toi la nguoi Viet Nam" unless quoting an input that intentionally lacks accents.
-- Prefer natural, learner-facing Vietnamese for course materials, prompts, rubrics, and dialogues.
+- Treat `docs/planning/portfolio-course-implementation-plan.md` as part of the definition of done for work that implements, verifies, changes, or blocks a numbered checkpoint or acceptance gate.
+- Before the final response and before a qualifying checkpoint commit, re-read the affected checkpoint, inspect the actual changes and verification output, then update its progress ledger, remaining gaps, and next permitted action.
+- Set implementation only to `not-started`, `in-progress`, or `implemented`, and verification only to `pending`, `passed`, `failed`, or `blocked`, when repository evidence supports the transition.
+- Never infer owner approval or pilot acceptance. Mark owner approval only after explicit user approval and pilot acceptance only after the required rehearsal or learner evidence.
+- Do not begin the next module while the current module still lacks its required approval or acceptance gate.
+- If implementation changed but the plan cannot be synchronized safely, stop before committing and report the mismatch.
 
-## Course Skills
+## Course routing and authority
 
-- `pilot-workspace/` is the only runnable course authority.
-- Use `$start-course-lesson intro` to start Pilot 0.1 from
-  `pilot-workspace/course/course-structure.json`.
-- Use `$start-course-lesson module-1` only when the learner intentionally skips
-  the Pilot intro and starts its technical lesson.
-- Do not offer `module-0`; it belongs to the historical MVP 1 prototype.
-- Use `$course-teacher` when teaching, assessing, resuming, or reviewing Pilot
-  lessons.
-- Prefer explicit skill invocation over fuzzy natural-language shortcuts when demonstrating the course flow.
-- When teaching course materials, follow the lesson `scriptPath` first; ask quiz questions one at a time and require learner-owned examples for written answers.
-- If the user asks to resume the course without specifying time, ask how many minutes they have today: 10, 20, 30, 45, or 60.
+- `pilot-workspace/` is the only runnable private-course authority; `docs/planning/` is the public-course plan.
+- Use `$start-course-lesson intro` for the normal start and `$start-course-lesson module-1` only for an intentional intro skip. Never offer historical `module-0`.
+- Use `$course-teacher` to teach, assess, resume, or review Pilot lessons. Follow the current lesson `scriptPath`, ask assessed questions one at a time, and require learner-owned written examples.
+- If the user asks to resume without specifying time, ask whether they have 10, 20, 30, 45, or 60 minutes.
+- Read `docs/internal/target-learner-definition.md` before curriculum, product, or learner-experience decisions. Keep it internal and out of learner-facing or public packages.
+- Treat `starters/contentpilot/` as the real application baseline. Treat `prototypes/` and `codex_content_creator_course_plan_v8.html` as historical references only; never fall back to them when current Pilot material is missing.
 
-## Course Authority
+## Vietnamese
 
-- Current runnable private course: `pilot-workspace/`.
-- Current public-course plan: `docs/planning/`.
-- Internal target-learner definition:
-  `docs/internal/target-learner-definition.md`. Read it before making
-  curriculum, product, or learner-experience decisions. Do not copy it into
-  learner-facing content or include it in a public release package.
-- Current real application baseline: `starters/contentpilot/`.
-- Historical references only: `prototypes/` and
-  `codex_content_creator_course_plan_v8.html`.
-- Never fall back to a historical course when a current Pilot lesson cannot be
-  resolved.
+- Write learner-facing Vietnamese naturally with complete diacritics and tone marks.
+- Do not use ASCII-only Vietnamese unless quoting intentionally unaccented input.
