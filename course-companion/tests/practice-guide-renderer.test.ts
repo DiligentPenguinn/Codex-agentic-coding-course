@@ -32,5 +32,18 @@ describe('PracticeGuide renderer', () => {
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)')
     expect(styles).toContain('.practice-guide.is-coach-mark')
   })
+
+  it('integrates with real Teacher controls without replacing their actions', async () => {
+    const teacher = await source('src/renderer/src/components/TeacherWorkspace.tsx')
+    const progress = await source('src/renderer/src/components/PracticeProgress.tsx')
+    expect(teacher).toContain("practiceGuideAnchor('teacher-tab')")
+    expect(teacher).toContain("practiceGuideAnchor('progress-tab')")
+    expect(teacher).toContain("practiceGuideAnchor('review-progress')")
+    expect(teacher).toContain('Xem lại hướng dẫn Practice')
+    expect(teacher).toContain('reviewPractice()')
+    expect(teacher).toContain('returnPassedPractice()')
+    expect(progress).toContain("practiceGuideAnchor('configuration-evidence')")
+    expect(progress).toContain("practiceGuideAnchor('return-to-course')")
+  })
 })
 

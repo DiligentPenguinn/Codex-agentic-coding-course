@@ -2276,3 +2276,36 @@ button:focus-visible {
     transition: none;
   }
 }
+.practice-guide-resume {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 91;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--pixel-cyan);
+  padding: 10px 12px;
+  color: var(--pixel-cream);
+  background: #101b2a;
+  box-shadow: 4px 4px 0 rgba(5, 9, 15, 0.62);
+}
+.practice-guide-resume button,
+.practice-guide-replay {
+  border: 2px solid var(--pixel-cyan);
+  padding: 8px 10px;
+  color: var(--pixel-cream);
+  background: transparent;
+  font: 7px/1.4 var(--pixel-font);
+  cursor: pointer;
+}
+.practice-guide-resume button:focus-visible,
+.practice-guide-replay:focus-visible {
+  outline: 3px solid var(--pixel-yellow);
+  outline-offset: 3px;
+}
+.practice-guide-replay {
+  align-self: flex-start;
+  margin: 8px 14px 12px;
+  color: var(--pixel-cyan);
+}

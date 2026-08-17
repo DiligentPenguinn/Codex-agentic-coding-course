@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, KeyboardEvent } from 'react'
-import type { PracticeGuideUpdateRequest, PracticeGuideView } from '../../../../shared/contracts'
-import { findPracticeGuideAnchor } from './practice-guide-anchors'
+import type { PracticeGuideAnchorId, PracticeGuideUpdateRequest, PracticeGuideView } from '../../../../shared/contracts'
+import { PRACTICE_GUIDE_ANCHOR_ATTRIBUTE } from './practice-guide-anchors'
 
 type PracticeGuideProps = {
   view: PracticeGuideView | null
@@ -11,6 +11,10 @@ type PracticeGuideProps = {
 type Placement = { left: number; top: number; fallback: boolean }
 
 const initialPlacement: Placement = { left: 24, top: 24, fallback: true }
+function findPracticeGuideAnchor(id: PracticeGuideAnchorId): HTMLElement | null {
+  return document.querySelector<HTMLElement>(`[${PRACTICE_GUIDE_ANCHOR_ATTRIBUTE}="${id}"]`)
+}
+
 
 export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
   const panelRef = useRef<HTMLElement>(null)
@@ -70,7 +74,7 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
     return () => restoreFocusRef.current?.focus({ preventScroll: true })
   }, [visible, view?.currentStageId])
 
-  if (!view || !visible) return null
+  if (!view) return null
 
   const update = (type: PracticeGuideUpdateRequest['type']) => {
     if (type === 'resume' || type === 'replay' || type === 'dismiss-confirmation' || type === 'start') {
@@ -79,6 +83,16 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
     }
     onUpdate({ type, expectedStageId: view.currentStageId! } as PracticeGuideUpdateRequest)
   }
+
+  if (view.status === 'paused') {
+    return (
+      <aside className="practice-guide-resume" role="status">
+        <span>Hướng dẫn Practice đang tạm dừng.</span>
+        <button type="button" onClick={() => update('resume')}>Tiếp tục hướng dẫn</button>
+      </aside>
+    )
+  }
+  if (!visible) return null
 
   const nextType = view.currentStageId === 'practice-loop-confirmation'
     ? 'continue'

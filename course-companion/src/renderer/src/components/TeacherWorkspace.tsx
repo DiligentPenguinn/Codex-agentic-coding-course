@@ -5,6 +5,8 @@ import type {
   PlanningPracticeActionRequest,
   PracticeState,
   PracticeWorkspaceView,
+  PracticeGuideUpdateRequest,
+  PracticeGuideView,
   TeacherContext,
   TeacherMessage,
   TeacherRuntimeView,
@@ -13,6 +15,8 @@ import type {
 } from '../../../../shared/contracts'
 import teacherImage from '../assets/teacher-triet.png'
 import { PracticeProgress } from './PracticeProgress'
+import { PracticeGuide } from './PracticeGuide'
+import { practiceGuideAnchor } from './practice-guide-anchors'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -107,6 +111,7 @@ export function TeacherWorkspace({
   const [activeTab, setActiveTab] = useState<'teacher' | 'progress'>('teacher')
   const [practice, setPractice] = useState<PracticeState>(emptyPractice)
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
+  const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const [practiceBusy, setPracticeBusy] = useState(false)
   const [reviewBusy, setReviewBusy] = useState(false)
   const [returnBusy, setReturnBusy] = useState(false)
@@ -145,6 +150,13 @@ export function TeacherWorkspace({
         if (loadedWorkspace) {
           setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
         }
+        if (loadedWorkspace && embedded && window.courseCompanion) {
+          const initialTab = loadedWorkspace.presentation.fullPanel
+          setPracticeGuide(await window.courseCompanion.loadPracticeGuide({
+            surface: 'full',
+            activeTab: initialTab
+          }))
+        }
         setPractice(
           window.courseCompanion
             ? await window.courseCompanion.loadPracticeState()
@@ -181,6 +193,18 @@ export function TeacherWorkspace({
   }, [])
 
 
+
+  const updatePracticeGuide = async (request: PracticeGuideUpdateRequest) => {
+    if (!window.courseCompanion || !embedded) return
+    try {
+      setPracticeGuide(await window.courseCompanion.updatePracticeGuide(request, {
+        surface: 'full',
+        activeTab
+      }))
+    } catch {
+      // Guidance is optional and must never interrupt Practice.
+    }
+  }
   const selectTab = async (next: 'teacher' | 'progress') => {
     setActiveTab(next)
     if (!window.courseCompanion) return
@@ -189,6 +213,13 @@ export function TeacherWorkspace({
         surface: embedded ? 'full' : 'compact',
         panel: next
       }))
+      if (embedded && practiceGuide?.currentStageId) {
+        const type = next === 'teacher' ? 'teacher-tab-selected' : 'progress-tab-selected'
+        setPracticeGuide(await window.courseCompanion.updatePracticeGuide(
+          { type, expectedStageId: practiceGuide.currentStageId },
+          { surface: 'full', activeTab: next }
+        ))
+      }
     } catch {
       setError('Không thể lưu tab Practice hiện tại.')
     }
@@ -241,6 +272,14 @@ export function TeacherWorkspace({
       } catch {
         // The review result is authoritative even if persisting the selected tab fails.
       }
+      if (embedded) {
+        const request = practiceGuide?.currentStageId === 'request-review'
+          ? { type: 'review-requested' as const, expectedStageId: 'request-review' }
+          : { type: 'start' as const }
+        setPracticeGuide(await window.courseCompanion.updatePracticeGuide(
+          request, { surface: 'full', activeTab: 'progress' }
+        ))
+      }
     } catch {
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
     } finally {
@@ -291,6 +330,13 @@ export function TeacherWorkspace({
       setError('Kh\u00f4ng th\u1ec3 quay l\u1ea1i kh\u00f3a h\u1ecdc. K\u1ebft qu\u1ea3 \u0111\u1ea1t v\u1eabn \u0111\u01b0\u1ee3c l\u01b0u; h\u00e3y th\u1eed l\u1ea1i.')
       setReturnBusy(false)
     }
+  }
+
+  const minimizeToBubble = async () => {
+    if (practiceGuide?.currentStageId && practiceGuide.presentation) {
+      await updatePracticeGuide({ type: 'pause', expectedStageId: practiceGuide.currentStageId })
+    }
+    onMinimizeToBubble?.()
   }
   const sendMessage = async (contentOverride?: string) => {
     const content = (contentOverride ?? draft).trim()
@@ -403,6 +449,7 @@ export function TeacherWorkspace({
         <div className="pixel-panel-controls">
           {workspace?.activePractice && workspace.review?.canReview ? (
             <button
+              {...practiceGuideAnchor('review-progress')}
               className={'pixel-panel-control pixel-panel-control--review' + (reviewBusy ? ' is-busy' : '')}
               type="button"
               aria-label="Yêu cầu Triết duyệt tiến độ"
@@ -421,6 +468,7 @@ export function TeacherWorkspace({
           ) : null}
           {workspace?.review?.canReturn ? (
             <button
+              {...practiceGuideAnchor('return-to-course')}
               className="pixel-panel-control pixel-panel-control--return"
               type="button"
               aria-label="Quay lại khóa học nhanh"
@@ -453,7 +501,7 @@ export function TeacherWorkspace({
               type="button"
               aria-label="Thu nhỏ Triết thành bong bóng"
               title="Thu nhỏ thành bong bóng"
-              onClick={onMinimizeToBubble}
+              onClick={() => void minimizeToBubble()}
             >
               <span aria-hidden="true">—</span>
             </button>
@@ -485,10 +533,10 @@ export function TeacherWorkspace({
       </div>
 
       <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
-        <button aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
+        <button {...practiceGuideAnchor('teacher-tab')} aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
           HỎI TRIẾT
         </button>
-        <button aria-selected={activeTab === 'progress'} className={activeTab === 'progress' ? 'is-active' : ''} onClick={() => void selectTab('progress')} role="tab" type="button">
+        <button {...practiceGuideAnchor('progress-tab')} aria-selected={activeTab === 'progress'} className={activeTab === 'progress' ? 'is-active' : ''} onClick={() => void selectTab('progress')} role="tab" type="button">
           TIẾN ĐỘ
         </button>
       </div>
@@ -606,6 +654,12 @@ export function TeacherWorkspace({
       )}
 
       {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
+      {embedded && workspace?.activePractice?.practiceId === 'm1-codex-safe-setup' ? (
+        <button className="practice-guide-replay" type="button" onClick={() => void updatePracticeGuide({ type: 'replay' })}>
+          Xem lại hướng dẫn Practice
+        </button>
+      ) : null}
+      <PracticeGuide view={practiceGuide} onUpdate={(request) => void updatePracticeGuide(request)} />
 
       {!embedded ? <footer>
         <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>Thoát ứng dụng</button>

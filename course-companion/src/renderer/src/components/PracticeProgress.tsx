@@ -4,6 +4,7 @@ import type {
   PracticePlanningArtifactView,
   PracticeWorkspaceView
 } from '../../../../shared/contracts'
+import { practiceGuideAnchor } from './practice-guide-anchors'
 
 type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
@@ -91,7 +92,7 @@ export function PracticeProgress({
       </div>
 
       {configurationPractice ? (
-        <section className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
+        <section {...practiceGuideAnchor('configuration-evidence')} className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
           <header>
             <div>
               <small>CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN</small>
@@ -237,7 +238,7 @@ export function PracticeProgress({
             </p>
           </div>
           {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-            <button type="button" disabled={returnBusy} onClick={onReturn}>
+            <button {...practiceGuideAnchor('return-to-course')} type="button" disabled={returnBusy} onClick={onReturn}>
               {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
             </button>
           ) : null}

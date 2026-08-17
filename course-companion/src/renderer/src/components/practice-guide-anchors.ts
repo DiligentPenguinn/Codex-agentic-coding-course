@@ -6,7 +6,3 @@ export function practiceGuideAnchor(id: PracticeGuideAnchorId) {
   return { [PRACTICE_GUIDE_ANCHOR_ATTRIBUTE]: id }
 }
 
-export function findPracticeGuideAnchor(id: PracticeGuideAnchorId): HTMLElement | null {
-  return document.querySelector<HTMLElement>(`[${PRACTICE_GUIDE_ANCHOR_ATTRIBUTE}="${id}"]`)
-}
-
