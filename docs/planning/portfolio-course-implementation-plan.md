@@ -1,7 +1,10 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation, Module 2, and Module 3 are implemented; owner
-  acceptance is pending. On the `practice-disabled-content-development` branch,
+- **Status:** Foundation and Module 3 are implemented. Module 2's previous
+  seven-artifact baseline remains implemented, but the owner-approved
+  five-stage/five-document redesign is not yet implemented; Module 2 is now
+  `in-progress` and owner acceptance remains pending. On the
+  `practice-disabled-content-development` branch,
   Module 4 learner content, five formative checks, and a six-question final
   review are implemented for session-only content review. Temporary review-only
   bypasses are available at every current Practice boundary. Module 4 Practice,
@@ -29,7 +32,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `implemented` | `passed` — 288 unit tests, nine startup tests, typecheck, lint, production build, and full Electron smoke after the four-part flow and retired PRD-anatomy progress redirect on 17 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026; the four-part concept-first structure, portfolio-as-practice boundary, author-copy placement, retired-page progress redirect, outline-menu progress signals, and right-edge Teacher/Quit controls were approved on 17 August 2026 | `pending` | Continue the learner-facing content review and required rehearsal before overall acceptance. |
+| Module 2 | `in-progress` — the previous seven-artifact flow remains runnable; the approved five-stage/five-document redesign is documented but not implemented | `pending` for the redesign; the superseded baseline previously passed 288 unit tests, nine startup tests, typecheck, lint, production build, and full Electron smoke on 17 August 2026 | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, and Module 2/3 boundary were explicitly approved on 17 August 2026, but implementation has not been reviewed or accepted | `pending` | Obtain final implementation confirmation, then implement only the approved Module 2 redesign and its narrow Module 3 handoff updates; do not claim acceptance from the design approval. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -388,9 +391,7 @@ planning/
     reference.md
     screenshots/
   PRD.md
-  requirement-validation-map.md
   implementation-plan.md
-  first-bounded-task.md
 
 evidence/module-3/
   scaffold-report.md
@@ -595,30 +596,130 @@ Do not begin Module 2 content implementation until:
 
 ### Module outcome
 
-The learner first understands when planning is useful, what a PRD does, what a
-good PRD contains, and how to create, review, and approve one with a coding
-agent. The learner then applies that transferable workflow to turn a vague
-portfolio idea into an honest, evidence-backed build contract.
+After no more than three large Course Companion explanation pages, the learner
+uses one persistent Codex task to turn a vague portfolio idea into five current,
+learner-approved planning documents. The learner answers one plain-language
+question at a time; Executor creates and updates the documents; Course
+Companion independently inspects the files and current digests after every
+stage. Module 2 ends with an approved implementation plan. Module 3, not Module
+2, proposes the first concrete implementation task and begins building.
+
+### Approved redesign authority — 17 August 2026
+
+The approved product and artifact contract is recorded in
+`docs/planning/module-2-redesign-working-spec.md`. It supersedes the previous
+seven-artifact design for future implementation while preserving honest
+historical progress notes about the runnable baseline.
+
+The learner-facing stages and documents are:
+
+| Stage | Learner-facing name | Current output |
+| --- | --- | --- |
+| 1 | Mục đích của portfolio này là gì? | `planning/portfolio-brief.md` |
+| 2 | Hiện tại bạn đang có những gì? | `planning/content-evidence-inventory.md` |
+| 3 | Bạn muốn portfolio của mình trông như thế nào? | `planning/reference/reference.md` plus optional sourced screenshots |
+| 4 | Hoàn thành PRD | `planning/PRD.md` |
+| 5 | Tạo kế hoạch triển khai | `planning/implementation-plan.md` |
+
+The Stage 5 document absorbs requirement-to-validation coverage. The previous
+`planning/requirement-validation-map.md` and
+`planning/first-bounded-task.md` contracts are retired. Module 2 creates no
+application, implementation task, dependency decision, command, or source file.
+
+Course Companion owns approval timestamps, artifact digests, stage receipts,
+freshness, and the review summary. Learners never fill technical metadata or
+open templates as required work.
+
+### Current repository comparison — 17 August 2026
+
+**Preserve:**
+
+- one selected external portfolio workspace;
+- one persistent Executor task across all five stages;
+- five ordered stage receipts, current-digest approval, stale invalidation,
+  resumability, and atomic Module 2 completion;
+- strict write scope under `planning/`, including bounded reference
+  screenshots, with application code and dependency changes rejected;
+- the separate mastery gate unless a later explicit owner decision reopens it;
+- Module 3 receiving the selected workspace and current planning references,
+  never an old chat transcript as hidden context.
+
+**Replace or migrate:**
+
+- the current four-part outline and milestone-by-milestone teaching/example
+  route with three large explanation surfaces followed by the real Practice;
+- every seven-artifact list in the manifest, shared contracts, Practice
+  definition, registry, evidence adapter, completion service, fixtures, and
+  tests with the five-document contract;
+- the learner-facing phrases `dấu hiệu thành công`, `đã kiểm chứng`, `lời tự
+  khai`, and `implementation contract` with the approved questions, evidence
+  labels, and stage names;
+- the requirement for a URL and screenshot in every reference case with a
+  source-aware contract that also permits learner-owned images and explicitly
+  bounded unknown rights;
+- the separate validation-map and first-bounded-task templates and all
+  completion/mastery logic that reads or summarizes the first task;
+- the current Module 2 Practice version and obsolete progress references so a
+  receipt for the old artifact set cannot satisfy the new gate.
+
+**Known implementation surfaces:**
+
+- `pilot-workspace/course/course-structure.json`, the Module 2 lesson, Teacher
+  script, start prompt, quiz, Practice definition, rubric, and planning
+  templates;
+- `course-companion/shared/contracts.ts` and the shared Module 2 registry
+  definition;
+- renderer scenes, outline/progress labels, Practice launch/resume routing, and
+  the narrow Module 3 readiness handoff;
+- `portfolio-planning-evidence-adapter.ts`,
+  `portfolio-module-completion-service.ts`, Practice/progress repositories, and
+  their stage/digest contracts;
+- focused Module 2 curriculum, registry, evidence, completion, progress,
+  coordinator, Electron smoke, and frozen-transition tests.
+
+The pre-Module-1 introduction remains frozen. Temporary content-review Practice
+bypasses on `practice-disabled-content-development` are not part of this
+redesign and must not enter the real completion path.
+
+**Planning checkpoint status — 17 August 2026:** Product design is approved and
+the repository gap inventory is complete. No runnable course, contract, test,
+or learner progress has been changed by this planning checkpoint. Verification
+is limited to document inspection and `git diff --check`; runtime verification
+remains `pending`. The next permitted action is one final owner confirmation of
+the implementation scope above, followed by bounded implementation and focused
+checkpoint commits. Pilot acceptance remains `pending` until a real disposable
+workspace rehearsal and required learner evidence pass.
 
 ### M2.1 — Lock the module manifest and artifact contracts
 
 **Change**
 
 1. Replace the Module 2 entry in `course-structure.json` with the five approved
-   milestones and new semantic checkpoints.
+   stages, learner-facing names, and semantic checkpoints.
 2. Set `nextLessonId` to Module 3, but keep Module 3 locked until the Module 2
    evidence and mastery gates pass.
-3. Add templates for the seven Module 2 artifacts under
-   `pilot-workspace/artifacts/`.
-4. Define required headings, learner-owned decisions, approval fields,
-   permissible reference screenshots, and privacy/ownership checks.
-5. Keep technology selection and application code out of Module 2.
+3. Replace the seven-artifact manifest with exactly five planning documents:
+   the brief, evidence inventory, reference record, PRD, and implementation
+   plan. Reference screenshots remain bounded supporting evidence rather than
+   additional planning documents.
+4. Retire `planning/requirement-validation-map.md` and
+   `planning/first-bounded-task.md`; move requirement-validation coverage into
+   `planning/implementation-plan.md` without creating a Module 3 task.
+5. Define the approved headings, plain-language evidence labels, learner-owned
+   decisions, source/rights boundaries, and system-managed approval metadata.
+6. Bump the Module 2 Practice contract version and reject or safely redirect
+   obsolete seven-artifact progress so old receipts cannot satisfy the new gate.
+7. Keep technology selection, commands, dependency choices, implementation
+   tasks, and application code out of Module 2.
 
 **Verify**
 
 - Course-structure parser accepts the manifest.
-- Every artifact path is unique and under `planning/`.
+- Exactly five document paths are unique and under `planning/`.
 - Templates contain no completed learner answer or hidden portfolio solution.
+- The implementation plan contains both requirement-validation coverage and
+  phased planning, but no first implementation task.
+- Old seven-artifact receipts cannot unlock Module 3.
 - Module 2 cannot open Module 3 without the gate receipt.
 
 **Checkpoint output:** A machine-readable Module 2 contract and solution-free
@@ -631,48 +732,64 @@ artifact templates.
 Create or replace the Module 2 lesson, Teacher script, and start prompt in
 natural Vietnamese:
 
-1. Explain why planning matters before coding with AI.
-2. Introduce PRDs independently of the portfolio project.
-3. Teach the learner to create, review, and approve a PRD with a coding agent.
-4. Introduce the portfolio as the practice project, then complete the five
-   artifact milestones below.
+1. Collapse the current four-part and milestone-teaching route into three large
+   Course Companion explanation pages:
+   - why planning matters and what PRD/implementation plan mean;
+   - how one Codex task, Executor, Course Companion review, and learner approval
+     work together;
+   - the five-stage map, the Module 2/3 boundary, and the action that opens the
+     real Practice.
+2. Retire pre-Practice milestone example/application pages. Detailed
+   clarification happens inside the one persistent Practice task, not across
+   separate teaching tasks or learner-filled forms.
+3. Keep explanations short, beginner-first, and transferable beyond portfolio
+   work. Pafolios is the default discovery suggestion; Awwwards is an optional
+   expressive source with an explicit complexity/copying warning.
+4. Start the real portfolio-planning Practice immediately after the explanation
+   surfaces.
 
 The nested portfolio milestones are:
 
-1. Create the portfolio brief.
-2. Build the content and evidence inventory.
-3. Choose and save one visual reference.
-4. Create and review the portfolio PRD.
-5. Create the requirement-validation map, phased implementation plan, and first
-   bounded task.
+1. Determine the portfolio's purpose and create the portfolio brief.
+2. Inventory current content and evidence.
+3. Choose a reference and record liked, unsuitable, uncertain, source, and
+   rights information without designing the UI.
+4. Synthesize the first three approved documents into the PRD; ask only when a
+   high-impact gap cannot be resolved from current evidence.
+5. Create one implementation plan containing requirement-validation coverage
+   and ordered phases, then stop before any implementation task is created.
 
 Each milestone follows:
 
 ```text
-Explain
--> show one complete but non-copyable example
--> guide one application
--> learner creates or revises their artifact
+Executor reads current approved inputs
+-> asks one necessary plain-language question, if any
+-> Executor creates or revises the document
 -> inspect fresh evidence
--> learner accepts or revises
+-> Course Companion summarizes
+-> learner accepts or requests a revision
 ```
 
 Teacher questions are asked one at a time with a recommended answer when the
-choice is consequential. The learner may describe preferences in ordinary
-language. The script must distinguish verified facts, learner claims,
-assumptions, missing evidence, private material, and publication permission.
+choice is consequential. Stages 4 and 5 draft first and do not re-interview the
+learner. The learner may describe preferences in ordinary language. The script
+must use the approved labels `Có bằng chứng`, `Do bạn xác nhận`, `Đang giả định`,
+and `Còn thiếu`, while preserving private/publication/ownership boundaries.
 
 **Verify**
 
 - Every curriculum milestone appears once and in approved order.
+- Exactly three large explanation surfaces precede one real Practice launch.
 - No fixed duration or speed promise appears.
-- No learner is required to read code, choose dependencies, or create the app.
+- No learner is required to open a template, fill technical metadata, read
+  code, choose dependencies, create a task, or create the app.
+- The exact approved Stage 1 question replaces `dấu hiệu thành công` wording.
 - Reference guidance prohibits copying content, branding, images, and source
-  code.
+  code while permitting an honestly bounded unknown-rights reference.
 - Vietnamese content passes diacritic and terminology review.
 
 **Checkpoint output:** Complete source-first Module 2 instruction aligned with
-the seven artifact contracts.
+the five-document contract.
 
 **Progress note — 17 August 2026:** The owner-approved four-part structure now
 teaches planning and PRD concepts before introducing the portfolio practice.
@@ -680,19 +797,23 @@ The author's opening language remains in Part 1, while “Bây giờ, chúng ta 
 chính thức bắt tay vào tạo Portfolio.” remains at the Part 4 transition. The
 dedicated “Một PRD tốt cần có những gì?” page has been retired; Part 2 now moves
 directly to the coding-agent PRD workflow in Part 3. The five nested portfolio
-milestones and seven-artifact contract are unchanged. Focused tests, all 288
-unit tests, nine startup tests, typecheck, lint, production build, and full
-Electron smoke passed.
+milestones and seven-artifact contract were unchanged at that historical
+checkpoint and are now superseded by the approved redesign above. Focused tests,
+all 288 unit tests, nine startup tests, typecheck, lint, production build, and
+full Electron smoke passed.
 
 ### M2.3 — Build formative checks and the mastery assessment
 
 **Change**
 
-1. Replace ContentPilot-specific quiz scenarios with portfolio scenarios.
-2. Add retrieval checks after the relevant concepts and delayed checks near the
-   module gate.
-3. Require learner-owned short answers for audience choice, one scope boundary,
-   one evidence gap, and one requirement-to-validation mapping.
+1. Preserve the separate mastery gate because its removal has not been approved,
+   but remove or rewrite assessment items that assume seven artifacts, a
+   separate validation map, or a first bounded task in Module 2.
+2. Keep formative explanation within the three large pages lightweight; do not
+   rebuild milestone-by-milestone teaching pages merely to host retrieval checks.
+3. Require learner-owned short answers only where they demonstrate ownership of
+   audience, scope, evidence, or requirement-validation decisions in the five
+   current documents.
 4. Keep exact numeric passing thresholds configurable. Do not publish a final
    threshold until representative beginner pilots support it.
 5. Ensure quiz feedback appears only after the learner answers.
@@ -703,6 +824,8 @@ Electron smoke passed.
 - Every answer traces to the imported source audit or an explicitly labeled
   curriculum judgment.
 - No answer can pass merely by repeating the example portfolio.
+- No question requires `planning/requirement-validation-map.md`,
+  `planning/first-bounded-task.md`, or a Module 2 implementation task.
 - Practice completion cannot substitute for mastery, and mastery cannot
   substitute for current artifacts.
 
@@ -714,24 +837,35 @@ Electron smoke passed.
 
 1. Add the Practice definition with five ordered stage checkpoints.
 2. Open the learner-selected portfolio folder in one persistent Executor task.
-3. Limit write scope to the seven approved planning artifacts and reference
-   screenshots.
+3. Limit write scope to the five approved planning documents and bounded
+   reference screenshots.
 4. Extend planning evidence collection to validate:
    - required sections and artifact digests;
-   - honest evidence labels and privacy/permission review;
+   - the approved plain-language evidence labels and privacy/permission review;
+   - learner-owned or externally sourced references, optional useful
+     screenshots, and explicit unknown-rights boundaries;
    - PRD scope and acceptance criteria;
-   - one-to-one requirement-validation coverage;
-   - phased plan dependencies and non-goals;
-   - first-task boundaries;
+   - one-to-one requirement-validation coverage inside the implementation plan;
+   - phased plan dependencies, non-goals, and the absence of a Module 2
+     implementation task;
    - learner approval of the current versions.
-5. Prevent implementation source, dependency installation, or deployment work.
+5. After every stage, Course Companion must inspect the current filesystem
+   artifact, show a learner-readable digest summary, and record only an explicit
+   **Chấp nhận** decision; **Yêu cầu sửa** keeps the same task and stage open.
+6. Stage 4 and Stage 5 synthesize current approved inputs before asking any
+   question. Ask only for unresolved high-impact decisions.
+7. Prevent implementation source, task creation, dependency installation, or
+   deployment work.
 
 **Verify**
 
 - Missing, stale, malformed, or unapproved artifacts fail the matching stage.
 - Unexpected application files fail scope control.
-- Reference screenshots do not count without source/permission metadata.
+- A reference may be a URL, screenshot, or learner-owned image; unclear rights
+  remain explicitly bounded and never authorize public reuse.
 - Each stage can resume after relaunch without starting a new task.
+- Every stage receipt binds to the current digests required by that stage and
+  its dependency chain; a downstream edit invalidates the affected receipts.
 - Completing Stage 5 returns to the Module 2 mastery scene, not Module 3.
 
 **Checkpoint output:** A live, resumable portfolio-planning Practice with fresh
@@ -742,19 +876,27 @@ artifact evidence.
 **Change**
 
 1. Build the Module 2 definition and scenes in its module package.
-2. Add lesson navigation, progress display, Practice launch/resume, recovery,
-   quiz, and mastery surfaces through the shared registry contract.
-3. Create only the new Module 2 visual assets needed for comprehension and
-   record their sources.
-4. Update the single approved Module 1 transition sentence/button so it points
-   to portfolio planning.
-5. Add an assertion that no other Module 1 copy changed.
+2. Replace the current four-part outline and milestone lesson scenes with three
+   large explanation scenes followed by the single real Practice entry.
+3. Update progress display, Practice launch/resume/revision recovery, quiz, and
+   mastery surfaces through the shared registry contract without exposing
+   templates or technical approval metadata to the learner.
+4. Use the approved learner-facing names for all five stages and documents.
+5. Reuse existing visual assets where possible. Any discovery-source UI links
+   directly to the current official Pafolios or Awwwards page and includes the
+   approved guidance about complexity and copying.
+6. Preserve the approved Module 1 transition destination and frozen
+   pre-Module-1 surfaces; add assertions that unrelated frozen copy and behavior
+   remain unchanged.
+7. Redirect or retire obsolete Module 2 scene/progress identities without
+   treating old seven-artifact progress as completion of the redesigned module.
 
 **Verify**
 
 - Desktop and narrow Course Companion layouts.
 - Keyboard and focus behavior.
-- Correct return destination after every Practice stage and quiz group.
+- Exactly three explanation pages precede the real Practice.
+- Correct return/review destination after every Practice stage and quiz group.
 - Exact resume from each milestone.
 - Module 1 frozen-content diff/snapshot check.
 
@@ -772,27 +914,35 @@ three progress states, no horizontal overflow, reachable navigation, and the
 complete transition into workspace selection. Saved progress on the retired
 PRD-anatomy page redirects to the coding-agent PRD workflow and removes the old
 scene from history. Focused progress tests and the full automated/Electron suite
-passed.
+passed. This is evidence for the superseded four-part baseline, not verification
+of the approved three-page redesign.
 
 ### M2.6 — Complete the Module 2 gate and handoff
 
 **Change**
 
-1. Require all seven current artifacts, five stage receipts, learner approval,
+1. Require all five current documents, five stage receipts, learner approval,
    and mastery evidence.
 2. Generate a plain-language completion summary: what the learner decided,
-   which evidence is missing or bounded, what will be built first, and what is
-   deliberately out of scope.
+   which evidence is missing or bounded, the approved implementation sequence,
+   and what is deliberately out of scope. Do not claim a first implementation
+   task was created in Module 2.
 3. Unlock Module 3 only after the completion receipt is saved atomically.
 4. Pass Module 3 the workspace path and artifact references, not the old chat
    transcript as hidden context.
+5. Make Module 3's first action read the five current documents, propose one
+   bounded implementation task with technology/dependency/file consequences,
+   and wait for learner approval before writing application code.
 
 **Verify**
 
-- Gate rejects stale artifact digests, incomplete validation mappings, hidden
-  implementation, or missing learner approval.
+- Gate rejects stale artifact digests, incomplete validation coverage inside
+  the implementation plan, hidden implementation/task creation, or missing
+  learner approval.
 - Relaunch after completion opens Module 3 readiness without losing Module 2
   evidence.
+- The completion handoff contains exactly the five current planning references
+  and no reference to a retired validation-map or first-task document.
 - Reset and targeted Module 2 recovery remain functional.
 
 **Checkpoint output:** Verified Module 2 completion and explicit Module 3 input
@@ -806,10 +956,18 @@ Module 2 is accepted only when:
   synchronized;
 - Course Companion completes the full new Module 2 journey using a disposable
   learner portfolio folder;
-- all seven artifacts are reviewed semantically on their current digests;
+- exactly three large explanation pages lead to one persistent Practice task;
+- all five planning documents are reviewed semantically on their current
+  digests, and Stage 5 stops at the implementation plan;
+- the same Executor thread remains bound through all five stages and every
+  **Yêu cầu sửa** cycle;
 - Module 3 stays locked before the combined evidence/mastery gate;
+- Module 3 proposes and waits for approval of the first concrete task instead
+  of receiving one created in Module 2;
 - the full Course Companion verification suite passes;
 - a manual beginner-language review finds no hidden coding prerequisite;
+- a disposable-workspace rehearsal proves no application source, dependency,
+  command execution, or deployment work occurs in Module 2;
 - the Module 2 implementation is committed locally in scoped checkpoints.
 
 Do not author or implement Module 3 course content before this gate is accepted.
