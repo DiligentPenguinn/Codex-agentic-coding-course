@@ -775,6 +775,55 @@ export type PracticeStartRequest = {
 }
 
 export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
+export const practiceGuidePresentationTypes = [
+  'intro-dialog',
+  'orientation-card',
+  'coach-mark',
+  'mastery-confirmation'
+] as const
+export type PracticeGuidePresentationType = (typeof practiceGuidePresentationTypes)[number]
+
+export const practiceGuideAdvancementModes = [
+  'continue',
+  'teacher-tab-selected',
+  'progress-tab-selected',
+  'review-requested',
+  'course-returned'
+] as const
+export type PracticeGuideAdvancementMode = (typeof practiceGuideAdvancementModes)[number]
+
+export const practiceGuideAnchorIds = [
+  'teacher-tab',
+  'progress-tab',
+  'configuration-evidence',
+  'review-progress',
+  'return-to-course'
+] as const
+export type PracticeGuideAnchorId = (typeof practiceGuideAnchorIds)[number]
+
+export type PracticeGuideStageDefinition = {
+  id: string
+  presentation: PracticeGuidePresentationType
+  advancement: PracticeGuideAdvancementMode
+  anchor?: PracticeGuideAnchorId
+  title: string
+  body: string
+  primaryLabel?: string
+  secondaryLabel?: string
+}
+
+export type PracticeGuideDefinition = {
+  schemaVersion: 1
+  guideId: string
+  version: string
+  eligiblePractice: {
+    practiceId: string
+    minimumVersion: string
+    maximumVersion: string
+  }
+  replayPolicy: 'once-per-course-run'
+  stages: PracticeGuideStageDefinition[]
+}
 
 type PlanningActionIdentity = PracticeIdentity & {
   runId: string

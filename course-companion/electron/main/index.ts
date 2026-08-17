@@ -63,6 +63,17 @@ function practiceDefinitionsDirectory(): string {
     join(app.getAppPath(), 'content', 'practices')
 }
 
+function practiceGuidesDirectory(): string {
+  const override = process.env.COURSE_COMPANION_PRACTICE_GUIDES_DIR
+  if (override) return resolve(override)
+  const candidates = [
+    join(app.getAppPath(), 'content', 'practice-guides'),
+    join(process.resourcesPath, 'content', 'practice-guides'),
+    resolve(app.getAppPath(), '..', '..', 'content', 'practice-guides')
+  ]
+  return candidates.find((candidate) => existsSync(candidate)) ??
+    join(app.getAppPath(), 'content', 'practice-guides')
+}
 const practiceDefinitionRepository = new PracticeDefinitionRepository(
   practiceDefinitionsDirectory()
 )

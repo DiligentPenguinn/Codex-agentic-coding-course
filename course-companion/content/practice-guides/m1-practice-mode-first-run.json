@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "guideId": "m1-practice-mode-first-run",
+  "version": "1.0.0",
+  "eligiblePractice": { "practiceId": "m1-codex-safe-setup", "minimumVersion": "2.0.0", "maximumVersion": "2.0.0" },
+  "replayPolicy": "once-per-course-run",
+  "stages": [
+    { "id": "practice-introduction", "presentation": "intro-dialog", "advancement": "continue", "title": "Làm quen với Practice Mode", "body": "Practice Mode kết nối ba phần: bài học giao mục tiêu, Executor thực hiện công việc trong Codex, còn Triết theo dõi tiến độ và duyệt bằng chứng.", "primaryLabel": "Bắt đầu hướng dẫn", "secondaryLabel": "Bỏ qua" },
+    { "id": "executor-orientation", "presentation": "orientation-card", "advancement": "continue", "title": "Executor là nơi bạn thực hành", "body": "Course Companion đã tạo và liên kết một task Codex riêng cho bài này. Bạn đổi cấu hình trong task đó; ứng dụng chỉ quan sát đúng task đã liên kết và không tự gửi prompt thay bạn.", "primaryLabel": "Tiếp", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "ask-teacher", "presentation": "coach-mark", "advancement": "teacher-tab-selected", "anchor": "teacher-tab", "title": "Hỏi Triết khi cần làm rõ", "body": "Triết biết bài Practice và hoạt động gần nhất của Executor. Bạn có thể hỏi về yêu cầu, lỗi đang gặp hoặc bước nên làm tiếp theo.", "primaryLabel": "Tiếp", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "inspect-progress", "presentation": "coach-mark", "advancement": "progress-tab-selected", "anchor": "progress-tab", "title": "Xem bằng chứng trong Tiến độ", "body": "Mở Tiến độ để xem Course Companion đã quan sát được gì, bước nào đã khớp và điều gì còn cần sửa.", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "configuration-evidence", "presentation": "coach-mark", "advancement": "continue", "anchor": "configuration-evidence", "title": "Bằng chứng cập nhật từ đúng task", "body": "Course Companion đọc năm thiết lập hiệu lực của Executor task đang liên kết. Các dòng ở đây thay đổi khi cấu hình trong Codex thay đổi; bạn không cần chụp màn hình hay tự báo cáo kết quả.", "primaryLabel": "Tiếp", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "request-review", "presentation": "coach-mark", "advancement": "review-requested", "anchor": "review-progress", "title": "Nhờ Triết duyệt bằng chứng", "body": "Khi đã sẵn sàng, dùng nút này để yêu cầu duyệt. Nếu chưa đạt, Practice vẫn được giữ nguyên và Triết sẽ chỉ ra thiết lập cần sửa.", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "return-to-course", "presentation": "coach-mark", "advancement": "course-returned", "anchor": "return-to-course", "title": "Quay lại đúng phần tiếp theo", "body": "Practice đã đạt. Dùng nút này để lưu kết quả và quay lại phần tổng kết của Module 1.", "secondaryLabel": "Bỏ qua hướng dẫn" },
+    { "id": "practice-loop-confirmation", "presentation": "mastery-confirmation", "advancement": "continue", "title": "Bạn đã hoàn thành vòng Practice", "body": "Bạn vừa hoàn thành toàn bộ vòng Practice: nhận nhiệm vụ → làm trong Executor → xem bằng chứng → nhờ Triết duyệt → quay lại bài học. Module 2 sẽ dùng lại vòng này cho một nhiệm vụ lớn hơn.", "primaryLabel": "Đã hiểu" }
+  ]
+}
