@@ -84,22 +84,41 @@ describe('Module 2 portfolio assessment contract', () => {
     ])
   })
 
-  it('requires four learner-owned answers that cannot pass by repeating the worked example', async () => {
+  it('reviews the four taught lesson parts through contextual, plain-language scenarios', async () => {
+    const quiz = await loadQuiz()
+    const final = quiz.groups.find((group) => group.id === 'final-assessment')
+    const scenarios = final?.questions.filter((question) => question.type === 'multiple-choice') ?? []
+    const scenario = (id: string) => {
+      const question = scenarios.find((candidate) => candidate.id === id)
+      expect(question).toBeDefined()
+      return [question?.prompt, ...(question?.choices ?? []), question?.explanation].join(' ')
+    }
+
+    expect(scenarios).toHaveLength(4)
+    expect(scenario('mastery-1')).toMatch(/lỗi chính tả.*lập kế hoạch.*sản phẩm mới/i)
+    expect(scenario('mastery-4')).toMatch(/PRD.*dành cho ai.*lựa chọn kỹ thuật/i)
+    expect(scenario('mastery-5')).toMatch(/mơ hồ.*tự mở rộng.*trước khi bạn duyệt/i)
+    expect(scenario('mastery-6')).toMatch(/hỏi bạn từng câu/i)
+    expect(scenario('mastery-6')).toMatch(/giữ quyền quyết định/i)
+    expect(new Set(scenarios.map((question) => question.answerIndex)).size).toBeGreaterThan(1)
+
+    for (const question of scenarios) {
+      expect(question.prompt.length).toBeGreaterThan(100)
+      expect([question.prompt, ...(question.choices ?? []), question.explanation].join(' '))
+        .not.toMatch(/\bgate\b|\brequirement\b|\bartifact\b|\bLearner\b/i)
+    }
+  })
+
+  it('requires one learner-owned answer that cannot pass by repeating the worked example', async () => {
     const quiz = await loadQuiz()
     const final = quiz.groups.find((group) => group.id === 'final-assessment')
     const learnerOwned = final?.questions.filter((question) => question.type === 'short-answer') ?? []
 
     expect(learnerOwned.map((question) => question.id)).toEqual([
-      'mastery-audience-choice',
-      'mastery-scope-boundary',
-      'mastery-evidence-gap',
-      'mastery-requirement-validation'
+      'mastery-audience-choice'
     ])
     expect(learnerOwned.map((question) => question.prompt)).toEqual([
-      expect.stringContaining('portfolio-brief.md'),
-      expect.stringContaining('PRD.md'),
-      expect.stringContaining('content-evidence-inventory.md'),
-      expect.stringContaining('requirement-validation-map.md')
+      expect.stringContaining('portfolio-brief.md')
     ])
     for (const question of learnerOwned) {
       expect(question.criteria?.join(' ')).toMatch(/hiện tại|thật/i)

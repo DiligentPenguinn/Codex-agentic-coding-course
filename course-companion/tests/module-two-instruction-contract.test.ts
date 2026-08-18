@@ -9,6 +9,10 @@ async function readCourseFile(relativePath: string): Promise<string> {
   return readFile(resolve(courseRoot, relativePath), 'utf8')
 }
 
+async function readCourseCompanionFile(relativePath: string): Promise<string> {
+  return readFile(resolve(repositoryRoot, 'course-companion', relativePath), 'utf8')
+}
+
 const milestoneHeadings = [
   'Milestone 1 — Tạo bản mô tả ngắn cho portfolio',
   'Milestone 2 — Kiểm kê nội dung và bằng chứng',
@@ -27,7 +31,65 @@ const artifactPaths = [
   'planning/first-bounded-task.md'
 ]
 
+const approvedPlanningOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedPortfolioTransition = 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.'
+const approvedDesignPlanningCopy = 'Ngoài nội dung ra thì bạn cũng cần lên kế hoạch cho thiết kế của ứng dụng bạn muốn tạo. Trong phần này, nếu bạn có thể tự vẽ đồ hoạ chi tiết thì quá tốt. Nhưng nếu bạn cũng hơi mù thiết kế giống như mình, bạn có thể gửi cho agent ảnh mà bạn thích và những phần cụ thể bạn muốn bắt chước trong ảnh đó. Khi thiết kế portfolio, hai trang web mình hay dùng nhất là Pafolios và Awwwards. Còn nếu thiết kế ứng dụng thì mình sẽ tìm thêm ở hai trang là Dribble và Mobbin. Hoặc bạn cũng có thể vào Pinterest để tìm cảm hứng.'
+const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha'
+const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
+const conceptualParts = [
+  'Phần 1 — Tại sao cần planning trước khi code với AI?',
+  'Phần 2 — PRD là gì và dùng để làm gì?',
+  'Phần 3 — Dùng coding agent để tạo, review và duyệt PRD',
+  'Phần 4 — Thực hành: Lập kế hoạch cho portfolio'
+]
+
 describe('Module 2 instruction contract', () => {
+  it('keeps the current Teacher integration baseline without the retired PRD anatomy page', async () => {
+    const [lesson, script, prompt, moduleTwoScenes] = await Promise.all([
+      readCourseFile('lessons/module-2.vi.md'),
+      readCourseFile('lesson-scripts/module-2.script.vi.md'),
+      readCourseFile('prompts/start-module-2.vi.md'),
+      readCourseCompanionFile('src/renderer/src/course/modules/module-2/scenes.tsx')
+    ])
+
+    for (const content of [lesson, script]) {
+      expect(content).toContain(approvedPlanningOpening)
+      expect(content).toContain(approvedPortfolioTransition)
+      expect(content.indexOf(approvedPlanningOpening)).toBeLessThan(content.indexOf('PRD là gì'))
+      expect(content.indexOf('PRD là gì')).toBeLessThan(content.indexOf(approvedPortfolioTransition))
+    }
+    expect(moduleTwoScenes).toContain(`dialogue: '${approvedPlanningOpening}'`)
+    for (const part of conceptualParts) expect(lesson).toContain(part)
+    const normalizedPrompt = prompt.replace(/\s+/g, ' ')
+    expect(prompt).toMatch(/dạy đủ ba phần kiến\s+thức tổng quát/)
+    expect(normalizedPrompt).toContain(approvedPortfolioTransition)
+    expect(normalizedPrompt).toContain('Không rút gọn hoặc viết lại giọng kể')
+    for (const page of [
+      'Lập kế hoạch trước khi xây',
+      'PRD là gì?',
+      'Tạo và review PRD cùng coding agent',
+      'Năm giai đoạn, năm tài liệu'
+    ]) expect(moduleTwoScenes).toContain(page)
+    expect(moduleTwoScenes).not.toContain("'module-2-prd-anatomy': {")
+    expect(moduleTwoScenes).not.toContain('Một PRD tốt làm rõ bối cảnh')
+    expect(moduleTwoScenes).not.toContain("'module-2-prd-introduction': {")
+    expect(moduleTwoScenes).not.toContain('Cả năm giai đoạn diễn ra trong cùng một task Codex')
+    expect(moduleTwoScenes).toContain("panelStatus: '4 TRANG · 1 PRACTICE'")
+    expect(moduleTwoScenes).toContain("request: 'Bốn trang giải thích dẫn tới một Practice duy nhất.'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-prd-definition'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-prd-review-workflow'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-prd-agent-workflow'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-portfolio-practice-intro'")
+    expect(moduleTwoScenes).toContain('Pafolios')
+    expect(moduleTwoScenes).toContain('Awwwards')
+    expect(moduleTwoScenes).toContain(`dialogue: '${approvedDesignPlanningCopy}'`)
+    expect(moduleTwoScenes).toContain("'module-2-prd-agent-workflow': {")
+    expect(moduleTwoScenes).toContain('showTitle: false')
+    expect(moduleTwoScenes).toContain('showPanel: false')
+    expect(moduleTwoScenes).toContain(`dialogue: '${approvedPracticeTransitionCopy}'`)
+    expect(moduleTwoScenes).toContain(`copyPrompt: '${approvedPortfolioPracticePrompt}'`)
+  })
+
   it('keeps all five milestones once and in the approved order', async () => {
     const [lesson, script] = await Promise.all([
       readCourseFile('lessons/module-2.vi.md'),

@@ -16,17 +16,14 @@ import type { ProgressRepository } from './progress-repository'
 
 const masteryQuestionIds = [
   'mastery-1',
-  'mastery-2',
-  'mastery-3',
   'mastery-4',
   'mastery-5',
   'mastery-6',
-  'mastery-audience-choice',
-  'mastery-scope-boundary',
-  'mastery-evidence-gap',
-  'mastery-requirement-validation'
+  'mastery-audience-choice'
 ] as const
-const writtenQuestionIds = masteryQuestionIds.slice(6)
+const writtenQuestionIds = [
+  'mastery-audience-choice'
+] as const
 
 function digest(value: string): string {
   return createHash('sha256').update(value).digest('hex')
@@ -178,7 +175,7 @@ export class PortfolioModuleCompletionService {
       status: 'completed',
       completedAt,
       evidenceSummary: bounded(`Quyết định: ${learnerDecision} Bằng chứng còn thiếu hoặc bị giới hạn: ${evidenceBoundary} Xây trước: ${firstBuild} Ngoài phạm vi: ${deliberatelyOutOfScope}`, 1500),
-      masterySummary: 'Đã đối chiếu 6 tình huống và lưu 4 câu trả lời do người học tự viết trên planning package hiện tại.',
+      masterySummary: 'Đã đối chiếu 4 tình huống và lưu 1 câu trả lời do người học tự viết trên planning package hiện tại.',
       destination: {
         lessonId: 'module-3',
         checkpointId: 'm3-scaffold-baseline',

@@ -21,6 +21,7 @@ import setupPracticeDefinitionSource from '../../../../../pilot-workspace/course
 import setupQuiz from '../../../../../pilot-workspace/course/quizzes/module-1.quiz.json'
 import planningQuiz from '../../../../../pilot-workspace/course/quizzes/module-2.quiz.json'
 import buildQuiz from '../../../../../pilot-workspace/course/quizzes/module-3.quiz.json'
+import releaseQuiz from '../../../../../pilot-workspace/course/quizzes/module-4.quiz.json'
 import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
@@ -35,9 +36,12 @@ import m2PrdPromptImage from '../assets/lesson-visuals/m2-prd-prompt.webp'
 import m2PrdReviewImage from '../assets/lesson-visuals/m2-prd-review.webp'
 import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementation-plan.webp'
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
+import m2PafoliosImage from '../assets/lesson-visuals/m2-pafolios.webp'
+import m2AwwwardsImage from '../assets/lesson-visuals/m2-awwwards.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
+import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -74,6 +78,7 @@ const setupPracticeDefinition: PracticeDefinition = setupPracticeDefinitionSourc
 type LessonVisual = {
   image: string
   alt: string
+  caption?: string
   fit?: 'cover' | 'contain'
 }
 
@@ -111,6 +116,7 @@ type SceneContent = {
   evidence: EvidenceItem[]
   dialogue: string
   choices: Choice[]
+  copyPrompt?: string
   practice?: PracticeDefinition
   assessmentQuestionId?: string
   assessmentGroupId?: string
@@ -175,7 +181,8 @@ const setupAssessmentGroup: AssessmentGroup = {
 const assessmentGroups = [
   setupAssessmentGroup,
   ...(planningQuiz.groups as AssessmentGroup[]),
-  ...(buildQuiz.groups as AssessmentGroup[])
+  ...(buildQuiz.groups as AssessmentGroup[]),
+  ...(releaseQuiz.groups as AssessmentGroup[])
 ]
 const assessmentQuestions = assessmentGroups.flatMap((group) => group.questions)
 const assessmentQuestionById = new Map(assessmentQuestions.map((question) => [question.id, question]))
@@ -1076,6 +1083,21 @@ type LearningPosition = {
   totalPages: number
 }
 
+const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
+  'module-2-portfolio-workspace': 0,
+  'module-2-prd-definition': 1,
+  'module-2-prd-review-workflow': 2,
+  'module-2-prd-agent-workflow': 2,
+  'module-2-portfolio-practice-intro': 3
+}
+
+function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
+  if (sceneId.startsWith('module-2-')) {
+    return moduleTwoOutlinePartByScene[sceneId] ?? moduleTwoOutlineSections.length - 1
+  }
+  return Math.max(0, position.lessonIndex - 1)
+}
+
 const introModule = courseStructure.modules.find((module) => module.id === 'intro')
 const setupModule = courseStructure.modules.find((module) => module.id === 'module-1')
 const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
@@ -1157,6 +1179,12 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
   'module-1-reasoning-effort': {
     image: m1ReasoningLevelsImage,
     alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra'
+  },
+  'module-2-prd-agent-workflow': {
+    image: m2PafoliosImage,
+    alt: 'Ảnh chụp Pafolios với hai portfolio được tuyển chọn',
+    caption: 'Pafolios',
+    fit: 'contain'
   }
 }
 
@@ -1164,6 +1192,12 @@ const sceneSecondaryVisuals: Partial<Record<SceneId, LessonVisual>> = {
   'module-1-codex-slash-commands': {
     image: m1AtMenuImage,
     alt: 'Danh sách nguồn và công cụ mở trong Codex sau khi người dùng nhập dấu @ vào ô soạn tin'
+  },
+  'module-2-prd-agent-workflow': {
+    image: m2AwwwardsImage,
+    alt: 'Ảnh chụp trang Site of the Day trên Awwwards',
+    caption: 'Awwwards',
+    fit: 'contain'
   }
 }
 
@@ -1392,6 +1426,41 @@ function LessonVisualMedia({
   )
 }
 
+function CopyPromptCard({ prompt }: { prompt: string }) {
+  const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle')
+
+  const copyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt)
+      setStatus('copied')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  return (
+    <aside className="pixel-copy-prompt" aria-labelledby="practicePromptTitle">
+      <header>
+        <small>PROMPT ĐỂ DÁN VÀO CODEX</small>
+        <strong id="practicePromptTitle">Bắt đầu lập kế hoạch portfolio</strong>
+      </header>
+      <p>{prompt}</p>
+      <div className="pixel-copy-prompt__actions">
+        <span aria-live="polite">
+          {status === 'copied'
+            ? 'Đã sao chép prompt. Bạn có thể dán vào Codex.'
+            : status === 'error'
+              ? 'Chưa thể sao chép. Hãy thử lại.'
+              : ''}
+        </span>
+        <button type="button" onClick={() => void copyPrompt()}>
+          {status === 'copied' ? 'ĐÃ SAO CHÉP' : status === 'error' ? 'THỬ LẠI' : 'SAO CHÉP PROMPT'}
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 function LessonVisualLightbox({
   activeFocus,
   isApprovalTour,
@@ -1581,98 +1650,189 @@ function ModelLessonBoard({
   )
 }
 
+function assessmentDraft(question: AssessmentQuestion, result?: string): string {
+  if (!result) return ''
+  if (question.type === 'multiple-choice') return result.split(':').at(-1) ?? ''
+  const separator = ':self-review:'
+  const answerIndex = result.indexOf(separator)
+  return answerIndex >= 0 ? result.slice(answerIndex + separator.length) : ''
+}
+
 function AssessmentControls({
-  question,
-  result,
+  group,
+  results,
   busy,
+  questionOnly,
   continueLabel,
   onConfirmWritten,
-  onChoose,
+  onSubmit,
   onContinue
 }: {
-  question: AssessmentQuestion
-  result?: string
+  group: AssessmentGroup
+  results: Record<string, string | undefined>
   busy: boolean
+  questionOnly?: boolean
   continueLabel: string
-  onConfirmWritten: (answer: string) => void
-  onChoose: (index: number) => void
+  onConfirmWritten: (question: AssessmentQuestion, answer: string) => Promise<boolean>
+  onSubmit: (answers: Record<string, string>) => Promise<boolean>
   onContinue: () => void
 }) {
-  const [draft, setDraft] = useState('')
-  const [reviewing, setReviewing] = useState(false)
-  const answered = Boolean(result)
-  const correct = result?.startsWith('correct') ?? false
-  const showFeedback = answered || reviewing
+  const [answers, setAnswers] = useState<Record<string, string>>(() => Object.fromEntries(
+    group.questions.map((question) => [question.id, assessmentDraft(question, results[question.id])])
+  ))
+  const hasSubmittedResults = group.questions.every((question) => Boolean(results[question.id]))
+  const [editing, setEditing] = useState(!hasSubmittedResults)
+  const showFeedback = hasSubmittedResults && !editing
+  const allAnswered = group.questions.every((question) => {
+    const answer = answers[question.id]?.trim() ?? ''
+    return question.type === 'multiple-choice' ? answer !== '' : answer.length >= 20
+  })
+  const incorrectChoiceCount = group.questions.filter((question) =>
+    question.type === 'multiple-choice' && results[question.id]?.startsWith('incorrect')
+  ).length
+  const pendingWrittenCount = group.questions.filter((question) =>
+    question.type !== 'multiple-choice' && !results[question.id]?.startsWith('correct')
+  ).length
+
+  const updateAnswer = (questionId: string, answer: string) => {
+    setAnswers((current) => ({ ...current, [questionId]: answer }))
+  }
+
+  const submit = async () => {
+    if (!allAnswered || busy) return
+    if (await onSubmit(answers)) setEditing(false)
+  }
+
+  const retryIncorrect = () => {
+    setEditing(true)
+  }
 
   return (
-    <div className="pixel-assessment">
-      {question.type === 'multiple-choice' && !answered ? (
-        <div className="pixel-assessment-options">
-          {question.choices.map((choice, index) => (
-            <button disabled={busy} key={choice} type="button" onClick={() => onChoose(index)}>
-              <span aria-hidden="true">{String.fromCharCode(65 + index)}</span>{choice}
-            </button>
-          ))}
-        </div>
-      ) : null}
+    <div className={`pixel-assessment${questionOnly ? ' is-question-only' : ''}`}>
+      {questionOnly ? null : (
+        <header className="pixel-assessment-header">
+          <strong>{group.title}</strong>
+          <span>{group.questions.length} câu hỏi</span>
+          <p>Trả lời tất cả câu hỏi rồi nộp một lần. Kết quả, lời giải và nguồn chỉ hiện sau khi bạn nộp.</p>
+        </header>
+      )}
 
-      {question.type !== 'multiple-choice' && !answered ? (
-        <div className="pixel-assessment-written">
-          <label htmlFor={`assessment-${question.id}`}>Câu trả lời của bạn</label>
-          <textarea
-            id={`assessment-${question.id}`}
-            disabled={busy || reviewing}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="Viết bằng lời của bạn trước khi xem tiêu chí…"
-            maxLength={450}
-            rows={4}
-            value={draft}
-          />
-          {!reviewing ? (
-            <button disabled={busy || draft.trim().length < 20} type="button" onClick={() => setReviewing(true)}>
-              Đối chiếu với tiêu chí
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      <div className="pixel-assessment-list">
+        {group.questions.map((question, questionIndex) => {
+          const result = results[question.id]
+          const correct = result?.startsWith('correct') ?? false
+          const questionResult = showFeedback
+            ? question.type === 'multiple-choice'
+              ? correct ? 'correct' : 'incorrect'
+              : correct ? 'correct' : 'review'
+            : undefined
+          const canEdit = editing && (!hasSubmittedResults || !correct)
 
-      {showFeedback ? (
-        <section className="pixel-assessment-feedback" data-result={answered ? (correct ? 'correct' : 'incorrect') : 'review'}>
-          <strong>
-            {answered
-              ? correct
-                ? 'Đã đáp ứng'
-                : 'Chưa đúng ở lần trả lời này'
-              : 'Tự đối chiếu trước khi tiếp tục'}
-          </strong>
-          <p>{question.explanation}</p>
-          {question.type !== 'multiple-choice' ? (
-            <ul>
-              {question.criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
-            </ul>
-          ) : null}
-          <div className="pixel-assessment-source">
-            <small>{question.source.kind === 'curriculum-judgment'
-              ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
-              : 'NGUỒN PHƯƠNG PHÁP'}</small>
-            <strong>{question.source.label}</strong>
-            <p>{question.source.basis}</p>
-            <code>{question.source.url}</code>
-          </div>
-          {answered ? (
-            <button className="is-primary" disabled={busy} type="button" onClick={onContinue}>
+          return (
+            <article
+              className="pixel-assessment-question"
+              data-result={questionResult}
+              key={question.id}
+              tabIndex={questionResult === 'incorrect' ? -1 : undefined}
+            >
+              <header>
+                <span>CÂU {questionIndex + 1}/{group.questions.length}</span>
+                {showFeedback ? (
+                  <strong>{question.type === 'multiple-choice'
+                    ? correct ? 'Đúng' : 'Chưa đúng'
+                    : correct ? 'Đã tự đối chiếu' : 'Chờ tự đối chiếu'}</strong>
+                ) : null}
+              </header>
+              <p>{question.prompt}</p>
+
+              {question.type === 'multiple-choice' ? (
+                <div className="pixel-assessment-options">
+                  {question.choices.map((choice, index) => {
+                    const selected = answers[question.id] === String(index)
+                    return (
+                      <button
+                        aria-pressed={selected}
+                        className={selected ? 'is-selected' : ''}
+                        disabled={busy || !canEdit}
+                        key={choice}
+                        type="button"
+                        onClick={() => updateAnswer(question.id, String(index))}
+                      >
+                        <span aria-hidden="true">{String.fromCharCode(65 + index)}</span>{choice}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="pixel-assessment-written">
+                  <label htmlFor={`assessment-${question.id}`}>Câu trả lời của bạn</label>
+                  <textarea
+                    id={`assessment-${question.id}`}
+                    disabled={busy || !canEdit}
+                    onChange={(event) => updateAnswer(question.id, event.target.value)}
+                    placeholder="Viết bằng lời của bạn trước khi xem tiêu chí…"
+                    maxLength={450}
+                    rows={4}
+                    value={answers[question.id] ?? ''}
+                  />
+                </div>
+              )}
+
+              {showFeedback ? (
+                <section className="pixel-assessment-feedback" data-result={questionResult}>
+                  <strong>{question.type === 'multiple-choice'
+                    ? correct ? 'Bạn đã chọn đúng' : 'Chưa đúng ở lần nộp này'
+                    : correct ? 'Bạn đã xác nhận sau khi tự đối chiếu' : 'Tự đối chiếu trước khi tiếp tục'}</strong>
+                  <p>{question.explanation}</p>
+                  {question.type !== 'multiple-choice' ? (
+                    <ul>
+                      {question.criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
+                    </ul>
+                  ) : null}
+                  <div className="pixel-assessment-source">
+                    <small>{question.source.kind === 'curriculum-judgment'
+                      ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
+                      : 'NGUỒN PHƯƠNG PHÁP'}</small>
+                    <strong>{question.source.label}</strong>
+                    <p>{question.source.basis}</p>
+                    <code>{question.source.url}</code>
+                  </div>
+                  {question.type !== 'multiple-choice' && !correct ? (
+                    <div className="pixel-assessment-review-actions">
+                      <button disabled={busy} type="button" onClick={() => setEditing(true)}>Viết lại</button>
+                      <button
+                        className="is-primary"
+                        disabled={busy}
+                        type="button"
+                        onClick={() => void onConfirmWritten(question, answers[question.id]!.trim())}
+                      >
+                        Câu trả lời đáp ứng đủ tiêu chí
+                      </button>
+                    </div>
+                  ) : null}
+                </section>
+              ) : null}
+            </article>
+          )
+        })}
+      </div>
+
+      <footer className="pixel-assessment-actions">
+        {showFeedback ? (
+          <>
+            {incorrectChoiceCount > 0 ? (
+              <button disabled={busy} type="button" onClick={retryIncorrect}>Chọn lại câu chưa đúng</button>
+            ) : null}
+            <button className="is-primary" disabled={busy || pendingWrittenCount > 0} type="button" onClick={onContinue}>
               {continueLabel}
             </button>
-          ) : (
-            <div className="pixel-assessment-review-actions">
-              <button disabled={busy} type="button" onClick={() => setReviewing(false)}>Viết lại</button>
-              <button className="is-primary" disabled={busy} type="button" onClick={() => onConfirmWritten(draft.trim())}>
-                Câu trả lời đáp ứng đủ tiêu chí
-              </button>
-            </div>
-          )}
-        </section>
-      ) : null}
+          </>
+        ) : (
+          <button className="is-primary" disabled={busy || !allAnswered} type="button" onClick={() => void submit()}>
+            {busy ? 'Đang lưu câu trả lời…' : `Nộp ${group.questions.length} câu trả lời`}
+          </button>
+        )}
+      </footer>
     </div>
   )
 }
@@ -1921,7 +2081,7 @@ function PixelAppShell({
               )}
               {currentModuleId === 'module-3' ? (
                 <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Bảy tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Năm tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
                 </button>
               ) : (
                 <article className="is-locked">
@@ -2252,7 +2412,7 @@ export function LearningWindow() {
   }
 
   const saveAssessmentResult = async (question: AssessmentQuestion, result: string) => {
-    if (!progress || busy) return
+    if (!progress || busy) return false
     setBusy(true)
     setError('')
     try {
@@ -2268,8 +2428,51 @@ export function LearningWindow() {
           [assessmentDecisionKey(question.id)]: result
         }
       })
+      return true
     } catch {
       setError('Không thể lưu câu trả lời này. Hãy thử lại trước khi tiếp tục.')
+      return false
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const saveAssessmentBatch = async (group: AssessmentGroup, answers: Record<string, string>) => {
+    if (!progress || busy) return false
+    setBusy(true)
+    setError('')
+    try {
+      const assessmentDecisions = Object.fromEntries(group.questions.map((question) => {
+        const answer = answers[question.id]?.trim() ?? ''
+        if (question.type !== 'multiple-choice') {
+          const currentResult = progress.decisions[assessmentDecisionKey(question.id)]
+          if (currentResult?.startsWith('correct')) {
+            return [assessmentDecisionKey(question.id), currentResult]
+          }
+          return [assessmentDecisionKey(question.id), `review:self-review:${answer}`]
+        }
+        const answerIndex = Number(answer)
+        return [
+          assessmentDecisionKey(question.id),
+          answerIndex === question.answerIndex ? `correct:${answerIndex}` : `incorrect:${answerIndex}`
+        ]
+      }))
+      await persist({
+        currentLessonId: progress.currentLessonId,
+        currentCourseLessonId: progress.currentCourseLessonId,
+        checkpointId: progress.checkpointId,
+        sceneId: progress.sceneId,
+        sceneHistory: progress.sceneHistory,
+        completedCheckpointIds: progress.completedCheckpointIds,
+        decisions: {
+          ...progress.decisions,
+          ...assessmentDecisions
+        }
+      })
+      return true
+    } catch {
+      setError('Không thể lưu phần trả lời này. Hãy thử lại trước khi tiếp tục.')
+      return false
     } finally {
       setBusy(false)
     }
@@ -2293,6 +2496,12 @@ export function LearningWindow() {
       'debugging-retrieval': 'module-3-enhancement-intro',
       'enhancement-retrieval': 'module-3-portfolio-practice',
       'm3-final-assessment': 'module-3-mastery-summary',
+      'release-validation-retrieval': 'module-4-security-intro',
+      'security-publication-retrieval': 'module-4-preview-intro',
+      'preview-deployment-retrieval': 'module-4-production-intro',
+      'production-decision-retrieval': 'module-4-ownership-intro',
+      'ownership-transfer-retrieval': 'module-4-portfolio-practice',
+      'm4-final-assessment': 'module-4-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
@@ -2457,6 +2666,15 @@ export function LearningWindow() {
   const scene = scenes[displayedSceneId]
   const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]
+  const outlineItems = scene.lessonId === 'module-2'
+    ? [...moduleTwoOutlineSections]
+    : scene.lessonId === 'intro'
+      ? [learningPosition.lessonTitle]
+      : moduleLessonIds[scene.lessonId].map((lessonId) => courseLessonTitle.get(lessonId) ?? lessonId)
+  const outlineCurrentIndex = outlinePartIndex(displayedSceneId, learningPosition)
+  const outlineModuleLabel = scene.lessonId === 'intro'
+    ? 'GIỚI THIỆU'
+    : `MODULE ${scene.lessonId.slice(-1)}`
   const canOpenPreviousPage = isReviewing
     ? currentReviewIndex > 0
     : progress.sceneHistory.length > 0
@@ -2467,7 +2685,9 @@ export function LearningWindow() {
     setSecondaryVisualExpanded(false)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
-  const lessonContextLabel = scene.lessonId === 'intro'
+  const lessonContextLabel = scene.lessonId === 'module-2'
+    ? moduleTwoOutlineSections[outlineCurrentIndex]!
+    : scene.lessonId === 'intro'
     ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
     : `MODULE ${scene.lessonId.slice(-1)} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
   const assessmentQuestion = scene.assessmentQuestionId
@@ -2476,17 +2696,17 @@ export function LearningWindow() {
   const assessmentGroup = scene.assessmentGroupId
     ? assessmentGroupById.get(scene.assessmentGroupId)
     : undefined
-  const assessmentResult = assessmentQuestion
-    ? progress.decisions[assessmentDecisionKey(assessmentQuestion.id)]
-    : undefined
-  const assessmentQuestionIndex = assessmentQuestion && assessmentGroup
-    ? assessmentGroup.questions.findIndex((question) => question.id === assessmentQuestion.id)
-    : -1
-  const assessmentContinueLabel = assessmentGroup && assessmentQuestionIndex === assessmentGroup.questions.length - 1
-    ? assessmentGroup.mode === 'mastery'
-      ? `Xem kết quả ${assessmentGroup.questions.length} câu`
-      : 'Tiếp tục bài học'
-    : 'Câu tiếp theo'
+  const assessmentResults = assessmentGroup
+    ? Object.fromEntries(assessmentGroup.questions.map((question) => [
+        question.id,
+        progress.decisions[assessmentDecisionKey(question.id)]
+      ]))
+    : {}
+  const isModuleTwoAssessmentQuestion = scene.lessonId === 'module-2'
+    && Boolean(assessmentQuestion && assessmentGroup)
+  const assessmentContinueLabel = assessmentGroup?.mode === 'mastery'
+    ? `Xem kết quả ${assessmentGroup.questions.length} câu`
+    : 'Tiếp tục bài học'
   const finalAssessment = scene.assessmentSummary && scene.assessmentGroupId
     ? assessmentGroupById.get(scene.assessmentGroupId)
     : assessmentGroupById.get('final-assessment')
@@ -2503,6 +2723,7 @@ export function LearningWindow() {
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
     || displayedSceneId === 'module-3-mastery-summary'
+    || displayedSceneId === 'module-4-mastery-summary'
   const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
     && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
@@ -2521,6 +2742,20 @@ export function LearningWindow() {
     && !assessmentQuestion
     && !scene.assessmentSummary
     && scene.choices.length === 1
+  const showsSceneTitle = scene.showTitle !== false && !usesLessonBoard
+  const showsScenePanel = shouldShowScenePanel && !usesLessonBoard && !lessonVisual
+  const sceneTitle = showsSceneTitle
+    ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
+    : null
+  const scenePanel = showsScenePanel
+    ? (
+        <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
+          <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
+          <div className="pixel-request"><p>{scene.request}</p></div>
+          <EvidenceGrid items={scene.evidence} />
+        </aside>
+      )
+    : null
   const pageBackControl = (
     <button
       className="pixel-page-back"
@@ -2548,29 +2783,57 @@ export function LearningWindow() {
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
-        <div className="pixel-mission-meta" aria-label={lessonContextLabel}>
-          <span>{lessonContextLabel}</span>
-          <strong>{learningPosition.lessonTitle}</strong>
-          <div className="pixel-progress" aria-hidden="true"><i style={{ width: `${(learningPosition.page / learningPosition.totalPages) * 100}%` }} /></div>
-        </div>
+        <details className="pixel-outline">
+          <summary aria-label={`Mở mục lục ${outlineModuleLabel}`}>
+            <span className="pixel-outline__dots" aria-hidden="true">•••</span>
+            <span>{scene.lessonId === 'module-2'
+              ? `${outlineModuleLabel} · PHẦN ${outlineCurrentIndex + 1}/${outlineItems.length}`
+              : lessonContextLabel}</span>
+          </summary>
+          <div className="pixel-outline-menu">
+            <strong>{outlineModuleLabel} · {outlineItems.length} PHẦN</strong>
+            <ol>
+              {outlineItems.map((item, index) => (
+                <li
+                  className={index < outlineCurrentIndex
+                    ? 'is-complete'
+                    : index === outlineCurrentIndex
+                      ? 'is-active'
+                      : 'is-upcoming'}
+                  aria-current={index === outlineCurrentIndex ? 'step' : undefined}
+                  key={item}
+                >
+                  <i aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </details>
         <div className="pixel-hud-actions">
           <button className="pixel-hud-teacher" type="button" onClick={() => setTeacherOpen(true)}>HỎI TRIẾT</button>
           <button className="pixel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>
-            THOÁT · v{runtime?.appVersion ?? '…'}
+            THOÁT <span className="pixel-quit-version">· v{runtime?.appVersion ?? '…'}</span>
           </button>
         </div>
       </header>
 
-      {scene.showTitle === false || usesLessonBoard ? null : (
-        <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{scene.objective}</strong></section>
-      )}
+      {sceneTitle && scenePanel
+        ? <div className="pixel-scene-summary">{sceneTitle}{scenePanel}</div>
+        : sceneTitle ?? scenePanel}
+      {scene.copyPrompt && !usesLessonBoard ? <CopyPromptCard prompt={scene.copyPrompt} /> : null}
       {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
       {canShowSceneMedia && lessonVisual && secondaryLessonVisual && !usesLessonBoard
         ? (
-            <div className="pixel-lesson-visual-group" aria-label="Hai cách mở nhanh chức năng trong Codex">
+            <div
+              className={`pixel-lesson-visual-group${lessonVisual.caption ? ' is-reference-gallery' : ''}`}
+              aria-label={lessonVisual.caption
+                ? 'Hai nguồn tham khảo thiết kế'
+                : 'Hai cách mở nhanh chức năng trong Codex'}
+            >
               {[lessonVisual, secondaryLessonVisual].map((visual, index) => (
                 <figure className="pixel-lesson-visual is-grouped" key={visual.image}>
                   <LessonVisualMedia
@@ -2580,7 +2843,11 @@ export function LearningWindow() {
                   />
                   {canExpandLessonVisual ? (
                     <button
-                      aria-label={index === 0 ? 'Phóng to ảnh minh họa lệnh /' : 'Phóng to ảnh minh họa dấu @'}
+                      aria-label={visual.caption
+                        ? `Phóng to ảnh ${visual.caption}`
+                        : index === 0
+                          ? 'Phóng to ảnh minh họa lệnh /'
+                          : 'Phóng to ảnh minh họa dấu @'}
                       className="pixel-visual-expand"
                       type="button"
                       onClick={() => index === 0 ? setVisualExpanded(true) : setSecondaryVisualExpanded(true)}
@@ -2588,6 +2855,7 @@ export function LearningWindow() {
                       PHÓNG TO
                     </button>
                   ) : null}
+                  {visual.caption ? <figcaption>{visual.caption}</figcaption> : null}
                 </figure>
               ))}
             </div>
@@ -2612,14 +2880,6 @@ export function LearningWindow() {
               ) : null}
             </figure>
           )
-          : shouldShowScenePanel && !usesLessonBoard
-          ? (
-              <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
-                <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
-                <div className="pixel-request"><p>{scene.request}</p></div>
-                <EvidenceGrid items={scene.evidence} />
-              </aside>
-            )
           : null}
 
       {modelLessonBoardKind && lessonVisual ? (
@@ -2660,9 +2920,13 @@ export function LearningWindow() {
         />
       ) : null}
 
-      <section className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`} aria-labelledby="teacherName">
-        <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>
-        {displayedSceneId === 'module-2-portfolio-workspace' ? (
+      <section
+        aria-label={isModuleTwoAssessmentQuestion ? 'Câu hỏi Module 2' : undefined}
+        aria-labelledby={isModuleTwoAssessmentQuestion ? undefined : 'teacherName'}
+        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`}
+      >
+        {isModuleTwoAssessmentQuestion ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
+        {isModuleTwoAssessmentQuestion ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
           <PortfolioWorkspacePicker
             courseRunId={progress.courseRunId}
             onContinue={() => void advanceToScene('module-2-portfolio-brief', progress.decisions)}
@@ -2670,17 +2934,22 @@ export function LearningWindow() {
         ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
-              ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với bảy tài liệu hiện tại và quy tắc đánh giá mức độ làm chủ của bản pilot trước khi mở Module 3.`
+              ? displayedSceneId === 'module-2-portfolio-mastery-summary'
+                ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với năm tài liệu hiện tại trước khi mở Module 3.`
+                : displayedSceneId === 'module-3-mastery-summary'
+                  ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với tám tài liệu và bằng chứng tạo bản dựng hiện tại.`
+                  : `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Kết quả tốt nghiệp chỉ được ghi nhận sau khi Practice và các bằng chứng phát hành đều đạt.`
               : finalPassed
               ? `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Kết quả này đạt mốc ${finalPassingCount}/${finalQuestionCount} để hoàn thành ${scene.lessonId === 'module-1' ? 'Module 1' : 'Module 2'}.`
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
+            : assessmentGroup
+              ? 'Bạn có thể xem toàn bộ câu hỏi trước khi nộp.'
             : displayedSceneId === 'module-3-readiness' && portfolioPlanningHandoff
               ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : scene.dialogue}</p>
         )}
-        {isReviewing ? <div className="pixel-review-notice">ĐANG XEM LẠI · TIẾN ĐỘ VẪN ĐƯỢC GIỮ NGUYÊN</div> : null}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
           <div className="pixel-review-return">
@@ -2697,18 +2966,13 @@ export function LearningWindow() {
           <AssessmentControls
             busy={busy}
             continueLabel={assessmentContinueLabel}
-            key={assessmentQuestion.id}
-            question={assessmentQuestion}
-            result={assessmentResult}
-            onChoose={(index) => {
-              if (assessmentQuestion.type !== 'multiple-choice') return
-              void saveAssessmentResult(
-                assessmentQuestion,
-                index === assessmentQuestion.answerIndex ? `correct:${index}` : `incorrect:${index}`
-              )
-            }}
-            onConfirmWritten={(answer) => void saveAssessmentResult(assessmentQuestion, `correct:self-review:${answer}`)}
-            onContinue={() => void continueAssessment(assessmentQuestion, assessmentGroup)}
+            group={assessmentGroup}
+            key={assessmentGroup.id}
+            questionOnly={isModuleTwoAssessmentQuestion}
+            results={assessmentResults}
+            onSubmit={(answers) => saveAssessmentBatch(assessmentGroup, answers)}
+            onConfirmWritten={(question, answer) => saveAssessmentResult(question, `correct:self-review:${answer}`)}
+            onContinue={() => void continueAssessment(assessmentGroup.questions.at(-1)!, assessmentGroup)}
           />
         ) : scene.assessmentSummary ? (
           <div className="pixel-assessment-summary" data-result={isPortfolioMasterySummary ? 'review' : finalPassed ? 'pass' : 'retry'}>
@@ -2723,11 +2987,11 @@ export function LearningWindow() {
                   <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
                     {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
                   </button>
-                ) : (
+                ) : displayedSceneId === 'module-3-mastery-summary' ? (
                   <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioBuildModule()}>
                     {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 3'}
                   </button>
-                )}
+                ) : null}
               </div>
             ) : (
               <button
