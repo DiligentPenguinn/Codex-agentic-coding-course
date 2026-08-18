@@ -34,6 +34,7 @@ const artifactPaths = [
 const approvedPlanningOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
 const approvedPortfolioTransition = 'Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.'
 const approvedDesignPlanningCopy = 'Ngoài nội dung ra thì bạn cũng cần lên kế hoạch cho thiết kế của ứng dụng bạn muốn tạo. Trong phần này, nếu bạn có thể tự vẽ đồ hoạ chi tiết thì quá tốt. Nhưng nếu bạn cũng hơi mù thiết kế giống như mình, bạn có thể gửi cho agent ảnh mà bạn thích và những phần cụ thể bạn muốn bắt chước trong ảnh đó. Khi thiết kế portfolio, hai trang web mình hay dùng nhất là Pafolios và Awwwards. Còn nếu thiết kế ứng dụng thì mình sẽ tìm thêm ở hai trang là Dribble và Mobbin. Hoặc bạn cũng có thể vào Pinterest để tìm cảm hứng.'
+const approvedVisualPrototypeCopy = 'Trước khi bắt đầu xây sản phẩm thật, bạn cũng có thể nhờ coding agent tạo một visual prototype bằng HTML — tức là một bản mẫu giao diện có thể mở trong trình duyệt. Hãy dùng bản mẫu này để xem bố cục, thứ tự thông tin và cảm giác tổng thể có đúng với điều bạn hình dung hay chưa. Sau khi bạn góp ý và duyệt hướng thiết kế, agent mới bắt đầu xây sản phẩm. Trong khóa học này, bạn sẽ làm bước đó ở Module 3. Cách làm này giúp bạn nhìn thấy ý tưởng sớm và tránh phải sửa lại quá nhiều khi sản phẩm đã được xây.'
 const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha'
 const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
 const conceptualParts = [
@@ -55,6 +56,7 @@ describe('Module 2 instruction contract', () => {
     for (const content of [lesson, script]) {
       expect(content).toContain(approvedPlanningOpening)
       expect(content).toContain(approvedPortfolioTransition)
+      expect(content.replace(/\s*>\s*/g, ' ').replace(/\s+/g, ' ')).toContain(approvedVisualPrototypeCopy)
       expect(content.indexOf(approvedPlanningOpening)).toBeLessThan(content.indexOf('PRD là gì'))
       expect(content.indexOf('PRD là gì')).toBeLessThan(content.indexOf(approvedPortfolioTransition))
     }
@@ -82,7 +84,7 @@ describe('Module 2 instruction contract', () => {
     expect(moduleTwoScenes).toContain("next: 'module-2-portfolio-practice-intro'")
     expect(moduleTwoScenes).toContain('Pafolios')
     expect(moduleTwoScenes).toContain('Awwwards')
-    expect(moduleTwoScenes).toContain(`dialogue: '${approvedDesignPlanningCopy}'`)
+    expect(moduleTwoScenes).toContain(`dialogue: '${approvedDesignPlanningCopy}\\n\\n${approvedVisualPrototypeCopy}'`)
     expect(moduleTwoScenes).toContain("'module-2-prd-agent-workflow': {")
     expect(moduleTwoScenes).toContain('showTitle: false')
     expect(moduleTwoScenes).toContain('showPanel: false')

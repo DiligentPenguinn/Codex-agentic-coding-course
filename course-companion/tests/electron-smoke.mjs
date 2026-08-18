@@ -1084,6 +1084,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual-group img').count(), 2)
   assert.equal(await firstWindows.learningPage.getByText('Pafolios', { exact: true }).count(), 1)
   assert.equal(await firstWindows.learningPage.getByText('Awwwards', { exact: true }).count(), 1)
+  assert.equal(await firstWindows.learningPage.getByText('Trước khi bắt đầu xây sản phẩm thật, bạn cũng có thể nhờ coding agent tạo một visual prototype bằng HTML — tức là một bản mẫu giao diện có thể mở trong trình duyệt.', { exact: false }).count(), 1)
   await capture(firstWindows.learningPage, 'module-2-five-stage-map.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })

@@ -237,6 +237,14 @@ hiệu, hình ảnh, bố cục độc quyền hoặc mã nguồn. Module 2 cũn
 giải thích chi tiết cách chuyển tham chiếu thành thiết kế; việc đó thuộc Module
 3.
 
+Trước khi bắt đầu xây sản phẩm thật, bạn cũng có thể nhờ coding agent tạo một
+visual prototype bằng HTML — tức là một bản mẫu giao diện có thể mở trong trình
+duyệt. Hãy dùng bản mẫu này để xem bố cục, thứ tự thông tin và cảm giác tổng thể
+có đúng với điều bạn hình dung hay chưa. Sau khi bạn góp ý và duyệt hướng thiết
+kế, agent mới bắt đầu xây sản phẩm. Trong khóa học này, bạn sẽ làm bước đó ở
+Module 3. Cách làm này giúp bạn nhìn thấy ý tưởng sớm và tránh phải sửa lại quá
+nhiều khi sản phẩm đã được xây.
+
 ### Ví dụ hoàn chỉnh, không phải đáp án mẫu
 
 Mai chọn một trang bảo tàng làm tham chiếu, lưu URL nguồn và hai ảnh chụp: màn
