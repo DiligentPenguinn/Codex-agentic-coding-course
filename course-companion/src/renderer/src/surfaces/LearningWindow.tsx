@@ -25,7 +25,6 @@ import releaseQuiz from '../../../../../pilot-workspace/course/quizzes/module-4.
 import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
-import m1ReasoningLevelsImage from '../../../../../pilot-workspace/course/codex-setup/images/reasoning-levels.png'
 import m1SlashCommandsImage from '../../../../../pilot-workspace/course/codex-setup/images/slash-commands.png'
 import m1AtMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/at-menu.png'
 import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
@@ -117,6 +116,8 @@ type SceneContent = {
   dialogue: string
   choices: Choice[]
   copyPrompt?: string
+  copyPromptLabel?: string
+  copyPromptTitle?: string
   practice?: PracticeDefinition
   assessmentQuestionId?: string
   assessmentGroupId?: string
@@ -260,7 +261,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với Codex',
     objective: 'Codex là coding agent của OpenAI',
@@ -280,7 +281,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Bạn quyết định khi nào Codex cần xin phép',
@@ -300,7 +301,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Model, Effort và Speed: chọn thế nào?',
@@ -320,7 +321,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Dùng / và @ để mở nhanh các chức năng',
@@ -334,93 +335,70 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: '@', value: 'Mở thêm nguồn và công cụ' }
     ],
     dialogue: 'Một số lệnh / bạn có thể thường xuyên sử dụng là /status và /goal. Lệnh /status cho biết mức sử dụng context window — bạn có thể hiểu đây là trí nhớ ngắn hạn của model. Nếu lượng context đã dùng vượt quá 150.000 token, bạn nên chuyển sang chat mới. Lệnh /goal tạo một mục tiêu bền vững để Codex tiếp tục theo đuổi qua nhiều lượt cho đến khi hoàn thành, bị tạm dừng hoặc cần bạn cung cấp thêm thông tin.\n\nNgoài ra, @ cũng mở một danh sách chọn nhanh tương tự /. Tuy nhiên, @ cho phép bạn truy cập thêm một số nguồn và công cụ. Chẳng hạn, bạn có thể chọn một skill cụ thể hoặc một đoạn chat trong tài khoản ChatGPT.',
-    choices: [{ label: 'Tiếp tục', next: 'module-1-model-choice', primary: true }]
+    choices: [{ label: 'Tiếp theo: AGENTS.md', next: 'module-1-agents-intro', primary: true }]
   },
-  'module-1-model-choice': {
+  'module-1-agents-intro': {
     lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
+    checkpointId: 'm1-agents-and-skills',
     step: 2,
-    totalSteps: 5,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Áp dụng cấu hình đã chọn',
-    panelLabel: 'CẤU HÌNH CONTENTPILOT',
-    panelStatus: '5.6 SOL · HIGH · STANDARD',
-    tone: 'good',
-    request: 'Dùng một cấu hình xuyên suốt phần thực hành để dễ đối chiếu kết quả.',
-    evidence: [
-      { label: 'SOL', value: 'Phức tạp hoặc mơ hồ' },
-      { label: 'TERRA', value: 'Công việc hằng ngày' },
-      { label: 'LUNA', value: 'Rõ và lặp lại' }
-    ],
-    dialogue: 'Bạn đã tìm hiểu Model, Effort và Speed ở phần làm quen với giao diện. Bây giờ hãy dùng 5.6 Sol, High và Standard cho ContentPilot.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
-  },
-  'module-1-model-use-cases': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 5,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Chọn model theo độ rõ và độ khó',
-    panelLabel: 'VÍ DỤ CONTENTPILOT',
-    panelStatus: 'MỘT DỰ ÁN · NHIỀU LOẠI VIỆC',
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'AGENTS.md và hai level',
+    objective: 'Lưu thông tin để agent ghi nhớ qua nhiều task',
+    panelLabel: 'AGENTS.md',
+    panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS',
     tone: 'neutral',
-    request: 'Dùng model mạnh hơn khi công việc có nhiều điều chưa rõ; dùng model gọn hơn khi đầu ra đã cố định.',
+    request: 'Global đặt nguyên tắc chung. Current repo bổ sung quy tắc cho dự án đang mở.',
     evidence: [
-      { label: 'SOL', value: 'Thiết kế luồng ứng dụng' },
-      { label: 'TERRA', value: 'Trả lời tin nhắn khách hàng' },
-      { label: 'LUNA', value: 'Sub-agent khảo sát codebase' }
+      { label: 'GLOBAL', value: 'Áp dụng cho mọi repo' },
+      { label: 'CURRENT REPO', value: 'Chỉ áp dụng cho repo đang mở' }
     ],
-    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Thông thường mình không dùng Luna quá nhiều. Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
+    dialogue: 'Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi nhắc lại thì mình sẽ làm gì? Bạn có thể lưu thông tin đó trong AGENTS.md. Đây là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.',
+    choices: [{ label: 'Tiếp theo: Skill', next: 'module-1-skills-intro', primary: true }]
   },
-  'module-1-reasoning-effort': {
+  'module-1-skills-intro': {
     lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
+    checkpointId: 'm1-agents-and-skills',
     step: 2,
-    totalSteps: 5,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Effort và Speed tạo ra hai đánh đổi khác nhau',
-    panelLabel: 'EFFORT · SPEED',
-    panelStatus: 'CHỌN HIGH · GIỮ STANDARD',
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'Skill là gì?',
+    objective: 'Dạy coding agent cách thực hiện một loại công việc',
+    panelLabel: 'SKILL',
+    panelStatus: 'QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS',
     tone: 'neutral',
-    request: 'Mức cao hơn dành thêm công sức cho phân tích nhưng thường chậm và tốn usage hơn.',
+    request: 'Mỗi skill hướng dẫn một loại công việc theo quy trình có thể dùng lại.',
     evidence: [
-      { label: 'LIGHT', value: 'Việc nhỏ và rõ' },
-      { label: 'MEDIUM', value: 'Cân bằng' },
-      { label: 'HIGH', value: 'Nhiều bước, cần kiểm tra' }
+      { label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' },
+      { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
-    dialogue: 'Effort cho biết Codex dành bao nhiêu công sức để phân tích. Speed quyết định Codex xử lý ở chế độ Standard hay Fast. Với ContentPilot, mình đề xuất 5.6 Sol, High và Standard.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
+    dialogue: 'Thông thường ta dùng AGENTS.md để dạy cho model làm theo những hành động ta muốn mà ta không cần phải nhắc đi nhắc lại. Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những mẹo viết hay vào AGENTS.md? Và giả dụ ta có 100 kỹ năng muốn agents học thì sao? Ta không thể dùng một file AGENTS.md để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.',
+    choices: [{ label: 'Tiếp theo: hai skill cho portfolio', next: 'module-1-skills-portfolio', primary: true }]
   },
-  'module-1-project-setup': {
+  'module-1-skills-portfolio': {
     lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
+    checkpointId: 'm1-agents-and-skills',
     step: 2,
-    totalSteps: 5,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Cấu hình mình đề xuất cho ContentPilot',
-    panelLabel: 'CẤU HÌNH CONTENTPILOT',
-    panelStatus: '5.6 SOL · HIGH · STANDARD',
-    tone: 'good',
-    request: 'Đây là cấu hình dành riêng cho dự án thực hành, không phải mặc định của mọi tài khoản.',
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'Skills cho portfolio',
+    objective: 'Biết hai skill sẽ được dùng trong khóa học',
+    panelLabel: 'SKILL',
+    panelStatus: 'FRONTEND-DESIGN VÀ COPYWRITING',
+    tone: 'neutral',
+    request: 'Mỗi skill hỗ trợ một loại công việc cụ thể trong portfolio.',
     evidence: [
-      { label: 'MODEL', value: '5.6 Sol', ready: true },
-      { label: 'EFFORT', value: 'High', ready: true },
-      { label: 'SPEED', value: 'Standard', ready: true }
+      { label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' },
+      { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
-    dialogue: 'Mình chọn 5.6 Sol, High và Standard cho ContentPilot. Sol cùng High tạo thêm khoảng trống khi yêu cầu còn mới. Standard tránh đánh đổi thêm usage để lấy tốc độ.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
+    dialogue: 'Trong quá trình xây portfolio, bạn sẽ dùng frontend-design cho giao diện và copywriting cho nội dung. Bạn cũng có thể tự khám phá thêm skill tại skills.sh.',
+    choices: [{ label: 'Tiếp theo: thực hành cấu hình', next: 'module-1-setup-checklist', primary: true }]
   },
   'module-1-setup-checklist': {
     lessonId: 'module-1',
     checkpointId: 'm1-setup-checklist',
-    step: 3,
-    totalSteps: 5,
+    step: 4,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Nộp cấu hình để Triết duyệt',
     objective: 'Chứng minh cấu hình thật trong Codex',
@@ -440,28 +418,30 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-mastery': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 4,
-    totalSteps: 5,
+    step: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Ôn tập cuối Module 1',
-    objective: 'Sẵn sàng cho 4 câu ôn tập',
+    objective: 'Sẵn sàng cho 6 câu ôn tập',
     panelLabel: 'PRACTICE ĐÃ ĐƯỢC DUYỆT',
     panelStatus: 'ĐÃ ĐẠT · TIẾP TỤC ÔN TẬP',
     tone: 'good',
-    request: 'Bốn câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
+    request: 'Sáu câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
     evidence: [
       { label: 'MODEL', value: '5.6 Sol · High', ready: true },
       { label: 'SPEED', value: 'Standard', ready: true },
       { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Codex. Bây giờ, bạn sẽ trả lời bốn câu ôn tập. Bạn cần đạt ít nhất ba câu để hoàn thành Module 1.',
-    choices: [{ label: 'Bắt đầu 4 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
+    dialogue: 'Bây giờ hãy cùng nhau trả lời các câu hỏi ôn tập để củng cố kiến thức vừa học nhen!',
+    choices: [{ label: 'Bắt đầu 6 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }],
+    showTitle: false,
+    showPanel: false
   },
   'module-1-complete': {
     lessonId: 'module-1',
     checkpointId: 'm1-complete',
-    step: 5,
-    totalSteps: 5,
+    step: 6,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Sẵn sàng làm việc với Codex',
     objective: 'Module 1 đã hoàn thành',
@@ -990,7 +970,7 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
       : group.id === 'prompt-check'
         ? 'm2-prd-interview'
         : 'm2-implementation-plan'
-  const step = isSetupFinal ? 4 : isFinal ? 7 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 5
+  const step = isSetupFinal ? 5 : isFinal ? 7 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 5
   const questionType = question.type === 'multiple-choice'
     ? 'Chọn một đáp án'
     : question.type === 'artifact-answer'
@@ -1001,7 +981,7 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
     lessonId: isSetupFinal ? 'module-1' : 'module-2',
     checkpointId,
     step,
-    totalSteps: isSetupFinal ? 5 : 8,
+    totalSteps: isSetupFinal ? 6 : 8,
     lessonLabel: isSetupFinal ? 'MODULE 1 · THIẾT LẬP CODEX' : 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: group.title,
     objective: `Câu ${index + 1}/${group.questions.length}`,
@@ -1034,13 +1014,13 @@ const scenes = {
   'module-1-final-summary': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 4,
-    totalSteps: 5,
+    step: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Kết quả kiểm tra thiết lập Codex',
     objective: 'Đối chiếu kết quả trước khi hoàn thành',
     panelLabel: 'KẾT QUẢ',
-    panelStatus: '4 CÂU · MỐC ĐẠT 3/4',
+    panelStatus: '6 CÂU · MỐC ĐẠT 5/6',
     tone: 'neutral',
     request: 'Mỗi câu đúng hoặc tự đối chiếu đạt được tính một điểm.',
     evidence: [],
@@ -1128,10 +1108,6 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
     image: m1UnderstandCodexImage,
     alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu'
   },
-  'm1-skills-and-checklist': {
-    image: m1ModelSettingsImage,
-    alt: 'Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard'
-  },
   'm1-assessment': {
     image: m1AssessmentImage,
     alt: 'Giao diện Codex hiển thị kết quả, các tệp đã tạo và những điểm cần người dùng kiểm tra'
@@ -1176,10 +1152,6 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
     image: m1SlashCommandsImage,
     alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin'
   },
-  'module-1-reasoning-effort': {
-    image: m1ReasoningLevelsImage,
-    alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra'
-  },
   'module-2-prd-agent-workflow': {
     image: m2PafoliosImage,
     alt: 'Ảnh chụp Pafolios với hai portfolio được tuyển chọn',
@@ -1213,8 +1185,10 @@ const courseLessonPages = {
     ['module-1-codex-model-intro'],
     ['module-1-codex-slash-commands']
   ],
-  'm1-skills-and-checklist': [
-    ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
+  'm1-agents-and-skills': [
+    ['module-1-agents-intro'],
+    ['module-1-skills-intro'],
+    ['module-1-skills-portfolio']
   ],
   'm1-assessment': [
     ['module-1-setup-checklist'],
@@ -1223,6 +1197,8 @@ const courseLessonPages = {
     ['module-1-final-2'],
     ['module-1-final-3'],
     ['module-1-final-4'],
+    ['module-1-final-5'],
+    ['module-1-final-6'],
     ['module-1-final-summary'],
     ['module-1-complete']
   ],
@@ -1426,7 +1402,17 @@ function LessonVisualMedia({
   )
 }
 
-function CopyPromptCard({ prompt }: { prompt: string }) {
+function CopyPromptCard({
+  dialogSafe = false,
+  label = 'PROMPT ĐỂ DÁN VÀO CODEX',
+  prompt,
+  title = 'Bắt đầu lập kế hoạch portfolio'
+}: {
+  dialogSafe?: boolean
+  label?: string
+  prompt: string
+  title?: string
+}) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle')
 
   const copyPrompt = async () => {
@@ -1439,10 +1425,13 @@ function CopyPromptCard({ prompt }: { prompt: string }) {
   }
 
   return (
-    <aside className="pixel-copy-prompt" aria-labelledby="practicePromptTitle">
+    <aside
+      className={`pixel-copy-prompt${dialogSafe ? ' is-dialog-safe' : ''}`}
+      aria-labelledby="practicePromptTitle"
+    >
       <header>
-        <small>PROMPT ĐỂ DÁN VÀO CODEX</small>
-        <strong id="practicePromptTitle">Bắt đầu lập kế hoạch portfolio</strong>
+        <small>{label}</small>
+        <strong id="practicePromptTitle">{title}</strong>
       </header>
       <p>{prompt}</p>
       <div className="pixel-copy-prompt__actions">
@@ -1533,14 +1522,10 @@ function LessonVisualLightbox({
   )
 }
 
-type ModelLessonBoardKind = 'complete' | 'apply'
+type ModelLessonBoardKind = 'complete'
 
 const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = {
-  'module-1-codex-model-intro': 'complete',
-  'module-1-model-choice': 'apply',
-  'module-1-model-use-cases': 'apply',
-  'module-1-reasoning-effort': 'apply',
-  'module-1-project-setup': 'apply'
+  'module-1-codex-model-intro': 'complete'
 }
 
 function ModelLessonBoard({
@@ -1567,50 +1552,26 @@ function ModelLessonBoard({
   return (
     <section className={`pixel-model-board is-${kind}`} aria-labelledby={titleId}>
       <div className="pixel-model-board__copy">
-        {kind === 'complete' ? (
-          <>
-            <header>
-              <small>MODEL · EFFORT · SPEED</small>
-              <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
-              <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
-            </header>
-            <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
-            <div className="pixel-model-board__models">
-              <article>
-                <span>SOL</span>
-                <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
-              </article>
-              <article>
-                <span>TERRA</span>
-                <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
-              </article>
-              <article>
-                <span>LUNA</span>
-                <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
-              </article>
-            </div>
-          </>
-        ) : null}
-
-        {kind === 'apply' ? (
-          <>
-            <header>
-              <small>ÁP DỤNG VÀO CONTENTPILOT</small>
-              <h1 id={titleId}>Dùng cấu hình đã chọn</h1>
-              <p>Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex</p>
-            </header>
-            <dl className="pixel-model-board__definitions">
-              <div><dt>Model</dt><dd>GPT-5.6 Sol</dd></div>
-              <div><dt>Effort</dt><dd>High</dd></div>
-              <div><dt>Speed</dt><dd>Standard</dd></div>
-            </dl>
-            <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-              <strong>GPT-5.6 Sol · High · Standard</strong>
-              <p>Đây là cấu hình dành cho ContentPilot, không phải thiết lập mặc định của mọi tài khoản Codex.</p>
-            </div>
-          </>
-        ) : null}
+        <header>
+          <small>MODEL · EFFORT · SPEED</small>
+          <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
+          <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
+        </header>
+        <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
+        <div className="pixel-model-board__models">
+          <article>
+            <span>SOL</span>
+            <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+          </article>
+          <article>
+            <span>TERRA</span>
+            <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
+          </article>
+          <article>
+            <span>LUNA</span>
+            <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
+          </article>
+        </div>
       </div>
 
       <div className="pixel-model-board__media">
@@ -1618,31 +1579,165 @@ function ModelLessonBoard({
           <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
           <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
         </figure>
-        {kind === 'complete' ? (
-          <>
-            <div className="pixel-model-board__tradeoffs">
-              <section>
-                <h2>Effort</h2>
-                <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
-                <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
-              </section>
-              <section>
-                <h2>Speed</h2>
-                <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
-                <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
-              </section>
-            </div>
-            <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-              <strong>GPT-5.6 Sol · High · Standard</strong>
-            </div>
-          </>
-        ) : null}
+        <div className="pixel-model-board__tradeoffs">
+          <section>
+            <h2>Effort</h2>
+            <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
+            <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+          </section>
+          <section>
+            <h2>Speed</h2>
+            <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
+            <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+          </section>
+        </div>
+        <div className="pixel-model-board__recommendation">
+          <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
+          <strong>GPT-5.6 Sol · High · Standard</strong>
+        </div>
       </div>
 
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
 
       <footer className="pixel-model-board__actions">
+        <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
+        <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
+      </footer>
+    </section>
+  )
+}
+
+type GuidanceLessonBoardKind = 'agents' | 'skills' | 'skills-portfolio'
+
+const guidanceLessonBoardByScene: Partial<Record<SceneId, GuidanceLessonBoardKind>> = {
+  'module-1-agents-intro': 'agents',
+  'module-1-skills-intro': 'skills',
+  'module-1-skills-portfolio': 'skills-portfolio'
+}
+
+const frontendDesignSkillExcerpt = `SKILL.md                                  EXCERPT
+
+---
+name: frontend-design
+description: Design and implement distinctive,
+production-grade frontend interfaces with a
+restrained visual language.
+---
+
+# Workflow
+
+1. Inspect the existing product, audience,
+   content, framework, and constraints before
+   choosing a direction.
+
+2. Classify the surface and read only the
+   references required for the task.
+
+3. Choose one restrained aesthetic direction
+   and one distinguishing visual idea.
+
+…`
+
+function GuidanceLessonBoard({
+  busy,
+  canOpenPreviousPage,
+  kind,
+  nextLabel,
+  onBack,
+  onNext
+}: {
+  busy: boolean
+  canOpenPreviousPage: boolean
+  kind: GuidanceLessonBoardKind
+  nextLabel: string
+  onBack: () => void
+  onNext: () => void
+}) {
+  const titleId = `guidance-lesson-${kind}`
+
+  const isSkillsPage = kind === 'skills' || kind === 'skills-portfolio'
+
+  return (
+    <section
+      className={`pixel-guidance-board is-${kind}${isSkillsPage ? ' is-skills' : ''}`}
+      aria-labelledby={titleId}
+    >
+      <div className="pixel-guidance-board__copy">
+        {kind === 'agents' ? (
+          <>
+            <header>
+              <small>AGENTS.md - bộ quy luật cho coding agents</small>
+              <h1 id={titleId}>Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi nhắc lại thì mình sẽ làm gì?</h1>
+              <p>Bạn có thể lưu thông tin đó trong <code>AGENTS.md</code>.</p>
+              <p>Đây là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.</p>
+            </header>
+          </>
+        ) : kind === 'skills' ? (
+          <>
+            <header>
+              <small className="pixel-guidance-board__skill-kicker">
+                <strong>SKILL</strong>
+                <span>QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS</span>
+              </small>
+              <h1 id={titleId}>Dạy coding agent cách thực hiện một loại công việc</h1>
+              <p>Thông thường ta dùng <code>AGENTS.md</code> để dạy cho model làm theo những hành động ta muốn mà ta không cần phải nhắc đi nhắc lại.</p>
+              <p>Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những mẹo viết hay vào <code>AGENTS.md</code>? Và giả dụ ta có 100 kỹ năng muốn agents học thì sao?</p>
+              <p>Ta không thể dùng một file <code>AGENTS.md</code> để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.</p>
+              <p>Mỗi skill có một tệp chính tên là <code>SKILL.md</code>. Tệp này mô tả khi nào nên dùng skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.</p>
+            </header>
+          </>
+        ) : (
+          <>
+            <header>
+              <small className="pixel-guidance-board__skill-kicker">
+                <strong>SKILL</strong>
+                <span>HAI SKILL CHO PORTFOLIO</span>
+              </small>
+              <h1 id={titleId}>Hai skill bạn sẽ dùng để xây portfolio</h1>
+            </header>
+            <div className="pixel-guidance-board__skills">
+              <article><strong>frontend-design</strong><p>Dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện responsive và kiểm tra kết quả thực tế.</p></article>
+              <article><strong>copywriting</strong><p>Dùng khi viết nội dung cho portfolio. Skill giúp Codex viết tiêu đề, phần giới thiệu, mô tả dự án và lời kêu gọi hành động dựa trên thông tin thật của bạn.</p></article>
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside className="pixel-guidance-board__panel">
+        {kind === 'agents' ? (
+          <div className="pixel-agents-levels">
+            <h2>Hai level <code>AGENTS.md</code> bạn cần biết</h2>
+            <p className="pixel-agents-levels__intro">Codex đọc cả hai level. Global <code>AGENTS.md</code> đặt ra những nguyên tắc chung. Current repo <code>AGENTS.md</code> bổ sung những quy tắc cụ thể hơn cho dự án đang mở.</p>
+            <article>
+              <span>GLOBAL</span>
+              <code>~/.codex/AGENTS.md</code>
+              <p>Áp dụng cho mọi repo bạn mở bằng Codex.</p>
+              <small>Triết dùng level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt và không đưa thay đổi lên mạng khi chưa được yêu cầu.</small>
+            </article>
+            <article>
+              <span>CURRENT REPO</span>
+              <code>AGENTS.md</code>
+              <p>Chỉ áp dụng cho repo đang mở.</p>
+              <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
+            </article>
+          </div>
+        ) : kind === 'skills' ? (
+          <>
+            <div className="pixel-skill-excerpt" aria-label="Ví dụ rút gọn từ skill frontend-design">
+              <pre><code>{frontendDesignSkillExcerpt}</code></pre>
+            </div>
+            <p className="pixel-guidance-board__language">Phần ví dụ dùng tiếng Anh vì theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật bằng tiếng Anh ổn định hơn. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt.</p>
+          </>
+        ) : (
+          <div className="pixel-skill-directory-card">
+            <small>KHÁM PHÁ THÊM</small>
+            <h2>Kho skill cộng đồng</h2>
+            <p className="pixel-guidance-board__directory">Khám phá thêm skill do cộng đồng chia sẻ tại <a href="https://skills.sh/" target="_blank" rel="noreferrer">skills.sh</a>. Bạn chưa cần cài thêm skill trong Module 1.</p>
+          </div>
+        )}
+      </aside>
+
+      <footer className="pixel-guidance-board__actions">
         <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
         <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
       </footer>
@@ -1911,7 +2006,6 @@ function EntryScreen({
 const futureModules = ['Kiểm chứng, phát hành và chứng minh quyền làm chủ']
 
 const decisionLabels: Record<string, string> = {
-  modelChoice: 'Cấu hình ContentPilot',
   approvalApproach: 'Thiết lập approval',
   guidanceBoundary: 'Ranh giới hướng dẫn',
   skillBoundary: 'Cách dùng Skill',
@@ -1930,7 +2024,6 @@ const decisionLabels: Record<string, string> = {
 }
 
 const decisionValues: Record<string, string> = {
-  'sol-high-standard': '5.6 Sol · High · Standard',
   'approve-for-me-no-full-access': 'Approve for me · Full access tắt',
   'teacher-reviewed-setup': 'Triết đã duyệt bằng chứng cấu hình',
   'recommended-default': 'Giữ thiết lập được đề xuất',
@@ -1941,6 +2034,7 @@ const decisionValues: Record<string, string> = {
   'reviewed-in-companion': 'Đã xem lại trong Course Companion',
   'passed-four-of-five': 'Đạt ít nhất 4/5 câu',
   'passed-three-of-four': 'Đạt ít nhất 3/4 câu',
+  'passed-five-of-six': 'Đạt ít nhất 5/6 câu',
   'continued-existing-planning-progress': 'Đã chuyển tiếp từ lộ trình Planning cũ',
   'plan-first': 'Planning trước khi code',
   'product-requirements': 'Luồng sử dụng, đầu vào, đầu ra và phạm vi V1',
@@ -2702,8 +2796,7 @@ export function LearningWindow() {
         progress.decisions[assessmentDecisionKey(question.id)]
       ]))
     : {}
-  const isModuleTwoAssessmentQuestion = scene.lessonId === 'module-2'
-    && Boolean(assessmentQuestion && assessmentGroup)
+  const isAssessmentQuestionPage = Boolean(assessmentQuestion && assessmentGroup)
   const assessmentContinueLabel = assessmentGroup?.mode === 'mastery'
     ? `Xem kết quả ${assessmentGroup.questions.length} câu`
     : 'Tiếp tục bài học'
@@ -2732,8 +2825,10 @@ export function LearningWindow() {
     : undefined)
   const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
+  const guidanceLessonBoardKind = guidanceLessonBoardByScene[displayedSceneId]
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
-  const usesLessonBoard = usesModelLessonBoard
+  const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
+  const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
@@ -2742,7 +2837,9 @@ export function LearningWindow() {
     && !assessmentQuestion
     && !scene.assessmentSummary
     && scene.choices.length === 1
-  const showsSceneTitle = scene.showTitle !== false && !usesLessonBoard
+  const showsSceneTitle = scene.showTitle !== false
+    && !usesLessonBoard
+    && !isAssessmentQuestionPage
   const showsScenePanel = shouldShowScenePanel && !usesLessonBoard && !lessonVisual
   const sceneTitle = showsSceneTitle
     ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
@@ -2821,7 +2918,14 @@ export function LearningWindow() {
       {sceneTitle && scenePanel
         ? <div className="pixel-scene-summary">{sceneTitle}{scenePanel}</div>
         : sceneTitle ?? scenePanel}
-      {scene.copyPrompt && !usesLessonBoard ? <CopyPromptCard prompt={scene.copyPrompt} /> : null}
+      {scene.copyPrompt && !usesLessonBoard ? (
+        <CopyPromptCard
+          dialogSafe={displayedSceneId === 'module-2-portfolio-agents-setup'}
+          label={scene.copyPromptLabel}
+          prompt={scene.copyPrompt}
+          title={scene.copyPromptTitle}
+        />
+      ) : null}
       {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
@@ -2902,6 +3006,24 @@ export function LearningWindow() {
         />
       ) : null}
 
+      {guidanceLessonBoardKind ? (
+        <GuidanceLessonBoard
+          busy={busy}
+          canOpenPreviousPage={canOpenPreviousPage}
+          kind={guidanceLessonBoardKind}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          onBack={openPreviousPage}
+          onNext={() => {
+            if (isReviewing) {
+              setReviewHistoryIndex(null)
+              return
+            }
+            const choice = scene.choices[0]
+            if (choice) void choose(choice)
+          }}
+        />
+      ) : null}
+
       {visualExpanded && lessonVisual && canExpandLessonVisual ? (
         <LessonVisualLightbox
           activeFocus={approvalFocus}
@@ -2921,15 +3043,15 @@ export function LearningWindow() {
       ) : null}
 
       <section
-        aria-label={isModuleTwoAssessmentQuestion ? 'Câu hỏi Module 2' : undefined}
-        aria-labelledby={isModuleTwoAssessmentQuestion ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`}
+        aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
+        aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
+        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}`}
       >
-        {isModuleTwoAssessmentQuestion ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
-        {isModuleTwoAssessmentQuestion ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
+        {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
+        {isAssessmentQuestionPage ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
           <PortfolioWorkspacePicker
             courseRunId={progress.courseRunId}
-            onContinue={() => void advanceToScene('module-2-portfolio-brief', progress.decisions)}
+            onContinue={() => void advanceToScene('module-2-portfolio-agents-setup', progress.decisions)}
           />
         ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
@@ -2968,7 +3090,7 @@ export function LearningWindow() {
             continueLabel={assessmentContinueLabel}
             group={assessmentGroup}
             key={assessmentGroup.id}
-            questionOnly={isModuleTwoAssessmentQuestion}
+            questionOnly={isAssessmentQuestionPage}
             results={assessmentResults}
             onSubmit={(answers) => saveAssessmentBatch(assessmentGroup, answers)}
             onConfirmWritten={(question, answer) => saveAssessmentResult(question, `correct:self-review:${answer}`)}
@@ -3003,7 +3125,7 @@ export function LearningWindow() {
                       label: scene.lessonId === 'module-1' ? 'Hoàn thành Module 1' : 'Hoàn thành Module 2',
                       next: scene.lessonId === 'module-1' ? 'module-1-complete' : 'module-2-complete',
                       decision: scene.lessonId === 'module-1'
-                        ? { key: 'setupMastery', value: 'passed-three-of-four' }
+                        ? { key: 'setupMastery', value: 'passed-five-of-six' }
                         : { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
                     })
                   : void retryFinalAssessment()}

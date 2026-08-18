@@ -88,6 +88,14 @@ describe('Module 2 instruction contract', () => {
     expect(moduleTwoScenes).toContain('showPanel: false')
     expect(moduleTwoScenes).toContain(`dialogue: '${approvedPracticeTransitionCopy}'`)
     expect(moduleTwoScenes).toContain(`copyPrompt: '${approvedPortfolioPracticePrompt}'`)
+    expect(moduleTwoScenes).toContain("'module-2-portfolio-agents-setup': {")
+    expect(moduleTwoScenes).toContain('Create an AGENTS.md file at the root of the current workspace.')
+    expect(moduleTwoScenes).toContain('Never invent personal experience, clients, roles, outcomes, metrics, testimonials, or evidence.')
+    expect(moduleTwoScenes).toContain("decision: { key: 'portfolioAgentsSetup', value: 'learner-confirmed' }")
+    expect(moduleTwoScenes).toContain('Ứng dụng chỉ lưu lời xác nhận của bạn; không đọc hoặc chấm nội dung AGENTS.md.')
+    expect(lesson).toContain('# Portfolio Project Working Agreements')
+    expect(script).toContain('Đây chỉ là lời tự xác nhận')
+    expect(prompt.replace(/\s+/g, ' ')).toContain('Chỉ lưu lời tự xác nhận của Learner')
   })
 
   it('keeps all five milestones once and in the approved order', async () => {

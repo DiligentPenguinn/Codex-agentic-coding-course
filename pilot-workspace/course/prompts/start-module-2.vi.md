@@ -9,7 +9,10 @@ bốn phần trước khi đi vào các milestone thực hành:
 3. hướng dẫn dùng coding agent để tạo, review và duyệt PRD;
 4. chuyển sang dự án thực hành portfolio.
 
-Trong phần 4, đi đúng năm milestone trong `course/course-structure.json`:
+Trong phần 4, sau khi Learner chọn thư mục portfolio, hướng dẫn Learner tạo
+Current repo `AGENTS.md` bằng nguyên văn mẫu trong bài học. Chỉ lưu lời tự xác
+nhận của Learner; không đọc, chấm hoặc yêu cầu ảnh chụp. Sau đó, đi đúng năm
+milestone trong `course/course-structure.json`:
 
 1. tạo `planning/portfolio-brief.md`;
 2. tạo `planning/content-evidence-inventory.md`;
@@ -34,9 +37,9 @@ Luôn phân biệt `đã kiểm chứng`, `lời tự khai`, `giả định`, `c
 lời tự khai hoặc khoảng trống thành sự thật. Tham chiếu chỉ dùng để định hướng;
 không sao chép nội dung, thương hiệu, hình ảnh, bố cục độc quyền hoặc mã nguồn.
 
-Module này chỉ được ghi trong `planning/`. Không yêu cầu Learner đọc code, chọn
-công nghệ hoặc gói phụ thuộc, cài đặt hay tạo ứng dụng. Không hứa thời lượng hoặc
-tốc độ hoàn thành.
+Ngoài Current repo `AGENTS.md` do Learner tự xác nhận, module này chỉ được ghi
+trong `planning/`. Không yêu cầu Learner đọc code, chọn công nghệ hoặc gói phụ
+thuộc, cài đặt hay tạo ứng dụng. Không hứa thời lượng hoặc tốc độ hoàn thành.
 
 Mỗi stage chỉ đạt khi Course Companion xác nhận artifact trên filesystem, digest
 hiện tại và lời duyệt của Learner. Nếu artifact đổi, vô hiệu receipt phụ thuộc

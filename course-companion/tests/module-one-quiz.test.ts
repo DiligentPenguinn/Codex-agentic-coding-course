@@ -85,7 +85,7 @@ describe('Course module assessment banks', () => {
     expect(moduleOne?.kind).toBe('module')
     expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Codex và coding agent',
-      'Áp dụng cấu hình Codex',
+      'AGENTS.md và Skills',
       'Thực hành và ôn tập cuối Module 1'
     ])
     expect(moduleTwo?.lessons.map((lesson) => lesson.titleVi)).toEqual([
@@ -95,13 +95,13 @@ describe('Course module assessment banks', () => {
       'Tạo và duyệt PRD cho portfolio',
       'Tạo hợp đồng xây dựng và kiểm chứng'
     ])
-    expect(moduleOne?.lessons.reduce((total, lesson) => total + (lesson.estimatedMinutes ?? 0), 0)).toBe(38)
+    expect(moduleOne?.lessons.reduce((total, lesson) => total + (lesson.estimatedMinutes ?? 0), 0)).toBe(42)
     expect(moduleTwo?.lessons.every((lesson) => lesson.estimatedMinutes === undefined)).toBe(true)
     expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
     expect(moduleTwo?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo?.checkpoints)
   })
 
-  it('provides one sourced illustration for every runnable module lesson', async () => {
+  it('provides sourced illustrations for image-led Module 1 lessons', async () => {
     const course = await loadCourseStructure()
     const lessonIds = course.modules
       .filter((module) => module.id === 'module-1')
@@ -119,7 +119,11 @@ describe('Course module assessment banks', () => {
       .sort()
     const sources = await readFile(join(visualDirectory, 'SOURCES.md'), 'utf8')
 
-    expect(visualFiles).toEqual(lessonIds.map((lessonId) => `${lessonId}.webp`).sort())
+    const codeNativeLessonIds = new Set(['m1-agents-and-skills'])
+    expect(visualFiles).toEqual(lessonIds
+      .filter((lessonId) => !codeNativeLessonIds.has(lessonId))
+      .map((lessonId) => `${lessonId}.webp`)
+      .sort())
     for (const visualFile of visualFiles) expect(sources).toContain(`\`${visualFile}\``)
   })
 
@@ -176,14 +180,22 @@ describe('Course module assessment banks', () => {
     }
   })
 
-  it('keeps Module 1 fixed while making the Module 2 threshold pilot-configurable', async () => {
+  it('keeps the Module 1 threshold fixed while making the Module 2 threshold pilot-configurable', async () => {
     const setupQuiz = await loadQuiz('module-1')
     const planningQuiz = await loadQuiz('module-2')
     const setupQuestions = setupQuiz.questions ?? []
     const finalGroup = planningQuiz.groups?.find((group) => group.id === 'final-assessment')
-    expect(setupQuiz.passingScore).toBe(3)
-    expect(setupQuestions.filter((question) => question.type === 'multiple-choice')).toHaveLength(3)
+    expect(setupQuiz.passingScore).toBe(5)
+    expect(setupQuestions.filter((question) => question.type === 'multiple-choice')).toHaveLength(5)
     expect(setupQuestions.filter((question) => question.type === 'short-answer')).toHaveLength(1)
+    expect(setupQuestions.map((question) => question.id)).toEqual([
+      'm1-q1',
+      'm1-q2',
+      'm1-q3',
+      'm1-q4',
+      'm1-q5-agents',
+      'm1-q6-skills'
+    ])
     expect(finalGroup?.passingScore).toBeUndefined()
     expect(planningQuiz.masteryPolicy).toMatchObject({
       strategy: 'pilot-configured',
@@ -199,12 +211,12 @@ describe('Course module assessment banks', () => {
     expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(0)
   })
 
-  it('keeps all four Module 1 review questions at Bloom level 2 or higher', async () => {
+  it('keeps all six Module 1 review questions at Bloom level 2 or higher', async () => {
     const setupQuiz = await loadQuiz('module-1')
     const setupQuestions = setupQuiz.questions ?? []
 
-    expect(setupQuestions).toHaveLength(4)
-    expect(setupQuestions.map((question) => question.bloomLevel)).toEqual([2, 3, 3, 3])
+    expect(setupQuestions).toHaveLength(6)
+    expect(setupQuestions.map((question) => question.bloomLevel)).toEqual([2, 3, 3, 3, 3, 3])
     expect(setupQuestions.every((question) => (question.bloomLevel ?? 0) >= 2)).toBe(true)
     expect(setupQuestions.every((question) => Boolean(question.bloomLabel))).toBe(true)
   })

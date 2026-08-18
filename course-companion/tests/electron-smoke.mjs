@@ -60,12 +60,14 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
   }
   assert.equal(await page.locator('.pixel-assessment-question').count(), group.questions.length)
   assert.equal(await page.locator('.pixel-assessment-source').count(), 0)
+  assert.equal(await page.locator('.pixel-scene-title').count(), 0)
+  assert.equal(await page.locator('.pixel-dialogue.has-assessment > .pixel-speaker').count(), 0)
+  assert.equal(await page.locator('.pixel-dialogue.has-assessment > p').count(), 0)
+  assert.equal(await page.locator('.pixel-assessment-header').count(), 0)
+  assert.equal(await page.locator('.pixel-dialogue.has-assessment[aria-label^="Câu hỏi Module"]').count(), 1)
+  await capture(page, `${groupId}-questions-only.png`)
 
   if (retryFirstChoice) {
-    assert.equal(await page.locator('.pixel-scene-title').count(), 0)
-    assert.equal(await page.locator('.pixel-dialogue.has-assessment > .pixel-speaker').count(), 0)
-    assert.equal(await page.locator('.pixel-dialogue.has-assessment > p').count(), 0)
-    assert.equal(await page.locator('.pixel-assessment-header').count(), 0)
     const assessmentLayout = await page.evaluate(() => {
       const hud = globalThis.document.querySelector('.pixel-hud')
       const dialogue = globalThis.document.querySelector('.pixel-dialogue.has-assessment.has-no-scene-title')
@@ -381,15 +383,103 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 1/1', { exact: true }).first().waitFor()
-  assert.equal(await page.locator('.pixel-harness-board').count(), 0)
-  await page.getByText('Dùng cấu hình đã chọn', { exact: true }).waitFor()
-  assert.equal(await page.locator('.pixel-model-board').count(), 1)
-  assert.match(await page.locator('.pixel-model-board').textContent(), /Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex/)
-  assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
-  await capture(page, 'module-1-model-application.png')
+  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 1/3', { exact: true }).first().waitFor()
+  const agentsBoard = page.locator('.pixel-guidance-board.is-agents')
+  await agentsBoard.waitFor()
+  assert.match(await agentsBoard.textContent(), /AGENTS\.md - bộ quy luật cho coding agents/)
+  assert.match(await agentsBoard.textContent(), /Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ/)
+  assert.match(await agentsBoard.textContent(), /GLOBAL/)
+  assert.match(await agentsBoard.textContent(), /CURRENT REPO/)
+  assert.doesNotMatch(await agentsBoard.textContent(), /Bạn sẽ tạo Current repo AGENTS\.md.*Module 2/)
+  assert.equal(await agentsBoard.locator('figure, img').count(), 0)
+  const agentsCopyBounds = await agentsBoard.locator('.pixel-guidance-board__copy').boundingBox()
+  const agentsLevelsBounds = await agentsBoard.locator('.pixel-agents-levels').boundingBox()
+  assert.ok(agentsCopyBounds)
+  assert.ok(agentsLevelsBounds)
+  assert.ok(agentsLevelsBounds.y >= agentsCopyBounds.y + agentsCopyBounds.height)
+  await capture(page, 'module-1-agents-introduction.png')
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const agentsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(agentsNarrowWidths.body, agentsNarrowWidths.viewport)
+    assert.equal(agentsNarrowWidths.document, agentsNarrowWidths.viewport)
+    const agentsLevelCards = agentsBoard.locator('.pixel-agents-levels article')
+    const globalLevelBounds = await agentsLevelCards.nth(0).boundingBox()
+    const repoLevelBounds = await agentsLevelCards.nth(1).boundingBox()
+    assert.ok(globalLevelBounds)
+    assert.ok(repoLevelBounds)
+    assert.ok(repoLevelBounds.y >= globalLevelBounds.y + globalLevelBounds.height)
+    await capture(page, 'module-1-agents-introduction-390px.png')
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/8', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 2/3', { exact: true }).first().waitFor()
+  const skillBoard = page.locator('.pixel-guidance-board.is-skills')
+  await skillBoard.waitFor()
+  assert.equal(await skillBoard.locator('.pixel-skill-excerpt').count(), 1)
+  assert.equal(await skillBoard.locator('figure, img').count(), 0)
+  assert.match(await skillBoard.textContent(), /Thông thường ta dùng AGENTS\.md để dạy cho model/)
+  assert.match(await skillBoard.textContent(), /Đó là lúc ta sử dụng Skill/)
+  assert.match(await skillBoard.textContent(), /name: frontend-design/)
+  assert.doesNotMatch(await skillBoard.textContent(), /copywriting/)
+  assert.doesNotMatch(await skillBoard.textContent(), /skills\.sh/)
+  assert.match(await skillBoard.textContent(), /Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt/)
+  const skillKickerTypography = await skillBoard.locator('.pixel-guidance-board__skill-kicker').evaluate((element) => {
+    const skillName = element.querySelector('strong')
+    const skillDescription = element.querySelector('span')
+    if (!skillName || !skillDescription) return null
+    return {
+      name: Number.parseFloat(globalThis.getComputedStyle(skillName).fontSize),
+      description: Number.parseFloat(globalThis.getComputedStyle(skillDescription).fontSize)
+    }
+  })
+  assert.ok(skillKickerTypography)
+  assert.ok(skillKickerTypography.name > skillKickerTypography.description)
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const skillsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(skillsNarrowWidths.body, skillsNarrowWidths.viewport)
+    assert.equal(skillsNarrowWidths.document, skillsNarrowWidths.viewport)
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 3/3', { exact: true }).first().waitFor()
+  const portfolioSkillsBoard = page.locator('.pixel-guidance-board.is-skills-portfolio')
+  await portfolioSkillsBoard.waitFor()
+  assert.equal(await portfolioSkillsBoard.locator('.pixel-skill-excerpt').count(), 0)
+  assert.match(await portfolioSkillsBoard.textContent(), /Hai skill bạn sẽ dùng để xây portfolio/)
+  assert.match(await portfolioSkillsBoard.textContent(), /frontend-design/)
+  assert.match(await portfolioSkillsBoard.textContent(), /copywriting/)
+  assert.match(await portfolioSkillsBoard.textContent(), /skills\.sh/)
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const portfolioSkillsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(portfolioSkillsNarrowWidths.body, portfolioSkillsNarrowWidths.viewport)
+    assert.equal(portfolioSkillsNarrowWidths.document, portfolioSkillsNarrowWidths.viewport)
+    const portfolioSkillCards = portfolioSkillsBoard.locator('.pixel-guidance-board__skills article')
+    const frontendSkillBounds = await portfolioSkillCards.nth(0).boundingBox()
+    const copywritingSkillBounds = await portfolioSkillCards.nth(1).boundingBox()
+    assert.ok(frontendSkillBounds)
+    assert.ok(copywritingSkillBounds)
+    assert.ok(copywritingSkillBounds.y >= frontendSkillBounds.y + frontendSkillBounds.height)
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/10', { exact: true }).first().waitFor()
+  assert.equal(await page.locator('.pixel-harness-board').count(), 0)
+  assert.equal(await page.getByText('Dùng cấu hình đã chọn', { exact: true }).count(), 0)
   const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
@@ -442,12 +532,14 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     'Expected the passed Module 1 Practice to return to the lesson'
   )
   await companionPage.evaluate(() => globalThis.courseCompanion?.setCompanionMode('compact'))
-  await page.getByText('Sẵn sàng cho 4 câu ôn tập', { exact: true }).waitFor()
+  await page.getByText('Bây giờ hãy cùng nhau trả lời các câu hỏi ôn tập để củng cố kiến thức vừa học nhen!', { exact: true }).waitFor()
+  assert.equal(await page.locator('.pixel-scene-title').count(), 0)
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
   await capture(page, 'module-1-codex-setup-approved.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await answerAssessmentGroup(page, 'setup-final-assessment')
 
-  await page.getByText(/Bạn đạt 4\/4 câu/).waitFor()
+  await page.getByText(/Bạn đạt 6\/6 câu/).waitFor()
   await capture(page, 'module-1-final-review.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByText('Module 1 đã hoàn thành', { exact: true }).waitFor()
@@ -1014,6 +1106,14 @@ try {
   await learningPage.getByRole('button', { name: 'Tạo thư mục planning', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục với thư mục này', exact: true }).click()
 
+  await learningPage.getByText('Tạo bộ quy luật cho dự án của bạn', { exact: true }).waitFor()
+  assert.match(await learningPage.locator('.pixel-dialogue > p').textContent(), /Hãy giữ ứng dụng này mở, đừng tắt/)
+  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /# Portfolio Project Working Agreements/)
+  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /Never invent personal experience/)
+  await learningPage.getByRole('button', { name: 'SAO CHÉP PROMPT', exact: true }).click()
+  assert.match(await learningPage.evaluate(() => navigator.clipboard.readText()), /Create an AGENTS\.md file at the root/)
+  await learningPage.getByRole('button', { name: 'Tôi đã tạo AGENTS.md', exact: true }).click()
+
   await learningPage.getByText('MỤC TIÊU → NGƯỜI XEM → HÀNH ĐỘNG', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await learningPage.getByText('VÍ DỤ · MAI', { exact: true }).waitFor()
@@ -1182,7 +1282,7 @@ try {
   assert.ok(persisted.sceneHistory.length > 10)
   assert.equal(persisted.decisions.portfolioPlanningPractice, 'five-current-stage-receipts')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
-  assert.equal(persisted.decisions.setupMastery, 'passed-three-of-four')
+  assert.equal(persisted.decisions.setupMastery, 'passed-five-of-six')
   assert.equal(persisted.decisions.masteryEvidence, undefined)
   assert.equal(
     Object.entries(persisted.decisions).filter(

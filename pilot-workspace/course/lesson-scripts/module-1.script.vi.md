@@ -59,14 +59,51 @@ Sau đó hỏi: "Coding agent khác một chatbot chỉ trả lời ở điểm 
 Learner nêu được ít nhất một khả năng hành động như đọc tệp, dùng công cụ, chạy
 lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
-## Bước 2 — Áp dụng cấu hình Codex (`m1-model-choice`)
+## Bước 2 — `AGENTS.md` và Skills (`m1-agents-and-skills`)
 
-Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
-Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
-hành, không phải thiết lập mặc định của mọi tài khoản Codex."
+Teacher hỏi: "Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần
+phải nhắc đi nhắc lại thì mình sẽ làm gì?"
 
-[Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
-định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
+Teacher nói: "Bạn có thể lưu thông tin đó trong `AGENTS.md`. Đây là tệp văn bản
+chứa những quy tắc và thông tin coding agent cần biết trước khi làm việc."
+
+Teacher chỉ giới thiệu hai level:
+
+1. Global `AGENTS.md` áp dụng cho mọi repo được mở bằng Codex.
+2. Current repo `AGENTS.md` chỉ áp dụng cho repo đang mở và bổ sung quy tắc cụ
+   thể hơn cho dự án đó.
+
+Teacher dùng thiết lập thật của Triết làm ví dụ. Global chứa nguyên tắc dùng cho
+nhiều dự án. Current repo của khóa học chứa quy tắc giữ nguyên trang chưa được
+yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.
+Teacher chưa yêu cầu Learner tạo tệp; thao tác đó diễn ra sau khi Learner chọn
+repo portfolio ở Module 2.
+
+Teacher nói: "Thông thường ta dùng `AGENTS.md` để dạy cho model làm theo những
+hành động ta muốn mà ta không cần phải nhắc đi nhắc lại. Nhưng giả dụ ta muốn nó
+làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những
+mẹo viết hay vào `AGENTS.md`? Và giả dụ ta có 100 kỹ năng muốn agents học thì
+sao? Ta không thể dùng một file `AGENTS.md` để dạy coding agents tất cả kỹ năng
+mà ta muốn nó học. Đó là lúc ta sử dụng Skill."
+
+Teacher giải thích mỗi skill có tệp chính `SKILL.md`, trong đó mô tả khi nào nên
+dùng, các bước cần thực hiện và điều cần kiểm tra.
+
+Ở trang Skill đầu tiên, Teacher mở một panel duy nhất chứa đoạn trích tiếng Anh
+từ `frontend-design`; không dùng ảnh chụp và không hiển thị toàn bộ skill.
+
+Teacher nói: "Theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật
+bằng tiếng Anh ổn định hơn. Vì vậy, phần hướng dẫn dành cho agent trong khóa học
+này sẽ ưu tiên tiếng Anh. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt."
+
+Ở trang Skill thứ hai, Teacher giới thiệu `frontend-design` cho giao diện
+portfolio và `copywriting` cho nội dung dựa trên thông tin thật. Teacher giới
+thiệu `skills.sh` là nơi khám phá skill do cộng đồng chia sẻ và nói rõ Learner
+chưa cần cài thêm skill trong Module 1.
+
+[Dừng chờ Learner xem đủ ba trang của bài `AGENTS.md` và Skills. Khi chuyển sang
+phần thực hành, lưu checkpoint `m1-agents-and-skills`. Không kiểm tra tệp và không
+yêu cầu ảnh chụp.]
 
 ## Bước 3 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
@@ -101,11 +138,11 @@ Approve for me và Full access đang tắt. Metadata đến từ đúng task và
 
 Teacher nói: "Bạn đã thiết lập Codex và kiểm tra bằng chứng thật. Bây giờ, bốn
 câu ôn tập sẽ giúp bạn giải thích, áp dụng và phân tích những gì vừa học. Bạn
-cần đạt ít nhất ba câu để hoàn thành Module 1."
+cần đạt ít nhất năm câu để hoàn thành Module 1."
 
-[Dùng đủ bốn câu trong `course/quizzes/module-1.quiz.json`. Mở Assessment State
+[Dùng đủ sáu câu trong `course/quizzes/module-1.quiz.json`. Mở Assessment State
 cho từng câu và hỏi từng câu một. Chỉ hiện phản hồi, lời giải cùng nguồn sau khi
-Learner đã trả lời. Nếu chưa đạt 3/4, cho làm lại bài ôn tập. Khi đạt, lưu
+Learner đã trả lời. Nếu chưa đạt 5/6, cho làm lại bài ôn tập. Khi đạt, lưu
 checkpoint `m1-mastery`.]
 
 ## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
