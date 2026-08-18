@@ -62,7 +62,7 @@ const instructionalScenes = {
       { label: 'KIỂM CHỨNG', value: 'Cách biết từng yêu cầu đã đạt' }
     ],
     dialogue: 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.',
-    choices: [{ label: 'Xem cách Module 2 diễn ra', next: 'module-2-prd-introduction', primary: true }]
+    choices: [{ label: 'Xem cách Module 2 diễn ra', next: 'module-2-prd-definition', primary: true }]
   },
   'module-2-prd-introduction': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
@@ -76,7 +76,7 @@ const instructionalScenes = {
       { label: 'COURSE COMPANION', value: 'Kiểm tra tệp thật trước khi bạn duyệt' }
     ],
     dialogue: 'Cả năm giai đoạn diễn ra trong cùng một task Codex để Executor luôn có các quyết định trước đó. Sau mỗi giai đoạn, Course Companion đọc tài liệu thật trên máy và tóm tắt điều đã chốt, điều còn thiếu và ranh giới cần giữ. Bạn chọn Chấp nhận để đi tiếp hoặc Yêu cầu sửa để tiếp tục trao đổi trong chính task đó. PRD và kế hoạch triển khai được tạo từ những câu trả lời đã duyệt, không phải từ một biểu mẫu bạn tự điền.',
-    choices: [{ label: 'Tìm hiểu về PRD', next: 'module-2-prd-definition', primary: true }]
+    choices: [{ label: 'Tìm hiểu về PRD', next: 'module-2-prd-agent-workflow', primary: true }]
   },
   'module-2-prd-definition': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
@@ -119,7 +119,7 @@ const instructionalScenes = {
       { label: '4 · DUYỆT', value: 'Chỉ chuyển sang plan khi bạn đồng ý' }
     ],
     dialogue: 'Bạn có thể yêu cầu coding agent phỏng vấn mình từng câu, soạn bản nháp PRD rồi tự rà soát những điểm còn mơ hồ. Tuy nhiên, agent không được tự quyết định mục tiêu, người dùng hoặc phạm vi thay bạn. Sau khi PRD được duyệt, agent mới chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm tra.',
-    choices: [{ label: 'Xem năm giai đoạn', next: 'module-2-prd-agent-workflow', primary: true }]
+    choices: [{ label: 'Xem năm giai đoạn', next: 'module-2-prd-introduction', primary: true }]
   },
   'module-2-prd-agent-workflow': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,

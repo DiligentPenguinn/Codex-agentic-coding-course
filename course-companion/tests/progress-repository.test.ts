@@ -161,7 +161,7 @@ describe('ProgressRepository', () => {
       currentLessonId: 'module-2',
       currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-brief',
-      sceneId: 'module-2-prd-introduction',
+      sceneId: 'module-2-prd-definition',
       sceneHistory: ['module-2-portfolio-workspace'],
       completedCheckpointIds: [],
       decisions: {}
@@ -171,7 +171,6 @@ describe('ProgressRepository', () => {
       sceneId: 'module-2-prd-anatomy',
       sceneHistory: [
         ...started.sceneHistory,
-        'module-2-prd-introduction',
         'module-2-prd-definition'
       ]
     }
@@ -189,7 +188,6 @@ describe('ProgressRepository', () => {
         sceneId: 'module-2-prd-anatomy',
         sceneHistory: [
           'module-2-portfolio-workspace',
-          'module-2-prd-introduction',
           'module-2-prd-definition'
         ]
       }

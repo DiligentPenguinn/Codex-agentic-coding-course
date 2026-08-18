@@ -1081,10 +1081,10 @@ type LearningPosition = {
 
 const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
   'module-2-portfolio-workspace': 0,
-  'module-2-prd-introduction': 1,
-  'module-2-prd-definition': 2,
-  'module-2-prd-anatomy': 3,
-  'module-2-prd-review-workflow': 4,
+  'module-2-prd-definition': 1,
+  'module-2-prd-anatomy': 2,
+  'module-2-prd-review-workflow': 3,
+  'module-2-prd-introduction': 4,
   'module-2-prd-agent-workflow': 5,
   'module-2-portfolio-practice-intro': 6
 }

@@ -133,13 +133,15 @@ describe('portfolio course registry', () => {
       'module-2-portfolio-mastery',
       'module-2-portfolio-mastery-summary'
     ]))
-    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-introduction')?.nextSceneId)
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-workspace')?.nextSceneId)
       .toBe('module-2-prd-definition')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-definition')?.nextSceneId)
       .toBe('module-2-prd-anatomy')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-anatomy')?.nextSceneId)
       .toBe('module-2-prd-review-workflow')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-review-workflow')?.nextSceneId)
+      .toBe('module-2-prd-introduction')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-introduction')?.nextSceneId)
       .toBe('module-2-prd-agent-workflow')
     expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-check-'))).toHaveLength(10)
     expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-mastery-'))).toHaveLength(10)

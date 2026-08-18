@@ -35,7 +35,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — the six-page Course Companion explanation slice, restored PRD definition/anatomy/review sequence, restored original opening copy, approved stage names, agent-independent question revisions, and detailed integration handoff are implemented; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the restored content-only slice on 18 August 2026: 288 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, desktop screenshot inspection, `390 × 844` responsive checks, exact resume on the restored anatomy page, and exact source-to-renderer opening copy; `pending` for delegated integration and the new completion gate | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the unrequestedly removed PRD pages, and restoration of the original opening copy were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
+| Module 2 | `in-progress` — the six-page Course Companion explanation slice, restored PRD definition/anatomy/review sequence placed before the one-task workflow page, restored original opening copy, approved stage names, agent-independent question revisions, and detailed integration handoff are implemented; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the PRD-first content-only slice on 18 August 2026: 288 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, desktop screenshot inspection, `390 × 844` responsive checks, exact resume on the restored anatomy page, and exact source-to-renderer opening copy; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the unrequestedly removed PRD pages, restoration of the original opening copy, and PRD-first explanation order were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -638,8 +638,8 @@ open templates as required work.
 The owner explicitly restored the PRD definition, PRD anatomy, and coding-agent
 review pages that the three-page redesign removed without a page-specific
 deletion request. This changes the explanation route from three to six pages:
-planning before building; one persistent Codex task; PRD definition; PRD
-anatomy; PRD creation/review; and the five-stage map. The following Practice
+planning before building; PRD definition; PRD anatomy; PRD creation/review; one
+persistent Codex task; and the five-stage map. The following Practice
 transition remains separate. This correction changes the page count and
 navigation contract only; it does not reopen the five-stage/five-document
 Practice design.
@@ -766,11 +766,11 @@ natural Vietnamese:
 1. Present six focused Course Companion explanation pages before the Practice
    transition:
    - why planning matters;
-   - how one Codex task, Executor, Course Companion review, and learner approval
-     work together;
    - what a PRD is and is not;
    - what a useful PRD contains;
    - how a learner creates, reviews, and approves a PRD with a coding agent;
+   - how one Codex task, Executor, Course Companion review, and learner approval
+     work together;
    - the five-stage map and Module 2/3 boundary.
 2. Retire pre-Practice milestone example/application pages. Detailed
    clarification happens inside the one persistent Practice task, not across
@@ -947,6 +947,8 @@ artifact evidence.
 - Desktop and narrow Course Companion layouts.
 - Keyboard and focus behavior.
 - Exactly six explanation pages precede the real Practice.
+- The PRD definition, anatomy, and coding-agent review pages precede the
+  one-task workflow page without rewriting their learner-facing copy.
 - Correct return/review destination after every Practice stage and quiz group.
 - Exact resume from each milestone.
 - Module 1 frozen-content diff/snapshot check.
@@ -982,6 +984,14 @@ again reachable immediately after it, followed by the five-stage map and the
 Practice transition. The outline now exposes all seven learner-facing entries,
 and saved progress on `module-2-prd-anatomy` resumes that restored page instead
 of redirecting past it. The current full suite passed with 288 unit tests, nine
+startup tests, typecheck, lint, production build, full Electron smoke, desktop
+screenshot inspection, and `390 × 844` responsive checks.
+
+**PRD-first ordering note — 18 August 2026:** At the owner's explicit request,
+the restored PRD definition, anatomy, and coding-agent review pages now precede
+the intact one-task workflow page. The route, outline, active-part mapping, back
+history, resume fixture, and smoke coverage are synchronized without rewriting
+any existing learner-facing copy. Verification passed with 288 unit tests, nine
 startup tests, typecheck, lint, production build, full Electron smoke, desktop
 screenshot inspection, and `390 × 844` responsive checks.
 
