@@ -131,9 +131,9 @@ describe('Course module assessment banks', () => {
       'reference-retrieval': 2,
       'prd-retrieval': 2,
       'planning-retrieval': 2,
-      'final-assessment': 9
+      'final-assessment': 5
     })
-    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(19)
+    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(15)
   })
 
   it('gives every question an answer contract and approved source', async () => {
@@ -193,9 +193,9 @@ describe('Course module assessment banks', () => {
       requiresCurrentArtifactDigests: true,
       requiresPracticeReceipt: true
     })
-    expect(finalGroup?.questions.filter((question) => question.type === 'multiple-choice')).toHaveLength(5)
+    expect(finalGroup?.questions.filter((question) => question.type === 'multiple-choice')).toHaveLength(4)
     expect(finalGroup?.questions.map((question) => question.id)).not.toContain('mastery-2')
-    expect(finalGroup?.questions.filter((question) => question.type === 'short-answer')).toHaveLength(4)
+    expect(finalGroup?.questions.filter((question) => question.type === 'short-answer')).toHaveLength(1)
     expect(finalGroup?.questions.filter((question) => question.type === 'artifact-answer')).toHaveLength(0)
   })
 

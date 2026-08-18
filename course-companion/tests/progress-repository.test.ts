@@ -241,7 +241,7 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('module-2-prd-introduction')
   })
 
-  it('removes saved progress for the retired Module 2 mastery question', async () => {
+  it('removes saved progress for retired Module 2 mastery questions', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save({
@@ -255,16 +255,24 @@ describe('ProgressRepository', () => {
     })
     const retiredProgress = {
       ...started,
-      sceneId: 'module-2-mastery-scenario-evidence',
+      sceneId: 'module-2-mastery-scenario-reference',
       sceneHistory: [
         ...started.sceneHistory,
         'module-2-portfolio-mastery',
         'module-2-mastery-scenario-viewer',
-        'module-2-mastery-scenario-evidence'
+        'module-2-mastery-scenario-evidence',
+        'module-2-mastery-scenario-reference',
+        'module-2-mastery-owned-scope',
+        'module-2-mastery-owned-evidence',
+        'module-2-mastery-owned-validation'
       ],
       decisions: {
         'assessment:mastery-1': 'correct:1',
-        'assessment:mastery-2': 'correct:1'
+        'assessment:mastery-2': 'correct:1',
+        'assessment:mastery-3': 'correct:1',
+        'assessment:mastery-scope-boundary': 'correct:self-review:Phạm vi đã đối chiếu.',
+        'assessment:mastery-evidence-gap': 'correct:self-review:Khoảng trống đã đối chiếu.',
+        'assessment:mastery-requirement-validation': 'correct:self-review:Yêu cầu đã đối chiếu.'
       }
     }
     await writeFile(
@@ -276,7 +284,7 @@ describe('ProgressRepository', () => {
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
       progress: {
-        sceneId: 'module-2-mastery-scenario-reference',
+        sceneId: 'module-2-mastery-scenario-viewer',
         sceneHistory: [
           'module-2-portfolio-practice',
           'module-2-portfolio-mastery',
@@ -289,7 +297,15 @@ describe('ProgressRepository', () => {
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
     expect(JSON.stringify(migrated)).not.toContain('mastery-2')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-3')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-scope-boundary')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-evidence-gap')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-requirement-validation')
     expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-scenario-evidence')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-scenario-reference')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-scope')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-evidence')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-validation')
   })
 
   it('resumes an exact page inside the opening introduction', async () => {

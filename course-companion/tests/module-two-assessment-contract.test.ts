@@ -94,9 +94,8 @@ describe('Module 2 portfolio assessment contract', () => {
       return [question?.prompt, ...(question?.choices ?? []), question?.explanation].join(' ')
     }
 
-    expect(scenarios).toHaveLength(5)
+    expect(scenarios).toHaveLength(4)
     expect(scenario('mastery-1')).toMatch(/lỗi chính tả.*lập kế hoạch.*sản phẩm mới/i)
-    expect(scenario('mastery-3')).toMatch(/URL nguồn.*cách thể hiện riêng.*sao chép/i)
     expect(scenario('mastery-4')).toMatch(/PRD.*dành cho ai.*lựa chọn kỹ thuật/i)
     expect(scenario('mastery-5')).toMatch(/mơ hồ.*tự mở rộng.*trước khi bạn duyệt/i)
     expect(scenario('mastery-6')).toMatch(/hỏi bạn từng câu/i)
@@ -110,22 +109,16 @@ describe('Module 2 portfolio assessment contract', () => {
     }
   })
 
-  it('requires four learner-owned answers that cannot pass by repeating the worked example', async () => {
+  it('requires one learner-owned answer that cannot pass by repeating the worked example', async () => {
     const quiz = await loadQuiz()
     const final = quiz.groups.find((group) => group.id === 'final-assessment')
     const learnerOwned = final?.questions.filter((question) => question.type === 'short-answer') ?? []
 
     expect(learnerOwned.map((question) => question.id)).toEqual([
-      'mastery-audience-choice',
-      'mastery-scope-boundary',
-      'mastery-evidence-gap',
-      'mastery-requirement-validation'
+      'mastery-audience-choice'
     ])
     expect(learnerOwned.map((question) => question.prompt)).toEqual([
-      expect.stringContaining('portfolio-brief.md'),
-      expect.stringContaining('PRD.md'),
-      expect.stringContaining('content-evidence-inventory.md'),
-      expect.stringContaining('implementation-plan.md')
+      expect.stringContaining('portfolio-brief.md')
     ])
     for (const question of learnerOwned) {
       expect(question.criteria?.join(' ')).toMatch(/hiện tại|thật/i)

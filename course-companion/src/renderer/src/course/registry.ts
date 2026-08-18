@@ -55,14 +55,10 @@ const rendererModules = [
         ['module-2-portfolio-practice'],
         ['module-2-portfolio-mastery'],
         ['module-2-mastery-scenario-viewer'],
-        ['module-2-mastery-scenario-reference'],
         ['module-2-mastery-scenario-prd'],
         ['module-2-mastery-scenario-validation'],
         ['module-2-mastery-scenario-first-task'],
         ['module-2-mastery-owned-audience'],
-        ['module-2-mastery-owned-scope'],
-        ['module-2-mastery-owned-evidence'],
-        ['module-2-mastery-owned-validation'],
         ['module-2-portfolio-mastery-summary'],
         ['module-2-portfolio-complete']
       ]

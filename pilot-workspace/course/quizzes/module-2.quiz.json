@@ -291,26 +291,6 @@
           }
         },
         {
-          "id": "mastery-3",
-          "sceneId": "module-2-mastery-scenario-reference",
-          "type": "multiple-choice",
-          "prompt": "Bạn gửi cho coding agent ảnh chụp một portfolio có tiêu đề lớn và nhiều khoảng trống, rồi nói: “Hãy làm giống hệt trang này.” Bạn nên sửa yêu cầu đó như thế nào?",
-          "choices": [
-            "Lưu URL nguồn, nói rõ bạn thích tiêu đề và cách dùng khoảng trống, rồi yêu cầu một cách thể hiện riêng phù hợp với PRD của mình.",
-            "Chỉ gửi ảnh và tên trang, sau đó để coding agent tự đoán phần nào nên học theo.",
-            "Yêu cầu dùng lại bố cục và hình ảnh, nhưng đổi màu để trang mới trông khác đi.",
-            "Xóa URL sau khi coding agent đã xem để portfolio mới không bị cho là sao chép."
-          ],
-          "answerIndex": 0,
-          "explanation": "Một hình tham khảo chỉ giúp bạn diễn đạt điều mình thích. Giữ nguồn, chỉ ra những đặc điểm cụ thể và yêu cầu cách thể hiện riêng sẽ định hướng thiết kế mà không biến tham khảo thành sao chép.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Phần tham khảo của Module 2 lưu nguồn và lời mô tả của người học, đồng thời giữ ranh giới không sao chép nội dung hoặc tài sản của trang gốc."
-          }
-        },
-        {
           "id": "mastery-4",
           "sceneId": "module-2-mastery-scenario-prd",
           "type": "multiple-choice",
@@ -386,60 +366,6 @@
             "label": "GOV.UK — Learning about users and their needs",
             "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
             "basis": "Thiết kế bắt đầu bằng việc hiểu ai có khả năng sử dụng sản phẩm, họ đang cố làm gì và kết quả họ cần đạt."
-          }
-        },
-        {
-          "id": "mastery-scope-boundary",
-          "sceneId": "module-2-mastery-owned-scope",
-          "type": "short-answer",
-          "prompt": "PRD giúp giữ phạm vi trước khi bắt đầu xây. Hãy chọn một nội dung bạn đã để ngoài phiên bản đầu trong `planning/PRD.md`. Vì sao bạn hoãn nội dung đó, và bạn sẽ kiểm tra `planning/implementation-plan.md` như thế nào để nó không xuất hiện trở lại?",
-          "criteria": [
-            "Dẫn chiếu một ranh giới thật trong PRD hiện tại của người học.",
-            "Giải thích hệ quả đối với mục tiêu hoặc độ tập trung của phiên bản đầu.",
-            "Đối chiếu kế hoạch triển khai hiện tại và nêu cách sửa nếu nội dung đó quay lại; không dùng ranh giới trong ví dụ Mai."
-          ],
-          "explanation": "Câu trả lời cần bảo vệ một quyết định phạm vi của chính bạn và kiểm tra PRD có thống nhất với kế hoạch triển khai hay không. Chỉ nêu tên một mục ngoài phạm vi vẫn chưa đủ.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Task Design Review",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
-            "basis": "Task design tách rõ mục tiêu trong phạm vi với non-goals/out-of-scope trước khi mô tả phương án."
-          }
-        },
-        {
-          "id": "mastery-evidence-gap",
-          "sceneId": "module-2-mastery-owned-evidence",
-          "type": "short-answer",
-          "prompt": "Một kế hoạch tốt phải nói rõ điều gì đã biết và điều gì còn chưa chắc. Hãy chọn một khoảng trống thật trong `planning/content-evidence-inventory.md` của bạn. Nội dung đó đang ở trạng thái nào, điều gì có thể xảy ra nếu bạn trình bày nó như sự thật chắc chắn, và bạn sẽ làm gì tiếp theo?",
-          "criteria": [
-            "Dẫn chiếu một hàng hoặc khoảng trống thật trong bản kiểm kê hiện tại của người học.",
-            "Dùng đúng trạng thái bằng chứng và tách nó khỏi quyền công bố.",
-            "Nêu một việc tiếp theo cụ thể; không dùng khoảng trống trong ví dụ Mai."
-          ],
-          "explanation": "Câu trả lời cần cho thấy bạn biết giữ sự trung thực khi bằng chứng chưa đủ. Bạn phải gọi đúng trạng thái hiện tại và chọn một hành động cụ thể, thay vì trình bày khoảng trống như điều đã được xác nhận.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "GOV.UK — Learning about users and their needs",
-            "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
-            "basis": "Ý kiến hoặc đề xuất chưa xuất phát từ bằng chứng phải được coi là giả định cần kiểm chứng, không phải sự thật đã xác nhận."
-          }
-        },
-        {
-          "id": "mastery-requirement-validation",
-          "sceneId": "module-2-mastery-owned-validation",
-          "type": "short-answer",
-          "prompt": "Trước khi duyệt kế hoạch, bạn cần biết mỗi yêu cầu sẽ được kiểm tra bằng cách nào. Hãy chọn một yêu cầu thật trong `planning/implementation-plan.md` của bạn, rồi nêu kết quả cần quan sát, cách kiểm tra và bằng chứng bạn sẽ lưu để chứng minh yêu cầu đó đã đạt.",
-          "criteria": [
-            "Dẫn chiếu một mã yêu cầu thật trong kế hoạch triển khai hiện tại của người học.",
-            "Nối đúng yêu cầu với kết quả cần đạt và một cách kiểm tra phù hợp.",
-            "Nêu bằng chứng có thể quan sát hoặc lưu lại; không dùng `REQ-03` của ví dụ Mai."
-          ],
-          "explanation": "Câu trả lời cần nối một yêu cầu thật với kết quả có thể quan sát, cách kiểm tra và bằng chứng sẽ lưu. Lặp lại `REQ-03` trong ví dụ Mai không cho thấy kế hoạch hiện tại của bạn đã sẵn sàng.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Test planning",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/automated-testing/test-planning/",
-            "basis": "Test planning xuất phát từ acceptance criteria và nối yêu cầu với phép kiểm tra để phát hiện thiếu sót trước implementation."
           }
         }
       ]

@@ -49,7 +49,11 @@ const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
 const RETIRED_MODULE_TWO_SCENES = new Set([
   'module-2-prd-anatomy',
   'module-2-prd-introduction',
-  'module-2-mastery-scenario-evidence'
+  'module-2-mastery-scenario-evidence',
+  'module-2-mastery-scenario-reference',
+  'module-2-mastery-owned-scope',
+  'module-2-mastery-owned-evidence',
+  'module-2-mastery-owned-validation'
 ])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
@@ -63,19 +67,29 @@ const RETIRED_MODULE_ONE_LESSONS = new Set([
 const DIGEST = /^[a-f0-9]{64}$/
 const moduleTwoMasteryQuestionIds = [
   'mastery-1',
-  'mastery-3',
   'mastery-4',
   'mastery-5',
   'mastery-6',
-  'mastery-audience-choice',
+  'mastery-audience-choice'
+] as const
+const previousModuleTwoMasteryQuestionIds = [
+  ...moduleTwoMasteryQuestionIds,
+  'mastery-3',
   'mastery-scope-boundary',
   'mastery-evidence-gap',
   'mastery-requirement-validation'
 ] as const
 const legacyModuleTwoMasteryQuestionIds = [
-  ...moduleTwoMasteryQuestionIds,
+  ...previousModuleTwoMasteryQuestionIds,
   'mastery-2'
 ] as const
+const RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS = new Set([
+  'mastery-2',
+  'mastery-3',
+  'mastery-scope-boundary',
+  'mastery-evidence-gap',
+  'mastery-requirement-validation'
+])
 
 function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean {
   return (
@@ -132,7 +146,9 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
     (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(sceneId)
   )
   const hasRetiredMasteryAnswer = isRecord(raw.decisions)
-    && Object.hasOwn(raw.decisions, 'assessment:mastery-2')
+    && Object.keys(raw.decisions).some((key) =>
+      key.startsWith('assessment:')
+      && RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length)))
   if (!hasRetiredScene && !hasRetiredHistory && !hasRetiredMasteryAnswer) return raw
   return {
     ...raw,
@@ -140,8 +156,8 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
       ? 'module-2-prd-review-workflow'
       : raw.sceneId === 'module-2-prd-introduction'
         ? 'module-2-prd-agent-workflow'
-        : raw.sceneId === 'module-2-mastery-scenario-evidence'
-          ? 'module-2-mastery-scenario-reference'
+        : typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(raw.sceneId)
+          ? 'module-2-mastery-scenario-viewer'
         : raw.sceneId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter(
@@ -149,7 +165,9 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
         )
       : raw.sceneHistory,
     decisions: isRecord(raw.decisions)
-      ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) => key !== 'assessment:mastery-2'))
+      ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) =>
+          !key.startsWith('assessment:')
+          || !RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length))))
       : raw.decisions
   }
 }
@@ -232,7 +250,9 @@ function isPortfolioPlanningHandoff(value: unknown): boolean {
   const hasQuestionIds = (expected: readonly string[]) => masteryQuestionValues.length === expected.length
     && expected.every((id) => masteryQuestionValues.includes(id))
   if (!masteryQuestionValues.every((id) => typeof id === 'string')
-    || (!hasQuestionIds(moduleTwoMasteryQuestionIds) && !hasQuestionIds(legacyModuleTwoMasteryQuestionIds))
+    || (!hasQuestionIds(moduleTwoMasteryQuestionIds)
+      && !hasQuestionIds(previousModuleTwoMasteryQuestionIds)
+      && !hasQuestionIds(legacyModuleTwoMasteryQuestionIds))
     || !DIGEST.test(String(mastery.answerDigest))) return false
   if (!summary || !hasExactKeys(summary, [
     'learnerDecision', 'evidenceBoundary', 'firstBuild', 'deliberatelyOutOfScope'

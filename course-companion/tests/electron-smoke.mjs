@@ -1036,7 +1036,7 @@ try {
   await learningPage.getByText('5 TÌNH HUỐNG · 4 CÂU TỪ ARTIFACT', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await answerAssessmentGroup(learningPage, 'final-assessment')
-  await learningPage.getByText('Bạn đã trả lời 9/9 câu.', { exact: false }).waitFor()
+  await learningPage.getByText('Bạn đã trả lời 5/5 câu.', { exact: false }).waitFor()
   await capture(learningPage, 'module-2-portfolio-mastery-summary.png')
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
@@ -1075,7 +1075,7 @@ try {
     Object.entries(persisted.decisions).filter(
       ([key, value]) => key.startsWith('assessment:mastery-') && String(value).startsWith('correct')
     ).length,
-    9
+    5
   )
   assert.equal(persisted.practice.status, 'idle')
 
