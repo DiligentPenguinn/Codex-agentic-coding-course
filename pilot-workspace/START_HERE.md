@@ -34,8 +34,9 @@ cần cài thêm skill toàn cục hoặc sao chép một prompt dài.
 
 Bạn không cần chuẩn bị dữ liệu, biết lập trình, chọn công nghệ, cài gói phụ
 thuộc hoặc có OpenAI API key. Module 1 giúp bạn hiểu Codex, chọn model, nhận
-biết quyền hành động, thiết lập hướng dẫn trong `AGENTS.md` và dùng Skill có
-sẵn. Module này không yêu cầu cài thêm Skill hay thay đổi thiết lập toàn cục.
+biết quyền hành động và phân biệt `AGENTS.md` với Skill. Module này không yêu
+cầu cài thêm Skill hay thay đổi thiết lập toàn cục. Bạn sẽ tạo `AGENTS.md` cho
+repo portfolio sau khi chọn đúng thư mục ở Module 2.
 
 Sau đó, Module 2 mới bắt đầu phần planning: làm rõ ý tưởng ContentPilot, viết
 PRD và tạo implementation plan trước khi code.

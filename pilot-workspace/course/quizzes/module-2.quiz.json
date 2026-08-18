@@ -54,7 +54,7 @@
           "id": "brief-retrieval-2",
           "sceneId": "module-2-check-brief-success",
           "type": "multiple-choice",
-          "prompt": "Dấu hiệu truyền đạt thành công nào có thể kiểm tra rõ nhất?",
+          "prompt": "Sau khi xem portfolio, người xem cần hiểu hoặc làm được điều gì để bạn biết trang đã truyền đạt đúng thông điệp?",
           "choices": [
             "Portfolio trông thật chuyên nghiệp.",
             "Ai cũng thích portfolio.",
@@ -62,7 +62,7 @@
             "Portfolio tạo cảm giác tuyệt vời."
           ],
           "answerIndex": 2,
-          "explanation": "Dấu hiệu đúng mô tả thông tin và hành động có thể quan sát. Những từ như chuyên nghiệp, thích hoặc tuyệt vời chưa cho biết phải kiểm tra điều gì.",
+          "explanation": "Câu trả lời rõ nêu thông tin người xem cần hiểu hoặc hành động họ cần làm được. Những từ như chuyên nghiệp, thích hoặc tuyệt vời chưa cho biết trang cần truyền đạt điều gì.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Quyết định chương trình D-008 — Module 2",
@@ -84,13 +84,13 @@
           "type": "multiple-choice",
           "prompt": "Bạn nhớ mình từng tăng doanh thu 30% nhưng chưa tìm được báo cáo gốc. Trạng thái phù hợp nhất lúc này là gì?",
           "choices": [
-            "Đã kiểm chứng.",
+            "Có bằng chứng.",
             "Còn thiếu bằng chứng và chưa công khai như một sự thật chắc chắn.",
             "Được phép công khai nên chắc chắn đúng.",
             "Không cần ghi vào inventory."
           ],
           "answerIndex": 1,
-          "explanation": "Khi chưa có nguồn phù hợp, con số không nên được trình bày như một sự thật đã kiểm chứng. Ghi rõ khoảng trống giữ cho kế hoạch trung thực và tạo một việc tiếp theo cụ thể.",
+          "explanation": "Khi chưa có nguồn phù hợp, con số không nên được trình bày như một sự thật đã có bằng chứng. Ghi rõ khoảng trống giữ cho kế hoạch trung thực và tạo một việc tiếp theo cụ thể.",
           "source": {
             "kind": "authoritative-source",
             "label": "GOV.UK — Learning about users and their needs",
@@ -102,11 +102,11 @@
           "id": "evidence-retrieval-2",
           "sceneId": "module-2-check-evidence-permission",
           "type": "multiple-choice",
-          "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Inventory nên ghi thế nào?",
+          "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Tài liệu nên ghi thế nào?",
           "choices": [
-            "Đã kiểm chứng và được phép công khai.",
-            "Đã kiểm chứng, nhưng quyền công bố chưa rõ nên chưa dùng công khai.",
-            "Giả định và được phép công khai.",
+            "Có bằng chứng và được phép công khai.",
+            "Có bằng chứng, nhưng quyền công bố chưa rõ nên chưa dùng công khai.",
+            "Đang giả định và được phép công khai.",
             "Xóa thông tin nguồn để tránh phải xin phép."
           ],
           "answerIndex": 1,
@@ -246,11 +246,11 @@
           "id": "planning-retrieval-2",
           "sceneId": "module-2-check-delayed-evidence",
           "type": "multiple-choice",
-          "prompt": "Ngay trước gate, một kết quả dự án vẫn là lời tự khai và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
+          "prompt": "Ngay trước gate, một kết quả dự án vẫn chỉ do bạn xác nhận và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
           "choices": [
             "Đủ sẵn sàng vì PRD đã viết xong.",
             "Giữ đúng nhãn, chặn nội dung chưa có quyền khỏi bản công khai và ghi việc cần làm trước khi xây.",
-            "Đổi cả hai thành đã kiểm chứng để qua gate.",
+            "Đổi cả hai thành Có bằng chứng để qua gate.",
             "Bỏ qua vì đây chỉ là planning."
           ],
           "answerIndex": 1,
@@ -274,192 +274,98 @@
           "id": "mastery-1",
           "sceneId": "module-2-mastery-scenario-viewer",
           "type": "multiple-choice",
-          "prompt": "Linh muốn portfolio vừa xin việc thiết kế sản phẩm, bán tranh và tuyển người cho câu lạc bộ. Bước planning phù hợp nhất là gì?",
+          "prompt": "Bạn đang cân nhắc hai việc: sửa một lỗi chính tả đã biết và xây một portfolio mới khi chưa chốt người xem, nội dung hay phạm vi. Cách làm nào phù hợp nhất?",
           "choices": [
-            "Gộp cả ba mục tiêu thành một người xem chung.",
-            "Chọn một mục tiêu và người xem chính cho phiên bản đầu, ghi hai mục tiêu còn lại vào ranh giới.",
-            "Chọn màu sắc trước để ba nhóm đều thấy hấp dẫn.",
-            "Để Codex tự quyết định mục tiêu nào quan trọng."
+            "Lập một kế hoạch chi tiết cho cả hai việc trước khi thay đổi bất cứ điều gì.",
+            "Giao cả hai việc cho coding agent làm ngay vì đều liên quan đến ứng dụng.",
+            "Sửa trực tiếp lỗi chính tả vì yêu cầu đã rõ; lập kế hoạch cho portfolio trước khi bắt đầu xây.",
+            "Bắt đầu thiết kế portfolio trước, rồi bổ sung mục tiêu và phạm vi sau."
           ],
-          "answerIndex": 1,
-          "explanation": "Một mục tiêu và người xem chính tạo ra quyết định cùng thứ tự thông tin rõ. Các mục tiêu khác không biến mất; chúng được ghi vào ranh giới để tránh phạm vi tự mở rộng.",
+          "answerIndex": 2,
+          "explanation": "Mức độ lập kế hoạch nên phù hợp với công việc. Một thay đổi nhỏ, kết quả đã rõ và dễ sửa lại có thể làm trực tiếp. Ngược lại, một sản phẩm mới còn nhiều quyết định phụ thuộc nhau cần được làm rõ trước khi bắt đầu xây.",
           "source": {
             "kind": "authoritative-source",
-            "label": "GOV.UK — Learning about users and their needs",
-            "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
-            "basis": "Nhu cầu nên tập trung vào điều quan trọng nhất với người dùng và kết quả họ cần, tránh tạo một danh sách không thể quản lý."
-          }
-        },
-        {
-          "id": "mastery-2",
-          "sceneId": "module-2-mastery-scenario-evidence",
-          "type": "multiple-choice",
-          "prompt": "Một chứng nhận có thật, nhưng tên và mã định danh cá nhân trên ảnh không cần cho người xem. Cách xử lý nào phù hợp?",
-          "choices": [
-            "Đăng ảnh gốc vì chứng nhận là thật.",
-            "Ghi bằng chứng là đã kiểm chứng, nhưng che hoặc loại dữ liệu không cần thiết trước khi công khai.",
-            "Đổi trạng thái thành giả định.",
-            "Không cần ghi quyền riêng tư trong planning."
-          ],
-          "answerIndex": 1,
-          "explanation": "Tính xác thực không loại bỏ rủi ro riêng tư. Nội dung công khai chỉ nên giữ dữ liệu cần cho mục tiêu, trong khi inventory vẫn ghi nguồn và cách xử lý.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Inventory được phê duyệt phải phân biệt bằng chứng với privacy risks và publication constraints trước khi nội dung đi vào sản phẩm."
-          }
-        },
-        {
-          "id": "mastery-3",
-          "sceneId": "module-2-mastery-scenario-reference",
-          "type": "multiple-choice",
-          "prompt": "Bạn thích cách một trang dùng khoảng trống và tiêu đề lớn. Yêu cầu nào giữ đúng ranh giới tham chiếu?",
-          "choices": [
-            "Sao chép toàn bộ bố cục, chữ và ảnh.",
-            "Ghi hai đặc điểm muốn học theo, giữ URL nguồn và yêu cầu một cách thể hiện riêng phù hợp PRD.",
-            "Tải repository của trang dù chưa kiểm tra giấy phép.",
-            "Bỏ nguồn để thiết kế trông nguyên bản."
-          ],
-          "answerIndex": 1,
-          "explanation": "Mô tả đặc điểm và giữ nguồn giúp Codex hiểu hướng mong muốn mà không sao chép biểu đạt, nội dung hoặc tài sản cụ thể của trang tham chiếu.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Cột mốc tham chiếu chỉ lưu một nguồn, ảnh chụp hữu ích và lời mô tả của Learner; detailed interpretation được hoãn sang Module 3."
+            "label": "Microsoft Engineering Playbook — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Việc có nhiều mục tiêu, ranh giới và quyết định phụ thuộc nhau cần được làm rõ trước khi mô tả phương án triển khai."
           }
         },
         {
           "id": "mastery-4",
           "sceneId": "module-2-mastery-scenario-prd",
           "type": "multiple-choice",
-          "prompt": "Tiêu chí chấp nhận nào kiểm tra rõ yêu cầu điều hướng bằng bàn phím?",
+          "prompt": "Trong lúc soạn PRD cho portfolio, coding agent đề nghị chọn React, đặt tên tệp và cài thư viện. Tuy nhiên, hai bên vẫn chưa thống nhất portfolio dành cho ai và người xem cần nhận được điều gì. Bạn nên yêu cầu agent làm gì trước?",
           "choices": [
-            "Trang có khả năng tiếp cận tốt.",
-            "Dùng phím Tab đi qua mọi liên kết theo thứ tự hợp lý và luôn thấy focus hiện tại.",
-            "Dùng một thư viện accessibility phổ biến.",
-            "Không có lỗi build."
+            "Chọn React trước để coding agent có thể quyết định phần còn lại dựa trên công nghệ.",
+            "Tạo ngay phiên bản đầu, rồi dùng kết quả đó để đoán người xem phù hợp.",
+            "Viết danh sách tệp và thư viện trước, còn mục tiêu của portfolio sẽ bổ sung sau.",
+            "Làm rõ người xem, vấn đề, kết quả cần đạt và phạm vi đầu tiên; để lựa chọn kỹ thuật sang bước triển khai."
           ],
-          "answerIndex": 1,
-          "explanation": "Tiêu chí đúng mô tả hành vi mà một người có thể kiểm tra trực tiếp. Thư viện hoặc build không chứng minh thứ tự bàn phím và focus hiển thị.",
+          "answerIndex": 3,
+          "explanation": "PRD thống nhất sản phẩm cần giải quyết vấn đề gì, dành cho ai và phải đạt kết quả nào. React, thư viện hay cấu trúc tệp là cách triển khai; chọn chúng trước không thể thay thế các quyết định về sản phẩm.",
           "source": {
             "kind": "authoritative-source",
-            "label": "W3C WAI — Evaluating Web Accessibility",
-            "url": "https://www.w3.org/WAI/test-evaluate/",
-            "basis": "Đánh giá sơ bộ có thể gồm kiểm tra bàn phím và cần kết hợp công cụ với đánh giá trực tiếp của con người."
+            "label": "Microsoft Engineering Playbook — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Tài liệu thiết kế cần làm rõ mục tiêu, phạm vi và kết quả trước khi đi vào công nghệ hoặc phương án triển khai cụ thể."
           }
         },
         {
           "id": "mastery-5",
           "sceneId": "module-2-mastery-scenario-validation",
           "type": "multiple-choice",
-          "prompt": "Map có yêu cầu `REQ-07` nhưng ô cách kiểm tra đang trống. Điều gì phải xảy ra trước khi gate đạt?",
+          "prompt": "Bản nháp PRD viết “portfolio phải chuyên nghiệp và dễ dùng”, đồng thời thêm một trang blog mà bạn chưa yêu cầu. Trước khi duyệt, bạn nên làm gì?",
           "choices": [
-            "Cho đạt vì requirement đã có mã.",
-            "Bổ sung tiêu chí, cách kiểm tra và bằng chứng phù hợp; nếu không kiểm tra được thì làm rõ lại yêu cầu.",
-            "Xóa mã requirement khỏi PRD.",
-            "Để Module 4 tự tìm cách kiểm tra."
+            "Duyệt bản nháp vì coding agent đã viết đủ các phần của PRD.",
+            "Yêu cầu agent chỉ ra từ ngữ mơ hồ, nội dung tự mở rộng và kết quả chưa thể kiểm tra, rồi sửa lại trước khi bạn duyệt.",
+            "Giữ nguyên trang blog để phòng trường hợp sau này bạn cần dùng.",
+            "Bỏ toàn bộ PRD và yêu cầu coding agent bắt đầu viết ứng dụng từ đầu."
           ],
           "answerIndex": 1,
-          "explanation": "Lập kế hoạch kiểm tra từ tiêu chí chấp nhận có thể làm lộ yêu cầu mơ hồ trước khi triển khai. Gate không đạt khi một yêu cầu chưa có cách chứng minh.",
+          "explanation": "Rà soát PRD là lúc tìm yêu cầu mơ hồ, nội dung vượt phạm vi và kết quả chưa thể kiểm tra. Bạn chỉ nên duyệt sau khi bản nháp nói rõ điều cần đạt và không tự thêm những phần chưa được thống nhất.",
           "source": {
             "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Test planning",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/automated-testing/test-planning/",
-            "basis": "Test planning nên xuất phát từ acceptance criteria và có thể phát hiện điểm mơ hồ hoặc thiếu sót trước implementation."
+            "label": "Microsoft Engineering Playbook — Task Design Review",
+            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
+            "basis": "Rà soát thiết kế cần phân biệt mục tiêu, nội dung trong và ngoài phạm vi, đồng thời làm rõ kết quả có thể đánh giá trước khi triển khai."
           }
         },
         {
           "id": "mastery-6",
           "sceneId": "module-2-mastery-scenario-first-task",
           "type": "multiple-choice",
-          "prompt": "Nhiệm vụ đầu tiên nào phù hợp khi Module 3 bắt đầu từ thư mục chưa có ứng dụng?",
+          "prompt": "Bạn mới mô tả ý tưởng ban đầu, nhưng coding agent đã tự chọn người xem, mục tiêu và phạm vi rồi gửi một PRD hoàn chỉnh. Cách phản hồi nào giúp bạn vẫn giữ quyền quyết định?",
           "choices": [
-            "Tạo luôn toàn bộ portfolio và tự chọn mọi dependency.",
-            "Đề xuất scaffold tối thiểu, nêu lệnh, dependency, tệp và kiểm tra rồi dừng chờ Learner duyệt.",
-            "Triển khai lên production trước khi có baseline.",
-            "Sao chép một template đầy đủ mà không review."
+            "Duyệt PRD vì coding agent đã tiết kiệm cho bạn bước trả lời câu hỏi.",
+            "Yêu cầu agent bổ sung thêm nội dung nhưng giữ nguyên người xem và phạm vi đã tự chọn.",
+            "Yêu cầu agent dừng lại, hỏi bạn từng câu còn thiếu, soạn lại bản nháp và chờ bạn quyết định trước khi duyệt.",
+            "Bỏ qua PRD và yêu cầu agent bắt đầu viết ứng dụng để bạn xem kết quả trước."
           ],
-          "answerIndex": 1,
-          "explanation": "Nhiệm vụ hẹp giữ lựa chọn kỹ thuật ở trạng thái đề xuất, tạo một baseline trung tính có thể kiểm tra và dừng trước khi xây nội dung portfolio.",
+          "answerIndex": 2,
+          "explanation": "Coding agent có thể đặt câu hỏi, soạn bản nháp và tìm điểm chưa rõ. Tuy nhiên, người học vẫn quyết định mục tiêu, người xem, phạm vi và thời điểm duyệt PRD; agent không được tự chọn những điều đó thay bạn.",
           "source": {
             "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-009 — Scaffold từ đầu",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-009-define-how-learners-start-implementation-in-module-3",
-            "basis": "Module 3 bắt đầu từ workspace trống; Codex phải đề xuất stack, lệnh, dependency, tệp và validation rồi chờ Learner duyệt trước khi tạo app."
+            "label": "Quyết định chương trình D-008 — Module 2",
+            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
+            "basis": "Quy trình Module 2 cho phép coding agent hỗ trợ hỏi và soạn thảo, nhưng người học giữ quyền quyết định và duyệt các lựa chọn quan trọng."
           }
         },
         {
           "id": "mastery-audience-choice",
           "sceneId": "module-2-mastery-owned-audience",
           "type": "short-answer",
-          "prompt": "Dựa trên `planning/portfolio-brief.md` của bạn, nêu người xem chính, quyết định họ cần đưa ra và vì sao lựa chọn này phù hợp với mục tiêu portfolio của bạn.",
+          "prompt": "Trong bài học, việc lập kế hoạch bắt đầu từ câu hỏi sản phẩm dành cho ai và cần giúp họ làm gì. Hãy mở `planning/portfolio-brief.md` của bạn rồi giải thích: người xem chính là ai, họ cần đưa ra quyết định gì sau khi xem portfolio, và lựa chọn này hỗ trợ mục tiêu của bạn như thế nào?",
           "criteria": [
-            "Dẫn chiếu quyết định thật trong portfolio-brief hiện tại của Learner.",
-            "Nối người xem với một quyết định cụ thể và mục tiêu của chính Learner.",
-            "Không dùng người xem hoặc mục tiêu của ví dụ Mai làm câu trả lời."
+            "Dẫn chiếu quyết định thật trong bản mô tả portfolio hiện tại của người học.",
+            "Nối người xem với một quyết định cụ thể và mục tiêu của chính người học.",
+            "Không dùng người xem hoặc mục tiêu trong ví dụ Mai làm câu trả lời."
           ],
-          "explanation": "Câu trả lời đạt phải chứng minh Learner sở hữu quyết định người xem của portfolio mình, thay vì lặp lại một quy tắc hoặc ví dụ đã học.",
+          "explanation": "Câu trả lời cần cho thấy bạn hiểu vì sao portfolio của mình ưu tiên một người xem cụ thể. Chỉ nhắc lại định nghĩa hoặc dùng người xem trong ví dụ Mai chưa chứng minh được quyết định của bạn.",
           "source": {
             "kind": "authoritative-source",
             "label": "GOV.UK — Learning about users and their needs",
             "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
             "basis": "Thiết kế bắt đầu bằng việc hiểu ai có khả năng sử dụng sản phẩm, họ đang cố làm gì và kết quả họ cần đạt."
-          }
-        },
-        {
-          "id": "mastery-scope-boundary",
-          "sceneId": "module-2-mastery-owned-scope",
-          "type": "short-answer",
-          "prompt": "Chọn một mục ngoài phạm vi trong `planning/PRD.md` của bạn. Giải thích vì sao nó chưa thuộc phiên bản đầu và cách bạn kiểm tra nó không quay lại implementation plan.",
-          "criteria": [
-            "Dẫn chiếu một ranh giới thật trong PRD hiện tại của Learner.",
-            "Giải thích hệ quả đối với mục tiêu hoặc độ tập trung của phiên bản đầu.",
-            "Đối chiếu implementation plan hiện tại và nêu hành động sửa nếu phát hiện mục đó quay lại; không dùng ranh giới của ví dụ Mai."
-          ],
-          "explanation": "Learner phải bảo vệ một quyết định phạm vi của chính mình và kiểm tra tính nhất quán giữa PRD với plan; câu trả lời chỉ nhắc lại định nghĩa ngoài phạm vi chưa đủ.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Task Design Review",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
-            "basis": "Task design tách rõ mục tiêu trong phạm vi với non-goals/out-of-scope trước khi mô tả phương án."
-          }
-        },
-        {
-          "id": "mastery-evidence-gap",
-          "sceneId": "module-2-mastery-owned-evidence",
-          "type": "short-answer",
-          "prompt": "Chọn một khoảng trống thật trong `planning/content-evidence-inventory.md` của bạn. Nêu trạng thái hiện tại, rủi ro nếu trình bày quá chắc chắn và việc bạn sẽ làm tiếp theo.",
-          "criteria": [
-            "Dẫn chiếu một hàng hoặc khoảng trống thật trong inventory hiện tại của Learner.",
-            "Dùng đúng trạng thái bằng chứng và tách nó khỏi quyền công bố.",
-            "Nêu một việc tiếp theo cụ thể; không dùng khoảng trống trong ví dụ Mai."
-          ],
-          "explanation": "Câu trả lời đạt cho thấy Learner có thể giữ sự trung thực khi bằng chứng chưa đủ và chủ động chọn hành động tiếp theo cho nội dung của chính mình.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "GOV.UK — Learning about users and their needs",
-            "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
-            "basis": "Ý kiến hoặc đề xuất chưa xuất phát từ bằng chứng phải được coi là giả định cần kiểm chứng, không phải sự thật đã xác nhận."
-          }
-        },
-        {
-          "id": "mastery-requirement-validation",
-          "sceneId": "module-2-mastery-owned-validation",
-          "type": "short-answer",
-          "prompt": "Chọn một requirement thật trong `planning/requirement-validation-map.md` của bạn. Nêu tiêu chí chấp nhận, cách kiểm tra và bằng chứng sẽ lưu để chứng minh requirement đó đạt.",
-          "criteria": [
-            "Dẫn chiếu một requirement ID thật trong map hiện tại của Learner.",
-            "Nối đúng requirement với tiêu chí chấp nhận và một cách kiểm tra phù hợp.",
-            "Nêu bằng chứng có thể quan sát hoặc lưu lại; không dùng `REQ-03` của ví dụ Mai."
-          ],
-          "explanation": "Learner phải chứng minh khả năng truy vết trên planning package của mình. Lặp lại chuỗi REQ-03 trong ví dụ không cho thấy artifact hiện tại đã sẵn sàng.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Test planning",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/automated-testing/test-planning/",
-            "basis": "Test planning xuất phát từ acceptance criteria và nối yêu cầu với phép kiểm tra để phát hiện thiếu sót trước implementation."
           }
         }
       ]

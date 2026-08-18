@@ -2,14 +2,14 @@
   "schemaVersion": "1.1.0",
   "moduleId": "module-1",
   "title": "Bài ôn tập cuối Module 1 — Làm việc với Codex",
-  "passingScore": 3,
+  "passingScore": 5,
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
     "feedbackTiming": "Chỉ hiện phản hồi, lời giải và nguồn sau khi Learner đã trả lời câu hiện tại.",
     "sourcePolicy": "Mỗi lời giải phải dùng nguồn được ghi trong câu hỏi.",
     "shortAnswerPolicy": "Learner phải giải thích bằng lời riêng; không chấp nhận chỉ sao chép câu trong bài học.",
-    "retryPolicy": "Learner cần đạt ít nhất 3/4 câu. Nếu chưa đạt, cho làm lại bài ôn tập trước khi hoàn thành Module 1."
+    "retryPolicy": "Learner cần đạt ít nhất 5/6 câu. Nếu chưa đạt, cho làm lại bài ôn tập trước khi hoàn thành Module 1."
   },
   "questions": [
     {
@@ -88,6 +88,46 @@
         "label": "OpenAI Docs — Models",
         "url": "https://learn.chatgpt.com/docs/models",
         "basis": "Tài liệu khuyên dùng Sol cho công việc phức tạp, mở và cần thêm phân tích hoặc phán đoán; dùng Luna cho công việc cụ thể, lặp lại, khối lượng lớn khi đã biết kết quả tốt trông như thế nào."
+      }
+    },
+    {
+      "id": "m1-q5-agents",
+      "type": "multiple-choice",
+      "bloomLevel": 3,
+      "bloomLabel": "Vận dụng",
+      "prompt": "Bạn muốn Codex luôn chạy kiểm tra sau khi sửa tệp JavaScript trong riêng dự án portfolio này, kể cả khi bắt đầu một task mới. Bạn nên lưu quy tắc đó ở đâu?",
+      "choices": [
+        "Trong tệp AGENTS.md của dự án portfolio.",
+        "Trong một tin nhắn của task hiện tại rồi đóng task.",
+        "Trong phần chọn model để mọi model tự ghi nhớ quy tắc.",
+        "Trong chế độ Full access để Codex tự quyết định cách kiểm tra."
+      ],
+      "answerIndex": 0,
+      "explanation": "AGENTS.md của dự án là nơi phù hợp cho quy tắc cần được Codex đọc lại khi làm việc trong dự án đó. Một tin nhắn chỉ thuộc task hiện tại, còn model và Full access không lưu quy tắc dự án.",
+      "source": {
+        "label": "OpenAI Docs — AGENTS.md",
+        "url": "https://learn.chatgpt.com/docs/agent-configuration/agents-md",
+        "basis": "Tài liệu giải thích Codex đọc AGENTS.md trước khi làm việc và dùng tệp ở cấp dự án để giữ các quy ước riêng của repository."
+      }
+    },
+    {
+      "id": "m1-q6-skills",
+      "type": "multiple-choice",
+      "bloomLevel": 3,
+      "bloomLabel": "Vận dụng",
+      "prompt": "Bạn có một quy trình chuyên biệt để viết nội dung portfolio. Quy trình gồm hướng dẫn, tài liệu tham khảo và một số bước kiểm tra, đồng thời sẽ được dùng lại khi task phù hợp. Cách đóng gói nào phù hợp nhất?",
+      "choices": [
+        "Tạo một Skill với tệp SKILL.md và thêm tài nguyên hỗ trợ khi cần.",
+        "Đưa toàn bộ quy trình vào AGENTS.md để Codex luôn tải mọi chi tiết.",
+        "Dán lại toàn bộ quy trình vào từng task và không lưu thành tài nguyên dùng lại.",
+        "Bật Fast để Codex tự tạo lại cùng một quy trình cho mỗi task."
+      ],
+      "answerIndex": 0,
+      "explanation": "Skill phù hợp với một quy trình chuyên biệt cần tái sử dụng. SKILL.md chứa hướng dẫn chính, còn tài liệu tham khảo hoặc script có thể được thêm vào thư mục Skill khi thật sự cần.",
+      "source": {
+        "label": "OpenAI Docs — Build skills",
+        "url": "https://learn.chatgpt.com/docs/build-skills",
+        "basis": "Tài liệu mô tả Skill là định dạng cho quy trình có thể tái sử dụng, gồm SKILL.md cùng tài liệu tham khảo hoặc script tùy chọn."
       }
     }
   ]

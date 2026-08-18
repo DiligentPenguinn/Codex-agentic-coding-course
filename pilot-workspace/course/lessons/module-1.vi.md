@@ -108,6 +108,68 @@ Chẳng hạn, bạn có thể chọn một skill hoặc một đoạn chat liê
 [OpenAI Docs — Slash commands](https://learn.chatgpt.com/docs/reference/slash-commands)
 giải thích cách mở danh sách lệnh và chức năng của `/status` cùng `/goal`.
 
+## Làm sao để agent ghi nhớ một thông tin?
+
+Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi
+nhắc lại thì mình sẽ làm gì?
+
+Bạn có thể lưu thông tin đó trong `AGENTS.md`. Đây là một tệp văn bản chứa các
+quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex
+đọc tệp này để hiểu cách bạn muốn dự án được xử lý.
+
+### Hai level `AGENTS.md` bạn cần biết
+
+- Global `AGENTS.md` nằm trong thư mục cấu hình Codex trên máy tính. Những quy
+  tắc trong tệp này được áp dụng cho mọi repo bạn mở bằng Codex. Triết dùng
+  level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt
+  và không đưa thay đổi lên mạng khi chưa được yêu cầu.
+- Current repo `AGENTS.md` nằm trong repo bạn đang mở. Những quy tắc trong tệp
+  này chỉ áp dụng cho repo đó. Repo khóa học của Triết yêu cầu Codex giữ nguyên
+  những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học
+  bằng tiếng Việt tự nhiên.
+
+Codex đọc cả hai level. Global `AGENTS.md` đặt ra những nguyên tắc chung. Current
+repo `AGENTS.md` bổ sung những quy tắc cụ thể hơn cho dự án đang mở.
+
+[OpenAI Docs — AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
+giải thích cách Codex tìm và kết hợp các tệp hướng dẫn.
+
+## Skill là gì?
+
+Thông thường ta dùng `AGENTS.md` để dạy cho model làm theo những hành động ta
+muốn mà ta không cần phải nhắc đi nhắc lại.
+
+Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ
+ta viết hết tất cả những mẹo viết hay vào `AGENTS.md`? Và giả dụ ta có 100 kỹ
+năng muốn agents học thì sao?
+
+Ta không thể dùng một file `AGENTS.md` để dạy coding agents tất cả kỹ năng mà ta
+muốn nó học. Đó là lúc ta sử dụng Skill.
+
+Mỗi skill có một tệp chính tên là `SKILL.md`. Tệp này mô tả khi nào nên dùng
+skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.
+
+## Hai skill bạn sẽ dùng để xây portfolio
+
+- `frontend-design` dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill
+  giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện
+  responsive và kiểm tra kết quả thực tế.
+- `copywriting` dùng khi viết nội dung cho portfolio. Skill giúp Codex viết tiêu
+  đề, phần giới thiệu, mô tả dự án và lời kêu gọi hành động dựa trên thông tin
+  thật của bạn.
+
+Phần ví dụ trong ứng dụng học được viết bằng tiếng Anh. Theo kinh nghiệm của
+mình, agent thường xử lý chỉ dẫn kỹ thuật bằng tiếng Anh ổn định hơn. Vì vậy,
+trong khóa học này, phần hướng dẫn dành cho agent sẽ ưu tiên tiếng Anh. Bạn vẫn
+có thể trao đổi với Codex bằng tiếng Việt.
+
+Bạn có thể vào [skills.sh](https://skills.sh/) để khám phá thêm các skill do
+cộng đồng chia sẻ. Bạn chưa cần cài thêm skill trong Module 1. Khóa học sẽ giới
+thiệu skill phù hợp khi bạn cần dùng đến nó.
+
+[OpenAI Docs — Skills](https://learn.chatgpt.com/docs/build-skills) giải thích
+cấu trúc và cách Codex dùng skill.
+
 ## Cấu hình mình đề xuất cho ContentPilot
 
 Mình chọn cấu hình này cho dự án thực hành ContentPilot. Đây không phải thiết
@@ -147,11 +209,11 @@ Nếu chưa đạt, mình sẽ chỉ rõ mục cần sửa để bạn nộp l�
 
 ## Bài ôn tập cuối Module 1
 
-Sau khi Practice được duyệt, bạn sẽ trả lời bốn câu ôn tập. Các câu hỏi yêu cầu
+Sau khi Practice được duyệt, bạn sẽ trả lời sáu câu ôn tập. Các câu hỏi yêu cầu
 bạn giải thích, áp dụng hoặc phân tích kiến thức trong một tình huống cụ thể.
 Mỗi lượt chỉ hiện một câu. Lời giải và nguồn sẽ xuất hiện sau khi bạn trả lời.
 
-Bạn cần đạt ít nhất 3/4 câu để hoàn thành Module 1. Nếu chưa đạt, bạn có thể làm
+Bạn cần đạt ít nhất 5/6 câu để hoàn thành Module 1. Nếu chưa đạt, bạn có thể làm
 lại bài ôn tập sau khi xem phản hồi.
 
 ## Tiêu chí hoàn thành
@@ -164,7 +226,7 @@ Bạn hoàn thành Module 1 khi:
 - dùng cấu hình Sol, High và Standard cho ContentPilot,
 - nộp đủ hai ảnh trong đúng task Codex, và
 - được mình duyệt bằng chứng, và
-- đạt ít nhất 3/4 câu trong bài ôn tập cuối Module 1.
+- đạt ít nhất 5/6 câu trong bài ôn tập cuối Module 1.
 
 ## Nguồn và lựa chọn mình đưa ra
 

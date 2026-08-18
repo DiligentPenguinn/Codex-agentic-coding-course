@@ -74,7 +74,7 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
-  it('moves retired Harness progress to the configuration lesson', async () => {
+  it('moves retired Harness progress to setup Practice', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save(moduleOneStart)
@@ -103,9 +103,9 @@ describe('ProgressRepository', () => {
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
       progress: {
-        currentCourseLessonId: 'm1-skills-and-checklist',
-        checkpointId: 'm1-model-choice',
-        sceneId: 'module-1-model-choice',
+        currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-setup-checklist',
+        sceneId: 'module-1-setup-checklist',
         sceneHistory: ['intro-visual-onboarding'],
         completedCheckpointIds: ['intro-visual-onboarding']
       }
@@ -115,7 +115,78 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('m1-agents-guidance')
   })
 
-  it('moves progress paused on the retired fifth Module 1 question to the summary', async () => {
+  it('moves progress from the removed configuration page to setup Practice', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    const retiredProgress = {
+      ...started,
+      currentCourseLessonId: 'm1-skills-and-checklist',
+      checkpointId: 'm1-model-choice',
+      sceneId: 'module-1-model-choice',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-1-skills-intro',
+        'module-1-model-use-cases'
+      ],
+      completedCheckpointIds: [
+        ...started.completedCheckpointIds,
+        'm1-agents-and-skills',
+        'm1-model-choice'
+      ],
+      decisions: {
+        modelChoice: 'sol-high-standard'
+      }
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-setup-checklist',
+        sceneId: 'module-1-setup-checklist',
+        sceneHistory: ['intro-visual-onboarding', 'module-1-skills-intro'],
+        completedCheckpointIds: ['intro-visual-onboarding', 'm1-agents-and-skills'],
+        decisions: {}
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-1-model')
+    expect(JSON.stringify(migrated)).not.toContain('m1-model-choice')
+    expect(migrated.decisions).not.toHaveProperty('modelChoice')
+  })
+
+  it('moves retired AGENTS.md progress to the restored guidance lesson', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify({
+        ...started,
+        currentCourseLessonId: 'm1-agents-guidance',
+        checkpointId: 'm1-agents-guidance',
+        sceneId: 'module-1-agents-guidance'
+      }, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-agents-and-skills',
+        checkpointId: 'm1-agents-and-skills',
+        sceneId: 'module-1-agents-intro'
+      }
+    })
+  })
+
+  it('keeps progress paused on the reactivated fifth Module 1 question', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save(moduleOneStart)
@@ -148,10 +219,164 @@ describe('ProgressRepository', () => {
       progress: {
         currentCourseLessonId: 'm1-assessment',
         checkpointId: 'm1-mastery',
-        sceneId: 'module-1-final-summary',
-        sceneHistory: ['intro-visual-onboarding', 'module-1-final-4']
+        sceneId: 'module-1-final-5',
+        sceneHistory: ['intro-visual-onboarding', 'module-1-final-4', 'module-1-final-5']
       }
     })
+  })
+
+  it('redirects saved progress from the retired PRD anatomy page to PRD review', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-prd-definition',
+      sceneHistory: ['module-2-portfolio-workspace'],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+    const anatomyProgress = {
+      ...started,
+      sceneId: 'module-2-prd-anatomy',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-prd-definition'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(anatomyProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm2-portfolio-brief',
+        checkpointId: 'm2-portfolio-brief',
+        sceneId: 'module-2-prd-review-workflow',
+        sceneHistory: [
+          'module-2-portfolio-workspace',
+          'module-2-prd-definition'
+        ]
+      }
+    })
+  })
+
+  it('redirects saved progress from the retired one-task page to the five-stage map', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-prd-review-workflow',
+      sceneHistory: [
+        'module-2-portfolio-workspace',
+        'module-2-prd-definition'
+      ],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+    const retiredProgress = {
+      ...started,
+      sceneId: 'module-2-prd-introduction',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-prd-review-workflow',
+        'module-2-prd-introduction'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm2-portfolio-brief',
+        checkpointId: 'm2-portfolio-brief',
+        sceneId: 'module-2-prd-agent-workflow',
+        sceneHistory: [
+          'module-2-portfolio-workspace',
+          'module-2-prd-definition',
+          'module-2-prd-review-workflow'
+        ]
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-2-prd-introduction')
+  })
+
+  it('removes saved progress for retired Module 2 mastery questions', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-implementation-contract',
+      checkpointId: 'm2-portfolio-mastery',
+      sceneId: 'module-2-portfolio-mastery',
+      sceneHistory: ['module-2-portfolio-practice'],
+      completedCheckpointIds: ['m2-portfolio-planning'],
+      decisions: {}
+    })
+    const retiredProgress = {
+      ...started,
+      sceneId: 'module-2-mastery-scenario-reference',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-portfolio-mastery',
+        'module-2-mastery-scenario-viewer',
+        'module-2-mastery-scenario-evidence',
+        'module-2-mastery-scenario-reference',
+        'module-2-mastery-owned-scope',
+        'module-2-mastery-owned-evidence',
+        'module-2-mastery-owned-validation'
+      ],
+      decisions: {
+        'assessment:mastery-1': 'correct:1',
+        'assessment:mastery-2': 'correct:1',
+        'assessment:mastery-3': 'correct:1',
+        'assessment:mastery-scope-boundary': 'correct:self-review:Phạm vi đã đối chiếu.',
+        'assessment:mastery-evidence-gap': 'correct:self-review:Khoảng trống đã đối chiếu.',
+        'assessment:mastery-requirement-validation': 'correct:self-review:Yêu cầu đã đối chiếu.'
+      }
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        sceneId: 'module-2-mastery-scenario-viewer',
+        sceneHistory: [
+          'module-2-portfolio-practice',
+          'module-2-portfolio-mastery',
+          'module-2-mastery-scenario-viewer'
+        ],
+        decisions: {
+          'assessment:mastery-1': 'correct:1'
+        }
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('mastery-2')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-3')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-scope-boundary')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-evidence-gap')
+    expect(JSON.stringify(migrated)).not.toContain('mastery-requirement-validation')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-scenario-evidence')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-scenario-reference')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-scope')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-evidence')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-owned-validation')
   })
 
   it('resumes an exact page inside the opening introduction', async () => {

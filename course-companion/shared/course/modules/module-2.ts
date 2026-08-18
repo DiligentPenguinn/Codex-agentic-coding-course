@@ -1,13 +1,20 @@
+export const moduleTwoOutlineSections = [
+  'Lập kế hoạch trước khi xây',
+  'PRD là gì và dùng để làm gì?',
+  'Dùng coding agent để tạo, review và duyệt PRD',
+  'Thực hành: Lập kế hoạch cho portfolio'
+] as const
+
 export const moduleTwoDefinition = {
   id: 'module-2',
   order: 2,
-  titleVi: 'Xác định, giới hạn và lập kế hoạch portfolio',
+  titleVi: 'Planning và PRD trước khi code với AI',
   lessons: [
-    { id: 'm2-portfolio-brief', titleVi: 'Tạo bản mô tả ngắn cho portfolio' },
-    { id: 'm2-content-evidence-inventory', titleVi: 'Kiểm kê nội dung và bằng chứng' },
-    { id: 'm2-visual-reference', titleVi: 'Chọn một tham chiếu hình ảnh' },
-    { id: 'm2-portfolio-prd', titleVi: 'Tạo và duyệt PRD cho portfolio' },
-    { id: 'm2-implementation-contract', titleVi: 'Tạo hợp đồng xây dựng và kiểm chứng' }
+    { id: 'm2-portfolio-brief', titleVi: 'Mục đích của portfolio này là gì?' },
+    { id: 'm2-content-evidence-inventory', titleVi: 'Hiện tại bạn đang có những gì?' },
+    { id: 'm2-visual-reference', titleVi: 'Bạn muốn portfolio của mình trông như thế nào?' },
+    { id: 'm2-portfolio-prd', titleVi: 'Hoàn thành PRD' },
+    { id: 'm2-implementation-contract', titleVi: 'Tạo kế hoạch triển khai' }
   ],
   checkpoints: [
     { id: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },
@@ -20,7 +27,13 @@ export const moduleTwoDefinition = {
     { id: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],
   scenes: [
-    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
+    { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-definition' },
+    { id: 'module-2-prd-definition', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-review-workflow' },
+    { id: 'module-2-prd-review-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-agent-workflow' },
+    { id: 'module-2-prd-agent-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-practice-intro' },
+    { id: 'module-2-portfolio-practice-intro', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
+    { id: 'module-2-portfolio-folder', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-agents-setup' },
+    { id: 'module-2-portfolio-agents-setup', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },
     { id: 'module-2-portfolio-brief', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief-example' },
     { id: 'module-2-portfolio-brief-example', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-check-brief-viewer' },
     { id: 'module-2-check-brief-viewer', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief' },
@@ -44,15 +57,10 @@ export const moduleTwoDefinition = {
     { id: 'module-2-portfolio-practice', checkpointId: 'm2-portfolio-planning', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-portfolio-mastery' },
     { id: 'module-2-portfolio-mastery', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-mastery-scenario-viewer' },
     { id: 'module-2-mastery-scenario-viewer', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-scenario-evidence', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-scenario-reference', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-prd', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-validation', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-first-task', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-owned-audience', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-owned-scope', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-owned-evidence', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-owned-validation', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-portfolio-mastery-summary', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-portfolio-complete', checkpointId: 'm2-portfolio-complete', courseLessonId: 'm2-implementation-contract' }
   ],

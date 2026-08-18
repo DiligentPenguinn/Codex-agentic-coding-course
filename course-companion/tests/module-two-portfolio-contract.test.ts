@@ -35,7 +35,7 @@ describe('Module 2 portfolio contract', () => {
   it('declares five ordered milestones and a combined evidence/mastery unlock gate', async () => {
     const moduleTwo = await manifest()
 
-    expect(moduleTwo.titleVi).toBe('Xác định, giới hạn và lập kế hoạch portfolio')
+    expect(moduleTwo.titleVi).toBe('Planning và PRD trước khi code với AI')
     expect(moduleTwo.estimatedMinutes).toBeUndefined()
     expect(moduleTwo.lessons.map((lesson) => lesson.id)).toEqual([
       'm2-portfolio-brief',

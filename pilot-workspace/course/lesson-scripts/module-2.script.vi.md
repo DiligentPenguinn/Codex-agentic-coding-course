@@ -1,4 +1,70 @@
-# Kịch bản Teacher — Module 2: Xác định, giới hạn và lập kế hoạch portfolio
+# Kịch bản Teacher — Module 2: Planning và PRD trước khi code với AI
+
+## Phần 1 — Tại sao cần planning trước khi code với AI?
+
+Teacher mở đầu bằng nguyên văn lời dẫn của tác giả:
+
+> Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.
+
+Teacher chuyển tiếp bằng câu hỏi:
+
+> “Vậy, như thế nào là một kế hoạch tốt?”
+
+Teacher giải thích rằng yêu cầu nhỏ, rõ ràng và dễ làm lại có thể được giao trực
+tiếp. Sản phẩm mới hoặc công việc có nhiều quyết định phụ thuộc nhau nên được
+planning trước.
+
+## Phần 2 — PRD là gì và dùng để làm gì?
+
+Teacher nói:
+
+> “PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản
+> phẩm. PRD giúp bạn và coding agent thống nhất sản phẩm cần giải quyết vấn đề
+> gì, dành cho ai và kết quả nào phải đạt được trước khi chọn cách xây.”
+
+Teacher dùng ví dụ trung tính: “Hãy tạo một ứng dụng giúp tôi theo dõi thói quen
+hằng ngày.” Teacher chỉ ra rằng đây mới là ý tưởng vì chưa có người dùng chính,
+luồng sử dụng, phạm vi phiên bản đầu hoặc dấu hiệu hoàn thành. Không nhắc đến
+portfolio trong phần giải thích khái niệm này.
+
+## Phần 3 — Dùng coding agent để tạo, review và duyệt PRD
+
+Teacher hướng dẫn quy trình bốn bước:
+
+1. Learner cung cấp ý tưởng và bối cảnh đã biết.
+2. Coding agent hỏi từng câu để làm rõ phần còn thiếu.
+3. Coding agent soạn bản nháp rồi rà soát điểm mơ hồ, mâu thuẫn, tiêu chí chưa
+   thể kiểm tra và nội dung tự ý mở rộng.
+4. Learner sửa hoặc duyệt PRD trước khi agent tạo implementation plan.
+
+Teacher phải nói rõ rằng coding agent hỗ trợ phân tích và soạn thảo, còn Learner
+giữ quyền quyết định mục tiêu, người dùng, phạm vi và tiêu chí chấp nhận.
+
+## Phần 4 — Thực hành: Lập kế hoạch cho portfolio
+
+Teacher chuyển sang dự án thực hành bằng nguyên văn câu của tác giả:
+
+> Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio.
+
+Teacher giải thích portfolio là nơi áp dụng quy trình vừa học. Planning và PRD
+là kỹ năng dùng được cho các sản phẩm khác, không phải kiến thức chỉ dành cho
+portfolio. Sau đó, Teacher cho Learner chọn thư mục portfolio rồi mới bắt đầu
+năm milestone.
+
+Ngay sau khi Learner chọn thư mục, Teacher hướng dẫn tạo Current repo
+`AGENTS.md` tại thư mục gốc. Teacher dùng nguyên văn yêu cầu và mẫu tiếng Anh
+trong `course/lessons/module-2.vi.md`.
+
+Teacher nói:
+
+> “Hãy giữ ứng dụng này mở, đừng tắt. Tiếp theo, mở ứng dụng Codex và nhờ Codex
+> tạo tệp `AGENTS.md` bằng toàn bộ nội dung bên dưới. Khi Codex xác nhận đã tạo
+> xong, hãy quay lại ứng dụng này để tiếp tục bài học.”
+
+Teacher hỏi: “Bạn đã tạo `AGENTS.md` trong thư mục portfolio chưa?” Learner chọn
+`Chưa, tôi sẽ tạo trước` hoặc `Tôi đã tạo AGENTS.md`. Đây chỉ là lời tự xác nhận.
+Teacher và Course Companion không đọc, chấm, yêu cầu ảnh chụp hoặc tạo thêm bước
+kiểm tra cho tệp này.
 
 ## Hợp đồng điều phối
 
@@ -6,7 +72,8 @@ Teacher mở module bằng cách xác nhận:
 
 > “Kết thúc module này, bạn sẽ có một gói planning đủ rõ để Codex bắt đầu xây
 > portfolio ở Module 3. Hôm nay chúng ta chỉ lập kế hoạch trong thư mục
-> `planning/`; chưa chọn công nghệ, chưa cài đặt và chưa tạo ứng dụng.”
+> `planning/`; ngoài Current repo `AGENTS.md` bạn vừa xác nhận, chúng ta chưa
+> chọn công nghệ, chưa cài đặt và chưa tạo ứng dụng.”
 
 Teacher phải tuân theo các quy tắc sau trong toàn bộ module:
 
