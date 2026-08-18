@@ -113,18 +113,35 @@ function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean 
 
 function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Record<string, unknown> {
   if (!hasRetiredModuleOneReferences(raw)) return raw
+  const retiredSceneDestination = raw.sceneId === 'module-1-agents-guidance'
+    ? 'module-1-agents-intro'
+    : raw.sceneId === 'module-1-skills'
+      ? 'module-1-skills-intro'
+      : typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
+        ? 'module-1-model-choice'
+        : undefined
+  const routesToGuidanceLesson = retiredSceneDestination === 'module-1-agents-intro'
+    || retiredSceneDestination === 'module-1-skills-intro'
   return {
     ...raw,
     sceneId: typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_ASSESSMENT_SCENES.has(raw.sceneId)
       ? 'module-1-final-summary'
-      : typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
-        ? 'module-1-model-choice'
+      : retiredSceneDestination
+        ? retiredSceneDestination
         : raw.sceneId,
-    checkpointId: typeof raw.checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(raw.checkpointId)
-      ? 'm1-model-choice'
+    checkpointId: retiredSceneDestination
+      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-model-choice'
+      : raw.checkpointId === 'm1-agents-guidance' || raw.checkpointId === 'm1-skills'
+        ? 'm1-agents-and-skills'
+        : raw.checkpointId === 'm1-permissions'
+          ? 'm1-model-choice'
       : raw.checkpointId,
-    currentCourseLessonId: typeof raw.currentCourseLessonId === 'string' && RETIRED_MODULE_ONE_LESSONS.has(raw.currentCourseLessonId)
-      ? 'm1-skills-and-checklist'
+    currentCourseLessonId: retiredSceneDestination
+      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-skills-and-checklist'
+      : raw.currentCourseLessonId === 'm1-agents-guidance'
+        ? 'm1-agents-and-skills'
+        : raw.currentCourseLessonId === 'm1-workspace-permissions'
+          ? 'm1-skills-and-checklist'
       : raw.currentCourseLessonId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || (

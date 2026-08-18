@@ -85,6 +85,7 @@ describe('Course module assessment banks', () => {
     expect(moduleOne?.kind).toBe('module')
     expect(moduleOne?.lessons.map((lesson) => lesson.titleVi)).toEqual([
       'Codex và coding agent',
+      'AGENTS.md và Skills',
       'Áp dụng cấu hình Codex',
       'Thực hành và ôn tập cuối Module 1'
     ])
@@ -95,13 +96,13 @@ describe('Course module assessment banks', () => {
       'Tạo và duyệt PRD cho portfolio',
       'Tạo hợp đồng xây dựng và kiểm chứng'
     ])
-    expect(moduleOne?.lessons.reduce((total, lesson) => total + (lesson.estimatedMinutes ?? 0), 0)).toBe(38)
+    expect(moduleOne?.lessons.reduce((total, lesson) => total + (lesson.estimatedMinutes ?? 0), 0)).toBe(46)
     expect(moduleTwo?.lessons.every((lesson) => lesson.estimatedMinutes === undefined)).toBe(true)
     expect(moduleOne?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleOne?.checkpoints)
     expect(moduleTwo?.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo?.checkpoints)
   })
 
-  it('provides one sourced illustration for every runnable module lesson', async () => {
+  it('provides sourced illustrations for image-led Module 1 lessons', async () => {
     const course = await loadCourseStructure()
     const lessonIds = course.modules
       .filter((module) => module.id === 'module-1')
@@ -119,7 +120,11 @@ describe('Course module assessment banks', () => {
       .sort()
     const sources = await readFile(join(visualDirectory, 'SOURCES.md'), 'utf8')
 
-    expect(visualFiles).toEqual(lessonIds.map((lessonId) => `${lessonId}.webp`).sort())
+    const codeNativeLessonIds = new Set(['m1-agents-and-skills'])
+    expect(visualFiles).toEqual(lessonIds
+      .filter((lessonId) => !codeNativeLessonIds.has(lessonId))
+      .map((lessonId) => `${lessonId}.webp`)
+      .sort())
     for (const visualFile of visualFiles) expect(sources).toContain(`\`${visualFile}\``)
   })
 

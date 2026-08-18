@@ -115,6 +115,31 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('m1-agents-guidance')
   })
 
+  it('moves retired AGENTS.md progress to the restored guidance lesson', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify({
+        ...started,
+        currentCourseLessonId: 'm1-agents-guidance',
+        checkpointId: 'm1-agents-guidance',
+        sceneId: 'module-1-agents-guidance'
+      }, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-agents-and-skills',
+        checkpointId: 'm1-agents-and-skills',
+        sceneId: 'module-1-agents-intro'
+      }
+    })
+  })
+
   it('moves progress paused on the retired fifth Module 1 question to the summary', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)

@@ -1,6 +1,7 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation and Module 3 are implemented. Module 2's four-page
+- **Status:** Foundation and Module 3 are implemented. Module 1 now includes
+  the approved `AGENTS.md` and Skills introduction. Module 2's four-page
   Course Companion explanation slice, learner-facing stage names, agent-independent
   assessment revisions, and detailed Teacher/Executor integration handoff are
   implemented and verified for content review. The previous seven-artifact
@@ -34,8 +35,8 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — the four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, two-source reference gallery, copyable Practice prompt, four-item outline, simplified mastery introduction, five lesson-aligned mastery questions, question-only group-level Course Companion assessment submission without standalone Teacher/title guidance above the questions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy and one-task explanation pages are retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the five-question mastery review and group-level Course Companion assessment flow on 18 August 2026: 291 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke through a deliberately incorrect answer, correction, resubmission, and the 5/5 summary, desktop and `390 × 844` screenshot inspection, explicit intro-removal, top/question-gap, and back-control no-overlap assertions, and `git diff --check`; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, exact page and mastery-question deletions, reference-gallery revision, copyable Practice prompt, outline-item removal, mastery-introduction simplification, lesson-aligned mastery rewrite, group-level Course Companion submission, and removal of standalone assessment chrome were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
+| Foundation | `implemented` | `passed` — 292 unit tests, nine startup tests, typecheck, lint, production build, strict-palette and terminology audits, responsive checks, and full Electron smoke after the approved Module 1 `AGENTS.md` and Skills lesson on 18 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, and the `AGENTS.md` and Skills introduction were explicitly approved | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
+| Module 2 | `in-progress` — the post-workspace Current repo `AGENTS.md` setup and self-confirmation page, four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, two-source reference gallery, copyable Practice prompt, four-item outline, simplified mastery introduction, five lesson-aligned mastery questions, question-only group-level Course Companion assessment submission without standalone Teacher/title guidance above the questions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy and one-task explanation pages are retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the current content-review scope on 18 August 2026: 292 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke through the Module 1 guidance pages and Module 2 `AGENTS.md` clipboard/self-confirmation flow, responsive no-overflow assertions without generating screenshots, and `git diff --check`; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, Current repo `AGENTS.md` self-confirmation flow, restoration of the original opening copy, PRD-first explanation order, exact page and mastery-question deletions, reference-gallery revision, copyable Practice prompt, outline-item removal, mastery-introduction simplification, lesson-aligned mastery rewrite, group-level Course Companion submission, and removal of standalone assessment chrome were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -163,6 +164,19 @@ there first and remain synchronized with Course Companion.
   scoped approval does not mark overall Foundation owner approval or pilot
   acceptance complete; every other introduction and Module 1 surface remains
   frozen.
+- On 18 August 2026, the owner explicitly reopened Module 1 to add one
+  two-page `AGENTS.md` and Skills lesson. The first page introduces only the
+  Global and Current repo levels, shows Triết's current setup, and postpones
+  learner file creation until a portfolio workspace exists. The second page
+  introduces `frontend-design`, `copywriting`, and `skills.sh`; its single
+  code-native example panel contains an English excerpt from `SKILL.md` and no
+  screenshot. The lesson now has four lessons and an estimated 46 minutes.
+  Module 2 asks the learner to create the Current repo file only after choosing
+  the portfolio folder, then records the learner's confirmation without reading
+  or grading the file. The owner approved the exact learner-facing content and
+  the use of “ứng dụng này” instead of the internal product name. The current
+  full verification suite passed. This scoped approval does not mark overall
+  Foundation or Module 2 owner acceptance, or pilot acceptance, complete.
 - A separate narrow Module 1 exception is approved: forward-looking transition
   copy may stop saying that Module 2 plans ContentPilot and may point to the new
   portfolio Module 2. No other Module 1 wording may change beyond the recorded
@@ -950,8 +964,9 @@ artifact evidence.
 **Change**
 
 1. Build the Module 2 definition and scenes in its module package.
-2. Replace the current outline and milestone lesson scenes with four
-   focused explanation scenes followed by the single real Practice entry.
+2. After workspace selection, require a learner-confirmed Current repo
+   `AGENTS.md`, then present four focused explanation scenes followed by the
+   single real Practice entry.
 3. Update progress display, Practice launch/resume/revision recovery, quiz, and
    mastery surfaces through the shared registry contract without exposing
    templates or technical approval metadata to the learner.
@@ -969,6 +984,8 @@ artifact evidence.
 
 - Desktop and narrow Course Companion layouts.
 - Keyboard and focus behavior.
+- The `AGENTS.md` prompt is copyable, does not overlap the confirmation
+  controls, and requires only learner self-confirmation.
 - Exactly four explanation pages precede the real Practice.
 - The PRD definition routes through coding-agent review directly to the
   five-stage map, and the retired PRD-anatomy and one-task pages are unreachable.
@@ -1161,6 +1178,19 @@ readable. Verification passed with 291 unit tests, nine startup tests,
 typecheck, lint, production build, full Electron smoke through the 5/5 summary,
 and `git diff --check`. Overall owner acceptance and pilot acceptance remain
 pending.
+
+**Portfolio `AGENTS.md` setup note — 18 August 2026:** At the owner's explicit
+request, workspace selection now leads to a dedicated setup page before the
+four explanation pages. It presents the complete approved English portfolio
+working-agreement template, tells the learner to keep the learning application
+open while Codex creates the file, and advances only after the learner confirms
+completion. Course Companion does not inspect or grade the file. The desktop
+layout separates the guidance and scrollable prompt into two non-overlapping
+columns; the narrow layout stacks them without horizontal overflow. Verification
+passed with 292 unit tests, nine startup tests, typecheck, lint, production
+build, full Electron smoke with clipboard verification, responsive DOM checks
+without screenshots, and `git diff --check`. Overall Module 2 owner acceptance
+and pilot acceptance remain pending.
 
 ### M2.6 — Complete the Module 2 gate and handoff
 
@@ -1815,10 +1845,10 @@ This course migration is complete only when:
    authority in the repository.
 2. The occupation-neutral target learner is reflected consistently in internal
    guidance and Modules 2–4.
-3. Introduction and Module 1 remain unchanged except for the approved Module 2
-   transition copy and the approved removal of the Harness Engineering lesson
-   with its synchronized references, checkpoints, assessment topic and progress
-   migration.
+3. Introduction remains unchanged. Module 1 differs only through the approved
+   Module 2 transition copy, Harness Engineering removal, and the new
+   `AGENTS.md` and Skills lesson, with synchronized references, checkpoints,
+   assessment boundaries, and progress migration.
 4. State from the `0.2.0` test course starts fresh without a migration notice,
    and old ContentPilot evidence cannot pass a portfolio gate.
 5. Modules 2, 3, and 4 each pass their own acceptance gate before the next is

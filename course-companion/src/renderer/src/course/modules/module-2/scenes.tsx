@@ -23,6 +23,43 @@ const groupRoute: Record<string, {
 }
 
 const quizGroups = planningQuiz.groups as QuizGroup[]
+
+const portfolioAgentsPrompt = `Create an AGENTS.md file at the root of the current workspace.
+
+Use the content below exactly as written. Do not change any other files.
+
+After creating it, tell me the file path.
+
+# Portfolio Project Working Agreements
+
+## Decisions and communication
+
+- For multi-step or consequential work, inspect the available source and state the proposed direction before execution.
+- Resolve small, reversible details from evidence or a safe default instead of asking unnecessary questions.
+- Group linked consequential choices into one decision. Explain the recommendation, alternatives, tradeoffs, and downstream effects.
+- Ask one focused question at a time when the answer would materially change scope, privacy, publishing, external effects, or a difficult-to-reverse choice.
+
+## Ownership and truthfulness
+
+- The user owns the audience, content, scope, approval, acceptance, and publishing decisions.
+- Never invent personal experience, clients, roles, outcomes, metrics, testimonials, or evidence.
+- Clearly distinguish verified facts, personal claims, assumptions, and missing information.
+- Ask before changing the agreed scope or presenting an assumption as fact.
+
+## Safety and external actions
+
+- Preserve unrelated work and keep changes small and recoverable.
+- Never expose or commit secrets.
+- Never publish, deploy, send, delete, push, or make another external change unless the user explicitly requests it.
+- Ask before installing dependencies or introducing a service that sends data outside the workspace.
+
+## Review and verification
+
+- After making changes, explain what changed, what was checked, and what remains uncertain in plain language.
+- Provide test results and visible behavior the user can review.
+- Do not require the user to read source code or diffs to approve the result.
+- Stop and ask one focused question when a consequential choice cannot be resolved safely from existing evidence.`
+
 const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
   const route = groupRoute[group.id]
   if (!route) throw new Error(`Nhóm câu hỏi Module 2 chưa có tuyến hiển thị: ${group.id}`)
@@ -134,6 +171,23 @@ const instructionalScenes = {
     request: 'Course Companion sẽ dùng đúng thư mục này trong Modules 2–4.', evidence: [],
     dialogue: 'Chúng ta sẽ bắt đầu từ một thư mục trống do bạn chọn. Module này chỉ tạo tài liệu trong thư mục planning; chưa cài đặt, chưa tạo ứng dụng và chưa xuất bản.',
     choices: [], showPanel: false
+  },
+  'module-2-portfolio-agents-setup': {
+    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Tạo quy tắc cho portfolio',
+    objective: 'Tạo bộ quy luật cho dự án của bạn', panelLabel: 'AGENTS.md',
+    panelStatus: 'BỘ QUY LUẬT CHO PORTFOLIO', tone: 'neutral',
+    request: 'Tạo Current repo AGENTS.md tại thư mục gốc của workspace portfolio.',
+    evidence: [],
+    dialogue: 'Bạn đã chọn nơi sẽ lưu toàn bộ portfolio. Bây giờ, hãy tạo Current repo AGENTS.md tại thư mục gốc của workspace này. Tệp này chỉ áp dụng cho dự án portfolio. Nó giúp Codex biết cách làm việc với bạn, bảo vệ nội dung thật và giữ bạn là người quyết định.\n\nHãy giữ ứng dụng này mở, đừng tắt. Tiếp theo, mở ứng dụng Codex và nhờ Codex tạo tệp AGENTS.md bằng toàn bộ nội dung bên dưới. Khi Codex xác nhận đã tạo xong, hãy quay lại ứng dụng này để tiếp tục bài học.\n\nNội dung dành cho coding agent được viết bằng tiếng Anh. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt. Ứng dụng chỉ lưu lời xác nhận của bạn; không đọc hoặc chấm nội dung AGENTS.md.\n\nBạn đã tạo AGENTS.md trong thư mục portfolio chưa?',
+    choices: [
+      { label: 'Chưa, tôi sẽ tạo trước' },
+      { label: 'Tôi đã tạo AGENTS.md', next: 'module-2-portfolio-brief', primary: true, preservePrimaryLabel: true, decision: { key: 'portfolioAgentsSetup', value: 'learner-confirmed' } }
+    ],
+    copyPrompt: portfolioAgentsPrompt,
+    copyPromptLabel: 'YÊU CẦU ĐỂ DÁN VÀO CODEX',
+    copyPromptTitle: 'Tạo AGENTS.md cho portfolio',
+    showPanel: false
   },
   'module-2-portfolio-brief': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,

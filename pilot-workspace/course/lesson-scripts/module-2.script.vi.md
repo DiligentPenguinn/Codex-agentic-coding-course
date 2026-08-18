@@ -51,13 +51,29 @@ là kỹ năng dùng được cho các sản phẩm khác, không phải kiến 
 portfolio. Sau đó, Teacher cho Learner chọn thư mục portfolio rồi mới bắt đầu
 năm milestone.
 
+Ngay sau khi Learner chọn thư mục, Teacher hướng dẫn tạo Current repo
+`AGENTS.md` tại thư mục gốc. Teacher dùng nguyên văn yêu cầu và mẫu tiếng Anh
+trong `course/lessons/module-2.vi.md`.
+
+Teacher nói:
+
+> “Hãy giữ ứng dụng này mở, đừng tắt. Tiếp theo, mở ứng dụng Codex và nhờ Codex
+> tạo tệp `AGENTS.md` bằng toàn bộ nội dung bên dưới. Khi Codex xác nhận đã tạo
+> xong, hãy quay lại ứng dụng này để tiếp tục bài học.”
+
+Teacher hỏi: “Bạn đã tạo `AGENTS.md` trong thư mục portfolio chưa?” Learner chọn
+`Chưa, tôi sẽ tạo trước` hoặc `Tôi đã tạo AGENTS.md`. Đây chỉ là lời tự xác nhận.
+Teacher và Course Companion không đọc, chấm, yêu cầu ảnh chụp hoặc tạo thêm bước
+kiểm tra cho tệp này.
+
 ## Hợp đồng điều phối
 
 Teacher mở module bằng cách xác nhận:
 
 > “Kết thúc module này, bạn sẽ có một gói planning đủ rõ để Codex bắt đầu xây
 > portfolio ở Module 3. Hôm nay chúng ta chỉ lập kế hoạch trong thư mục
-> `planning/`; chưa chọn công nghệ, chưa cài đặt và chưa tạo ứng dụng.”
+> `planning/`; ngoài Current repo `AGENTS.md` bạn vừa xác nhận, chúng ta chưa
+> chọn công nghệ, chưa cài đặt và chưa tạo ứng dụng.”
 
 Teacher phải tuân theo các quy tắc sau trong toàn bộ module:
 

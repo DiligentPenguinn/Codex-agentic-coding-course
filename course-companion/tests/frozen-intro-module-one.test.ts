@@ -5,11 +5,11 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '694c933a706a1b52143f08a1f2596a7093167406ac6be4bb4af98198bcfdb0e6',
+  '../pilot-workspace/course/lessons/module-1.vi.md': '33eb41869fc745999456c0e9c7a3451ae9a33bbee00def03bd8284cbc0bfb78b',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': 'fda22dbbef9e7067e5f94ec5dd45b7e26a2c38e2cb8eca6eb2863ac9d63ad598',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '72c91a636c084ec5e9e1d4fc6f9645978c97cf643dba9452667fedd811c2ecbe',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
-  '../pilot-workspace/course/prompts/start-module-1.vi.md': '6ffa73d0ae953be42e2206f23ed1a34f4188b490e9df56a76b34bc0ef886f3c1',
+  '../pilot-workspace/course/prompts/start-module-1.vi.md': 'ddc99dba0bd0763810363db2075d45155782122294036dc158198fc55f5eb0bb',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
   '../pilot-workspace/course/quizzes/module-1.quiz.json': '5c0f3fd8032320c4a8b71f45c55e8d7f1977fc785f717c4b0e0b09b22fcd227a',
   '../pilot-workspace/course/practices/m1-codex-safe-setup.json': 'e38108154ecab20070d2820b1ec8118c0383dd727d267ff02bcea8f9660cad65',
@@ -37,7 +37,7 @@ function digest(content: string | Uint8Array): string {
   return createHash('sha256').update(content).digest('hex')
 }
 
-describe('frozen introduction and Module 1', () => {
+describe('frozen introduction and approved Module 1', () => {
   it('keeps authoritative content, UI, images, prompts, quizzes, and Practice files exact', async () => {
     for (const [relativePath, expectedDigest] of Object.entries(frozenFiles)) {
       const content = await readFile(resolve(process.cwd(), relativePath))
@@ -59,9 +59,14 @@ describe('frozen introduction and Module 1', () => {
       source.indexOf("  'module-2-why-planning'")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('8bf3274d20619f99955bc92eb10727485cfbd651e52244a791aa78d32f963bca')
+    expect(digest(scenes)).toBe('b94c61f8ffb01e4ef49d1ddbeb9689a94cccfdc4c43142397b4bd566a0a3b5c7')
     expect(scenes).toContain("dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'")
     expect(scenes).toContain("choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }]")
+    expect(scenes).toContain("choices: [{ label: 'Tiếp theo: AGENTS.md', next: 'module-1-agents-intro', primary: true }]")
+    expect(scenes).toContain("'module-1-agents-intro': {")
+    expect(scenes).toContain("'module-1-skills-intro': {")
+    expect(scenes).toContain("panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS'")
+    expect(scenes).toContain("{ label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' }")
     expect(scenes).toContain("dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.'")
     expect(scenes).toContain("choices: [{ label: 'Mở Module 2', next: 'module-2-portfolio-workspace', afterSave: 'home', primary: true }]")
   })

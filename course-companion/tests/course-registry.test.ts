@@ -127,6 +127,7 @@ describe('portfolio course registry', () => {
       'module-2-prd-agent-workflow',
       'module-2-portfolio-practice-intro',
       'module-2-portfolio-folder',
+      'module-2-portfolio-agents-setup',
       'module-2-portfolio-practice',
       'module-2-portfolio-mastery',
       'module-2-portfolio-mastery-summary'
@@ -137,6 +138,10 @@ describe('portfolio course registry', () => {
       .toBe('module-2-prd-review-workflow')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-review-workflow')?.nextSceneId)
       .toBe('module-2-prd-agent-workflow')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-folder')?.nextSceneId)
+      .toBe('module-2-portfolio-agents-setup')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-agents-setup')?.nextSceneId)
+      .toBe('module-2-portfolio-brief')
     expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-check-'))).toHaveLength(10)
     expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-mastery-'))).toHaveLength(5)
   })

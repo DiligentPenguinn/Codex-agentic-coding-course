@@ -108,6 +108,61 @@ Chẳng hạn, bạn có thể chọn một skill hoặc một đoạn chat liê
 [OpenAI Docs — Slash commands](https://learn.chatgpt.com/docs/reference/slash-commands)
 giải thích cách mở danh sách lệnh và chức năng của `/status` cùng `/goal`.
 
+## `AGENTS.md` và hai level bạn cần biết
+
+Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại. Nếu có những nguyên
+tắc bạn muốn Codex ghi nhớ khi làm việc, bạn có thể lưu chúng trong `AGENTS.md`.
+
+`AGENTS.md` là một tệp văn bản chứa các quy tắc và thông tin coding agent cần
+biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án
+được xử lý.
+
+- Global `AGENTS.md` nằm trong thư mục cấu hình Codex trên máy tính. Những quy
+  tắc trong tệp này được áp dụng cho mọi repo bạn mở bằng Codex. Triết dùng
+  level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt
+  và không đưa thay đổi lên mạng khi chưa được yêu cầu.
+- Current repo `AGENTS.md` nằm trong repo bạn đang mở. Những quy tắc trong tệp
+  này chỉ áp dụng cho repo đó. Repo khóa học của Triết yêu cầu Codex giữ nguyên
+  những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học
+  bằng tiếng Việt tự nhiên.
+
+Codex đọc cả hai level. Global `AGENTS.md` đặt ra những nguyên tắc chung. Current
+repo `AGENTS.md` bổ sung những quy tắc cụ thể hơn cho dự án đang mở. Bạn sẽ tạo
+Current repo `AGENTS.md` sau khi chọn repo portfolio của mình ở Module 2.
+
+[OpenAI Docs — AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
+giải thích cách Codex tìm và kết hợp các tệp hướng dẫn.
+
+## Skill là gì?
+
+`AGENTS.md` chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng
+dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể
+dùng lại.
+
+Mỗi skill có một tệp chính tên là `SKILL.md`. Tệp này mô tả khi nào nên dùng
+skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.
+
+Trong quá trình xây portfolio, bạn sẽ dùng hai skill:
+
+- `frontend-design` dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill
+  giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện
+  responsive và kiểm tra kết quả thực tế.
+- `copywriting` dùng khi viết nội dung cho portfolio. Skill giúp Codex viết tiêu
+  đề, phần giới thiệu, mô tả dự án và lời kêu gọi hành động dựa trên thông tin
+  thật của bạn.
+
+Phần ví dụ trong ứng dụng học được viết bằng tiếng Anh. Theo kinh nghiệm của
+mình, agent thường xử lý chỉ dẫn kỹ thuật bằng tiếng Anh ổn định hơn. Vì vậy,
+trong khóa học này, phần hướng dẫn dành cho agent sẽ ưu tiên tiếng Anh. Bạn vẫn
+có thể trao đổi với Codex bằng tiếng Việt.
+
+Bạn có thể vào [skills.sh](https://skills.sh/) để khám phá thêm các skill do
+cộng đồng chia sẻ. Bạn chưa cần cài thêm skill trong Module 1. Khóa học sẽ giới
+thiệu skill phù hợp khi bạn cần dùng đến nó.
+
+[OpenAI Docs — Skills](https://learn.chatgpt.com/docs/build-skills) giải thích
+cấu trúc và cách Codex dùng skill.
+
 ## Cấu hình mình đề xuất cho ContentPilot
 
 Mình chọn cấu hình này cho dự án thực hành ContentPilot. Đây không phải thiết

@@ -59,7 +59,44 @@ Sau đó hỏi: "Coding agent khác một chatbot chỉ trả lời ở điểm 
 Learner nêu được ít nhất một khả năng hành động như đọc tệp, dùng công cụ, chạy
 lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
-## Bước 2 — Áp dụng cấu hình Codex (`m1-model-choice`)
+## Bước 2 — `AGENTS.md` và Skills (`m1-agents-and-skills`)
+
+Teacher nói: "Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại.
+`AGENTS.md` là tệp văn bản chứa những quy tắc và thông tin coding agent cần biết
+trước khi làm việc."
+
+Teacher chỉ giới thiệu hai level:
+
+1. Global `AGENTS.md` áp dụng cho mọi repo được mở bằng Codex.
+2. Current repo `AGENTS.md` chỉ áp dụng cho repo đang mở và bổ sung quy tắc cụ
+   thể hơn cho dự án đó.
+
+Teacher dùng thiết lập thật của Triết làm ví dụ. Global chứa nguyên tắc dùng cho
+nhiều dự án. Current repo của khóa học chứa quy tắc giữ nguyên trang chưa được
+yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.
+Teacher chưa yêu cầu Learner tạo tệp; thao tác đó diễn ra sau khi Learner chọn
+repo portfolio ở Module 2.
+
+Teacher nói: "Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể
+theo quy trình có thể dùng lại. Mỗi skill có tệp chính `SKILL.md`, trong đó mô tả
+khi nào nên dùng, các bước cần thực hiện và điều cần kiểm tra."
+
+Teacher giới thiệu `frontend-design` cho giao diện portfolio và `copywriting`
+cho nội dung dựa trên thông tin thật. Teacher mở một panel duy nhất chứa đoạn
+trích tiếng Anh từ `frontend-design`; không dùng ảnh chụp và không hiển thị toàn
+bộ skill.
+
+Teacher nói: "Theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật
+bằng tiếng Anh ổn định hơn. Vì vậy, phần hướng dẫn dành cho agent trong khóa học
+này sẽ ưu tiên tiếng Anh. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt."
+
+Teacher giới thiệu `skills.sh` là nơi khám phá skill do cộng đồng chia sẻ và nói
+rõ Learner chưa cần cài thêm skill trong Module 1.
+
+[Dừng chờ Learner xem đủ hai trang. Khi chuyển sang phần cấu hình, lưu checkpoint
+`m1-agents-and-skills`. Không kiểm tra tệp và không yêu cầu ảnh chụp.]
+
+## Bước 3 — Áp dụng cấu hình Codex (`m1-model-choice`)
 
 Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
 Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
@@ -68,7 +105,7 @@ hành, không phải thiết lập mặc định của mọi tài khoản Codex.
 [Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
 định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
 
-## Bước 3 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
+## Bước 4 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
 Teacher nói: "Bây giờ Course Companion sẽ mở một task Codex riêng để bạn cài
 cấu hình thật. Ứng dụng chỉ đọc metadata cấu hình hiệu lực của đúng task này;
@@ -85,7 +122,7 @@ Course Companion để xem giá trị được phát hiện và mục nào còn 
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi metadata mới của task đã có đủ năm mục.]
 
-## Bước 4 — Triết duyệt bằng chứng
+## Bước 5 — Triết duyệt bằng chứng
 
 [Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu metadata hiệu lực
 theo Practice definition. Không nhận lời tự xác nhận thay cho dữ liệu của đúng
@@ -97,7 +134,7 @@ Approve for me và Full access đang tắt. Metadata đến từ đúng task và
 
 [Lưu kết quả Practice đạt. Chưa hoàn thành checkpoint `m1-mastery`.]
 
-## Bước 5 — Ôn tập cuối Module 1 (`m1-mastery`)
+## Bước 6 — Ôn tập cuối Module 1 (`m1-mastery`)
 
 Teacher nói: "Bạn đã thiết lập Codex và kiểm tra bằng chứng thật. Bây giờ, bốn
 câu ôn tập sẽ giúp bạn giải thích, áp dụng và phân tích những gì vừa học. Bạn
@@ -108,7 +145,7 @@ cho từng câu và hỏi từng câu một. Chỉ hiện phản hồi, lời gi
 Learner đã trả lời. Nếu chưa đạt 3/4, cho làm lại bài ôn tập. Khi đạt, lưu
 checkpoint `m1-mastery`.]
 
-## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
+## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
 
 Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
 hơn, bạn biết cách chọn model, mức suy luận và quyền truy cập phù hợp trước khi

@@ -117,6 +117,8 @@ type SceneContent = {
   dialogue: string
   choices: Choice[]
   copyPrompt?: string
+  copyPromptLabel?: string
+  copyPromptTitle?: string
   practice?: PracticeDefinition
   assessmentQuestionId?: string
   assessmentGroupId?: string
@@ -260,7 +262,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với Codex',
     objective: 'Codex là coding agent của OpenAI',
@@ -280,7 +282,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Bạn quyết định khi nào Codex cần xin phép',
@@ -300,7 +302,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Model, Effort và Speed: chọn thế nào?',
@@ -320,7 +322,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonId: 'module-1',
     checkpointId: 'm1-codex-orientation',
     step: 1,
-    totalSteps: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Làm quen với giao diện Codex',
     objective: 'Dùng / và @ để mở nhanh các chức năng',
@@ -334,13 +336,51 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: '@', value: 'Mở thêm nguồn và công cụ' }
     ],
     dialogue: 'Một số lệnh / bạn có thể thường xuyên sử dụng là /status và /goal. Lệnh /status cho biết mức sử dụng context window — bạn có thể hiểu đây là trí nhớ ngắn hạn của model. Nếu lượng context đã dùng vượt quá 150.000 token, bạn nên chuyển sang chat mới. Lệnh /goal tạo một mục tiêu bền vững để Codex tiếp tục theo đuổi qua nhiều lượt cho đến khi hoàn thành, bị tạm dừng hoặc cần bạn cung cấp thêm thông tin.\n\nNgoài ra, @ cũng mở một danh sách chọn nhanh tương tự /. Tuy nhiên, @ cho phép bạn truy cập thêm một số nguồn và công cụ. Chẳng hạn, bạn có thể chọn một skill cụ thể hoặc một đoạn chat trong tài khoản ChatGPT.',
-    choices: [{ label: 'Tiếp tục', next: 'module-1-model-choice', primary: true }]
+    choices: [{ label: 'Tiếp theo: AGENTS.md', next: 'module-1-agents-intro', primary: true }]
+  },
+  'module-1-agents-intro': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-and-skills',
+    step: 2,
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'AGENTS.md và hai level',
+    objective: 'Đừng nhắc lại cùng một nguyên tắc trong mỗi task',
+    panelLabel: 'AGENTS.md',
+    panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS',
+    tone: 'neutral',
+    request: 'Global đặt nguyên tắc chung. Current repo bổ sung quy tắc cho dự án đang mở.',
+    evidence: [
+      { label: 'GLOBAL', value: 'Áp dụng cho mọi repo' },
+      { label: 'CURRENT REPO', value: 'Chỉ áp dụng cho repo đang mở' }
+    ],
+    dialogue: 'AGENTS.md là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.',
+    choices: [{ label: 'Tiếp theo: Skill', next: 'module-1-skills-intro', primary: true }]
+  },
+  'module-1-skills-intro': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-and-skills',
+    step: 2,
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'Skill là gì?',
+    objective: 'Dạy coding agent cách thực hiện một loại công việc',
+    panelLabel: 'SKILL',
+    panelStatus: 'QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS',
+    tone: 'neutral',
+    request: 'Mỗi skill hướng dẫn một loại công việc theo quy trình có thể dùng lại.',
+    evidence: [
+      { label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' },
+      { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
+    ],
+    dialogue: 'AGENTS.md chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể dùng lại.',
+    choices: [{ label: 'Tiếp theo: cấu hình Codex', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-model-choice': {
     lessonId: 'module-1',
     checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 5,
+    step: 3,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
     objective: 'Áp dụng cấu hình đã chọn',
@@ -359,8 +399,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-model-use-cases': {
     lessonId: 'module-1',
     checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 5,
+    step: 3,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
     objective: 'Chọn model theo độ rõ và độ khó',
@@ -379,8 +419,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-reasoning-effort': {
     lessonId: 'module-1',
     checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 5,
+    step: 3,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
     objective: 'Effort và Speed tạo ra hai đánh đổi khác nhau',
@@ -399,8 +439,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-project-setup': {
     lessonId: 'module-1',
     checkpointId: 'm1-model-choice',
-    step: 2,
-    totalSteps: 5,
+    step: 3,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Model và mức suy luận',
     objective: 'Cấu hình mình đề xuất cho ContentPilot',
@@ -419,8 +459,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-setup-checklist': {
     lessonId: 'module-1',
     checkpointId: 'm1-setup-checklist',
-    step: 3,
-    totalSteps: 5,
+    step: 4,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Nộp cấu hình để Triết duyệt',
     objective: 'Chứng minh cấu hình thật trong Codex',
@@ -440,8 +480,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-mastery': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 4,
-    totalSteps: 5,
+    step: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Ôn tập cuối Module 1',
     objective: 'Sẵn sàng cho 4 câu ôn tập',
@@ -460,8 +500,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
   'module-1-complete': {
     lessonId: 'module-1',
     checkpointId: 'm1-complete',
-    step: 5,
-    totalSteps: 5,
+    step: 6,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Sẵn sàng làm việc với Codex',
     objective: 'Module 1 đã hoàn thành',
@@ -990,7 +1030,7 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
       : group.id === 'prompt-check'
         ? 'm2-prd-interview'
         : 'm2-implementation-plan'
-  const step = isSetupFinal ? 4 : isFinal ? 7 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 5
+  const step = isSetupFinal ? 5 : isFinal ? 7 : group.id === 'planning-prd-check' ? 3 : group.id === 'prompt-check' ? 4 : 5
   const questionType = question.type === 'multiple-choice'
     ? 'Chọn một đáp án'
     : question.type === 'artifact-answer'
@@ -1001,7 +1041,7 @@ function assessmentScene(question: AssessmentQuestion, group: AssessmentGroup, i
     lessonId: isSetupFinal ? 'module-1' : 'module-2',
     checkpointId,
     step,
-    totalSteps: isSetupFinal ? 5 : 8,
+    totalSteps: isSetupFinal ? 6 : 8,
     lessonLabel: isSetupFinal ? 'MODULE 1 · THIẾT LẬP CODEX' : 'MODULE 2 · PLANNING, PRD VÀ PROMPT',
     mission: group.title,
     objective: `Câu ${index + 1}/${group.questions.length}`,
@@ -1034,8 +1074,8 @@ const scenes = {
   'module-1-final-summary': {
     lessonId: 'module-1',
     checkpointId: 'm1-mastery',
-    step: 4,
-    totalSteps: 5,
+    step: 5,
+    totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Kết quả kiểm tra thiết lập Codex',
     objective: 'Đối chiếu kết quả trước khi hoàn thành',
@@ -1244,6 +1284,10 @@ const courseLessonPages = {
     ['module-1-codex-examples'],
     ['module-1-codex-model-intro'],
     ['module-1-codex-slash-commands']
+  ],
+  'm1-agents-and-skills': [
+    ['module-1-agents-intro'],
+    ['module-1-skills-intro']
   ],
   'm1-skills-and-checklist': [
     ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
@@ -1458,7 +1502,17 @@ function LessonVisualMedia({
   )
 }
 
-function CopyPromptCard({ prompt }: { prompt: string }) {
+function CopyPromptCard({
+  dialogSafe = false,
+  label = 'PROMPT ĐỂ DÁN VÀO CODEX',
+  prompt,
+  title = 'Bắt đầu lập kế hoạch portfolio'
+}: {
+  dialogSafe?: boolean
+  label?: string
+  prompt: string
+  title?: string
+}) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle')
 
   const copyPrompt = async () => {
@@ -1471,10 +1525,13 @@ function CopyPromptCard({ prompt }: { prompt: string }) {
   }
 
   return (
-    <aside className="pixel-copy-prompt" aria-labelledby="practicePromptTitle">
+    <aside
+      className={`pixel-copy-prompt${dialogSafe ? ' is-dialog-safe' : ''}`}
+      aria-labelledby="practicePromptTitle"
+    >
       <header>
-        <small>PROMPT ĐỂ DÁN VÀO CODEX</small>
-        <strong id="practicePromptTitle">Bắt đầu lập kế hoạch portfolio</strong>
+        <small>{label}</small>
+        <strong id="practicePromptTitle">{title}</strong>
       </header>
       <p>{prompt}</p>
       <div className="pixel-copy-prompt__actions">
@@ -1675,6 +1732,120 @@ function ModelLessonBoard({
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
 
       <footer className="pixel-model-board__actions">
+        <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
+        <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
+      </footer>
+    </section>
+  )
+}
+
+type GuidanceLessonBoardKind = 'agents' | 'skills'
+
+const guidanceLessonBoardByScene: Partial<Record<SceneId, GuidanceLessonBoardKind>> = {
+  'module-1-agents-intro': 'agents',
+  'module-1-skills-intro': 'skills'
+}
+
+const frontendDesignSkillExcerpt = `SKILL.md                                  EXCERPT
+
+---
+name: frontend-design
+description: Design and implement distinctive,
+production-grade frontend interfaces with a
+restrained visual language.
+---
+
+# Workflow
+
+1. Inspect the existing product, audience,
+   content, framework, and constraints before
+   choosing a direction.
+
+2. Classify the surface and read only the
+   references required for the task.
+
+3. Choose one restrained aesthetic direction
+   and one distinguishing visual idea.
+
+…`
+
+function GuidanceLessonBoard({
+  busy,
+  canOpenPreviousPage,
+  kind,
+  nextLabel,
+  onBack,
+  onNext
+}: {
+  busy: boolean
+  canOpenPreviousPage: boolean
+  kind: GuidanceLessonBoardKind
+  nextLabel: string
+  onBack: () => void
+  onNext: () => void
+}) {
+  const titleId = `guidance-lesson-${kind}`
+
+  return (
+    <section className={`pixel-guidance-board is-${kind}`} aria-labelledby={titleId}>
+      <div className="pixel-guidance-board__copy">
+        {kind === 'agents' ? (
+          <>
+            <header>
+              <small>AGENTS.md - bộ quy luật cho coding agents</small>
+              <h1 id={titleId}>Đừng nhắc lại cùng một nguyên tắc trong mỗi task</h1>
+              <p>Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại. Nếu có những nguyên tắc bạn muốn Codex ghi nhớ khi làm việc, bạn có thể lưu chúng trong <code>AGENTS.md</code>.</p>
+              <p><code>AGENTS.md</code> là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.</p>
+            </header>
+            <p className="pixel-guidance-board__note">Codex đọc cả hai level. Global <code>AGENTS.md</code> đặt ra những nguyên tắc chung. Current repo <code>AGENTS.md</code> bổ sung những quy tắc cụ thể hơn cho dự án đang mở.</p>
+            <p className="pixel-guidance-board__next">Bạn sẽ tạo Current repo <code>AGENTS.md</code> sau khi chọn repo portfolio của mình ở Module 2.</p>
+          </>
+        ) : (
+          <>
+            <header>
+              <small>SKILL - QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS</small>
+              <h1 id={titleId}>Dạy coding agent cách thực hiện một loại công việc</h1>
+              <p><code>AGENTS.md</code> chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể dùng lại.</p>
+              <p>Mỗi skill có một tệp chính tên là <code>SKILL.md</code>. Tệp này mô tả khi nào nên dùng skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.</p>
+            </header>
+            <h2>Hai skill bạn sẽ dùng để xây portfolio</h2>
+            <div className="pixel-guidance-board__skills">
+              <article><strong>frontend-design</strong><p>Dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện responsive và kiểm tra kết quả thực tế.</p></article>
+              <article><strong>copywriting</strong><p>Dùng khi viết nội dung cho portfolio. Skill giúp Codex viết tiêu đề, phần giới thiệu, mô tả dự án và lời kêu gọi hành động dựa trên thông tin thật của bạn.</p></article>
+            </div>
+          </>
+        )}
+      </div>
+
+      <aside className="pixel-guidance-board__panel">
+        {kind === 'agents' ? (
+          <div className="pixel-agents-levels">
+            <h2>Hai level <code>AGENTS.md</code> bạn cần biết</h2>
+            <article>
+              <span>GLOBAL</span>
+              <code>~/.codex/AGENTS.md</code>
+              <p>Áp dụng cho mọi repo bạn mở bằng Codex.</p>
+              <small>Triết dùng level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt và không đưa thay đổi lên mạng khi chưa được yêu cầu.</small>
+            </article>
+            <article>
+              <span>CURRENT REPO</span>
+              <code>AGENTS.md</code>
+              <p>Chỉ áp dụng cho repo đang mở.</p>
+              <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
+            </article>
+          </div>
+        ) : (
+          <>
+            <div className="pixel-skill-excerpt" aria-label="Ví dụ rút gọn từ skill frontend-design">
+              <pre><code>{frontendDesignSkillExcerpt}</code></pre>
+            </div>
+            <p className="pixel-guidance-board__language">Phần ví dụ dùng tiếng Anh vì theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật bằng tiếng Anh ổn định hơn. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt.</p>
+            <p className="pixel-guidance-board__directory">Khám phá thêm skill do cộng đồng chia sẻ tại <a href="https://skills.sh/" target="_blank" rel="noreferrer">skills.sh</a>. Bạn chưa cần cài thêm skill trong Module 1.</p>
+          </>
+        )}
+      </aside>
+
+      <footer className="pixel-guidance-board__actions">
         <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
         <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
       </footer>
@@ -2829,8 +3000,10 @@ export function LearningWindow() {
     : undefined)
   const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
+  const guidanceLessonBoardKind = guidanceLessonBoardByScene[displayedSceneId]
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
-  const usesLessonBoard = usesModelLessonBoard
+  const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
+  const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const practiceReviewDestination = contentReviewMode
     && displayedSceneId === 'module-2-portfolio-practice'
@@ -2928,7 +3101,14 @@ export function LearningWindow() {
       {sceneTitle && scenePanel
         ? <div className="pixel-scene-summary">{sceneTitle}{scenePanel}</div>
         : sceneTitle ?? scenePanel}
-      {scene.copyPrompt && !usesLessonBoard ? <CopyPromptCard prompt={scene.copyPrompt} /> : null}
+      {scene.copyPrompt && !usesLessonBoard ? (
+        <CopyPromptCard
+          dialogSafe={displayedSceneId === 'module-2-portfolio-agents-setup'}
+          label={scene.copyPromptLabel}
+          prompt={scene.copyPrompt}
+          title={scene.copyPromptTitle}
+        />
+      ) : null}
       {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
@@ -3009,6 +3189,24 @@ export function LearningWindow() {
         />
       ) : null}
 
+      {guidanceLessonBoardKind ? (
+        <GuidanceLessonBoard
+          busy={busy}
+          canOpenPreviousPage={canOpenPreviousPage}
+          kind={guidanceLessonBoardKind}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          onBack={openPreviousPage}
+          onNext={() => {
+            if (isReviewing) {
+              setReviewHistoryIndex(null)
+              return
+            }
+            const choice = scene.choices[0]
+            if (choice) void choose(choice)
+          }}
+        />
+      ) : null}
+
       {visualExpanded && lessonVisual && canExpandLessonVisual ? (
         <LessonVisualLightbox
           activeFocus={approvalFocus}
@@ -3030,13 +3228,13 @@ export function LearningWindow() {
       <section
         aria-label={isModuleTwoAssessmentQuestion ? 'Câu hỏi Module 2' : undefined}
         aria-labelledby={isModuleTwoAssessmentQuestion ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}`}
+        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}`}
       >
         {isModuleTwoAssessmentQuestion ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
         {isModuleTwoAssessmentQuestion ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
           <PortfolioWorkspacePicker
             courseRunId={progress.courseRunId}
-            onContinue={() => void advanceToScene('module-2-portfolio-brief', progress.decisions)}
+            onContinue={() => void advanceToScene('module-2-portfolio-agents-setup', progress.decisions)}
           />
         ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary

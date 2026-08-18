@@ -193,7 +193,7 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
 
 async function completeSetupModule(page, companionPage, electronApp, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 1/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 1/4', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
     'Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
@@ -224,7 +224,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   }
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 2/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 2/4', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   assert.equal(await page.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha/)
@@ -295,7 +295,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 3/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 3/4', { exact: true }).first().waitFor()
   const modelIntroBoard = page.locator('.pixel-model-board')
   await modelIntroBoard.waitFor()
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 0)
@@ -339,7 +339,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 4/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/4 · TRANG 4/4', { exact: true }).first().waitFor()
   const commandVisuals = page.locator('.pixel-lesson-visual-group .pixel-lesson-visual')
   assert.equal(await commandVisuals.count(), 2)
   const commandDialogueText = await page.locator('.pixel-dialogue > p').textContent()
@@ -381,7 +381,48 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 2/3 · TRANG 1/1', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 1/2', { exact: true }).first().waitFor()
+  const agentsBoard = page.locator('.pixel-guidance-board.is-agents')
+  await agentsBoard.waitFor()
+  assert.match(await agentsBoard.textContent(), /AGENTS\.md - bộ quy luật cho coding agents/)
+  assert.match(await agentsBoard.textContent(), /GLOBAL/)
+  assert.match(await agentsBoard.textContent(), /CURRENT REPO/)
+  assert.match(await agentsBoard.textContent(), /Bạn sẽ tạo Current repo AGENTS\.md.*Module 2/)
+  assert.equal(await agentsBoard.locator('figure, img').count(), 0)
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const agentsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(agentsNarrowWidths.body, agentsNarrowWidths.viewport)
+    assert.equal(agentsNarrowWidths.document, agentsNarrowWidths.viewport)
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 2/2', { exact: true }).first().waitFor()
+  const skillBoard = page.locator('.pixel-guidance-board.is-skills')
+  await skillBoard.waitFor()
+  assert.equal(await skillBoard.locator('.pixel-skill-excerpt').count(), 1)
+  assert.equal(await skillBoard.locator('figure, img').count(), 0)
+  assert.match(await skillBoard.textContent(), /name: frontend-design/)
+  assert.match(await skillBoard.textContent(), /copywriting/)
+  assert.match(await skillBoard.textContent(), /skills\.sh/)
+  assert.match(await skillBoard.textContent(), /Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt/)
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const skillsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(skillsNarrowWidths.body, skillsNarrowWidths.viewport)
+    assert.equal(skillsNarrowWidths.document, skillsNarrowWidths.viewport)
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 3/4 · TRANG 1/1', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-harness-board').count(), 0)
   await page.getByText('Dùng cấu hình đã chọn', { exact: true }).waitFor()
   assert.equal(await page.locator('.pixel-model-board').count(), 1)
@@ -389,7 +430,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await page.getByText('Triết giải thích', { exact: true }).count(), 0)
   await capture(page, 'module-1-model-application.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/8', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 4/4 · TRANG 1/8', { exact: true }).first().waitFor()
   const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
@@ -672,7 +713,7 @@ async function verifyHomeBase(page) {
   await page
     .getByText('Planning và PRD trước khi code với AI', { exact: true })
     .waitFor()
-  await page.getByText('MODULE 1 · 3 BÀI HỌC', { exact: true }).waitFor()
+  await page.getByText('MODULE 1 · 4 BÀI HỌC', { exact: true }).waitFor()
   await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
@@ -1060,6 +1101,14 @@ try {
   await learningPage.getByRole('button', { name: 'Chọn thư mục', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Tạo thư mục planning', exact: true }).click()
   await learningPage.getByRole('button', { name: 'Tiếp tục với thư mục này', exact: true }).click()
+
+  await learningPage.getByText('Tạo bộ quy luật cho dự án của bạn', { exact: true }).waitFor()
+  assert.match(await learningPage.locator('.pixel-dialogue > p').textContent(), /Hãy giữ ứng dụng này mở, đừng tắt/)
+  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /# Portfolio Project Working Agreements/)
+  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /Never invent personal experience/)
+  await learningPage.getByRole('button', { name: 'SAO CHÉP PROMPT', exact: true }).click()
+  assert.match(await learningPage.evaluate(() => navigator.clipboard.readText()), /Create an AGENTS\.md file at the root/)
+  await learningPage.getByRole('button', { name: 'Tôi đã tạo AGENTS.md', exact: true }).click()
 
   await learningPage.getByText('MỤC TIÊU → NGƯỜI XEM → HÀNH ĐỘNG', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()

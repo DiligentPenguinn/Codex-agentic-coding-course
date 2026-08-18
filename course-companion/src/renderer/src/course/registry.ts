@@ -24,6 +24,7 @@ const rendererModules = [
         ['module-2-prd-agent-workflow'],
         ['module-2-portfolio-practice-intro'],
         ['module-2-portfolio-folder'],
+        ['module-2-portfolio-agents-setup'],
         ['module-2-portfolio-brief'],
         ['module-2-portfolio-brief-example'],
         ['module-2-check-brief-viewer'],

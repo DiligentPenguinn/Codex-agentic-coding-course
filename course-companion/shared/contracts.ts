@@ -33,6 +33,7 @@ export const LEARNER_STATE_SCHEMA_VERSION = 6
 const legacyCheckpointIds = [
   'intro-visual-onboarding',
   'm1-codex-orientation',
+  'm1-agents-and-skills',
   'm1-model-choice',
   'm1-setup-checklist',
   'm1-mastery',
@@ -49,13 +50,13 @@ const legacyCheckpointIds = [
   'm2-complete'
 ] as const
 
-const frozenJourneyCheckpointIds = legacyCheckpointIds.slice(0, 6)
+const introAndModuleOneCheckpointIds = legacyCheckpointIds.slice(0, 7)
 
-// Introduction and Module 1 stay on the frozen renderer. Modules 2–4 use the
+// Introduction and Module 1 stay on the legacy renderer. Modules 2–4 use the
 // typed registry; retired Module 2 IDs remain readable but no longer count as
 // runnable progress in the portfolio course.
 export const runnableCheckpointIds = [
-  ...frozenJourneyCheckpointIds,
+  ...introAndModuleOneCheckpointIds,
   ...portfolioCheckpointIds
 ] as const
 
@@ -72,6 +73,8 @@ const legacySceneIds = [
   'module-1-codex-examples',
   'module-1-codex-model-intro',
   'module-1-codex-slash-commands',
+  'module-1-agents-intro',
+  'module-1-skills-intro',
   'module-1-model-choice',
   'module-1-model-use-cases',
   'module-1-reasoning-effort',
@@ -152,6 +155,7 @@ export type SceneId = (typeof sceneIds)[number]
 const legacyCourseLessonIds = [
   'intro-overview',
   'm1-understand-codex',
+  'm1-agents-and-skills',
   'm1-skills-and-checklist',
   'm1-assessment',
   'm2-when-to-plan',
@@ -177,6 +181,8 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-1-codex-examples': 'm1-codex-orientation',
   'module-1-codex-model-intro': 'm1-codex-orientation',
   'module-1-codex-slash-commands': 'm1-codex-orientation',
+  'module-1-agents-intro': 'm1-agents-and-skills',
+  'module-1-skills-intro': 'm1-agents-and-skills',
   'module-1-model-choice': 'm1-model-choice',
   'module-1-model-use-cases': 'm1-model-choice',
   'module-1-reasoning-effort': 'm1-model-choice',
@@ -243,6 +249,7 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
 export const checkpointCourseLesson: Record<CheckpointId, CourseLessonId> = {
   'intro-visual-onboarding': 'intro-overview',
   'm1-codex-orientation': 'm1-understand-codex',
+  'm1-agents-and-skills': 'm1-agents-and-skills',
   'm1-model-choice': 'm1-skills-and-checklist',
   'm1-setup-checklist': 'm1-assessment',
   'm1-mastery': 'm1-assessment',

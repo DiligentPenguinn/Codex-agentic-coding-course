@@ -46,14 +46,61 @@ làm dự án thực hành để áp dụng quy trình planning và PRD vừa h�
 này không chỉ dành cho portfolio; bạn có thể dùng lại khi làm việc với coding
 agent trên các sản phẩm khác.
 
+Sau khi chọn thư mục portfolio, hãy tạo Current repo `AGENTS.md` tại thư mục gốc
+của workspace. Tệp này chỉ áp dụng cho dự án portfolio. Nó giúp Codex bảo vệ nội
+dung thật, giữ bạn là người quyết định và báo cáo kết quả bằng ngôn ngữ dễ hiểu.
+
+Hãy giữ ứng dụng học mở trong lúc thực hiện bước này. Mở ứng dụng Codex và gửi
+toàn bộ yêu cầu dưới đây. Khi Codex xác nhận đã tạo xong, quay lại ứng dụng học
+và tự xác nhận để tiếp tục. Ứng dụng không đọc hoặc chấm nội dung `AGENTS.md`.
+
+```markdown
+Create an AGENTS.md file at the root of the current workspace.
+
+Use the content below exactly as written. Do not change any other files.
+
+After creating it, tell me the file path.
+
+# Portfolio Project Working Agreements
+
+## Decisions and communication
+
+- For multi-step or consequential work, inspect the available source and state the proposed direction before execution.
+- Resolve small, reversible details from evidence or a safe default instead of asking unnecessary questions.
+- Group linked consequential choices into one decision. Explain the recommendation, alternatives, tradeoffs, and downstream effects.
+- Ask one focused question at a time when the answer would materially change scope, privacy, publishing, external effects, or a difficult-to-reverse choice.
+
+## Ownership and truthfulness
+
+- The user owns the audience, content, scope, approval, acceptance, and publishing decisions.
+- Never invent personal experience, clients, roles, outcomes, metrics, testimonials, or evidence.
+- Clearly distinguish verified facts, personal claims, assumptions, and missing information.
+- Ask before changing the agreed scope or presenting an assumption as fact.
+
+## Safety and external actions
+
+- Preserve unrelated work and keep changes small and recoverable.
+- Never expose or commit secrets.
+- Never publish, deploy, send, delete, push, or make another external change unless the user explicitly requests it.
+- Ask before installing dependencies or introducing a service that sends data outside the workspace.
+
+## Review and verification
+
+- After making changes, explain what changed, what was checked, and what remains uncertain in plain language.
+- Provide test results and visible behavior the user can review.
+- Do not require the user to read source code or diffs to approve the result.
+- Stop and ask one focused question when a consequential choice cannot be resolved safely from existing evidence.
+```
+
 ## Kết quả của module
 
 Bạn sẽ biến một ý tưởng portfolio còn mơ hồ thành một hợp đồng xây dựng trung
 thực, có bằng chứng và đủ rõ để Codex bắt đầu triển khai ở Module 3 mà không phải
 tự đoán những quyết định quan trọng.
 
-Module này chỉ tạo nội dung trong thư mục `planning/`. Bạn chưa chọn công nghệ,
-chưa cài gói phụ thuộc và chưa tạo ứng dụng.
+Ngoài Current repo `AGENTS.md` đã được bạn tự xác nhận, module này chỉ tạo nội
+dung trong thư mục `planning/`. Bạn chưa chọn công nghệ, chưa cài gói phụ thuộc
+và chưa tạo ứng dụng.
 
 ## Cách học trong từng milestone
 
