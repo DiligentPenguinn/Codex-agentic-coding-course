@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '72107963b8973b8e305272c19f8eafb35db17621dd1d55a76fb363aaa2af042f',
+  '../pilot-workspace/course/lessons/module-1.vi.md': '751ee5f7309105cfa15f018c9af727ce2418ac04c21b34ba3751872fb76132cf',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '23875e13a63e0113db6af97aa1b0de71218d7111afb64cb35086d79eecfbd33d',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '594adfdd64d6feb4f2309f45c6105798e0097285d0f4d78a6d9b8d71ef8c5d97',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
-  '../pilot-workspace/course/prompts/start-module-1.vi.md': 'ddc99dba0bd0763810363db2075d45155782122294036dc158198fc55f5eb0bb',
+  '../pilot-workspace/course/prompts/start-module-1.vi.md': '67edac770b9f1f3b9a309e639c5e5b9d8534cc108957a228354f0b5eb1e3c3ab',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
-  '../pilot-workspace/course/quizzes/module-1.quiz.json': '5c0f3fd8032320c4a8b71f45c55e8d7f1977fc785f717c4b0e0b09b22fcd227a',
+  '../pilot-workspace/course/quizzes/module-1.quiz.json': '0223603f1976dac6273ffa62705b97c27ef5b7d673f647c174d5f34aef5c5412',
   '../pilot-workspace/course/practices/m1-codex-safe-setup.json': 'e38108154ecab20070d2820b1ec8118c0383dd727d267ff02bcea8f9660cad65',
   'content/practices/m1-codex-safe-setup.json': 'a93062fa4386ac54e085b31cfb9a26690d03ba79f2a8810f2b4991d2b04d0d28',
   '../pilot-workspace/course/codex-setup/app.js': '76ee417775f75c302be3758c31442564dbc6371e83ae8942b2c87baccfd7424d',
@@ -58,8 +58,12 @@ describe('frozen introduction and approved Module 1', () => {
       source.indexOf('const staticScenes'),
       source.indexOf("  'module-2-why-planning'")
     )
+    const masteryScene = scenes.slice(
+      scenes.indexOf("'module-1-mastery': {"),
+      scenes.indexOf("'module-1-complete': {")
+    )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('8c20416c4eb26cbe48c5e3b5bb595ab637e0c6380755f333f8d715ecef8af7a6')
+    expect(digest(scenes)).toBe('55e8c95f8e759ee338c16ee4fe9d35eebfaf587439a93532b2d1586dda981add')
     expect(scenes).toContain("dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'")
     expect(scenes).toContain("choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }]")
     expect(scenes).toContain("choices: [{ label: 'Tiếp theo: AGENTS.md', next: 'module-1-agents-intro', primary: true }]")
@@ -69,8 +73,13 @@ describe('frozen introduction and approved Module 1', () => {
     expect(scenes).toContain("Đó là lúc ta sử dụng Skill.")
     expect(scenes).toContain("'module-1-skills-portfolio': {")
     expect(scenes).toContain("choices: [{ label: 'Tiếp theo: hai skill cho portfolio', next: 'module-1-skills-portfolio', primary: true }]")
+    expect(scenes).not.toContain("'module-1-model-choice': {")
+    expect(scenes).not.toContain("Dùng cấu hình đã chọn")
     expect(scenes).toContain("panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS'")
     expect(scenes).toContain("{ label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' }")
+    expect(scenes).toContain("dialogue: 'Bây giờ hãy cùng nhau trả lời các câu hỏi ôn tập để củng cố kiến thức vừa học nhen!'")
+    expect(masteryScene).toContain('showTitle: false')
+    expect(masteryScene).toContain('showPanel: false')
     expect(scenes).toContain("dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.'")
     expect(scenes).toContain("choices: [{ label: 'Mở Module 2', next: 'module-2-portfolio-workspace', afterSave: 'home', primary: true }]")
   })

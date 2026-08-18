@@ -27,12 +27,20 @@ describe('session-only content review mode', () => {
 
   it('offers a session-only bypass at every current Practice boundary', async () => {
     const learningWindow = await source('course-companion/src/renderer/src/surfaces/LearningWindow.tsx')
-    expect(learningWindow).toContain("'module-1-setup-checklist': {\n    label: 'Bỏ qua Practice · Duyệt Module 2'")
+    expect(learningWindow).toContain("'module-1-setup-checklist': {\n    label: 'Bỏ qua Practice · Duyệt bài trắc nghiệm',\n    sceneId: 'module-1-mastery'")
     expect(learningWindow).toContain("'module-2-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt Module 3'")
     expect(learningWindow).toContain("'module-3-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt Module 4'")
     expect(learningWindow).toContain("'module-4-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt bài ôn tập'")
     expect(learningWindow).toContain('onClick={() => startContentReviewAtScene(practiceReviewDestination.sceneId)}')
     expect(learningWindow).toContain('Do not merge this map or its button into the original branch')
+  })
+
+  it('renders assessment questions from every module without standalone guidance chrome', async () => {
+    const learningWindow = await source('course-companion/src/renderer/src/surfaces/LearningWindow.tsx')
+    expect(learningWindow).toContain('const isAssessmentQuestionPage = Boolean(assessmentQuestion && assessmentGroup)')
+    expect(learningWindow).toContain('&& !isAssessmentQuestionPage')
+    expect(learningWindow).toContain('aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}')
+    expect(learningWindow).toContain('questionOnly={isAssessmentQuestionPage}')
   })
 
   it('records the content-only merge boundary for the temporary review branch', async () => {

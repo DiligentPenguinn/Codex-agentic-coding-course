@@ -74,7 +74,7 @@ describe('ProgressRepository', () => {
     expect(activity.trim().split('\n')).toHaveLength(2)
   })
 
-  it('moves retired Harness progress to the configuration lesson', async () => {
+  it('moves retired Harness progress to setup Practice', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save(moduleOneStart)
@@ -103,9 +103,9 @@ describe('ProgressRepository', () => {
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
       progress: {
-        currentCourseLessonId: 'm1-skills-and-checklist',
-        checkpointId: 'm1-model-choice',
-        sceneId: 'module-1-model-choice',
+        currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-setup-checklist',
+        sceneId: 'module-1-setup-checklist',
         sceneHistory: ['intro-visual-onboarding'],
         completedCheckpointIds: ['intro-visual-onboarding']
       }
@@ -113,6 +113,52 @@ describe('ProgressRepository', () => {
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
     expect(JSON.stringify(migrated)).not.toContain('harness')
     expect(JSON.stringify(migrated)).not.toContain('m1-agents-guidance')
+  })
+
+  it('moves progress from the removed configuration page to setup Practice', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(moduleOneStart)
+    const retiredProgress = {
+      ...started,
+      currentCourseLessonId: 'm1-skills-and-checklist',
+      checkpointId: 'm1-model-choice',
+      sceneId: 'module-1-model-choice',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-1-skills-intro',
+        'module-1-model-use-cases'
+      ],
+      completedCheckpointIds: [
+        ...started.completedCheckpointIds,
+        'm1-agents-and-skills',
+        'm1-model-choice'
+      ],
+      decisions: {
+        modelChoice: 'sol-high-standard'
+      }
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-setup-checklist',
+        sceneId: 'module-1-setup-checklist',
+        sceneHistory: ['intro-visual-onboarding', 'module-1-skills-intro'],
+        completedCheckpointIds: ['intro-visual-onboarding', 'm1-agents-and-skills'],
+        decisions: {}
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-1-model')
+    expect(JSON.stringify(migrated)).not.toContain('m1-model-choice')
+    expect(migrated.decisions).not.toHaveProperty('modelChoice')
   })
 
   it('moves retired AGENTS.md progress to the restored guidance lesson', async () => {
@@ -140,7 +186,7 @@ describe('ProgressRepository', () => {
     })
   })
 
-  it('moves progress paused on the retired fifth Module 1 question to the summary', async () => {
+  it('keeps progress paused on the reactivated fifth Module 1 question', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save(moduleOneStart)
@@ -173,8 +219,8 @@ describe('ProgressRepository', () => {
       progress: {
         currentCourseLessonId: 'm1-assessment',
         checkpointId: 'm1-mastery',
-        sceneId: 'module-1-final-summary',
-        sceneHistory: ['intro-visual-onboarding', 'module-1-final-4']
+        sceneId: 'module-1-final-5',
+        sceneHistory: ['intro-visual-onboarding', 'module-1-final-4', 'module-1-final-5']
       }
     })
   })

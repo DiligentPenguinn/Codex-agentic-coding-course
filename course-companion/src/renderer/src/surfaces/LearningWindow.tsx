@@ -25,7 +25,6 @@ import releaseQuiz from '../../../../../pilot-workspace/course/quizzes/module-4.
 import teacherImage from '../assets/teacher-triet.png'
 import m1ApprovalMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/approval-menu.png'
 import m1ModelSettingsImage from '../../../../../pilot-workspace/course/codex-setup/images/model-settings.png'
-import m1ReasoningLevelsImage from '../../../../../pilot-workspace/course/codex-setup/images/reasoning-levels.png'
 import m1SlashCommandsImage from '../../../../../pilot-workspace/course/codex-setup/images/slash-commands.png'
 import m1AtMenuImage from '../../../../../pilot-workspace/course/codex-setup/images/at-menu.png'
 import m1UnderstandCodexImage from '../assets/lesson-visuals/m1-understand-codex.webp'
@@ -393,87 +392,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
     dialogue: 'Trong quá trình xây portfolio, bạn sẽ dùng frontend-design cho giao diện và copywriting cho nội dung. Bạn cũng có thể tự khám phá thêm skill tại skills.sh.',
-    choices: [{ label: 'Tiếp theo: cấu hình Codex', next: 'module-1-model-choice', primary: true }]
-  },
-  'module-1-model-choice': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 3,
-    totalSteps: 6,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Áp dụng cấu hình đã chọn',
-    panelLabel: 'CẤU HÌNH CONTENTPILOT',
-    panelStatus: '5.6 SOL · HIGH · STANDARD',
-    tone: 'good',
-    request: 'Dùng một cấu hình xuyên suốt phần thực hành để dễ đối chiếu kết quả.',
-    evidence: [
-      { label: 'SOL', value: 'Phức tạp hoặc mơ hồ' },
-      { label: 'TERRA', value: 'Công việc hằng ngày' },
-      { label: 'LUNA', value: 'Rõ và lặp lại' }
-    ],
-    dialogue: 'Bạn đã tìm hiểu Model, Effort và Speed ở phần làm quen với giao diện. Bây giờ hãy dùng 5.6 Sol, High và Standard cho ContentPilot.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
-  },
-  'module-1-model-use-cases': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 3,
-    totalSteps: 6,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Chọn model theo độ rõ và độ khó',
-    panelLabel: 'VÍ DỤ CONTENTPILOT',
-    panelStatus: 'MỘT DỰ ÁN · NHIỀU LOẠI VIỆC',
-    tone: 'neutral',
-    request: 'Dùng model mạnh hơn khi công việc có nhiều điều chưa rõ; dùng model gọn hơn khi đầu ra đã cố định.',
-    evidence: [
-      { label: 'SOL', value: 'Thiết kế luồng ứng dụng' },
-      { label: 'TERRA', value: 'Trả lời tin nhắn khách hàng' },
-      { label: 'LUNA', value: 'Sub-agent khảo sát codebase' }
-    ],
-    dialogue: 'Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày, như trả lời tin nhắn khách hàng theo hướng dẫn. Thông thường mình không dùng Luna quá nhiều. Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
-  },
-  'module-1-reasoning-effort': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 3,
-    totalSteps: 6,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Effort và Speed tạo ra hai đánh đổi khác nhau',
-    panelLabel: 'EFFORT · SPEED',
-    panelStatus: 'CHỌN HIGH · GIỮ STANDARD',
-    tone: 'neutral',
-    request: 'Mức cao hơn dành thêm công sức cho phân tích nhưng thường chậm và tốn usage hơn.',
-    evidence: [
-      { label: 'LIGHT', value: 'Việc nhỏ và rõ' },
-      { label: 'MEDIUM', value: 'Cân bằng' },
-      { label: 'HIGH', value: 'Nhiều bước, cần kiểm tra' }
-    ],
-    dialogue: 'Effort cho biết Codex dành bao nhiêu công sức để phân tích. Speed quyết định Codex xử lý ở chế độ Standard hay Fast. Với ContentPilot, mình đề xuất 5.6 Sol, High và Standard.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
-  },
-  'module-1-project-setup': {
-    lessonId: 'module-1',
-    checkpointId: 'm1-model-choice',
-    step: 3,
-    totalSteps: 6,
-    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
-    mission: 'Model và mức suy luận',
-    objective: 'Cấu hình mình đề xuất cho ContentPilot',
-    panelLabel: 'CẤU HÌNH CONTENTPILOT',
-    panelStatus: '5.6 SOL · HIGH · STANDARD',
-    tone: 'good',
-    request: 'Đây là cấu hình dành riêng cho dự án thực hành, không phải mặc định của mọi tài khoản.',
-    evidence: [
-      { label: 'MODEL', value: '5.6 Sol', ready: true },
-      { label: 'EFFORT', value: 'High', ready: true },
-      { label: 'SPEED', value: 'Standard', ready: true }
-    ],
-    dialogue: 'Mình chọn 5.6 Sol, High và Standard cho ContentPilot. Sol cùng High tạo thêm khoảng trống khi yêu cầu còn mới. Standard tránh đánh đổi thêm usage để lấy tốc độ.',
-    choices: [{ label: 'Dùng cấu hình này cho ContentPilot', next: 'module-1-setup-checklist', primary: true, decision: { key: 'modelChoice', value: 'sol-high-standard' } }]
+    choices: [{ label: 'Tiếp theo: thực hành cấu hình', next: 'module-1-setup-checklist', primary: true }]
   },
   'module-1-setup-checklist': {
     lessonId: 'module-1',
@@ -503,18 +422,20 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 6,
     lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
     mission: 'Ôn tập cuối Module 1',
-    objective: 'Sẵn sàng cho 4 câu ôn tập',
+    objective: 'Sẵn sàng cho 6 câu ôn tập',
     panelLabel: 'PRACTICE ĐÃ ĐƯỢC DUYỆT',
     panelStatus: 'ĐÃ ĐẠT · TIẾP TỤC ÔN TẬP',
     tone: 'good',
-    request: 'Bốn câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
+    request: 'Sáu câu tiếp theo yêu cầu bạn giải thích, áp dụng hoặc phân tích kiến thức vừa học.',
     evidence: [
       { label: 'MODEL', value: '5.6 Sol · High', ready: true },
       { label: 'SPEED', value: 'Standard', ready: true },
       { label: 'QUYỀN', value: 'Approve for me · Full access tắt', ready: true }
     ],
-    dialogue: 'Triết đã duyệt đủ năm thiết lập từ đúng task Codex. Bây giờ, bạn sẽ trả lời bốn câu ôn tập. Bạn cần đạt ít nhất ba câu để hoàn thành Module 1.',
-    choices: [{ label: 'Bắt đầu 4 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }]
+    dialogue: 'Bây giờ hãy cùng nhau trả lời các câu hỏi ôn tập để củng cố kiến thức vừa học nhen!',
+    choices: [{ label: 'Bắt đầu 6 câu ôn tập', next: 'module-1-final-1', primary: true, decision: { key: 'setupPractice', value: 'teacher-reviewed-setup' } }],
+    showTitle: false,
+    showPanel: false
   },
   'module-1-complete': {
     lessonId: 'module-1',
@@ -1099,7 +1020,7 @@ const scenes = {
     mission: 'Kết quả kiểm tra thiết lập Codex',
     objective: 'Đối chiếu kết quả trước khi hoàn thành',
     panelLabel: 'KẾT QUẢ',
-    panelStatus: '4 CÂU · MỐC ĐẠT 3/4',
+    panelStatus: '6 CÂU · MỐC ĐẠT 5/6',
     tone: 'neutral',
     request: 'Mỗi câu đúng hoặc tự đối chiếu đạt được tính một điểm.',
     evidence: [],
@@ -1172,8 +1093,8 @@ const practiceReviewDestinationByScene: Partial<Record<SceneId, {
   sceneId: SceneId
 }>> = {
   'module-1-setup-checklist': {
-    label: 'Bỏ qua Practice · Duyệt Module 2',
-    sceneId: contentReviewStartSceneByModule['module-2']
+    label: 'Bỏ qua Practice · Duyệt bài trắc nghiệm',
+    sceneId: 'module-1-mastery'
   },
   'module-2-portfolio-practice': {
     label: 'Bỏ qua Practice · Duyệt Module 3',
@@ -1219,10 +1140,6 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
     image: m1UnderstandCodexImage,
     alt: 'Giao diện Codex hiển thị danh sách công việc, dự án đang mở và ô nhập yêu cầu'
   },
-  'm1-skills-and-checklist': {
-    image: m1ModelSettingsImage,
-    alt: 'Menu Codex hiển thị model 5.6 Sol, Effort High và Speed Standard'
-  },
   'm1-assessment': {
     image: m1AssessmentImage,
     alt: 'Giao diện Codex hiển thị kết quả, các tệp đã tạo và những điểm cần người dùng kiểm tra'
@@ -1267,10 +1184,6 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
     image: m1SlashCommandsImage,
     alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin'
   },
-  'module-1-reasoning-effort': {
-    image: m1ReasoningLevelsImage,
-    alt: 'Menu Effort của Codex hiển thị Light, Medium, High, Extra High và Ultra'
-  },
   'module-2-prd-agent-workflow': {
     image: m2PafoliosImage,
     alt: 'Ảnh chụp Pafolios với hai portfolio được tuyển chọn',
@@ -1309,9 +1222,6 @@ const courseLessonPages = {
     ['module-1-skills-intro'],
     ['module-1-skills-portfolio']
   ],
-  'm1-skills-and-checklist': [
-    ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
-  ],
   'm1-assessment': [
     ['module-1-setup-checklist'],
     ['module-1-mastery'],
@@ -1319,6 +1229,8 @@ const courseLessonPages = {
     ['module-1-final-2'],
     ['module-1-final-3'],
     ['module-1-final-4'],
+    ['module-1-final-5'],
+    ['module-1-final-6'],
     ['module-1-final-summary'],
     ['module-1-complete']
   ],
@@ -1642,14 +1554,10 @@ function LessonVisualLightbox({
   )
 }
 
-type ModelLessonBoardKind = 'complete' | 'apply'
+type ModelLessonBoardKind = 'complete'
 
 const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = {
-  'module-1-codex-model-intro': 'complete',
-  'module-1-model-choice': 'apply',
-  'module-1-model-use-cases': 'apply',
-  'module-1-reasoning-effort': 'apply',
-  'module-1-project-setup': 'apply'
+  'module-1-codex-model-intro': 'complete'
 }
 
 function ModelLessonBoard({
@@ -1676,50 +1584,26 @@ function ModelLessonBoard({
   return (
     <section className={`pixel-model-board is-${kind}`} aria-labelledby={titleId}>
       <div className="pixel-model-board__copy">
-        {kind === 'complete' ? (
-          <>
-            <header>
-              <small>MODEL · EFFORT · SPEED</small>
-              <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
-              <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
-            </header>
-            <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
-            <div className="pixel-model-board__models">
-              <article>
-                <span>SOL</span>
-                <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
-              </article>
-              <article>
-                <span>TERRA</span>
-                <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
-              </article>
-              <article>
-                <span>LUNA</span>
-                <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
-              </article>
-            </div>
-          </>
-        ) : null}
-
-        {kind === 'apply' ? (
-          <>
-            <header>
-              <small>ÁP DỤNG VÀO CONTENTPILOT</small>
-              <h1 id={titleId}>Dùng cấu hình đã chọn</h1>
-              <p>Túm cái quần lại, dưới đây là những setup mình khuyên bạn nên thiết lập cho Codex</p>
-            </header>
-            <dl className="pixel-model-board__definitions">
-              <div><dt>Model</dt><dd>GPT-5.6 Sol</dd></div>
-              <div><dt>Effort</dt><dd>High</dd></div>
-              <div><dt>Speed</dt><dd>Standard</dd></div>
-            </dl>
-            <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-              <strong>GPT-5.6 Sol · High · Standard</strong>
-              <p>Đây là cấu hình dành cho ContentPilot, không phải thiết lập mặc định của mọi tài khoản Codex.</p>
-            </div>
-          </>
-        ) : null}
+        <header>
+          <small>MODEL · EFFORT · SPEED</small>
+          <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
+          <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
+        </header>
+        <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
+        <div className="pixel-model-board__models">
+          <article>
+            <span>SOL</span>
+            <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+          </article>
+          <article>
+            <span>TERRA</span>
+            <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
+          </article>
+          <article>
+            <span>LUNA</span>
+            <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
+          </article>
+        </div>
       </div>
 
       <div className="pixel-model-board__media">
@@ -1727,26 +1611,22 @@ function ModelLessonBoard({
           <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
           <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
         </figure>
-        {kind === 'complete' ? (
-          <>
-            <div className="pixel-model-board__tradeoffs">
-              <section>
-                <h2>Effort</h2>
-                <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
-                <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
-              </section>
-              <section>
-                <h2>Speed</h2>
-                <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
-                <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
-              </section>
-            </div>
-            <div className="pixel-model-board__recommendation">
-              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-              <strong>GPT-5.6 Sol · High · Standard</strong>
-            </div>
-          </>
-        ) : null}
+        <div className="pixel-model-board__tradeoffs">
+          <section>
+            <h2>Effort</h2>
+            <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
+            <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+          </section>
+          <section>
+            <h2>Speed</h2>
+            <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
+            <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+          </section>
+        </div>
+        <div className="pixel-model-board__recommendation">
+          <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
+          <strong>GPT-5.6 Sol · High · Standard</strong>
+        </div>
       </div>
 
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
@@ -2158,7 +2038,6 @@ function EntryScreen({
 const futureModules = ['Kiểm chứng, phát hành và chứng minh quyền làm chủ']
 
 const decisionLabels: Record<string, string> = {
-  modelChoice: 'Cấu hình ContentPilot',
   approvalApproach: 'Thiết lập approval',
   guidanceBoundary: 'Ranh giới hướng dẫn',
   skillBoundary: 'Cách dùng Skill',
@@ -2177,7 +2056,6 @@ const decisionLabels: Record<string, string> = {
 }
 
 const decisionValues: Record<string, string> = {
-  'sol-high-standard': '5.6 Sol · High · Standard',
   'approve-for-me-no-full-access': 'Approve for me · Full access tắt',
   'teacher-reviewed-setup': 'Triết đã duyệt bằng chứng cấu hình',
   'recommended-default': 'Giữ thiết lập được đề xuất',
@@ -2188,6 +2066,7 @@ const decisionValues: Record<string, string> = {
   'reviewed-in-companion': 'Đã xem lại trong Course Companion',
   'passed-four-of-five': 'Đạt ít nhất 4/5 câu',
   'passed-three-of-four': 'Đạt ít nhất 3/4 câu',
+  'passed-five-of-six': 'Đạt ít nhất 5/6 câu',
   'continued-existing-planning-progress': 'Đã chuyển tiếp từ lộ trình Planning cũ',
   'plan-first': 'Planning trước khi code',
   'product-requirements': 'Luồng sử dụng, đầu vào, đầu ra và phạm vi V1',
@@ -3014,8 +2893,7 @@ export function LearningWindow() {
         progress.decisions[assessmentDecisionKey(question.id)]
       ]))
     : {}
-  const isModuleTwoAssessmentQuestion = scene.lessonId === 'module-2'
-    && Boolean(assessmentQuestion && assessmentGroup)
+  const isAssessmentQuestionPage = Boolean(assessmentQuestion && assessmentGroup)
   const assessmentContinueLabel = assessmentGroup?.mode === 'mastery'
     ? `Xem kết quả ${assessmentGroup.questions.length} câu`
     : 'Tiếp tục bài học'
@@ -3062,7 +2940,9 @@ export function LearningWindow() {
     && !assessmentQuestion
     && !scene.assessmentSummary
     && scene.choices.length === 1
-  const showsSceneTitle = scene.showTitle !== false && !usesLessonBoard
+  const showsSceneTitle = scene.showTitle !== false
+    && !usesLessonBoard
+    && !isAssessmentQuestionPage
   const showsScenePanel = shouldShowScenePanel && !usesLessonBoard && !lessonVisual
   const sceneTitle = showsSceneTitle
     ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
@@ -3270,12 +3150,12 @@ export function LearningWindow() {
       ) : null}
 
       <section
-        aria-label={isModuleTwoAssessmentQuestion ? 'Câu hỏi Module 2' : undefined}
-        aria-labelledby={isModuleTwoAssessmentQuestion ? undefined : 'teacherName'}
+        aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
+        aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
         className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}`}
       >
-        {isModuleTwoAssessmentQuestion ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
-        {isModuleTwoAssessmentQuestion ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
+        {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
+        {isAssessmentQuestionPage ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
           <PortfolioWorkspacePicker
             courseRunId={progress.courseRunId}
             onContinue={() => void advanceToScene('module-2-portfolio-agents-setup', progress.decisions)}
@@ -3319,7 +3199,7 @@ export function LearningWindow() {
             continueLabel={assessmentContinueLabel}
             group={assessmentGroup}
             key={assessmentGroup.id}
-            questionOnly={isModuleTwoAssessmentQuestion}
+            questionOnly={isAssessmentQuestionPage}
             results={assessmentResults}
             onSubmit={(answers) => saveAssessmentBatch(assessmentGroup, answers)}
             onConfirmWritten={(question, answer) => saveAssessmentResult(question, `correct:self-review:${answer}`)}
@@ -3375,7 +3255,7 @@ export function LearningWindow() {
                       label: scene.lessonId === 'module-1' ? 'Hoàn thành Module 1' : 'Hoàn thành Module 2',
                       next: scene.lessonId === 'module-1' ? 'module-1-complete' : 'module-2-complete',
                       decision: scene.lessonId === 'module-1'
-                        ? { key: 'setupMastery', value: 'passed-three-of-four' }
+                        ? { key: 'setupMastery', value: 'passed-five-of-six' }
                         : { key: 'masteryEvidence', value: 'artifacts-approved-and-aligned' }
                     })
                   : void retryFinalAssessment()}

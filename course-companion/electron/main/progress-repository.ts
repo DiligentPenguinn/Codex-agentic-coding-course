@@ -41,11 +41,13 @@ const RETIRED_MODULE_ONE_SCENES = new Set([
   'module-1-agents-guidance',
   'module-1-harness-intro',
   'module-1-harness-codex',
-  'module-1-skills'
+  'module-1-skills',
+  'module-1-model-choice',
+  'module-1-model-use-cases',
+  'module-1-reasoning-effort',
+  'module-1-project-setup'
 ])
-const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
-  'module-1-final-5'
-])
+const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set<string>()
 const RETIRED_MODULE_TWO_SCENES = new Set([
   'module-2-prd-anatomy',
   'module-2-prd-introduction',
@@ -58,11 +60,13 @@ const RETIRED_MODULE_TWO_SCENES = new Set([
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
   'm1-agents-guidance',
-  'm1-skills'
+  'm1-skills',
+  'm1-model-choice'
 ])
 const RETIRED_MODULE_ONE_LESSONS = new Set([
   'm1-workspace-permissions',
-  'm1-agents-guidance'
+  'm1-agents-guidance',
+  'm1-skills-and-checklist'
 ])
 const DIGEST = /^[a-f0-9]{64}$/
 const moduleTwoMasteryQuestionIds = [
@@ -107,7 +111,8 @@ function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean 
     )) ||
     (Array.isArray(value.completedCheckpointIds) && value.completedCheckpointIds.some(
       (checkpointId) => typeof checkpointId === 'string' && RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
-    ))
+    )) ||
+    (isRecord(value.decisions) && Object.hasOwn(value.decisions, 'modelChoice'))
   )
 }
 
@@ -118,7 +123,7 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
     : raw.sceneId === 'module-1-skills'
       ? 'module-1-skills-intro'
       : typeof raw.sceneId === 'string' && RETIRED_MODULE_ONE_SCENES.has(raw.sceneId)
-        ? 'module-1-model-choice'
+        ? 'module-1-setup-checklist'
         : undefined
   const routesToGuidanceLesson = retiredSceneDestination === 'module-1-agents-intro'
     || retiredSceneDestination === 'module-1-skills-intro'
@@ -130,18 +135,19 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
         ? retiredSceneDestination
         : raw.sceneId,
     checkpointId: retiredSceneDestination
-      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-model-choice'
+      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-setup-checklist'
       : raw.checkpointId === 'm1-agents-guidance' || raw.checkpointId === 'm1-skills'
         ? 'm1-agents-and-skills'
-        : raw.checkpointId === 'm1-permissions'
-          ? 'm1-model-choice'
+        : raw.checkpointId === 'm1-permissions' || raw.checkpointId === 'm1-model-choice'
+          ? 'm1-setup-checklist'
       : raw.checkpointId,
     currentCourseLessonId: retiredSceneDestination
-      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-skills-and-checklist'
+      ? routesToGuidanceLesson ? 'm1-agents-and-skills' : 'm1-assessment'
       : raw.currentCourseLessonId === 'm1-agents-guidance'
         ? 'm1-agents-and-skills'
         : raw.currentCourseLessonId === 'm1-workspace-permissions'
-          ? 'm1-skills-and-checklist'
+          || raw.currentCourseLessonId === 'm1-skills-and-checklist'
+          ? 'm1-assessment'
       : raw.currentCourseLessonId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter((sceneId) => typeof sceneId !== 'string' || (
@@ -153,7 +159,10 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
       ? raw.completedCheckpointIds.filter(
           (checkpointId) => typeof checkpointId !== 'string' || !RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
         )
-      : raw.completedCheckpointIds
+      : raw.completedCheckpointIds,
+    decisions: isRecord(raw.decisions)
+      ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) => key !== 'modelChoice'))
+      : raw.decisions
   }
 }
 

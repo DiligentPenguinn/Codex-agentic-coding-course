@@ -102,19 +102,10 @@ thiệu `skills.sh` là nơi khám phá skill do cộng đồng chia sẻ và n�
 chưa cần cài thêm skill trong Module 1.
 
 [Dừng chờ Learner xem đủ ba trang của bài `AGENTS.md` và Skills. Khi chuyển sang
-phần cấu hình, lưu checkpoint `m1-agents-and-skills`. Không kiểm tra tệp và không
+phần thực hành, lưu checkpoint `m1-agents-and-skills`. Không kiểm tra tệp và không
 yêu cầu ảnh chụp.]
 
-## Bước 3 — Áp dụng cấu hình Codex (`m1-model-choice`)
-
-Teacher nói: "Với ContentPilot, mình khuyên bạn dùng 5.6 Sol, High, Standard và
-Approve for me. Hãy để Full access tắt. Đây là cấu hình mình chọn cho dự án thực
-hành, không phải thiết lập mặc định của mọi tài khoản Codex."
-
-[Chỉ hiện một màn hình áp dụng cấu hình, không lặp lại phần giải thích. Ghi quyết
-định `modelChoice=sol-high-standard`. Checkpoint `m1-model-choice`.]
-
-## Bước 4 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
+## Bước 3 — Nộp cấu hình để Triết duyệt (`m1-setup-checklist`)
 
 Teacher nói: "Bây giờ Course Companion sẽ mở một task Codex riêng để bạn cài
 cấu hình thật. Ứng dụng chỉ đọc metadata cấu hình hiệu lực của đúng task này;
@@ -131,7 +122,7 @@ Course Companion để xem giá trị được phát hiện và mục nào còn 
 [Mở Practice `m1-codex-safe-setup`. Chỉ dùng đúng task Executor được liên kết.
 Checkpoint `m1-setup-checklist` khi metadata mới của task đã có đủ năm mục.]
 
-## Bước 5 — Triết duyệt bằng chứng
+## Bước 4 — Triết duyệt bằng chứng
 
 [Khi Learner chọn **Yêu cầu Triết duyệt tiến độ**, đối chiếu metadata hiệu lực
 theo Practice definition. Không nhận lời tự xác nhận thay cho dữ liệu của đúng
@@ -143,18 +134,18 @@ Approve for me và Full access đang tắt. Metadata đến từ đúng task và
 
 [Lưu kết quả Practice đạt. Chưa hoàn thành checkpoint `m1-mastery`.]
 
-## Bước 6 — Ôn tập cuối Module 1 (`m1-mastery`)
+## Bước 5 — Ôn tập cuối Module 1 (`m1-mastery`)
 
 Teacher nói: "Bạn đã thiết lập Codex và kiểm tra bằng chứng thật. Bây giờ, bốn
 câu ôn tập sẽ giúp bạn giải thích, áp dụng và phân tích những gì vừa học. Bạn
-cần đạt ít nhất ba câu để hoàn thành Module 1."
+cần đạt ít nhất năm câu để hoàn thành Module 1."
 
-[Dùng đủ bốn câu trong `course/quizzes/module-1.quiz.json`. Mở Assessment State
+[Dùng đủ sáu câu trong `course/quizzes/module-1.quiz.json`. Mở Assessment State
 cho từng câu và hỏi từng câu một. Chỉ hiện phản hồi, lời giải cùng nguồn sau khi
-Learner đã trả lời. Nếu chưa đạt 3/4, cho làm lại bài ôn tập. Khi đạt, lưu
+Learner đã trả lời. Nếu chưa đạt 5/6, cho làm lại bài ôn tập. Khi đạt, lưu
 checkpoint `m1-mastery`.]
 
-## Bước 7 — Hoàn thành Module 1 (`m1-complete`)
+## Bước 6 — Hoàn thành Module 1 (`m1-complete`)
 
 Teacher nói: "Bạn đã có cấu hình an toàn để bắt đầu ContentPilot. Quan trọng
 hơn, bạn biết cách chọn model, mức suy luận và quyền truy cập phù hợp trước khi

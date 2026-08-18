@@ -503,31 +503,6 @@ button:focus-visible {
   line-height: 1.3;
 }
 
-.pixel-model-board__definitions {
-  margin: 20px 0 0;
-  display: grid;
-  gap: 8px;
-}
-.pixel-model-board__definitions > div {
-  padding: 11px 13px;
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  align-items: baseline;
-  gap: 14px;
-  border-left: 3px solid var(--pixel-accent);
-  background: #000;
-}
-.pixel-model-board__definitions dt {
-  color: var(--pixel-accent);
-  font: 800 10px/1 var(--pixel-font);
-}
-.pixel-model-board__definitions dd {
-  margin: 0;
-  color: #fff;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
 .pixel-model-board__models {
   margin-top: 18px;
   display: grid;
@@ -888,6 +863,7 @@ button:focus-visible {
 .pixel-skill-excerpt { padding: 18px; }
 .pixel-skill-excerpt pre { margin: 0; overflow-x: auto; white-space: pre-wrap; }
 .pixel-skill-excerpt code { color: var(--pixel-yellow); font: 600 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.pixel-guidance-board.is-skills-portfolio .pixel-guidance-board__copy,
 .pixel-guidance-board.is-skills-portfolio .pixel-guidance-board__panel {
   display: grid;
   align-content: center;
@@ -2805,7 +2781,6 @@ button:focus-visible {
   .pixel-model-board__copy h1 { font-size: 22px; }
   .pixel-model-board__copy header > p { font-size: 14px; }
   .pixel-model-board.is-complete .pixel-model-board__copy { padding-bottom: 18px; }
-  .pixel-model-board__definitions > div { grid-template-columns: 68px minmax(0, 1fr); gap: 9px; }
   .pixel-model-board__models article { grid-template-columns: 58px minmax(0, 1fr); gap: 10px; }
   .pixel-model-board__tradeoffs { grid-template-columns: 1fr; }
   .pixel-model-board__media,
@@ -3516,7 +3491,6 @@ button:focus-visible {
 
 .pixel-consequence,
 .pixel-lesson-visual,
-.pixel-model-board__definitions > div,
 .pixel-model-board__models article,
 .pixel-model-board__note,
 .pixel-model-board__tradeoffs > section,
@@ -3584,7 +3558,6 @@ button:focus-visible {
   opacity: 0.18;
 }
 
-.pixel-model-board__definitions > div,
 .pixel-model-board__models article,
 .pixel-model-board__tradeoffs > section,
 .pixel-request,

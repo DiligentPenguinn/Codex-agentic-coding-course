@@ -50,7 +50,14 @@ const legacyCheckpointIds = [
   'm2-complete'
 ] as const
 
-const introAndModuleOneCheckpointIds = legacyCheckpointIds.slice(0, 7)
+const introAndModuleOneCheckpointIds = [
+  'intro-visual-onboarding',
+  'm1-codex-orientation',
+  'm1-agents-and-skills',
+  'm1-setup-checklist',
+  'm1-mastery',
+  'm1-complete'
+] as const
 
 // Introduction and Module 1 stay on the legacy renderer. Modules 2–4 use the
 // typed registry; retired Module 2 IDs remain readable but no longer count as
@@ -86,6 +93,8 @@ const legacySceneIds = [
   'module-1-final-2',
   'module-1-final-3',
   'module-1-final-4',
+  'module-1-final-5',
+  'module-1-final-6',
   'module-1-final-summary',
   'module-1-complete',
   'module-2-why-planning',
@@ -195,6 +204,8 @@ export const sceneCheckpoint: Record<SceneId, CheckpointId> = {
   'module-1-final-2': 'm1-mastery',
   'module-1-final-3': 'm1-mastery',
   'module-1-final-4': 'm1-mastery',
+  'module-1-final-5': 'm1-mastery',
+  'module-1-final-6': 'm1-mastery',
   'module-1-final-summary': 'm1-mastery',
   'module-1-complete': 'm1-complete',
   'module-2-why-planning': 'm2-why-planning',
