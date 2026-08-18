@@ -1033,10 +1033,10 @@ try {
   await learningPage.getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' }).waitFor()
   await learningPage.getByRole('button', { name: 'Mở Course Companion', exact: true }).click()
   await learningPage.getByRole('button', { name: /MODULE 2.*MỞ BÀI HỌC/ }).click()
-  await learningPage.getByText('6 TÌNH HUỐNG · 4 CÂU TỪ ARTIFACT', { exact: true }).waitFor()
+  await learningPage.getByText('5 TÌNH HUỐNG · 4 CÂU TỪ ARTIFACT', { exact: true }).waitFor()
   await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await answerAssessmentGroup(learningPage, 'final-assessment')
-  await learningPage.getByText('Bạn đã trả lời 10/10 câu.', { exact: false }).waitFor()
+  await learningPage.getByText('Bạn đã trả lời 9/9 câu.', { exact: false }).waitFor()
   await capture(learningPage, 'module-2-portfolio-mastery-summary.png')
 
   await resumedLaunch.evaluate(({ BrowserWindow }) => {
@@ -1075,7 +1075,7 @@ try {
     Object.entries(persisted.decisions).filter(
       ([key, value]) => key.startsWith('assessment:mastery-') && String(value).startsWith('correct')
     ).length,
-    10
+    9
   )
   assert.equal(persisted.practice.status, 'idle')
 

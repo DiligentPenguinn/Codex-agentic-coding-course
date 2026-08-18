@@ -57,7 +57,6 @@ export const moduleTwoDefinition = {
     { id: 'module-2-portfolio-practice', checkpointId: 'm2-portfolio-planning', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-portfolio-mastery' },
     { id: 'module-2-portfolio-mastery', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract', nextSceneId: 'module-2-mastery-scenario-viewer' },
     { id: 'module-2-mastery-scenario-viewer', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
-    { id: 'module-2-mastery-scenario-evidence', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-reference', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-prd', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },
     { id: 'module-2-mastery-scenario-validation', checkpointId: 'm2-portfolio-mastery', courseLessonId: 'm2-implementation-contract' },

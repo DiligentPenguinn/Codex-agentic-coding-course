@@ -290,7 +290,7 @@ const instructionalScenes = {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-mastery', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Chứng minh bạn sở hữu kế hoạch',
     objective: 'Mastery là một gate riêng với Practice', panelLabel: 'BẰNG CHỨNG HỌC TẬP',
-    panelStatus: '6 TÌNH HUỐNG · 4 CÂU TỪ ARTIFACT', tone: 'good',
+    panelStatus: '5 TÌNH HUỐNG · 4 CÂU TỪ ARTIFACT', tone: 'good',
     request: 'Bạn cần áp dụng nguyên tắc và dẫn chiếu các quyết định thật trong planning package của mình.',
     evidence: [
       { label: 'PRACTICE', value: 'Năm giai đoạn đã được duyệt', ready: true },

@@ -241,6 +241,57 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('module-2-prd-introduction')
   })
 
+  it('removes saved progress for the retired Module 2 mastery question', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-implementation-contract',
+      checkpointId: 'm2-portfolio-mastery',
+      sceneId: 'module-2-portfolio-mastery',
+      sceneHistory: ['module-2-portfolio-practice'],
+      completedCheckpointIds: ['m2-portfolio-planning'],
+      decisions: {}
+    })
+    const retiredProgress = {
+      ...started,
+      sceneId: 'module-2-mastery-scenario-evidence',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-portfolio-mastery',
+        'module-2-mastery-scenario-viewer',
+        'module-2-mastery-scenario-evidence'
+      ],
+      decisions: {
+        'assessment:mastery-1': 'correct:1',
+        'assessment:mastery-2': 'correct:1'
+      }
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        sceneId: 'module-2-mastery-scenario-reference',
+        sceneHistory: [
+          'module-2-portfolio-practice',
+          'module-2-portfolio-mastery',
+          'module-2-mastery-scenario-viewer'
+        ],
+        decisions: {
+          'assessment:mastery-1': 'correct:1'
+        }
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('mastery-2')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-mastery-scenario-evidence')
+  })
+
   it('resumes an exact page inside the opening introduction', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     await repository.save(introStart)

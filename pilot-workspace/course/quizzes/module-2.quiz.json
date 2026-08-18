@@ -291,26 +291,6 @@
           }
         },
         {
-          "id": "mastery-2",
-          "sceneId": "module-2-mastery-scenario-evidence",
-          "type": "multiple-choice",
-          "prompt": "Một chứng nhận có thật, nhưng tên và mã định danh cá nhân trên ảnh không cần cho người xem. Cách xử lý nào phù hợp?",
-          "choices": [
-            "Đăng ảnh gốc vì chứng nhận là thật.",
-            "Ghi trạng thái Có bằng chứng, nhưng che hoặc loại dữ liệu không cần thiết trước khi công khai.",
-            "Đổi trạng thái thành giả định.",
-            "Không cần ghi quyền riêng tư trong planning."
-          ],
-          "answerIndex": 1,
-          "explanation": "Tính xác thực không loại bỏ rủi ro riêng tư. Nội dung công khai chỉ nên giữ dữ liệu cần cho mục tiêu, trong khi inventory vẫn ghi nguồn và cách xử lý.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Inventory được phê duyệt phải phân biệt bằng chứng với privacy risks và publication constraints trước khi nội dung đi vào sản phẩm."
-          }
-        },
-        {
           "id": "mastery-3",
           "sceneId": "module-2-mastery-scenario-reference",
           "type": "multiple-choice",

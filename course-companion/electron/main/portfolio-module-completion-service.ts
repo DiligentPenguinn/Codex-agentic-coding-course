@@ -16,7 +16,6 @@ import type { ProgressRepository } from './progress-repository'
 
 const masteryQuestionIds = [
   'mastery-1',
-  'mastery-2',
   'mastery-3',
   'mastery-4',
   'mastery-5',
@@ -26,7 +25,12 @@ const masteryQuestionIds = [
   'mastery-evidence-gap',
   'mastery-requirement-validation'
 ] as const
-const writtenQuestionIds = masteryQuestionIds.slice(6)
+const writtenQuestionIds = [
+  'mastery-audience-choice',
+  'mastery-scope-boundary',
+  'mastery-evidence-gap',
+  'mastery-requirement-validation'
+] as const
 
 function digest(value: string): string {
   return createHash('sha256').update(value).digest('hex')

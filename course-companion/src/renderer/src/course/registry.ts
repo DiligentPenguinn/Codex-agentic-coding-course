@@ -55,7 +55,6 @@ const rendererModules = [
         ['module-2-portfolio-practice'],
         ['module-2-portfolio-mastery'],
         ['module-2-mastery-scenario-viewer'],
-        ['module-2-mastery-scenario-evidence'],
         ['module-2-mastery-scenario-reference'],
         ['module-2-mastery-scenario-prd'],
         ['module-2-mastery-scenario-validation'],

@@ -60,7 +60,7 @@ async function fixture() {
   const digests = new Map(Object.entries(contents).map(([path, content]) => [path, sha256(content)]))
   const progressRepository = new ProgressRepository(dataDirectory, () => new Date(observedAt))
   const decisions = Object.fromEntries([
-    ...Array.from({ length: 6 }, (_, index) => [`assessment:mastery-${index + 1}`, 'correct:1']),
+    ...[1, 3, 4, 5, 6].map((index) => [`assessment:mastery-${index}`, 'correct:1']),
     ['assessment:mastery-audience-choice', 'correct:self-review:Nhà tuyển dụng cần quyết định mời tôi phỏng vấn dựa trên dự án thật.'],
     ['assessment:mastery-scope-boundary', 'correct:self-review:Blog nằm ngoài phạm vi và tôi đối chiếu plan để giữ nó bên ngoài.'],
     ['assessment:mastery-evidence-gap', 'correct:self-review:Số liệu chuyển đổi còn thiếu nên tôi không trình bày như một kết quả đã kiểm chứng.'],

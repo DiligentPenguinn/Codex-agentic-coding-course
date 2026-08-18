@@ -48,7 +48,8 @@ const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
 ])
 const RETIRED_MODULE_TWO_SCENES = new Set([
   'module-2-prd-anatomy',
-  'module-2-prd-introduction'
+  'module-2-prd-introduction',
+  'module-2-mastery-scenario-evidence'
 ])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
@@ -62,7 +63,6 @@ const RETIRED_MODULE_ONE_LESSONS = new Set([
 const DIGEST = /^[a-f0-9]{64}$/
 const moduleTwoMasteryQuestionIds = [
   'mastery-1',
-  'mastery-2',
   'mastery-3',
   'mastery-4',
   'mastery-5',
@@ -71,6 +71,10 @@ const moduleTwoMasteryQuestionIds = [
   'mastery-scope-boundary',
   'mastery-evidence-gap',
   'mastery-requirement-validation'
+] as const
+const legacyModuleTwoMasteryQuestionIds = [
+  ...moduleTwoMasteryQuestionIds,
+  'mastery-2'
 ] as const
 
 function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean {
@@ -127,19 +131,26 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
   const hasRetiredHistory = Array.isArray(raw.sceneHistory) && raw.sceneHistory.some(
     (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(sceneId)
   )
-  if (!hasRetiredScene && !hasRetiredHistory) return raw
+  const hasRetiredMasteryAnswer = isRecord(raw.decisions)
+    && Object.hasOwn(raw.decisions, 'assessment:mastery-2')
+  if (!hasRetiredScene && !hasRetiredHistory && !hasRetiredMasteryAnswer) return raw
   return {
     ...raw,
     sceneId: raw.sceneId === 'module-2-prd-anatomy'
       ? 'module-2-prd-review-workflow'
       : raw.sceneId === 'module-2-prd-introduction'
         ? 'module-2-prd-agent-workflow'
+        : raw.sceneId === 'module-2-mastery-scenario-evidence'
+          ? 'module-2-mastery-scenario-reference'
         : raw.sceneId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter(
           (sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_TWO_SCENES.has(sceneId)
         )
-      : raw.sceneHistory
+      : raw.sceneHistory,
+    decisions: isRecord(raw.decisions)
+      ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) => key !== 'assessment:mastery-2'))
+      : raw.decisions
   }
 }
 
@@ -218,9 +229,10 @@ function isPortfolioPlanningHandoff(value: unknown): boolean {
   if (!mastery || !hasExactKeys(mastery, ['questionIds', 'answerDigest'])
     || !Array.isArray(mastery.questionIds)) return false
   const masteryQuestionValues = mastery.questionIds
-  if (masteryQuestionValues.length !== moduleTwoMasteryQuestionIds.length
-    || !masteryQuestionValues.every((id) => typeof id === 'string')
-    || !moduleTwoMasteryQuestionIds.every((id) => masteryQuestionValues.includes(id))
+  const hasQuestionIds = (expected: readonly string[]) => masteryQuestionValues.length === expected.length
+    && expected.every((id) => masteryQuestionValues.includes(id))
+  if (!masteryQuestionValues.every((id) => typeof id === 'string')
+    || (!hasQuestionIds(moduleTwoMasteryQuestionIds) && !hasQuestionIds(legacyModuleTwoMasteryQuestionIds))
     || !DIGEST.test(String(mastery.answerDigest))) return false
   if (!summary || !hasExactKeys(summary, [
     'learnerDecision', 'evidenceBoundary', 'firstBuild', 'deliberatelyOutOfScope'
