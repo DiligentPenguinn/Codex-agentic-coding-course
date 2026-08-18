@@ -1,5 +1,12 @@
 # Kế hoạch bàn giao integration Teacher/Executor — Module 2
 
+> [!IMPORTANT]
+> **Duy phụ trách thiết kế Practice Module 2.**
+> Hãy bắt đầu từ **Mục 3 — Hợp đồng năm giai đoạn và năm tài liệu**. Dùng năm
+> giai đoạn, năm tài liệu và các điều kiện duyệt trong mục đó làm yêu cầu bắt
+> buộc cho luồng Practice. Practice không được thêm tài liệu thứ sáu, bỏ qua lượt
+> người học duyệt hoặc đi sang phần triển khai của Module 3.
+
 - **Trạng thái:** Nội dung và luồng review Module 2 đã hoàn thành để bàn giao;
   Practice năm tài liệu và integration Teacher/Executor chưa được triển khai.
 - **Chủ sở hữu phần việc:** Người triển khai Teacher/Executor và Practice runtime.
