@@ -90,21 +90,7 @@ const instructionalScenes = {
       { label: 'RANH GIỚI', value: 'Điều thuộc và không thuộc phiên bản đầu' }
     ],
     dialogue: 'PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến framework, thư viện hoặc cấu trúc code. PRD không phải một bản mô tả kỹ thuật và cũng không phải lời nhắc để AI xây toàn bộ ứng dụng ngay lập tức.',
-    choices: [{ label: 'Xem một PRD tốt cần có gì', next: 'module-2-prd-anatomy', primary: true }]
-  },
-  'module-2-prd-anatomy': {
-    lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 2 · PLANNING VÀ PRD', mission: 'Một PRD tốt cần có gì?',
-    objective: 'Biến một ý tưởng mơ hồ thành yêu cầu có thể kiểm tra', panelLabel: 'CẤU TRÚC PRD',
-    panelStatus: 'MỤC TIÊU → YÊU CẦU → TIÊU CHÍ', tone: 'neutral',
-    request: '“Hãy tạo một ứng dụng giúp tôi theo dõi thói quen” mới chỉ là ý tưởng ban đầu.',
-    evidence: [
-      { label: 'BỐI CẢNH', value: 'Vấn đề · người dùng · mục tiêu' },
-      { label: 'PHẠM VI', value: 'Yêu cầu · ngoài phạm vi · ràng buộc' },
-      { label: 'HOÀN THÀNH', value: 'Tiêu chí chấp nhận có thể quan sát' }
-    ],
-    dialogue: 'Một PRD tốt làm rõ bối cảnh, người dùng, mục tiêu, yêu cầu, điều ngoài phạm vi, ràng buộc và câu hỏi còn mở. Mỗi yêu cầu quan trọng cần đi cùng tiêu chí chấp nhận. Nhờ đó, bạn có thể kiểm tra sản phẩm bằng hành vi quan sát được thay vì chỉ hỏi coding agent rằng mọi thứ đã xong chưa.',
-    choices: [{ label: 'Xem cách làm PRD cùng coding agent', next: 'module-2-prd-review-workflow', primary: true }]
+    choices: [{ label: 'Xem một PRD tốt cần có gì', next: 'module-2-prd-review-workflow', primary: true }]
   },
   'module-2-prd-review-workflow': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
@@ -141,8 +127,8 @@ const instructionalScenes = {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Sẵn sàng vào Practice',
     objective: 'Chọn nơi lưu các tài liệu planning', panelLabel: 'BƯỚC TIẾP THEO',
-    panelStatus: '6 TRANG · 1 PRACTICE', tone: 'good',
-    request: 'Sáu trang giải thích dẫn tới một Practice duy nhất.',
+    panelStatus: '5 TRANG · 1 PRACTICE', tone: 'good',
+    request: 'Năm trang giải thích dẫn tới một Practice duy nhất.',
     evidence: [
       { label: 'ĐẦU RA', value: 'Năm tài liệu trong planning/' },
       { label: 'CÁCH LÀM', value: 'Một task Codex xuyên suốt' },

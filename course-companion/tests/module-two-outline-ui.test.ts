@@ -8,7 +8,6 @@ describe('Module 2 outline menu', () => {
     expect(moduleTwoOutlineSections).toEqual([
       'Lập kế hoạch trước khi xây',
       'PRD là gì và dùng để làm gì?',
-      'Một PRD tốt cần có những gì?',
       'Dùng coding agent để tạo, review và duyệt PRD',
       'Một task Codex, năm lần duyệt',
       'Năm giai đoạn, năm tài liệu',

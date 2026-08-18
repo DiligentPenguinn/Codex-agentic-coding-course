@@ -154,7 +154,7 @@ describe('ProgressRepository', () => {
     })
   })
 
-  it('resumes progress on the restored PRD anatomy page without skipping it', async () => {
+  it('redirects saved progress from the retired PRD anatomy page to PRD review', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save({
@@ -185,7 +185,7 @@ describe('ProgressRepository', () => {
       progress: {
         currentCourseLessonId: 'm2-portfolio-brief',
         checkpointId: 'm2-portfolio-brief',
-        sceneId: 'module-2-prd-anatomy',
+        sceneId: 'module-2-prd-review-workflow',
         sceneHistory: [
           'module-2-portfolio-workspace',
           'module-2-prd-definition'

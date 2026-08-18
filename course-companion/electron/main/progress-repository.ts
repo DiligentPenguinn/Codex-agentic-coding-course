@@ -46,6 +46,9 @@ const RETIRED_MODULE_ONE_SCENES = new Set([
 const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
   'module-1-final-5'
 ])
+const RETIRED_MODULE_TWO_SCENES = new Set([
+  'module-2-prd-anatomy'
+])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
   'm1-agents-guidance',
@@ -115,6 +118,23 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
           (checkpointId) => typeof checkpointId !== 'string' || !RETIRED_MODULE_ONE_CHECKPOINTS.has(checkpointId)
         )
       : raw.completedCheckpointIds
+  }
+}
+
+function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Record<string, unknown> {
+  const hasRetiredScene = typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(raw.sceneId)
+  const hasRetiredHistory = Array.isArray(raw.sceneHistory) && raw.sceneHistory.some(
+    (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(sceneId)
+  )
+  if (!hasRetiredScene && !hasRetiredHistory) return raw
+  return {
+    ...raw,
+    sceneId: hasRetiredScene ? 'module-2-prd-review-workflow' : raw.sceneId,
+    sceneHistory: Array.isArray(raw.sceneHistory)
+      ? raw.sceneHistory.filter(
+          (sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_TWO_SCENES.has(sceneId)
+        )
+      : raw.sceneHistory
   }
 }
 
@@ -450,7 +470,7 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
   if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
-    const redirected = redirectRetiredModuleOneReferences(raw)
+    const redirected = redirectRetiredModuleTwoReferences(redirectRetiredModuleOneReferences(raw))
     const compatible = {
       ...redirected,
       ...(redirected.courseRunId === undefined ? { courseRunId: courseRunId(startedAt) } : {}),

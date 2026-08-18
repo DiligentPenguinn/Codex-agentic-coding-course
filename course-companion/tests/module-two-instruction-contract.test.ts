@@ -36,13 +36,12 @@ const approvedPortfolioTransition = 'Bây giờ, chúng ta sẽ chính thức b�
 const conceptualParts = [
   'Phần 1 — Tại sao cần planning trước khi code với AI?',
   'Phần 2 — PRD là gì và dùng để làm gì?',
-  'Phần 3 — Một PRD tốt cần có những gì?',
-  'Phần 4 — Dùng coding agent để tạo, review và duyệt PRD',
-  'Phần 5 — Thực hành: Lập kế hoạch cho portfolio'
+  'Phần 3 — Dùng coding agent để tạo, review và duyệt PRD',
+  'Phần 4 — Thực hành: Lập kế hoạch cho portfolio'
 ]
 
 describe('Module 2 instruction contract', () => {
-  it('keeps the current Teacher integration baseline while preserving every approved PRD page', async () => {
+  it('keeps the current Teacher integration baseline without the retired PRD anatomy page', async () => {
     const [lesson, script, prompt, moduleTwoScenes] = await Promise.all([
       readCourseFile('lessons/module-2.vi.md'),
       readCourseFile('lesson-scripts/module-2.script.vi.md'),
@@ -59,20 +58,20 @@ describe('Module 2 instruction contract', () => {
     expect(moduleTwoScenes).toContain(`dialogue: '${approvedPlanningOpening}'`)
     for (const part of conceptualParts) expect(lesson).toContain(part)
     const normalizedPrompt = prompt.replace(/\s+/g, ' ')
-    expect(prompt).toMatch(/dạy đủ bốn phần kiến\s+thức tổng quát/)
+    expect(prompt).toMatch(/dạy đủ ba phần kiến\s+thức tổng quát/)
     expect(normalizedPrompt).toContain(approvedPortfolioTransition)
     expect(normalizedPrompt).toContain('Không rút gọn hoặc viết lại giọng kể')
     for (const page of [
       'Lập kế hoạch trước khi xây',
       'Một task Codex, năm lần duyệt',
       'PRD là gì?',
-      'Một PRD tốt cần có gì?',
       'Tạo và review PRD cùng coding agent',
       'Năm giai đoạn, năm tài liệu'
     ]) expect(moduleTwoScenes).toContain(page)
-    expect(moduleTwoScenes).toContain("panelStatus: '6 TRANG · 1 PRACTICE'")
+    expect(moduleTwoScenes).not.toContain("'module-2-prd-anatomy': {")
+    expect(moduleTwoScenes).not.toContain('Một PRD tốt làm rõ bối cảnh')
+    expect(moduleTwoScenes).toContain("panelStatus: '5 TRANG · 1 PRACTICE'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-definition'")
-    expect(moduleTwoScenes).toContain("next: 'module-2-prd-anatomy'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-review-workflow'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-agent-workflow'")
     expect(moduleTwoScenes).toContain("next: 'module-2-portfolio-practice-intro'")

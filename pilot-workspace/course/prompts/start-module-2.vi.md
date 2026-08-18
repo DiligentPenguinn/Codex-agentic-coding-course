@@ -2,15 +2,14 @@ Dùng `$start-course-lesson module-2` để bắt đầu bài
 **Planning và PRD trước khi code với AI**.
 
 Đọc `course/lesson-scripts/module-2.script.vi.md` làm nguồn điều phối và đi đúng
-năm phần kiến thức trước khi đi vào các milestone thực hành:
+bốn phần trước khi đi vào các milestone thực hành:
 
 1. giải thích vì sao cần planning trước khi code với AI;
 2. giới thiệu PRD và mục đích của tài liệu này;
-3. giải thích những thành phần của một PRD tốt;
-4. hướng dẫn dùng coding agent để tạo, review và duyệt PRD;
-5. chuyển sang dự án thực hành portfolio.
+3. hướng dẫn dùng coding agent để tạo, review và duyệt PRD;
+4. chuyển sang dự án thực hành portfolio.
 
-Trong phần 5, đi đúng năm milestone trong `course/course-structure.json`:
+Trong phần 4, đi đúng năm milestone trong `course/course-structure.json`:
 
 1. tạo `planning/portfolio-brief.md`;
 2. tạo `planning/content-evidence-inventory.md`;
@@ -19,9 +18,9 @@ Trong phần 5, đi đúng năm milestone trong `course/course-structure.json`:
 5. tạo `planning/requirement-validation-map.md`,
    `planning/implementation-plan.md` và `planning/first-bounded-task.md`.
 
-Trước khi chọn thư mục hoặc bắt đầu milestone đầu tiên, hãy dạy đủ bốn phần kiến
+Trước khi chọn thư mục hoặc bắt đầu milestone đầu tiên, hãy dạy đủ ba phần kiến
 thức tổng quát. Dùng nguyên văn lời dẫn trong Phần 1, rồi chỉ dùng câu “Bây giờ,
-chúng ta sẽ chính thức bắt tay vào tạo Portfolio.” khi chuyển sang Phần 5. Không
+chúng ta sẽ chính thức bắt tay vào tạo Portfolio.” khi chuyển sang Phần 4. Không
 rút gọn hoặc viết lại giọng kể của tác giả.
 
 Trong mỗi milestone, hãy giải thích trước, đưa một ví dụ hoàn chỉnh nhưng không
