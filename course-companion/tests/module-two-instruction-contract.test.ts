@@ -56,6 +56,7 @@ describe('Module 2 instruction contract', () => {
       expect(content.indexOf(approvedPlanningOpening)).toBeLessThan(content.indexOf('PRD là gì'))
       expect(content.indexOf('PRD là gì')).toBeLessThan(content.indexOf(approvedPortfolioTransition))
     }
+    expect(moduleTwoScenes).toContain(`dialogue: '${approvedPlanningOpening}'`)
     for (const part of conceptualParts) expect(lesson).toContain(part)
     const normalizedPrompt = prompt.replace(/\s+/g, ' ')
     expect(prompt).toMatch(/dạy đủ bốn phần kiến\s+thức tổng quát/)

@@ -37,6 +37,12 @@
 - Changes to adjacent content must not merge away, hide, skip, orphan, repurpose, or otherwise make an unrequested page unreachable.
 - Before committing a changed learner flow, compare the affected page and scene inventory with the baseline and restore any removal that the user did not explicitly approve.
 
+## Copy preservation
+
+- Treat existing application and course copy as user-owned approved text. Never rewrite, polish, shorten, expand, translate, or change its tone unless the user explicitly requests a change to that exact copy.
+- Product, curriculum, layout, and navigation work must preserve surrounding copy verbatim, including wording, punctuation, and capitalization.
+- If a technical or consistency issue appears to require a copy change, keep the current copy unchanged, explain the issue, and ask for approval before editing it.
+
 ## Vietnamese
 
 - Write learner-facing Vietnamese naturally with complete diacritics and tone marks.
