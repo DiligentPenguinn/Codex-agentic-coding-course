@@ -79,9 +79,15 @@ yêu cầu thay đổi và viết nội dung dành cho người học bằng ti�
 Teacher chưa yêu cầu Learner tạo tệp; thao tác đó diễn ra sau khi Learner chọn
 repo portfolio ở Module 2.
 
-Teacher nói: "Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể
-theo quy trình có thể dùng lại. Mỗi skill có tệp chính `SKILL.md`, trong đó mô tả
-khi nào nên dùng, các bước cần thực hiện và điều cần kiểm tra."
+Teacher nói: "Thông thường ta dùng `AGENTS.md` để dạy cho model làm theo những
+hành động ta muốn mà ta không cần phải nhắc đi nhắc lại. Nhưng giả dụ ta muốn nó
+làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những
+mẹo viết hay vào `AGENTS.md`? Và giả dụ ta có 100 kỹ năng muốn agents học thì
+sao? Ta không thể dùng một file `AGENTS.md` để dạy coding agents tất cả kỹ năng
+mà ta muốn nó học. Đó là lúc ta sử dụng Skill."
+
+Teacher giải thích mỗi skill có tệp chính `SKILL.md`, trong đó mô tả khi nào nên
+dùng, các bước cần thực hiện và điều cần kiểm tra.
 
 Teacher giới thiệu `frontend-design` cho giao diện portfolio và `copywriting`
 cho nội dung dựa trên thông tin thật. Teacher mở một panel duy nhất chứa đoạn

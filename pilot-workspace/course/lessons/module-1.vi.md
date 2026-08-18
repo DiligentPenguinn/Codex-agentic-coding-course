@@ -136,9 +136,15 @@ giải thích cách Codex tìm và kết hợp các tệp hướng dẫn.
 
 ## Skill là gì?
 
-`AGENTS.md` chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng
-dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể
-dùng lại.
+Thông thường ta dùng `AGENTS.md` để dạy cho model làm theo những hành động ta
+muốn mà ta không cần phải nhắc đi nhắc lại.
+
+Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ
+ta viết hết tất cả những mẹo viết hay vào `AGENTS.md`? Và giả dụ ta có 100 kỹ
+năng muốn agents học thì sao?
+
+Ta không thể dùng một file `AGENTS.md` để dạy coding agents tất cả kỹ năng mà ta
+muốn nó học. Đó là lúc ta sử dụng Skill.
 
 Mỗi skill có một tệp chính tên là `SKILL.md`. Tệp này mô tả khi nào nên dùng
 skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.

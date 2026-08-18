@@ -420,10 +420,23 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await skillBoard.waitFor()
   assert.equal(await skillBoard.locator('.pixel-skill-excerpt').count(), 1)
   assert.equal(await skillBoard.locator('figure, img').count(), 0)
+  assert.match(await skillBoard.textContent(), /Thông thường ta dùng AGENTS\.md để dạy cho model/)
+  assert.match(await skillBoard.textContent(), /Đó là lúc ta sử dụng Skill/)
   assert.match(await skillBoard.textContent(), /name: frontend-design/)
   assert.match(await skillBoard.textContent(), /copywriting/)
   assert.match(await skillBoard.textContent(), /skills\.sh/)
   assert.match(await skillBoard.textContent(), /Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt/)
+  const skillKickerTypography = await skillBoard.locator('.pixel-guidance-board__skill-kicker').evaluate((element) => {
+    const skillName = element.querySelector('strong')
+    const skillDescription = element.querySelector('span')
+    if (!skillName || !skillDescription) return null
+    return {
+      name: Number.parseFloat(globalThis.getComputedStyle(skillName).fontSize),
+      description: Number.parseFloat(globalThis.getComputedStyle(skillDescription).fontSize)
+    }
+  })
+  assert.ok(skillKickerTypography)
+  assert.ok(skillKickerTypography.name > skillKickerTypography.description)
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
     const skillsNarrowWidths = await page.evaluate(() => ({

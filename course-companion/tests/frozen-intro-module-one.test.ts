@@ -5,9 +5,9 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '5f5139d3bd2cb87a88eea839d8c80f115ee3264e5bd4b9a04a5655a78175b23d',
+  '../pilot-workspace/course/lessons/module-1.vi.md': '642519164489bdf331167a4810acfba1c1719b31897c75f6dda26a43cccf585d',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '03065c06544dce9c1b0b03751217025e6fe7b616ccf364dbecc6d0cd3fc81f7f',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '183d66e0ef2f3c409277399c02ad933ffb8b5dcc5f88e6f6d77660d4e88443b9',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
   '../pilot-workspace/course/prompts/start-module-1.vi.md': 'ddc99dba0bd0763810363db2075d45155782122294036dc158198fc55f5eb0bb',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
@@ -59,13 +59,14 @@ describe('frozen introduction and approved Module 1', () => {
       source.indexOf("  'module-2-why-planning'")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('73b7608803931cafd8b175c4447e498bbf02e3189bf42dedec14add1e7a46ea2')
+    expect(digest(scenes)).toBe('adf9c1e68202d68e9286c8a7f328f6fa7e1e58843fcd465d2d7b34b7d8d74914')
     expect(scenes).toContain("dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'")
     expect(scenes).toContain("choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }]")
     expect(scenes).toContain("choices: [{ label: 'Tiếp theo: AGENTS.md', next: 'module-1-agents-intro', primary: true }]")
     expect(scenes).toContain("'module-1-agents-intro': {")
     expect(scenes).toContain("objective: 'Lưu thông tin để agent ghi nhớ qua nhiều task'")
     expect(scenes).toContain("'module-1-skills-intro': {")
+    expect(scenes).toContain("Đó là lúc ta sử dụng Skill.")
     expect(scenes).toContain("panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS'")
     expect(scenes).toContain("{ label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' }")
     expect(scenes).toContain("dialogue: 'Module 2 sẽ dùng nền tảng này để xác định người xem, kiểm kê bằng chứng và lập kế hoạch portfolio của bạn trước khi viết code.'")

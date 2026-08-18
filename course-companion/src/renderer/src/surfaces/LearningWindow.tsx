@@ -373,7 +373,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' },
       { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
-    dialogue: 'AGENTS.md chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể dùng lại.',
+    dialogue: 'Thông thường ta dùng AGENTS.md để dạy cho model làm theo những hành động ta muốn mà ta không cần phải nhắc đi nhắc lại. Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những mẹo viết hay vào AGENTS.md? Và giả dụ ta có 100 kỹ năng muốn agents học thì sao? Ta không thể dùng một file AGENTS.md để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.',
     choices: [{ label: 'Tiếp theo: cấu hình Codex', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-model-choice': {
@@ -1801,9 +1801,14 @@ function GuidanceLessonBoard({
         ) : (
           <>
             <header>
-              <small>SKILL - QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS</small>
+              <small className="pixel-guidance-board__skill-kicker">
+                <strong>SKILL</strong>
+                <span>QUY TRÌNH CHUYÊN BIỆT CHO CODING AGENTS</span>
+              </small>
               <h1 id={titleId}>Dạy coding agent cách thực hiện một loại công việc</h1>
-              <p><code>AGENTS.md</code> chứa những quy tắc coding agent cần giữ khi làm việc. Skill hướng dẫn coding agent thực hiện một loại công việc cụ thể theo một quy trình có thể dùng lại.</p>
+              <p>Thông thường ta dùng <code>AGENTS.md</code> để dạy cho model làm theo những hành động ta muốn mà ta không cần phải nhắc đi nhắc lại.</p>
+              <p>Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những mẹo viết hay vào <code>AGENTS.md</code>? Và giả dụ ta có 100 kỹ năng muốn agents học thì sao?</p>
+              <p>Ta không thể dùng một file <code>AGENTS.md</code> để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.</p>
               <p>Mỗi skill có một tệp chính tên là <code>SKILL.md</code>. Tệp này mô tả khi nào nên dùng skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.</p>
             </header>
             <h2>Hai skill bạn sẽ dùng để xây portfolio</h2>

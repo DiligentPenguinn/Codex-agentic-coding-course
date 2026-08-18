@@ -792,6 +792,19 @@ button:focus-visible {
   letter-spacing: .09em;
 }
 
+.pixel-guidance-board__skill-kicker {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.pixel-guidance-board__skill-kicker strong {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.pixel-guidance-board__skill-kicker span { font-size: 8px; }
+
 .pixel-guidance-board__copy h1 {
   max-width: 760px;
   margin: 10px 0 0;
