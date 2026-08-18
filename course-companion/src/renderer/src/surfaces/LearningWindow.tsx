@@ -1184,6 +1184,21 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
     image: m1SlashCommandsImage,
     alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin'
   },
+  'module-2-portfolio-workspace': {
+    image: m2WhenToPlanImage,
+    alt: 'Codex đọc các nguồn liên quan và nêu cách tiếp cận trước khi bắt đầu thực hiện',
+    fit: 'contain'
+  },
+  'module-2-prd-definition': {
+    image: m2ProductRequirementsImage,
+    alt: 'Một yêu cầu tạo PRD nêu nguồn thông tin và những phần sản phẩm cần làm rõ',
+    fit: 'contain'
+  },
+  'module-2-prd-review-workflow': {
+    image: m2ImplementationPlanImage,
+    alt: 'Cuộc trao đổi với Codex được đặt cạnh tài liệu PRD để người dùng đọc và review',
+    fit: 'contain'
+  },
   'module-2-prd-agent-workflow': {
     image: m2PafoliosImage,
     alt: 'Ảnh chụp Pafolios với hai portfolio được tuyển chọn',

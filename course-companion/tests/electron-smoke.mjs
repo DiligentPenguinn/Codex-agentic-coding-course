@@ -1006,7 +1006,9 @@ try {
     .first()
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 0)
   const desktopHudBounds = await firstWindows.learningPage.locator('.pixel-hud').boundingBox()
   const desktopOutlineBounds = await firstWindows.learningPage.locator('.pixel-outline').boundingBox()
@@ -1058,14 +1060,9 @@ try {
   }
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
-  const prdTitleBounds = await firstWindows.learningPage.locator('.pixel-scene-title').boundingBox()
-  const prdPanelBounds = await firstWindows.learningPage.locator('.pixel-consequence').boundingBox()
-  assert.ok(prdTitleBounds)
-  assert.ok(prdPanelBounds)
-  assert.ok(
-    prdPanelBounds.y - (prdTitleBounds.y + prdTitleBounds.height) >= 12,
-    `Expected a visible gap between the PRD title and panel, got ${JSON.stringify({ prdTitleBounds, prdPanelBounds })}`
-  )
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-complete').count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
@@ -1075,6 +1072,9 @@ try {
   await capture(firstWindows.learningPage, 'module-2-prd-definition.png')
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByText('Để AI hỗ trợ mà không giao luôn quyền quyết định', { exact: true }).waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   await capture(firstWindows.learningPage, 'module-2-prd-review-workflow.png')
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByLabel('Hai nguồn tham khảo thiết kế', { exact: true }).waitFor()
