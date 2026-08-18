@@ -374,6 +374,25 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
     dialogue: 'Thông thường ta dùng AGENTS.md để dạy cho model làm theo những hành động ta muốn mà ta không cần phải nhắc đi nhắc lại. Nhưng giả dụ ta muốn nó làm những tác vụ cụ thể như viết lách, thì sao? Chả lẽ ta viết hết tất cả những mẹo viết hay vào AGENTS.md? Và giả dụ ta có 100 kỹ năng muốn agents học thì sao? Ta không thể dùng một file AGENTS.md để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.',
+    choices: [{ label: 'Tiếp theo: hai skill cho portfolio', next: 'module-1-skills-portfolio', primary: true }]
+  },
+  'module-1-skills-portfolio': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-agents-and-skills',
+    step: 2,
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
+    mission: 'Skills cho portfolio',
+    objective: 'Biết hai skill sẽ được dùng trong khóa học',
+    panelLabel: 'SKILL',
+    panelStatus: 'FRONTEND-DESIGN VÀ COPYWRITING',
+    tone: 'neutral',
+    request: 'Mỗi skill hỗ trợ một loại công việc cụ thể trong portfolio.',
+    evidence: [
+      { label: 'FRONTEND-DESIGN', value: 'Thiết kế và kiểm tra giao diện' },
+      { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
+    ],
+    dialogue: 'Trong quá trình xây portfolio, bạn sẽ dùng frontend-design cho giao diện và copywriting cho nội dung. Bạn cũng có thể tự khám phá thêm skill tại skills.sh.',
     choices: [{ label: 'Tiếp theo: cấu hình Codex', next: 'module-1-model-choice', primary: true }]
   },
   'module-1-model-choice': {
@@ -1287,7 +1306,8 @@ const courseLessonPages = {
   ],
   'm1-agents-and-skills': [
     ['module-1-agents-intro'],
-    ['module-1-skills-intro']
+    ['module-1-skills-intro'],
+    ['module-1-skills-portfolio']
   ],
   'm1-skills-and-checklist': [
     ['module-1-model-choice', 'module-1-model-use-cases', 'module-1-reasoning-effort', 'module-1-project-setup']
@@ -1739,11 +1759,12 @@ function ModelLessonBoard({
   )
 }
 
-type GuidanceLessonBoardKind = 'agents' | 'skills'
+type GuidanceLessonBoardKind = 'agents' | 'skills' | 'skills-portfolio'
 
 const guidanceLessonBoardByScene: Partial<Record<SceneId, GuidanceLessonBoardKind>> = {
   'module-1-agents-intro': 'agents',
-  'module-1-skills-intro': 'skills'
+  'module-1-skills-intro': 'skills',
+  'module-1-skills-portfolio': 'skills-portfolio'
 }
 
 const frontendDesignSkillExcerpt = `SKILL.md                                  EXCERPT
@@ -1786,8 +1807,13 @@ function GuidanceLessonBoard({
 }) {
   const titleId = `guidance-lesson-${kind}`
 
+  const isSkillsPage = kind === 'skills' || kind === 'skills-portfolio'
+
   return (
-    <section className={`pixel-guidance-board is-${kind}`} aria-labelledby={titleId}>
+    <section
+      className={`pixel-guidance-board is-${kind}${isSkillsPage ? ' is-skills' : ''}`}
+      aria-labelledby={titleId}
+    >
       <div className="pixel-guidance-board__copy">
         {kind === 'agents' ? (
           <>
@@ -1798,7 +1824,7 @@ function GuidanceLessonBoard({
               <p>Đây là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.</p>
             </header>
           </>
-        ) : (
+        ) : kind === 'skills' ? (
           <>
             <header>
               <small className="pixel-guidance-board__skill-kicker">
@@ -1811,7 +1837,16 @@ function GuidanceLessonBoard({
               <p>Ta không thể dùng một file <code>AGENTS.md</code> để dạy coding agents tất cả kỹ năng mà ta muốn nó học. Đó là lúc ta sử dụng Skill.</p>
               <p>Mỗi skill có một tệp chính tên là <code>SKILL.md</code>. Tệp này mô tả khi nào nên dùng skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.</p>
             </header>
-            <h2>Hai skill bạn sẽ dùng để xây portfolio</h2>
+          </>
+        ) : (
+          <>
+            <header>
+              <small className="pixel-guidance-board__skill-kicker">
+                <strong>SKILL</strong>
+                <span>HAI SKILL CHO PORTFOLIO</span>
+              </small>
+              <h1 id={titleId}>Hai skill bạn sẽ dùng để xây portfolio</h1>
+            </header>
             <div className="pixel-guidance-board__skills">
               <article><strong>frontend-design</strong><p>Dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện responsive và kiểm tra kết quả thực tế.</p></article>
               <article><strong>copywriting</strong><p>Dùng khi viết nội dung cho portfolio. Skill giúp Codex viết tiêu đề, phần giới thiệu, mô tả dự án và lời kêu gọi hành động dựa trên thông tin thật của bạn.</p></article>
@@ -1838,14 +1873,19 @@ function GuidanceLessonBoard({
               <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
             </article>
           </div>
-        ) : (
+        ) : kind === 'skills' ? (
           <>
             <div className="pixel-skill-excerpt" aria-label="Ví dụ rút gọn từ skill frontend-design">
               <pre><code>{frontendDesignSkillExcerpt}</code></pre>
             </div>
             <p className="pixel-guidance-board__language">Phần ví dụ dùng tiếng Anh vì theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật bằng tiếng Anh ổn định hơn. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt.</p>
-            <p className="pixel-guidance-board__directory">Khám phá thêm skill do cộng đồng chia sẻ tại <a href="https://skills.sh/" target="_blank" rel="noreferrer">skills.sh</a>. Bạn chưa cần cài thêm skill trong Module 1.</p>
           </>
+        ) : (
+          <div className="pixel-skill-directory-card">
+            <small>KHÁM PHÁ THÊM</small>
+            <h2>Kho skill cộng đồng</h2>
+            <p className="pixel-guidance-board__directory">Khám phá thêm skill do cộng đồng chia sẻ tại <a href="https://skills.sh/" target="_blank" rel="noreferrer">skills.sh</a>. Bạn chưa cần cài thêm skill trong Module 1.</p>
+          </div>
         )}
       </aside>
 

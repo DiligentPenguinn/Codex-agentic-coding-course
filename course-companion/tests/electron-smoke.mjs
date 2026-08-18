@@ -381,7 +381,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 1/2', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 1/3', { exact: true }).first().waitFor()
   const agentsBoard = page.locator('.pixel-guidance-board.is-agents')
   await agentsBoard.waitFor()
   assert.match(await agentsBoard.textContent(), /AGENTS\.md - bộ quy luật cho coding agents/)
@@ -415,7 +415,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 2/2', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 2/3', { exact: true }).first().waitFor()
   const skillBoard = page.locator('.pixel-guidance-board.is-skills')
   await skillBoard.waitFor()
   assert.equal(await skillBoard.locator('.pixel-skill-excerpt').count(), 1)
@@ -423,8 +423,8 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.match(await skillBoard.textContent(), /Thông thường ta dùng AGENTS\.md để dạy cho model/)
   assert.match(await skillBoard.textContent(), /Đó là lúc ta sử dụng Skill/)
   assert.match(await skillBoard.textContent(), /name: frontend-design/)
-  assert.match(await skillBoard.textContent(), /copywriting/)
-  assert.match(await skillBoard.textContent(), /skills\.sh/)
+  assert.doesNotMatch(await skillBoard.textContent(), /copywriting/)
+  assert.doesNotMatch(await skillBoard.textContent(), /skills\.sh/)
   assert.match(await skillBoard.textContent(), /Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt/)
   const skillKickerTypography = await skillBoard.locator('.pixel-guidance-board__skill-kicker').evaluate((element) => {
     const skillName = element.querySelector('strong')
@@ -446,6 +446,32 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     }))
     assert.equal(skillsNarrowWidths.body, skillsNarrowWidths.viewport)
     assert.equal(skillsNarrowWidths.document, skillsNarrowWidths.viewport)
+    await page.setViewportSize({ width: 1180, height: 780 })
+  }
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText('MODULE 1 · BÀI 2/4 · TRANG 3/3', { exact: true }).first().waitFor()
+  const portfolioSkillsBoard = page.locator('.pixel-guidance-board.is-skills-portfolio')
+  await portfolioSkillsBoard.waitFor()
+  assert.equal(await portfolioSkillsBoard.locator('.pixel-skill-excerpt').count(), 0)
+  assert.match(await portfolioSkillsBoard.textContent(), /Hai skill bạn sẽ dùng để xây portfolio/)
+  assert.match(await portfolioSkillsBoard.textContent(), /frontend-design/)
+  assert.match(await portfolioSkillsBoard.textContent(), /copywriting/)
+  assert.match(await portfolioSkillsBoard.textContent(), /skills\.sh/)
+  if (verifyResponsiveLayout) {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const portfolioSkillsNarrowWidths = await page.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(portfolioSkillsNarrowWidths.body, portfolioSkillsNarrowWidths.viewport)
+    assert.equal(portfolioSkillsNarrowWidths.document, portfolioSkillsNarrowWidths.viewport)
+    const portfolioSkillCards = portfolioSkillsBoard.locator('.pixel-guidance-board__skills article')
+    const frontendSkillBounds = await portfolioSkillCards.nth(0).boundingBox()
+    const copywritingSkillBounds = await portfolioSkillCards.nth(1).boundingBox()
+    assert.ok(frontendSkillBounds)
+    assert.ok(copywritingSkillBounds)
+    assert.ok(copywritingSkillBounds.y >= frontendSkillBounds.y + frontendSkillBounds.height)
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()

@@ -89,20 +89,21 @@ mà ta muốn nó học. Đó là lúc ta sử dụng Skill."
 Teacher giải thích mỗi skill có tệp chính `SKILL.md`, trong đó mô tả khi nào nên
 dùng, các bước cần thực hiện và điều cần kiểm tra.
 
-Teacher giới thiệu `frontend-design` cho giao diện portfolio và `copywriting`
-cho nội dung dựa trên thông tin thật. Teacher mở một panel duy nhất chứa đoạn
-trích tiếng Anh từ `frontend-design`; không dùng ảnh chụp và không hiển thị toàn
-bộ skill.
+Ở trang Skill đầu tiên, Teacher mở một panel duy nhất chứa đoạn trích tiếng Anh
+từ `frontend-design`; không dùng ảnh chụp và không hiển thị toàn bộ skill.
 
 Teacher nói: "Theo kinh nghiệm của mình, agent thường xử lý chỉ dẫn kỹ thuật
 bằng tiếng Anh ổn định hơn. Vì vậy, phần hướng dẫn dành cho agent trong khóa học
 này sẽ ưu tiên tiếng Anh. Bạn vẫn có thể trao đổi với Codex bằng tiếng Việt."
 
-Teacher giới thiệu `skills.sh` là nơi khám phá skill do cộng đồng chia sẻ và nói
-rõ Learner chưa cần cài thêm skill trong Module 1.
+Ở trang Skill thứ hai, Teacher giới thiệu `frontend-design` cho giao diện
+portfolio và `copywriting` cho nội dung dựa trên thông tin thật. Teacher giới
+thiệu `skills.sh` là nơi khám phá skill do cộng đồng chia sẻ và nói rõ Learner
+chưa cần cài thêm skill trong Module 1.
 
-[Dừng chờ Learner xem đủ hai trang. Khi chuyển sang phần cấu hình, lưu checkpoint
-`m1-agents-and-skills`. Không kiểm tra tệp và không yêu cầu ảnh chụp.]
+[Dừng chờ Learner xem đủ ba trang của bài `AGENTS.md` và Skills. Khi chuyển sang
+phần cấu hình, lưu checkpoint `m1-agents-and-skills`. Không kiểm tra tệp và không
+yêu cầu ảnh chụp.]
 
 ## Bước 3 — Áp dụng cấu hình Codex (`m1-model-choice`)
 

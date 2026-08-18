@@ -888,6 +888,27 @@ button:focus-visible {
 .pixel-skill-excerpt { padding: 18px; }
 .pixel-skill-excerpt pre { margin: 0; overflow-x: auto; white-space: pre-wrap; }
 .pixel-skill-excerpt code { color: var(--pixel-yellow); font: 600 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+.pixel-guidance-board.is-skills-portfolio .pixel-guidance-board__panel {
+  display: grid;
+  align-content: center;
+}
+.pixel-skill-directory-card {
+  padding: clamp(22px, 3vw, 38px);
+  border: 3px solid var(--pixel-line);
+  background: #000;
+  box-shadow: 7px 7px 0 rgba(0, 0, 0, .72);
+}
+.pixel-skill-directory-card > small {
+  color: var(--pixel-yellow);
+  font: 800 8px/1.25 var(--pixel-font);
+  letter-spacing: .09em;
+}
+.pixel-skill-directory-card > h2 {
+  margin: 12px 0 0;
+  color: var(--pixel-white);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.2;
+}
 .pixel-guidance-board__language,
 .pixel-guidance-board__directory { margin: 12px 0 0; }
 .pixel-guidance-board__directory a { font-weight: 800; }

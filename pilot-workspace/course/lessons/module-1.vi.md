@@ -149,7 +149,7 @@ muốn nó học. Đó là lúc ta sử dụng Skill.
 Mỗi skill có một tệp chính tên là `SKILL.md`. Tệp này mô tả khi nào nên dùng
 skill, các bước cần thực hiện và những điều cần kiểm tra trước khi hoàn thành.
 
-Trong quá trình xây portfolio, bạn sẽ dùng hai skill:
+## Hai skill bạn sẽ dùng để xây portfolio
 
 - `frontend-design` dùng khi thiết kế hoặc chỉnh sửa giao diện portfolio. Skill
   giúp Codex xác định mục tiêu của trang, chọn hướng thiết kế, xây giao diện
