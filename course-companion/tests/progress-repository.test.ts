@@ -194,6 +194,53 @@ describe('ProgressRepository', () => {
     })
   })
 
+  it('redirects saved progress from the retired one-task page to the five-stage map', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-prd-review-workflow',
+      sceneHistory: [
+        'module-2-portfolio-workspace',
+        'module-2-prd-definition'
+      ],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+    const retiredProgress = {
+      ...started,
+      sceneId: 'module-2-prd-introduction',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-prd-review-workflow',
+        'module-2-prd-introduction'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm2-portfolio-brief',
+        checkpointId: 'm2-portfolio-brief',
+        sceneId: 'module-2-prd-agent-workflow',
+        sceneHistory: [
+          'module-2-portfolio-workspace',
+          'module-2-prd-definition',
+          'module-2-prd-review-workflow'
+        ]
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-2-prd-introduction')
+  })
+
   it('resumes an exact page inside the opening introduction', async () => {
     const repository = new ProgressRepository(await temporaryDirectory())
     await repository.save(introStart)

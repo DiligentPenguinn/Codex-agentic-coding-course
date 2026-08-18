@@ -47,7 +47,8 @@ const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set([
   'module-1-final-5'
 ])
 const RETIRED_MODULE_TWO_SCENES = new Set([
-  'module-2-prd-anatomy'
+  'module-2-prd-anatomy',
+  'module-2-prd-introduction'
 ])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
@@ -129,7 +130,11 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
   if (!hasRetiredScene && !hasRetiredHistory) return raw
   return {
     ...raw,
-    sceneId: hasRetiredScene ? 'module-2-prd-review-workflow' : raw.sceneId,
+    sceneId: raw.sceneId === 'module-2-prd-anatomy'
+      ? 'module-2-prd-review-workflow'
+      : raw.sceneId === 'module-2-prd-introduction'
+        ? 'module-2-prd-agent-workflow'
+        : raw.sceneId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter(
           (sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_TWO_SCENES.has(sceneId)

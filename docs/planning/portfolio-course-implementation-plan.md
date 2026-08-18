@@ -1,6 +1,6 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation and Module 3 are implemented. Module 2's five-page
+- **Status:** Foundation and Module 3 are implemented. Module 2's four-page
   Course Companion explanation slice, learner-facing stage names, agent-independent
   assessment revisions, and detailed Teacher/Executor integration handoff are
   implemented and verified for content review. The previous seven-artifact
@@ -35,7 +35,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — the five-page Course Companion explanation slice, PRD definition/review sequence placed before the one-task workflow page, restored original opening copy, approved stage names, agent-independent question revisions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy page is retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the exact-page deletion on 18 August 2026: 288 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, desktop screenshot inspection, `390 × 844` responsive checks, direct PRD-definition-to-review routing, retired-progress redirect, and exact source-to-renderer opening copy; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, and subsequent exact deletion of the PRD-anatomy page were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
+| Module 2 | `in-progress` — the four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy and one-task explanation pages are retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the one-task exact-page deletion on 18 August 2026: 289 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke including desktop and `390 × 844` responsive checks, direct PRD-review-to-five-stage routing, five-item outline, and retired-progress redirect; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, and exact deletion of the PRD-anatomy and one-task explanation pages were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -599,7 +599,7 @@ Do not begin Module 2 content implementation until:
 
 ### Module outcome
 
-After five focused Course Companion explanation pages, the learner
+After four focused Course Companion explanation pages, the learner
 uses one persistent Codex task to turn a vague portfolio idea into five current,
 learner-approved planning documents. The learner answers one plain-language
 question at a time; Executor creates and updates the documents; Course
@@ -653,6 +653,16 @@ the five-stage map. Saved progress that still points to the retired page moves
 to PRD creation/review and removes that retired identity from history. No other
 page or learner-facing copy is reopened by this deletion.
 
+### One-task-page deletion correction — 18 August 2026
+
+The owner subsequently requested deletion of the exact “Một task Codex, năm
+lần duyệt” explanation page. The current four-page explanation route is:
+planning before building; PRD definition; PRD creation/review; and the
+five-stage map. The Practice still uses one persistent Executor task across all
+five stages; only the separate explanation page is retired. Saved progress that
+points to that page moves to the five-stage map and removes the retired identity
+from history. No other page or learner-facing copy is reopened by this deletion.
+
 ### Current repository comparison — 17 August 2026
 
 **Preserve:**
@@ -669,8 +679,8 @@ page or learner-facing copy is reopened by this deletion.
 
 **Replace or migrate:**
 
-- the current four-part outline and milestone-by-milestone teaching/example
-  route with five focused explanation surfaces followed by the real Practice;
+- the current outline and milestone-by-milestone teaching/example route with
+  four focused explanation surfaces followed by the real Practice;
 - every seven-artifact list in the manifest, shared contracts, Practice
   definition, registry, evidence adapter, completion service, fixtures, and
   tests with the five-document contract;
@@ -772,13 +782,11 @@ artifact templates.
 Create or replace the Module 2 lesson, Teacher script, and start prompt in
 natural Vietnamese:
 
-1. Present five focused Course Companion explanation pages before the Practice
+1. Present four focused Course Companion explanation pages before the Practice
    transition:
    - why planning matters;
    - what a PRD is and is not;
    - how a learner creates, reviews, and approves a PRD with a coding agent;
-   - how one Codex task, Executor, Course Companion review, and learner approval
-     work together;
    - the five-stage map and Module 2/3 boundary.
 2. Retire pre-Practice milestone example/application pages. Detailed
    clarification happens inside the one persistent Practice task, not across
@@ -820,7 +828,7 @@ and `Còn thiếu`, while preserving private/publication/ownership boundaries.
 **Verify**
 
 - Every curriculum milestone appears once and in approved order.
-- Exactly five explanation surfaces precede one real Practice launch.
+- Exactly four explanation surfaces precede one real Practice launch.
 - No fixed duration or speed promise appears.
 - No learner is required to open a template, fill technical metadata, read
   code, choose dependencies, create a task, or create the app.
@@ -860,7 +868,7 @@ delegated rather than partially rewritten here.
 1. Preserve the separate mastery gate because its removal has not been approved,
    but remove or rewrite assessment items that assume seven artifacts, a
    separate validation map, or a first bounded task in Module 2.
-2. Keep formative explanation within the five focused pages lightweight; do not
+2. Keep formative explanation within the four focused pages lightweight; do not
    rebuild milestone-by-milestone teaching pages merely to host retrieval checks.
 3. Require learner-owned short answers only where they demonstrate ownership of
    audience, scope, evidence, or requirement-validation decisions in the five
@@ -935,7 +943,7 @@ artifact evidence.
 **Change**
 
 1. Build the Module 2 definition and scenes in its module package.
-2. Replace the current four-part outline and milestone lesson scenes with five
+2. Replace the current outline and milestone lesson scenes with four
    focused explanation scenes followed by the single real Practice entry.
 3. Update progress display, Practice launch/resume/revision recovery, quiz, and
    mastery surfaces through the shared registry contract without exposing
@@ -954,9 +962,9 @@ artifact evidence.
 
 - Desktop and narrow Course Companion layouts.
 - Keyboard and focus behavior.
-- Exactly five explanation pages precede the real Practice.
-- The PRD definition and coding-agent review pages precede the one-task
-  workflow page, and the retired PRD-anatomy page is unreachable.
+- Exactly four explanation pages precede the real Practice.
+- The PRD definition routes through coding-agent review directly to the
+  five-stage map, and the retired PRD-anatomy and one-task pages are unreachable.
 - Correct return/review destination after every Practice stage and quiz group.
 - Exact resume from each milestone.
 - Module 1 frozen-content diff/snapshot check.
@@ -1020,6 +1028,14 @@ the exact wording. Verification passed with 288 unit tests, nine startup tests,
 typecheck, lint, production build, full Electron smoke, desktop screenshot
 inspection, and `390 × 844` responsive checks.
 
+**One-task-page deletion note — 18 August 2026:** At the owner's explicit
+request, `module-2-prd-introduction` is retired. Coding-agent PRD review now
+routes directly to the five-stage map; the outline, renderer registry,
+active-part mapping, smoke journey, and saved-progress migration are
+synchronized. Verification passed with 289 unit tests, nine startup tests,
+typecheck, lint, production build, and full Electron smoke including desktop
+and `390 × 844` responsive checks.
+
 ### M2.6 — Complete the Module 2 gate and handoff
 
 **Change**
@@ -1059,7 +1075,7 @@ Module 2 is accepted only when:
   synchronized;
 - Course Companion completes the full new Module 2 journey using a disposable
   learner portfolio folder;
-- exactly five explanation pages lead to one persistent Practice task;
+- exactly four explanation pages lead to one persistent Practice task;
 - all five planning documents are reviewed semantically on their current
   digests, and Stage 5 stops at the implementation plan;
 - the same Executor thread remains bound through all five stages and every

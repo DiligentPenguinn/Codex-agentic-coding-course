@@ -9,7 +9,6 @@ describe('Module 2 outline menu', () => {
       'Lập kế hoạch trước khi xây',
       'PRD là gì và dùng để làm gì?',
       'Dùng coding agent để tạo, review và duyệt PRD',
-      'Một task Codex, năm lần duyệt',
       'Năm giai đoạn, năm tài liệu',
       'Thực hành: Lập kế hoạch cho portfolio'
     ])

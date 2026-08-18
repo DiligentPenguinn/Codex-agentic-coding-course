@@ -63,14 +63,16 @@ describe('Module 2 instruction contract', () => {
     expect(normalizedPrompt).toContain('Không rút gọn hoặc viết lại giọng kể')
     for (const page of [
       'Lập kế hoạch trước khi xây',
-      'Một task Codex, năm lần duyệt',
       'PRD là gì?',
       'Tạo và review PRD cùng coding agent',
       'Năm giai đoạn, năm tài liệu'
     ]) expect(moduleTwoScenes).toContain(page)
     expect(moduleTwoScenes).not.toContain("'module-2-prd-anatomy': {")
     expect(moduleTwoScenes).not.toContain('Một PRD tốt làm rõ bối cảnh')
-    expect(moduleTwoScenes).toContain("panelStatus: '5 TRANG · 1 PRACTICE'")
+    expect(moduleTwoScenes).not.toContain("'module-2-prd-introduction': {")
+    expect(moduleTwoScenes).not.toContain('Cả năm giai đoạn diễn ra trong cùng một task Codex')
+    expect(moduleTwoScenes).toContain("panelStatus: '4 TRANG · 1 PRACTICE'")
+    expect(moduleTwoScenes).toContain("request: 'Bốn trang giải thích dẫn tới một Practice duy nhất.'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-definition'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-review-workflow'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-agent-workflow'")
