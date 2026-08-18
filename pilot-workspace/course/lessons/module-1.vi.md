@@ -108,14 +108,16 @@ Chẳng hạn, bạn có thể chọn một skill hoặc một đoạn chat liê
 [OpenAI Docs — Slash commands](https://learn.chatgpt.com/docs/reference/slash-commands)
 giải thích cách mở danh sách lệnh và chức năng của `/status` cùng `/goal`.
 
-## `AGENTS.md` và hai level bạn cần biết
+## Làm sao để agent ghi nhớ một thông tin?
 
-Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại. Nếu có những nguyên
-tắc bạn muốn Codex ghi nhớ khi làm việc, bạn có thể lưu chúng trong `AGENTS.md`.
+Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi
+nhắc lại thì mình sẽ làm gì?
 
-`AGENTS.md` là một tệp văn bản chứa các quy tắc và thông tin coding agent cần
-biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án
-được xử lý.
+Bạn có thể lưu thông tin đó trong `AGENTS.md`. Đây là một tệp văn bản chứa các
+quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex
+đọc tệp này để hiểu cách bạn muốn dự án được xử lý.
+
+### Hai level `AGENTS.md` bạn cần biết
 
 - Global `AGENTS.md` nằm trong thư mục cấu hình Codex trên máy tính. Những quy
   tắc trong tệp này được áp dụng cho mọi repo bạn mở bằng Codex. Triết dùng

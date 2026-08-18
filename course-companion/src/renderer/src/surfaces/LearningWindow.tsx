@@ -345,7 +345,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     totalSteps: 6,
     lessonLabel: 'MODULE 1 · AGENTS.MD VÀ SKILLS',
     mission: 'AGENTS.md và hai level',
-    objective: 'Đừng nhắc lại cùng một nguyên tắc trong mỗi task',
+    objective: 'Lưu thông tin để agent ghi nhớ qua nhiều task',
     panelLabel: 'AGENTS.md',
     panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS',
     tone: 'neutral',
@@ -354,7 +354,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'GLOBAL', value: 'Áp dụng cho mọi repo' },
       { label: 'CURRENT REPO', value: 'Chỉ áp dụng cho repo đang mở' }
     ],
-    dialogue: 'AGENTS.md là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.',
+    dialogue: 'Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi nhắc lại thì mình sẽ làm gì? Bạn có thể lưu thông tin đó trong AGENTS.md. Đây là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.',
     choices: [{ label: 'Tiếp theo: Skill', next: 'module-1-skills-intro', primary: true }]
   },
   'module-1-skills-intro': {
@@ -1793,12 +1793,10 @@ function GuidanceLessonBoard({
           <>
             <header>
               <small>AGENTS.md - bộ quy luật cho coding agents</small>
-              <h1 id={titleId}>Đừng nhắc lại cùng một nguyên tắc trong mỗi task</h1>
-              <p>Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại. Nếu có những nguyên tắc bạn muốn Codex ghi nhớ khi làm việc, bạn có thể lưu chúng trong <code>AGENTS.md</code>.</p>
-              <p><code>AGENTS.md</code> là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.</p>
+              <h1 id={titleId}>Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần phải nhắc đi nhắc lại thì mình sẽ làm gì?</h1>
+              <p>Bạn có thể lưu thông tin đó trong <code>AGENTS.md</code>.</p>
+              <p>Đây là một tệp văn bản chứa các quy tắc và thông tin coding agent cần biết trước khi bắt đầu công việc. Codex đọc tệp này để hiểu cách bạn muốn dự án được xử lý.</p>
             </header>
-            <p className="pixel-guidance-board__note">Codex đọc cả hai level. Global <code>AGENTS.md</code> đặt ra những nguyên tắc chung. Current repo <code>AGENTS.md</code> bổ sung những quy tắc cụ thể hơn cho dự án đang mở.</p>
-            <p className="pixel-guidance-board__next">Bạn sẽ tạo Current repo <code>AGENTS.md</code> sau khi chọn repo portfolio của mình ở Module 2.</p>
           </>
         ) : (
           <>
@@ -1821,6 +1819,7 @@ function GuidanceLessonBoard({
         {kind === 'agents' ? (
           <div className="pixel-agents-levels">
             <h2>Hai level <code>AGENTS.md</code> bạn cần biết</h2>
+            <p className="pixel-agents-levels__intro">Codex đọc cả hai level. Global <code>AGENTS.md</code> đặt ra những nguyên tắc chung. Current repo <code>AGENTS.md</code> bổ sung những quy tắc cụ thể hơn cho dự án đang mở.</p>
             <article>
               <span>GLOBAL</span>
               <code>~/.codex/AGENTS.md</code>
@@ -1833,6 +1832,7 @@ function GuidanceLessonBoard({
               <p>Chỉ áp dụng cho repo đang mở.</p>
               <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
             </article>
+            <p className="pixel-guidance-board__next">Bạn sẽ tạo Current repo <code>AGENTS.md</code> sau khi chọn repo portfolio của mình ở Module 2.</p>
           </div>
         ) : (
           <>

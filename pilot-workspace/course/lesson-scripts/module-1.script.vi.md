@@ -61,9 +61,11 @@ lệnh hoặc kiểm tra kết quả. Checkpoint `m1-codex-orientation`.]
 
 ## Bước 2 — `AGENTS.md` và Skills (`m1-agents-and-skills`)
 
-Teacher nói: "Một yêu cầu trong ô chat thường chỉ dành cho task hiện tại.
-`AGENTS.md` là tệp văn bản chứa những quy tắc và thông tin coding agent cần biết
-trước khi làm việc."
+Teacher hỏi: "Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ mà không cần
+phải nhắc đi nhắc lại thì mình sẽ làm gì?"
+
+Teacher nói: "Bạn có thể lưu thông tin đó trong `AGENTS.md`. Đây là tệp văn bản
+chứa những quy tắc và thông tin coding agent cần biết trước khi làm việc."
 
 Teacher chỉ giới thiệu hai level:
 
