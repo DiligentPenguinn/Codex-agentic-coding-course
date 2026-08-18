@@ -388,7 +388,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.match(await agentsBoard.textContent(), /Vậy, giả dụ có một thông tin mình muốn agent ghi nhớ/)
   assert.match(await agentsBoard.textContent(), /GLOBAL/)
   assert.match(await agentsBoard.textContent(), /CURRENT REPO/)
-  assert.match(await agentsBoard.textContent(), /Bạn sẽ tạo Current repo AGENTS\.md.*Module 2/)
+  assert.doesNotMatch(await agentsBoard.textContent(), /Bạn sẽ tạo Current repo AGENTS\.md.*Module 2/)
   assert.equal(await agentsBoard.locator('figure, img').count(), 0)
   const agentsCopyBounds = await agentsBoard.locator('.pixel-guidance-board__copy').boundingBox()
   const agentsLevelsBounds = await agentsBoard.locator('.pixel-agents-levels').boundingBox()

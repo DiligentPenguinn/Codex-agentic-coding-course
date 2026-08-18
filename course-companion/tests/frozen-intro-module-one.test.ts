@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '022fd354e25a2584961faba7301e26bc025753627957b21e62e3fbcbfe9226b5',
+  '../pilot-workspace/course/lessons/module-1.vi.md': '5f5139d3bd2cb87a88eea839d8c80f115ee3264e5bd4b9a04a5655a78175b23d',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
   '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '03065c06544dce9c1b0b03751217025e6fe7b616ccf364dbecc6d0cd3fc81f7f',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',

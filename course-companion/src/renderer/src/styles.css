@@ -803,7 +803,6 @@ button:focus-visible {
 .pixel-guidance-board__copy header > p,
 .pixel-guidance-board__copy article p,
 .pixel-guidance-board__note,
-.pixel-guidance-board__next,
 .pixel-agents-levels__intro,
 .pixel-agents-levels p,
 .pixel-agents-levels small,
@@ -819,15 +818,13 @@ button:focus-visible {
 .pixel-agents-levels code,
 .pixel-guidance-board__directory a { color: var(--pixel-accent); }
 
-.pixel-guidance-board__note,
-.pixel-guidance-board__next {
+.pixel-guidance-board__note {
   margin: 16px 0 0;
   padding: 11px 13px;
   border-left: 3px solid var(--pixel-yellow);
   background: rgba(255, 214, 102, .08);
 }
 
-.pixel-guidance-board__next { border-left-color: var(--pixel-accent); }
 .pixel-guidance-board__copy > h2,
 .pixel-agents-levels > h2 {
   margin: 18px 0 0;
@@ -865,8 +862,7 @@ button:focus-visible {
   gap: 14px;
 }
 .pixel-agents-levels > h2,
-.pixel-agents-levels__intro,
-.pixel-guidance-board.is-agents .pixel-guidance-board__next { grid-column: 1 / -1; }
+.pixel-agents-levels__intro { grid-column: 1 / -1; }
 .pixel-agents-levels > h2 { margin-top: 0; }
 .pixel-agents-levels__intro { margin: -4px 0 0; }
 .pixel-agents-levels article { margin-top: 14px; padding: 14px; border: 1px solid var(--pixel-accent); background: rgba(255, 255, 255, .06); }
@@ -2758,7 +2754,6 @@ button:focus-visible {
   .pixel-guidance-board__copy header > p,
   .pixel-guidance-board__copy article p,
   .pixel-guidance-board__note,
-  .pixel-guidance-board__next,
   .pixel-agents-levels__intro,
   .pixel-agents-levels p,
   .pixel-agents-levels small,

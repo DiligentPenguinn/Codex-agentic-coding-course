@@ -1832,7 +1832,6 @@ function GuidanceLessonBoard({
               <p>Chỉ áp dụng cho repo đang mở.</p>
               <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
             </article>
-            <p className="pixel-guidance-board__next">Bạn sẽ tạo Current repo <code>AGENTS.md</code> sau khi chọn repo portfolio của mình ở Module 2.</p>
           </div>
         ) : (
           <>
