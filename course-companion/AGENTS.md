@@ -21,6 +21,7 @@
 - Keep the current learner task dominant and supporting Teacher, progress, metadata, and simulation controls subordinate.
 - Do not add a standalone title or status banner above the primary content unless the owner explicitly requests one. Keep necessary hierarchy inside the primary content surface so removing decorative chrome does not leave empty vertical space.
 - For interface changes, inspect desktop and narrow layouts and verify there is no horizontal overflow.
+- Treat sibling panels that share a viewport as one layout system with an explicit gap. Measure their rendered bounds at desktop and narrow sizes so longer content cannot make them touch or overlap.
 
 ## Verification
 

@@ -350,6 +350,36 @@ button:focus-visible {
 }
 .pixel-copy-prompt__actions button:hover { background: #ffd666; }
 
+.pixel-learning-shell.has-stacked-copy-prompt {
+  padding: 96px 5vw 22px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 16px;
+}
+.pixel-learning-shell.has-stacked-copy-prompt .pixel-copy-prompt {
+  position: relative;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  justify-self: end;
+  transform: none;
+}
+.pixel-learning-shell.has-stacked-copy-prompt .pixel-copy-prompt > p {
+  min-height: 0;
+  flex: 1;
+}
+.pixel-learning-shell.has-stacked-copy-prompt .pixel-dialogue {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+}
+
 .pixel-teacher-character {
   position: absolute;
   z-index: 4;

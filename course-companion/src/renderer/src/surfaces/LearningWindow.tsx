@@ -2983,7 +2983,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${usesLessonBoard ? ' has-model-lesson-board' : ''}`}>
+    <main className={`pixel-learning-shell${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt && displayedSceneId !== 'module-2-portfolio-agents-setup' ? ' has-stacked-copy-prompt' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">

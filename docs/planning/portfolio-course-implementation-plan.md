@@ -294,6 +294,14 @@ there first and remain synchronized with Course Companion.
   build, desktop Module 4 visual inspection, full responsive Electron smoke,
   and `git diff --check` passed. This scoped approval does not mark overall
   module owner approval or pilot acceptance complete.
+- On 19 August 2026, the Module 2 Practice prompt and Teacher panel were moved
+  into one responsive layout with an explicit positive gap. Long prompt content
+  now scrolls inside its own region instead of expanding into the Teacher
+  panel. Electron smoke measures at least 16px between the rendered desktop
+  bounds and 10px at `390 × 844`; typecheck, lint, 294 unit tests, nine startup
+  tests, production build, full Electron smoke, and `git diff --check` passed.
+  This layout correction does not change Module 2 implementation, owner
+  approval, or pilot-acceptance status.
 - A separate narrow Module 1 exception is approved: forward-looking transition
   copy may stop saying that Module 2 plans ContentPilot and may point to the new
   portfolio Module 2. No other Module 1 wording may change beyond the recorded

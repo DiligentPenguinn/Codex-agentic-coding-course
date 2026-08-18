@@ -1227,16 +1227,13 @@ try {
   await answerAssessmentGroup(learningPage, 'planning-retrieval')
 
   await learningPage.locator('.pixel-copy-prompt').waitFor()
-  const promptVerticalAlignment = await learningPage.locator('.pixel-copy-prompt').evaluate((element) => {
-    const bounds = element.getBoundingClientRect()
-    return {
-      cardCenter: bounds.top + bounds.height / 2,
-      viewportCenter: globalThis.innerHeight / 2
-    }
-  })
+  const promptBounds = await learningPage.locator('.pixel-copy-prompt').boundingBox()
+  const promptDialogueBounds = await learningPage.locator('.pixel-dialogue').boundingBox()
+  assert.ok(promptBounds)
+  assert.ok(promptDialogueBounds)
   assert.ok(
-    Math.abs(promptVerticalAlignment.cardCenter - promptVerticalAlignment.viewportCenter) <= 1,
-    `Expected portfolio Practice prompt to be vertically centered, got ${JSON.stringify(promptVerticalAlignment)}`
+    promptDialogueBounds.y - (promptBounds.y + promptBounds.height) >= 16,
+    `Expected at least 16px between the portfolio prompt and Teacher panel, got ${JSON.stringify({ promptBounds, promptDialogueBounds })}`
   )
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
@@ -1255,6 +1252,14 @@ try {
     }))
     assert.equal(promptNarrowWidths.body, promptNarrowWidths.viewport)
     assert.equal(promptNarrowWidths.document, promptNarrowWidths.viewport)
+    const promptNarrowBounds = await learningPage.locator('.pixel-copy-prompt').boundingBox()
+    const promptNarrowDialogueBounds = await learningPage.locator('.pixel-dialogue').boundingBox()
+    assert.ok(promptNarrowBounds)
+    assert.ok(promptNarrowDialogueBounds)
+    assert.ok(
+      promptNarrowDialogueBounds.y - (promptNarrowBounds.y + promptNarrowBounds.height) >= 10,
+      `Expected at least 10px between the narrow portfolio prompt and Teacher panel, got ${JSON.stringify({ promptNarrowBounds, promptNarrowDialogueBounds })}`
+    )
     await learningPage.locator('.pixel-copy-prompt').scrollIntoViewIfNeeded()
     await capture(learningPage, 'module-2-portfolio-practice-prompt-390px.png')
     await learningPage.setViewportSize({ width: 1180, height: 780 })
