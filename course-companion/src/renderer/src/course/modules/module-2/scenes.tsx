@@ -45,7 +45,8 @@ const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
     dialogue: question.prompt,
     choices: [],
     assessmentQuestionId: question.id,
-    assessmentGroupId: group.id
+    assessmentGroupId: group.id,
+    showTitle: false
   } satisfies RegistrySceneContent])
 })) as Partial<Record<SceneId, RegistrySceneContent>>
 
@@ -75,7 +76,7 @@ const instructionalScenes = {
       { label: 'KẾT QUẢ', value: 'Người dùng cần làm được gì' },
       { label: 'RANH GIỚI', value: 'Điều thuộc và không thuộc phiên bản đầu' }
     ],
-    dialogue: 'PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến framework, thư viện hoặc cấu trúc code. PRD không phải một bản mô tả kỹ thuật và cũng không phải lời nhắc để AI xây toàn bộ ứng dụng ngay lập tức.',
+    dialogue: 'Để lên được một kế hoạch tốt, mình sẽ giới thiệu cho các bạn một khái niệm thường được dùng trong quá trình phát triển phần mềm - PRD. PRD là viết tắt của Product Requirements Document, hay tài liệu yêu cầu sản phẩm. Tài liệu này giúp bạn và coding agent thống nhất sản phẩm cần làm gì trước khi bàn đến framework, thư viện hoặc cấu trúc code. PRD không phải một bản mô tả kỹ thuật và cũng không phải lời nhắc để AI xây toàn bộ ứng dụng ngay lập tức.',
     choices: [{ label: 'Xem một PRD tốt cần có gì', next: 'module-2-prd-review-workflow', primary: true }]
   },
   'module-2-prd-review-workflow': {
@@ -106,8 +107,10 @@ const instructionalScenes = {
       { label: '4 · PRD', value: 'PRD của portfolio' },
       { label: '5 · KẾ HOẠCH', value: 'Kế hoạch triển khai' }
     ],
-    dialogue: 'Ở Giai đoạn 3, bạn có thể tìm portfolio đẹp trên Pafolios hoặc xem Awwwards để mở rộng ý tưởng. Hãy nói rõ điều bạn thích và điều không phù hợp; bạn không cần bắt chước hiệu ứng phức tạp. Nguồn tham khảo không cho phép sao chép chữ, hình ảnh, thương hiệu, mã nguồn hoặc toàn bộ cách thể hiện. Giai đoạn 4 tổng hợp PRD; Giai đoạn 5 tạo kế hoạch triển khai có cách kiểm tra từng yêu cầu. Module 2 vẫn chưa thiết kế giao diện hoặc viết code.',
-    choices: [{ label: 'Xem phạm vi Practice', next: 'module-2-portfolio-practice-intro', primary: true }]
+    dialogue: 'Ngoài nội dung ra thì bạn cũng cần lên kế hoạch cho thiết kế của ứng dụng bạn muốn tạo. Trong phần này, nếu bạn có thể tự vẽ đồ hoạ chi tiết thì quá tốt. Nhưng nếu bạn cũng hơi mù thiết kế giống như mình, bạn có thể gửi cho agent ảnh mà bạn thích và những phần cụ thể bạn muốn bắt chước trong ảnh đó. Khi thiết kế portfolio, hai trang web mình hay dùng nhất là Pafolios và Awwwards. Còn nếu thiết kế ứng dụng thì mình sẽ tìm thêm ở hai trang là Dribble và Mobbin. Hoặc bạn cũng có thể vào Pinterest để tìm cảm hứng.',
+    choices: [{ label: 'Xem phạm vi Practice', next: 'module-2-portfolio-practice-intro', primary: true }],
+    showTitle: false,
+    showPanel: false
   },
   'module-2-portfolio-practice-intro': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-brief', step: 1, totalSteps: 5,
@@ -283,8 +286,11 @@ const instructionalScenes = {
       { label: 'ỨNG DỤNG', value: 'Chưa được tạo', ready: true },
       { label: 'PHÊ DUYỆT', value: 'Bạn duyệt từng phiên bản hiện tại' }
     ],
-    dialogue: 'Course Companion sẽ mở một Practice duy nhất. Sau mỗi giai đoạn, hãy làm mới bằng chứng, đọc các điểm còn thiếu và tự chọn chấp nhận hoặc yêu cầu sửa. Lời báo cáo trong chat không thay thế kiểm tra tệp hiện tại.',
-    choices: [{ label: 'Mở Practice lập kế hoạch', action: 'practice', primary: true }]
+    dialogue: 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha',
+    choices: [{ label: 'Mở Practice lập kế hoạch', action: 'practice', primary: true }],
+    copyPrompt: 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.',
+    showTitle: false,
+    showPanel: false
   },
   'module-2-portfolio-mastery': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-mastery', step: 5, totalSteps: 5,
@@ -297,15 +303,17 @@ const instructionalScenes = {
       { label: 'ARTIFACT', value: 'Năm phiên bản hiện tại', ready: true },
       { label: 'MASTERY', value: 'Không được thay bằng receipt Practice' }
     ],
-    dialogue: 'Phần cuối không yêu cầu bạn đọc mã nguồn. Sáu câu tình huống kiểm tra cách áp dụng; bốn câu còn lại yêu cầu bạn dùng chính tài liệu hiện tại thay vì lặp lại ví dụ Mai.',
-    choices: [{ label: 'Bắt đầu kiểm tra tổng hợp', next: 'module-2-mastery-scenario-viewer', primary: true }]
+    dialogue: 'Hãy cùng ôn tập lại kiến thức một chút nhen',
+    choices: [{ label: 'Bắt đầu kiểm tra tổng hợp', next: 'module-2-mastery-scenario-viewer', primary: true }],
+    showTitle: false,
+    showPanel: false
   },
   'module-2-portfolio-mastery-summary': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-mastery', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 2 · LẬP KẾ HOẠCH PORTFOLIO', mission: 'Hoàn tất phần trả lời',
     objective: 'Đối chiếu mastery với tài liệu hiện tại', panelLabel: 'KẾT QUẢ',
     panelStatus: 'CHỜ GATE HOÀN THÀNH', tone: 'neutral', request: 'Ngưỡng mastery không được công bố trong bản pilot.',
-    evidence: [], dialogue: '', choices: [], assessmentGroupId: 'final-assessment', assessmentSummary: true
+    evidence: [], dialogue: '', choices: [], assessmentGroupId: 'final-assessment', assessmentSummary: true, showTitle: false
   },
   'module-2-portfolio-complete': {
     lessonId: 'module-2', checkpointId: 'm2-portfolio-complete', step: 5, totalSteps: 5,

@@ -35,7 +35,7 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke after the approved Module 1 live-Practice routing fix on 16 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, and live-Practice routing fix were approved on 16 August 2026 | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — the four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, five lesson-aligned mastery questions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy and one-task explanation pages are retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the five-question mastery review on 18 August 2026: 291 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke through the 5/5 summary, and `git diff --check`; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, exact deletion of the PRD-anatomy, one-task explanation, and certificate/privacy mastery-question pages, and lesson-aligned mastery rewrite were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
+| Module 2 | `in-progress` — the four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, two-source reference gallery, copyable Practice prompt, four-item outline, simplified mastery introduction, five lesson-aligned mastery questions, question-only group-level Course Companion assessment submission without standalone Teacher/title guidance above the questions, and detailed integration handoff are implemented; the explicitly deleted PRD-anatomy and one-task explanation pages are retired; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the five-question mastery review and group-level Course Companion assessment flow on 18 August 2026: 291 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke through a deliberately incorrect answer, correction, resubmission, and the 5/5 summary, desktop and `390 × 844` screenshot inspection, explicit intro-removal, top/question-gap, and back-control no-overlap assertions, and `git diff --check`; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, exact page and mastery-question deletions, reference-gallery revision, copyable Practice prompt, outline-item removal, mastery-introduction simplification, lesson-aligned mastery rewrite, group-level Course Companion submission, and removal of standalone assessment chrome were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand `module-2-teacher-executor-integration-handoff.md` to the integration owner and implement checkpoints I1–I6; do not treat the content review or old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` | `passed` — current full automated suite, production build, strict-palette and terminology audits, responsive checks, and Electron smoke on 16 August 2026 | `pending` overall; the global Course Companion palette and learner-facing Codex terminology correction were approved on 16 August 2026 | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, and temporary per-Practice review bypasses implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 17 August 2026: typecheck, lint, 284 unit tests, nine startup tests, production build, desktop and `390 × 844` screenshot inspection, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, and review-UI simplification were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
 
@@ -875,11 +875,18 @@ delegated rather than partially rewritten here.
    current documents.
 4. Keep exact numeric passing thresholds configurable. Do not publish a final
    threshold until representative beginner pilots support it.
-5. Ensure quiz feedback appears only after the learner answers.
+5. Keep Teacher-led quiz delivery one question at a time in conversation.
+6. In Course Companion, show every question in the current quiz group before
+   submission. Reveal results, explanations, criteria, and sources only after
+   the learner submits the complete group, and keep an explicit path to revise
+   incorrect answers without automatic navigation.
 
 **Verify**
 
-- One-question-at-a-time delivery.
+- Teacher-led delivery remains one question at a time.
+- Course Companion submits one complete quiz group before revealing feedback;
+  an incorrect choice can be revised and resubmitted without losing the other
+  answers.
 - Every answer traces to the imported source audit or an explicitly labeled
   curriculum judgment.
 - No answer can pass merely by repeating the example portfolio.
@@ -1036,6 +1043,42 @@ synchronized. Verification passed with 289 unit tests, nine startup tests,
 typecheck, lint, production build, and full Electron smoke including desktop
 and `390 × 844` responsive checks.
 
+**Reference-gallery revision note — 18 August 2026:** At the owner's explicit
+request, the five-stage map now teaches design planning with the supplied
+Pafolios and Awwwards screenshots. The former title and roadmap panel are hidden
+on this page, the two images appear side by side with source captions on desktop,
+and they stack on narrow screens. Verification passed with 289 unit tests, nine
+startup tests, typecheck, lint, production build, full Electron smoke, desktop
+and `390 × 844` screenshot inspection, and no horizontal overflow. Module 2
+remains content-reviewable rather than runnable on the redesigned five-document
+contract; owner acceptance and pilot acceptance remain pending.
+
+**Copyable Practice prompt note — 18 August 2026:** At the owner's explicit
+request, the Module 2 Practice transition replaces its title and scope panel
+with a concise prompt that the learner can copy before opening Codex. The prompt
+now starts from a first-time learner's uncertainty, guides a one-question-at-a-time
+planning interview, offers plain-language choices when needed, and requests a
+summary plus approval at each important decision. It does not expose stage or
+module terminology, while keeping code, dependencies, and application creation
+outside the planning conversation. The lower Teacher dialogue uses the owner's
+supplied wording, and the desktop prompt card is centered on the viewport's
+vertical axis.
+Verification passed with 289 unit tests, nine startup tests, typecheck, lint,
+production build, Electron assertions through the revised page, exact
+clipboard-content verification, an exact desktop vertical-alignment assertion,
+desktop and `390 × 844` screenshot inspection, and no horizontal overflow. A
+subsequent full Electron journey passed with the four-item outline revision.
+Owner acceptance and pilot acceptance remain pending.
+
+**Outline-item removal note — 18 August 2026:** At the owner's explicit request,
+the “Năm giai đoạn, năm tài liệu” entry is removed from the Module 2 outline
+menu. Its lesson scene and forward route remain intact; the design-reference
+page now shares the preceding outline section, and the Practice transition is
+the fourth and final menu item. Verification passed with 289 unit tests, nine
+startup tests, typecheck, lint, production build, full Electron smoke, desktop
+and `390 × 844` screenshot inspection, and no horizontal overflow. Owner
+acceptance and pilot acceptance remain pending.
+
 **Mastery-question removal note — 18 August 2026:** At the owner's explicit
 request, the unclear certificate/privacy scenario is removed from Module 2
 Practice. The final mastery review now contains five multiple-choice scenarios
@@ -1048,17 +1091,63 @@ tests, typecheck, lint, production build, full Electron smoke, and
 `git diff --check`. Overall owner acceptance and pilot acceptance remain
 pending.
 
+**Mastery-introduction simplification note — 18 August 2026:** At the owner's
+explicit request, the Module 2 mastery introduction no longer renders the title
+or evidence panel. Its lower Teacher dialogue now contains only the supplied
+review invitation, while the existing previous and continue controls remain
+available. Verification passed with 290 unit tests, nine startup tests,
+typecheck, lint, production build, full Electron smoke through the 9/9 summary,
+desktop and `390 × 844` screenshot inspection, and no horizontal overflow.
+Overall owner acceptance and pilot acceptance remain pending.
+
 **Lesson-aligned mastery rewrite note — 18 August 2026:** After the owner's
 explicit approval, all nine final review questions now use contextual, natural
 Vietnamese tied to the Module 2 lesson. The five multiple-choice scenarios cover
 when planning is necessary, the purpose of a PRD, PRD review, learner decision
 ownership, and responsible use of visual references. The four learner-owned
 answers retain current portfolio evidence while adding plain-language context.
-Question count, one-at-a-time delivery, Practice separation, and completion
-contracts remain unchanged. Verification passed with 291 unit tests, nine
+Question count, Teacher-led one-at-a-time delivery, Practice separation, and
+completion contracts remain unchanged. Verification passed with 291 unit tests, nine
 startup tests, typecheck, lint, production build, full Electron smoke through
 the 9/9 summary, and `git diff --check`. Overall owner acceptance and pilot
 acceptance remain pending.
+
+**Group-level Course Companion assessment note — 18 August 2026:** At the
+owner's explicit request, Course Companion now presents every question in the
+current quiz group before submission. The learner submits the complete group
+once, then sees per-question results, explanations, criteria, and sources. An
+incorrect multiple-choice answer can be revised and resubmitted while the other
+answers remain available; the interface never advances automatically. Written
+answers still require explicit self-review against their published criteria.
+Teacher-led quiz delivery in conversation remains one question at a time.
+Verification passed with 291 unit tests, nine startup tests, typecheck, lint,
+production build, full Electron smoke through a deliberately incorrect answer,
+correction, resubmission, and the 9/9 summary, desktop and `390 × 844`
+screenshot inspection, no horizontal overflow, and explicit assertions that the
+in-flow “Trang trước” control does not overlap any question card. Overall owner
+acceptance and pilot acceptance remain pending.
+
+**Assessment title-bar removal note — 18 August 2026:** At the owner's explicit
+request, Module 2 quiz groups no longer render a standalone title/status banner
+above the assessment. The assessment surface moves into the released space
+directly below the HUD, while Module 1's frozen assessment presentation remains
+unchanged. The Course Companion UI guidance now requires explicit owner
+direction before adding a similar standalone banner in future work. Verification
+requires desktop and `390 × 844` inspection, no horizontal overflow, and
+assertions for the missing title, compact HUD-to-content gap, and non-overlapping
+back control. The owner's direction for this bounded revision is explicit;
+review of the implemented result, overall Module 2 acceptance, and pilot
+acceptance remain pending.
+
+**Assessment intro removal note — 18 August 2026:** At the owner's explicit
+follow-up request, Module 2 quiz groups now begin directly with the first
+question card. The Teacher identity, pre-submit introduction, group title,
+question-count badge, and repeated submission guidance are not rendered above
+the questions. The underlying quiz content and submission behavior remain
+unchanged. Verification requires desktop and `390 × 844` inspection, no
+horizontal overflow, absent intro/header elements, and a compact first-question
+offset from the assessment container. Review of the implemented result, overall
+Module 2 acceptance, and pilot acceptance remain pending.
 
 **Five-question mastery note — 18 August 2026:** At the owner's explicit
 request, the visual-reference scenario and the learner-owned scope, evidence,
@@ -1644,7 +1733,8 @@ The course implementation is accepted only when:
 | Practice-definition parser | Required | Required | Required | Required |
 | Evidence freshness/digests | Required | Planning | Build | Release/deploy |
 | Lesson/script/quiz synchronization | — | Required | Required | Required |
-| One-question-at-a-time assessment | — | Required | Required | Required |
+| Teacher-led one-question-at-a-time assessment | — | Required | Required | Required |
+| Course Companion group submission before feedback | Regression | Required | Required | Required |
 | Exact checkpoint resume | Required | 5 stages | 5 stages + 4 slices | 5 stages |
 | Desktop/narrow Course Companion UI | Regression | Required | Required | Required |
 | Learner app browser checks | — | — | Required | Required local/live |

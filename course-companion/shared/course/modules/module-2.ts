@@ -2,7 +2,6 @@ export const moduleTwoOutlineSections = [
   'Lập kế hoạch trước khi xây',
   'PRD là gì và dùng để làm gì?',
   'Dùng coding agent để tạo, review và duyệt PRD',
-  'Năm giai đoạn, năm tài liệu',
   'Thực hành: Lập kế hoạch cho portfolio'
 ] as const
 

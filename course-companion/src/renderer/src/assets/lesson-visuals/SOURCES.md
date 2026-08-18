@@ -9,6 +9,8 @@ thích tiếng Việt nằm trong giao diện Course Companion, không được 
 
 - `m1-understand-codex.webp`: ảnh chụp giao diện Codex do tác giả khóa học
   cung cấp. Ảnh được cắt theo tỉ lệ 16:9 để vừa khung minh hoạ.
+- `m2-pafolios.webp`: ảnh chụp Pafolios do tác giả khóa học cung cấp.
+- `m2-awwwards.webp`: ảnh chụp Awwwards do tác giả khóa học cung cấp.
 
 Ba ảnh menu đang dùng cho các trang approval, model và reasoning nằm tại
 `pilot-workspace/course/codex-setup/images/`. Đây là ảnh tác giả khóa học cung

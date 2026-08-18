@@ -9,9 +9,9 @@ describe('Module 2 outline menu', () => {
       'Lập kế hoạch trước khi xây',
       'PRD là gì và dùng để làm gì?',
       'Dùng coding agent để tạo, review và duyệt PRD',
-      'Năm giai đoạn, năm tài liệu',
       'Thực hành: Lập kế hoạch cho portfolio'
     ])
+    expect(moduleTwoOutlineSections).not.toContain('Năm giai đoạn, năm tài liệu')
     expect(moduleTwoOutlineSections.join(' ')).not.toMatch(/Đang học|Đã hoàn thành|Sắp tới|Chưa học/)
   })
 

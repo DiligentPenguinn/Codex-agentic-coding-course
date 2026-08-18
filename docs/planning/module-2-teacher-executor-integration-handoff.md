@@ -1,20 +1,87 @@
 # Kế hoạch bàn giao integration Teacher/Executor — Module 2
 
-- **Trạng thái:** Sẵn sàng bàn giao để triển khai; chưa phải implementation.
+- **Trạng thái:** Nội dung và luồng review Module 2 đã hoàn thành để bàn giao;
+  Practice năm tài liệu và integration Teacher/Executor chưa được triển khai.
 - **Chủ sở hữu phần việc:** Người triển khai Teacher/Executor và Practice runtime.
 - **Nguồn quyết định:**
   [`module-2-redesign-working-spec.md`](./module-2-redesign-working-spec.md).
-- **Phạm vi của checkpoint hiện tại:** Ba trang Course Companion và các câu hỏi
-  không phụ thuộc agent đã được cập nhật để duyệt nội dung. Toàn bộ luồng bên
-  dưới vẫn phải được triển khai và kiểm chứng trước khi Module 2 mới có thể hoạt
-  động thật.
+- **Phạm vi của checkpoint hiện tại:** Bốn mục giải thích trong Course Companion,
+  trang chuyển sang Practice và bài Mastery năm câu đã được cập nhật để duyệt
+  nội dung. Toàn bộ luồng bên dưới vẫn phải được triển khai và kiểm chứng trước
+  khi Module 2 mới có thể hoạt động thật.
+
+## 0. Snapshot bàn giao ngày 18 tháng 8 năm 2026
+
+### 0.1 Những gì đã làm được
+
+- Giữ lại phần mở đầu gốc của tác giả và dẫn dắt người học từ lý do cần planning
+  tới khái niệm PRD trước khi giới thiệu Practice.
+- Rút gọn phần giải thích thành bốn mục trong outline. Trang PRD anatomy và trang
+  giải thích task triển khai đầu tiên đã được loại khỏi luồng theo yêu cầu của
+  chủ sở hữu.
+- Thêm trang lập kế hoạch thiết kế với hai ảnh tham khảo Pafolios và Awwwards;
+  ảnh nằm cạnh nhau trên desktop, xếp dọc trên màn hình hẹp và có nguồn rõ ràng.
+- Thay trang chuyển sang Practice bằng prompt có thể sao chép. Prompt phỏng vấn
+  người học từng câu, tóm tắt và chờ xác nhận, đồng thời giữ code, dependency và
+  việc tạo ứng dụng ngoài phạm vi Module 2.
+- Đơn giản hóa phần mở đầu Mastery và bỏ title/panel không cần thiết.
+- Course Companion hiện toàn bộ câu hỏi của một nhóm trước khi nộp, chỉ hiện
+  kết quả và nguồn sau khi nộp, cho phép sửa câu sai mà không làm mất các câu
+  còn lại.
+- Bài Mastery Module 2 hiện có năm câu: bốn câu trắc nghiệm và một câu trả lời
+  do người học tự viết. Bốn câu bị chủ sở hữu yêu cầu xoá đã được gỡ khỏi quiz,
+  scene registry, completion contract, persisted decisions và test.
+- Tiến độ đang dừng ở câu hỏi đã nghỉ hưu được đưa về câu đầu của bài review;
+  receipt chín hoặc mười câu đã hoàn thành trước đây vẫn đọc được.
+- Đã kiểm chứng trạng thái hiện tại bằng 291 unit test, 9 startup test,
+  typecheck, lint, production build, Electron smoke qua kết quả 5/5 và
+  `git diff --check`.
+
+Những thay đổi trên là nội dung và trải nghiệm review đã duyệt. Chúng không chứng
+minh Practice năm tài liệu đã chạy thật và không được dùng để tuyên bố Module 2
+đã hoàn tất integration.
+
+### 0.2 Phần bàn giao cho người triển khai tiếp
+
+Người tiếp nhận sở hữu các checkpoint I1–I6 trong tài liệu này. Ưu tiên theo
+thứ tự:
+
+1. Thay hợp đồng runtime bảy tài liệu bằng đúng năm tài liệu đã duyệt và bump
+   Practice version; receipt cũ không được mở gate mới.
+2. Nối Teacher, Coordinator và Executor vào một Executor task duy nhất xuyên
+   suốt năm giai đoạn, kể cả resume và các vòng **Yêu cầu sửa**.
+3. Triển khai evidence adapter đọc tệp thật, kiểm tra write scope, dependency,
+   digest và stale cascade trước mỗi lần **Chấp nhận**.
+4. Nối UI review với Practice thật; content-review mode không được ghi tiến độ,
+   tạo receipt hoặc mở Module 3.
+5. Đổi completion service và Module 3 handoff sang năm tài liệu; task triển khai
+   đầu tiên chỉ được đề xuất trong Module 3 và phải chờ người học duyệt.
+6. Chạy rehearsal bằng workspace dùng một lần, kiểm tra desktop và `390 × 844`,
+   rồi chạy toàn bộ suite được liệt kê ở I6.
+
+### 0.3 Vấn đề UX đã biết
+
+Sau khi nộp nhóm Mastery, câu tự luận phải được người học tự đối chiếu trước khi
+nút **Xem kết quả 5 câu** được mở. Hiện nút bị khoá nhưng lý do chưa đủ rõ; một
+người dùng đã tưởng mình hoàn thành 4/5 câu mà không có đường đi tiếp. Khi nối
+Practice thật, cần làm cho bước xác nhận này rõ ràng hơn hoặc đưa hành động xác
+nhận vào cùng luồng tiếp tục, nhưng vẫn phải giữ bằng chứng người học đã tự đối
+chiếu câu trả lời.
+
+### 0.4 Ranh giới merge
+
+Chỉ đưa nội dung, tài sản, contract hiển thị, test nội dung và tài liệu bàn giao
+đã duyệt sang `Triet-V2-planning`. Không đưa cơ chế content-review tạm thời,
+Practice bypass, route bỏ qua, thông báo “review only” hoặc test dành riêng cho
+bypass sang branch tích hợp.
 
 ## 1. Kết quả cần đạt
 
-Sau ba trang giải thích, người học mở một Practice và làm việc trong **một task
-Codex duy nhất** qua năm giai đoạn. Người học chỉ trả lời từng câu hỏi bằng ngôn
-ngữ bình thường. Executor tạo hoặc sửa tài liệu. Course Companion đọc tệp thật,
-hiện bản tóm tắt và chỉ ghi nhận giai đoạn khi người học chọn **Chấp nhận**.
+Sau bốn mục giải thích và trang chuyển tiếp, người học mở một Practice và làm
+việc trong **một task Codex duy nhất** qua năm giai đoạn. Người học chỉ trả lời
+từng câu hỏi bằng ngôn ngữ bình thường. Executor tạo hoặc sửa tài liệu. Course
+Companion đọc tệp thật, hiện bản tóm tắt và chỉ ghi nhận giai đoạn khi người học
+chọn **Chấp nhận**.
 
 Module 2 chỉ hoàn thành khi năm tài liệu hiện tại, năm lần duyệt và mastery gate
 đều hợp lệ. Module 2 dừng ở `planning/implementation-plan.md`; Module 3 mới đề
