@@ -112,7 +112,7 @@ Cụm năm trang này nằm sau phần debug cùng agent.
 | Trang | Chủ đề | Trạng thái nội dung |
 | --- | --- | --- |
 | 1 | Vì sao cần Git? | Đã duyệt |
-| 2 | Git khác GitHub như thế nào? | Đã thống nhất định hướng và cách giải thích đơn giản |
+| 2 | Git khác GitHub như thế nào? | Đã duyệt |
 | 3 | Commit: lưu một phiên bản của dự án | Đã duyệt |
 | 4 | Push: đưa commit lên GitHub | Đã duyệt |
 | 5 | Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định | Đã duyệt |
@@ -133,19 +133,13 @@ Trang này chỉ giới thiệu mục đích của Git, chưa dạy câu lệnh.
 
 ### Trang 2 — Git khác GitHub như thế nào?
 
-Câu mở đầu đã được duyệt nguyên văn:
-
 > Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.
-
-Hướng giải thích hiện tại:
-
-Git là một hệ thống hoạt động trên máy tính. Git theo dõi các tệp trong dự án và lưu lại lịch sử thay đổi của chúng.
-
-Nơi Git quản lý các tệp cùng lịch sử thay đổi được gọi là repository, hay kho lưu trữ dự án. Bạn có thể dùng Git trên máy tính mà không cần kết nối với GitHub.
-
-GitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.
-
-GitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc. Vì vậy, GitHub làm được nhiều việc hơn một máy chủ chỉ dùng để lưu Git repository.
+>
+> Git là một hệ thống hoạt động trên máy tính của bạn. Git theo dõi các tệp trong repository và lưu lại lịch sử thay đổi của chúng. Bạn có thể dùng Git mà không cần kết nối với GitHub.
+>
+> GitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu thêm một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.
+>
+> GitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc.
 
 ### Trang 3 — Commit: lưu một phiên bản của dự án
 
@@ -221,8 +215,6 @@ Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ 
 ## 7. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Câu chữ đầy đủ cho hai bước debugging còn lại sau trang về lỗi trên màn hình.
-- Câu chữ cuối cùng của Trang 1 và Trang 2 trong cụm Git và GitHub.
 - Cách Course Companion diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
 - Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
 
