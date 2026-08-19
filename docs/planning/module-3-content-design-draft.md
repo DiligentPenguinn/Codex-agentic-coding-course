@@ -242,11 +242,28 @@ Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ 
 
 Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và kiểm tra giao diện của Module 3. Ở cả hai kích thước, website không được cuộn ngang và các nội dung chính phải đọc được. Các giá trị này có thể được điều chỉnh sau khi có bằng chứng từ pilot, nhưng không thay đổi giữa chừng trong cùng một phiên bản khóa học.
 
-## 8. Nội dung chưa chốt
+## 8. Câu hỏi tổng kết cuối bài
 
-- Các câu hỏi tổng kết đặt ở cuối bài.
+Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
 
-Câu hỏi tổng kết không được coi là đã được chủ sở hữu duyệt cho đến khi được bàn xong.
+### Câu 1 — Thực hiện plan theo từng phần
+
+**Câu hỏi**
+
+> Coding agent vừa hoàn thành một phần của implementation plan. Bạn nên làm gì trước khi cho agent chuyển sang phần tiếp theo?
+
+**Lựa chọn**
+
+1. Chuyển ngay vì implementation plan đã được duyệt từ trước.
+2. Xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi chấp nhận hoặc yêu cầu chỉnh sửa.
+3. Yêu cầu agent hoàn thành luôn toàn bộ phần còn lại để tiết kiệm thời gian.
+4. Chỉ tạo một commit mà không cần mở website.
+
+**Đáp án:** 2
+
+**Giải thích sau khi trả lời**
+
+> Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.
 
 ## 9. Nguồn tham khảo
 
