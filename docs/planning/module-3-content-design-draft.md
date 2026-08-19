@@ -33,10 +33,10 @@ Module này cũng dạy người học cách xử lý lỗi cùng agent và dùn
 Module 3 được chia thành ba phần lớn:
 
 1. **Thực hiện implementation plan theo từng giai đoạn.**
-2. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
-3. **Debug cùng agent khi sản phẩm gặp lỗi.**
+2. **Debug cùng agent khi sản phẩm gặp lỗi.**
+3. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
 
-Người học trước hết hiểu cách chia công việc và kiểm tra từng giai đoạn. Sau đó, Git và GitHub được giới thiệu như lớp bảo vệ cho quy trình này trước khi người học tìm hiểu cách điều tra lỗi. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
+Người học trước hết hiểu cách chia công việc và kiểm tra từng giai đoạn. Sau đó, debugging được giới thiệu như một phần khó tránh khỏi trong quá trình xây sản phẩm. Git và GitHub xuất hiện sau phần debugging để giúp người học lưu phiên bản, khôi phục và thử nghiệm an toàn. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
 
 ## 4. Thực hiện implementation plan theo từng giai đoạn
 
@@ -58,11 +58,39 @@ Không dùng một ví dụ tự nghĩ ra về phần Hero của portfolio. Sử
 
 Nội dung bài học sẽ chỉ ra một task cụ thể trong plan, cách giới hạn phạm vi của task đó và cách kiểm tra kết quả trước khi tiếp tục. Cần phân biệt rõ đâu là nội dung từ nguồn bên ngoài và đâu là cách diễn giải phục vụ bài học.
 
-## 5. Git và GitHub
+## 5. Debug cùng agent
+
+### Câu mở đầu đã duyệt nguyên văn
+
+> Okay, bây giờ bạn đã có một implementation plan và bắt đầu thực hiện nó. Đến giai đoạn này, có một điều mình chắc chắn bạn sẽ không thể tránh khỏi. Đó chính là gặp bug (lỗi phần mềm). Hiện tại coding agent chưa phát triển đến mức làm hoàn hảo mọi yêu cầu của bạn mà không có tí lỗi nào.
+>
+> Thực ra hồi mới bắt đầu code với Coding agents, đâu đó tầm 40% thời gian mình dành để lên kế hoạch và xây sản phẩm thôi, 60% thời gian còn lại mình dành cho debugging (khắc phục lỗi). Thực ra hoàn thành tốt giai đoạn planning và implementation plan đã giúp bạn giảm khá khá bugs rồi. Nhưng vẫn khó tránh khỏi việc bạn sẽ gặp bug trong quá trình xây sản phẩm.
+>
+> Vậy khi gặp bug thì xử lý thế nào?
+
+### Quy trình dành cho người mới
+
+1. Nếu nhìn thấy lỗi trên màn hình, người học chụp lại màn hình và gửi cho agent để agent điều tra, giải thích rồi sửa.
+2. Nếu vẫn chưa tìm được lỗi, yêu cầu agent thêm log và quan sát thông tin xuất hiện trong terminal.
+3. Nếu lỗi tiếp tục quay lại sau nhiều lần sửa, yêu cầu agent tạm dừng và liệt kê các nguyên nhân có thể xảy ra.
+
+Quy trình này phải được trình bày như một cách làm thực tế, dễ nhớ. Không biến phần mở đầu thành một quy trình điều tra kỹ thuật phức tạp.
+
+### Câu chữ đã thống nhất
+
+#### Yêu cầu AI liệt kê các nguyên nhân có thể xảy ra
+
+Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra. Cách này giúp quá trình điều tra có hệ thống hơn và thường tìm ra nguyên nhân gốc, thay vì chỉ vá những biểu hiện trước mắt.
+
+### Điều người học cần hiểu
+
+Agent có thể thực hiện phần lớn việc debug, nhưng người học vẫn cần biết lỗi nhìn thấy là gì, agent đã dựa vào thông tin nào và kết quả sau khi sửa có thực sự giải quyết lỗi hay không.
+
+## 6. Git và GitHub
 
 Git và GitHub sẽ có một cụm trang riêng. Nội dung không bị nhét vào một trang dài.
 
-Cụm năm trang này nằm sau phần thực hiện implementation plan theo từng giai đoạn và trước phần debug cùng agent.
+Cụm năm trang này nằm sau phần debug cùng agent.
 
 ### Thứ tự trang đã thống nhất
 
@@ -148,26 +176,6 @@ Bạn không nên thử trực tiếp trên phiên bản đang hoạt động �
 
 Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
 
-## 6. Debug cùng agent
-
-### Quy trình dành cho người mới
-
-1. Nếu nhìn thấy lỗi trên màn hình, người học chụp lại màn hình và gửi cho agent để agent điều tra, giải thích rồi sửa.
-2. Nếu vẫn chưa tìm được lỗi, yêu cầu agent thêm log và quan sát thông tin xuất hiện trong terminal.
-3. Nếu lỗi tiếp tục quay lại sau nhiều lần sửa, yêu cầu agent tạm dừng và liệt kê các nguyên nhân có thể xảy ra.
-
-Quy trình này phải được trình bày như một cách làm thực tế, dễ nhớ. Không biến phần mở đầu thành một quy trình điều tra kỹ thuật phức tạp.
-
-### Câu chữ đã thống nhất
-
-#### Yêu cầu AI liệt kê các nguyên nhân có thể xảy ra
-
-Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra. Cách này giúp quá trình điều tra có hệ thống hơn và thường tìm ra nguyên nhân gốc, thay vì chỉ vá những biểu hiện trước mắt.
-
-### Điều người học cần hiểu
-
-Agent có thể thực hiện phần lớn việc debug, nhưng người học vẫn cần biết lỗi nhìn thấy là gì, agent đã dựa vào thông tin nào và kết quả sau khi sửa có thực sự giải quyết lỗi hay không.
-
 ## 7. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
@@ -180,6 +188,7 @@ Không được coi các mục này là đã được chủ sở hữu duyệt.
 
 Nguồn chính thức dùng để kiểm tra khái niệm:
 
+- [OpenAI — Introducing Codex](https://openai.com/index/introducing-codex/)
 - [Git — About Version Control](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
 - [Git — What is Git?](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F)
 - [Git — Branches in a Nutshell](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
@@ -196,4 +205,4 @@ Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiế
 
 ## 9. Bước tiếp theo được phép
 
-Tiếp tục bàn câu chuyển từ phần **Thực hiện implementation plan theo từng giai đoạn** sang cụm trang **Git và GitHub**. Chưa chỉnh sửa nội dung Course Companion cho đến khi toàn bộ thiết kế Module 3 được chủ sở hữu duyệt.
+Tiếp tục bàn câu chuyển từ phần **Debug cùng agent** sang cụm trang **Git và GitHub**. Chưa chỉnh sửa nội dung Course Companion cho đến khi toàn bộ thiết kế Module 3 được chủ sở hữu duyệt.
