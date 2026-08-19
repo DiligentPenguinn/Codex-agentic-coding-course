@@ -246,6 +246,12 @@ Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và
 
 Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
 
+Quy tắc thiết kế câu hỏi:
+
+- Các lựa chọn sai phải hợp lý và gần với đáp án đúng. Trong mỗi câu, ít nhất hai lựa chọn phải đủ gần nhau để người học cần phân biệt bằng nội dung đã học.
+- Vị trí đáp án đúng được thay đổi giữa các câu, không lặp một vị trí theo khuôn.
+- Độ khó đến từ việc phân biệt các cách xử lý gần giống nhau, không đến từ câu chữ mơ hồ hoặc mẹo ngôn ngữ.
+
 ### Câu 1 — Thực hiện plan theo từng phần
 
 **Câu hỏi**
