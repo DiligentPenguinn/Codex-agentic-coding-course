@@ -61,6 +61,20 @@ Sau phần mở đầu, debugging được giới thiệu như một phần khó
 >
 > Sau khi agent sửa xong, hãy thực hiện lại đúng thao tác đã gây lỗi. Nếu lỗi không còn xuất hiện, chúng ta có thể tiếp tục.
 
+### Hướng hình ảnh đã duyệt
+
+Module 3 dùng ảnh do khóa học tự tạo thay vì sử dụng lại ảnh tìm thấy trên Internet. Cách này giúp tình huống trong ảnh khớp với nội dung bài học, không chứa thông tin cá nhân và không phụ thuộc vào quyền sử dụng của nguồn bên ngoài.
+
+Ảnh cho lỗi nhìn thấy trên màn hình sử dụng một lỗi bố cục rõ ràng: nút “Xem dự án” che lên phần giới thiệu của portfolio.
+
+![Bản nháp hình minh hoạ một lỗi có thể nhìn thấy trên màn hình](assets/module-3/visible-screen-error-example.png)
+
+Ảnh cho lỗi trong log chỉ làm nổi bật một thông báo ngắn trong Terminal. Người học không cần hiểu toàn bộ nội dung kỹ thuật trong ảnh. Họ chỉ cần nhận ra đây là thông tin có thể gửi cho agent để điều tra.
+
+![Bản nháp hình minh hoạ lỗi xuất hiện trong log ở Terminal](assets/module-3/terminal-log-error-example.png)
+
+Các nhãn tiếng Việt nằm trong hai ảnh này vẫn là bản nháp hình ảnh. Chúng chưa được coi là câu chữ bài học đã duyệt và chỉ được đưa vào Course Companion sau khi toàn bộ thiết kế Module 3 được duyệt.
+
 ### Quy trình dành cho người mới
 
 1. Nếu nhìn thấy lỗi trên màn hình, người học chụp lại màn hình và gửi cho agent để agent điều tra, giải thích rồi sửa.
