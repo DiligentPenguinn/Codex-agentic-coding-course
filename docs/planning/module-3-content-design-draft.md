@@ -101,10 +101,6 @@ Quy trình này phải được trình bày như một cách làm thực tế, d
 
 Agent có thể thực hiện phần lớn việc debug, nhưng người học vẫn cần biết lỗi nhìn thấy là gì, agent đã dựa vào thông tin nào và kết quả sau khi sửa có thực sự giải quyết lỗi hay không.
 
-### Câu chuyển sang Git đã duyệt nguyên văn
-
-> Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng
-
 ## 5. Git và GitHub
 
 Git và GitHub sẽ có một cụm trang riêng. Nội dung không bị nhét vào một trang dài.
@@ -115,7 +111,7 @@ Cụm năm trang này nằm sau phần debug cùng agent.
 
 | Trang | Chủ đề | Trạng thái nội dung |
 | --- | --- | --- |
-| 1 | Vì sao cần Git? | Đã thống nhất định hướng và câu giải thích về “phân tán” |
+| 1 | Vì sao cần Git? | Đã duyệt |
 | 2 | Git khác GitHub như thế nào? | Đã thống nhất định hướng và cách giải thích đơn giản |
 | 3 | Commit: lưu một phiên bản của dự án | Đã duyệt |
 | 4 | Push: đưa commit lên GitHub | Đã duyệt |
@@ -125,15 +121,15 @@ Commit phải được giới thiệu trước push.
 
 ### Trang 1 — Vì sao cần Git?
 
-Mục đích của trang này là giới thiệu Git như một công cụ giúp người học lưu lịch sử và có đường quay lại khi công việc sau đó gây lỗi. Đây chưa phải bài học về câu lệnh hoặc cộng tác nhóm.
-
-Git là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.
-
-Đoạn giải thích đã được duyệt nguyên văn:
-
+> Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng
+>
+> Git là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.
+>
+> Repository, hay kho lưu trữ dự án, là nơi Git quản lý các tệp của dự án cùng lịch sử thay đổi của chúng.
+>
 > “Phân tán” có nghĩa là repository trên máy tính của bạn không chỉ giữ phiên bản mới nhất, mà còn có lịch sử của dự án. Bạn có thể thấy được tất cả phiên bản cũ mà bạn từng làm, cũng như các phiên bản mà hiện tại bạn đang phát triển.
 
-Khái niệm `repository` phải được giải thích bằng ngôn ngữ đơn giản trước hoặc ngay khi người học cần hiểu nó.
+Trang này chỉ giới thiệu mục đích của Git, chưa dạy câu lệnh.
 
 ### Trang 2 — Git khác GitHub như thế nào?
 
