@@ -36,35 +36,14 @@ Module này cũng dạy người học cách xử lý lỗi cùng agent và dùn
 
 ## 3. Cấu trúc nội dung hiện tại
 
-Module 3 được chia thành ba phần lớn:
+Module 3 được chia thành hai phần lớn:
 
-1. **Thực hiện implementation plan theo từng giai đoạn.**
-2. **Debug cùng agent khi sản phẩm gặp lỗi.**
-3. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
+1. **Debug cùng agent khi sản phẩm gặp lỗi.**
+2. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
 
-Người học trước hết hiểu cách chia công việc và kiểm tra từng giai đoạn. Sau đó, debugging được giới thiệu như một phần khó tránh khỏi trong quá trình xây sản phẩm. Git và GitHub xuất hiện sau phần debugging để giúp người học lưu phiên bản, khôi phục và thử nghiệm an toàn. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
+Sau phần mở đầu, debugging được giới thiệu như một phần khó tránh khỏi trong quá trình xây sản phẩm. Git và GitHub xuất hiện sau phần debugging để giúp người học lưu phiên bản, khôi phục và thử nghiệm an toàn. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
 
-## 4. Thực hiện implementation plan theo từng giai đoạn
-
-### Ý chính đã thống nhất
-
-- Chọn một phần nhỏ trong implementation plan.
-- Trước khi làm, xác nhận phạm vi của phần đó và những gì chưa được làm.
-- Agent chỉ thực hiện phần đã thống nhất.
-- Cuối giai đoạn, agent chạy kiểm tra kỹ thuật và cho người học xem kết quả thực tế.
-- Người học đối chiếu kết quả với plan.
-- Chỉ khi kết quả đạt yêu cầu mới lưu một phiên bản ổn định và chuyển sang giai đoạn tiếp theo.
-
-### Ví dụ sẽ sử dụng
-
-Không dùng một ví dụ tự nghĩ ra về phần Hero của portfolio. Sử dụng một phần trong implementation plan công khai của dự án CrawlSEO làm ví dụ thực tế:
-
-- Nguồn: [CrawlSEO Phase 1 Implementation Plan](https://github.com/crawlseo/crawlseo/blob/main/PLAN.md)
-- Phần minh họa dự kiến: `T1.1 — Initialize Next.js Project`
-
-Nội dung bài học sẽ chỉ ra một task cụ thể trong plan, cách giới hạn phạm vi của task đó và cách kiểm tra kết quả trước khi tiếp tục. Cần phân biệt rõ đâu là nội dung từ nguồn bên ngoài và đâu là cách diễn giải phục vụ bài học.
-
-## 5. Debug cùng agent
+## 4. Debug cùng agent
 
 ### Câu mở đầu đã duyệt nguyên văn
 
@@ -96,7 +75,7 @@ Agent có thể thực hiện phần lớn việc debug, nhưng người học v
 
 > Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng
 
-## 6. Git và GitHub
+## 5. Git và GitHub
 
 Git và GitHub sẽ có một cụm trang riêng. Nội dung không bị nhét vào một trang dài.
 
@@ -186,7 +165,7 @@ Bạn không nên thử trực tiếp trên phiên bản đang hoạt động �
 
 Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
 
-## 7. Practice
+## 6. Practice
 
 ### Hành trình của người học
 
@@ -213,10 +192,9 @@ Teacher chỉ trò chuyện với người học trong phần bài học trướ
 
 Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ thuật cũ. Quyết định trong tài liệu này chưa thay đổi runtime, Course Companion hoặc code. Khi toàn bộ content Module 3 được duyệt, phần triển khai sau đó phải đơn giản hóa trải nghiệm người học theo thiết kế này mà vẫn giữ việc kiểm tra bằng chứng ở phía sau.
 
-## 8. Những nội dung chưa chốt
+## 7. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Câu chữ đầy đủ cho phần thực hiện implementation plan theo từng giai đoạn.
 - Câu chữ đầy đủ cho các bước debugging sau đoạn mở đầu đã duyệt.
 - Câu chữ cuối cùng của Trang 1 và Trang 2 trong cụm Git và GitHub.
 - Cách Course Companion diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
@@ -224,7 +202,7 @@ Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ 
 
 Không được coi các mục này là đã được chủ sở hữu duyệt.
 
-## 9. Nguồn tham khảo
+## 8. Nguồn tham khảo
 
 Nguồn chính thức dùng để kiểm tra khái niệm:
 
@@ -243,6 +221,6 @@ Nguồn bổ sung do người dùng cung cấp:
 
 Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiết, không dùng làm nguồn duy nhất cho câu lệnh hoặc hành vi hiện tại của Git.
 
-## 10. Bước tiếp theo được phép
+## 9. Bước tiếp theo được phép
 
-Tiếp tục bàn và duyệt lần lượt các nội dung còn thiếu trong Mục 8. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Chỉ bắt đầu xây Module 3 sau khi toàn bộ content của module được chủ sở hữu duyệt.
+Tiếp tục bàn và duyệt lần lượt các nội dung còn thiếu trong Mục 7. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Chỉ bắt đầu xây Module 3 sau khi toàn bộ content của module được chủ sở hữu duyệt.
