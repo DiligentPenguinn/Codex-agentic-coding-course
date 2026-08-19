@@ -53,6 +53,14 @@ Sau phần mở đầu, debugging được giới thiệu như một phần khó
 >
 > Vậy khi gặp bug thì xử lý thế nào?
 
+### Trang 1 — Khi lỗi xuất hiện trên màn hình
+
+> Khi gặp một bug có thể nhìn thấy trên màn hình, hãy chụp lại bug đó và gửi ảnh cho coding agent.
+>
+> Đừng chỉ gửi ảnh. Hãy nói thêm bạn đang làm gì, bạn mong đợi điều gì và kết quả thực tế ra sao. Từ những thông tin này, agent có thể kiểm tra code, tìm nguyên nhân và giải thích lỗi bằng ngôn ngữ dễ hiểu trước khi sửa.
+>
+> Sau khi agent sửa xong, hãy thực hiện lại đúng thao tác đã gây lỗi. Nếu lỗi không còn xuất hiện, chúng ta có thể tiếp tục.
+
 ### Quy trình dành cho người mới
 
 1. Nếu nhìn thấy lỗi trên màn hình, người học chụp lại màn hình và gửi cho agent để agent điều tra, giải thích rồi sửa.
@@ -195,7 +203,7 @@ Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ 
 ## 7. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Câu chữ đầy đủ cho các bước debugging sau đoạn mở đầu đã duyệt.
+- Câu chữ đầy đủ cho hai bước debugging còn lại sau trang về lỗi trên màn hình.
 - Câu chữ cuối cùng của Trang 1 và Trang 2 trong cụm Git và GitHub.
 - Cách Course Companion diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
 - Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
@@ -207,6 +215,7 @@ Không được coi các mục này là đã được chủ sở hữu duyệt.
 Nguồn chính thức dùng để kiểm tra khái niệm:
 
 - [OpenAI — Introducing Codex](https://openai.com/index/introducing-codex/)
+- [OpenAI — Image inputs](https://learn.chatgpt.com/docs/image-inputs)
 - [Git — About Version Control](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
 - [Git — What is Git?](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F)
 - [Git — Branches in a Nutshell](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
