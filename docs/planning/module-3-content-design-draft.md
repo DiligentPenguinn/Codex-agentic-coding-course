@@ -250,7 +250,7 @@ Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và
 
 ## 8. Câu hỏi tổng kết cuối bài
 
-Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1, Câu 2 và Câu 3 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
+Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 đến Câu 4 dưới đây đã được chủ sở hữu duyệt; câu còn lại tiếp tục được bàn riêng.
 
 Quy tắc thiết kế câu hỏi:
 
@@ -314,6 +314,25 @@ Quy tắc thiết kế câu hỏi:
 **Giải thích sau khi trả lời**
 
 > Lựa chọn 2 cũng sử dụng log, nhưng dòng code nằm gần một thông báo chưa chắc là nguyên nhân gây lỗi. Coding agent cần tái hiện lỗi và dùng thông tin trong terminal làm bằng chứng trước khi sửa. Sau khi lỗi đã được khắc phục, bạn có thể yêu cầu agent xoá những đoạn log không còn cần thiết.
+
+### Câu 4 — Khi lỗi liên tục quay lại
+
+**Câu hỏi**
+
+> Coding agent đã sửa cùng một lỗi nhiều lần nhưng lỗi vẫn quay lại. Bạn nên yêu cầu agent làm gì?
+
+**Lựa chọn**
+
+1. Tạm dừng sửa, nêu các nguyên nhân có thể rồi dùng log và việc tái hiện lỗi để kiểm tra nguyên nhân nào có bằng chứng.
+2. Tạm dừng sửa, chọn nguyên nhân có vẻ hợp lý nhất rồi sửa thử; nếu chưa được thì chuyển sang nguyên nhân khác.
+3. Khôi phục commit ổn định gần nhất và bỏ qua tính năng đang gây lỗi.
+4. Tiếp tục chỉnh phần đang hiển thị sai cho đến khi lỗi không còn xuất hiện.
+
+**Đáp án:** 1
+
+**Giải thích sau khi trả lời**
+
+> Cả lựa chọn 1 và 2 đều bắt đầu từ những nguyên nhân có thể xảy ra. Điểm khác biệt là lựa chọn 1 kiểm tra bằng chứng trước khi sửa, còn lựa chọn 2 tiếp tục sửa theo phỏng đoán. Kiểm tra log và tái hiện lỗi giúp agent xác định nguyên nhân thực sự, thay vì chỉ thử lần lượt nhiều cách sửa.
 
 ## 9. Nguồn tham khảo
 
