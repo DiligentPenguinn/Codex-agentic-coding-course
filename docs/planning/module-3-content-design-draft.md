@@ -1,9 +1,9 @@
 # Module 3 — Bản thiết kế nội dung đang soạn
 
-- **Trạng thái:** Đang lên kế hoạch nội dung
+- **Trạng thái:** Đang chốt câu hỏi tổng kết cuối bài
 - **Phạm vi:** Nội dung Module 3 dành cho người học
 - **Triển khai vào Course Companion:** Chưa bắt đầu theo bản thiết kế này
-- **Mức duyệt:** Cấu trúc cốt lõi, thứ tự nội dung và trải nghiệm Practice đã được chủ sở hữu thống nhất; câu chữ của các trang còn lại vẫn phải được bàn lần lượt
+- **Mức duyệt:** Nội dung giảng dạy, hình minh hoạ và trải nghiệm Practice đã được chủ sở hữu thống nhất; chỉ còn các câu hỏi tổng kết cuối bài cần duyệt
 - **Nhánh làm việc:** `practice-disabled-content-development`
 
 Tài liệu này lưu lại những nội dung đã bàn để có thể tiếp tục trong một task khác mà không phụ thuộc vào lịch sử hội thoại. Đây chưa phải kịch bản hoàn chỉnh của Module 3 và không thay thế cổng nghiệm thu trong kế hoạch triển khai toàn khóa học.
@@ -214,6 +214,19 @@ Trong khi Practice đang hoạt động, Teacher Triết không hiển thị ô 
 
 Nút **Hoàn thành bài** bắt đầu bước review cuối, không tự động đánh dấu bài đã đạt. Course Companion kiểm tra bằng chứng hiện tại. Nếu còn thiếu, giao diện nói ngắn gọn điều chưa đạt và đưa người học trở lại task Codex. Nếu đã đủ, người học xác nhận chấp nhận website hiện tại rồi kết thúc Practice.
 
+#### Khi bài vẫn còn thiếu
+
+- **Tiêu đề:** Bạn vẫn còn một phần cần hoàn thành
+- **Nội dung:** Kết quả kiểm tra cho thấy: **[điều còn thiếu]**. Hãy tiếp tục trong task Codex hiện tại và hoàn thành phần này. Sau đó, bấm **Hoàn thành bài** trên Teacher Triết để kiểm tra lại.
+- **Nút:** Tiếp tục với Codex
+
+#### Khi kết quả hiện tại đã đầy đủ
+
+- **Tiêu đề:** Website hiện tại đã sẵn sàng để bạn xem lại
+- **Nội dung:** Các phần bắt buộc và kết quả kiểm tra hiện tại đã đầy đủ. Hãy xem lại website lần cuối. Nếu bạn chấp nhận phiên bản hiện tại, hãy xác nhận để kết thúc Practice.
+- **Nút chính:** Chấp nhận và hoàn thành
+- **Nút phụ:** Tiếp tục chỉnh sửa
+
 Nút **Xem lại objective của bài** mở một bảng nhỏ nhắc lại mục tiêu của Practice, implementation plan đang được thực hiện và điều kiện để kết thúc. Nút này không mở Teacher chat và không tạo một cuộc hội thoại mới.
 
 Teacher Triết chỉ trò chuyện với người học trong phần bài học trước Practice và phần review sau Practice. Trong lúc xây website, Codex là nơi duy nhất người học trao đổi về công việc và lỗi của sản phẩm.
@@ -222,15 +235,20 @@ Teacher Triết chỉ trò chuyện với người học trong phần bài học
 
 Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ thuật cũ. Quyết định trong tài liệu này chưa thay đổi runtime, Course Companion hoặc code. Khi toàn bộ content Module 3 được duyệt, phần triển khai sau đó phải đơn giản hóa trải nghiệm người học theo thiết kế này mà vẫn giữ việc kiểm tra bằng chứng ở phía sau.
 
-## 7. Những nội dung chưa chốt
+## 7. Viewport kiểm tra đã chốt
+
+- **Desktop:** `1440 × 900`
+- **Mobile:** `390 × 844`
+
+Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và kiểm tra giao diện của Module 3. Ở cả hai kích thước, website không được cuộn ngang và các nội dung chính phải đọc được. Các giá trị này có thể được điều chỉnh sau khi có bằng chứng từ pilot, nhưng không thay đổi giữa chừng trong cùng một phiên bản khóa học.
+
+## 8. Nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Cách Teacher Triết diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
-- Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
 
-Không được coi các mục này là đã được chủ sở hữu duyệt.
+Câu hỏi tổng kết không được coi là đã được chủ sở hữu duyệt cho đến khi được bàn xong.
 
-## 8. Nguồn tham khảo
+## 9. Nguồn tham khảo
 
 Nguồn chính thức dùng để kiểm tra khái niệm:
 
@@ -250,6 +268,6 @@ Nguồn bổ sung do người dùng cung cấp:
 
 Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiết, không dùng làm nguồn duy nhất cho câu lệnh hoặc hành vi hiện tại của Git.
 
-## 9. Bước tiếp theo được phép
+## 10. Bước tiếp theo được phép
 
-Tiếp tục bàn và duyệt lần lượt các nội dung còn thiếu trong Mục 7. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Chỉ bắt đầu xây Module 3 sau khi toàn bộ content của module được chủ sở hữu duyệt.
+Tiếp tục bàn và duyệt các câu hỏi tổng kết cuối bài. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Bắt đầu xây Module 3 ngay sau khi toàn bộ câu hỏi được chủ sở hữu duyệt.
