@@ -1,12 +1,12 @@
 # Module 3 — Bản thiết kế nội dung đang soạn
 
-- **Trạng thái:** Đang chốt câu hỏi tổng kết cuối bài
+- **Trạng thái:** Đã được chủ sở hữu duyệt đầy đủ
 - **Phạm vi:** Nội dung Module 3 dành cho người học
 - **Triển khai vào Course Companion:** Chưa bắt đầu theo bản thiết kế này
-- **Mức duyệt:** Nội dung giảng dạy, hình minh hoạ và trải nghiệm Practice đã được chủ sở hữu thống nhất; chỉ còn các câu hỏi tổng kết cuối bài cần duyệt
+- **Mức duyệt:** Nội dung giảng dạy, hình minh hoạ, trải nghiệm Practice và năm câu hỏi tổng kết đã được chủ sở hữu duyệt
 - **Nhánh làm việc:** `practice-disabled-content-development`
 
-Tài liệu này lưu lại những nội dung đã bàn để có thể tiếp tục trong một task khác mà không phụ thuộc vào lịch sử hội thoại. Đây chưa phải kịch bản hoàn chỉnh của Module 3 và không thay thế cổng nghiệm thu trong kế hoạch triển khai toàn khóa học.
+Tài liệu này lưu lại toàn bộ nội dung Module 3 đã được duyệt để việc triển khai không phụ thuộc vào lịch sử hội thoại. Tài liệu không thay thế cổng nghiệm thu trong kế hoạch triển khai toàn khóa học.
 
 ## 1. Mục đích của Module 3
 
@@ -250,7 +250,7 @@ Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và
 
 ## 8. Câu hỏi tổng kết cuối bài
 
-Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 đến Câu 4 dưới đây đã được chủ sở hữu duyệt; câu còn lại tiếp tục được bàn riêng.
+Các câu hỏi được đặt cùng nhau ở cuối bài. Cả năm câu dưới đây đã được chủ sở hữu duyệt.
 
 Quy tắc thiết kế câu hỏi:
 
@@ -334,6 +334,25 @@ Quy tắc thiết kế câu hỏi:
 
 > Cả lựa chọn 1 và 2 đều bắt đầu từ những nguyên nhân có thể xảy ra. Điểm khác biệt là lựa chọn 1 kiểm tra bằng chứng trước khi sửa, còn lựa chọn 2 tiếp tục sửa theo phỏng đoán. Kiểm tra log và tái hiện lỗi giúp agent xác định nguyên nhân thực sự, thay vì chỉ thử lần lượt nhiều cách sửa.
 
+### Câu 5 — Thử nghiệm trên branch
+
+**Câu hỏi**
+
+> Website đang hoạt động ổn định, nhưng những thay đổi mới nhất chưa được lưu thành commit. Bạn muốn thử một bố cục mới và chưa chắc sẽ giữ lại. Bạn nên yêu cầu coding agent làm gì?
+
+**Lựa chọn**
+
+1. Tạo branch mới ngay, thử bố cục rồi tạo một commit chứa cả phiên bản ổn định và phần thử nghiệm.
+2. Tạo commit cho phiên bản ổn định, sau đó tạo một branch riêng để thử bố cục mới.
+3. Tạo commit cho phiên bản ổn định, sau đó thử bố cục mới trên branch hiện tại và quay lại commit cũ nếu không thích.
+4. Push các tệp hiện tại lên GitHub, sau đó thử bố cục mới vì GitHub sẽ tự lưu phiên bản cũ.
+
+**Đáp án:** 2
+
+**Giải thích sau khi trả lời**
+
+> Lựa chọn 2 và 3 đều lưu phiên bản ổn định bằng commit. Điểm khác biệt là branch riêng giữ phần thử nghiệm tách khỏi phiên bản đang hoạt động tốt. Nếu không muốn giữ bố cục mới, bạn vẫn có thể quay lại branch ổn định mà không phải gỡ các thay đổi thử nghiệm khỏi đó.
+
 ## 9. Nguồn tham khảo
 
 Nguồn chính thức dùng để kiểm tra khái niệm:
@@ -356,4 +375,4 @@ Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiế
 
 ## 10. Bước tiếp theo được phép
 
-Tiếp tục bàn và duyệt các câu hỏi tổng kết cuối bài. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Bắt đầu xây Module 3 ngay sau khi toàn bộ câu hỏi được chủ sở hữu duyệt.
+Triển khai toàn bộ thiết kế Module 3 đã duyệt vào `pilot-workspace/` và Course Companion, sau đó chạy các bước kiểm tra bắt buộc và đồng bộ implementation plan.
