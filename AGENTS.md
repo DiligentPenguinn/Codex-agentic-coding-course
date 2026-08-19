@@ -9,6 +9,7 @@
 
 ## Consequential decisions
 
+- Don't execute a multi-step actions without defining to me what are the steps and get my approval
 - Resolve small, reversible details from repository evidence or a safe default.
 - For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
 - Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
