@@ -39,7 +39,33 @@ người dùng, phạm vi và tiêu chí chấp nhận. Chỉ sau khi bạn duy�
 agent mới nên chuyển từng yêu cầu thành các bước triển khai nhỏ có cách kiểm
 tra.
 
-## Phần 4 — Thực hành: Lập kế hoạch cho portfolio
+## Phần 4 — Đọc một implementation plan mẫu
+
+Implementation plan, hay kế hoạch triển khai, cho biết sản phẩm sẽ được xây theo
+thứ tự nào và từng bước được kiểm tra ra sao. Bạn không cần tự viết plan từ đầu.
+Coding agent có thể tạo bản nháp từ PRD đã duyệt để bạn xem xét.
+
+Bạn sẽ đọc một plan giả lập cho portfolio của Mai. Mai là UX Designer và muốn
+giúp nhà tuyển dụng hiểu kinh nghiệm của mình qua hai dự án tiêu biểu. Ví dụ này
+chỉ dùng để học format; bạn không cần hiểu tên tệp hoặc dùng lại nội dung của
+Mai.
+
+Hãy đọc plan theo bốn nhóm:
+
+1. **Yêu cầu và ranh giới** giữ plan đi đúng phạm vi của PRD.
+2. **Các giai đoạn triển khai** chia công việc thành những phần có thứ tự.
+3. **Tệp và cách kiểm tra** cho biết agent dự kiến thay đổi đâu và chứng minh kết
+   quả thế nào.
+4. **Rủi ro và giả định** ghi lại điều có thể gây vấn đề hoặc chưa được xác nhận.
+
+Một plan tốt không chứng minh sản phẩm đã được xây. Nó giúp bạn hiểu việc gì sẽ
+xảy ra, điều gì chưa được quyết định và bằng chứng nào cần xem trước khi cho phép
+agent bắt đầu.
+
+Plan mẫu đầy đủ nằm tại
+`course/examples/module-2-portfolio-implementation-plan.md`.
+
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
 
 Bây giờ, chúng ta sẽ chính thức bắt tay vào tạo Portfolio. Bạn sẽ dùng portfolio
 làm dự án thực hành để áp dụng quy trình planning và PRD vừa học. Những kỹ năng

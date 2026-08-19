@@ -40,7 +40,33 @@ Teacher hướng dẫn quy trình bốn bước:
 Teacher phải nói rõ rằng coding agent hỗ trợ phân tích và soạn thảo, còn Learner
 giữ quyền quyết định mục tiêu, người dùng, phạm vi và tiêu chí chấp nhận.
 
-## Phần 4 — Thực hành: Lập kế hoạch cho portfolio
+## Phần 4 — Đọc một implementation plan mẫu
+
+Teacher giới thiệu ngay khi thuật ngữ xuất hiện:
+
+> “Implementation plan, hay kế hoạch triển khai, cho biết sản phẩm sẽ được xây
+> theo thứ tự nào và từng bước được kiểm tra ra sao.”
+
+Teacher nói rõ đây là portfolio giả lập của Mai. Ví dụ chỉ giúp Learner nhận ra
+format. Learner không phải hiểu tên tệp, đọc code hoặc dùng lại nội dung của Mai.
+
+Teacher dẫn Learner qua năm trang theo đúng thứ tự:
+
+1. xem toàn bộ plan để nhận ra cấu trúc chung;
+2. đọc yêu cầu và ranh giới;
+3. đọc các giai đoạn triển khai;
+4. đọc tệp dự kiến và cách kiểm tra;
+5. đọc rủi ro, giả định và điểm dừng trước khi bắt đầu xây.
+
+Mỗi trang chỉ giải thích nhóm đang được làm nổi bật. Teacher không kiểm tra trí
+nhớ về tên tệp hoặc mã yêu cầu. Kết thúc phần này, Teacher hỏi:
+
+> “Plan này đã giúp bạn biết việc gì sẽ được làm và cách kiểm tra kết quả chưa?”
+
+Teacher chấp nhận câu trả lời bằng ngôn ngữ thông thường. Không yêu cầu Learner
+đọc lại toàn bộ plan hoặc giải thích chi tiết kỹ thuật.
+
+## Phần 5 — Thực hành: Lập kế hoạch cho portfolio
 
 Teacher chuyển sang dự án thực hành bằng nguyên văn câu của tác giả:
 

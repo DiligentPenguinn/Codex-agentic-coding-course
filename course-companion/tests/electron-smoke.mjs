@@ -32,7 +32,7 @@ const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâ
 const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
 const approvedPortfolioMasteryTransitionCopy = 'Hãy cùng ôn tập lại kiến thức một chút nhen'
 
-async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 5) {
+async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 10) {
   for (let index = 0; index < stepsRemaining; index += 1) {
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   }
@@ -1002,7 +1002,7 @@ try {
     .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('MODULE 2 · PHẦN 1/4', { exact: true })
+    .getByText('MODULE 2 · PHẦN 1/5', { exact: true })
     .first()
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
@@ -1019,7 +1019,7 @@ try {
   assert.ok(desktopActionsBounds.x > desktopOutlineBounds.x + desktopOutlineBounds.width)
   assert.ok(Math.abs((desktopActionsBounds.x + desktopActionsBounds.width) - (desktopHudBounds.x + desktopHudBounds.width - 22)) <= 2)
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 4)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 5)
   assert.equal(await firstWindows.learningPage.getByText('Năm giai đoạn, năm tài liệu', { exact: true }).count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-opening.png')
@@ -1066,7 +1066,7 @@ try {
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-complete').count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 2)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 3)
   await capture(firstWindows.learningPage, 'module-2-part-2-outline.png')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   await capture(firstWindows.learningPage, 'module-2-prd-definition.png')
@@ -1100,8 +1100,31 @@ try {
     await capture(firstWindows.learningPage, 'module-2-five-stage-map-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 2)
-  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 4/4', { exact: true }).first().waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  const implementationPlanBoard = firstWindows.learningPage.locator('.pixel-plan-board')
+  await implementationPlanBoard.waitFor()
+  assert.match(await implementationPlanBoard.textContent(), /Implementation plan nối PRD với cách thực hiện/)
+  assert.match(await implementationPlanBoard.textContent(), /VÍ DỤ GIẢ LẬP · KHÔNG PHẢI ĐÁP ÁN/)
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').count(), 4)
+  await capture(firstWindows.learningPage, 'module-2-implementation-plan-overview.png')
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await firstWindows.learningPage.getByRole('heading', { name: 'Yêu cầu và ranh giới giữ plan đúng phạm vi', exact: true }).waitFor()
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').count(), 1)
+  assert.match(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').textContent(), /Yêu cầu và ranh giới/)
+  if (screenshotDirectory) {
+    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+    const planNarrowWidths = await firstWindows.learningPage.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(planNarrowWidths.body, planNarrowWidths.viewport)
+    assert.equal(planNarrowWidths.document, planNarrowWidths.viewport)
+    await capture(firstWindows.learningPage, 'module-2-implementation-plan-390px.png')
+    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
+  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 5)
+  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 5/5', { exact: true }).first().waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-portfolio-workspace-entry.png')

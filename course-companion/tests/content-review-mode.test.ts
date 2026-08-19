@@ -18,7 +18,7 @@ describe('session-only content review mode', () => {
     expect(learningWindow).toContain("'planning-retrieval': contentReviewMode ? 'module-2-portfolio-mastery'")
     expect(learningWindow).toContain("'enhancement-retrieval': contentReviewMode ? 'module-3-portfolio-mastery'")
     expect(learningWindow).toContain("'ownership-transfer-retrieval': contentReviewMode ? 'module-4-portfolio-mastery'")
-    expect(learningWindow).toContain("progress.sceneId === 'module-2-prd-agent-workflow'")
+    expect(learningWindow).toContain("progress.sceneId === 'module-2-plan-risks'")
     expect(learningWindow).toContain("? 'module-2-portfolio-practice'")
     expect(learningWindow).toContain("label: 'Bỏ qua Practice · Duyệt bài ôn tập', sceneId: 'module-2-portfolio-mastery'")
     expect(learningWindow).toContain('Practice đang tắt trong chế độ duyệt nội dung')

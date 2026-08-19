@@ -2,6 +2,7 @@ export const moduleTwoOutlineSections = [
   'Lập kế hoạch trước khi xây',
   'PRD là gì và dùng để làm gì?',
   'Dùng coding agent để tạo, review và duyệt PRD',
+  'Đọc một implementation plan mẫu',
   'Thực hành: Lập kế hoạch cho portfolio'
 ] as const
 
@@ -30,7 +31,12 @@ export const moduleTwoDefinition = {
     { id: 'module-2-portfolio-workspace', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-definition' },
     { id: 'module-2-prd-definition', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-review-workflow' },
     { id: 'module-2-prd-review-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-prd-agent-workflow' },
-    { id: 'module-2-prd-agent-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-practice-intro' },
+    { id: 'module-2-prd-agent-workflow', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-plan-example' },
+    { id: 'module-2-plan-example', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-plan-requirements' },
+    { id: 'module-2-plan-requirements', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-plan-steps' },
+    { id: 'module-2-plan-steps', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-plan-testing' },
+    { id: 'module-2-plan-testing', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-plan-risks' },
+    { id: 'module-2-plan-risks', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-practice-intro' },
     { id: 'module-2-portfolio-practice-intro', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-folder' },
     { id: 'module-2-portfolio-folder', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-agents-setup' },
     { id: 'module-2-portfolio-agents-setup', checkpointId: 'm2-portfolio-brief', courseLessonId: 'm2-portfolio-brief', nextSceneId: 'module-2-portfolio-brief' },

@@ -125,6 +125,11 @@ describe('portfolio course registry', () => {
       'module-2-prd-definition',
       'module-2-prd-review-workflow',
       'module-2-prd-agent-workflow',
+      'module-2-plan-example',
+      'module-2-plan-requirements',
+      'module-2-plan-steps',
+      'module-2-plan-testing',
+      'module-2-plan-risks',
       'module-2-portfolio-practice-intro',
       'module-2-portfolio-folder',
       'module-2-portfolio-agents-setup',
@@ -138,6 +143,10 @@ describe('portfolio course registry', () => {
       .toBe('module-2-prd-review-workflow')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-review-workflow')?.nextSceneId)
       .toBe('module-2-prd-agent-workflow')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-agent-workflow')?.nextSceneId)
+      .toBe('module-2-plan-example')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-plan-risks')?.nextSceneId)
+      .toBe('module-2-portfolio-practice-intro')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-folder')?.nextSceneId)
       .toBe('module-2-portfolio-agents-setup')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-agents-setup')?.nextSceneId)

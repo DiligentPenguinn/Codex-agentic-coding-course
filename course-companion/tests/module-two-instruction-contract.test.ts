@@ -41,7 +41,8 @@ const conceptualParts = [
   'Phần 1 — Tại sao cần planning trước khi code với AI?',
   'Phần 2 — PRD là gì và dùng để làm gì?',
   'Phần 3 — Dùng coding agent để tạo, review và duyệt PRD',
-  'Phần 4 — Thực hành: Lập kế hoạch cho portfolio'
+  'Phần 4 — Đọc một implementation plan mẫu',
+  'Phần 5 — Thực hành: Lập kế hoạch cho portfolio'
 ]
 
 describe('Module 2 instruction contract', () => {
@@ -76,16 +77,24 @@ describe('Module 2 instruction contract', () => {
     expect(moduleTwoScenes).not.toContain('Một PRD tốt làm rõ bối cảnh')
     expect(moduleTwoScenes).not.toContain("'module-2-prd-introduction': {")
     expect(moduleTwoScenes).not.toContain('Cả năm giai đoạn diễn ra trong cùng một task Codex')
-    expect(moduleTwoScenes).toContain("panelStatus: '4 TRANG · 1 PRACTICE'")
-    expect(moduleTwoScenes).toContain("request: 'Bốn trang giải thích dẫn tới một Practice duy nhất.'")
+    expect(moduleTwoScenes).toContain("panelStatus: '9 TRANG · 1 PRACTICE'")
+    expect(moduleTwoScenes).toContain("request: 'Chín trang giải thích dẫn tới một Practice duy nhất.'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-definition'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-review-workflow'")
     expect(moduleTwoScenes).toContain("next: 'module-2-prd-agent-workflow'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-plan-example'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-plan-requirements'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-plan-steps'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-plan-testing'")
+    expect(moduleTwoScenes).toContain("next: 'module-2-plan-risks'")
     expect(moduleTwoScenes).toContain("next: 'module-2-portfolio-practice-intro'")
     expect(moduleTwoScenes).toContain('Pafolios')
     expect(moduleTwoScenes).toContain('Awwwards')
     expect(moduleTwoScenes).toContain(`dialogue: '${approvedDesignPlanningCopy}\\n\\n${approvedVisualPrototypeCopy}'`)
     expect(moduleTwoScenes).toContain("'module-2-prd-agent-workflow': {")
+    expect(moduleTwoScenes).toContain("'module-2-plan-example': {")
+    expect(moduleTwoScenes).toContain('Implementation plan, hay kế hoạch triển khai')
+    expect(moduleTwoScenes).toContain('Ví dụ giúp bạn học format. Đây không phải đáp án cho portfolio của bạn.')
     expect(moduleTwoScenes).toContain('showTitle: false')
     expect(moduleTwoScenes).toContain('showPanel: false')
     expect(moduleTwoScenes).toContain(`dialogue: '${approvedPracticeTransitionCopy}'`)
@@ -98,6 +107,26 @@ describe('Module 2 instruction contract', () => {
     expect(lesson).toContain('# Portfolio Project Working Agreements')
     expect(script).toContain('Đây chỉ là lời tự xác nhận')
     expect(prompt.replace(/\s+/g, ' ')).toContain('Chỉ lưu lời tự xác nhận của Learner')
+  })
+
+  it('includes a learner-safe fictional implementation plan example', async () => {
+    const example = await readCourseFile('examples/module-2-portfolio-implementation-plan.md')
+    const normalizedExample = example.replace(/\s*>\s*/g, ' ').replace(/\s+/g, ' ')
+
+    for (const heading of [
+      '## Mục tiêu',
+      '## Yêu cầu và ranh giới',
+      '## Các giai đoạn triển khai',
+      '## Tệp dự kiến thay đổi',
+      '## Cách kiểm tra toàn bộ plan',
+      '## Rủi ro và giả định',
+      '## Phê duyệt'
+    ]) expect(example).toContain(heading)
+
+    expect(example).toContain('Đây là ví dụ giả lập để học cách đọc format.')
+    expect(normalizedExample).toContain('Đây không phải đáp án cho portfolio của bạn')
+    expect(example).toContain('390 × 844')
+    expect(example).toContain('chưa thực hiện')
   })
 
   it('keeps all five milestones once and in the approved order', async () => {

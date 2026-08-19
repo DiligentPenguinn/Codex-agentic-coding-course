@@ -1068,7 +1068,12 @@ const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
   'module-2-prd-definition': 1,
   'module-2-prd-review-workflow': 2,
   'module-2-prd-agent-workflow': 2,
-  'module-2-portfolio-practice-intro': 3
+  'module-2-plan-example': 3,
+  'module-2-plan-requirements': 3,
+  'module-2-plan-steps': 3,
+  'module-2-plan-testing': 3,
+  'module-2-plan-risks': 3,
+  'module-2-portfolio-practice-intro': 4
 }
 
 function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
@@ -1785,6 +1790,146 @@ function GuidanceLessonBoard({
       </aside>
 
       <footer className="pixel-guidance-board__actions">
+        <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
+        <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
+      </footer>
+    </section>
+  )
+}
+
+type ImplementationPlanBoardSection = 'overview' | 'requirements' | 'steps' | 'testing' | 'risks'
+
+const implementationPlanBoardByScene: Partial<Record<SceneId, ImplementationPlanBoardSection>> = {
+  'module-2-plan-example': 'overview',
+  'module-2-plan-requirements': 'requirements',
+  'module-2-plan-steps': 'steps',
+  'module-2-plan-testing': 'testing',
+  'module-2-plan-risks': 'risks'
+}
+
+const implementationPlanSectionCopy: Record<ImplementationPlanBoardSection, {
+  eyebrow: string
+  title: string
+  description: string
+  question: string
+}> = {
+  overview: {
+    eyebrow: 'NHÌN TOÀN BỘ FORMAT',
+    title: 'Implementation plan nối PRD với cách thực hiện',
+    description: 'Plan cho biết sẽ làm gì trước, kết quả nào cần xuất hiện và cách kiểm tra từng bước. Đây là ví dụ giả lập cho portfolio của Mai.',
+    question: 'Khi đọc lần đầu, hãy nhìn cấu trúc chung. Bạn chưa cần hiểu tên tệp hoặc chi tiết kỹ thuật.'
+  },
+  requirements: {
+    eyebrow: 'THÀNH PHẦN 1',
+    title: 'Yêu cầu và ranh giới giữ plan đúng phạm vi',
+    description: 'Yêu cầu mô tả điều phải đạt. Ranh giới ghi rõ điều chưa làm hoặc không được công khai trong phiên bản đầu.',
+    question: 'Câu hỏi để review: plan có bám đúng PRD và tránh tự mở rộng phạm vi không?'
+  },
+  steps: {
+    eyebrow: 'THÀNH PHẦN 2',
+    title: 'Các giai đoạn biến mục tiêu thành công việc có thứ tự',
+    description: 'Mỗi giai đoạn có mục tiêu riêng và việc cần làm. Plan cũng nêu kết quả cần thấy cùng cách kiểm tra trước khi chuyển tiếp.',
+    question: 'Câu hỏi để review: sau mỗi giai đoạn, mình có nhìn thấy một kết quả cụ thể không?'
+  },
+  testing: {
+    eyebrow: 'THÀNH PHẦN 3',
+    title: 'Tệp dự kiến và cách kiểm tra làm rõ bằng chứng',
+    description: 'Tên tệp cho biết agent định thay đổi ở đâu. Phần kiểm tra cho biết bạn cần nhìn hoặc thử hành vi nào để xác nhận kết quả.',
+    question: 'Bạn không cần đọc code. Hãy ưu tiên bằng chứng có thể nhìn thấy và thao tác trực tiếp.'
+  },
+  risks: {
+    eyebrow: 'THÀNH PHẦN 4',
+    title: 'Rủi ro và giả định cho biết điều gì còn chưa chắc',
+    description: 'Plan ghi lại vấn đề có thể xảy ra, thông tin đang được giả định và người cần duyệt trước khi bắt đầu xây.',
+    question: 'Câu hỏi để review: có điều gì cần xác nhận hoặc xử lý trước khi cho phép agent thực hiện không?'
+  }
+}
+
+function ImplementationPlanLessonBoard({
+  busy,
+  canOpenPreviousPage,
+  nextLabel,
+  onBack,
+  onNext,
+  section
+}: {
+  busy: boolean
+  canOpenPreviousPage: boolean
+  nextLabel: string
+  onBack: () => void
+  onNext: () => void
+  section: ImplementationPlanBoardSection
+}) {
+  const copy = implementationPlanSectionCopy[section]
+  const isActive = (candidate: Exclude<ImplementationPlanBoardSection, 'overview'>) => (
+    section === 'overview' || section === candidate
+  )
+
+  return (
+    <section className={`pixel-plan-board is-${section}`} aria-labelledby="implementation-plan-title">
+      <div className="pixel-plan-board__lesson">
+        <header>
+          <small>{copy.eyebrow}</small>
+          <h1 id="implementation-plan-title">{copy.title}</h1>
+          <p>{copy.description}</p>
+        </header>
+        <aside>{copy.question}</aside>
+        <p className="pixel-plan-board__disclaimer">VÍ DỤ GIẢ LẬP · KHÔNG PHẢI ĐÁP ÁN</p>
+      </div>
+
+      <article className="pixel-plan-document" aria-label="Implementation plan mẫu cho portfolio của Mai">
+        <header>
+          <small>IMPLEMENTATION PLAN MẪU</small>
+          <h2>Portfolio của Mai</h2>
+          <p>UX Designer · phiên bản đầu</p>
+        </header>
+
+        <section className={isActive('requirements') ? 'is-active' : ''} aria-label="Yêu cầu và ranh giới">
+          <span>01</span>
+          <div>
+            <h3>Yêu cầu và ranh giới</h3>
+            <ul>
+              <li>Giới thiệu tên, vai trò và hai dự án tiêu biểu.</li>
+              <li>Liên hệ được từ đầu hoặc cuối trang.</li>
+              <li>Chưa có blog, đăng nhập hoặc dữ liệu riêng tư.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section className={isActive('steps') ? 'is-active' : ''} aria-label="Các giai đoạn triển khai">
+          <span>02</span>
+          <div>
+            <h3>Các giai đoạn triển khai</h3>
+            <ol>
+              <li>Chuẩn bị cấu trúc và nội dung.</li>
+              <li>Xây giới thiệu và điều hướng.</li>
+              <li>Xây phần dự án.</li>
+              <li>Hoàn thiện màn hình hẹp và khả năng tiếp cận.</li>
+              <li>Kiểm tra trước khi duyệt.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section className={isActive('testing') ? 'is-active' : ''} aria-label="Tệp dự kiến và cách kiểm tra">
+          <span>03</span>
+          <div>
+            <h3>Tệp dự kiến và cách kiểm tra</h3>
+            <p><code>App.tsx</code> · <code>projects.ts</code> · <code>styles.css</code></p>
+            <p>Kiểm tra ở 1440 × 900 và 390 × 844. Dùng phím Tab để thử mọi liên kết.</p>
+          </div>
+        </section>
+
+        <section className={isActive('risks') ? 'is-active' : ''} aria-label="Rủi ro, giả định và phê duyệt">
+          <span>04</span>
+          <div>
+            <h3>Rủi ro, giả định và phê duyệt</h3>
+            <p>Nội dung có thể quá dài trên điện thoại. Một số ảnh vẫn chờ xác nhận quyền sử dụng.</p>
+            <p><strong>Điểm dừng:</strong> Mai yêu cầu sửa hoặc duyệt plan.</p>
+          </div>
+        </section>
+      </article>
+
+      <footer className="pixel-plan-board__actions">
         <button className="pixel-page-back" disabled={!canOpenPreviousPage} type="button" onClick={onBack}>← Trang trước</button>
         <button className="pixel-choice is-primary" disabled={busy} type="button" onClick={onNext}>{busy ? 'Đang lưu checkpoint…' : nextLabel}</button>
       </footer>
@@ -2785,7 +2930,7 @@ export function LearningWindow() {
         ? { ...progress.decisions, [choice.decision.key]: choice.decision.value }
         : progress.decisions
       const nextSceneId = contentReviewMode
-        && progress.sceneId === 'module-2-prd-agent-workflow'
+        && progress.sceneId === 'module-2-plan-risks'
         && choice.next === 'module-2-portfolio-practice-intro'
         ? 'module-2-portfolio-practice'
         : choice.next
@@ -2938,9 +3083,11 @@ export function LearningWindow() {
   const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
   const guidanceLessonBoardKind = guidanceLessonBoardByScene[displayedSceneId]
+  const implementationPlanBoardSection = implementationPlanBoardByScene[displayedSceneId]
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
   const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
-  const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard
+  const usesImplementationPlanBoard = Boolean(implementationPlanBoardSection)
+  const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard || usesImplementationPlanBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const practiceReviewDestination = contentReviewMode
     && displayedSceneId === 'module-2-portfolio-practice'
@@ -3133,6 +3280,24 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={guidanceLessonBoardKind}
+          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          onBack={openPreviousPage}
+          onNext={() => {
+            if (isReviewing) {
+              setReviewHistoryIndex(null)
+              return
+            }
+            const choice = scene.choices[0]
+            if (choice) void choose(choice)
+          }}
+        />
+      ) : null}
+
+      {implementationPlanBoardSection ? (
+        <ImplementationPlanLessonBoard
+          busy={busy}
+          canOpenPreviousPage={canOpenPreviousPage}
+          section={implementationPlanBoardSection}
           nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           onBack={openPreviousPage}
           onNext={() => {
