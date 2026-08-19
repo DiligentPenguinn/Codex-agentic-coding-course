@@ -3,7 +3,7 @@
 - **Trạng thái:** Đang lên kế hoạch nội dung
 - **Phạm vi:** Nội dung Module 3 dành cho người học
 - **Triển khai vào Course Companion:** Chưa bắt đầu theo bản thiết kế này
-- **Mức duyệt:** Một số định hướng và câu chữ đã được chủ sở hữu thống nhất; các trang còn lại vẫn phải được bàn lần lượt
+- **Mức duyệt:** Cấu trúc cốt lõi, thứ tự nội dung và trải nghiệm Practice đã được chủ sở hữu thống nhất; câu chữ của các trang còn lại vẫn phải được bàn lần lượt
 - **Nhánh làm việc:** `practice-disabled-content-development`
 
 Tài liệu này lưu lại những nội dung đã bàn để có thể tiếp tục trong một task khác mà không phụ thuộc vào lịch sử hội thoại. Đây chưa phải kịch bản hoàn chỉnh của Module 3 và không thay thế cổng nghiệm thu trong kế hoạch triển khai toàn khóa học.
@@ -85,6 +85,10 @@ Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm d
 ### Điều người học cần hiểu
 
 Agent có thể thực hiện phần lớn việc debug, nhưng người học vẫn cần biết lỗi nhìn thấy là gì, agent đã dựa vào thông tin nào và kết quả sau khi sửa có thực sự giải quyết lỗi hay không.
+
+### Câu chuyển sang Git đã duyệt nguyên văn
+
+> Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng
 
 ## 6. Git và GitHub
 
@@ -176,15 +180,45 @@ Bạn không nên thử trực tiếp trên phiên bản đang hoạt động �
 
 Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
 
-## 7. Những nội dung chưa chốt
+## 7. Practice
+
+### Hành trình của người học
+
+Practice là một quá trình làm việc liên tục, không được trình bày cho người học như năm milestone riêng biệt.
+
+Người học bắt đầu từ planning và implementation plan đã duyệt, sau đó làm việc trực tiếp với Codex trong cùng một task để xây website. Codex tiếp tục thực hiện plan, kiểm tra kết quả và nhận phản hồi cho đến khi người học hài lòng với website hiện tại.
+
+Nếu gặp lỗi trong quá trình xây, người học hỏi ngay Codex trong task đang thực hiện. Codex đã có bối cảnh của website, biết thay đổi vừa làm và có thể kiểm tra trực tiếp trong workspace. Teacher không mở một cuộc điều tra lỗi song song.
+
+### Vai trò của Teacher trong Practice
+
+Trong khi Practice đang hoạt động, Teacher không hiển thị ô chat. Khu vực Teacher chỉ có hai nút:
+
+1. **Hoàn thành bài**
+2. **Xem lại objective của bài**
+
+Nút **Hoàn thành bài** bắt đầu bước review cuối, không tự động đánh dấu bài đã đạt. Course Companion kiểm tra bằng chứng hiện tại. Nếu còn thiếu, giao diện nói ngắn gọn điều chưa đạt và đưa người học trở lại task Codex. Nếu đã đủ, người học xác nhận chấp nhận website hiện tại rồi kết thúc Practice.
+
+Nút **Xem lại objective của bài** mở một bảng nhỏ nhắc lại mục tiêu của Practice, implementation plan đang được thực hiện và điều kiện để kết thúc. Nút này không mở Teacher chat và không tạo một cuộc hội thoại mới.
+
+Teacher chỉ trò chuyện với người học trong phần bài học trước Practice và phần review sau Practice. Trong lúc xây website, Codex là nơi duy nhất người học trao đổi về công việc và lỗi của sản phẩm.
+
+### Ranh giới với runtime hiện tại
+
+Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ thuật cũ. Quyết định trong tài liệu này chưa thay đổi runtime, Course Companion hoặc code. Khi toàn bộ content Module 3 được duyệt, phần triển khai sau đó phải đơn giản hóa trải nghiệm người học theo thiết kế này mà vẫn giữ việc kiểm tra bằng chứng ở phía sau.
+
+## 8. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Cách nối nội dung giải thích với hoạt động Practice và bằng chứng hoàn thành.
+- Câu chữ đầy đủ cho phần thực hiện implementation plan theo từng giai đoạn.
+- Câu chữ đầy đủ cho các bước debugging sau đoạn mở đầu đã duyệt.
+- Câu chữ cuối cùng của Trang 1 và Trang 2 trong cụm Git và GitHub.
+- Cách Course Companion diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
 - Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
 
 Không được coi các mục này là đã được chủ sở hữu duyệt.
 
-## 8. Nguồn tham khảo
+## 9. Nguồn tham khảo
 
 Nguồn chính thức dùng để kiểm tra khái niệm:
 
@@ -203,6 +237,6 @@ Nguồn bổ sung do người dùng cung cấp:
 
 Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiết, không dùng làm nguồn duy nhất cho câu lệnh hoặc hành vi hiện tại của Git.
 
-## 9. Bước tiếp theo được phép
+## 10. Bước tiếp theo được phép
 
-Tiếp tục bàn câu chuyển từ phần **Debug cùng agent** sang cụm trang **Git và GitHub**. Chưa chỉnh sửa nội dung Course Companion cho đến khi toàn bộ thiết kế Module 3 được chủ sở hữu duyệt.
+Tiếp tục bàn và duyệt lần lượt các nội dung còn thiếu trong Mục 8. Chưa chỉnh sửa Course Companion hoặc Practice runtime. Chỉ bắt đầu xây Module 3 sau khi toàn bộ content của module được chủ sở hữu duyệt.
