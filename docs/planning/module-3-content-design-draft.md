@@ -61,6 +61,12 @@ Sau phần mở đầu, debugging được giới thiệu như một phần khó
 >
 > Sau khi agent sửa xong, hãy thực hiện lại đúng thao tác đã gây lỗi. Nếu lỗi không còn xuất hiện, chúng ta có thể tiếp tục.
 
+Ví dụ prompt được đặt trực tiếp trong một hình minh hoạ để người học thấy cách gửi ảnh lỗi cùng phần mô tả:
+
+> Tôi đang kiểm tra phần giới thiệu trên website portfolio. Tôi mong đợi nút “Xem dự án” nằm bên dưới phần mô tả. Hiện tại nút đang che lên nội dung, như trong ảnh đính kèm. Hãy kiểm tra nguyên nhân, giải thích ngắn gọn và sửa lỗi này. Sau khi sửa, hãy kiểm tra lại giao diện ở kích thước 1440 × 900 và 390 × 844.
+
+![Ví dụ gửi ảnh chụp và prompt mô tả lỗi cho coding agent](assets/module-3/visible-error-prompt-example.png)
+
 ### Trang 2 — Khi ảnh chụp chưa cho thấy nguyên nhân
 
 > Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.
@@ -79,7 +85,7 @@ Sau phần mở đầu, debugging được giới thiệu như một phần khó
 
 Module 3 dùng ảnh do khóa học tự tạo thay vì sử dụng lại ảnh tìm thấy trên Internet. Cách này giúp tình huống trong ảnh khớp với nội dung bài học, không chứa thông tin cá nhân và không phụ thuộc vào quyền sử dụng của nguồn bên ngoài.
 
-Ảnh cho lỗi nhìn thấy trên màn hình sử dụng một lỗi bố cục rõ ràng: nút “Xem dự án” che lên phần giới thiệu của portfolio.
+Ảnh cho lỗi nhìn thấy trên màn hình sử dụng một lỗi bố cục rõ ràng: nút “Xem dự án” che lên phần giới thiệu của portfolio. Một ảnh tiếp theo đặt tình huống này bên cạnh prompt hoàn chỉnh mà người học có thể gửi cho coding agent.
 
 ![Hình minh hoạ một lỗi có thể nhìn thấy trên màn hình](assets/module-3/visible-screen-error-example.png)
 
@@ -87,7 +93,7 @@ Module 3 dùng ảnh do khóa học tự tạo thay vì sử dụng lại ảnh 
 
 ![Hình minh hoạ lỗi xuất hiện trong log ở Terminal](assets/module-3/terminal-log-error-example.png)
 
-Hai ảnh và các nhãn tiếng Việt trong ảnh đã được chủ sở hữu duyệt. Chúng chỉ được đưa vào Course Companion sau khi toàn bộ thiết kế Module 3 được duyệt.
+Hai ảnh đầu tiên và các nhãn tiếng Việt trong ảnh đã được chủ sở hữu duyệt. Ảnh minh hoạ prompt được bổ sung theo yêu cầu mới nhất của chủ sở hữu. Các ảnh chỉ được đưa vào Course Companion sau khi toàn bộ thiết kế Module 3 được duyệt.
 
 ### Quy trình dành cho người mới
 
@@ -244,7 +250,7 @@ Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và
 
 ## 8. Câu hỏi tổng kết cuối bài
 
-Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
+Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 và Câu 2 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
 
 Quy tắc thiết kế câu hỏi:
 
@@ -270,6 +276,25 @@ Quy tắc thiết kế câu hỏi:
 **Giải thích sau khi trả lời**
 
 > Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.
+
+### Câu 2 — Báo lỗi bằng ảnh chụp
+
+**Câu hỏi**
+
+> Bạn nhìn thấy nút **Xem dự án** đang che lên phần giới thiệu của website. Thông tin nào nên được gửi cho coding agent để agent điều tra lỗi?
+
+**Lựa chọn**
+
+1. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, rồi chỉ rõ phần giao diện bạn muốn agent sửa.
+2. Gửi ảnh chụp, mô tả kết quả mong đợi, rồi yêu cầu agent kiểm tra phần giao diện đang bị che.
+3. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.
+4. Gửi ảnh chụp, mô tả kết quả thực tế, rồi liệt kê các tệp agent vừa thay đổi.
+
+**Đáp án:** 3
+
+**Giải thích sau khi trả lời**
+
+> Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.
 
 ## 9. Nguồn tham khảo
 
