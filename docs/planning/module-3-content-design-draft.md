@@ -21,7 +21,7 @@ Module này cũng dạy người học cách xử lý lỗi cùng agent và dùn
 ## 2. Nguyên tắc thiết kế đã thống nhất
 
 1. Giới thiệu một khái niệm quan trọng tại một thời điểm; không cần vội.
-2. Không giả định người học biết lập trình, terminal, Git, GitHub, repository hoặc checkpoint.
+2. Không giả định người học biết lập trình, terminal, Git, GitHub hoặc repository.
 3. Người học đánh giá kết quả qua hành vi quan sát được, ảnh chụp màn hình và phần giải thích dễ hiểu. Không bắt họ đọc code hoặc diff.
 4. Khi thực hiện plan, chia sản phẩm thành nhiều giai đoạn nhỏ. Chỉ chuyển sang giai đoạn sau khi giai đoạn hiện tại đã được kiểm tra.
 5. Agent thực hiện thao tác kỹ thuật. Người học cần hiểu mục đích và hệ quả để có thể quyết định bước tiếp theo, nhưng không phải ghi nhớ câu lệnh.
@@ -33,10 +33,10 @@ Module này cũng dạy người học cách xử lý lỗi cùng agent và dùn
 Module 3 được chia thành ba phần lớn:
 
 1. **Thực hiện implementation plan theo từng giai đoạn.**
-2. **Debug cùng agent khi sản phẩm gặp lỗi.**
-3. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
+2. **Dùng Git và GitHub để lưu phiên bản, khôi phục và thử nghiệm an toàn.**
+3. **Debug cùng agent khi sản phẩm gặp lỗi.**
 
-Thứ tự chi tiết giữa ba phần sẽ được chốt sau khi từng trang đã được duyệt. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
+Người học trước hết hiểu cách chia công việc và kiểm tra từng giai đoạn. Sau đó, Git và GitHub được giới thiệu như lớp bảo vệ cho quy trình này trước khi người học tìm hiểu cách điều tra lỗi. Các câu hỏi tổng kết sẽ được thiết kế sau cùng.
 
 ## 4. Thực hiện implementation plan theo từng giai đoạn
 
@@ -58,7 +58,97 @@ Không dùng một ví dụ tự nghĩ ra về phần Hero của portfolio. Sử
 
 Nội dung bài học sẽ chỉ ra một task cụ thể trong plan, cách giới hạn phạm vi của task đó và cách kiểm tra kết quả trước khi tiếp tục. Cần phân biệt rõ đâu là nội dung từ nguồn bên ngoài và đâu là cách diễn giải phục vụ bài học.
 
-## 5. Debug cùng agent
+## 5. Git và GitHub
+
+Git và GitHub sẽ có một cụm trang riêng. Nội dung không bị nhét vào một trang dài.
+
+Cụm năm trang này nằm sau phần thực hiện implementation plan theo từng giai đoạn và trước phần debug cùng agent.
+
+### Thứ tự trang đã thống nhất
+
+| Trang | Chủ đề | Trạng thái nội dung |
+| --- | --- | --- |
+| 1 | Vì sao cần Git? | Đã thống nhất định hướng và câu giải thích về “phân tán” |
+| 2 | Git khác GitHub như thế nào? | Đã thống nhất định hướng và cách giải thích đơn giản |
+| 3 | Commit: lưu một phiên bản của dự án | Đã duyệt |
+| 4 | Push: đưa commit lên GitHub | Đã duyệt |
+| 5 | Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định | Đã duyệt |
+
+Commit phải được giới thiệu trước push.
+
+### Trang 1 — Vì sao cần Git?
+
+Mục đích của trang này là giới thiệu Git như một công cụ giúp người học lưu lịch sử và có đường quay lại khi công việc sau đó gây lỗi. Đây chưa phải bài học về câu lệnh hoặc cộng tác nhóm.
+
+Git là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.
+
+Đoạn giải thích đã được duyệt nguyên văn:
+
+> “Phân tán” có nghĩa là repository trên máy tính của bạn không chỉ giữ phiên bản mới nhất, mà còn có lịch sử của dự án. Bạn có thể thấy được tất cả phiên bản cũ mà bạn từng làm, cũng như các phiên bản mà hiện tại bạn đang phát triển.
+
+Khái niệm `repository` phải được giải thích bằng ngôn ngữ đơn giản trước hoặc ngay khi người học cần hiểu nó.
+
+### Trang 2 — Git khác GitHub như thế nào?
+
+Câu mở đầu đã được duyệt nguyên văn:
+
+> Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.
+
+Hướng giải thích hiện tại:
+
+Git là một hệ thống hoạt động trên máy tính. Git theo dõi các tệp trong dự án và lưu lại lịch sử thay đổi của chúng.
+
+Nơi Git quản lý các tệp cùng lịch sử thay đổi được gọi là repository, hay kho lưu trữ dự án. Bạn có thể dùng Git trên máy tính mà không cần kết nối với GitHub.
+
+GitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.
+
+GitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc. Vì vậy, GitHub làm được nhiều việc hơn một máy chủ chỉ dùng để lưu Git repository.
+
+### Trang 3 — Commit: lưu một phiên bản của dự án
+
+Nội dung và ảnh minh họa dưới đây đã được duyệt.
+
+Khi bạn thay đổi các tệp trong một repository, Git chưa tự coi những thay đổi đó là một phiên bản đã hoàn thành. Khi dự án đạt đến trạng thái mà bạn muốn lưu lại, bạn có thể tạo một commit.
+
+Commit là một phiên bản của dự án được lưu trong lịch sử Git. Nó ghi lại trạng thái của dự án tại thời điểm đó và đi kèm một lời nhắn ngắn để mô tả thay đổi. Nhiều commit nối tiếp nhau tạo thành lịch sử của dự án.
+
+![Ví dụ về nhiều commit nối tiếp nhau trong lịch sử Git](assets/module-3/commit-history-example.png)
+
+Chú thích đi cùng ảnh:
+
+> Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.
+
+Ở trang này, người học chỉ cần chú ý đến danh sách commit và thứ tự của chúng. Chưa giải thích các đường màu, nhãn branch hoặc nhãn `origin/...` xuất hiện trong hình.
+
+Một commit được lưu trong repository trên máy tính của bạn. Nó không tự động xuất hiện trên GitHub.
+
+Nếu muốn lưu các commit trên GitHub, bạn cần thực hiện một bước riêng. Trang tiếp theo sẽ giải thích bước đó.
+
+### Trang 4 — Push: đưa commit lên GitHub
+
+Trang này nối trực tiếp với commit đã được tạo trên máy tính.
+
+Push là thao tác gửi những commit mới từ repository trên máy tính lên repository của cùng dự án trên GitHub.
+
+Sau khi push thành công, các commit đó sẽ xuất hiện trong lịch sử dự án trên GitHub. Push không tạo commit mới; nó chỉ đưa những commit đã có trên máy tính lên GitHub.
+
+Phần này không giới thiệu câu lệnh, remote hoặc `origin`. Agent sẽ xử lý các thao tác kỹ thuật.
+
+Việc giới thiệu push không có nghĩa là sau mỗi giai đoạn đều phải đưa commit lên GitHub. Push là một hành động đưa dữ liệu ra ngoài và được xử lý riêng, thay vì tự động trở thành một bước trong mỗi vòng triển khai.
+
+### Trang 5 — Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định
+
+Nội dung dưới đây đã được duyệt:
+
+Bây giờ, giả sử bạn đang phát triển một tính năng mới. Bạn chưa chắc mình có muốn đưa tính năng đó vào sản phẩm hay không, nhưng vẫn muốn thử nghiệm thêm.
+
+Bạn không nên thử trực tiếp trên phiên bản đang hoạt động ổn định. Những thay đổi chưa hoàn thiện có thể làm hỏng phần đang hoạt động tốt.
+
+Đây là lúc bạn có thể dùng branch. Branch là một hướng phát triển riêng trong cùng repository. Nó cho phép bạn thử nghiệm tính năng mới mà chưa làm thay đổi phiên bản ổn định.
+
+Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
+
+## 6. Debug cùng agent
 
 ### Quy trình dành cho người mới
 
@@ -78,85 +168,8 @@ Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm d
 
 Agent có thể thực hiện phần lớn việc debug, nhưng người học vẫn cần biết lỗi nhìn thấy là gì, agent đã dựa vào thông tin nào và kết quả sau khi sửa có thực sự giải quyết lỗi hay không.
 
-## 6. Git và GitHub
-
-Git và GitHub sẽ có một cụm trang riêng. Nội dung không bị nhét vào một trang dài.
-
-### Thứ tự trang đã thống nhất
-
-| Trang | Chủ đề | Trạng thái nội dung |
-| --- | --- | --- |
-| 1 | Vì sao cần Git? | Đã thống nhất định hướng và câu giải thích về “phân tán” |
-| 2 | Git khác GitHub như thế nào? | Đã thống nhất định hướng và cách giải thích đơn giản |
-| 3 | Commit: lưu một phiên bản của dự án | Bản nháp, đang chờ bàn tiếp |
-| 4 | Clone, push và pull | Chưa thiết kế |
-| 5 | Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định | Chưa thiết kế |
-
-Commit phải được giới thiệu trước clone, push và pull.
-
-### Trang 1 — Vì sao cần Git?
-
-Mục đích của trang này là giới thiệu Git như một công cụ giúp người học lưu lịch sử và có đường quay lại khi công việc sau đó gây lỗi. Đây chưa phải bài học về câu lệnh hoặc cộng tác nhóm.
-
-Git là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.
-
-Đoạn giải thích đã được duyệt nguyên văn:
-
-> “Phân tán” có nghĩa là repository trên máy tính của bạn không chỉ giữ phiên bản mới nhất, mà còn có lịch sử của dự án. Bạn có thể thấy được tất cả phiên bản cũ mà bạn từng làm, cũng như các phiên bản mà hiện tại bạn đang phát triển.
-
-Không dùng từ `clone` trên trang này vì khái niệm đó chưa được giới thiệu. Khái niệm `repository` phải được giải thích bằng ngôn ngữ đơn giản trước hoặc ngay khi người học cần hiểu nó.
-
-### Trang 2 — Git khác GitHub như thế nào?
-
-Câu mở đầu đã được duyệt nguyên văn:
-
-> Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.
-
-Hướng giải thích hiện tại:
-
-Git là một hệ thống hoạt động trên máy tính. Git theo dõi các tệp trong dự án và lưu lại lịch sử thay đổi của chúng.
-
-Nơi Git quản lý các tệp cùng lịch sử thay đổi được gọi là repository, hay kho lưu trữ dự án. Bạn có thể dùng Git trên máy tính mà không cần kết nối với GitHub.
-
-GitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.
-
-GitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc. Vì vậy, GitHub làm được nhiều việc hơn một máy chủ chỉ dùng để lưu Git repository.
-
-Không nhắc đến checkpoint ở trang này. Checkpoint chỉ được giải thích sau khi người học đã biết commit là gì.
-
-### Trang 3 — Commit: lưu một phiên bản của dự án
-
-Đây là bản nháp đang chờ người dùng xem xét, chưa phải câu chữ cuối cùng.
-
-Khi bạn sửa các tệp trong một repository, Git không tự coi mọi thay đổi là một phiên bản đã hoàn thành. Bạn cần chọn thời điểm phù hợp để lưu lại một phiên bản. Phiên bản được lưu đó gọi là một commit.
-
-Mỗi commit ghi lại trạng thái của những tệp đã chọn tại một thời điểm và đi kèm một lời nhắn ngắn để mô tả thay đổi. Nhiều commit nối tiếp nhau tạo thành lịch sử của dự án.
-
-Commit là cơ chế Git dùng để lưu một phiên bản. Checkpoint là một commit mà chúng ta chủ động chọn làm điểm an toàn để quay lại. Trong Module 3, agent chỉ tạo checkpoint sau khi một giai đoạn đã hoàn thành, các kiểm tra đã chạy và người học đã chấp nhận kết quả.
-
-Commit trước hết được lưu trong repository trên máy tính. Nó chưa tự động xuất hiện trên GitHub. Trang tiếp theo mới giới thiệu cách đưa commit lên GitHub và nhận các thay đổi từ đó.
-
-### Trang 4 — Clone, push và pull
-
-Chưa thiết kế. Trang này sẽ chỉ được viết sau khi Trang 3 được duyệt.
-
-### Trang 5 — Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định
-
-Định hướng ban đầu:
-
-- Nếu chưa chắc một tính năng có phù hợp hay không, có thể tạo một branch để thử nghiệm.
-- Nếu thử nghiệm tốt, thay đổi có thể được hợp nhất vào phiên bản chính.
-- Nếu thử nghiệm không đạt, có thể bỏ branch thử nghiệm mà không làm mất phiên bản ổn định.
-- Branch không đồng nghĩa với một thư mục riêng. Git worktree có thể tạo một thư mục làm việc riêng cho branch, nhưng đây là kiến thức tùy chọn và agent có thể xử lý thay người học.
-
-Câu chữ đầy đủ của trang này chưa được thiết kế.
-
 ## 7. Những nội dung chưa chốt
 
-- Câu chữ cuối cùng của Trang 3 về commit và checkpoint.
-- Nội dung Trang 4 về clone, push và pull.
-- Nội dung Trang 5 về branch và cách thử nghiệm an toàn.
-- Vị trí chính xác của cụm trang Git và GitHub trong mạch Module 3.
 - Các câu hỏi tổng kết đặt ở cuối bài.
 - Cách nối nội dung giải thích với hoạt động Practice và bằng chứng hoàn thành.
 - Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
@@ -171,7 +184,6 @@ Nguồn chính thức dùng để kiểm tra khái niệm:
 - [Git — What is Git?](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F)
 - [Git — Branches in a Nutshell](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
 - [Git — git-restore](https://git-scm.com/docs/git-restore)
-- [Git — git-worktree](https://git-scm.com/docs/git-worktree)
 - [GitHub — What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github)
 - [GitHub — About remote repositories](https://docs.github.com/en/get-started/git-basics/about-remote-repositories)
 - [GitHub — About repositories](https://docs.github.com/en/repositories/creating-and-managing-repositories/about-repositories)
@@ -184,4 +196,4 @@ Bài Viblo được dùng để tham khảo danh sách khái niệm cần thiế
 
 ## 9. Bước tiếp theo được phép
 
-Tiếp tục bàn **Trang 3 — Commit: lưu một phiên bản của dự án**, mỗi lần chỉ xử lý một khái niệm quan trọng. Chưa chỉnh sửa nội dung Course Companion cho đến khi toàn bộ thiết kế Module 3 được chủ sở hữu duyệt.
+Tiếp tục bàn câu chuyển từ phần **Thực hiện implementation plan theo từng giai đoạn** sang cụm trang **Git và GitHub**. Chưa chỉnh sửa nội dung Course Companion cho đến khi toàn bộ thiết kế Module 3 được chủ sở hữu duyệt.
