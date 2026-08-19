@@ -67,13 +67,13 @@ Module 3 dùng ảnh do khóa học tự tạo thay vì sử dụng lại ảnh 
 
 Ảnh cho lỗi nhìn thấy trên màn hình sử dụng một lỗi bố cục rõ ràng: nút “Xem dự án” che lên phần giới thiệu của portfolio.
 
-![Bản nháp hình minh hoạ một lỗi có thể nhìn thấy trên màn hình](assets/module-3/visible-screen-error-example.png)
+![Hình minh hoạ một lỗi có thể nhìn thấy trên màn hình](assets/module-3/visible-screen-error-example.png)
 
 Ảnh cho lỗi trong log chỉ làm nổi bật một thông báo ngắn trong Terminal. Người học không cần hiểu toàn bộ nội dung kỹ thuật trong ảnh. Họ chỉ cần nhận ra đây là thông tin có thể gửi cho agent để điều tra.
 
-![Bản nháp hình minh hoạ lỗi xuất hiện trong log ở Terminal](assets/module-3/terminal-log-error-example.png)
+![Hình minh hoạ lỗi xuất hiện trong log ở Terminal](assets/module-3/terminal-log-error-example.png)
 
-Các nhãn tiếng Việt nằm trong hai ảnh này vẫn là bản nháp hình ảnh. Chúng chưa được coi là câu chữ bài học đã duyệt và chỉ được đưa vào Course Companion sau khi toàn bộ thiết kế Module 3 được duyệt.
+Hai ảnh và các nhãn tiếng Việt trong ảnh đã được chủ sở hữu duyệt. Chúng chỉ được đưa vào Course Companion sau khi toàn bộ thiết kế Module 3 được duyệt.
 
 ### Quy trình dành cho người mới
 
