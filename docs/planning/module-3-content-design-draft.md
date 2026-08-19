@@ -61,6 +61,14 @@ Sau phần mở đầu, debugging được giới thiệu như một phần khó
 >
 > Sau khi agent sửa xong, hãy thực hiện lại đúng thao tác đã gây lỗi. Nếu lỗi không còn xuất hiện, chúng ta có thể tiếp tục.
 
+### Trang 2 — Khi ảnh chụp chưa cho thấy nguyên nhân
+
+> Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.
+>
+> Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động. Trong bài này, log sẽ xuất hiện trong terminal và giúp agent biết điều gì đã xảy ra trước khi lỗi xuất hiện.
+>
+> Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra. Những dòng log này sẽ cho coding agent biết được tại sao app lại bị lỗi chứ không phải phỏng đoán. Và sau khi lỗi đã được khắc phục thì bạn có thể bảo coding agent xoá những đoạn logs không cần thiết
+
 ### Hướng hình ảnh đã duyệt
 
 Module 3 dùng ảnh do khóa học tự tạo thay vì sử dụng lại ảnh tìm thấy trên Internet. Cách này giúp tình huống trong ảnh khớp với nội dung bài học, không chứa thông tin cá nhân và không phụ thuộc vào quyền sử dụng của nguồn bên ngoài.
