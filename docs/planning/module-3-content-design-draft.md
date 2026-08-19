@@ -250,7 +250,7 @@ Cùng một cặp viewport được dùng trong hướng dẫn, ảnh chụp và
 
 ## 8. Câu hỏi tổng kết cuối bài
 
-Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1 và Câu 2 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
+Các câu hỏi được đặt cùng nhau ở cuối bài. Câu 1, Câu 2 và Câu 3 dưới đây đã được chủ sở hữu duyệt; các câu còn lại tiếp tục được bàn lần lượt.
 
 Quy tắc thiết kế câu hỏi:
 
@@ -295,6 +295,25 @@ Quy tắc thiết kế câu hỏi:
 **Giải thích sau khi trả lời**
 
 > Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.
+
+### Câu 3 — Dùng log để tìm nguyên nhân
+
+**Câu hỏi**
+
+> Bạn đã gửi ảnh lỗi nhưng coding agent vẫn chưa xác định được nguyên nhân. Bước tiếp theo phù hợp nhất là gì?
+
+**Lựa chọn**
+
+1. Yêu cầu agent xem lại ảnh, chọn nguyên nhân có khả năng nhất rồi sửa thử để kiểm tra.
+2. Yêu cầu agent thêm log, tái hiện lỗi rồi sửa phần code nằm gần dòng log xuất hiện cuối cùng.
+3. Yêu cầu agent liệt kê các nguyên nhân có thể xảy ra, chọn một nguyên nhân rồi sửa trước.
+4. Yêu cầu agent thêm log cần thiết, tái hiện lỗi và dùng thông tin trong terminal để xác định nguyên nhân trước khi sửa.
+
+**Đáp án:** 4
+
+**Giải thích sau khi trả lời**
+
+> Lựa chọn 2 cũng sử dụng log, nhưng dòng code nằm gần một thông báo chưa chắc là nguyên nhân gây lỗi. Coding agent cần tái hiện lỗi và dùng thông tin trong terminal làm bằng chứng trước khi sửa. Sau khi lỗi đã được khắc phục, bạn có thể yêu cầu agent xoá những đoạn log không còn cần thiết.
 
 ## 9. Nguồn tham khảo
 
