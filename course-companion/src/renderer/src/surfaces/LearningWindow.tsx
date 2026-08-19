@@ -199,16 +199,16 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     lessonLabel: 'GIỚI THIỆU KHÓA HỌC',
     mission: 'Giới thiệu khóa học',
     objective: 'Bạn sẽ xây gì trong khóa học này?',
-    panelLabel: 'CONTENTPILOT',
+    panelLabel: 'PORTFOLIO',
     panelStatus: 'TRANG 1/2',
     tone: 'neutral',
-    request: 'Ứng dụng bạn sẽ xây trong khóa học',
+    request: 'Portfolio bạn sẽ xây trong khóa học',
     evidence: [
-      { label: 'ỨNG DỤNG', value: 'ContentPilot' },
-      { label: 'ĐẦU VÀO', value: 'Bài viết hoặc profile mẫu' },
-      { label: 'ĐẦU RA', value: 'Ý tưởng nội dung' }
+      { label: 'DỰ ÁN', value: 'Portfolio cá nhân' },
+      { label: 'KẾT QUẢ', value: 'Một web portfolio thật' },
+      { label: 'NGƯỜI XEM', value: 'Nhà tuyển dụng' }
     ],
-    dialogue: 'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.',
+    dialogue: 'Trong khoá học này, bạn sẽ được học cách dùng coding agents thông qua một dự án thực hành: Xây Portfolio cá nhân.',
     choices: [{ label: 'Tiếp tục', next: 'intro-course-overview-2', primary: true }],
     showTitle: false,
     showPanel: false
@@ -222,15 +222,15 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
     mission: 'Giới thiệu khóa học',
     objective: 'Bạn sẽ xây gì trong khóa học này?',
     panelLabel: 'CÁCH HỌC',
-    panelStatus: 'XÂY TỪNG PHẦN',
+    panelStatus: 'WEB PORTFOLIO THẬT',
     tone: 'neutral',
-    request: 'Học agentic coding thông qua một dự án thực tế',
+    request: 'Kết quả bạn sẽ có vào cuối khóa',
     evidence: [
-      { label: 'DỰ ÁN', value: 'ContentPilot' },
-      { label: 'CÁCH HỌC', value: 'Từng quyết định nhỏ' },
+      { label: 'SẢN PHẨM', value: 'Web portfolio' },
+      { label: 'MỤC ĐÍCH', value: 'Gửi nhà tuyển dụng' },
       { label: 'QUYỀN DUYỆT', value: 'Thuộc về bạn' }
     ],
-    dialogue: 'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.',
+    dialogue: 'Cuối khoá này, bạn sẽ có một web portfolio thật để có thể gửi cho nhà tuyển dụng.',
     choices: [{ label: 'Bắt đầu khóa học', next: 'intro-learning-method', primary: true }],
     showTitle: false,
     showPanel: false
@@ -252,7 +252,7 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'DỮ LIỆU', value: 'Chưa cần chuẩn bị' },
       { label: 'KẾT QUẢ', value: 'Cấu hình được Triết duyệt' }
     ],
-    dialogue: 'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.',
+    dialogue: 'Những kỹ năng bạn học được trong khoá này không chỉ giúp bạn xây Portfolio, mà còn trang bị cho bạn kiến thức để tạo bất kỳ công cụ nào bạn muốn với AI',
     choices: [{ label: 'Bắt đầu Module 1', next: 'module-1-codex-orientation', afterSave: 'home', primary: true, preservePrimaryLabel: true }],
     showTitle: false,
     showPanel: false

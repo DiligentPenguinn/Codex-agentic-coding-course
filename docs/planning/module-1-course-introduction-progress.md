@@ -1,20 +1,18 @@
 # Module 1 — Giới thiệu khóa học: nội dung và tiến độ
 
-**Cập nhật:** 9 tháng 8 năm 2026
-**Trạng thái:** Ba trang giới thiệu được giữ nguyên theo quyết định ngày 9 tháng
-8 năm 2026. Từ màn hình tiếp theo, curriculum và copy chuyển sang cấu trúc
-kỹ năng agentic coding trước, ContentPilot là dự án thực hành.
+**Cập nhật:** 19 tháng 8 năm 2026
+**Trạng thái:** Ba trang giới thiệu đã được mở lại theo yêu cầu ngày 19 tháng 8
+năm 2026. Nội dung mới thống nhất Portfolio cá nhân là dự án thực hành và giữ
+nguyên thứ tự, nút cùng hành vi điều hướng hiện tại.
 
 ## Định vị đã chốt
 
 - Đây là khóa học dạy **agentic coding**.
-- ContentPilot là dự án thực hành xuyên suốt khóa học, không phải sản phẩm chính của khóa học.
-- Nội dung và bài tập phải giúp người học hình thành kỹ năng xây ứng dụng với coding agent có thể áp dụng cho những sản phẩm khác.
+- Portfolio cá nhân là dự án thực hành xuyên suốt khóa học.
+- Cuối khóa, người học có một web portfolio thật để gửi cho nhà tuyển dụng.
+- Kỹ năng trong khóa học phải giúp người học có thể tạo những công cụ khác với AI.
 - Tên module hiện tại là **Module 1 — Giới thiệu khóa học**.
 - Không thêm một trang lộ trình riêng sau phần giới thiệu. Sau ba trang mở đầu, người học đi thẳng vào concept đầu tiên.
-- Ngoại lệ đã chốt: không sửa nội dung, thứ tự hoặc nút của ba trang mở đầu bên
-  dưới. Việc định vị skill-first bắt đầu ở màn hình kế tiếp và được củng cố ở
-  lộ trình, bài học, quiz và đánh giá tốt nghiệp.
 
 ## Trang 1 — Đã duyệt và đã triển khai
 
@@ -24,7 +22,7 @@ kỹ năng agentic coding trước, ContentPilot là dự án thực hành.
 
 **Nội dung**
 
-> Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.
+> Trong khoá học này, bạn sẽ được học cách dùng coding agents thông qua một dự án thực hành: Xây Portfolio cá nhân.
 
 **Nút**
 
@@ -38,7 +36,7 @@ kỹ năng agentic coding trước, ContentPilot là dự án thực hành.
 
 **Nội dung**
 
-> Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.
+> Cuối khoá này, bạn sẽ có một web portfolio thật để có thể gửi cho nhà tuyển dụng.
 
 **Nút**
 
@@ -52,11 +50,11 @@ kỹ năng agentic coding trước, ContentPilot là dự án thực hành.
 
 **Nội dung**
 
-> Khoá học này sẽ không giao cho bạn ứng dụng hoàn chỉnh ngay từ đầu. Mà bạn sẽ được xây từng phần của ứng dụng. Và trong quá trình đó bạn cũng sẽ học được các nguyên tắc xây ứng dụng với AI để có thể tạo ra bất kỳ sản phẩm nào bạn muốn.
+> Những kỹ năng bạn học được trong khoá này không chỉ giúp bạn xây Portfolio, mà còn trang bị cho bạn kiến thức để tạo bất kỳ công cụ nào bạn muốn với AI
 
 **Nút**
 
-> Bắt đầu
+> Bắt đầu Module 1
 
 ## Khái niệm tiếp theo — Hướng nội dung skill-first
 
