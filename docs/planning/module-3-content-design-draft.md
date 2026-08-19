@@ -10,6 +10,12 @@ Tài liệu này lưu lại những nội dung đã bàn để có thể tiếp 
 
 ## 1. Mục đích của Module 3
 
+### Câu mở đầu đã duyệt nguyên văn
+
+> Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.
+>
+> Chúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn
+
 Module 3 giúp người học chuyển từ một implementation plan đã được duyệt sang một sản phẩm hoạt động được. Người học không giao toàn bộ sản phẩm cho agent trong một prompt lớn. Thay vào đó, họ cùng agent thực hiện từng giai đoạn nhỏ của plan.
 
 Cuối mỗi giai đoạn, agent chạy các kiểm tra phù hợp và trình bày kết quả bằng ngôn ngữ dễ hiểu. Người học xem hành vi thực tế của sản phẩm, đối chiếu với plan rồi mới quyết định có chuyển sang giai đoạn tiếp theo hay không.
