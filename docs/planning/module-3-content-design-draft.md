@@ -187,17 +187,27 @@ Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa t�
 
 ## 6. Practice
 
+### Phần mở đầu đã duyệt
+
+> Trong phần Practice này, bạn sẽ tiếp tục làm việc trong task Codex đã dùng ở Module 2. Codex sẽ dựa vào PRD và implementation plan đã được duyệt để bắt đầu xây website.
+>
+> Codex sẽ thực hiện từng phần của plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và kiểm tra kết quả. Bạn sẽ xem website thực tế rồi quyết định tiếp tục hoặc yêu cầu chỉnh sửa.
+>
+> Nếu gặp lỗi trong quá trình xây, hãy trao đổi ngay với Codex trong task đang thực hiện. Codex đã có bối cảnh của website và biết những thay đổi vừa được thực hiện.
+>
+> Khi bạn hài lòng với website hiện tại, hãy bấm **Hoàn thành bài** ngay trên Teacher Triết.
+
 ### Hành trình của người học
 
 Practice là một quá trình làm việc liên tục, không được trình bày cho người học như năm milestone riêng biệt.
 
 Người học bắt đầu từ planning và implementation plan đã duyệt, sau đó làm việc trực tiếp với Codex trong cùng một task để xây website. Codex tiếp tục thực hiện plan, kiểm tra kết quả và nhận phản hồi cho đến khi người học hài lòng với website hiện tại.
 
-Nếu gặp lỗi trong quá trình xây, người học hỏi ngay Codex trong task đang thực hiện. Codex đã có bối cảnh của website, biết thay đổi vừa làm và có thể kiểm tra trực tiếp trong workspace. Teacher không mở một cuộc điều tra lỗi song song.
+Nếu gặp lỗi trong quá trình xây, người học hỏi ngay Codex trong task đang thực hiện. Codex đã có bối cảnh của website, biết thay đổi vừa làm và có thể kiểm tra trực tiếp trong workspace. Teacher Triết không mở một cuộc điều tra lỗi song song.
 
 ### Vai trò của Teacher trong Practice
 
-Trong khi Practice đang hoạt động, Teacher không hiển thị ô chat. Khu vực Teacher chỉ có hai nút:
+Trong khi Practice đang hoạt động, Teacher Triết không hiển thị ô chat. Khu vực Teacher Triết chỉ có hai nút:
 
 1. **Hoàn thành bài**
 2. **Xem lại objective của bài**
@@ -206,7 +216,7 @@ Nút **Hoàn thành bài** bắt đầu bước review cuối, không tự độ
 
 Nút **Xem lại objective của bài** mở một bảng nhỏ nhắc lại mục tiêu của Practice, implementation plan đang được thực hiện và điều kiện để kết thúc. Nút này không mở Teacher chat và không tạo một cuộc hội thoại mới.
 
-Teacher chỉ trò chuyện với người học trong phần bài học trước Practice và phần review sau Practice. Trong lúc xây website, Codex là nơi duy nhất người học trao đổi về công việc và lỗi của sản phẩm.
+Teacher Triết chỉ trò chuyện với người học trong phần bài học trước Practice và phần review sau Practice. Trong lúc xây website, Codex là nơi duy nhất người học trao đổi về công việc và lỗi của sản phẩm.
 
 ### Ranh giới với runtime hiện tại
 
@@ -215,7 +225,7 @@ Practice runtime hiện tại vẫn dùng năm milestone và các artifact kỹ 
 ## 7. Những nội dung chưa chốt
 
 - Các câu hỏi tổng kết đặt ở cuối bài.
-- Cách Course Companion diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
+- Cách Teacher Triết diễn đạt kết quả review khi người học bấm **Hoàn thành bài**.
 - Giá trị viewport desktop và mobile dùng thống nhất trong hướng dẫn và kiểm tra.
 
 Không được coi các mục này là đã được chủ sở hữu duyệt.
