@@ -2945,7 +2945,7 @@ export function LearningWindow() {
           title={scene.copyPromptTitle}
         />
       ) : null}
-      <PracticeGuide view={practiceGuide} onUpdate={(request) => void updatePracticeGuide(request)} />
+      <PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />
       {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}

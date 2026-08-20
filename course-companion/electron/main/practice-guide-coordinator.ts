@@ -12,6 +12,10 @@ import type { PracticeGuideStateRepository } from './practice-guide-state-reposi
 
 const GUIDE_ID = 'm1-practice-mode-first-run'
 const WARNING = 'Hướng dẫn tạm thời không thể lưu. Practice vẫn hoạt động bình thường.'
+const LEGACY_STAGE_REPLACEMENTS: Record<string, string> = {
+  'ask-teacher': 'review-workspace',
+  'inspect-progress': 'configuration-evidence'
+}
 
 function compareVersion(left: string, right: string): number {
   const a = left.split('.').map(Number)
@@ -109,6 +113,18 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     const key = this.key(context.progress.courseRunId)
     try {
       let current = await this.states.load(context.progress.courseRunId, definition.guideId)
+      if (current && !definition.stages.some((stage) => stage.id === current!.lastStageId)) {
+        const replacement = LEGACY_STAGE_REPLACEMENTS[current.lastStageId] ?? definition.stages[0]!.id
+        try {
+          current = await this.states.advance(
+            identity(definition, context, current) as PracticeGuideStateIdentity,
+            current.lastStageId,
+            replacement
+          )
+        } catch {
+          current = { ...current, lastStageId: replacement, updatedAt: new Date().toISOString() }
+        }
+      }
       if (!current) {
         const cached = this.volatile.get(key)
         if (cached) return { record: cached, error: WARNING }
@@ -277,8 +293,6 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
         this.replayStages.delete(key)
       } else if (
         request.type === 'continue'
-        || request.type === 'teacher-tab-selected'
-        || request.type === 'progress-tab-selected'
         || request.type === 'review-requested'
         || request.type === 'course-returned'
       ) {
@@ -343,6 +357,24 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
       this.volatile.set(key, fallback)
       return { ...this.view(definition, fallback, context, false), error: WARNING }
     }
+  }
+
+  async completeCourseReturn(context: PracticeGuideContext): Promise<void> {
+    const definition = await this.definition()
+    if (!definition || !context.progress) return
+    const current = await this.state(definition, context)
+    if (!current || current.record.status !== 'in-progress') return
+    const returnStage = definition.stages.find((stage) => stage.id === 'return-to-course')
+    if (!returnStage) return
+    const stateIdentity = identity(definition, context, current.record) as PracticeGuideStateIdentity
+    let record = current.record
+    if (record.lastStageId !== returnStage.id) {
+      record = await this.states.advance(stateIdentity, record.lastStageId, returnStage.id)
+    }
+    if (record.lastStageId === returnStage.id) {
+      record = await this.states.complete(stateIdentity, returnStage.id)
+    }
+    this.volatile.set(this.key(record.courseRunId), record)
   }
 
   async reset(): Promise<void> {

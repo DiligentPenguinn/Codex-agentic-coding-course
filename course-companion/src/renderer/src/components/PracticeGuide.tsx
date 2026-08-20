@@ -5,7 +5,7 @@ import { PRACTICE_GUIDE_ANCHOR_ATTRIBUTE } from './practice-guide-anchors'
 
 type PracticeGuideProps = {
   view: PracticeGuideView | null
-  onUpdate: (request: PracticeGuideUpdateRequest) => void
+  onUpdate: (request: PracticeGuideUpdateRequest) => void | Promise<void>
 }
 
 type Placement = { left: number; top: number; fallback: boolean; above: boolean }
@@ -20,6 +20,7 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
   const panelRef = useRef<HTMLElement>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
   const [placement, setPlacement] = useState(initialPlacement)
+  const [updating, setUpdating] = useState(false)
   const visible = Boolean(view?.presentation && view.title && view.body)
 
   useLayoutEffect(() => {
@@ -77,19 +78,25 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
 
   if (!view) return null
 
-  const update = (type: PracticeGuideUpdateRequest['type']) => {
-    if (type === 'resume' || type === 'replay' || type === 'dismiss-confirmation' || type === 'start') {
-      onUpdate({ type } as PracticeGuideUpdateRequest)
-      return
+  const update = async (type: PracticeGuideUpdateRequest['type']) => {
+    if (updating) return
+    setUpdating(true)
+    try {
+      if (type === 'resume' || type === 'replay' || type === 'dismiss-confirmation' || type === 'start') {
+        await onUpdate({ type } as PracticeGuideUpdateRequest)
+        return
+      }
+      await onUpdate({ type, expectedStageId: view.currentStageId! } as PracticeGuideUpdateRequest)
+    } finally {
+      setUpdating(false)
     }
-    onUpdate({ type, expectedStageId: view.currentStageId! } as PracticeGuideUpdateRequest)
   }
 
   if (view.status === 'paused') {
     return (
       <aside className="practice-guide-resume" role="status">
         <span>Hướng dẫn Practice đang tạm dừng.</span>
-        <button type="button" onClick={() => update('resume')}>Tiếp tục hướng dẫn</button>
+        <button disabled={updating} type="button" onClick={() => void update('resume')}>Tiếp tục hướng dẫn</button>
       </aside>
     )
   }
@@ -97,11 +104,8 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
 
   const nextType = view.currentStageId === 'practice-loop-confirmation'
     ? 'continue'
-    : view.currentStageId === 'ask-teacher' ? 'teacher-tab-selected'
-      : view.currentStageId === 'inspect-progress' ? 'progress-tab-selected'
-        : view.currentStageId === 'request-review' ? 'review-requested'
-          : view.currentStageId === 'return-to-course' ? 'course-returned'
-            : 'continue'
+    : view.currentStageId === 'return-to-course' ? 'course-returned'
+      : 'continue'
 
   const trapFocus = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key === 'Escape') {
@@ -131,7 +135,7 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
           <h2 id="practice-guide-title">{view.title}</h2>
           <p>{view.body}</p>
         </div>
-        <button data-guide-primary type="button" onClick={() => update('dismiss-confirmation')}>
+        <button data-guide-primary disabled={updating} type="button" onClick={() => void update('dismiss-confirmation')}>
           {view.primaryLabel ?? 'Đã hiểu'}
         </button>
       </aside>
@@ -164,12 +168,12 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
         {view.error ? <div className="practice-guide-warning" role="status">{view.error}</div> : null}
         <div className="practice-guide-actions">
           {view.primaryLabel ? (
-            <button data-guide-primary type="button" onClick={() => update(nextType)}>
+            <button data-guide-primary disabled={updating} type="button" onClick={() => void update(nextType)}>
               {view.primaryLabel}
             </button>
           ) : null}
           {view.secondaryLabel ? (
-            <button className="is-secondary" type="button" onClick={() => update('skip')}>
+            <button className="is-secondary" disabled={updating} type="button" onClick={() => void update('skip')}>
               {view.secondaryLabel}
             </button>
           ) : null}

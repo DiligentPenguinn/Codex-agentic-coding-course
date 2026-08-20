@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type {
   CompanionMode,
   CompanionState,
+  LearnerProgress,
   PracticeRunSummary,
   TeacherConversation,
   TeacherMessage,
@@ -18,6 +19,10 @@ import { PracticeRunRepository } from './practice-run-repository'
 import { ProgressRepository } from './progress-repository'
 import { RealTeacherAdapter, TeacherInferenceError, type RunSummaryProposal } from './real-teacher-adapter'
 import { buildTeacherEnvelope, buildTeacherTurnInput, sourceDigest } from './teacher-context-broker'
+import {
+  TeacherCourseContextError,
+  TeacherCourseContextRepository
+} from './teacher-course-context-repository'
 import { TeacherChatRepository } from './teacher-fixture'
 import { practiceSummaryKey, TeacherMemoryRepository } from './teacher-memory-repository'
 
@@ -44,6 +49,7 @@ export class TeacherService {
   constructor(
     private readonly chatRepository: TeacherChatRepository,
     private readonly progressRepository: ProgressRepository,
+    private readonly courseContextRepository: TeacherCourseContextRepository,
     private readonly practiceRepository: PracticeRunRepository,
     private readonly definitionRepository: PracticeDefinitionRepository,
     private readonly activityRepository: ExecutorActivityRepository,
@@ -86,7 +92,7 @@ export class TeacherService {
     const [loadedConversation, memory, activityState] = await Promise.all([
       this.chatRepository.loadConversation(),
       this.memoryRepository.load(),
-      this.refreshActiveActivity()
+      this.refreshActiveActivity(false)
     ])
     if (generation !== this.generation) throw new Error('Teacher state load was cancelled by course reset.')
     const activity = activityState.activity
@@ -114,15 +120,17 @@ export class TeacherService {
     return { mode, conversation, teacher: structuredClone(this.runtime) }
   }
 
-  private async refreshActiveActivity(): Promise<{
+  private async refreshActiveActivity(observePractice = true): Promise<{
     activity: Awaited<ReturnType<ExecutorActivityObserver['refresh']>>
     activeRun: PracticeRunRecord | null
   }> {
     let workspace = await this.practiceRepository.load()
     if (!workspace.activeRun) return { activity: null, activeRun: null }
-    const activity = this.boundRunId === workspace.activeRun.runId
-      ? await this.activityObserver.refresh()
-      : await this.activityObserver.bind(workspace.activeRun.binding)
+    const activity = !observePractice
+      ? await this.activityRepository.load(workspace.activeRun.runId)
+      : this.boundRunId === workspace.activeRun.runId
+        ? await this.activityObserver.refresh()
+        : await this.activityObserver.bind(workspace.activeRun.binding)
     this.boundRunId = workspace.activeRun.runId
     if (activity) {
       const active = workspace.activeRun
@@ -180,12 +188,31 @@ export class TeacherService {
     const generation = this.generation
     const progressResult = await this.progressRepository.load()
     if (progressResult.status !== 'returning' && progressResult.status !== 'recovered') {
+      this.runtime.error = 'Hãy mở một bài học trước khi hỏi Triết.'
       throw new Error('Teacher context is unavailable until the course starts')
+    }
+    const practiceWorkspace = await this.practiceRepository.load()
+    if (practiceWorkspace.activeRun) {
+      this.runtime.error = 'Trong Practice, Triết chỉ cập nhật và duyệt tiến độ. Hãy làm việc trực tiếp trong task Codex đã liên kết.'
+      throw new Error('Direct Teacher chat is unavailable during Practice')
+    }
+    let coursePackage
+    try {
+      coursePackage = await this.courseContextRepository.load(progressResult.progress)
+    } catch (cause) {
+      this.runtime.error = teacherContextFailureMessage(cause)
+      throw new Error('Teacher course context is unavailable.', { cause })
     }
     const activityState = await this.refreshActiveActivity()
     const workspace = { activeRun: activityState.activeRun }
     if (generation !== this.generation) {
       throw new Error('Teacher request was cancelled by course reset.')
+    }
+    const confirmedProgress = await this.progressRepository.load()
+    if ((confirmedProgress.status !== 'returning' && confirmedProgress.status !== 'recovered')
+      || teacherProgressIdentity(confirmedProgress.progress) !== teacherProgressIdentity(progressResult.progress)) {
+      this.runtime.error = 'Bài học vừa thay đổi. Hãy gửi lại câu hỏi để Triết dùng đúng ngữ cảnh mới nhất.'
+      throw new Error('Teacher course context changed while the request was assembled.')
     }
     const conversation = await this.chatRepository.loadConversation()
     const retry = [...conversation.messages].reverse().find((message) => (
@@ -252,6 +279,7 @@ export class TeacherService {
         : activity
       const context = buildTeacherEnvelope({
         progress: progressResult.progress,
+        coursePackage,
         definition,
         activeRun: workspace.activeRun,
         activity: contextualActivity,
@@ -260,7 +288,10 @@ export class TeacherService {
         excludeMessageId: learnerMessage.id,
         now: this.now
       })
-      const answer = await this.inference.respond(buildTeacherTurnInput(context, content))
+      const answer = await this.inference.respond(
+        buildTeacherTurnInput(context, content),
+        coursePackage.pedagogyInstructions
+      )
       if (generation !== this.generation) {
         throw new TeacherInferenceError('adapter', 'TEACHER_RESET', 'Teacher request was cancelled by course reset')
       }
@@ -479,6 +510,17 @@ export class TeacherService {
     }
   }
 
+  async leavePracticeRun(runId: string): Promise<void> {
+    if (this.boundRunId === runId) this.boundRunId = null
+    if (this.responseRunId === runId) {
+      this.responseRunId = null
+      this.generation += 1
+      await this.inference.resetTransport(true)
+      await Promise.allSettled([...this.activeSends])
+    }
+    await this.activityObserver.reset()
+  }
+
   async reset(): Promise<void> {
     this.boundRunId = null
     this.responseRunId = null
@@ -611,4 +653,30 @@ function teacherFailureMessage(error: unknown): string {
     return 'Codex hiện tại không có model tương thích cho Triết. Hãy cập nhật Codex rồi thử lại.'
   }
   return 'Triết tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.'
+}
+
+function teacherContextFailureMessage(error: unknown): string {
+  if (!(error instanceof TeacherCourseContextError)) {
+    return 'Triết chưa thể tải ngữ cảnh bài học. Hãy thử lại.'
+  }
+  if (error.code === 'COURSE_CONTEXT_TOO_LARGE') {
+    return 'Ngữ cảnh bài học hiện quá lớn để Triết tải an toàn. Hãy thử lại sau khi nội dung được kiểm tra.'
+  }
+  if (error.code === 'COURSE_CONTEXT_INVALID_PROGRESS') {
+    return 'Bước học hiện tại chưa đồng bộ. Hãy quay lại bài học rồi thử hỏi Triết lần nữa.'
+  }
+  return 'Triết chưa thể tải đầy đủ nội dung bài học. Hãy thử lại.'
+}
+
+function teacherProgressIdentity(progress: LearnerProgress): string {
+  return sourceDigest({
+    lessonId: progress.currentLessonId,
+    courseLessonId: progress.currentCourseLessonId,
+    checkpointId: progress.checkpointId,
+    sceneId: progress.sceneId,
+    completedCheckpointIds: progress.completedCheckpointIds,
+    decisions: progress.decisions,
+    practice: progress.practice,
+    updatedAt: progress.updatedAt
+  })
 }

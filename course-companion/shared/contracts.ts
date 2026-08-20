@@ -452,7 +452,7 @@ export type CodexTaskConfigurationSnapshot = {
   schemaVersion: 1
   runId: string
   threadId: string
-  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated'
+  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated' | 'thread-settings-snapshot'
   eventTimestampMs: number
   observedAt: string
   freshness: 'fresh' | 'stale' | 'unverifiable'
@@ -1034,16 +1034,12 @@ export type PracticeGuidePresentationType = (typeof practiceGuidePresentationTyp
 
 export const practiceGuideAdvancementModes = [
   'continue',
-  'teacher-tab-selected',
-  'progress-tab-selected',
   'review-requested',
   'course-returned'
 ] as const
 export type PracticeGuideAdvancementMode = (typeof practiceGuideAdvancementModes)[number]
 
 export const practiceGuideAnchorIds = [
-  'teacher-tab',
-  'progress-tab',
   'configuration-evidence',
   'review-progress',
   'return-to-course'
@@ -1134,8 +1130,6 @@ export type PracticeGuideUpdateRequest =
   | { type: 'skip'; expectedStageId: string }
   | { type: 'replay' }
   | { type: 'dismiss-confirmation' }
-  | { type: 'teacher-tab-selected'; expectedStageId: string }
-  | { type: 'progress-tab-selected'; expectedStageId: string }
   | { type: 'review-requested'; expectedStageId: string }
   | { type: 'course-returned'; expectedStageId: string }
 
@@ -1229,9 +1223,15 @@ export type PracticeAdapter = {
   emitFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
 }
 
-export type PracticeReviewResponse = {
+export type PracticeReviewSuccess = {
   workspace: PracticeWorkspaceView
-  teacherMessage: TeacherMessage
+}
+
+export type PracticeReviewResponse = PracticeReviewSuccess | {
+  error: {
+    code: 'task-busy' | 'metadata-unavailable' | 'transport-unavailable' | 'binding-mismatch' | 'evidence-changed' | 'review-unavailable'
+    message: string
+  }
 }
 
 export type CourseCompanionApi = {
@@ -1251,6 +1251,7 @@ export type CourseCompanionApi = {
   choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  hasActivePractice: () => Promise<boolean>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>

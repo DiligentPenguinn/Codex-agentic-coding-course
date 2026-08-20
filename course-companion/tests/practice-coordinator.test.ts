@@ -135,6 +135,62 @@ function harness(options: { failCreate?: boolean; failPrepare?: string } = {}) {
 }
 
 describe('PracticeCoordinator', () => {
+  it('hands off ownership before every new and resumed Codex open without a pre-open observation', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const handoff: string[] = []
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      {
+        ...testHarness.executor,
+        async openTarget(binding: ExecutorChatBinding): Promise<void> {
+          handoff.push('open:' + binding.threadId)
+        }
+      },
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId,
+      async (binding) => { handoff.push('observe:' + binding.threadId) },
+      undefined,
+      undefined,
+      undefined,
+      async (openTarget) => {
+        handoff.push('release')
+        await openTarget()
+      }
+    )
+
+    await coordinator.startNew({ ...m1Identity, transfer: false })
+    await coordinator.resume(m1Identity)
+
+    expect(handoff).toEqual([
+      'release', 'open:thread-1',
+      'release', 'open:thread-1'
+    ])
+  })
+
+  it('preserves the active run and does not open Codex when ownership release fails', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId,
+      async () => undefined,
+      undefined,
+      undefined,
+      undefined,
+      async () => { throw new Error('ownership still held') }
+    )
+
+    await expect(coordinator.startNew({ ...m1Identity, transfer: false }))
+      .rejects.toThrow('Task Codex đã được tạo nhưng chưa mở được')
+    expect((await repository.load()).activeRun).toMatchObject({ runId: 'run-1' })
+    expect(testHarness.calls).not.toContain('open:thread-1')
+  })
+
   it('creates, resumes, and switches explicitly identified Practices', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
     const testHarness = harness()
@@ -268,7 +324,6 @@ describe('PracticeCoordinator', () => {
       'create:run-1',
       'observe:thread-1:true',
       'prepare-target:thread-1',
-      'observe:thread-1:false',
       'open:thread-1'
     ])
   })

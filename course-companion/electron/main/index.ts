@@ -8,6 +8,7 @@ import type {
   PracticeGuideContext,
   PracticeGuideSurfaceContext,
   PracticeGuideUpdateRequest,
+  PracticeReviewResponse,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PortfolioStageActionRequest,
@@ -20,8 +21,11 @@ import type {
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
 import { CodexAppServerClient } from './codex-app-server-client'
+import { AppServerLifecycle } from './app-server-lifecycle'
 import { ExecutorActivityObserver } from './executor-activity-observer'
 import { ExecutorActivityRepository } from './executor-activity-repository'
+import { ExecutorActivitySnapshotReader } from './executor-activity-snapshot-reader'
+import { CodexTaskMetadataReader } from './codex-task-metadata-reader'
 import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
 import { PracticeRunRepository } from './practice-run-repository'
@@ -44,6 +48,7 @@ import {
 import { RealTeacherAdapter } from './real-teacher-adapter'
 import { TeacherMemoryRepository } from './teacher-memory-repository'
 import { TeacherService } from './teacher-service'
+import { TeacherCourseContextRepository } from './teacher-course-context-repository'
 import { getCompanionBounds } from './window-layout'
 import { TestCodexGateway } from './test-codex-gateway'
 import { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
@@ -131,18 +136,25 @@ const practiceWorkspaceResolver = new PracticeWorkspaceResolver(courseRoot, asyn
 const useTestCodexGateway = !app.isPackaged && process.env.COURSE_COMPANION_FAKE_CODEX === '1'
 const presentTestTeacherAsLive = useTestCodexGateway && process.env.COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE === '1'
 const appServerClient = new CodexAppServerClient()
-let appServerStart: Promise<void> | null = null
+const appServerLifecycle = new AppServerLifecycle(
+  () => appServerClient.start(),
+  () => appServerClient.stop()
+)
+const practiceSnapshotClient = new CodexAppServerClient()
+const practiceSnapshotLifecycle = new AppServerLifecycle(
+  () => practiceSnapshotClient.start(),
+  () => practiceSnapshotClient.stop()
+)
 const executorBootstrapClient = new CodexAppServerClient()
 let executorBootstrapStart: Promise<void> | null = null
 
 async function ensureAppServer(): Promise<void> {
-  if (!appServerStart) {
-    appServerStart = appServerClient.start().catch((error: unknown) => {
-      appServerStart = null
-      throw error
-    })
-  }
-  await appServerStart
+  await appServerLifecycle.ensure()
+}
+
+async function releaseAppServer(): Promise<void> {
+  if (useTestCodexGateway) return
+  await appServerLifecycle.release()
 }
 
 async function ensureExecutorBootstrap(): Promise<void> {
@@ -200,11 +212,55 @@ const executorChatCoordinator = new ExecutorChatCoordinator(
 )
 const activityRepository = new ExecutorActivityRepository(app.getPath('userData'))
 const activityObserver = new ExecutorActivityObserver(appServerGateway, activityRepository)
-const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(activityObserver)
-const portfolioBuildEvidenceAdapter = new PortfolioBuildEvidenceAdapter(activityObserver)
+const persistedPracticeActivity = {
+  async current() {
+    const activeRun = (await practiceRunRepository.load()).activeRun
+    return activeRun ? activityRepository.load(activeRun.runId) : null
+  }
+}
+const codexDataDirectory = process.env.CODEX_HOME?.trim()
+  ? resolve(process.env.CODEX_HOME)
+  : join(app.getPath('home'), '.codex')
+const taskMetadataReader = new CodexTaskMetadataReader(
+  join(codexDataDirectory, 'state_5.sqlite'),
+  join(codexDataDirectory, 'sessions')
+)
+const activitySnapshotReader = new ExecutorActivitySnapshotReader(
+  {
+    async request(method, params) {
+      if (method !== 'thread/read') throw new Error('Practice snapshot transport is read-only')
+      await practiceSnapshotLifecycle.ensure()
+      return practiceSnapshotClient.request(method, params)
+    }
+  },
+  activityRepository,
+  taskMetadataReader
+)
+const practiceReviewActivity = useTestCodexGateway
+  ? {
+      read: (
+        binding: Parameters<ExecutorActivityObserver['bind']>[0],
+        options?: Parameters<ExecutorActivityObserver['bind']>[1]
+      ) => activityObserver.bind(binding, options)
+    }
+  : {
+      async read(
+        binding: Parameters<ExecutorActivitySnapshotReader['read']>[0],
+        options?: Parameters<ExecutorActivitySnapshotReader['read']>[1]
+      ) {
+        try {
+          return await activitySnapshotReader.read(binding, options)
+        } finally {
+          await practiceSnapshotLifecycle.release()
+        }
+      }
+    }
+const practiceEvidenceActivity = useTestCodexGateway ? activityObserver : persistedPracticeActivity
+const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(practiceEvidenceActivity)
+const portfolioBuildEvidenceAdapter = new PortfolioBuildEvidenceAdapter(practiceEvidenceActivity)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
-  new CodexConfigurationEvidenceAdapter(activityObserver),
-  new PlanningPackageEvidenceAdapter(activityObserver),
+  new CodexConfigurationEvidenceAdapter(practiceEvidenceActivity),
+  new PlanningPackageEvidenceAdapter(practiceEvidenceActivity),
   portfolioPlanningEvidenceAdapter,
   portfolioBuildEvidenceAdapter
 ])
@@ -214,7 +270,9 @@ const practiceCoordinator = new PracticeCoordinator(
   executorChatCoordinator,
   undefined,
   undefined,
-  (binding, captureBaseline) => activityObserver.bind(binding, { captureBaseline }).then(() => undefined),
+  (binding, captureBaseline) => captureBaseline && !useTestCodexGateway
+    ? activitySnapshotReader.captureBaseline(binding).then(() => undefined)
+    : practiceReviewActivity.read(binding, { captureBaseline }).then(() => undefined),
   async () => {
     const result = await progressRepository.load()
     if (result.status !== 'returning' && result.status !== 'recovered') return null
@@ -223,7 +281,8 @@ const practiceCoordinator = new PracticeCoordinator(
     return receipt?.approvedConfiguration ?? null
   },
   evidenceAdapters,
-  (receipt) => progressRepository.revokePracticeCompletion(receipt)
+  (receipt) => progressRepository.revokePracticeCompletion(receipt),
+  (openTarget) => useTestCodexGateway ? openTarget() : appServerLifecycle.handoff(openTarget)
 )
 const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
   progressRepository,
@@ -235,6 +294,9 @@ const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
   portfolioBuildEvidenceAdapter
 )
 const memoryRepository = new TeacherMemoryRepository(app.getPath('userData'))
+const teacherCourseContextRepository = new TeacherCourseContextRepository(
+  resolve(pilotPracticeDefinitionsDirectory(), '..', '..')
+)
 const teacherRuntimeDirectory = join(app.getPath('userData'), 'teacher-runtime')
 mkdirSync(teacherRuntimeDirectory, { recursive: true })
 const realTeacherAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
@@ -248,17 +310,16 @@ const practiceReviewService = new PracticeReviewService(
   practiceRunRepository,
   practiceCoordinator,
   progressRepository,
-  activityObserver,
+  practiceReviewActivity,
   practiceReviewEvaluator,
-  teacherRepository,
-  useTestCodexGateway && !presentTestTeacherAsLive,
   undefined,
-  undefined,
-  evidenceAdapters
+  evidenceAdapters,
+  releaseAppServer
 )
 const teacherService = new TeacherService(
   teacherRepository,
   progressRepository,
+  teacherCourseContextRepository,
   practiceRunRepository,
   practiceDefinitionRepository,
   activityRepository,
@@ -270,7 +331,7 @@ const teacherService = new TeacherService(
 )
 const removeTeacherConnection = appServerGateway.onConnectionState((state) => {
   if (state === 'disconnected') {
-    appServerStart = null
+    appServerLifecycle.markDisconnected()
     void realTeacherAdapter.resetTransport()
     void realTeacherSummaryAdapter.resetTransport()
     void realTeacherReviewAdapter.resetTransport()
@@ -390,6 +451,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function practiceReviewFailure(error: unknown): Extract<PracticeReviewResponse, { error: unknown }> {
+  const detail = error instanceof Error ? error.message : ''
+  if (detail.includes('PRACTICE_SNAPSHOT_BUSY')) {
+    return { error: { code: 'task-busy', message: 'Task Codex vẫn đang xử lý. Hãy chờ task hoàn tất rồi duyệt lại.' } }
+  }
+  if (detail.includes('PRACTICE_EVIDENCE_CHANGED') || detail.includes('CHANGED_DURING_READ') || detail.includes('đã thay đổi trong khi')) {
+    return { error: { code: 'evidence-changed', message: 'Bằng chứng vừa thay đổi trong lúc duyệt. Hãy đợi task ổn định rồi thử lại.' } }
+  }
+  if (detail.includes('BINDING_MISMATCH') || detail.includes('PATH_INVALID') || detail.includes('BINDING_INVALID')) {
+    return { error: { code: 'binding-mismatch', message: 'Không thể xác minh đúng task Codex của Practice này. Hãy quay lại đúng task rồi thử lại.' } }
+  }
+  if (detail.includes('PRACTICE_METADATA')) {
+    return { error: { code: 'metadata-unavailable', message: 'Chưa đọc được metadata mới của task Codex. Tiến độ cũ vẫn được giữ; hãy thử lại.' } }
+  }
+  if (detail.includes('APP_SERVER') || detail.toLowerCase().includes('disconnected')) {
+    return { error: { code: 'transport-unavailable', message: 'Chưa kết nối được để đọc bằng chứng Practice. Hãy thử lại sau ít phút.' } }
+  }
+  return { error: { code: 'review-unavailable', message: 'Chưa thể duyệt tiến độ Practice. Kết quả gần nhất vẫn được giữ; hãy thử lại.' } }
+}
+
 function isPracticeStartRequest(value: unknown): value is PracticeStartRequest {
   return isRecord(value)
     && Object.keys(value).length === 3
@@ -497,8 +578,7 @@ function isPracticeGuideUpdateRequest(value: unknown): value is PracticeGuideUpd
   const withoutStage = new Set(['start', 'resume', 'replay', 'dismiss-confirmation'])
   if (withoutStage.has(value.type)) return Object.keys(value).length === 1
   const withStage = new Set([
-    'continue', 'pause', 'skip', 'teacher-tab-selected', 'progress-tab-selected',
-    'review-requested', 'course-returned'
+    'continue', 'pause', 'skip', 'review-requested', 'course-returned'
   ])
   return withStage.has(value.type)
     && Object.keys(value).length === 2
@@ -620,6 +700,12 @@ function registerIpcHandlers(): void {
     } : undefined)
   ))
 
+  // Presence checks must remain repository-only. The compact companion polls this
+  // endpoint and must never refresh evidence or reconnect to the learner's task.
+  ipcMain.handle('course:has-active-practice', async () => (
+    Boolean((await practiceRunRepository.load()).activeRun)
+  ))
+
   ipcMain.handle('course:start-practice', async (_event, request: PracticeStartRequest) => {
     const previousRun = (await practiceRunRepository.load()).activeRun
     if (!isPracticeStartRequest(request)) throw new Error('Invalid Practice start request')
@@ -695,19 +781,20 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:review-practice', async () => {
-    if (!useTestCodexGateway) await ensureAppServer()
-    const response = await practiceReviewService.review()
-    await reconcilePracticeGuide({ surface: 'full' })
-    return response
+    try {
+      const response = await practiceReviewService.review()
+      await reconcilePracticeGuide({ surface: 'full' })
+      return response
+    } catch (error) {
+      return practiceReviewFailure(error)
+    }
   })
 
   ipcMain.handle('course:return-passed-practice', async () => {
     if (pendingPracticeReturn) return pendingPracticeReturn
     const operation = (async () => {
       const completedRun = (await practiceRunRepository.load()).activeRun
-      const guideBeforeReturn = await practiceGuideCoordinator.load(
-        await authoritativeGuideContext({ surface: 'full' })
-      ).catch(() => null)
+      const guideContextBeforeReturn = await authoritativeGuideContext({ surface: 'full' })
       const receipt = await practiceReviewService.returnPassedPractice()
       if (!completedRun
         || completedRun.runId !== receipt.runId
@@ -716,15 +803,11 @@ function registerIpcHandlers(): void {
         throw new Error('Passed Practice changed before its completion summary could be saved.')
       }
       await teacherService.summarizeCompletedRun(completedRun)
+      await teacherService.leavePracticeRun(completedRun.runId)
+      await practiceGuideCoordinator.completeCourseReturn(guideContextBeforeReturn).catch(() => null)
       const authoritative = await progressRepository.load()
       if (authoritative.status !== 'returning' && authoritative.status !== 'recovered') {
         throw new Error('Authoritative learner progress is unavailable after Practice return.')
-      }
-      if (guideBeforeReturn?.currentStageId === 'return-to-course') {
-        await practiceGuideCoordinator.update(
-          { type: 'course-returned', expectedStageId: 'return-to-course' },
-          { progress: authoritative.progress, workspace: null, surface: 'learning' }
-        ).catch(() => null)
       }
       mainWindow?.show()
       mainWindow?.focus()
@@ -798,6 +881,7 @@ function registerIpcHandlers(): void {
 app.on('before-quit', () => {
   isQuitting = true
   void appServerClient.stop()
+  void practiceSnapshotClient.stop()
   void closeExecutorBootstrap()
   removeTeacherConnection()
   void teacherService.dispose()

@@ -20,8 +20,6 @@ import {
   PracticeRunRepository
 } from '../electron/main/practice-run-repository'
 import { ProgressRepository } from '../electron/main/progress-repository'
-import { TeacherChatRepository } from '../electron/main/teacher-fixture'
-import type { ExecutorActivityObserver } from '../electron/main/executor-activity-observer'
 
 const directories: string[] = []
 const timestamp = '2026-08-11T00:00:00.000Z'
@@ -187,7 +185,7 @@ async function harness(mutateDuringReview: boolean) {
     adapter('portfolio-planning', () => current)
   ])
   const observer = {
-    async bind(): Promise<ExecutorActivitySnapshot> {
+    async read(): Promise<ExecutorActivitySnapshot> {
       return {
         schemaVersion: 1,
         runId: 'run-2',
@@ -209,7 +207,7 @@ async function harness(mutateDuringReview: boolean) {
         configuration: null
       }
     }
-  } as unknown as ExecutorActivityObserver
+  }
   const coordinator = new PracticeCoordinator(
     runs,
     definitions,
@@ -220,10 +218,14 @@ async function harness(mutateDuringReview: boolean) {
     }
   )
   const deterministic = new DeterministicPracticeReviewEvaluator()
+  let shouldMutateDuringReview = mutateDuringReview
+  let shouldFailReview = false
+  let releases = 0
   const evaluator: PracticeReviewEvaluator = {
     async evaluate(envelope) {
+      if (shouldFailReview) throw new Error('review unavailable')
       const result = await deterministic.evaluate(envelope)
-      if (mutateDuringReview) {
+      if (shouldMutateDuringReview) {
         current = planningEvidence(prd, plan + '\nThay đổi trong lúc review.')
       }
       return result
@@ -236,29 +238,32 @@ async function harness(mutateDuringReview: boolean) {
     progress,
     observer,
     evaluator,
-    new TeacherChatRepository(directory),
-    true,
     () => new Date(timestamp),
-    () => 'teacher-message-1',
-    registry
+    registry,
+    async () => { releases += 1 }
   )
-  return { runs, service }
+  return {
+    runs,
+    service,
+    releaseCount() { return releases },
+    setMutateDuringReview(value: boolean) { shouldMutateDuringReview = value },
+    setFailReview(value: boolean) { shouldFailReview = value }
+  }
 }
 
 describe('Module 2 review transaction', () => {
   it('persists a deterministic needs-work review when frozen evidence stays unchanged', async () => {
-    const { runs, service } = await harness(false)
+    const { runs, service, releaseCount } = await harness(false)
 
     const response = await service.review()
     expect(response).toMatchObject({
       workspace: { review: { status: 'needs-work', canReturn: false } }
     })
-    expect(response.teacherMessage.content).toContain('Kết luận: Cần chỉnh sửa.')
-    expect(response.teacherMessage.content).toContain('Bằng chứng đã duyệt:')
-    expect(response.teacherMessage.content).toContain('Đã đạt:')
-    expect(response.teacherMessage.content).toContain('Cần sửa:')
-    expect(response.teacherMessage.content.match(/Thao tác tiếp theo:/g)).toHaveLength(1)
+    expect(response.workspace.review?.result?.summary).toBeTruthy()
+    expect(response.workspace.review?.result?.criteria.some((criterion) =>
+      criterion.status !== 'satisfied')).toBe(true)
     expect((await runs.load()).activeRun?.reviewResult?.verdict).toBe('needs-work')
+    expect(releaseCount()).toBe(1)
   })
 
   it('discards evaluator output when an artifact digest changes during review', async () => {
@@ -268,5 +273,21 @@ describe('Module 2 review transaction', () => {
     const active = (await runs.load()).activeRun
     expect(active?.reviewStatus).toBe('not-reviewed')
     expect(active?.reviewResult).toBeUndefined()
+  })
+
+  it('preserves the last structured result when a later review fails', async () => {
+    const { runs, service, setFailReview, releaseCount } = await harness(false)
+    const first = await service.review()
+    const sourceDigest = first.workspace.review?.result?.sourceDigest
+    expect(first.workspace.review?.status).toBe('needs-work')
+
+    setFailReview(true)
+    await expect(service.review()).rejects.toThrow('review unavailable')
+    expect(releaseCount()).toBe(2)
+
+    expect((await runs.load()).activeRun).toMatchObject({
+      reviewStatus: 'needs-work',
+      reviewResult: { sourceDigest }
+    })
   })
 })

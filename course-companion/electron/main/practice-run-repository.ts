@@ -70,7 +70,7 @@ export type ArchivedPracticeReceipt = {
   practiceVersion: string
   threadId: string
   name: string
-  outcome: 'replaced' | 'historical'
+  outcome: 'completed' | 'replaced' | 'historical'
   archivedAt: string
 }
 
@@ -491,7 +491,7 @@ function isArchive(value: unknown): value is ArchivedPracticeReceipt {
     typeof value.name === 'string' &&
     value.name.length > 0 &&
     value.name.length <= 500 &&
-    (value.outcome === 'replaced' || value.outcome === 'historical') &&
+    (value.outcome === 'completed' || value.outcome === 'replaced' || value.outcome === 'historical') &&
     isIso(value.archivedAt)
   )
 }
@@ -708,6 +708,34 @@ export class PracticeRunRepository {
       return this.saveDirect({
         ...record,
         presentation
+      })
+    })
+  }
+
+  closeCompletedRun(input: RunIdentity & { updatedAt: string }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const active = record.activeRun
+      if (!matchesRun(active, input)
+        || active.reviewStatus !== 'passed'
+        || !active.completion) {
+        throw new Error('Only the exact passed Practice run can be closed')
+      }
+      return this.saveDirect({
+        ...record,
+        activeRun: null,
+        pendingTransition: null,
+        archivedRuns: [...record.archivedRuns, {
+          runId: active.runId,
+          generation: active.generation,
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion,
+          threadId: active.binding.threadId,
+          name: active.binding.name,
+          outcome: 'completed' as const,
+          archivedAt: input.updatedAt
+        }].slice(-100),
+        presentation: { fullPanel: 'teacher', compactPanel: 'teacher' }
       })
     })
   }
@@ -1170,17 +1198,18 @@ export class PracticeRunRepository {
       if (!matchesRun(active, input)) {
         return record
       }
+      const nextActive: PracticeRunRecord = {
+        ...active,
+        reviewStatus: input.result.verdict,
+        reviewResult: structuredClone(input.result),
+        checklist: structuredClone(input.checklist),
+        updatedAt: input.updatedAt
+      }
+      if (input.completion) nextActive.completion = structuredClone(input.completion)
+      else delete nextActive.completion
       return this.saveDirect({
         ...record,
-        activeRun: {
-          ...active,
-          reviewStatus: input.result.verdict,
-          reviewResult: structuredClone(input.result),
-          checklist: structuredClone(input.checklist),
-          ...((active.completion ?? input.completion)
-            ? { completion: structuredClone(active.completion ?? input.completion!) } : {}),
-          updatedAt: input.updatedAt
-        }
+        activeRun: nextActive
       })
     })
   }

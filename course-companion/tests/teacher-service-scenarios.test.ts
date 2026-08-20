@@ -1,6 +1,6 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import type {
   CodexConnectionState,
@@ -21,6 +21,7 @@ import {
   TeacherMemoryRepository
 } from '../electron/main/teacher-memory-repository'
 import { TeacherService } from '../electron/main/teacher-service'
+import { TeacherCourseContextRepository } from '../electron/main/teacher-course-context-repository'
 
 const directories: string[] = []
 const timestamp = '2026-08-09T00:00:00.000Z'
@@ -40,6 +41,7 @@ class ScenarioGateway {
   holdNextExecutorRead = false
   private releaseHeldExecutorRead: (() => void) | null = null
   lastTeacherInput = ''
+  lastTeacherDeveloperInstructions = ''
   executorTurns = [
     {
       id: 'executor-turn-silent',
@@ -99,6 +101,9 @@ class ScenarioGateway {
     if (method === 'thread/start') {
       const threadId = `teacher-thread-${++this.sequence}`
       this.services.set(threadId, String(params.serviceName ?? ''))
+      if (params.serviceName === 'content_builder_academy_teacher') {
+        this.lastTeacherDeveloperInstructions = String(params.developerInstructions ?? '')
+      }
       return {
         thread: {
           id: threadId,
@@ -188,7 +193,7 @@ describe('TeacherService mock scenarios', () => {
       sceneId: 'module-1-setup-checklist',
       sceneHistory: [],
       completedCheckpointIds: ['m1-codex-orientation'],
-      decisions: {}
+      decisions: { audience: 'Nhà tuyển dụng sản phẩm số' }
     })
     const practice = new PracticeRunRepository(directory)
     await practice.save({
@@ -255,6 +260,7 @@ describe('TeacherService mock scenarios', () => {
     const service = new TeacherService(
       chat,
       progress,
+      new TeacherCourseContextRepository(resolve(process.cwd(), '..', 'pilot-workspace')),
       practice,
       definitions,
       activityRepository,
@@ -267,14 +273,41 @@ describe('TeacherService mock scenarios', () => {
       () => `message-${++id}`
     )
 
+    await expect(service.sendMessage({ content: 'Can I chat during Practice?' }))
+      .rejects.toThrow('Direct Teacher chat is unavailable during Practice')
+    expect((await chat.loadConversation()).messages).toEqual([])
+    await progress.save({
+      currentLessonId: 'module-1',
+      currentCourseLessonId: 'm1-assessment',
+      checkpointId: 'm1-mastery',
+      sceneId: 'module-1-final-1',
+      sceneHistory: ['module-1-setup-checklist'],
+      completedCheckpointIds: ['m1-codex-orientation', 'm1-setup-checklist'],
+      decisions: { audience: 'Nhà tuyển dụng sản phẩm số' }
+    })
+    await expect(service.sendMessage({ content: 'Can mismatched Practice chat?' }))
+      .rejects.toThrow('Direct Teacher chat is unavailable during Practice')
+    expect((await chat.loadConversation()).messages).toEqual([])
+    const currentRun = (await practice.load()).activeRun
+    expect(currentRun).not.toBeNull()
+    await observer.bind(currentRun!.binding, { captureBaseline: true })
+    await practice.save({
+      ...(await practice.load()),
+      activeRun: null
+    })
+
     service.onConnectionState('connected')
     await expect(service.sendMessage({ content: 'Did I pass?' })).rejects.toThrow('Teacher is unavailable')
     let state = await service.loadState('expanded')
     const failed = state.conversation.messages.find((message) => message.role === 'learner')
     expect(failed?.deliveryStatus).toBe('failed')
     expect(state.teacher.error).toBe('Triết tạm thời chưa thể phản hồi. Tin nhắn đã được lưu; hãy thử lại.')
-    expect(gateway.lastTeacherInput).toContain('"evidenceProfile":"codex-task-configuration"')
-    expect(gateway.lastTeacherInput).toContain('"model":{"protocolValue":"gpt-5.6-sol"')
+    expect(gateway.lastTeacherInput).not.toContain('"activePractice"')
+    expect(gateway.lastTeacherInput).toContain('"course/lessons/module-1.vi.md"')
+    expect(gateway.lastTeacherInput).toContain('"audience":"Nhà tuyển dụng sản phẩm số"')
+    expect(gateway.lastTeacherInput).toContain('answerIndex')
+    expect(gateway.lastTeacherDeveloperInstructions).toContain('<TRIET_PEDAGOGY_SKILL>')
+    expect(gateway.lastTeacherDeveloperInstructions).toContain('Protect open assessments')
     expect(gateway.lastTeacherInput).not.toContain('starters/contentpilot/app/globals.css')
     expect(gateway.lastTeacherInput).not.toContain('hasHorizontalOverflow: false')
 
@@ -287,8 +320,6 @@ describe('TeacherService mock scenarios', () => {
     expect(state.teacher.connection).toBe('live')
 
     gateway.failNextSummaryTurn = true
-    const currentRun = (await practice.load()).activeRun
-    expect(currentRun).not.toBeNull()
     const fallback = await service.summarizeReplacedRun(currentRun!)
     expect(fallback.quality).toBe('pending-refinement')
     expect(fallback.changedFiles).toContain('starters/contentpilot/app/globals.css')
@@ -463,12 +494,7 @@ describe('TeacherService mock scenarios', () => {
     const inFlightSend = service.sendMessage({ content: 'This must not survive reset.' })
     await new Promise((resolve) => setTimeout(resolve, 0))
 
-    gateway.holdNextExecutorRead = true
-    const staleLoad = service.loadState('compact')
-    await gateway.waitForExecutorReadToHold()
     const reset = service.reset()
-    gateway.releaseExecutorRead()
-    await expect(staleLoad).rejects.toThrow('cancelled by course reset')
     await expect(inFlightSend).rejects.toThrow('cancelled by course reset')
     await reset
 

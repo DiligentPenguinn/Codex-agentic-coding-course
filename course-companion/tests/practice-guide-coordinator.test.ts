@@ -15,7 +15,7 @@ const directories: string[] = []
 const definition: PracticeGuideDefinition = {
   schemaVersion: 1,
   guideId: 'm1-practice-mode-first-run',
-  version: '1.0.0',
+  version: '2.0.0',
   eligiblePractice: {
     practiceId: 'm1-codex-safe-setup',
     minimumVersion: '2.0.0',
@@ -25,10 +25,9 @@ const definition: PracticeGuideDefinition = {
   stages: [
     { id: 'practice-introduction', presentation: 'intro-dialog', advancement: 'continue', title: 'Intro', body: 'Body', primaryLabel: 'Start' },
     { id: 'executor-orientation', presentation: 'orientation-card', advancement: 'continue', title: 'Executor', body: 'Body' },
-    { id: 'ask-teacher', presentation: 'coach-mark', advancement: 'teacher-tab-selected', anchor: 'teacher-tab', title: 'Teacher', body: 'Body' },
-    { id: 'inspect-progress', presentation: 'coach-mark', advancement: 'progress-tab-selected', anchor: 'progress-tab', title: 'Progress', body: 'Body' },
+    { id: 'review-workspace', presentation: 'coach-mark', advancement: 'continue', anchor: 'review-progress', title: 'Review workspace', body: 'Body' },
     { id: 'configuration-evidence', presentation: 'coach-mark', advancement: 'continue', anchor: 'configuration-evidence', title: 'Evidence', body: 'Body' },
-    { id: 'request-review', presentation: 'coach-mark', advancement: 'review-requested', anchor: 'review-progress', title: 'Review', body: 'Body' },
+    { id: 'request-review', presentation: 'coach-mark', advancement: 'continue', anchor: 'review-progress', title: 'Review', body: 'Body', primaryLabel: 'Tiếp' },
     { id: 'return-to-course', presentation: 'coach-mark', advancement: 'course-returned', anchor: 'return-to-course', title: 'Return', body: 'Body' },
     { id: 'practice-loop-confirmation', presentation: 'mastery-confirmation', advancement: 'continue', title: 'Done', body: 'Body' }
   ]
@@ -97,7 +96,7 @@ describe('PracticeGuideCoordinator', () => {
   it('auto-starts and advances only on the stage semantic event', async () => {
     const guide = await coordinator()
     expect((await guide.load(context()))?.currentStageId).toBe('practice-introduction')
-    expect((await guide.update({ type: 'teacher-tab-selected', expectedStageId: 'practice-introduction' }, context()))?.currentStageId)
+    expect((await guide.update({ type: 'review-requested', expectedStageId: 'practice-introduction' }, context()))?.currentStageId)
       .toBe('practice-introduction')
     expect((await guide.update({ type: 'continue', expectedStageId: 'practice-introduction' }, context()))?.currentStageId)
       .toBe('executor-orientation')
@@ -124,10 +123,9 @@ describe('PracticeGuideCoordinator', () => {
     const events = [
       { type: 'continue', expectedStageId: 'practice-introduction' },
       { type: 'continue', expectedStageId: 'executor-orientation' },
-      { type: 'teacher-tab-selected', expectedStageId: 'ask-teacher' },
-      { type: 'progress-tab-selected', expectedStageId: 'inspect-progress' },
+      { type: 'continue', expectedStageId: 'review-workspace' },
       { type: 'continue', expectedStageId: 'configuration-evidence' },
-      { type: 'review-requested', expectedStageId: 'request-review' },
+      { type: 'continue', expectedStageId: 'request-review' },
       { type: 'course-returned', expectedStageId: 'return-to-course' }
     ] as const
     for (const event of events) await guide.update(event, context({ workspace: workspace('passed') }))
@@ -167,6 +165,63 @@ describe('PracticeGuideCoordinator', () => {
     })
     expect((await guide.load(mastery))?.presentation).toBe('mastery-confirmation')
     expect((await guide.update({ type: 'dismiss-confirmation' }, mastery))?.presentation).toBeNull()
+  })
+
+  it('acknowledges step five but keeps the return step hidden until review passes', async () => {
+    const guide = await coordinator()
+    await guide.load(context())
+    for (const stage of [
+      'practice-introduction',
+      'executor-orientation',
+      'review-workspace',
+      'configuration-evidence'
+    ]) {
+      await guide.update({ type: 'continue', expectedStageId: stage }, context())
+    }
+    expect((await guide.load(context()))?.primaryLabel).toBe('Tiếp')
+    const waiting = await guide.update(
+      { type: 'continue', expectedStageId: 'request-review' },
+      context({ workspace: workspace('needs-work') })
+    )
+    expect(waiting?.currentStageId).toBe('return-to-course')
+    expect(waiting?.presentation).toBeNull()
+    expect((await guide.load(context({ workspace: workspace('passed') })))?.presentation)
+      .toBe('coach-mark')
+  })
+
+  it('keeps replayed step six hidden until an authoritative pass', async () => {
+    const guide = await coordinator()
+    await guide.load(context())
+    await guide.update({ type: 'skip', expectedStageId: 'practice-introduction' }, context())
+    await guide.update({ type: 'replay' }, context())
+    for (const stage of [
+      'practice-introduction',
+      'executor-orientation',
+      'review-workspace',
+      'configuration-evidence',
+      'request-review'
+    ]) {
+      await guide.update(
+        { type: 'continue', expectedStageId: stage },
+        context({ workspace: workspace('needs-work') })
+      )
+    }
+    expect((await guide.load(context({ workspace: workspace('needs-work') })))?.presentation).toBeNull()
+    expect((await guide.load(context({ workspace: workspace('passed') })))?.currentStageId)
+      .toBe('return-to-course')
+  })
+
+  it('authoritatively completes return when the renderer guide update is still racing', async () => {
+    const guide = await coordinator()
+    await guide.load(context())
+    await guide.completeCourseReturn(context({ workspace: workspace('passed') }))
+
+    const mastery = context({
+      progress: progress('module-1', 'module-1-mastery'),
+      workspace: null,
+      surface: 'learning'
+    })
+    expect((await guide.load(mastery))?.presentation).toBe('mastery-confirmation')
   })
 
   it('does not start for Module 2 or a replaced Practice run', async () => {

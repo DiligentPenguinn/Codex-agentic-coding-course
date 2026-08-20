@@ -524,7 +524,27 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
     'Expected Module 1 Practice to leave the lesson and open the Codex companion'
   )
-  await companionPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành', exact: true }).click()
+  await companionPage.getByRole('button', { name: 'Mở Duyệt Practice với Triết', exact: true }).click()
+  const compactReview = companionPage.getByRole('region', { name: 'Duyệt Practice với Triết' })
+  await compactReview.waitFor()
+  await compactReview.getByRole('region', { name: 'Tiến độ Practice', exact: true }).waitFor()
+  await compactReview.getByText(/\d+\/\d+ bước hoàn thành/).waitFor()
+  await compactReview.getByText('TIẾP THEO', { exact: true }).waitFor()
+  const compactSteps = compactReview.locator('.practice-compact-checklist > li > button')
+  assert.equal(await compactSteps.count(), 5)
+  for (let index = 0; index < 5; index += 1) {
+    assert.equal(await compactSteps.nth(index).getAttribute('aria-expanded'), 'false')
+  }
+  await compactSteps.nth(0).click()
+  await compactReview.getByRole('region', { name: 'Hướng dẫn: Chọn Model 5.6 Sol', exact: true }).waitFor()
+  await compactSteps.nth(1).click()
+  assert.equal(await compactSteps.nth(0).getAttribute('aria-expanded'), 'false')
+  assert.equal(await compactSteps.nth(1).getAttribute('aria-expanded'), 'true')
+  assert.equal(await compactReview.getByRole('region', { name: 'Hướng dẫn: Chọn Model 5.6 Sol', exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('MỤC TIÊU', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('Kết quả theo từng tiêu chí', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('CẤU HÌNH ĐÃ QUAN SÁT', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('BƯỚC HỌC HIỆN TẠI', { exact: true }).count(), 0)
   await companionPage.getByRole('button', { name: 'Mở Triết toàn màn hình', exact: true }).click()
   await waitForSnapshot(
     electronApp,
@@ -537,10 +557,18 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await guide.getByRole('button', { name: 'Bắt đầu hướng dẫn', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
-  await fullTeacher.getByRole('tab', { name: 'TIẾN ĐỘ', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
-  await fullTeacher.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ', exact: true }).click()
-  await fullTeacher.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.waitFor({ state: 'hidden' })
+  assert.equal(await fullTeacher.locator('.pixel-chat-composer').count(), 0)
+  assert.equal(await fullTeacher.locator('.pixel-chat-log').count(), 0)
+  await fullTeacher.getByRole('button', { name: 'Cập nhật và duyệt tiến độ Practice', exact: true }).click()
+  const reviewOutcome = await Promise.race([
+    fullTeacher.getByText('ĐÃ ĐẠT', { exact: true }).waitFor().then(() => 'passed'),
+    fullTeacher.locator('.pixel-chat-warning[role="alert"]').waitFor().then(async () =>
+      `error: ${await fullTeacher.locator('.pixel-chat-warning[role="alert"]').innerText()}`)
+  ])
+  assert.equal(reviewOutcome, 'passed')
   await fullTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
   await waitForSnapshot(
     electronApp,

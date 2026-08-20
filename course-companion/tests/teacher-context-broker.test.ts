@@ -13,8 +13,24 @@ import {
   type PracticeRunSummary
 } from '../shared/contracts'
 import type { PracticeRunRecord } from '../electron/main/practice-run-repository'
+import type { TeacherCoursePackage } from '../electron/main/teacher-course-context-repository'
 
 const timestamp = '2026-08-08T00:00:00.000Z'
+
+const coursePackage: TeacherCoursePackage = {
+  schemaVersion: 1,
+  moduleId: 'module-1',
+  sources: [{
+    path: 'course/lessons/module-1.vi.md',
+    content: 'Authoritative Module 1 lesson content.',
+    digest: 'lesson-digest',
+    characterCount: 38
+  }],
+  characterCount: 38,
+  digest: 'package-digest',
+  pedagogyInstructions: 'Protect open assessments.',
+  activeAssessment: null
+}
 
 const progress: LearnerProgress = {
   schemaVersion: LEARNER_STATE_SCHEMA_VERSION,
@@ -140,6 +156,7 @@ describe('Teacher context broker', () => {
 
     const result = buildTeacherEnvelope({
       progress,
+      coursePackage,
       definition,
       activeRun,
       activity,
@@ -165,6 +182,7 @@ describe('Teacher context broker', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
     const stale = buildTeacherEnvelope({
       progress,
+      coursePackage,
       definition,
       activeRun,
       activity: null,
@@ -173,6 +191,7 @@ describe('Teacher context broker', () => {
     })
     const disconnected = buildTeacherEnvelope({
       progress,
+      coursePackage,
       definition,
       activeRun,
       activity: { ...activity, status: 'disconnected' },
@@ -182,6 +201,22 @@ describe('Teacher context broker', () => {
 
     expect(stale.envelope.freshness).toBe('stale')
     expect(disconnected.envelope.freshness).toBe('disconnected')
+  })
+
+  it('treats current lesson context as fresh when no Practice requires Executor evidence', () => {
+    const result = buildTeacherEnvelope({
+      progress,
+      coursePackage,
+      definition: null,
+      activeRun: null,
+      activity: null,
+      memory: emptyTeacherMemory(() => new Date(timestamp)),
+      conversation: { messages: [], recovered: false }
+    })
+
+    expect(result.envelope.practice.activeRun).toBeNull()
+    expect(result.envelope.practice.activity).toBeNull()
+    expect(result.envelope.freshness).toBe('fresh')
   })
 
   it('keeps the serialized Teacher context under its hard size cap', () => {
@@ -194,6 +229,7 @@ describe('Teacher context broker', () => {
     }))
     const result = buildTeacherEnvelope({
       progress,
+      coursePackage,
       definition,
       activeRun,
       activity: {
@@ -227,6 +263,7 @@ describe('Teacher context broker', () => {
     const memory = emptyTeacherMemory(() => new Date(timestamp))
     const result = buildTeacherEnvelope({
       progress,
+      coursePackage,
       definition,
       activeRun,
       activity,

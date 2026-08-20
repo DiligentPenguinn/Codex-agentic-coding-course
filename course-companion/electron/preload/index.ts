@@ -48,6 +48,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:emit-practice-fixture', request) as Promise<PracticeState>,
   loadPracticeWorkspace: (identity?: PracticeIdentity) =>
     ipcRenderer.invoke('course:load-practice-workspace', identity) as Promise<PracticeWorkspaceView>,
+  hasActivePractice: () =>
+    ipcRenderer.invoke('course:has-active-practice') as Promise<boolean>,
   startPractice: (request: PracticeStartRequest) =>
     ipcRenderer.invoke('course:start-practice', request) as Promise<PracticeWorkspaceView>,
   resumePractice: (identity?: PracticeIdentity) =>

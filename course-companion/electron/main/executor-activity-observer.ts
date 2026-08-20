@@ -240,7 +240,7 @@ export function reduceExecutorActivity(
   return next
 }
 
-function mergeActivity(
+export function mergeActivity(
   previous: ExecutorActivitySnapshot,
   projected: ExecutorActivitySnapshot
 ): ExecutorActivitySnapshot {
@@ -264,6 +264,64 @@ function mergeActivity(
     workspaceCurrentlyDirtyReportedFiles: mergeUnique(previous.workspaceCurrentlyDirtyReportedFiles, projected.workspaceCurrentlyDirtyReportedFiles, 100),
     workspaceBaseline: previous.workspaceBaseline ?? projected.workspaceBaseline,
     configuration: projected.configuration ?? previous.configuration
+  }
+}
+
+export function projectExecutorActivity(
+  previous: ExecutorActivitySnapshot,
+  binding: ExecutorChatBinding,
+  thread: Record<string, unknown>,
+  configuration: ExecutorActivitySnapshot['configuration'],
+  now = () => new Date()
+): ExecutorActivitySnapshot {
+  let rebuilt: ExecutorActivitySnapshot = {
+    ...initialActivity(binding, now, previous.workspaceBaseline),
+    configuration
+  }
+  const turns = Array.isArray(thread.turns) ? thread.turns : []
+  for (const turnValue of turns) {
+    const turn = record(turnValue)
+    if (!turn) continue
+    rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/started', params: { threadId: binding.threadId, turn } }, binding, now)
+    for (const item of Array.isArray(turn.items) ? turn.items : []) {
+      rebuilt = reduceExecutorActivity(rebuilt, { method: 'item/completed', params: { threadId: binding.threadId, turnId: turn.id, item } }, binding, now)
+    }
+    if (turn.status === 'completed' || turn.status === 'failed' || turn.status === 'interrupted') {
+      rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/completed', params: { threadId: binding.threadId, turn } }, binding, now)
+    } else if (turn.status === 'inProgress') {
+      rebuilt = { ...rebuilt, status: 'working', observedAt: now().toISOString() }
+    }
+  }
+  return mergeActivity(previous, rebuilt)
+}
+
+export async function reconcileExecutorActivity(
+  snapshot: ExecutorActivitySnapshot,
+  previous: ExecutorActivitySnapshot,
+  binding: ExecutorChatBinding,
+  workspaceEvidence: WorkspaceEvidenceProvider
+): Promise<ExecutorActivitySnapshot> {
+  try {
+    const reconciliation = await workspaceEvidence.reconcile(
+      binding.workspaceRoot,
+      snapshot.workspaceBaseline,
+      snapshot.reportedChangedFiles,
+      binding.createdAt
+    )
+    return {
+      ...snapshot,
+      workspaceConfirmedChangedFiles: [...new Set(reconciliation.changedSinceBaseline)].slice(-100),
+      workspaceCommittedReportedFilesSinceRunStart: [...new Set(reconciliation.committedReportedFilesSinceRunStart)].slice(-100),
+      workspaceCurrentlyDirtyReportedFiles: [...new Set(reconciliation.currentlyDirtyReportedFiles)].slice(-100)
+    }
+  } catch {
+    return {
+      ...snapshot,
+      status: 'stale',
+      workspaceConfirmedChangedFiles: previous.workspaceConfirmedChangedFiles,
+      workspaceCommittedReportedFilesSinceRunStart: previous.workspaceCommittedReportedFilesSinceRunStart,
+      workspaceCurrentlyDirtyReportedFiles: previous.workspaceCurrentlyDirtyReportedFiles
+    }
   }
 }
 
@@ -338,48 +396,8 @@ export class ExecutorActivityObserver {
       const result = record(await this.client.request('thread/read', { threadId: binding.threadId, includeTurns: true }))
       const thread = record(result?.thread)
       if (!thread || thread.id !== binding.threadId) throw new Error('Executor thread verification failed')
-      let rebuilt: ExecutorActivitySnapshot = {
-        ...initialActivity(binding, this.now, previous.workspaceBaseline),
-        configuration
-      }
-      const turns = Array.isArray(thread.turns) ? thread.turns : []
-      for (const turnValue of turns) {
-        const turn = record(turnValue)
-        if (!turn) continue
-        rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/started', params: { threadId: binding.threadId, turn } }, binding, this.now)
-        for (const item of Array.isArray(turn.items) ? turn.items : []) {
-          rebuilt = reduceExecutorActivity(rebuilt, { method: 'item/completed', params: { threadId: binding.threadId, turnId: turn.id, item } }, binding, this.now)
-        }
-        if (turn.status === 'completed' || turn.status === 'failed' || turn.status === 'interrupted') {
-          rebuilt = reduceExecutorActivity(rebuilt, { method: 'turn/completed', params: { threadId: binding.threadId, turn } }, binding, this.now)
-        } else if (turn.status === 'inProgress') {
-          rebuilt = { ...rebuilt, status: 'working', observedAt: this.now().toISOString() }
-        }
-      }
-      const merged = mergeActivity(previous, rebuilt)
-      let reconciled: ExecutorActivitySnapshot
-      try {
-        const reconciliation = await this.workspaceEvidence.reconcile(
-          binding.workspaceRoot,
-          merged.workspaceBaseline,
-          merged.reportedChangedFiles,
-          binding.createdAt
-        )
-        reconciled = {
-          ...merged,
-          workspaceConfirmedChangedFiles: [...new Set(reconciliation.changedSinceBaseline)].slice(-100),
-          workspaceCommittedReportedFilesSinceRunStart: [...new Set(reconciliation.committedReportedFilesSinceRunStart)].slice(-100),
-          workspaceCurrentlyDirtyReportedFiles: [...new Set(reconciliation.currentlyDirtyReportedFiles)].slice(-100)
-        }
-      } catch {
-        reconciled = {
-          ...merged,
-          status: 'stale',
-          workspaceConfirmedChangedFiles: previous.workspaceConfirmedChangedFiles,
-          workspaceCommittedReportedFilesSinceRunStart: previous.workspaceCommittedReportedFilesSinceRunStart,
-          workspaceCurrentlyDirtyReportedFiles: previous.workspaceCurrentlyDirtyReportedFiles
-        }
-      }
+      const merged = projectExecutorActivity(previous, binding, thread, configuration, this.now)
+      const reconciled = await reconcileExecutorActivity(merged, previous, binding, this.workspaceEvidence)
       if (!this.disposed && generation === this.generation) this.snapshot = await this.repository.save(reconciled)
     } catch {
       if (this.snapshot && !this.disposed && generation === this.generation) {
