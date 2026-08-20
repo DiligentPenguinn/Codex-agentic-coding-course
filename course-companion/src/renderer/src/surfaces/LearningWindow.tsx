@@ -1326,19 +1326,6 @@ function previewProgress(update: ProgressUpdate, previous?: LearnerProgress): Le
   }
 }
 
-function EvidenceGrid({ items }: { items: EvidenceItem[] }) {
-  return (
-    <div className="pixel-evidence-grid">
-      {items.map((item) => (
-        <div className={item.ready ? 'is-ready' : ''} key={item.label}>
-          <small>{item.label}</small>
-          <strong>{item.value}</strong>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 function LessonPracticeBrief({ definition }: { definition: PracticeDefinition }) {
   const requiredCriteria = definition.criteria.filter((criterion) => criterion.required)
 
@@ -3097,7 +3084,6 @@ export function LearningWindow() {
       : practiceReviewDestinationByScene[displayedSceneId]
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
-  const shouldShowScenePanel = scene.showPanel !== false && canShowSceneMedia
   const usesPairedLessonNavigation = !isReviewing
     && !assessmentQuestion
     && !scene.assessmentSummary
@@ -3105,18 +3091,8 @@ export function LearningWindow() {
   const showsSceneTitle = scene.showTitle !== false
     && !usesLessonBoard
     && !isAssessmentQuestionPage
-  const showsScenePanel = shouldShowScenePanel && !usesLessonBoard && !lessonVisual
   const sceneTitle = showsSceneTitle
     ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
-    : null
-  const scenePanel = showsScenePanel
-    ? (
-        <aside className="pixel-consequence" data-tone={scene.tone} aria-live="polite">
-          <header><span>{scene.panelLabel}</span><strong>{scene.panelStatus}</strong></header>
-          <div className="pixel-request"><p>{scene.request}</p></div>
-          <EvidenceGrid items={scene.evidence} />
-        </aside>
-      )
     : null
   const pageBackControl = (
     <button
@@ -3184,9 +3160,7 @@ export function LearningWindow() {
         </div>
       </header>
 
-      {sceneTitle && scenePanel
-        ? <div className="pixel-scene-summary">{sceneTitle}{scenePanel}</div>
-        : sceneTitle ?? scenePanel}
+      {sceneTitle}
       {scene.copyPrompt && !usesLessonBoard ? (
         <CopyPromptCard
           dialogSafe={displayedSceneId === 'module-2-portfolio-agents-setup'}

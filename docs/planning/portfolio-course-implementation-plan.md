@@ -1480,6 +1480,24 @@ values.
 
 **Checkpoint output:** Complete Module 3 content and evidence contract.
 
+### Summary-panel presentation simplification — 20 August 2026
+
+The owner approved removing the generic right-side lesson summary panels while
+retaining scene titles, real illustrations, specialized lesson boards, Practice,
+assessments, and navigation. The common renderer no longer creates
+`.pixel-consequence` or `.pixel-scene-summary`; the approved lesson copy remains
+in the source contracts unchanged. Typecheck, lint, all 303 unit tests, nine
+startup tests, a production build, `git diff --check`, and focused Electron
+inspection of both the summary-free repeated-error page and the
+illustration-preserving visible-error page passed at `1440 × 900` and
+`390 × 844` without horizontal overflow or overlap. Overall verification remains
+`failed` because the full Electron smoke still stops at the unrelated missing
+Module 1 review-bypass control before reaching Module 3. This decision has owner
+approval only for the presentation change; overall owner approval and pilot
+acceptance remain `pending`. The next permitted action is to reconcile that
+review-only mismatch without weakening the real Practice gate, then rerun the
+full Electron smoke.
+
 ### M3.2 — Implement constrained from-scratch scaffolding
 
 **Change**
