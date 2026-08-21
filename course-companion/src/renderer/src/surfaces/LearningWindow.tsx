@@ -2064,14 +2064,14 @@ function AssessmentControls({
                       {question.criteria.map((criterion) => <li key={criterion}>{criterion}</li>)}
                     </ul>
                   ) : null}
-                  <div className="pixel-assessment-source">
-                    <small>{question.source.kind === 'curriculum-judgment'
-                      ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
-                      : 'NGUỒN PHƯƠNG PHÁP'}</small>
-                    <strong>{question.source.label}</strong>
-                    <p>{question.source.basis}</p>
-                    <code>{question.source.url}</code>
-                  </div>
+                  {question.source.kind === 'curriculum-judgment' ? (
+                    <div className="pixel-assessment-source">
+                      <small>QUYẾT ĐỊNH CHƯƠNG TRÌNH</small>
+                      <strong>{question.source.label}</strong>
+                      <p>{question.source.basis}</p>
+                      <code>{question.source.url}</code>
+                    </div>
+                  ) : null}
                   {question.type !== 'multiple-choice' && !correct ? (
                     <div className="pixel-assessment-review-actions">
                       <button disabled={busy} type="button" onClick={() => setEditing(true)}>Viết lại</button>

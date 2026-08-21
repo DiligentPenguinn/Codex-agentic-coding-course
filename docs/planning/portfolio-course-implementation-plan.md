@@ -304,6 +304,15 @@ there first and remain synchronized with Course Companion.
   build, desktop Module 4 visual inspection, full responsive Electron smoke,
   and `git diff --check` passed. This scoped approval does not mark overall
   module owner approval or pilot acceptance complete.
+- On 21 August 2026, the owner approved removing only learner-facing
+  `NGUỒN PHƯƠNG PHÁP` panels from assessment feedback across Modules 1–4.
+  `QUYẾT ĐỊNH CHƯƠNG TRÌNH` panels remain visible, and all quiz source metadata
+  remains unchanged for internal traceability. Typecheck, lint, production
+  build, nine startup tests, focused content-review Electron smoke, and
+  `git diff --check` passed. The full unit run reached 305/306 tests and remains
+  non-clean only because of the separately edited Module 2 `mastery-5` copy
+  contract. This scoped UI approval does not mark overall Foundation or module
+  owner approval, or pilot acceptance, complete.
 - On 19 August 2026, the Module 2 Practice prompt and Teacher panel were moved
   into one responsive layout with an explicit positive gap. Long prompt content
   now scrolls inside its own region instead of expanding into the Teacher

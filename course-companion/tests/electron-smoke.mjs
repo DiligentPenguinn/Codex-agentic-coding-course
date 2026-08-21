@@ -181,14 +181,14 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
 
   for (const question of group.questions) {
     const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-    await questionCard.getByText(
-      question.source.kind === 'curriculum-judgment'
-        ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
-        : 'NGUỒN PHƯƠNG PHÁP',
-      { exact: true }
-    ).waitFor()
-    await questionCard.getByText(question.source.label, { exact: true }).waitFor()
-    await questionCard.getByText(question.source.url, { exact: true }).waitFor()
+    const sourcePanel = questionCard.locator('.pixel-assessment-source')
+    if (question.source.kind === 'curriculum-judgment') {
+      await sourcePanel.getByText('QUYẾT ĐỊNH CHƯƠNG TRÌNH', { exact: true }).waitFor()
+      await sourcePanel.getByText(question.source.label, { exact: true }).waitFor()
+      await sourcePanel.getByText(question.source.url, { exact: true }).waitFor()
+    } else {
+      assert.equal(await sourcePanel.count(), 0)
+    }
     if (question.type !== 'multiple-choice') {
       await questionCard.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
     }
