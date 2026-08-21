@@ -32,6 +32,12 @@
 - Read `docs/internal/target-learner-definition.md` before curriculum, product, or learner-experience decisions. Keep it internal and out of learner-facing or public packages.
 - Treat `starters/contentpilot/` as the real application baseline. Treat `prototypes/` and `codex_content_creator_course_plan_v8.html` as historical references only; never fall back to them when current Pilot material is missing.
 
+## Learning-device scope
+
+- Treat Course Companion and all learner-facing lesson, review, and assessment flows as desktop-only experiences. Do not optimize, design, or verify these learning surfaces for phone-sized viewports, and do not require `390 × 844` evidence for them.
+- Continue checking supported desktop window sizes for readability, clipping, overlap, and horizontal overflow.
+- This desktop-only learning scope does not remove responsive requirements from learner-built products such as the portfolio. Keep mobile behavior in scope for those outputs when their approved requirements or curriculum require it.
+
 ## Page preservation
 
 - Never remove an existing application or course page, learner-facing lesson scene, route, or navigation target unless the user explicitly requests removal of that exact page.
