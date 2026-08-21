@@ -14,6 +14,13 @@
 - For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
 - Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
 
+## Verification batching
+
+- For small, related, user-approved changes, define the batch scope first, implement the changes together, and run narrow focused checks while iterating.
+- Run the required full test suite, build, Electron verification, planning-ledger synchronization, and any eligible checkpoint commit once after the coherent batch is complete.
+- Verify a change separately when it is unrelated, high-risk, must be delivered independently, or focused evidence shows that earlier full verification is necessary.
+- Never use batching to skip required final verification or postpone a failing focused check.
+
 ## Implementation-plan synchronization
 
 - Treat `docs/planning/portfolio-course-implementation-plan.md` as part of the definition of done for work that implements, verifies, changes, or blocks a numbered checkpoint or acceptance gate.
