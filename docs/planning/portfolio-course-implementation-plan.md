@@ -1249,6 +1249,22 @@ the separately edited Module 2 opening. The full Electron journey stops before
 Module 2 at the unrelated missing Module 1 review-bypass control. Overall Module
 2 owner approval and pilot acceptance remain pending.
 
+**History-review dialogue spacing — 21 August 2026:** At the owner's explicit
+request, Module 2 history review now keeps its long Teacher copy in a centered
+`980px` reading column while preserving left-aligned prose. The review dialogue
+moves `16px` lower, and “Trang trước” plus “Quay lại trang đang học” share the
+same bottom action line instead of occupying different vertical positions. No
+lesson copy, route, progress state, or button behavior changed. Typecheck, lint,
+production build, `git diff --check`, and focused content-review Electron smoke
+passed. Rendered bounds at the supported desktop sizes `1180 × 780` and
+`1512 × 982` confirmed balanced text insets, visible space above the lowered
+dialogue, aligned control bottoms, positive copy-to-control clearance, and no
+clipping or horizontal overflow. The full unit run remains non-clean only for
+the pre-existing exact-copy mismatch in the separately edited Module 2 opening;
+the full Electron journey still stops before Module 2 at the unrelated missing
+Module 1 review-bypass control. Overall Module 2 owner approval and pilot
+acceptance remain pending.
+
 **Copyable Practice prompt note — 18 August 2026:** At the owner's explicit
 request, the Module 2 Practice transition replaces its title and scope panel
 with a concise prompt that the learner can copy before opening Codex. The prompt

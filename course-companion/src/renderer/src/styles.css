@@ -1272,6 +1272,23 @@ button:focus-visible {
   white-space: pre-line;
 }
 
+.pixel-dialogue.is-module-two-review {
+  transform: translateY(16px);
+}
+
+.pixel-dialogue.is-module-two-review > p {
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+.pixel-dialogue.is-module-two-review .pixel-review-return {
+  position: absolute;
+  right: 20px;
+  bottom: 15px;
+  left: 20px;
+  margin-top: 0;
+}
+
 .pixel-dialogue-link {
   border-radius: 3px;
   color: var(--pixel-accent);

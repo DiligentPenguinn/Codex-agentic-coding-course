@@ -695,6 +695,50 @@ async function verifyDesignReferenceLinks(page) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).focus()
 }
 
+async function moduleTwoHistoryReviewLayout(page) {
+  return page.evaluate(() => {
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review')?.getBoundingClientRect()
+    const dialogueText = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review > p')?.getBoundingClientRect()
+    const backButton = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review > .pixel-page-back')?.getBoundingClientRect()
+    const returnButton = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review .pixel-review-return .pixel-choice')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewportWidth: globalThis.innerWidth,
+      viewportHeight: globalThis.innerHeight,
+      dialogue: dialogue ? { top: dialogue.top, right: dialogue.right, bottom: dialogue.bottom, left: dialogue.left } : null,
+      dialogueText: dialogueText ? { top: dialogueText.top, right: dialogueText.right, bottom: dialogueText.bottom, left: dialogueText.left } : null,
+      backButton: backButton ? { top: backButton.top, right: backButton.right, bottom: backButton.bottom, left: backButton.left } : null,
+      returnButton: returnButton ? { top: returnButton.top, right: returnButton.right, bottom: returnButton.bottom, left: returnButton.left } : null
+    }
+  })
+}
+
+function assertModuleTwoHistoryReviewLayout(layout, label) {
+  assert.equal(layout.body, layout.viewportWidth, `${label} body should not overflow horizontally`)
+  assert.equal(layout.document, layout.viewportWidth, `${label} document should not overflow horizontally`)
+  assert.ok(layout.dialogue, `${label} should render the Module 2 review dialogue`)
+  assert.ok(layout.dialogueText, `${label} should render the review copy`)
+  assert.ok(layout.backButton, `${label} should render the previous-page control`)
+  assert.ok(layout.returnButton, `${label} should render the return control`)
+  assert.ok(layout.dialogue.top >= 16, `${label} should preserve visible space above the lowered dialogue: ${JSON.stringify(layout)}`)
+  assert.ok(layout.dialogue.bottom <= layout.viewportHeight, `${label} dialogue should remain inside the viewport: ${JSON.stringify(layout)}`)
+  assert.ok(
+    Math.abs((layout.dialogueText.left - layout.dialogue.left) - (layout.dialogue.right - layout.dialogueText.right)) <= 2,
+    `${label} review copy should be horizontally centered: ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    Math.abs(layout.backButton.bottom - layout.returnButton.bottom) <= 2,
+    `${label} review controls should share one bottom row: ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    Math.min(layout.backButton.top, layout.returnButton.top) - layout.dialogueText.bottom >= 8,
+    `${label} review copy should not overlap the controls: ${JSON.stringify(layout)}`
+  )
+  assert.ok(layout.backButton.left >= layout.dialogue.left && layout.returnButton.right <= layout.dialogue.right)
+  assert.ok(layout.backButton.bottom <= layout.dialogue.bottom && layout.returnButton.bottom <= layout.dialogue.bottom)
+}
+
 async function launchCourseCompanion(environment = {}) {
   return electron.launch({
     executablePath: electronExecutable,
@@ -1090,6 +1134,22 @@ try {
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
+  await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).click()
+  await firstWindows.learningPage.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).waitFor()
+  assertModuleTwoHistoryReviewLayout(
+    await moduleTwoHistoryReviewLayout(firstWindows.learningPage),
+    'Module 2 review at 1180 × 780'
+  )
+  await capture(firstWindows.learningPage, 'module-2-opening-review-1180x780.png')
+  await firstWindows.learningPage.setViewportSize({ width: 1512, height: 982 })
+  assertModuleTwoHistoryReviewLayout(
+    await moduleTwoHistoryReviewLayout(firstWindows.learningPage),
+    'Module 2 review at 1512 × 982'
+  )
+  await capture(firstWindows.learningPage, 'module-2-opening-review-1512x982.png')
+  await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  await firstWindows.learningPage.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).click()
   await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)

@@ -3307,7 +3307,7 @@ export function LearningWindow() {
       <section
         aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
         aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}`}
+        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
         {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
         {isAssessmentQuestionPage ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
