@@ -223,6 +223,12 @@ export class PortfolioModuleCompletionService {
     const active = record.activeRun
     if (!active || active.practiceId !== 'm3-portfolio-build' || active.practiceVersion !== '1.0.0'
       || resolve(active.binding.workspaceRoot) !== canonicalPath) throw new Error('The active build Practice does not match this portfolio workspace')
+    if (active.reviewStatus !== 'passed' || !active.completion
+      || active.completion.courseRunId !== progress.courseRunId
+      || active.completion.checkpointId !== 'm3-portfolio-build'
+      || active.completion.destination.sceneId !== 'module-3-portfolio-mastery') {
+      throw new Error('Module 3 requires a passed current Practice review')
+    }
     const definition = await this.definitionRepository.load(active.practiceId, active.practiceVersion)
     const fresh = await this.buildEvidenceAdapter.collect({
       definition, runId: active.runId, generation: active.generation, workspaceRoot: canonicalPath,
@@ -235,24 +241,18 @@ export class PortfolioModuleCompletionService {
     const digests = new Map(build.artifacts.map((artifact) => [artifact.path, artifact.digest]))
     const requiredArtifacts = definition.stages?.flatMap((stage) => stage.requiredArtifactPaths) ?? []
     if (!requiredArtifacts.every((path) => digests.has(path))) throw new Error('All eight Module 3 artifacts are required')
-    const receipts = active.stageReceipts ?? []
-    if (receipts.length !== 5 || !definition.stages?.every((stage) => {
-      const receipt = receipts.find((item) => item.stageId === stage.id)
-      return receipt?.courseRunId === progress.courseRunId && receipt.freshness === 'current'
-        && receipt.workspace.identityDigest === build.workspaceIdentityDigest
-        && sameDigests(receipt.artifactDigests, digests)
-    })) throw new Error('Five current stage receipts are required')
-    const slices = active.buildSliceReceipts ?? []
-    if (slices.length !== 4 || !slices.every((receipt, index) => receipt.courseRunId === progress.courseRunId
-      && receipt.sliceIndex === index + 1 && receipt.freshness === 'current'
-      && sameDigests(receipt.artifactDigests, digests))) throw new Error('Four current build slice receipts are required')
-    const questionIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+    const questionIds = [
+      'm3-mastery-plan',
+      'm3-mastery-visible-error',
+      'm3-mastery-logs',
+      'm3-mastery-repeated-error',
+      'm3-mastery-branch'
+    ]
     const answers = questionIds.map((id) => progress.decisions[`assessment:${id}`] ?? '')
-    if (answers.some((answer) => !answer.startsWith('correct'))
-      || answers.slice(3).some((answer) => answer.slice('correct:self-review:'.length).trim().length < 20)) {
+    if (answers.some((answer) => !answer.startsWith('correct'))) {
       throw new Error('Module 3 mastery evidence is incomplete')
     }
-    const sourceCheckpoint = receipts.find((item) => item.stageId === 'independent-enhancement')?.evidence.executorReportedChecks.find((item) => /checkpoint|commit/i.test(item))
+    const sourceCheckpoint = build.stages.flatMap((stage) => stage.executorReportedChecks).find((item) => /checkpoint|commit/i.test(item))
       ?? `practice-${active.runId}`
     const completedAt = this.now().toISOString()
     return this.progressRepository.completePortfolioBuild({
@@ -264,15 +264,15 @@ export class PortfolioModuleCompletionService {
       checkpointId: 'm3-complete',
       status: 'completed',
       completedAt,
-      evidenceSummary: 'Đã đối chiếu tám artifact, năm stage, bốn phần xây dựng, npm run check và bằng chứng trình duyệt hiện tại.',
-      masterySummary: 'Đã lưu ba câu tình huống và hai câu giải thích từ artifact của người học.',
+      evidenceSummary: 'Đã đối chiếu các phần bắt buộc, tám artifact, npm run check và bằng chứng trình duyệt hiện tại.',
+      masterySummary: 'Đã lưu năm câu trả lời tổng kết Module 3.',
       destination: { lessonId: 'module-3', checkpointId: 'm3-complete', sceneId: 'module-3-complete' },
       portfolioBuildHandoff: {
         schemaVersion: 1,
         workspace: { canonicalPath, identityDigest: build.workspaceIdentityDigest },
         artifactDigests: Object.fromEntries(digests),
-        stageReceiptIds: receipts.sort((a, b) => a.stageIndex - b.stageIndex).map((item) => item.stageId),
-        buildSliceReceiptIds: slices.sort((a, b) => a.sliceIndex - b.sliceIndex).map((item) => item.sliceId),
+        stageReceiptIds: [],
+        buildSliceReceiptIds: [],
         sourceCheckpoint,
         moduleFourInput: { workspacePath: canonicalPath, sourceCheckpoint }
       }

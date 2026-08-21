@@ -14,6 +14,11 @@
 
 ### 0.1 Những gì đã làm được
 
+- Theo quyết định ngày 21 tháng 8 năm 2026, Course Companion chỉ giữ năm slide
+  kiến thức rồi chuyển thẳng sang Practice. Toàn bộ 23 slide thiết lập Practice,
+  gồm chọn workspace, tạo `AGENTS.md`, ví dụ và câu hỏi kiểm tra theo giai đoạn,
+  đã được nghỉ hưu; Executor sẽ sở hữu phần hướng dẫn đó khi integration này
+  được triển khai.
 - Giữ lại phần mở đầu gốc của tác giả và dẫn dắt người học từ lý do cần planning
   tới khái niệm PRD trước khi giới thiệu Practice.
 - Rút gọn phần giải thích thành bốn mục trong outline. Trang PRD anatomy và trang
@@ -320,11 +325,11 @@ Hành động đầu tiên của Module 3:
 | Nhóm | Tệp/surface chính | Thay đổi bắt buộc |
 | --- | --- | --- |
 | Course authority | `pilot-workspace/course/course-structure.json` | Năm stage, năm tài liệu, Practice version mới, boundary Module 2/3 |
-| Teacher | `pilot-workspace/course/lessons/module-2.vi.md`, `lesson-scripts/module-2.script.vi.md`, `prompts/start-module-2.vi.md` | Thay route dạy milestone cũ bằng giao thức một task/năm lần duyệt |
+| Teacher | `pilot-workspace/course/lessons/module-2.vi.md`, `lesson-scripts/module-2.script.vi.md`, `prompts/start-module-2.vi.md` | Dừng sau năm slide kiến thức và chuyển thẳng sang Practice; không dạy lại setup hoặc milestone của Executor |
 | Practice contract | `pilot-workspace/course/practices/m2-portfolio-planning.json`, rubric liên quan | State machine năm stage, write scope, output và approval contract |
 | Templates | `pilot-workspace/course/templates/portfolio-planning/` | Chỉ năm tài liệu, không chứa đáp án hoặc task triển khai |
 | Shared types | `course-companion/shared/contracts.ts` | Types cho task binding, five-stage receipt, digest dependencies và handoff mới |
-| Shared registry | `course-companion/shared/course/modules/module-2.ts` | Artifact paths, Practice version, scene/progress redirects; giữ ba trang đã duyệt |
+| Shared registry | `course-companion/shared/course/modules/module-2.ts` | Artifact paths, Practice version và scene/progress redirects; giữ năm slide kiến thức, Practice và mastery, không khôi phục 23 slide setup |
 | Coordinator/UI | `course-companion/src/renderer/src/surfaces/LearningWindow.tsx` và Practice coordinator | Launch/resume/revise/accept, summaries, stale state, mastery transition |
 | Evidence | `course-companion/electron/main/portfolio-planning-evidence-adapter.ts` | Semantic checks cho năm tài liệu và bounded screenshots |
 | Completion | `course-companion/electron/main/portfolio-module-completion-service.ts` | Atomic five-document gate và Module 3 handoff không có `firstBuild` cũ |
@@ -364,7 +369,7 @@ unexpected app file và no-first-task assertions.
 
 ### I4 — Nối Course Companion review loop
 
-Nối ba trang tới workspace selection và Practice thật; hiển thị digest summary,
+Nối trang Practice hiện tại tới workspace selection và Practice thật; hiển thị digest summary,
 Chấp nhận/Yêu cầu sửa, lỗi và resume. Loại route milestone cũ khỏi tiến trình mới.
 
 **Kiểm tra:** desktop, `390 × 844`, keyboard/focus, exact resume ở cả năm stage,

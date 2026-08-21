@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
@@ -14,20 +14,24 @@ const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electro
 const repositoryRoot = resolve(process.cwd(), '..')
 const practiceWorkspace = await createDisposablePracticeWorkspace({ repositoryRoot })
 const canonicalStarterFingerprint = await fingerprintTree(practiceWorkspace.canonicalStarter)
-const portfolioWorkspaceDirectory = await mkdtemp(join(tmpdir(), 'portfolio learner đầu tiên-'))
 const learningPortfolioWorkspaceDirectory = await mkdtemp(join(tmpdir(), 'portfolio hành trình module 2-'))
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
 const screenshotFilter = process.env.COURSE_COMPANION_SCREENSHOT_FILTER
+const contentReviewOnly = process.env.COURSE_COMPANION_CONTENT_REVIEW_ONLY === '1'
 const setupQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-1.quiz.json'), 'utf8')
 )
 const planningQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-2.quiz.json'), 'utf8')
 )
+const buildQuiz = JSON.parse(
+  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-3.quiz.json'), 'utf8')
+)
 const releaseQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-4.quiz.json'), 'utf8')
 )
 const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedImplementationPlanIntro = 'Vậy, sau khi có PRD rồi thì làm gì? Ta sẽ tạo implementation plan.\n\nImplementation plan về căn bản sẽ viết ra những bước chi tiết để coding agent có thể hiện thực hoá PRD. Bạn có thể hiểu nếu PRD là bản kế hoạch tổng quan, thì implementation plan sẽ ghi chi tiết từng bước để thực hiện kế hoạch đó.\n\nThông thường một implementation plan sẽ được chia ra thành nhiều giai đoạn. Mỗi giai đoạn sẽ có tiêu chí hoàn thành rõ ràng.\n\nThường agent tạo PRD và Implementation plan khá tốt nên bạn chỉ cần bảo nó tạo rồi duyệt là được.'
 const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha'
 const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
 const approvedPortfolioMasteryTransitionCopy = 'Hãy cùng ôn tập lại kiến thức một chút nhen'
@@ -38,12 +42,17 @@ const designReferenceLinks = [
   ['Mobbin', 'https://mobbin.com/'],
   ['Pinterest', 'https://www.pinterest.com/']
 ]
+const approvedMergedModuleThreeOpening = [
+  'Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.',
+  'Chúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn',
+  'Codex sẽ thực hiện từng phần của implementation plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và chạy các kiểm tra phù hợp. Bạn xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi quyết định chấp nhận hoặc yêu cầu chỉnh sửa.'
+]
 
-async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 10) {
+async function openModuleTwoPractice(page, stepsRemaining = 5) {
   for (let index = 0; index < stepsRemaining; index += 1) {
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   }
-  await page.getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true }).waitFor()
+  await page.getByText(approvedPracticeTransitionCopy, { exact: true }).waitFor()
 }
 
 function assessmentGroup(groupId) {
@@ -54,7 +63,7 @@ function assessmentGroup(groupId) {
       questions: setupQuiz.questions
     }
   }
-  const group = [...planningQuiz.groups, ...releaseQuiz.groups]
+  const group = [...planningQuiz.groups, ...buildQuiz.groups, ...releaseQuiz.groups]
     .find((candidate) => candidate.id === groupId)
   assert.ok(group, `Expected assessment group ${groupId}`)
   return group
@@ -751,6 +760,106 @@ function assertModuleTwoHistoryReviewLayout(layout, label) {
   assert.ok(layout.backButton.bottom <= layout.dialogue.bottom && layout.returnButton.bottom <= layout.dialogue.bottom)
 }
 
+async function waitForImageDecode(image) {
+  await image.evaluate(async (element) => {
+    if (!element.complete) {
+      await new Promise((resolve, reject) => {
+        element.addEventListener('load', resolve, { once: true })
+        element.addEventListener('error', reject, { once: true })
+      })
+    }
+    if (typeof element.decode === 'function') await element.decode()
+  })
+}
+
+async function moduleTwoVisualLayout(page) {
+  await waitForImageDecode(page.locator('.pixel-lesson-visual img'))
+  return page.evaluate(() => {
+    const shell = globalThis.document.querySelector('.pixel-learning-shell')
+    const hud = globalThis.document.querySelector('.pixel-hud')?.getBoundingClientRect()
+    const title = globalThis.document.querySelector('.pixel-scene-title')?.getBoundingClientRect()
+    const titleContent = globalThis.document.querySelector('.pixel-scene-title > strong')?.getBoundingClientRect()
+    const titleElement = globalThis.document.querySelector('.pixel-scene-title')
+    const titleStyle = titleElement ? globalThis.getComputedStyle(titleElement) : null
+    const visual = globalThis.document.querySelector('.pixel-lesson-visual')?.getBoundingClientRect()
+    const teacher = globalThis.document.querySelector('.pixel-teacher-character')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    const dialogueText = globalThis.document.querySelector('.pixel-dialogue > p')?.getBoundingClientRect()
+    const actions = globalThis.document.querySelector('.pixel-lesson-actions.is-paired')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      viewportHeight: globalThis.innerHeight,
+      hasSharedGrid: shell?.classList.contains('has-module-two-visual-dialogue') ?? false,
+      titleTrailingSpace: title && titleContent ? title.bottom - titleContent.bottom : null,
+      titleExpectedTrailingSpace: titleStyle
+        ? Number.parseFloat(titleStyle.paddingBottom) + Number.parseFloat(titleStyle.borderBottomWidth)
+        : null,
+      titleToVisualGap: title && visual ? visual.top - title.bottom : null,
+      visualToDialogueGap: visual && dialogue ? dialogue.top - visual.bottom : null,
+      teacherToDialogueGap: teacher && dialogue ? dialogue.top - teacher.bottom : null,
+      topWhitespace: hud && title && teacher ? Math.min(title.top, teacher.top) - hud.bottom : null,
+      bottomWhitespace: dialogue ? globalThis.innerHeight - dialogue.bottom : null,
+      dialogueTextLeftInset: dialogue && dialogueText ? dialogueText.left - dialogue.left : null,
+      dialogueTextRightInset: dialogue && dialogueText ? dialogue.right - dialogueText.right : null,
+      dialogueActionGap: dialogueText && actions ? actions.top - dialogueText.bottom : null,
+      shellClientHeight: shell?.clientHeight ?? null,
+      shellScrollHeight: shell?.scrollHeight ?? null
+    }
+  })
+}
+
+function assertModuleTwoVisualLayout(layout, label, minimumGap, { expectBalanced = false } = {}) {
+  assert.equal(layout.body, layout.viewport, `${label} body should not overflow horizontally`)
+  assert.equal(layout.document, layout.viewport, `${label} document should not overflow horizontally`)
+  assert.equal(layout.hasSharedGrid, true, `${label} should use the shared visual/dialogue grid`)
+  assert.ok(
+    layout.titleTrailingSpace !== null
+      && layout.titleExpectedTrailingSpace !== null
+      && Math.abs(layout.titleTrailingSpace - layout.titleExpectedTrailingSpace) <= 1,
+    `${label} title should end at its intended bottom padding, got ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    layout.titleToVisualGap !== null && layout.titleToVisualGap >= minimumGap,
+    `${label} title/visual gap should be at least ${minimumGap}px, got ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    layout.visualToDialogueGap !== null && layout.visualToDialogueGap >= minimumGap,
+    `${label} visual/dialogue gap should be at least ${minimumGap}px, got ${JSON.stringify(layout)}`
+  )
+  if (layout.viewport > 820) {
+    assert.ok(
+      layout.teacherToDialogueGap !== null && layout.teacherToDialogueGap >= minimumGap,
+      `${label} Teacher/dialogue gap should be at least ${minimumGap}px, got ${JSON.stringify(layout)}`
+    )
+  }
+  assert.ok(
+    layout.dialogueTextLeftInset !== null
+      && layout.dialogueTextRightInset !== null
+      && Math.abs(layout.dialogueTextLeftInset - layout.dialogueTextRightInset) <= 2,
+    `${label} Teacher copy should have balanced horizontal insets, got ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    layout.dialogueActionGap !== null && layout.dialogueActionGap >= 10,
+    `${label} Teacher copy should not overlap its actions, got ${JSON.stringify(layout)}`
+  )
+  if (expectBalanced) {
+    assert.ok(
+      layout.topWhitespace !== null && layout.topWhitespace >= 16,
+      `${label} should preserve breathing room below the HUD, got ${JSON.stringify(layout)}`
+    )
+    assert.ok(
+      layout.bottomWhitespace !== null && layout.bottomWhitespace >= 16,
+      `${label} should preserve breathing room below the dialogue, got ${JSON.stringify(layout)}`
+    )
+    assert.ok(
+      Math.abs(layout.topWhitespace - layout.bottomWhitespace) <= 40,
+      `${label} should balance top and bottom whitespace, got ${JSON.stringify(layout)}`
+    )
+  }
+}
+
 async function launchCourseCompanion(environment = {}) {
   return electron.launch({
     executablePath: electronExecutable,
@@ -874,7 +983,7 @@ async function verifyHomeBase(page) {
     .getByText('Planning và PRD trước khi code với AI', { exact: true })
     .waitFor()
   await page.getByText('MODULE 1 · 3 BÀI HỌC', { exact: true }).waitFor()
-  await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
+  await page.getByText('MODULE 2 · 1 BÀI HỌC', { exact: true }).waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -896,6 +1005,417 @@ async function verifyHomeBase(page) {
 async function verifyContentReviewMode(page) {
   const statePath = join(userDataDirectory, 'learner-state.json')
   const before = await readFile(statePath, 'utf8')
+  await page.getByRole('button', { name: 'Duyệt nội dung Module 2', exact: true }).click()
+  await page.getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true }).waitFor()
+
+  const openingRegularLayout = await moduleTwoVisualLayout(page)
+  assertModuleTwoVisualLayout(openingRegularLayout, 'Module 2 opening at 1180 × 780', 16)
+
+  await page.setViewportSize({ width: 1512, height: 982 })
+  const moduleTwoVisualPages = [
+    {
+      objective: 'Chốt điều cần làm trước khi Codex chọn cách làm',
+      screenshot: 'module-2-opening-1512x982.png'
+    },
+    {
+      objective: 'Giữ quyết định về sản phẩm trước khi chọn cách xây',
+      screenshot: 'module-2-prd-definition-1512x982.png'
+    },
+    {
+      objective: 'Để AI hỗ trợ mà không giao luôn quyền quyết định',
+      screenshot: 'module-2-prd-review-workflow-1512x982.png'
+    }
+  ]
+
+  for (const [pageIndex, visualPage] of moduleTwoVisualPages.entries()) {
+    await page.locator('.pixel-scene-title strong').getByText(visualPage.objective, { exact: true }).waitFor()
+    const fullscreenLayout = await moduleTwoVisualLayout(page)
+    assertModuleTwoVisualLayout(fullscreenLayout, `${visualPage.objective} at 1512 × 982`, 16, { expectBalanced: true })
+    await capture(page, visualPage.screenshot)
+
+    if (pageIndex === 1) {
+      await page.getByRole('button', { name: '← Trang trước', exact: true }).click()
+      await page.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).waitFor()
+      await page.setViewportSize({ width: 1180, height: 780 })
+      assertModuleTwoHistoryReviewLayout(
+        await moduleTwoHistoryReviewLayout(page),
+        'Module 2 review at 1180 × 780'
+      )
+      await capture(page, 'module-2-opening-review-1180x780.png')
+      await page.setViewportSize({ width: 1512, height: 982 })
+      assertModuleTwoHistoryReviewLayout(
+        await moduleTwoHistoryReviewLayout(page),
+        'Module 2 review at 1512 × 982'
+      )
+      await capture(page, 'module-2-opening-review-1512x982.png')
+      await page.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).click()
+      await page.locator('.pixel-scene-title strong').getByText(visualPage.objective, { exact: true }).waitFor()
+    }
+
+    if (pageIndex === 0) {
+      await page.locator('.pixel-scene-title strong').evaluate((element) => { element.style.fontSize = '24px' })
+      await page.locator('.pixel-dialogue > p').evaluate((element) => { element.style.fontSize = '22px' })
+      const increasedTextLayout = await moduleTwoVisualLayout(page)
+      assertModuleTwoVisualLayout(increasedTextLayout, 'Module 2 opening with increased text', 16)
+      assert.ok(
+        increasedTextLayout.shellClientHeight !== null
+          && increasedTextLayout.shellScrollHeight !== null
+          && increasedTextLayout.shellScrollHeight >= increasedTextLayout.shellClientHeight,
+        `Module 2 opening should remain scrollable with increased text, got ${JSON.stringify(increasedTextLayout)}`
+      )
+      await capture(page, 'module-2-opening-1512x982-increased-text.png')
+      await page.locator('.pixel-scene-title strong').evaluate((element) => { element.style.fontSize = '' })
+      await page.locator('.pixel-dialogue > p').evaluate((element) => { element.style.fontSize = '' })
+
+      await page.setViewportSize({ width: 390, height: 844 })
+      const narrowLayout = await moduleTwoVisualLayout(page)
+      assertModuleTwoVisualLayout(narrowLayout, 'Module 2 opening at 390 × 844', 8)
+      await capture(page, 'module-2-opening-grid-390x844.png')
+      await page.setViewportSize({ width: 1512, height: 982 })
+    }
+
+    await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  }
+
+  await page.getByLabel('Hai nguồn tham khảo thiết kế', { exact: true }).waitFor()
+  for (const galleryImage of await page.locator('.pixel-lesson-visual-group img').all()) {
+    await waitForImageDecode(galleryImage)
+  }
+  const moduleTwoGalleryLayout = await page.evaluate(() => {
+    const shell = globalThis.document.querySelector('.pixel-learning-shell')
+    const hud = globalThis.document.querySelector('.pixel-hud')?.getBoundingClientRect()
+    const gallery = globalThis.document.querySelector('.pixel-lesson-visual-group')?.getBoundingClientRect()
+    const galleryPanels = [...globalThis.document.querySelectorAll('.pixel-lesson-visual-group > .pixel-lesson-visual')]
+      .map((panel) => panel.getBoundingClientRect())
+    const teacher = globalThis.document.querySelector('.pixel-teacher-character')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      hasSharedGrid: shell?.classList.contains('has-module-two-visual-dialogue') ?? false,
+      hasGalleryGrid: shell?.classList.contains('has-module-two-visual-gallery') ?? false,
+      galleryHeight: gallery?.height ?? null,
+      teacherHeight: teacher?.height ?? null,
+      dialogueHeight: dialogue?.height ?? null,
+      galleryPanelCount: galleryPanels.length,
+      galleryPanelGap: galleryPanels.length === 2 ? galleryPanels[1].left - galleryPanels[0].right : null,
+      galleryToDialogueGap: gallery && dialogue ? dialogue.top - gallery.bottom : null,
+      teacherToDialogueGap: teacher && dialogue ? dialogue.top - teacher.bottom : null,
+      topWhitespace: hud && gallery && teacher ? Math.min(gallery.top, teacher.top) - hud.bottom : null,
+      bottomWhitespace: dialogue ? globalThis.innerHeight - dialogue.bottom : null
+    }
+  })
+  assert.equal(moduleTwoGalleryLayout.body, moduleTwoGalleryLayout.viewport)
+  assert.equal(moduleTwoGalleryLayout.document, moduleTwoGalleryLayout.viewport)
+  assert.equal(moduleTwoGalleryLayout.hasSharedGrid, true)
+  assert.equal(moduleTwoGalleryLayout.hasGalleryGrid, true)
+  assert.equal(moduleTwoGalleryLayout.galleryPanelCount, 2)
+  assert.ok(
+    moduleTwoGalleryLayout.galleryPanelGap !== null && moduleTwoGalleryLayout.galleryPanelGap >= 14,
+    `Module 2 reference images should remain separate columns, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  assert.ok(
+    moduleTwoGalleryLayout.galleryToDialogueGap !== null && moduleTwoGalleryLayout.galleryToDialogueGap >= 16,
+    `Module 2 reference gallery should not overlap the Teacher panel, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  assert.ok(
+    moduleTwoGalleryLayout.teacherToDialogueGap !== null && moduleTwoGalleryLayout.teacherToDialogueGap >= 16,
+    `Module 2 reference gallery Teacher should not overlap the dialogue, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  assert.ok(
+    moduleTwoGalleryLayout.topWhitespace !== null && moduleTwoGalleryLayout.topWhitespace >= 16,
+    `Module 2 reference gallery should preserve space below the HUD, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  assert.ok(
+    moduleTwoGalleryLayout.bottomWhitespace !== null && moduleTwoGalleryLayout.bottomWhitespace >= 16,
+    `Module 2 reference gallery should preserve space below the dialogue, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  assert.ok(
+    Math.abs(moduleTwoGalleryLayout.topWhitespace - moduleTwoGalleryLayout.bottomWhitespace) <= 40,
+    `Module 2 reference gallery should balance top and bottom whitespace, got ${JSON.stringify(moduleTwoGalleryLayout)}`
+  )
+  await capture(page, 'module-2-reference-gallery-1512x982.png')
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+
+  const implementationPlanBoard = page.locator('.pixel-plan-board')
+  await implementationPlanBoard.waitFor()
+  await implementationPlanBoard.getByRole('heading', { name: 'Implementation plan là gì?', exact: true }).waitFor()
+  assert.deepEqual(
+    await implementationPlanBoard.locator('.pixel-plan-board__lesson-copy p').allTextContents(),
+    approvedImplementationPlanIntro.split('\n\n')
+  )
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section').count(), 4)
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-phase__criteria:visible').count(), 4)
+  assert.match(await implementationPlanBoard.textContent(), /Portfolio mở được trong trình duyệt/)
+  assert.match(await implementationPlanBoard.textContent(), /Ảnh giao diện desktop và điện thoại đã được lưu/)
+  assert.equal(await implementationPlanBoard.getByText('Chia việc xây sản phẩm thành nhiều phase', { exact: true }).count(), 0)
+  assert.equal(await implementationPlanBoard.getByText('Biết khi nào một phase đã hoàn thành', { exact: true }).count(), 0)
+  const implementationPlanDesktopLayout = await page.evaluate(() => {
+    const lesson = globalThis.document.querySelector('.pixel-plan-board__lesson')?.getBoundingClientRect()
+    const plan = globalThis.document.querySelector('.pixel-plan-document')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      lessonToPlanGap: lesson && plan ? plan.left - lesson.right : null
+    }
+  })
+  assert.equal(implementationPlanDesktopLayout.body, implementationPlanDesktopLayout.viewport)
+  assert.equal(implementationPlanDesktopLayout.document, implementationPlanDesktopLayout.viewport)
+  assert.ok((implementationPlanDesktopLayout.lessonToPlanGap ?? -1) >= 0)
+  await capture(page, 'module-2-implementation-plan-combined-content-review-1512x982.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const implementationPlanNarrowLayout = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(implementationPlanNarrowLayout.body, implementationPlanNarrowLayout.viewport)
+  assert.equal(implementationPlanNarrowLayout.document, implementationPlanNarrowLayout.viewport)
+  await capture(page, 'module-2-implementation-plan-combined-content-review-390x844.png')
+  await page.setViewportSize({ width: 1180, height: 780 })
+
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByText(approvedPracticeTransitionCopy, { exact: true }).waitFor()
+  assert.equal(await page.getByText('Chọn nơi lưu các tài liệu planning', { exact: true }).count(), 0)
+  assert.equal(await page.getByText('Tạo bộ quy luật cho dự án của bạn', { exact: true }).count(), 0)
+  const moduleTwoPracticeEntryLayout = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(moduleTwoPracticeEntryLayout.body, moduleTwoPracticeEntryLayout.viewport)
+  assert.equal(moduleTwoPracticeEntryLayout.document, moduleTwoPracticeEntryLayout.viewport)
+  assert.equal(await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).count(), 1)
+  await capture(page, 'module-2-practice-direct-content-review-1180x780.png')
+  await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt bài ôn tập', exact: true }).click()
+  await page.getByText(approvedPortfolioMasteryTransitionCopy, { exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await answerAssessmentGroup(page, 'final-assessment', { retryFirstChoice: true })
+  await page.getByText('Bạn đã trả lời 5/5 câu', { exact: false }).waitFor()
+  await capture(page, 'module-2-direct-summary-content-review-1180x780.png')
+  await page.getByRole('button', { name: 'Duyệt nội dung Module 3', exact: true }).click()
+  await page.locator('.pixel-scene-title strong').getByText('Thực hiện Implementation Plan, từng bước một', { exact: true }).waitFor()
+  const moduleThreeOutline = page.locator('.pixel-outline')
+  await moduleThreeOutline.locator('summary').click()
+  await moduleThreeOutline.getByText('Thực hiện Implementation Plan, từng bước một', { exact: true }).waitFor()
+  await moduleThreeOutline.locator('summary').click()
+  assert.equal(
+    await page.locator('.pixel-scene-title strong').textContent(),
+    'Thực hiện Implementation Plan, từng bước một'
+  )
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
+  assert.equal(await page.locator('.pixel-dialogue > p').textContent(), approvedMergedModuleThreeOpening.join('\n\n'))
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await capture(page, 'module-3-opening-1440x900.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const moduleThreeOpeningNarrowWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(moduleThreeOpeningNarrowWidths.body, moduleThreeOpeningNarrowWidths.viewport)
+  assert.equal(moduleThreeOpeningNarrowWidths.document, moduleThreeOpeningNarrowWidths.viewport)
+  await capture(page, 'module-3-opening-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await waitForImageDecode(page.getByAltText('Nút Xem dự án che lên phần giới thiệu của một website portfolio'))
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  await capture(page, 'module-3-visible-error-1440x900.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const moduleThreeNarrowWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(moduleThreeNarrowWidths.body, moduleThreeNarrowWidths.viewport)
+  assert.equal(moduleThreeNarrowWidths.document, moduleThreeNarrowWidths.viewport)
+  await capture(page, 'module-3-visible-error-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await waitForImageDecode(page.getByAltText('Ảnh lỗi giao diện được gửi cùng prompt mô tả kết quả mong đợi và kết quả thực tế'))
+  await page.getByText('Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.', { exact: true }).waitFor()
+  const promptVisualWidth = await page.locator('.pixel-lesson-visual.is-featured-example').evaluate((element) => element.getBoundingClientRect().width)
+  assert.ok(promptVisualWidth >= 500 && promptVisualWidth <= 520)
+  await capture(page, 'module-3-error-prompt-1440x900.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const promptNarrowWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(promptNarrowWidths.body, promptNarrowWidths.viewport)
+  assert.equal(promptNarrowWidths.document, promptNarrowWidths.viewport)
+  await capture(page, 'module-3-error-prompt-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await waitForImageDecode(page.getByAltText('Terminal hiển thị một dòng log được làm nổi bật để coding agent điều tra lỗi'))
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.locator('.pixel-scene-title strong').getByText('Kiểm tra từng nguyên nhân bằng bằng chứng', { exact: true }).waitFor()
+  await waitForImageDecode(page.getByAltText('Codex nhận yêu cầu dừng sửa, liệt kê các nguyên nhân có thể và kiểm tra từng nguyên nhân bằng bằng chứng'))
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  const repeatedErrorDesktopLayout = await page.evaluate(() => {
+    const title = globalThis.document.querySelector('.pixel-scene-title')?.getBoundingClientRect()
+    const visual = globalThis.document.querySelector('.pixel-lesson-visual')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    return {
+      visualWidth: visual?.width,
+      titleToVisualGap: title && visual ? visual.top - title.bottom : null,
+      visualToDialogueGap: visual && dialogue ? dialogue.top - visual.bottom : null
+    }
+  })
+  assert.ok(repeatedErrorDesktopLayout.visualWidth >= 500 && repeatedErrorDesktopLayout.visualWidth <= 520)
+  assert.ok(repeatedErrorDesktopLayout.titleToVisualGap >= 4)
+  assert.ok(repeatedErrorDesktopLayout.visualToDialogueGap >= 12)
+  await capture(page, 'module-3-repeated-error-codex-prompt-1440x900.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const repeatedErrorNarrowWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(repeatedErrorNarrowWidths.body, repeatedErrorNarrowWidths.viewport)
+  assert.equal(repeatedErrorNarrowWidths.document, repeatedErrorNarrowWidths.viewport)
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
+  assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
+  const repeatedErrorNarrowLayout = await page.evaluate(() => {
+    const title = globalThis.document.querySelector('.pixel-scene-title')?.getBoundingClientRect()
+    const visual = globalThis.document.querySelector('.pixel-lesson-visual')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    return {
+      titleToVisualGap: title && visual ? visual.top - title.bottom : null,
+      visualToDialogueGap: visual && dialogue ? dialogue.top - visual.bottom : null
+    }
+  })
+  assert.ok(repeatedErrorNarrowLayout.titleToVisualGap >= 8)
+  assert.ok(repeatedErrorNarrowLayout.visualToDialogueGap >= 8)
+  await capture(page, 'module-3-repeated-error-codex-prompt-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  const gitGithubVisual = page.getByAltText('Logo Git và GitHub được đặt cạnh nhau để minh hoạ hai khái niệm khác nhau')
+  await waitForImageDecode(gitGithubVisual)
+  assert.equal(await page.locator('.pixel-scene-title').count(), 0)
+  const gitGithubDesktopLayout = await page.locator('.pixel-lesson-visual.is-title-replacement').evaluate((element) => {
+    const image = element.querySelector('img')
+    const bounds = element.getBoundingClientRect()
+    return {
+      top: bounds.top,
+      width: bounds.width,
+      naturalWidth: image?.naturalWidth,
+      naturalHeight: image?.naturalHeight
+    }
+  })
+  assert.equal(gitGithubDesktopLayout.top, 100)
+  assert.ok(gitGithubDesktopLayout.width >= 500 && gitGithubDesktopLayout.width <= 520)
+  assert.equal(gitGithubDesktopLayout.naturalWidth, 1200)
+  assert.equal(gitGithubDesktopLayout.naturalHeight, 600)
+  await capture(page, 'module-3-git-github-1440x900.png')
+  await page.setViewportSize({ width: 390, height: 844 })
+  const gitGithubNarrowLayout = await page.evaluate(() => {
+    const visual = globalThis.document.querySelector('.pixel-lesson-visual.is-title-replacement')
+    const bounds = visual?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      visualLeft: bounds?.left,
+      visualRight: bounds?.right
+    }
+  })
+  assert.equal(gitGithubNarrowLayout.body, gitGithubNarrowLayout.viewport)
+  assert.equal(gitGithubNarrowLayout.document, gitGithubNarrowLayout.viewport)
+  assert.ok((gitGithubNarrowLayout.visualLeft ?? -1) >= 0)
+  assert.ok((gitGithubNarrowLayout.visualRight ?? 391) <= gitGithubNarrowLayout.viewport)
+  assert.equal(await page.locator('.pixel-scene-title').count(), 0)
+  await capture(page, 'module-3-git-github-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await waitForImageDecode(page.getByAltText('Danh sách nhiều commit nối tiếp nhau trong lịch sử Git'))
+  const resetCommitScroll = async () => page.locator('.pixel-learning-shell').evaluate((element) => { element.scrollTop = 0 })
+  const commitLayout = async () => page.evaluate(() => {
+    const visual = globalThis.document.querySelector('.pixel-lesson-visual')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    const dialogueText = globalThis.document.querySelector('.pixel-dialogue > p')?.getBoundingClientRect()
+    const actions = globalThis.document.querySelector('.pixel-lesson-actions.is-paired')?.getBoundingClientRect()
+    const shell = globalThis.document.querySelector('.pixel-learning-shell')
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      gap: visual && dialogue ? dialogue.top - visual.bottom : -1,
+      visualHeight: visual?.height ?? -1,
+      actionGap: dialogueText && actions ? actions.top - dialogueText.bottom : -1,
+      shellClientHeight: shell?.clientHeight ?? -1,
+      shellScrollHeight: shell?.scrollHeight ?? -1
+    }
+  })
+  await resetCommitScroll()
+  const commitDesktopLayout = await commitLayout()
+  assert.equal(commitDesktopLayout.body, commitDesktopLayout.viewport)
+  assert.equal(commitDesktopLayout.document, commitDesktopLayout.viewport)
+  assert.ok(commitDesktopLayout.gap >= 16, `Expected commit illustration/dialogue gap >= 16px, got ${JSON.stringify(commitDesktopLayout)}`)
+  assert.ok(commitDesktopLayout.visualHeight >= 100, `Expected visible commit illustration, got ${JSON.stringify(commitDesktopLayout)}`)
+  assert.ok(commitDesktopLayout.actionGap >= 10, `Expected commit dialogue/action gap >= 10px, got ${JSON.stringify(commitDesktopLayout)}`)
+  await capture(page, 'module-3-commit-1440x900.png')
+
+  await page.setViewportSize({ width: 1180, height: 664 })
+  await resetCommitScroll()
+  const commitShortDesktopLayout = await commitLayout()
+  assert.equal(commitShortDesktopLayout.body, commitShortDesktopLayout.viewport)
+  assert.equal(commitShortDesktopLayout.document, commitShortDesktopLayout.viewport)
+  assert.ok(commitShortDesktopLayout.gap >= 16, `Expected short commit illustration/dialogue gap >= 16px, got ${JSON.stringify(commitShortDesktopLayout)}`)
+  assert.ok(commitShortDesktopLayout.visualHeight >= 100, `Expected visible short-desktop commit illustration, got ${JSON.stringify(commitShortDesktopLayout)}`)
+  assert.ok(commitShortDesktopLayout.actionGap >= 10, `Expected short commit dialogue/action gap >= 10px, got ${JSON.stringify(commitShortDesktopLayout)}`)
+  assert.ok(commitShortDesktopLayout.shellScrollHeight > commitShortDesktopLayout.shellClientHeight, `Expected short commit page to scroll, got ${JSON.stringify(commitShortDesktopLayout)}`)
+  await capture(page, 'module-3-commit-1180x664.png')
+
+  await page.locator('.pixel-dialogue > p').evaluate((element) => { element.style.fontSize = '22px' })
+  await resetCommitScroll()
+  const commitIncreasedTextLayout = await commitLayout()
+  assert.equal(commitIncreasedTextLayout.body, commitIncreasedTextLayout.viewport)
+  assert.equal(commitIncreasedTextLayout.document, commitIncreasedTextLayout.viewport)
+  assert.ok(commitIncreasedTextLayout.gap >= 16, `Expected increased-text commit illustration/dialogue gap >= 16px, got ${JSON.stringify(commitIncreasedTextLayout)}`)
+  assert.ok(commitIncreasedTextLayout.visualHeight >= 100, `Expected visible increased-text commit illustration, got ${JSON.stringify(commitIncreasedTextLayout)}`)
+  assert.ok(commitIncreasedTextLayout.actionGap >= 10, `Expected increased-text commit dialogue/action gap >= 10px, got ${JSON.stringify(commitIncreasedTextLayout)}`)
+  assert.ok(commitIncreasedTextLayout.shellScrollHeight > commitIncreasedTextLayout.shellClientHeight, `Expected increased-text commit page to scroll, got ${JSON.stringify(commitIncreasedTextLayout)}`)
+  await capture(page, 'module-3-commit-1180x664-increased-text.png')
+  await page.locator('.pixel-dialogue > p').evaluate((element) => { element.style.fontSize = '' })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await resetCommitScroll()
+  const commitNarrowLayout = await commitLayout()
+  assert.equal(commitNarrowLayout.body, commitNarrowLayout.viewport)
+  assert.equal(commitNarrowLayout.document, commitNarrowLayout.viewport)
+  assert.ok(commitNarrowLayout.gap >= 10, `Expected narrow commit illustration/dialogue gap >= 10px, got ${JSON.stringify(commitNarrowLayout)}`)
+  assert.ok(commitNarrowLayout.visualHeight >= 100, `Expected visible narrow commit illustration, got ${JSON.stringify(commitNarrowLayout)}`)
+  assert.ok(commitNarrowLayout.actionGap >= 10, `Expected narrow commit dialogue/action gap >= 10px, got ${JSON.stringify(commitNarrowLayout)}`)
+  await capture(page, 'module-3-commit-390x844.png')
+  await page.setViewportSize({ width: 1440, height: 900 })
+
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài', exact: true }).waitFor()
+  const moduleThreePracticeWidths = await page.evaluate(() => ({
+    body: globalThis.document.body.scrollWidth,
+    document: globalThis.document.documentElement.scrollWidth,
+    viewport: globalThis.innerWidth
+  }))
+  assert.equal(moduleThreePracticeWidths.body, moduleThreePracticeWidths.viewport)
+  assert.equal(moduleThreePracticeWidths.document, moduleThreePracticeWidths.viewport)
+  await capture(page, 'module-3-practice-direct-1440x900.png')
+  await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await answerAssessmentGroup(page, 'm3-final-assessment')
+  await page.getByText('Bạn đã trả lời 5/5 câu', { exact: false }).waitFor()
+  await capture(page, 'module-3-summary-1440x900.png')
   await page.getByRole('button', { name: 'Duyệt nội dung Module 4', exact: true }).click()
   await page.getByText('MODULE 4 · BÀI 1/5 · TRANG 1/2', { exact: true }).first().waitFor()
   assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
@@ -915,7 +1435,8 @@ async function verifyContentReviewMode(page) {
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await answerAssessmentGroup(page, 'release-validation-retrieval')
-  await page.getByText('KIỂM TRA TRƯỚC MỌI HÀNH ĐỘNG MẠNG', { exact: true }).waitFor()
+  await page.locator('.pixel-scene-title strong').getByText('Chặn secret, dữ liệu riêng tư và phạm vi công bố mơ hồ', { exact: true }).waitFor()
+  assert.equal(await page.locator('.pixel-consequence').count(), 0)
   await page.locator('.pixel-brand').click()
   await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   assert.equal(await readFile(statePath, 'utf8'), before)
@@ -924,7 +1445,6 @@ async function verifyContentReviewMode(page) {
 let firstLaunch
 let resumedLaunch
 let chatHistoryLaunch
-let portfolioLaunch
 
 try {
   firstLaunch = await launchCourseCompanion()
@@ -1078,6 +1598,10 @@ try {
     .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .click()
   await verifyHomeBase(firstWindows.learningPage)
+  if (contentReviewOnly) {
+    await verifyContentReviewMode(firstWindows.learningPage)
+    console.log('Electron smoke: focused content-review journey passed')
+  } else {
   await completeSetupModule(firstWindows.learningPage, firstWindows.companionPage, firstLaunch, true)
   assert.equal(await fingerprintTree(practiceWorkspace.canonicalStarter), canonicalStarterFingerprint)
   await verifyHomeBase(firstWindows.learningPage)
@@ -1207,14 +1731,18 @@ try {
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   const implementationPlanBoard = firstWindows.learningPage.locator('.pixel-plan-board')
   await implementationPlanBoard.waitFor()
-  assert.match(await implementationPlanBoard.textContent(), /Implementation plan nối PRD với cách thực hiện/)
-  assert.match(await implementationPlanBoard.textContent(), /VÍ DỤ GIẢ LẬP · KHÔNG PHẢI ĐÁP ÁN/)
-  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').count(), 4)
-  await capture(firstWindows.learningPage, 'module-2-implementation-plan-overview.png')
-  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await firstWindows.learningPage.getByRole('heading', { name: 'Yêu cầu và ranh giới giữ plan đúng phạm vi', exact: true }).waitFor()
-  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').count(), 1)
-  assert.match(await implementationPlanBoard.locator('.pixel-plan-document > section.is-active').textContent(), /Yêu cầu và ranh giới/)
+  await implementationPlanBoard.getByRole('heading', { name: 'Implementation plan là gì?', exact: true }).waitFor()
+  assert.deepEqual(
+    await implementationPlanBoard.locator('.pixel-plan-board__lesson-copy p').allTextContents(),
+    approvedImplementationPlanIntro.split('\n\n')
+  )
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section').count(), 4)
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-phase__criteria:visible').count(), 4)
+  assert.match(await implementationPlanBoard.textContent(), /Portfolio mở được trong trình duyệt/)
+  assert.match(await implementationPlanBoard.textContent(), /Ảnh giao diện desktop và điện thoại đã được lưu/)
+  assert.equal(await implementationPlanBoard.getByText('Chia việc xây sản phẩm thành nhiều phase', { exact: true }).count(), 0)
+  assert.equal(await implementationPlanBoard.getByText('Biết khi nào một phase đã hoàn thành', { exact: true }).count(), 0)
+  await capture(firstWindows.learningPage, 'module-2-implementation-plan-combined.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
     const planNarrowWidths = await firstWindows.learningPage.evaluate(() => ({
@@ -1224,14 +1752,13 @@ try {
     }))
     assert.equal(planNarrowWidths.body, planNarrowWidths.viewport)
     assert.equal(planNarrowWidths.document, planNarrowWidths.viewport)
-    await capture(firstWindows.learningPage, 'module-2-implementation-plan-390px.png')
+    await capture(firstWindows.learningPage, 'module-2-implementation-plan-combined-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 5)
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 5/5', { exact: true }).first().waitFor()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').count(), 0)
-  assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 1)
-  await capture(firstWindows.learningPage, 'module-2-portfolio-workspace-entry.png')
+  await firstWindows.learningPage.getByText(approvedPracticeTransitionCopy, { exact: true }).waitFor()
+  await capture(firstWindows.learningPage, 'module-2-portfolio-practice-entry.png')
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -1295,64 +1822,7 @@ try {
     .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await openModuleTwoPortfolioWorkspace(learningPage)
-  assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
-  assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
-
-  await learningPage.getByRole('button', { name: 'Chọn thư mục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tạo thư mục planning', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục với thư mục này', exact: true }).click()
-
-  await learningPage.getByText('Tạo bộ quy luật cho dự án của bạn', { exact: true }).waitFor()
-  assert.match(await learningPage.locator('.pixel-dialogue > p').textContent(), /Hãy giữ ứng dụng này mở, đừng tắt/)
-  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /# Portfolio Project Working Agreements/)
-  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /Never invent personal experience/)
-  await learningPage.getByRole('button', { name: 'SAO CHÉP PROMPT', exact: true }).click()
-  assert.match(await learningPage.evaluate(() => navigator.clipboard.readText()), /Create an AGENTS\.md file at the root/)
-  await learningPage.getByRole('button', { name: 'Tôi đã tạo AGENTS.md', exact: true }).click()
-
-  await learningPage.getByText('MỤC TIÊU → NGƯỜI XEM → HÀNH ĐỘNG', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByText('VÍ DỤ · MAI', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'brief-retrieval')
-
-  await learningPage.getByText('CÓ THẬT? · CÓ ĐƯỢC CÔNG KHAI?', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'evidence-retrieval')
-
-  await learningPage.getByText('URL · ẢNH CHỤP · RANH GIỚI', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'reference-retrieval')
-
-  await learningPage.getByText('YÊU CẦU · RANH GIỚI · TIÊU CHÍ', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'prd-retrieval')
-
-  await learningPage.getByText('YÊU CẦU · KIỂM CHỨNG · GIAI ĐOẠN', { exact: true }).waitFor()
-  await capture(learningPage, 'module-2-implementation-contract.png')
-  if (screenshotDirectory) {
-    await learningPage.setViewportSize({ width: 390, height: 844 })
-    const moduleTwoNarrowWidths = await learningPage.evaluate(() => {
-      const browserDocument = globalThis.document
-      return {
-        body: browserDocument.body.scrollWidth,
-        document: browserDocument.documentElement.scrollWidth,
-        viewport: globalThis.innerWidth
-      }
-    })
-    assert.equal(moduleTwoNarrowWidths.body, moduleTwoNarrowWidths.viewport)
-    assert.equal(moduleTwoNarrowWidths.document, moduleTwoNarrowWidths.viewport)
-    await capture(learningPage, 'module-2-implementation-contract-390px.png')
-    await learningPage.setViewportSize({ width: 1180, height: 780 })
-  }
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'planning-retrieval')
-
+  await openModuleTwoPractice(learningPage)
   await learningPage.locator('.pixel-copy-prompt').waitFor()
   const promptBounds = await learningPage.locator('.pixel-copy-prompt').boundingBox()
   const promptDialogueBounds = await learningPage.locator('.pixel-dialogue').boundingBox()
@@ -1407,7 +1877,7 @@ try {
     }
     await globalThis.courseCompanion?.saveProgress({
       currentLessonId: 'module-2',
-      currentCourseLessonId: 'm2-implementation-contract',
+      currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-mastery',
       sceneId: 'module-2-portfolio-mastery',
       sceneHistory: [...loaded.progress.sceneHistory, loaded.progress.sceneId].slice(-200),
@@ -1480,7 +1950,7 @@ try {
   assert.equal(persisted.checkpointId, 'm2-portfolio-mastery')
   assert.equal(persisted.schemaVersion, 6)
   assert.equal(persisted.courseVersion, '0.3.0')
-  assert.equal(persisted.currentCourseLessonId, 'm2-implementation-contract')
+  assert.equal(persisted.currentCourseLessonId, 'm2-portfolio-brief')
   assert.ok(persisted.sceneHistory.length > 10)
   assert.equal(persisted.decisions.portfolioPlanningPractice, 'five-current-stage-receipts')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
@@ -1540,68 +2010,15 @@ try {
     canonicalStarterFingerprint
   )
 
-  portfolioLaunch = await launchCourseCompanion({
-    COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE: portfolioWorkspaceDirectory
-  })
-  const portfolioWindows = await loadWindows(portfolioLaunch)
-  await portfolioWindows.learningPage
-    .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
-    .waitFor()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Mở Course Companion', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: /MODULE 2.*MỞ BÀI HỌC/ })
-    .click()
-  await portfolioWindows.learningPage
-    .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
-    .waitFor()
-  assert.equal(await portfolioWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await openModuleTwoPortfolioWorkspace(portfolioWindows.learningPage)
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-unselected.png')
-
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Chọn thư mục', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
-    .waitFor()
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation.png')
-
-  await portfolioWindows.learningPage.setViewportSize({ width: 390, height: 844 })
-  const portfolioNarrowWidths = await portfolioWindows.learningPage.evaluate(() => ({
-    body: globalThis.document.body.scrollWidth,
-    document: globalThis.document.documentElement.scrollWidth,
-    viewport: globalThis.innerWidth
-  }))
-  assert.equal(portfolioNarrowWidths.body, portfolioNarrowWidths.viewport)
-  assert.equal(portfolioNarrowWidths.document, portfolioNarrowWidths.viewport)
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation-390px.png')
-  await portfolioWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
-
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('heading', { name: 'Thư mục portfolio đã sẵn sàng', exact: true })
-    .waitFor()
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), ['planning'])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-ready.png')
-  await portfolioLaunch.close()
-  portfolioLaunch = undefined
-
   console.log(
-    'Electron smoke: frozen course regression, portfolio workspace consent, responsive layout, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
+    'Electron smoke: frozen course regression, responsive layout, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
   )
+  }
 } finally {
   await firstLaunch?.close().catch(() => undefined)
   await resumedLaunch?.close().catch(() => undefined)
   await chatHistoryLaunch?.close().catch(() => undefined)
-  await portfolioLaunch?.close().catch(() => undefined)
   await rm(userDataDirectory, { recursive: true, force: true })
-  await rm(portfolioWorkspaceDirectory, { recursive: true, force: true })
   await rm(learningPortfolioWorkspaceDirectory, { recursive: true, force: true })
   await practiceWorkspace.cleanup()
 }

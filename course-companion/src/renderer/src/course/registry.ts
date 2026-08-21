@@ -22,42 +22,7 @@ const rendererModules = [
         ['module-2-prd-definition'],
         ['module-2-prd-review-workflow'],
         ['module-2-prd-agent-workflow'],
-        ['module-2-plan-example'],
-        ['module-2-plan-requirements'],
-        ['module-2-plan-steps'],
-        ['module-2-plan-testing'],
-        ['module-2-plan-risks'],
-        ['module-2-portfolio-practice-intro'],
-        ['module-2-portfolio-folder'],
-        ['module-2-portfolio-agents-setup'],
-        ['module-2-portfolio-brief'],
-        ['module-2-portfolio-brief-example'],
-        ['module-2-check-brief-viewer'],
-        ['module-2-check-brief-success']
-      ],
-      'm2-content-evidence-inventory': [
-        ['module-2-content-evidence-inventory'],
-        ['module-2-content-evidence-example'],
-        ['module-2-check-evidence-status'],
-        ['module-2-check-evidence-permission']
-      ],
-      'm2-visual-reference': [
-        ['module-2-visual-reference'],
-        ['module-2-visual-reference-example'],
-        ['module-2-check-reference-boundary'],
-        ['module-2-check-reference-record']
-      ],
-      'm2-portfolio-prd': [
-        ['module-2-portfolio-prd'],
-        ['module-2-portfolio-prd-example'],
-        ['module-2-check-prd-requirement'],
-        ['module-2-check-prd-accessibility']
-      ],
-      'm2-implementation-contract': [
-        ['module-2-implementation-contract'],
-        ['module-2-implementation-contract-example'],
-        ['module-2-check-delayed-scope'],
-        ['module-2-check-delayed-evidence'],
+        ['module-2-implementation-plan-intro'],
         ['module-2-portfolio-practice'],
         ['module-2-portfolio-mastery'],
         ['module-2-mastery-scenario-viewer'],
@@ -77,32 +42,32 @@ const rendererModules = [
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
       'm3-scaffold-baseline': [
-        ['module-3-readiness'],
-        ['module-3-scaffold-intro'],
-        ['module-3-check-scaffold-boundary']
+        ['module-3-readiness']
       ],
       'm3-complete-first-version': [
-        ['module-3-first-version-intro'],
-        ['module-3-check-slice-gate']
+        ['module-3-debugging-intro'],
+        ['module-3-visible-error'],
+        ['module-3-visible-error-prompt'],
+        ['module-3-terminal-logs'],
+        ['module-3-repeated-error']
       ],
       'm3-whole-page-revision': [
-        ['module-3-revision-intro'],
-        ['module-3-check-revision-scope']
+        ['module-3-git-intro'],
+        ['module-3-git-github'],
+        ['module-3-git-commit'],
+        ['module-3-git-push'],
+        ['module-3-git-branch']
       ],
       'm3-evidence-debugging': [
-        ['module-3-debugging-intro'],
-        ['module-3-check-debug-order']
+        ['module-3-portfolio-practice']
       ],
       'm3-independent-enhancement': [
-        ['module-3-enhancement-intro'],
-        ['module-3-check-enhancement-boundary'],
-        ['module-3-portfolio-practice'],
         ['module-3-portfolio-mastery'],
-        ['module-3-mastery-scaffold'],
-        ['module-3-mastery-slice'],
-        ['module-3-mastery-debug'],
-        ['module-3-mastery-owned-revision'],
-        ['module-3-mastery-owned-enhancement'],
+        ['module-3-mastery-plan'],
+        ['module-3-mastery-visible-error'],
+        ['module-3-mastery-logs'],
+        ['module-3-mastery-repeated-error'],
+        ['module-3-mastery-branch'],
         ['module-3-mastery-summary'],
         ['module-3-complete']
       ]

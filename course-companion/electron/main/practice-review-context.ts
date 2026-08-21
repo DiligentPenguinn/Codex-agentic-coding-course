@@ -4,7 +4,8 @@ import type {
   ExecutorActivitySnapshot,
   PracticeDefinition,
   PracticeEvidenceKind,
-  PracticeEvidenceReference
+  PracticeEvidenceReference,
+  PortfolioPlanningEvidenceState
 } from '../../shared/contracts'
 import type { PracticeRunRecord } from './practice-run-repository'
 
@@ -73,6 +74,7 @@ export type PracticeReviewEnvelope = {
     alignment: { prdDigest: string; planDigest: string } | null
     unexpectedChangedPaths: string[]
   }
+  portfolioBuild?: PortfolioPlanningEvidenceState
   generatedAt: string
 }
 
@@ -270,6 +272,30 @@ export function buildPracticeReviewEnvelope(input: {
       generatedAt: input.generatedAt
     }
   }
+  if (input.definition.evidenceProfile === 'portfolio-build') {
+    const state = input.run.evidence
+    const accepted = state?.evidenceProfile === 'portfolio-build'
+      && state.practiceId === input.definition.practiceId
+      && state.practiceVersion === input.definition.version
+      && state.runId === input.run.runId
+      ? state
+      : null
+    return {
+      schemaVersion: 1,
+      definition: structuredClone(input.definition),
+      run: {
+        runId: input.run.runId,
+        generation: input.run.generation,
+        threadId: input.run.binding.threadId,
+        startedAt: input.run.startedAt
+      },
+      evidence: structuredClone(accepted?.evidence ?? []),
+      ...(accepted?.portfolioBuild
+        ? { portfolioBuild: structuredClone(accepted.portfolioBuild) }
+        : {}),
+      generatedAt: input.generatedAt
+    }
+  }
   const evidence: PracticeEvidenceReference[] = []
   const activityMatches = input.activity?.runId === input.run.runId
     && input.activity.threadId === input.run.binding.threadId
@@ -362,6 +388,12 @@ export function buildPracticeReviewPrompt(envelope: PracticeReviewEnvelope): str
           'For planning-package review, inspect both supplied artifact contents semantically.',
           'Reject implementation code, scope leakage, hidden critical assumptions, missing current approvals, missing learner scope ownership, or any unexpected changed path.',
           'Check all four PRD-to-plan alignment rules explicitly.'
+        ]
+      : []),
+    ...(envelope.portfolioBuild
+      ? [
+          'For portfolio-build review, require fresh artifacts, no issues, no unexpected paths, and every internal stage to be ready.',
+          'Use the supplied portfolioBuild state as the authoritative filesystem review.'
         ]
       : []),
     'Executor-reported verification is not independently rerun.',

@@ -112,9 +112,11 @@ export function TeacherWorkspace({
   const [returnBusy, setReturnBusy] = useState(false)
   const [planningActionBusy, setPlanningActionBusy] = useState(false)
   const [testFixturesEnabled, setTestFixturesEnabled] = useState(false)
+  const [objectiveOpen, setObjectiveOpen] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
+  const isPortfolioBuildPractice = workspace?.activePractice?.practiceId === 'm3-portfolio-build'
 
   const refreshContext = useCallback(async () => {
     const progressResult = await window.courseCompanion?.loadProgress()
@@ -231,15 +233,17 @@ export function TeacherWorkspace({
         ? current
         : [...current, reviewed.teacherMessage])
       setWorkspace(reviewed.workspace)
-      setActiveTab('progress')
-      try {
-        const selected = await window.courseCompanion.selectPracticePanel({
-          surface: embedded ? 'full' : 'compact',
-          panel: 'progress'
-        })
-        setWorkspace(selected)
-      } catch {
-        // The review result is authoritative even if persisting the selected tab fails.
+      if (!isPortfolioBuildPractice) {
+        setActiveTab('progress')
+        try {
+          const selected = await window.courseCompanion.selectPracticePanel({
+            surface: embedded ? 'full' : 'compact',
+            panel: 'progress'
+          })
+          setWorkspace(selected)
+        } catch {
+          // The review result is authoritative even if persisting the selected tab fails.
+        }
       }
     } catch {
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
@@ -290,6 +294,21 @@ export function TeacherWorkspace({
     } catch {
       setError('Kh\u00f4ng th\u1ec3 quay l\u1ea1i kh\u00f3a h\u1ecdc. K\u1ebft qu\u1ea3 \u0111\u1ea1t v\u1eabn \u0111\u01b0\u1ee3c l\u01b0u; h\u00e3y th\u1eed l\u1ea1i.')
       setReturnBusy(false)
+    }
+  }
+  const continueWithCodex = async () => {
+    if (!window.courseCompanion || !workspace?.activePractice || practiceBusy) return
+    setPracticeBusy(true)
+    setError('')
+    try {
+      setWorkspace(await window.courseCompanion.resumePractice({
+        practiceId: workspace.activePractice.practiceId,
+        practiceVersion: workspace.activePractice.practiceVersion
+      }))
+    } catch {
+      setError('Không thể mở task Codex hiện tại. Hãy thử lại.')
+    } finally {
+      setPracticeBusy(false)
     }
   }
   const sendMessage = async (contentOverride?: string) => {
@@ -401,7 +420,7 @@ export function TeacherWorkspace({
           </div>
         </div>
         <div className="pixel-panel-controls">
-          {workspace?.activePractice && workspace.review?.canReview ? (
+          {workspace?.activePractice && workspace.review?.canReview && !isPortfolioBuildPractice ? (
             <button
               className={'pixel-panel-control pixel-panel-control--review' + (reviewBusy ? ' is-busy' : '')}
               type="button"
@@ -419,7 +438,7 @@ export function TeacherWorkspace({
               </span>
             </button>
           ) : null}
-          {workspace?.review?.canReturn ? (
+          {workspace?.review?.canReturn && !isPortfolioBuildPractice ? (
             <button
               className="pixel-panel-control pixel-panel-control--return"
               type="button"
@@ -484,6 +503,57 @@ export function TeacherWorkspace({
         </strong>
       </div>
 
+      {isPortfolioBuildPractice ? (
+        <section className="module-three-practice-review" aria-live="polite">
+          {workspace?.review?.status === 'passed' ? (
+            <article className="module-three-practice-review__card is-ready">
+              <small>REVIEW CUỐI</small>
+              <h2>Website hiện tại đã sẵn sàng để bạn xem lại</h2>
+              <p>Các phần bắt buộc và kết quả kiểm tra hiện tại đã đầy đủ. Hãy xem lại website lần cuối. Nếu bạn chấp nhận phiên bản hiện tại, hãy xác nhận để kết thúc Practice.</p>
+              <div className="module-three-practice-review__actions">
+                <button className="is-primary" type="button" disabled={returnBusy} onClick={() => void returnToCourse()}>
+                  {returnBusy ? 'Đang hoàn thành…' : 'Chấp nhận và hoàn thành'}
+                </button>
+                <button type="button" disabled={practiceBusy} onClick={() => void continueWithCodex()}>
+                  Tiếp tục chỉnh sửa
+                </button>
+              </div>
+            </article>
+          ) : workspace?.review?.status === 'needs-work' ? (
+            <article className="module-three-practice-review__card is-missing">
+              <small>REVIEW CUỐI</small>
+              <h2>Bạn vẫn còn một phần cần hoàn thành</h2>
+              <p>Kết quả kiểm tra cho thấy: <strong>{workspace.review.result?.criteria.find((criterion) => criterion.status !== 'satisfied')?.explanation ?? 'bằng chứng hiện tại chưa đầy đủ'}</strong>. Hãy tiếp tục trong task Codex hiện tại và hoàn thành phần này. Sau đó, bấm <strong>Hoàn thành bài</strong> trên Teacher Triết để kiểm tra lại.</p>
+              <button className="is-primary" type="button" disabled={practiceBusy} onClick={() => void continueWithCodex()}>
+                {practiceBusy ? 'Đang mở Codex…' : 'Tiếp tục với Codex'}
+              </button>
+            </article>
+          ) : (
+            <article className="module-three-practice-review__card">
+              <small>PRACTICE ĐANG HOẠT ĐỘNG</small>
+              <h2>Xây website trong task Codex hiện tại</h2>
+              <p>Khi bạn hài lòng với website hiện tại, Teacher Triết sẽ đọc lại bằng chứng trước khi chuyển sang phần tổng kết.</p>
+              <div className="module-three-practice-review__actions">
+                <button className="is-primary" type="button" disabled={reviewBusy || !workspace?.review?.canReview} onClick={() => void reviewProgress()}>
+                  {reviewBusy ? 'Đang kiểm tra…' : 'Hoàn thành bài'}
+                </button>
+                <button type="button" onClick={() => setObjectiveOpen((current) => !current)}>
+                  Xem lại objective của bài
+                </button>
+              </div>
+            </article>
+          )}
+
+          {objectiveOpen ? (
+            <aside className="module-three-practice-objective">
+              <small>OBJECTIVE CỦA BÀI</small>
+              <strong>{workspace?.objective}</strong>
+              <p>Thực hiện implementation plan theo từng phần, xem kết quả thực tế sau mỗi phần và chỉ kết thúc khi website hiện tại đã đủ bằng chứng để kiểm tra.</p>
+            </aside>
+          ) : null}
+        </section>
+      ) : (
+        <>
       <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
         <button aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
           HỎI TRIẾT
@@ -603,6 +673,8 @@ export function TeacherWorkspace({
             </div>
           </details> : null}
         </section>
+      )}
+        </>
       )}
 
       {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}

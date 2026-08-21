@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -17,6 +17,8 @@ import {
 const temporaryDirectories: string[] = []
 const m1Identity = { practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0' }
 const m2Identity = { practiceId: 'm2-planning-package', practiceVersion: '2.0.0' }
+const m2PortfolioIdentity = { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
+const m3PortfolioIdentity = { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }
 
 async function temporaryDirectory(prefix: string): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), prefix))
@@ -94,7 +96,13 @@ async function definitions(): Promise<PracticeDefinitionRepository> {
   }
   await Promise.all([
     writeFile(join(directory, m1.practiceId + '.json'), JSON.stringify(m1), 'utf8'),
-    writeFile(join(directory, m2.practiceId + '.json'), JSON.stringify(m2), 'utf8')
+    writeFile(join(directory, m2.practiceId + '.json'), JSON.stringify(m2), 'utf8'),
+    ...['m2-portfolio-planning.json', 'm3-portfolio-build.json'].map(async (name) =>
+      writeFile(
+        join(directory, name),
+        await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'practices', name), 'utf8'),
+        'utf8'
+      ))
   ])
   return new PracticeDefinitionRepository(directory)
 }
@@ -182,6 +190,61 @@ describe('PracticeCoordinator', () => {
     })
     await coordinator.startNew({ ...m1Identity, transfer: false })
     await expect(coordinator.resume(m2Identity)).rejects.toThrow('không khớp')
+  })
+
+  it('continues the passed Module 2 portfolio task when Module 3 starts', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(
+      repository,
+      await definitions(),
+      testHarness.executor,
+      () => new Date('2026-08-08T00:00:00.000Z'),
+      testHarness.createId
+    )
+
+    await coordinator.startNew({ ...m2PortfolioIdentity, transfer: false })
+    const source = await repository.load()
+    const active = source.activeRun!
+    await repository.save({
+      ...source,
+      activeRun: {
+        ...active,
+        reviewStatus: 'passed',
+        completion: {
+          schemaVersion: 1,
+          courseRunId: 'course-module-3-test',
+          practiceId: active.practiceId,
+          practiceVersion: active.practiceVersion,
+          runId: active.runId,
+          checkpointId: 'm2-portfolio-planning',
+          status: 'completed',
+          completedAt: '2026-08-08T00:00:00.000Z',
+          evidenceSummary: 'Planning package đã đầy đủ.',
+          masterySummary: 'Bằng chứng hiện tại đã được duyệt.',
+          destination: {
+            lessonId: 'module-2',
+            checkpointId: 'm2-portfolio-mastery',
+            sceneId: 'module-2-portfolio-mastery'
+          }
+        }
+      }
+    })
+
+    const continued = await coordinator.startNew({ ...m3PortfolioIdentity, transfer: true })
+
+    expect(continued.activePractice).toMatchObject({
+      ...m3PortfolioIdentity,
+      executorChatName: active.binding.name
+    })
+    const stored = await repository.load()
+    expect(stored.activeRun?.binding.threadId).toBe(active.binding.threadId)
+    expect(stored.archivedRuns.at(-1)).toMatchObject({
+      practiceId: 'm2-portfolio-planning',
+      threadId: active.binding.threadId,
+      outcome: 'replaced'
+    })
+    expect(testHarness.calls.filter((call) => call.startsWith('create:'))).toHaveLength(1)
   })
 
   it('shows the requested Practice brief while another Practice remains active', async () => {

@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -32,114 +32,160 @@ async function moduleThree() {
 }
 
 describe('Module 3 content and evidence contract', () => {
-  it('locks five ordered milestones and the approved viewport pair without duration claims', async () => {
+  it('registers the five approved learner-facing sections and viewport pair', async () => {
     const module = await moduleThree()
-    expect(module.titleVi).toBe('Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng')
+    expect(module.titleVi).toBe('Hiện thực hoá sản phẩm cùng coding agent')
     expect(module.estimatedMinutes).toBeUndefined()
-    expect(module.lessons.map((lesson) => lesson.id)).toEqual([
-      'm3-scaffold-baseline',
-      'm3-complete-first-version',
-      'm3-whole-page-revision',
-      'm3-evidence-debugging',
-      'm3-independent-enhancement'
+    expect(module.lessons.map((lesson) => lesson.titleVi)).toEqual([
+      'Thực hiện Implementation Plan, từng bước một',
+      'Debug cùng coding agent',
+      'Git và GitHub',
+      'Practice: Xây portfolio',
+      'Tổng kết Module 3'
     ])
     expect(module.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(module.checkpoints)
-    expect(module.lessons.every((lesson) => lesson.estimatedMinutes === undefined)).toBe(true)
     expect(module.viewportContract).toEqual({
       desktop: { width: 1440, height: 900 },
       mobile: { width: 390, height: 844 }
     })
-    expect(module.nextLessonId).toBe('module-4')
     expect(module.unlockGate).toMatchObject({
       nextLessonId: 'module-4',
-      requiresStageReceiptCount: 5,
-      requiresNestedBuildSliceReceiptCount: 4,
+      requiresStageReceiptCount: 0,
+      requiresNestedBuildSliceReceiptCount: 0,
       requiresCurrentCheck: true,
       requiresBrowserValidation: true,
       requiresMasteryReceipt: true
     })
   })
 
-  it('maps eight unique evidence artifacts to solution-free templates', async () => {
+  it('keeps all eight technical evidence artifacts available to the final review', async () => {
     const module = await moduleThree()
     expect(module.artifactPaths).toHaveLength(8)
     expect(new Set(module.artifactPaths).size).toBe(8)
-    expect(module.artifactPaths.every((path) => path.startsWith('evidence/module-3/'))).toBe(true)
-    expect(module.artifactPaths.every((path) => !path.includes('..'))).toBe(true)
-
     const templates = await Promise.all(module.artifactPaths.map((path) =>
       readFile(resolve(artifactRoot, path), 'utf8')))
-    for (const template of templates) {
-      expect(template).toContain('Phê duyệt phiên bản hiện tại')
-      expect(template).toContain('Quyết định: `chưa duyệt`')
-      expect(template).not.toContain('Quyết định: `đã duyệt`')
-      expect(template).not.toMatch(/```(?:jsx|tsx|ts|js|html|css)/)
-    }
     expect(templates.join('\n')).toContain('1440 × 900')
     expect(templates.join('\n')).toContain('390 × 844')
   })
 
-  it('teaches the two loops, four build slices, and five-part summary consistently', async () => {
-    const [lesson, script, prompt] = await Promise.all([
+  it('preserves the approved lesson wording and teaching order', async () => {
+    const [lesson, script, prompt, sceneSource] = await Promise.all([
       read('lessons/module-3.vi.md'),
       read('lesson-scripts/module-3.script.vi.md'),
-      read('prompts/start-module-3.vi.md')
+      read('prompts/start-module-3.vi.md'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8')
     ])
-    const combined = `${lesson}\n${script}\n${prompt}`
-    const milestoneHeadings = [
-      'Milestone 1 —',
-      'Milestone 2 —',
-      'Milestone 3 —',
-      'Milestone 4 —',
-      'Milestone 5 —'
+    expect(lesson).toContain('Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.')
+    expect(lesson).toContain('Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.')
+    expect(lesson).not.toContain('Ví dụ prompt gửi cùng ảnh lỗi:')
+    expect(lesson).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
+    expect(sceneSource).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
+    expect(sceneSource).toContain("dialogue: 'Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.'")
+    expect(lesson).toContain('Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra.')
+    expect(lesson).toContain('Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra.')
+    const headings = [
+      '## Thực hiện Implementation Plan, từng bước một',
+      '## Debug cùng coding agent',
+      '## Git và GitHub',
+      '### Commit: lưu một phiên bản của dự án',
+      '### Push: đưa commit lên GitHub',
+      '### Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định',
+      '## Practice: Xây portfolio'
     ]
-    for (const content of [lesson, script]) {
-      let previous = -1
-      for (const heading of milestoneHeadings) {
-        const current = content.indexOf(heading)
-        expect(current).toBeGreaterThan(previous)
-        previous = current
-      }
+    let prior = -1
+    for (const heading of headings) {
+      const current = lesson.indexOf(heading)
+      expect(current).toBeGreaterThan(prior)
+      prior = current
     }
-    for (const path of (await moduleThree()).artifactPaths) {
-      expect(combined).toContain(path.split('/').at(-1))
-    }
-    for (const required of [
-      'Nền trang và Hero',
-      'Selected Work',
-      'About, Contact và footer',
-      'Tích hợp responsive và accessibility',
-      'Điều đã thay đổi',
-      'Điều bạn nên chú ý',
-      'Điều chủ động giữ nguyên',
-      'Kiểm tra đã chạy và kết quả',
-      'Rủi ro, giới hạn hoặc quyết định còn lại'
-    ]) expect(combined).toContain(required)
-    expect(combined).toMatch(/tái hiện[^]*kết quả mong đợi[^]*bằng chứng[^]*giả thuyết[^]*thay đổi nhỏ nhất/i)
+    expect(`${script}\n${prompt}`).toContain('Không chèn câu hỏi kiểm tra giữa các trang giải thích')
+    expect(`${script}\n${prompt}`).toContain('Teacher Triết không mở chat')
   })
 
-  it('keeps learner review non-technical and core work separate from optional enhancement', async () => {
-    const files = await Promise.all([
-      read('lessons/module-3.vi.md'),
-      read('lesson-scripts/module-3.script.vi.md'),
-      read('prompts/start-module-3.vi.md')
+  it('keeps all Module 3 knowledge pages and routes branch directly to Practice', async () => {
+    const [sceneSource, rendererRegistry] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8')
     ])
-    const combined = files.join('\n')
-    expect(combined).toMatch(/không (?:cần|bắt).*đọc code/i)
-    expect(combined).toMatch(/diff/)
-    expect(combined).toMatch(/portfolio core.*(?:bắt buộc|tách)/i)
-    expect(combined).toMatch(/cải tiến.*(?:tùy chọn|có giới hạn)/i)
-    expect(combined).toMatch(/hỏi đúng một câu mỗi lượt/i)
-    expect(combined).not.toMatch(/ước tính.*(?:phút|giờ)|hoàn thành trong \d+/i)
-    expect(combined).not.toContain('docs/internal/target-learner-definition.md')
-    expect(combined).toMatch(/[ăâđêôơưĂÂĐÊÔƠƯ]/)
+    const retainedKnowledgeScenes = [
+      'module-3-readiness',
+      'module-3-debugging-intro',
+      'module-3-visible-error',
+      'module-3-visible-error-prompt',
+      'module-3-terminal-logs',
+      'module-3-repeated-error',
+      'module-3-git-intro',
+      'module-3-git-github',
+      'module-3-git-commit',
+      'module-3-git-push',
+      'module-3-git-branch'
+    ]
+    for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
+    expect(sceneSource).toContain("choices: [{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true }]")
+    expect(sceneSource).not.toContain("'module-3-practice-intro': {")
+    expect(rendererRegistry).not.toContain("['module-3-practice-intro']")
+    expect(rendererRegistry).toContain("'m3-evidence-debugging': [\n        ['module-3-portfolio-practice']\n      ]")
   })
 
-  it('keeps assessment one-question-at-a-time, configurable, sourced, and learner-owned', async () => {
+  it('ships all six approved Module 3 illustrations', async () => {
+    const visualRoot = resolve(process.cwd(), 'src', 'renderer', 'src', 'assets', 'lesson-visuals')
+    for (const name of [
+      'm3-visible-screen-error-example.png',
+      'm3-visible-error-prompt-example.png',
+      'm3-terminal-log-error-example.png',
+      'm3-repeated-error-codex-prompt.png',
+      'm3-commit-history-example.png',
+      'm3-git-github.png'
+    ]) await expect(access(resolve(visualRoot, name))).resolves.toBeUndefined()
+  })
+
+  it('shows the approved Codex prompt illustration on the repeated-error page', async () => {
+    const learningWindow = await readFile(
+      resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'),
+      'utf8'
+    )
+    expect(learningWindow).toContain("'module-3-repeated-error': {\n    image: m3RepeatedErrorCodexPromptImage")
+    expect(learningWindow).toContain('Codex nhận yêu cầu dừng sửa, liệt kê các nguyên nhân có thể và kiểm tra từng nguyên nhân bằng bằng chứng')
+  })
+
+  it('uses the supplied Git and GitHub image instead of the right-side title box', async () => {
+    const [sceneSource, learningWindow, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    expect(sceneSource).toMatch(/'module-3-git-github': \{[\s\S]*?showTitle: false,[\s\S]*?choices:/)
+    expect(learningWindow).toContain("'module-3-git-github': {\n    image: m3GitGithubImage")
+    expect(learningWindow).toContain("displayedSceneId === 'module-3-git-github' ? ' is-title-replacement' : ''")
+    expect(styles).toContain('.pixel-lesson-visual.is-title-replacement { top: 100px; width: min(500px, 46vw); }')
+    expect(styles).toContain('.pixel-lesson-visual.is-title-replacement { top: auto; width: 100%; }')
+  })
+
+  it('enlarges both prompt-based examples while preserving the narrow layout', async () => {
+    const [learningWindow, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    expect(learningWindow).toContain("displayedSceneId === 'module-3-visible-error-prompt' || displayedSceneId === 'module-3-repeated-error' ? ' is-featured-example' : ''")
+    expect(styles).toContain('.pixel-lesson-visual.is-featured-example { width: min(500px, 46vw); }')
+    expect(styles).toContain('.pixel-lesson-visual.is-featured-example { width: 100%; }')
+  })
+
+  it('places five plausible multiple-choice questions together at the end', async () => {
     const quiz = JSON.parse(await read('quizzes/module-3.quiz.json')) as {
       delivery: Record<string, unknown>
       masteryPolicy: Record<string, unknown>
-      groups: Array<{ id: string; mode: string; questions: Array<Record<string, unknown>> }>
+      groups: Array<{
+        id: string
+        mode: string
+        questions: Array<{
+          id: string
+          type: string
+          choices: string[]
+          answerIndex: number
+          source: { kind: string; url: string; basis: string }
+        }>
+      }>
     }
     expect(quiz.delivery).toMatchObject({
       mode: 'one-question-at-a-time',
@@ -151,18 +197,18 @@ describe('Module 3 content and evidence contract', () => {
       requiresCurrentArtifactDigests: true,
       requiresPracticeReceipt: true
     })
-    expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(5)
-    const final = quiz.groups.find((group) => group.id === 'm3-final-assessment')!
+    expect(quiz.groups).toHaveLength(1)
+    const final = quiz.groups[0]!
+    expect(final).toMatchObject({ id: 'm3-final-assessment', mode: 'mastery' })
     expect(final.questions).toHaveLength(5)
-    expect(final.questions.filter((question) => question.type === 'short-answer').map((question) => question.id)).toEqual([
-      'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement'
-    ])
-    for (const question of quiz.groups.flatMap((group) => group.questions)) {
-      const source = question.source as { kind: string; url: string; basis: string }
-      expect(source.basis.length).toBeGreaterThan(40)
-      expect(source.kind === 'authoritative-source'
-        ? new URL(source.url).protocol
-        : source.url.startsWith('docs/planning/portfolio-course-v1/')).toBeTruthy()
+    expect(final.questions.every((question) => question.type === 'multiple-choice')).toBe(true)
+    expect(final.questions.map((question) => question.answerIndex)).toEqual([1, 2, 3, 0, 1])
+    expect(final.questions.every((question) => question.choices.length === 4)).toBe(true)
+    for (const question of final.questions) {
+      expect(question.source.basis.length).toBeGreaterThan(40)
+      expect(question.source.kind === 'authoritative-source'
+        ? new URL(question.source.url).protocol
+        : question.source.url.startsWith('docs/planning/')).toBeTruthy()
     }
   })
 })

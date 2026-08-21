@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
   "practiceId": "m3-portfolio-build",
-  "title": "Xây portfolio theo từng phần đã kiểm chứng",
+  "title": "Xây portfolio cùng Codex",
   "version": "1.0.0",
   "checkpointId": "m3-portfolio-build",
-  "objective": "Dùng một task Codex để tạo nền ứng dụng, xây bốn phần theo thứ tự, cải thiện toàn trang, gỡ một lỗi và hoàn thành một cải tiến nhỏ trong thư mục portfolio đã chọn.",
-  "expectedOutcome": "Portfolio React, TypeScript và Vite hoàn chỉnh với tám artifact hiện tại, năm biên nhận giai đoạn, bốn biên nhận phần xây dựng, npm run check hiện tại và bằng chứng trình duyệt ở 1440 × 900 cùng 390 × 844.",
+  "objective": "Tiếp tục trong task Codex đã dùng ở Module 2 và thực hiện implementation plan theo từng phần cho đến khi website hiện tại sẵn sàng.",
+  "expectedOutcome": "Website có đủ các phần bắt buộc, kết quả kiểm tra hiện tại và bằng chứng trình duyệt ở 1440 × 900 cùng 390 × 844.",
   "workspaceKind": "learner-portfolio",
   "taskPolicy": "safe-workspace-write",
   "evidenceProfile": "portfolio-build",
@@ -106,6 +106,6 @@
     "lessonId": "module-3",
     "checkpointId": "m3-mastery",
     "sceneId": "module-3-portfolio-mastery",
-    "label": "Làm phần kiểm tra mức độ làm chủ Module 3"
+    "label": "Làm phần tổng kết Module 3"
   }
 }

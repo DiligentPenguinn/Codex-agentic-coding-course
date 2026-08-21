@@ -8,6 +8,9 @@
   prompt mô tả thao tác, kết quả mong đợi và kết quả thực tế cho coding agent.
 - `terminal-log-error-example.png`: hình minh hoạ một lỗi ngắn xuất hiện trong
   log ở Terminal khi website đang chạy.
+- `repeated-error-codex-prompt.png`: mô phỏng màn hình Codex với prompt yêu cầu
+  coding agent dừng sửa, liệt kê các nguyên nhân có thể và kiểm tra từng nguyên
+  nhân bằng bằng chứng.
 
 Ảnh lỗi trên màn hình và ảnh lỗi trong Terminal được tạo riêng cho khóa học từ
 các tệp SVG cùng tên trong thư mục này. Ảnh minh hoạ prompt được tạo riêng cho
@@ -18,8 +21,13 @@ nhân và không chứa đường dẫn từ máy của người học.
 Hai ảnh đầu tiên và các nhãn tiếng Việt trong ảnh đã được chủ sở hữu duyệt. Ảnh
 minh hoạ prompt được bổ sung theo yêu cầu mới nhất của chủ sở hữu.
 
+Ảnh `repeated-error-codex-prompt.png` được xuất từ mockup Codex do chủ sở hữu
+duyệt ngày 20 tháng 8 năm 2026. Nội dung trong ảnh là một tình huống minh hoạ,
+không phải dữ liệu hoặc kết quả từ một phiên Codex thật.
+
 Kích thước xuất:
 
 - `visible-screen-error-example.png`: 1200 × 675 pixel.
 - `terminal-log-error-example.png`: 1200 × 675 pixel.
 - `visible-error-prompt-example.png`: 1672 × 941 pixel.
+- `repeated-error-codex-prompt.png`: 1200 × 650 pixel.

@@ -70,4 +70,23 @@ describe('Teacher Practice review controls', () => {
     expect(styles).toContain('.practice-progress.is-compact .practice-artifacts')
     expect(styles).toContain('.practice-planning button:focus-visible')
   })
+
+  it('uses the approved two-action Teacher surface during Module 3 Practice', async () => {
+    const [teacher, brief, styles] = await Promise.all([
+      source('src/renderer/src/components/TeacherWorkspace.tsx'),
+      source('src/renderer/src/components/PracticeBrief.tsx'),
+      source('src/renderer/src/styles.css')
+    ])
+
+    expect(teacher).toContain("workspace?.activePractice?.practiceId === 'm3-portfolio-build'")
+    expect(teacher).toContain('Hoàn thành bài')
+    expect(teacher).toContain('Xem lại objective của bài')
+    expect(teacher).toContain('Bạn vẫn còn một phần cần hoàn thành')
+    expect(teacher).toContain('Website hiện tại đã sẵn sàng để bạn xem lại')
+    expect(teacher).toContain('Chấp nhận và hoàn thành')
+    expect(teacher).toContain('Tiếp tục chỉnh sửa')
+    expect(brief).toContain('transfer: continuesModuleTwoTask')
+    expect(brief).toContain('isModuleThreePractice ? null')
+    expect(styles).toContain('.module-three-practice-review')
+  })
 })

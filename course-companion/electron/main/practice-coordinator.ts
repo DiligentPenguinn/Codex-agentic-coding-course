@@ -284,7 +284,50 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   }
 
   startNew(request: PracticeStartRequest): Promise<PracticeWorkspaceView> {
-    if (request.transfer) return Promise.reject(selectiveTransferUnavailable())
+    if (request.transfer) {
+      if (request.practiceId !== 'm3-portfolio-build' || request.practiceVersion !== '1.0.0') {
+        return Promise.reject(selectiveTransferUnavailable())
+      }
+      return this.runExclusive(async () => {
+        this.lastError = ''
+        const record = await this.repository.load()
+        const source = record.activeRun
+        if (record.pendingTransition || !source
+          || source.practiceId !== 'm2-portfolio-planning'
+          || source.reviewStatus !== 'passed'
+          || !source.completion) {
+          throw new Error('Module 3 cần task Codex đã hoàn thành Practice của Module 2.')
+        }
+        const definition = await this.definitions.load(request.practiceId, request.practiceVersion)
+        const startedAt = this.now().toISOString()
+        const targetRunId = this.createId()
+        const targetBinding = {
+          ...source.binding,
+          runId: targetRunId
+        }
+        const transition: PracticeTransitionRecord = {
+          transitionId: this.createId(),
+          sourceRunId: source.runId,
+          targetRunId,
+          practiceId: request.practiceId,
+          practiceVersion: request.practiceVersion,
+          stage: 'target-created',
+          targetBinding,
+          startedAt
+        }
+        const pending = await this.repository.save({ ...record, pendingTransition: transition })
+        try {
+          await this.prepareExecutor?.(targetBinding, false)
+          await this.executor.prepareTarget(targetBinding, definition)
+          const committed = await this.commitTarget(pending)
+          await this.openTarget(targetBinding, false)
+          return this.toView(committed)
+        } catch (error) {
+          this.lastError = safeCreationError(error)
+          throw new Error(this.lastError, { cause: error })
+        }
+      })
+    }
     return this.runExclusive(async () => {
       this.lastError = ''
       const record = await this.repository.load()
@@ -766,10 +809,13 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       : null
     const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
-    const canReview = Boolean(displayedRun && !isPortfolioProfile(displayedRun.evidenceProfile) && (
-      displayedRun.evidenceProfile !== 'planning-package'
-      || (displayedRun.learnerDecisions['scope-decision']
-        && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
+    const canReview = Boolean(displayedRun && (
+      displayedRun.evidenceProfile === 'portfolio-build'
+      || (!isPortfolioProfile(displayedRun.evidenceProfile) && (
+        displayedRun.evidenceProfile !== 'planning-package'
+        || (displayedRun.learnerDecisions['scope-decision']
+          && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
+      ))
     ))
     return {
       schemaVersion: 1,

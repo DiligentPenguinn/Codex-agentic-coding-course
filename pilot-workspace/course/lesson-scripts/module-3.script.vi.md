@@ -1,104 +1,51 @@
-# Kịch bản Teacher — Module 3: Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng
+# Kịch bản Teacher — Module 3: Hiện thực hoá sản phẩm cùng coding agent
 
 ## Hợp đồng điều phối
 
-Teacher mở module bằng cách xác nhận receipt Module 2 và nói:
+Teacher mở bài bằng đúng hai đoạn đã duyệt trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: thực hiện plan theo từng phần, debug, Git và GitHub, Practice, rồi năm câu hỏi tổng kết.
 
-> “Chúng ta sẽ tạo ứng dụng từ chính thư mục portfolio đã chọn. Codex chỉ nhận đường dẫn cùng các artifact planning hiện tại; nội dung chat cũ không được dùng làm bối cảnh ẩn.”
+Trong phần giải thích, Teacher không chèn câu hỏi kiểm tra giữa các trang. Người học chỉ trả lời câu hỏi ở cuối bài.
 
-Trong toàn module, Teacher phải:
+Teacher không yêu cầu người học đọc code hoặc diff. Khi cần đánh giá kết quả, Teacher hướng người học đến hành vi có thể quan sát, phần giải thích của Codex và kết quả kiểm tra hiện tại.
 
-1. Hỏi đúng một câu mỗi lượt và không hỏi điều có thể đọc từ artifact.
-2. Giải thích thuật ngữ ngay khi Learner cần dùng để quyết định.
-3. Yêu cầu đề xuất rồi chờ duyệt trước mỗi thay đổi.
-4. Không bắt Learner đọc code, diff, vùng stage hoặc pull request.
-5. Yêu cầu Codex kiểm tra kỹ thuật và đưa bản tóm tắt năm phần.
-6. Để Learner xem hành vi thật ở `1440 × 900` và `390 × 844`.
-7. Chỉ cấp biên nhận khi bằng chứng hiện tại, phép kiểm tra và lời duyệt cùng trỏ tới một phiên bản.
-8. Đánh dấu phần phụ thuộc là cũ nếu PRD, design direction hoặc thay đổi đã duyệt bị sửa.
+## Thực hiện plan theo từng phần
 
-## Milestone 1 — Nền ứng dụng
+Teacher giải thích rằng implementation plan đã được duyệt vẫn cần được thực hiện theo từng phần. Sau mỗi phần, Codex phải:
 
-Teacher nói:
+1. giải thích những gì đã thay đổi;
+2. chạy các kiểm tra phù hợp;
+3. cho người học xem kết quả thực tế;
+4. chờ người học chấp nhận hoặc yêu cầu chỉnh sửa.
 
-> “Trước khi tạo tệp, Codex sẽ đề xuất lệnh, dependency, tệp, kết quả, kiểm tra, nhu cầu mạng và quyền cần thiết. Nền ứng dụng chỉ chứng minh môi trường hoạt động; chưa phải portfolio.”
+Chỉ sau khi người học chấp nhận kết quả hiện tại, Codex mới tiếp tục phần tiếp theo.
 
-Teacher hỏi:
+## Debug cùng coding agent
 
-> “Bạn có muốn Codex đọc ba tài liệu planning hiện tại và đưa đề xuất scaffold để bạn duyệt không?”
+Teacher dùng nguyên văn nội dung ba trang debug trong lesson.
 
-[Chờ Learner. Executor phải dừng sau đề xuất. Chỉ khi Learner duyệt mới được chạy lệnh tạo ứng dụng. Nếu cần mạng hoặc cài package, xin approval tại đúng thời điểm.]
+- Với lỗi nhìn thấy trên màn hình, người học gửi ảnh cùng thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.
+- Nếu ảnh chưa đủ để xác định nguyên nhân, người học yêu cầu agent thêm log, tái hiện lỗi và đọc thông tin trong terminal.
+- Nếu lỗi vẫn quay lại, người học yêu cầu agent tạm dừng, nêu các nguyên nhân có thể và kiểm tra từng nguyên nhân bằng bằng chứng.
 
-Sau khi tạo, Codex chạy `npm run check`, mở `npm run dev`, kiểm tra trang trung tính, rồi kiểm tra `npm run preview`. Teacher yêu cầu tóm tắt năm phần và hỏi:
+Teacher không biến phần này thành bài đọc log hoặc bài học lập trình. Coding agent thực hiện việc điều tra kỹ thuật.
 
-> “Bạn chấp nhận nền ứng dụng hiện tại làm điểm khôi phục, hay muốn sửa một sai lệch so với đề xuất?”
+## Git và GitHub
 
-[Lưu `scaffold-report.md` và checkpoint sau khi chấp nhận.]
+Teacher dạy từng khái niệm theo đúng thứ tự: Git, GitHub, commit, push, branch.
 
-## Milestone 2 — Hướng thiết kế và bốn phần xây dựng
+Teacher giải thích mục đích và hệ quả, không yêu cầu người học ghi nhớ câu lệnh. Khi nói về push, Teacher nhắc rằng đây là hành động đưa commit lên GitHub và không tự động xảy ra sau mỗi giai đoạn.
 
-Teacher hỏi câu đầu tiên:
+## Practice
 
-> “Nhìn vào ảnh tham chiếu đã lưu, điều gì khiến bạn thích trang này nhất?”
+Người học tiếp tục trong task Codex đã dùng ở Module 2. Trong lúc Practice đang hoạt động, Teacher Triết không mở chat song song. Teacher chỉ hiển thị hai hành động:
 
-[Chấp nhận lời bình thường. Codex đọc PRD, inventory và reference để giải thích hierarchy. Với mỗi lựa chọn ảnh hưởng lớn, đưa một khuyến nghị cùng hệ quả rồi hỏi một câu.]
+1. **Hoàn thành bài**
+2. **Xem lại objective của bài**
 
-Trước khi duyệt `design-direction.md`, Teacher hỏi:
+Nút **Hoàn thành bài** yêu cầu Course Companion đọc lại bằng chứng hiện tại. Nếu còn thiếu, Teacher nêu đúng phần cần hoàn thành và đưa người học trở lại task Codex. Nếu đã đủ, Teacher yêu cầu người học xem lại website và xác nhận chấp nhận phiên bản hiện tại.
 
-> “Hướng này có giữ đúng điều bạn thích, đồng thời đủ khác để không sao chép nội dung hoặc cách thể hiện của nguồn không?”
+## Câu hỏi tổng kết
 
-Sau đó thực hiện bốn phần theo đúng thứ tự. Trước mỗi phần, Teacher hỏi:
+Sau khi Practice đạt, Teacher đưa năm câu hỏi trong `course/quizzes/module-3.quiz.json`, từng câu một. Teacher chỉ hiện lời giải sau khi người học đã trả lời.
 
-> “Bạn có duyệt phạm vi, điều không làm và các phép kiểm tra của phần này không?”
-
-[Mỗi phần: đề xuất → duyệt → triển khai → kiểm tra tự động → xem desktop/mobile khi phù hợp → tóm tắt năm phần → chấp nhận/sửa → checkpoint. Không cho qua phần tiếp theo nếu phần hiện tại chưa có receipt.]
-
-Sau Phần 4, Teacher hỏi:
-
-> “Phiên bản đầu đã đủ navigation, Hero, hai dự án, About, Contact, footer và nền accessibility chưa?”
-
-[Đối chiếu `build-log.md` và `browser-validation.md`; không tính cải tiến tùy chọn vào portfolio core.]
-
-## Milestone 3 — Cải thiện toàn trang
-
-Teacher yêu cầu Learner xem cả hai viewport rồi hỏi:
-
-> “Nếu chỉ sửa một điểm để người xem chính hiểu bạn nhanh hơn, bạn muốn thay đổi điều gì?”
-
-[Codex chuyển lời phản hồi thành một đề xuất có mục tiêu, tệp, non-goals, kết quả và hồi quy. Chờ duyệt trước khi sửa.]
-
-Sau khi kiểm tra, Teacher hỏi:
-
-> “Kết quả mới có giải quyết điều bạn vừa nêu mà vẫn giữ những phần đã duyệt không?”
-
-[Lưu `revision-record.md` trên checkpoint mới.]
-
-## Milestone 4 — Gỡ lỗi từ bằng chứng
-
-Teacher ưu tiên lỗi thật. Nếu không có, Teacher nói rõ sẽ dùng lỗi course-controlled và hỏi:
-
-> “Bạn có đồng ý tạo một lỗi nhỏ, dễ đảo ngược để luyện quy trình gỡ lỗi không?”
-
-[Sau khi đồng ý: tái hiện → mong đợi/thực tế → bằng chứng → một giả thuyết. Chỉ sau đó mới đề xuất bản sửa nhỏ nhất.]
-
-Teacher hỏi Learner trước khi sửa:
-
-> “Bằng chứng hiện tại có đủ để thử giả thuyết này bằng thay đổi nhỏ nhất chưa?”
-
-Sau sửa, chạy lại phép kiểm tra gốc và hồi quy. Teacher hỏi:
-
-> “Lỗi nhìn thấy đã biến mất vì bản sửa này, hay chúng ta vẫn thiếu bằng chứng?”
-
-[Lưu `debugging-report.md`; loại bỏ hoàn toàn fault course-controlled.]
-
-## Milestone 5 — Cải tiến độc lập và gate
-
-Teacher hỏi:
-
-> “Bạn muốn thêm một cải tiến nhỏ nào, và người xem sẽ nhận được lợi ích gì?”
-
-[Learner tự nêu mục tiêu và acceptance criteria. Chỉ dùng hint tăng dần. Nếu đề xuất thêm dịch vụ xử lý dữ liệu, khuyến nghị chọn cải tiến không có backend hoặc dừng để mở phạm vi bảo mật riêng.]
-
-Codex đưa kế hoạch nhỏ. Teacher hỏi một câu duyệt rồi thực hiện vòng triển khai chuẩn. Cuối cùng, Learner giải thích vì sao cải tiến đạt và phê duyệt `enhancement-plan.md`.
-
-Teacher yêu cầu Codex tạo `final-change-summary.md`, đối chiếu tám artifact, năm milestone, bốn phần xây dựng, check hiện tại, browser evidence và mastery. Nếu thiếu, mở lại đúng phần bị thiếu hoặc cũ. Chỉ mở Module 4 sau khi receipt hoàn thành được lưu nguyên tử.
+Sau câu thứ năm, Course Companion đối chiếu kết quả câu hỏi với receipt Practice hiện tại trước khi đánh dấu Module 3 hoàn thành.

@@ -2,7 +2,7 @@
 
 - **Trạng thái:** Đã được chủ sở hữu duyệt đầy đủ
 - **Phạm vi:** Nội dung Module 3 dành cho người học
-- **Triển khai vào Course Companion:** Chưa bắt đầu theo bản thiết kế này
+- **Triển khai vào Course Companion:** Đã triển khai; còn chờ chạy lại Electron smoke sau khi giới hạn sử dụng của nền tảng được gỡ
 - **Mức duyệt:** Nội dung giảng dạy, hình minh hoạ, trải nghiệm Practice và năm câu hỏi tổng kết đã được chủ sở hữu duyệt
 - **Nhánh làm việc:** `practice-disabled-content-development`
 
@@ -67,11 +67,13 @@ Ví dụ prompt được đặt trực tiếp trong một hình minh hoạ để
 
 ![Ví dụ gửi ảnh chụp và prompt mô tả lỗi cho coding agent](assets/module-3/visible-error-prompt-example.png)
 
+Dưới hình minh hoạ, Teacher nói:
+
+> Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.
+
 ### Trang 2 — Khi ảnh chụp chưa cho thấy nguyên nhân
 
 > Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.
->
-> Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động. Trong bài này, log sẽ xuất hiện trong terminal và giúp agent biết điều gì đã xảy ra trước khi lỗi xuất hiện.
 >
 > Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra. Những dòng log này sẽ cho coding agent biết được tại sao app lại bị lỗi chứ không phải phỏng đoán. Và sau khi lỗi đã được khắc phục thì bạn có thể bảo coding agent xoá những đoạn logs không cần thiết
 
@@ -160,8 +162,6 @@ Commit là một phiên bản của dự án được lưu trong lịch sử Git
 Chú thích đi cùng ảnh:
 
 > Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.
-
-Ở trang này, người học chỉ cần chú ý đến danh sách commit và thứ tự của chúng. Chưa giải thích các đường màu, nhãn branch hoặc nhãn `origin/...` xuất hiện trong hình.
 
 Một commit được lưu trong repository trên máy tính của bạn. Nó không tự động xuất hiện trên GitHub.
 

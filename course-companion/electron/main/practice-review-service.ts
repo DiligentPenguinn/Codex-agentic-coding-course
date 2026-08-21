@@ -245,9 +245,9 @@ export class PracticeReviewService {
       }
       reviewRun = refreshed.activeRun
     }
-    if (definition.evidenceProfile === 'planning-package') {
-      if (!this.evidenceAdapters) throw new Error('Module 2 evidence adapter is unavailable.')
-      const evidence = await this.evidenceAdapters.resolve('planning-package').collect({
+    if (definition.evidenceProfile === 'planning-package' || definition.evidenceProfile === 'portfolio-build') {
+      if (!this.evidenceAdapters) throw new Error('Practice evidence adapter is unavailable.')
+      const evidence = await this.evidenceAdapters.resolve(definition.evidenceProfile).collect({
         definition,
         runId: active.runId,
         generation: active.generation,
@@ -315,10 +315,10 @@ export class PracticeReviewService {
             reviewedAt,
             planningEvidenceDigest: envelope.planning?.evidenceDigest
           })
-      if (definition.evidenceProfile === 'planning-package') {
+      if (definition.evidenceProfile === 'planning-package' || definition.evidenceProfile === 'portfolio-build') {
         const latestActivity = await this.activity.bind(reviewRun.binding)
         activity = latestActivity
-        const latestEvidence = await this.evidenceAdapters!.resolve('planning-package').collect({
+        const latestEvidence = await this.evidenceAdapters!.resolve(definition.evidenceProfile).collect({
           definition,
           runId: reviewRun.runId,
           generation: reviewRun.generation,
@@ -354,9 +354,14 @@ export class PracticeReviewService {
           decisions: latestRun.learnerDecisions,
           generatedAt: reviewedAt
         })
-        if (!envelope.planning
-          || !latestEnvelope.planning
-          || latestEnvelope.planning.evidenceDigest !== envelope.planning.evidenceDigest) {
+        const evidenceChanged = definition.evidenceProfile === 'planning-package'
+          ? !envelope.planning
+            || !latestEnvelope.planning
+            || latestEnvelope.planning.evidenceDigest !== envelope.planning.evidenceDigest
+          : !envelope.portfolioBuild
+            || !latestEnvelope.portfolioBuild
+            || latestRun.evidence?.sourceDigest !== frozenRun.evidence?.sourceDigest
+        if (evidenceChanged) {
           throw new Error('Artifact hoặc quyết định của Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
         }
         reviewRun = latestRun

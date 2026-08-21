@@ -76,19 +76,14 @@ describe('Module 2 portfolio assessment contract', () => {
     expect(quiz.delivery.feedbackPolicy).toMatch(/sau khi Learner đã gửi câu trả lời/i)
   })
 
-  it('uses retrieval after every milestone and a delayed check near the gate', async () => {
+  it('removes formative Practice-setup checks and keeps only the final assessment', async () => {
     const quiz = await loadQuiz()
     const formativePlacements = quiz.groups
       .filter((group) => group.mode === 'formative')
       .map((group) => group.placement)
 
-    expect(formativePlacements).toEqual([
-      'after-m2-portfolio-brief',
-      'after-m2-content-evidence-inventory',
-      'after-m2-visual-reference',
-      'after-m2-portfolio-prd',
-      'before-m2-mastery'
-    ])
+    expect(formativePlacements).toEqual([])
+    expect(quiz.groups.map((group) => group.id)).toEqual(['final-assessment'])
   })
 
   it('reviews the four taught lesson parts through contextual, plain-language scenarios', async () => {
@@ -104,9 +99,9 @@ describe('Module 2 portfolio assessment contract', () => {
     expect(scenarios).toHaveLength(4)
     expect(scenario('mastery-1')).toMatch(/lỗi chính tả.*lập kế hoạch.*sản phẩm mới/i)
     expect(scenario('mastery-4')).toMatch(/PRD.*dành cho ai.*lựa chọn kỹ thuật/i)
-    expect(scenario('mastery-5')).toMatch(/mơ hồ.*tự mở rộng.*trước khi bạn duyệt/i)
-    expect(scenario('mastery-6')).toMatch(/hỏi bạn từng câu/i)
-    expect(scenario('mastery-6')).toMatch(/giữ quyền quyết định/i)
+    expect(scenario('mastery-5')).toMatch(/chỗ nào.*chưa rõ.*tự mở rộng.*sửa lại trước khi bạn duyệt/i)
+    expect(scenario('mastery-6')).toMatch(/hỏi bạn những ý bạn chưa chốt/i)
+    expect(scenario('mastery-6')).toMatch(/người học vẫn quyết định/i)
     expect(new Set(scenarios.map((question) => question.answerIndex)).size).toBeGreaterThan(1)
 
     for (const question of scenarios) {
@@ -116,7 +111,7 @@ describe('Module 2 portfolio assessment contract', () => {
     }
   })
 
-  it('requires one learner-owned answer that cannot pass by repeating the worked example', async () => {
+  it('keeps one learner-owned PRD reflection without marking criteria', async () => {
     const quiz = await loadQuiz()
     const final = quiz.groups.find((group) => group.id === 'final-assessment')
     const learnerOwned = final?.questions.filter((question) => question.type === 'short-answer') ?? []
@@ -127,10 +122,10 @@ describe('Module 2 portfolio assessment contract', () => {
     expect(learnerOwned.map((question) => question.prompt)).toEqual([
       expect.stringContaining('portfolio-brief.md')
     ])
-    for (const question of learnerOwned) {
-      expect(question.criteria?.join(' ')).toMatch(/hiện tại|thật/i)
-      expect(`${question.criteria?.join(' ')} ${question.explanation}`).toMatch(/ví dụ Mai/i)
-    }
+    expect(learnerOwned[0]?.criteria).toEqual([])
+    expect(learnerOwned[0]?.explanation).toBe(
+      'Câu hỏi này không tính điểm, nó chỉ tạo cơ hội cho bạn tự xem lại PRD của mình'
+    )
   })
 
   it('auto-confirms the unscored reflection and opens the summary on group submission', async () => {

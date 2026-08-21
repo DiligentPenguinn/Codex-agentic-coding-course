@@ -66,7 +66,9 @@ export function PracticeBrief({
 
   const start = async () => {
     if (!workspace || busy) return
-    if (workspace.activePractice && !switchOpen) {
+    const continuesModuleTwoTask = identity.practiceId === 'm3-portfolio-build'
+      && workspace.activePractice?.practiceId === 'm2-portfolio-planning'
+    if (workspace.activePractice && !switchOpen && !continuesModuleTwoTask) {
       setSwitchOpen(true)
       return
     }
@@ -74,7 +76,7 @@ export function PracticeBrief({
     setError('')
     try {
       const next = window.courseCompanion
-        ? await window.courseCompanion.startPractice({ ...identity, transfer: false })
+        ? await window.courseCompanion.startPractice({ ...identity, transfer: continuesModuleTwoTask })
         : workspace
       setWorkspace(next)
       setSwitchOpen(false)
@@ -176,6 +178,9 @@ export function PracticeBrief({
   }
 
   const switching = workspace.phase === 'switching'
+  const isModuleThreePractice = identity.practiceId === 'm3-portfolio-build'
+  const continuesModuleTwoTask = isModuleThreePractice
+    && workspace.activePractice?.practiceId === 'm2-portfolio-planning'
   return (
     <main className="practice-brief-overlay">
       <header className="practice-brief-header">
@@ -191,7 +196,7 @@ export function PracticeBrief({
 
         <div className="practice-brief-actions">
           <button className="is-primary" type="button" disabled={busy || switching} onClick={() => void start()}>
-            {busy ? 'Đang chuẩn bị…' : 'Bắt đầu Practice mới'}
+            {busy ? 'Đang chuẩn bị…' : continuesModuleTwoTask ? 'Tiếp tục với Codex' : 'Bắt đầu Practice mới'}
           </button>
           {workspace.capabilities.canResume ? (
             <button type="button" disabled={busy || switching} onClick={() => void resume()}>
@@ -213,12 +218,14 @@ export function PracticeBrief({
         {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
       </section>
 
-      <PracticeProgress
-        workspace={workspace}
-        actionBusy={busy}
-        onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
-        onRefresh={() => void load()}
-      />
+      {isModuleThreePractice ? null : (
+        <PracticeProgress
+          workspace={workspace}
+          actionBusy={busy}
+          onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
+          onRefresh={() => void load()}
+        />
+      )}
 
       {switchOpen ? (
         <PracticeSwitchDialog

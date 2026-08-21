@@ -25,6 +25,9 @@ export class DeterministicPracticeReviewEvaluator implements PracticeReviewEvalu
     if (envelope.definition.evidenceProfile === 'planning-package') {
       return this.evaluatePlanning(envelope)
     }
+    if (envelope.definition.evidenceProfile === 'portfolio-build') {
+      return this.evaluatePortfolioBuild(envelope)
+    }
     const nonTeacher = envelope.definition.criteria.filter((criterion) =>
       !criterion.acceptedEvidence.includes('teacher-assessment'))
     const initial = nonTeacher.map((criterion): PracticeCriterionReview => {
@@ -73,6 +76,47 @@ export class DeterministicPracticeReviewEvaluator implements PracticeReviewEvalu
       summary: passed
         ? 'B\u1ea1n \u0111\u00e3 \u0111\u00e1p \u1ee9ng to\u00e0n b\u1ed9 ti\u00eau ch\u00ed b\u1eaft bu\u1ed9c c\u1ee7a Practice.'
         : 'Practice ch\u01b0a \u0111\u1ee7 b\u1eb1ng ch\u1ee9ng \u0111\u1ec3 ho\u00e0n th\u00e0nh.'
+    })
+  }
+
+  private async evaluatePortfolioBuild(envelope: PracticeReviewEnvelope): Promise<string> {
+    const build = envelope.portfolioBuild
+    const stageById = new Map(build?.stages.map((stage) => [stage.stageId, stage]))
+    const clean = Boolean(build && build.issues.length === 0 && build.unexpectedPaths.length === 0)
+    const criteria = envelope.definition.criteria.map((criterion): PracticeCriterionReview => {
+      const stage = stageById.get(criterion.checklistStepId)
+      const evidenceRefs = stage
+        ? envelope.evidence
+            .filter((item) => item.freshness === 'fresh')
+            .map((item) => item.id)
+            .slice(0, 12)
+        : []
+      const satisfied = clean && stage?.status === 'ready'
+      return {
+        criterionId: criterion.id,
+        status: satisfied ? 'satisfied' : build ? 'unsatisfied' : 'unverifiable',
+        evidenceRefs,
+        explanation: satisfied
+          ? 'Bằng chứng hiện tại của phần này đã đầy đủ và không có lỗi kiểm chứng.'
+          : stage?.issueCodes.length
+            ? `Còn thiếu bằng chứng hoặc kiểm tra chưa đạt: ${stage.issueCodes.join(', ')}.`
+            : 'Chưa có đủ bằng chứng hiện tại để xác nhận phần này.'
+      }
+    })
+    const passed = envelope.definition.criteria
+      .filter((criterion) => criterion.required)
+      .every((criterion) => criteria.find((item) =>
+        item.criterionId === criterion.id)?.status === 'satisfied')
+    return JSON.stringify({
+      schemaVersion: 1,
+      practiceId: envelope.definition.practiceId,
+      practiceVersion: envelope.definition.version,
+      runId: envelope.run.runId,
+      verdict: passed ? 'passed' : 'needs-work',
+      criteria,
+      summary: passed
+        ? 'Các phần bắt buộc và kết quả kiểm tra hiện tại đã đầy đủ.'
+        : 'Website hiện tại vẫn còn một phần cần hoàn thành.'
     })
   }
 

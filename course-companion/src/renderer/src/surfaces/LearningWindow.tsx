@@ -37,9 +37,14 @@ import m2ImplementationPlanImage from '../assets/lesson-visuals/m2-implementatio
 import m2AssessmentImage from '../assets/lesson-visuals/m2-assessment.webp'
 import m2PafoliosImage from '../assets/lesson-visuals/m2-pafolios.webp'
 import m2AwwwardsImage from '../assets/lesson-visuals/m2-awwwards.webp'
+import m3VisibleScreenErrorImage from '../assets/lesson-visuals/m3-visible-screen-error-example.png'
+import m3VisibleErrorPromptImage from '../assets/lesson-visuals/m3-visible-error-prompt-example.png'
+import m3TerminalLogErrorImage from '../assets/lesson-visuals/m3-terminal-log-error-example.png'
+import m3RepeatedErrorCodexPromptImage from '../assets/lesson-visuals/m3-repeated-error-codex-prompt.png'
+import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-example.png'
+import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
-import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
 import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
@@ -114,7 +119,7 @@ type SceneContent = {
   tone: 'neutral' | 'bad' | 'good'
   request: string
   evidence: EvidenceItem[]
-  dialogue: string
+  dialogue?: string
   choices: Choice[]
   copyPrompt?: string
   copyPromptLabel?: string
@@ -1069,12 +1074,7 @@ const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
   'module-2-prd-definition': 1,
   'module-2-prd-review-workflow': 2,
   'module-2-prd-agent-workflow': 2,
-  'module-2-plan-example': 3,
-  'module-2-plan-requirements': 3,
-  'module-2-plan-steps': 3,
-  'module-2-plan-testing': 3,
-  'module-2-plan-risks': 3,
-  'module-2-portfolio-practice-intro': 4
+  'module-2-implementation-plan-intro': 3
 }
 
 function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
@@ -1088,7 +1088,7 @@ type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
 
 const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
   'module-2': 'module-2-portfolio-workspace',
-  'module-3': 'module-3-scaffold-intro',
+  'module-3': 'module-3-readiness',
   'module-4': 'module-4-release-intro'
 }
 
@@ -1107,8 +1107,8 @@ const practiceReviewDestinationByScene: Partial<Record<SceneId, {
     sceneId: contentReviewStartSceneByModule['module-3']
   },
   'module-3-portfolio-practice': {
-    label: 'Bỏ qua Practice · Duyệt Module 4',
-    sceneId: contentReviewStartSceneByModule['module-4']
+    label: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài',
+    sceneId: 'module-3-portfolio-mastery'
   },
   'module-4-portfolio-practice': {
     label: 'Bỏ qua Practice · Duyệt bài ôn tập',
@@ -1209,6 +1209,37 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
     image: m2PafoliosImage,
     alt: 'Ảnh chụp Pafolios với hai portfolio được tuyển chọn',
     caption: 'Pafolios',
+    fit: 'contain'
+  },
+  'module-3-visible-error': {
+    image: m3VisibleScreenErrorImage,
+    alt: 'Nút Xem dự án che lên phần giới thiệu của một website portfolio',
+    fit: 'contain'
+  },
+  'module-3-visible-error-prompt': {
+    image: m3VisibleErrorPromptImage,
+    alt: 'Ảnh lỗi giao diện được gửi cùng prompt mô tả kết quả mong đợi và kết quả thực tế',
+    fit: 'contain'
+  },
+  'module-3-terminal-logs': {
+    image: m3TerminalLogErrorImage,
+    alt: 'Terminal hiển thị một dòng log được làm nổi bật để coding agent điều tra lỗi',
+    fit: 'contain'
+  },
+  'module-3-repeated-error': {
+    image: m3RepeatedErrorCodexPromptImage,
+    alt: 'Codex nhận yêu cầu dừng sửa, liệt kê các nguyên nhân có thể và kiểm tra từng nguyên nhân bằng bằng chứng',
+    fit: 'contain'
+  },
+  'module-3-git-github': {
+    image: m3GitGithubImage,
+    alt: 'Logo Git và GitHub được đặt cạnh nhau để minh hoạ hai khái niệm khác nhau',
+    fit: 'contain'
+  },
+  'module-3-git-commit': {
+    image: m3CommitHistoryImage,
+    alt: 'Danh sách nhiều commit nối tiếp nhau trong lịch sử Git',
+    caption: 'Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.',
     fit: 'contain'
   }
 }
@@ -1785,84 +1816,39 @@ function GuidanceLessonBoard({
   )
 }
 
-type ImplementationPlanBoardSection = 'overview' | 'requirements' | 'steps' | 'testing' | 'risks'
-
-const implementationPlanBoardByScene: Partial<Record<SceneId, ImplementationPlanBoardSection>> = {
-  'module-2-plan-example': 'overview',
-  'module-2-plan-requirements': 'requirements',
-  'module-2-plan-steps': 'steps',
-  'module-2-plan-testing': 'testing',
-  'module-2-plan-risks': 'risks'
-}
-
-const implementationPlanSectionCopy: Record<ImplementationPlanBoardSection, {
-  eyebrow: string
-  title: string
-  description: string
-  question: string
-}> = {
-  overview: {
-    eyebrow: 'NHÌN TOÀN BỘ FORMAT',
-    title: 'Implementation plan nối PRD với cách thực hiện',
-    description: 'Plan cho biết sẽ làm gì trước, kết quả nào cần xuất hiện và cách kiểm tra từng bước. Đây là ví dụ giả lập cho portfolio của Mai.',
-    question: 'Khi đọc lần đầu, hãy nhìn cấu trúc chung. Bạn chưa cần hiểu tên tệp hoặc chi tiết kỹ thuật.'
-  },
-  requirements: {
-    eyebrow: 'THÀNH PHẦN 1',
-    title: 'Yêu cầu và ranh giới giữ plan đúng phạm vi',
-    description: 'Yêu cầu mô tả điều phải đạt. Ranh giới ghi rõ điều chưa làm hoặc không được công khai trong phiên bản đầu.',
-    question: 'Câu hỏi để review: plan có bám đúng PRD và tránh tự mở rộng phạm vi không?'
-  },
-  steps: {
-    eyebrow: 'THÀNH PHẦN 2',
-    title: 'Các giai đoạn biến mục tiêu thành công việc có thứ tự',
-    description: 'Mỗi giai đoạn có mục tiêu riêng và việc cần làm. Plan cũng nêu kết quả cần thấy cùng cách kiểm tra trước khi chuyển tiếp.',
-    question: 'Câu hỏi để review: sau mỗi giai đoạn, mình có nhìn thấy một kết quả cụ thể không?'
-  },
-  testing: {
-    eyebrow: 'THÀNH PHẦN 3',
-    title: 'Tệp dự kiến và cách kiểm tra làm rõ bằng chứng',
-    description: 'Tên tệp cho biết agent định thay đổi ở đâu. Phần kiểm tra cho biết bạn cần nhìn hoặc thử hành vi nào để xác nhận kết quả.',
-    question: 'Bạn không cần đọc code. Hãy ưu tiên bằng chứng có thể nhìn thấy và thao tác trực tiếp.'
-  },
-  risks: {
-    eyebrow: 'THÀNH PHẦN 4',
-    title: 'Rủi ro và giả định cho biết điều gì còn chưa chắc',
-    description: 'Plan ghi lại vấn đề có thể xảy ra, thông tin đang được giả định và người cần duyệt trước khi bắt đầu xây.',
-    question: 'Câu hỏi để review: có điều gì cần xác nhận hoặc xử lý trước khi cho phép agent thực hiện không?'
-  }
+const implementationPlanBoardByScene: Partial<Record<SceneId, true>> = {
+  'module-2-implementation-plan-intro': true
 }
 
 function ImplementationPlanLessonBoard({
   busy,
   canOpenPreviousPage,
+  dialogue,
+  eyebrow,
   nextLabel,
   onBack,
   onNext,
-  section
+  title
 }: {
   busy: boolean
   canOpenPreviousPage: boolean
+  dialogue: string
+  eyebrow: string
   nextLabel: string
   onBack: () => void
   onNext: () => void
-  section: ImplementationPlanBoardSection
+  title: string
 }) {
-  const copy = implementationPlanSectionCopy[section]
-  const isActive = (candidate: Exclude<ImplementationPlanBoardSection, 'overview'>) => (
-    section === 'overview' || section === candidate
-  )
-
   return (
-    <section className={`pixel-plan-board is-${section}`} aria-labelledby="implementation-plan-title">
+    <section className="pixel-plan-board is-completion" aria-labelledby="implementation-plan-title">
       <div className="pixel-plan-board__lesson">
         <header>
-          <small>{copy.eyebrow}</small>
-          <h1 id="implementation-plan-title">{copy.title}</h1>
-          <p>{copy.description}</p>
+          <small>{eyebrow}</small>
+          <h1 id="implementation-plan-title">{title}</h1>
         </header>
-        <aside>{copy.question}</aside>
-        <p className="pixel-plan-board__disclaimer">VÍ DỤ GIẢ LẬP · KHÔNG PHẢI ĐÁP ÁN</p>
+        <div className="pixel-plan-board__lesson-copy">
+          {dialogue.split('\n\n').map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+        </div>
       </div>
 
       <article className="pixel-plan-document" aria-label="Implementation plan mẫu cho portfolio của Mai">
@@ -1872,47 +1858,60 @@ function ImplementationPlanLessonBoard({
           <p>UX Designer · phiên bản đầu</p>
         </header>
 
-        <section className={isActive('requirements') ? 'is-active' : ''} aria-label="Yêu cầu và ranh giới">
+        <section aria-label="Phase 1 — Tạo nền dự án">
           <span>01</span>
           <div>
-            <h3>Yêu cầu và ranh giới</h3>
-            <ul>
-              <li>Giới thiệu tên, vai trò và hai dự án tiêu biểu.</li>
-              <li>Liên hệ được từ đầu hoặc cuối trang.</li>
-              <li>Chưa có blog, đăng nhập hoặc dữ liệu riêng tư.</li>
-            </ul>
+            <h3>Phase 1 — Tạo nền dự án</h3>
+            <div className="pixel-plan-phase__criteria">
+              <strong>HOÀN THÀNH KHI</strong>
+              <ul>
+                <li>Portfolio mở được trong trình duyệt.</li>
+                <li>Lệnh build chạy không báo lỗi.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
-        <section className={isActive('steps') ? 'is-active' : ''} aria-label="Các giai đoạn triển khai">
+        <section aria-label="Phase 2 — Xây cấu trúc và nội dung chính">
           <span>02</span>
           <div>
-            <h3>Các giai đoạn triển khai</h3>
-            <ol>
-              <li>Chuẩn bị cấu trúc và nội dung.</li>
-              <li>Xây giới thiệu và điều hướng.</li>
-              <li>Xây phần dự án.</li>
-              <li>Hoàn thiện màn hình hẹp và khả năng tiếp cận.</li>
-              <li>Kiểm tra trước khi duyệt.</li>
-            </ol>
+            <h3>Phase 2 — Xây cấu trúc và nội dung chính</h3>
+            <div className="pixel-plan-phase__criteria">
+              <strong>HOÀN THÀNH KHI</strong>
+              <ul>
+                <li>Trang hiển thị phần giới thiệu.</li>
+                <li>Hai dự án xuất hiện đầy đủ.</li>
+                <li>Người xem mở được thông tin liên hệ.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
-        <section className={isActive('testing') ? 'is-active' : ''} aria-label="Tệp dự kiến và cách kiểm tra">
+        <section aria-label="Phase 3 — Hoàn thiện giao diện">
           <span>03</span>
           <div>
-            <h3>Tệp dự kiến và cách kiểm tra</h3>
-            <p><code>App.tsx</code> · <code>projects.ts</code> · <code>styles.css</code></p>
-            <p>Kiểm tra ở 1440 × 900 và 390 × 844. Dùng phím Tab để thử mọi liên kết.</p>
+            <h3>Phase 3 — Hoàn thiện giao diện</h3>
+            <div className="pixel-plan-phase__criteria">
+              <strong>HOÀN THÀNH KHI</strong>
+              <ul>
+                <li>Trang không cuộn ngang trên điện thoại.</li>
+                <li>Mọi liên kết dùng được bằng bàn phím.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
-        <section className={isActive('risks') ? 'is-active' : ''} aria-label="Rủi ro, giả định và phê duyệt">
+        <section aria-label="Phase 4 — Kiểm tra và lưu bằng chứng">
           <span>04</span>
           <div>
-            <h3>Rủi ro, giả định và phê duyệt</h3>
-            <p>Nội dung có thể quá dài trên điện thoại. Một số ảnh vẫn chờ xác nhận quyền sử dụng.</p>
-            <p><strong>Điểm dừng:</strong> Mai yêu cầu sửa hoặc duyệt plan.</p>
+            <h3>Phase 4 — Kiểm tra và lưu bằng chứng</h3>
+            <div className="pixel-plan-phase__criteria">
+              <strong>HOÀN THÀNH KHI</strong>
+              <ul>
+                <li>Tất cả kiểm tra đều đạt.</li>
+                <li>Ảnh giao diện desktop và điện thoại đã được lưu.</li>
+              </ul>
+            </div>
           </div>
         </section>
       </article>
@@ -2813,17 +2812,7 @@ export function LearningWindow() {
     const nextQuestion = group.questions[questionIndex + 1]
     const exitScene: Record<string, SceneId> = {
       'setup-final-assessment': 'module-1-final-summary',
-      'brief-retrieval': 'module-2-content-evidence-inventory',
-      'evidence-retrieval': 'module-2-visual-reference',
-      'reference-retrieval': 'module-2-portfolio-prd',
-      'prd-retrieval': 'module-2-implementation-contract',
-      'planning-retrieval': contentReviewMode ? 'module-2-portfolio-mastery' : 'module-2-portfolio-practice',
       'final-assessment': 'module-2-portfolio-mastery-summary',
-      'scaffold-retrieval': 'module-3-first-version-intro',
-      'first-version-retrieval': 'module-3-revision-intro',
-      'revision-retrieval': 'module-3-debugging-intro',
-      'debugging-retrieval': 'module-3-enhancement-intro',
-      'enhancement-retrieval': contentReviewMode ? 'module-3-portfolio-mastery' : 'module-3-portfolio-practice',
       'm3-final-assessment': 'module-3-mastery-summary',
       'release-validation-retrieval': 'module-4-security-intro',
       'security-publication-retrieval': 'module-4-preview-intro',
@@ -2917,12 +2906,7 @@ export function LearningWindow() {
       const decisions = choice.decision
         ? { ...progress.decisions, [choice.decision.key]: choice.decision.value }
         : progress.decisions
-      const nextSceneId = contentReviewMode
-        && progress.sceneId === 'module-2-plan-risks'
-        && choice.next === 'module-2-portfolio-practice-intro'
-        ? 'module-2-portfolio-practice'
-        : choice.next
-      await advanceToScene(nextSceneId, decisions)
+      await advanceToScene(choice.next, decisions)
       setApprovalFocus(null)
       setVisualExpanded(false)
       setSecondaryVisualExpanded(false)
@@ -3071,18 +3055,16 @@ export function LearningWindow() {
   const secondaryLessonVisual = sceneSecondaryVisuals[displayedSceneId]
   const modelLessonBoardKind = modelLessonBoardByScene[displayedSceneId]
   const guidanceLessonBoardKind = guidanceLessonBoardByScene[displayedSceneId]
-  const implementationPlanBoardSection = implementationPlanBoardByScene[displayedSceneId]
+  const usesImplementationPlanBoard = Boolean(implementationPlanBoardByScene[displayedSceneId])
   const usesModelLessonBoard = Boolean(modelLessonBoardKind && lessonVisual)
   const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
-  const usesImplementationPlanBoard = Boolean(implementationPlanBoardSection)
   const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard || usesImplementationPlanBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const practiceReviewDestination = contentReviewMode
-    && displayedSceneId === 'module-2-portfolio-practice'
-    ? { label: 'Bỏ qua Practice · Duyệt bài ôn tập', sceneId: 'module-2-portfolio-mastery' as SceneId }
-    : contentReviewMode
-      ? undefined
+    ? displayedSceneId === 'module-2-portfolio-practice'
+      ? { label: 'Bỏ qua Practice · Duyệt bài ôn tập', sceneId: 'module-2-portfolio-mastery' as SceneId }
       : practiceReviewDestinationByScene[displayedSceneId]
+    : undefined
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const usesPairedLessonNavigation = !isReviewing
@@ -3092,6 +3074,16 @@ export function LearningWindow() {
   const showsSceneTitle = scene.showTitle !== false
     && !usesLessonBoard
     && !isAssessmentQuestionPage
+  const usesModuleTwoVisualGallery = scene.lessonId === 'module-2'
+    && canShowSceneMedia
+    && Boolean(lessonVisual)
+    && Boolean(secondaryLessonVisual)
+    && !usesLessonBoard
+  const usesModuleTwoVisualDialogue = scene.lessonId === 'module-2'
+    && canShowSceneMedia
+    && Boolean(lessonVisual)
+    && !usesLessonBoard
+    && (showsSceneTitle || usesModuleTwoVisualGallery)
   const sceneTitle = showsSceneTitle
     ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
     : null
@@ -3107,7 +3099,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt && displayedSceneId !== 'module-2-portfolio-agents-setup' ? ' has-stacked-copy-prompt' : ''}`}>
+    <main className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3164,7 +3156,6 @@ export function LearningWindow() {
       {sceneTitle}
       {scene.copyPrompt && !usesLessonBoard ? (
         <CopyPromptCard
-          dialogSafe={displayedSceneId === 'module-2-portfolio-agents-setup'}
           label={scene.copyPromptLabel}
           prompt={scene.copyPrompt}
           title={scene.copyPromptTitle}
@@ -3210,7 +3201,7 @@ export function LearningWindow() {
           )
         : canShowSceneMedia && lessonVisual && !usesLessonBoard
           ? (
-            <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}`}>
+            <figure className={`pixel-lesson-visual${isApprovalTour ? ' is-approval-tour' : ''}${displayedSceneId === 'module-3-visible-error-prompt' || displayedSceneId === 'module-3-repeated-error' ? ' is-featured-example' : ''}${displayedSceneId === 'module-3-git-github' ? ' is-title-replacement' : ''}`}>
               <LessonVisualMedia
                 activeFocus={approvalFocus}
                 isApprovalTour={isApprovalTour}
@@ -3268,12 +3259,14 @@ export function LearningWindow() {
         />
       ) : null}
 
-      {implementationPlanBoardSection ? (
+      {usesImplementationPlanBoard ? (
         <ImplementationPlanLessonBoard
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
-          section={implementationPlanBoardSection}
+          dialogue={scene.dialogue ?? ''}
+          eyebrow={scene.lessonLabel}
           nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          title={scene.objective}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
@@ -3307,15 +3300,10 @@ export function LearningWindow() {
       <section
         aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
         aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${displayedSceneId === 'module-2-portfolio-agents-setup' ? ' has-copy-prompt' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
+        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
         {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
-        {isAssessmentQuestionPage ? null : displayedSceneId === 'module-2-portfolio-folder' ? (
-          <PortfolioWorkspacePicker
-            courseRunId={progress.courseRunId}
-            onContinue={() => void advanceToScene('module-2-portfolio-agents-setup', progress.decisions)}
-          />
-        ) : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
+        {isAssessmentQuestionPage ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
               ? contentReviewMode
