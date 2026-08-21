@@ -147,22 +147,40 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
   }
 
   let firstChoiceQuestion
-  for (const question of group.questions) {
-    const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-    if (question.type === 'multiple-choice') {
-      const answerIndex = retryFirstChoice && !firstChoiceQuestion
-        ? (question.answerIndex + 1) % question.choices.length
-        : question.answerIndex
-      if (!firstChoiceQuestion) firstChoiceQuestion = question
-      await questionCard.getByRole('button', { name: question.choices[answerIndex], exact: true }).click()
-    } else {
-      await questionCard.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill(
-        `Câu trả lời do người học tự viết để đáp ứng các tiêu chí công khai của câu ${question.id}.`
-      )
+  const answerQuestions = async (answerFirstChoiceIncorrectly) => {
+    for (const question of group.questions) {
+      const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
+      if (question.type === 'multiple-choice') {
+        const answerIndex = answerFirstChoiceIncorrectly && !firstChoiceQuestion
+          ? (question.answerIndex + 1) % question.choices.length
+          : question.answerIndex
+        if (!firstChoiceQuestion) firstChoiceQuestion = question
+        await questionCard.getByRole('button', { name: question.choices[answerIndex], exact: true }).click()
+      } else {
+        await questionCard.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill(
+          `Câu trả lời do người học tự viết để đáp ứng các tiêu chí công khai của câu ${question.id}.`
+        )
+      }
     }
   }
 
+  await answerQuestions(retryFirstChoice)
   await page.getByRole('button', { name: `Nộp ${group.questions.length} câu trả lời`, exact: true }).click()
+
+  if (group.id === 'final-assessment') {
+    await page.getByText(`Bạn đã trả lời ${group.questions.length}/${group.questions.length} câu`, { exact: false }).waitFor()
+    assert.equal(await page.getByRole('button', { name: `Xem kết quả ${group.questions.length} câu`, exact: true }).count(), 0)
+    if (retryFirstChoice) {
+      await page.getByRole('button', { name: `Làm lại ${group.questions.length} câu`, exact: true }).click()
+      for (const question of group.questions) {
+        await page.getByText(question.prompt, { exact: true }).waitFor()
+      }
+      await answerQuestions(false)
+      await page.getByRole('button', { name: `Nộp ${group.questions.length} câu trả lời`, exact: true }).click()
+      await page.getByText(`Bạn đã trả lời ${group.questions.length}/${group.questions.length} câu`, { exact: false }).waitFor()
+    }
+    return
+  }
 
   if (retryFirstChoice && firstChoiceQuestion) {
     const retryButton = page.getByRole('button', { name: 'Chọn lại câu chưa đúng', exact: true })

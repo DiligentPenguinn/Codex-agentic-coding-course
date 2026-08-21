@@ -57,6 +57,13 @@ async function loadQuiz(): Promise<Quiz> {
   return JSON.parse(await readFile(path, 'utf8')) as Quiz
 }
 
+async function loadLearningWindowSource(): Promise<string> {
+  return readFile(
+    resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'),
+    'utf8'
+  )
+}
+
 describe('Module 2 portfolio assessment contract', () => {
   it('delivers exactly one question before revealing feedback', async () => {
     const quiz = await loadQuiz()
@@ -124,6 +131,23 @@ describe('Module 2 portfolio assessment contract', () => {
       expect(question.criteria?.join(' ')).toMatch(/hiện tại|thật/i)
       expect(`${question.criteria?.join(' ')} ${question.explanation}`).toMatch(/ví dụ Mai/i)
     }
+  })
+
+  it('auto-confirms the unscored reflection and opens the summary on group submission', async () => {
+    const source = await loadLearningWindowSource()
+
+    expect(source).toContain(
+      "group.id === 'final-assessment' && question.id === 'mastery-audience-choice'"
+    )
+    expect(source).toContain(
+      "return [assessmentDecisionKey(question.id), `correct:self-review:${answer}`]"
+    )
+    expect(source).toContain(
+      "await advanceToScene('module-2-portfolio-mastery-summary', decisions)"
+    )
+    expect(source).toContain(
+      'disabled={busy || finalCorrectCount !== finalQuestionCount}'
+    )
   })
 
   it('keeps mastery configurable and independent from current Practice evidence', async () => {

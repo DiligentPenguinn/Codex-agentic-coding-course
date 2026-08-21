@@ -2766,6 +2766,9 @@ export function LearningWindow() {
       const assessmentDecisions = Object.fromEntries(group.questions.map((question) => {
         const answer = answers[question.id]?.trim() ?? ''
         if (question.type !== 'multiple-choice') {
+          if (group.id === 'final-assessment' && question.id === 'mastery-audience-choice') {
+            return [assessmentDecisionKey(question.id), `correct:self-review:${answer}`]
+          }
           const currentResult = progress.decisions[assessmentDecisionKey(question.id)]
           if (currentResult?.startsWith('correct')) {
             return [assessmentDecisionKey(question.id), currentResult]
@@ -2778,6 +2781,14 @@ export function LearningWindow() {
           answerIndex === question.answerIndex ? `correct:${answerIndex}` : `incorrect:${answerIndex}`
         ]
       }))
+      const decisions = {
+        ...progress.decisions,
+        ...assessmentDecisions
+      }
+      if (group.id === 'final-assessment') {
+        await advanceToScene('module-2-portfolio-mastery-summary', decisions)
+        return true
+      }
       await persist({
         currentLessonId: progress.currentLessonId,
         currentCourseLessonId: progress.currentCourseLessonId,
@@ -2785,10 +2796,7 @@ export function LearningWindow() {
         sceneId: progress.sceneId,
         sceneHistory: progress.sceneHistory,
         completedCheckpointIds: progress.completedCheckpointIds,
-        decisions: {
-          ...progress.decisions,
-          ...assessmentDecisions
-        }
+        decisions
       })
       return true
     } catch {
@@ -3381,7 +3389,7 @@ export function LearningWindow() {
                   Làm lại {finalQuestionCount} câu
                 </button>
                 {displayedSceneId === 'module-2-portfolio-mastery-summary' ? (
-                  <button className="pixel-choice is-primary" disabled={busy || finalAnsweredCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
+                  <button className="pixel-choice is-primary" disabled={busy || finalCorrectCount !== finalQuestionCount} type="button" onClick={() => void completePortfolioPlanningModule()}>
                     {busy ? 'Đang đối chiếu…' : 'Hoàn thành Module 2'}
                   </button>
                 ) : displayedSceneId === 'module-3-mastery-summary' ? (

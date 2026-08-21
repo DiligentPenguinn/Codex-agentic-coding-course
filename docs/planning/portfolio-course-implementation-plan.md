@@ -1060,16 +1060,18 @@ delegated rather than partially rewritten here.
    threshold until representative beginner pilots support it.
 5. Keep Teacher-led quiz delivery one question at a time in conversation.
 6. In Course Companion, show every question in the current quiz group before
-   submission. Reveal results, explanations, criteria, and sources only after
-   the learner submits the complete group, and keep an explicit path to revise
-   incorrect answers without automatic navigation.
+   submission. For the Module 2 final group, save the fifth unscored reflection
+   as self-reviewed when the learner submits, then open the summary directly.
+   Keep the summary's full-group retry path when any scored answer is incorrect.
+   Other assessment groups retain their existing post-submit feedback flow.
 
 **Verify**
 
 - Teacher-led delivery remains one question at a time.
-- Course Companion submits one complete quiz group before revealing feedback;
-  an incorrect choice can be revised and resubmitted without losing the other
-  answers.
+- Course Companion submits the complete Module 2 group once, records the fifth
+  reflection as self-reviewed, and opens the summary without a second
+  “Xem kết quả 5 câu” action; an incorrect scored choice can be retried from the
+  summary.
 - Every answer traces to the imported source audit or an explicitly labeled
   curriculum judgment.
 - No answer can pass merely by repeating the example portfolio.
@@ -1390,6 +1392,26 @@ answers, while historical nine- and ten-question completion receipts remain
 readable. Verification passed with 291 unit tests, nine startup tests,
 typecheck, lint, production build, full Electron smoke through the 5/5 summary,
 and `git diff --check`. Overall owner acceptance and pilot acceptance remain
+pending.
+
+**Direct-to-summary assessment note — 21 August 2026:** The owner explicitly
+approved removing the post-submit feedback step from the Course Companion
+Module 2 final group. The learner still answers and submits all five questions
+once; submission now saves the fifth unscored PRD reflection as self-reviewed
+and opens `module-2-portfolio-mastery-summary` in the same progress update. The
+separate “Xem kết quả 5 câu” action and fifth-question self-confirmation action
+are no longer encountered in this flow. If any of the first four scored choices
+is incorrect, the summary keeps “Làm lại 5 câu”; real Module 2 completion remains
+disabled until all five saved results are current and correct. Teacher-led
+one-question-at-a-time delivery and assessment behavior in other modules remain
+unchanged. The focused contract test, typecheck, lint, production build and
+focused Electron content-review journey passed. Electron verified direct
+summary navigation after an intentionally incorrect first choice, full-group
+retry, correct resubmission and continuation to Module 3. The complete unit run
+remains at 309/310 because of the separately edited `mastery-5` wording
+assertion. The complete Electron journey still stops before Module 2 at the
+unrelated missing Module 1 review-bypass control. This bounded behavior has
+owner approval; overall Module 2 owner acceptance and pilot acceptance remain
 pending.
 
 **Portfolio `AGENTS.md` setup note — 18 August 2026:** At the owner's explicit
@@ -2020,7 +2042,7 @@ The course implementation is accepted only when:
 | Evidence freshness/digests | Required | Planning | Build | Release/deploy |
 | Lesson/script/quiz synchronization | — | Required | Required | Required |
 | Teacher-led one-question-at-a-time assessment | — | Required | Required | Required |
-| Course Companion group submission before feedback | Regression | Required | Required | Required |
+| Course Companion group submission and post-submit route | Regression | Direct summary + full-group retry | Feedback + retry | Feedback + retry |
 | Exact checkpoint resume | Required | 5 stages | 5 stages + 4 slices | 5 stages |
 | Desktop/narrow Course Companion UI | Regression | Required | Required | Required |
 | Learner app browser checks | — | — | Required | Required local/live |
