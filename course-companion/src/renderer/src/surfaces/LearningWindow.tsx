@@ -40,6 +40,7 @@ import m2AwwwardsImage from '../assets/lesson-visuals/m2-awwwards.webp'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
+import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
 import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
   registryLessonDefinitions,
@@ -3333,6 +3334,8 @@ export function LearningWindow() {
               ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
+              : displayedSceneId === 'module-2-prd-agent-workflow'
+                ? <DesignReferenceDialogue dialogue={scene.dialogue ?? ''} />
               : scene.dialogue}</p>
         )}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}

@@ -31,6 +31,13 @@ const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các 
 const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha'
 const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
 const approvedPortfolioMasteryTransitionCopy = 'Hãy cùng ôn tập lại kiến thức một chút nhen'
+const designReferenceLinks = [
+  ['Pafolios', 'https://pafolios.com/'],
+  ['Awwwards', 'https://www.awwwards.com/'],
+  ['Dribbble', 'https://dribbble.com/'],
+  ['Mobbin', 'https://mobbin.com/'],
+  ['Pinterest', 'https://www.pinterest.com/']
+]
 
 async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 10) {
   for (let index = 0; index < stepsRemaining; index += 1) {
@@ -664,6 +671,30 @@ async function capture(page, filename) {
   })
 }
 
+async function verifyDesignReferenceLinks(page) {
+  for (const [label, href] of designReferenceLinks) {
+    const link = page.getByRole('link', { name: label, exact: true })
+    assert.equal(await link.count(), 1)
+    assert.equal(await link.getAttribute('href'), href)
+    assert.equal(await link.getAttribute('target'), '_blank')
+    assert.equal(await link.getAttribute('rel'), 'noreferrer')
+  }
+
+  const firstLink = page.getByRole('link', { name: 'Pafolios', exact: true })
+  const defaultColor = await firstLink.evaluate((element) => globalThis.getComputedStyle(element).color)
+  await firstLink.hover()
+  await page.waitForTimeout(150)
+  const hoverColor = await firstLink.evaluate((element) => globalThis.getComputedStyle(element).color)
+  assert.notEqual(hoverColor, defaultColor)
+  await page.keyboard.press('Tab')
+  await firstLink.focus()
+  assert.notEqual(
+    await firstLink.evaluate((element) => globalThis.getComputedStyle(element).outlineStyle),
+    'none'
+  )
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).focus()
+}
+
 async function launchCourseCompanion(environment = {}) {
   return electron.launch({
     executablePath: electronExecutable,
@@ -1084,6 +1115,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual-group img').count(), 2)
   assert.equal(await firstWindows.learningPage.getByText('Pafolios', { exact: true }).count(), 1)
   assert.equal(await firstWindows.learningPage.getByText('Awwwards', { exact: true }).count(), 1)
+  await verifyDesignReferenceLinks(firstWindows.learningPage)
   assert.equal(await firstWindows.learningPage.getByText('Trước khi bắt đầu xây sản phẩm thật, bạn cũng có thể nhờ coding agent tạo một visual prototype bằng HTML — tức là một bản mẫu giao diện có thể mở trong trình duyệt.', { exact: false }).count(), 1)
   await capture(firstWindows.learningPage, 'module-2-five-stage-map.png')
   if (screenshotDirectory) {

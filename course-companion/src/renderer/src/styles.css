@@ -1272,6 +1272,26 @@ button:focus-visible {
   white-space: pre-line;
 }
 
+.pixel-dialogue-link {
+  border-radius: 3px;
+  color: var(--pixel-accent);
+  font-weight: 700;
+  text-decoration-line: underline;
+  text-decoration-thickness: .08em;
+  text-underline-offset: .16em;
+  transition: color 120ms ease-out, text-decoration-color 120ms ease-out;
+}
+
+.pixel-dialogue-link:hover {
+  color: var(--pixel-white);
+  text-decoration-color: var(--pixel-white);
+}
+
+.pixel-dialogue-link:focus-visible {
+  outline: 2px solid var(--pixel-accent);
+  outline-offset: 3px;
+}
+
 .pixel-dialogue.has-practice-brief {
   min-height: 360px;
 }

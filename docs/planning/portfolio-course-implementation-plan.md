@@ -1234,6 +1234,21 @@ and `390 × 844` screenshot inspection, and no horizontal overflow. Module 2
 remains content-reviewable rather than runnable on the redesigned five-document
 contract; owner acceptance and pilot acceptance remain pending.
 
+**Design-reference links note — 21 August 2026:** At the owner's explicit
+request, the five source names in the design-planning explanation—Pafolios,
+Awwwards, Dribbble, Mobbin, and Pinterest—are interactive external links. Each
+link preserves the approved lesson wording, has visible hover and keyboard-focus
+states, opens the HTTPS destination in the learner's default browser, and leaves
+the current Course Companion page in place. The two focused link contract tests,
+typecheck, lint, production build, nine startup tests, `git diff --check`, and
+focused content-review Electron smoke passed. Automated hover/focus assertions
+and rendered inspection at `1512 × 982` and `390 × 844` confirmed visible link
+states, positive gallery-to-dialogue spacing, and no horizontal overflow. The
+full unit run has 306 passing tests and one pre-existing exact-copy mismatch in
+the separately edited Module 2 opening. The full Electron journey stops before
+Module 2 at the unrelated missing Module 1 review-bypass control. Overall Module
+2 owner approval and pilot acceptance remain pending.
+
 **Copyable Practice prompt note — 18 August 2026:** At the owner's explicit
 request, the Module 2 Practice transition replaces its title and scope panel
 with a concise prompt that the learner can copy before opening Codex. The prompt
