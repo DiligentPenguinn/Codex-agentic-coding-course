@@ -313,6 +313,15 @@ there first and remain synchronized with Course Companion.
   non-clean only because of the separately edited Module 2 `mastery-5` copy
   contract. This scoped UI approval does not mark overall Foundation or module
   owner approval, or pilot acceptance, complete.
+- Later on 21 August 2026, the owner expanded that decision to remove the
+  remaining `QUYẾT ĐỊNH CHƯƠNG TRÌNH` panels as well. Assessment feedback now
+  renders no source-attribution panel, while quiz source metadata remains
+  unchanged for internal traceability. Typecheck, lint, production build, nine
+  startup tests, focused content-review Electron smoke, and `git diff --check`
+  passed. The full unit run remains at 305/306 because of the same separately
+  edited Module 2 `mastery-5` copy contract. This follow-up UI approval does not
+  mark overall Foundation or module owner approval, or pilot acceptance,
+  complete.
 - On 19 August 2026, the Module 2 Practice prompt and Teacher panel were moved
   into one responsive layout with an explicit positive gap. Long prompt content
   now scrolls inside its own region instead of expanding into the Teacher
