@@ -9,6 +9,8 @@ thích tiếng Việt nằm trong giao diện Course Companion, không được 
 
 - `m1-understand-codex.webp`: ảnh chụp giao diện Codex do tác giả khóa học
   cung cấp. Ảnh được cắt theo tỉ lệ 16:9 để vừa khung minh hoạ.
+- `m2-when-to-plan.webp`: ảnh chụp giao diện Codex do tác giả khóa học
+  cung cấp, minh hoạ yêu cầu lập kế hoạch portfolio trước khi viết code.
 - `m2-pafolios.webp`: ảnh chụp Pafolios do tác giả khóa học cung cấp.
 - `m2-awwwards.webp`: ảnh chụp Awwwards do tác giả khóa học cung cấp.
 
@@ -19,9 +21,8 @@ nhau.
 
 ## Ảnh chính thức của OpenAI
 
-- `m1-assessment.webp` và `m2-when-to-plan.webp`: khung hình từ video
-  `proactive-teammate-v2.mp4` trên trang
-  <https://learn.chatgpt.com/docs/app>.
+- `m1-assessment.webp`: khung hình từ video `proactive-teammate-v2.mp4`
+  trên trang <https://learn.chatgpt.com/docs/app>.
 - `m2-product-requirements.webp`, `m2-prd-prompt.webp`,
   `m2-prd-review.webp`, `m2-implementation-plan.webp` và
   `m2-assessment.webp`: các khung hình khác nhau từ video

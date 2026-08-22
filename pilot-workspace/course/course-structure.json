@@ -138,34 +138,10 @@
           "id": "m2-portfolio-brief",
           "titleVi": "Tạo bản mô tả ngắn cho portfolio",
           "checkpoints": [
-            "m2-portfolio-brief"
-          ]
-        },
-        {
-          "id": "m2-content-evidence-inventory",
-          "titleVi": "Kiểm kê nội dung và bằng chứng",
-          "checkpoints": [
-            "m2-content-evidence-inventory"
-          ]
-        },
-        {
-          "id": "m2-visual-reference",
-          "titleVi": "Chọn một tham chiếu hình ảnh",
-          "checkpoints": [
-            "m2-visual-reference"
-          ]
-        },
-        {
-          "id": "m2-portfolio-prd",
-          "titleVi": "Tạo và duyệt PRD cho portfolio",
-          "checkpoints": [
-            "m2-portfolio-prd"
-          ]
-        },
-        {
-          "id": "m2-implementation-contract",
-          "titleVi": "Tạo hợp đồng xây dựng và kiểm chứng",
-          "checkpoints": [
+            "m2-portfolio-brief",
+            "m2-content-evidence-inventory",
+            "m2-visual-reference",
+            "m2-portfolio-prd",
             "m2-implementation-contract",
             "m2-portfolio-planning",
             "m2-portfolio-mastery",
@@ -178,8 +154,8 @@
     {
       "id": "module-3",
       "kind": "module",
-      "titleVi": "Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng",
-      "titleEn": "Build and debug in verified slices",
+      "titleVi": "Hiện thực hoá sản phẩm cùng coding agent",
+      "titleEn": "Build the product with a coding agent",
       "lessonPath": "course/lessons/module-3.vi.md",
       "scriptPath": "course/lesson-scripts/module-3.script.vi.md",
       "quizPath": "course/quizzes/module-3.quiz.json",
@@ -216,38 +192,37 @@
         "m3-complete-first-version",
         "m3-whole-page-revision",
         "m3-evidence-debugging",
-        "m3-independent-enhancement",
         "m3-portfolio-build",
+        "m3-independent-enhancement",
         "m3-mastery",
         "m3-complete"
       ],
       "lessons": [
         {
           "id": "m3-scaffold-baseline",
-          "titleVi": "Tạo nền ứng dụng có thể kiểm chứng",
+          "titleVi": "Thực hiện Implementation Plan, từng bước một",
           "checkpoints": ["m3-scaffold-baseline"]
         },
         {
           "id": "m3-complete-first-version",
-          "titleVi": "Xây phiên bản đầu tiên theo bốn phần",
+          "titleVi": "Debug cùng coding agent",
           "checkpoints": ["m3-complete-first-version"]
         },
         {
           "id": "m3-whole-page-revision",
-          "titleVi": "Xem lại và cải thiện toàn trang",
+          "titleVi": "Git và GitHub",
           "checkpoints": ["m3-whole-page-revision"]
         },
         {
           "id": "m3-evidence-debugging",
-          "titleVi": "Gỡ một lỗi từ bằng chứng",
-          "checkpoints": ["m3-evidence-debugging"]
+          "titleVi": "Practice: Xây portfolio",
+          "checkpoints": ["m3-evidence-debugging", "m3-portfolio-build"]
         },
         {
           "id": "m3-independent-enhancement",
-          "titleVi": "Tự định hướng một cải tiến nhỏ",
+          "titleVi": "Tổng kết Module 3",
           "checkpoints": [
             "m3-independent-enhancement",
-            "m3-portfolio-build",
             "m3-mastery",
             "m3-complete"
           ]

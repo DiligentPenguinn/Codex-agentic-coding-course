@@ -1,4 +1,4 @@
-import { cp, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -69,7 +69,13 @@ async function copiedPilotWorkspace(): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), 'teacher-course-context-'))
   directories.push(directory)
   const target = join(directory, 'pilot-workspace')
-  await cp(pilotWorkspace, target, { recursive: true })
+  await mkdir(join(target, '.agents', 'skills'), { recursive: true })
+  await cp(join(pilotWorkspace, 'course'), join(target, 'course'), { recursive: true })
+  await cp(
+    join(pilotWorkspace, '.agents', 'skills', 'triet-pedagogy'),
+    join(target, '.agents', 'skills', 'triet-pedagogy'),
+    { recursive: true }
+  )
   return target
 }
 
@@ -127,8 +133,8 @@ describe('TeacherCourseContextRepository', () => {
 
   it('binds grouped Module 2–4 assessment scenes directly from their quiz definitions', async () => {
     const states = [
-      { moduleId: 'module-2' as const, currentCourseLessonId: 'm2-implementation-contract' as const, checkpointId: 'm2-portfolio-mastery' as const, sceneId: 'module-2-mastery-scenario-viewer' as const, questionId: 'mastery-1' },
-      { moduleId: 'module-3' as const, currentCourseLessonId: 'm3-scaffold-baseline' as const, checkpointId: 'm3-scaffold-baseline' as const, sceneId: 'module-3-check-scaffold-boundary' as const, questionId: 'scaffold-retrieval-1' },
+      { moduleId: 'module-2' as const, currentCourseLessonId: 'm2-portfolio-brief' as const, checkpointId: 'm2-portfolio-mastery' as const, sceneId: 'module-2-mastery-scenario-viewer' as const, questionId: 'mastery-1' },
+      { moduleId: 'module-3' as const, currentCourseLessonId: 'm3-independent-enhancement' as const, checkpointId: 'm3-mastery' as const, sceneId: 'module-3-mastery-plan' as const, questionId: 'm3-mastery-plan' },
       { moduleId: 'module-4' as const, currentCourseLessonId: 'm4-release-validation' as const, checkpointId: 'm4-release-validation' as const, sceneId: 'module-4-check-release-evidence' as const, questionId: 'release-validation-retrieval-1' }
     ]
     const repository = new TeacherCourseContextRepository(pilotWorkspace)

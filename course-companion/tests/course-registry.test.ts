@@ -21,10 +21,6 @@ describe('portfolio course registry', () => {
     expect(portfolioModuleDefinitions.flatMap((module) =>
       module.lessons.map((lesson) => lesson.id))).toEqual([
       'm2-portfolio-brief',
-      'm2-content-evidence-inventory',
-      'm2-visual-reference',
-      'm2-portfolio-prd',
-      'm2-implementation-contract',
       'm3-scaffold-baseline',
       'm3-complete-first-version',
       'm3-whole-page-revision',
@@ -36,6 +32,25 @@ describe('portfolio course registry', () => {
       'm4-production-decision',
       'm4-ownership-transfer'
     ])
+  })
+
+  it('routes the merged Module 3 opening directly into debugging', () => {
+    const moduleThree = portfolioModuleDefinitions[1]
+    expect(moduleThree.lessons[0]?.titleVi).toBe('Thực hiện Implementation Plan, từng bước một')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-readiness')?.nextSceneId)
+      .toBe('module-3-debugging-intro')
+    expect(moduleThree.scenes.map((scene) => String(scene.id)))
+      .not.toContain('module-3-implementation-cycle')
+  })
+
+  it('routes Module 3 knowledge directly into Practice without a setup scene', () => {
+    const moduleThree = portfolioModuleDefinitions[1]
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
+      .toBe('module-3-portfolio-practice')
+    expect(moduleThree.scenes.map((scene) => String(scene.id)))
+      .not.toContain('module-3-practice-intro')
+    expect(moduleThree.scenes.map((scene) => String(scene.id)))
+      .toContain('module-3-portfolio-practice')
   })
 
   it('rejects duplicate module ids', () => {
@@ -70,11 +85,11 @@ describe('portfolio course registry', () => {
 
   it('rejects a scene routed to a different lesson than its checkpoint', () => {
     const definitions = mutableDefinitions()
-    definitions[0] = {
-      ...definitions[0]!,
+    definitions[1] = {
+      ...definitions[1]!,
       scenes: [{
-        ...definitions[0]!.scenes[0]!,
-        courseLessonId: 'm2-content-evidence-inventory'
+        ...definitions[1]!.scenes[0]!,
+        courseLessonId: 'm3-complete-first-version'
       }]
     }
     expect(() => validateCourseModuleDefinitions(definitions)).toThrow('different lessons')
@@ -111,23 +126,15 @@ describe('portfolio course registry', () => {
 
   it('renders the complete Module 2 journey and every quiz scene from the registry', () => {
     const moduleTwo = portfolioModuleDefinitions[0]
-    expect(moduleTwo.lessons).toHaveLength(5)
-    expect(moduleTwo.quizGroupIds).toEqual([
-      'brief-retrieval',
-      'evidence-retrieval',
-      'reference-retrieval',
-      'prd-retrieval',
-      'planning-retrieval',
-      'final-assessment'
-    ])
+    expect(moduleTwo.lessons).toHaveLength(1)
+    expect(moduleTwo.quizGroupIds).toEqual(['final-assessment'])
     expect(moduleTwo.scenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'module-2-portfolio-workspace',
       'module-2-prd-definition',
       'module-2-prd-review-workflow',
       'module-2-prd-agent-workflow',
-      'module-2-portfolio-practice-intro',
+      'module-2-implementation-plan-intro',
       'module-2-portfolio-folder',
-      'module-2-portfolio-agents-setup',
       'module-2-portfolio-practice',
       'module-2-portfolio-mastery',
       'module-2-portfolio-mastery-summary'
@@ -138,11 +145,44 @@ describe('portfolio course registry', () => {
       .toBe('module-2-prd-review-workflow')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-review-workflow')?.nextSceneId)
       .toBe('module-2-prd-agent-workflow')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-prd-agent-workflow')?.nextSceneId)
+      .toBe('module-2-implementation-plan-intro')
+    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-implementation-plan-intro')?.nextSceneId)
+      .toBe('module-2-portfolio-folder')
     expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-folder')?.nextSceneId)
-      .toBe('module-2-portfolio-agents-setup')
-    expect(moduleTwo.scenes.find((scene) => scene.id === 'module-2-portfolio-agents-setup')?.nextSceneId)
-      .toBe('module-2-portfolio-brief')
-    expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-check-'))).toHaveLength(10)
+      .toBe('module-2-portfolio-practice')
+    for (const retiredSceneId of [
+      'module-2-plan-example',
+      'module-2-plan-requirements',
+      'module-2-plan-steps',
+      'module-2-plan-testing',
+      'module-2-plan-risks'
+    ]) expect(moduleTwo.scenes.some((scene) => scene.id === retiredSceneId)).toBe(false)
+    for (const retiredSceneId of [
+      'module-2-portfolio-practice-intro',
+      'module-2-portfolio-agents-setup',
+      'module-2-portfolio-brief',
+      'module-2-portfolio-brief-example',
+      'module-2-check-brief-viewer',
+      'module-2-check-brief-success',
+      'module-2-content-evidence-inventory',
+      'module-2-content-evidence-example',
+      'module-2-check-evidence-status',
+      'module-2-check-evidence-permission',
+      'module-2-visual-reference',
+      'module-2-visual-reference-example',
+      'module-2-check-reference-boundary',
+      'module-2-check-reference-record',
+      'module-2-portfolio-prd',
+      'module-2-portfolio-prd-example',
+      'module-2-check-prd-requirement',
+      'module-2-check-prd-accessibility',
+      'module-2-implementation-contract',
+      'module-2-implementation-contract-example',
+      'module-2-check-delayed-scope',
+      'module-2-check-delayed-evidence'
+    ]) expect(moduleTwo.scenes.some((scene) => scene.id === retiredSceneId)).toBe(false)
+    expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-check-'))).toHaveLength(0)
     expect(moduleTwo.scenes.filter((scene) => scene.id.startsWith('module-2-mastery-'))).toHaveLength(5)
   })
 

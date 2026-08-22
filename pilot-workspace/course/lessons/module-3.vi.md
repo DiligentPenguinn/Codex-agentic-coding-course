@@ -1,111 +1,122 @@
-# Module 3 — Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng
+# Module 3 — Hiện thực hoá sản phẩm cùng coding agent
 
 ## Kết quả của module
 
-Bạn sẽ dùng gói planning đã duyệt để tạo portfolio từ một thư mục chưa có ứng dụng. Sau đó, bạn hướng dẫn Codex xây phiên bản đầu tiên theo bốn phần nhỏ, cải thiện toàn trang, gỡ một lỗi từ bằng chứng và tự định hướng một cải tiến có giới hạn.
+Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.
 
-Bạn không cần đọc code hoặc diff để quyết định có chấp nhận thay đổi hay không. Codex chịu trách nhiệm kiểm tra kỹ thuật. Bạn xem kết quả thật trong trình duyệt, đọc bản tóm tắt dễ hiểu rồi chọn chấp nhận hoặc yêu cầu sửa.
+Chúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn
 
-## Hai vòng làm việc cần nhớ
+## Thực hiện Implementation Plan, từng bước một
 
-### Vòng triển khai chuẩn
+Codex sẽ thực hiện từng phần của implementation plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và chạy các kiểm tra phù hợp.
 
-1. Codex đề xuất phạm vi, tệp dự kiến thay đổi, điều không làm và cách kiểm tra.
-2. Bạn đọc hệ quả rồi duyệt hoặc yêu cầu sửa đề xuất.
-3. Codex chỉ thực hiện phần đã duyệt.
-4. Codex chạy kiểm tra kỹ thuật.
-5. Bạn xem website ở `1440 × 900` và `390 × 844` khi phần đó ảnh hưởng giao diện.
-6. Codex đưa bản tóm tắt năm phần.
-7. Bạn chấp nhận hoặc yêu cầu một lần sửa có giới hạn.
-8. Sau khi chấp nhận, Codex tạo một checkpoint cục bộ để có thể quay lại.
+Bạn xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi quyết định chấp nhận hoặc yêu cầu chỉnh sửa. Chỉ khi phần hiện tại đi đúng hướng, Codex mới chuyển sang phần tiếp theo.
 
-### Vòng gỡ lỗi từ bằng chứng
+## Debug cùng coding agent
 
-1. Tái hiện lỗi.
-2. Nêu kết quả mong đợi và kết quả thực tế.
-3. Thu thập bằng chứng trước khi đoán nguyên nhân.
-4. Chọn một giả thuyết phù hợp nhất.
-5. Thực hiện thay đổi nhỏ nhất có lý.
-6. Chạy lại phép kiểm tra ban đầu và các kiểm tra hồi quy liên quan.
+Okay, bây giờ bạn đã có một implementation plan và bắt đầu thực hiện nó. Đến giai đoạn này, có một điều mình chắc chắn bạn sẽ không thể tránh khỏi. Đó chính là gặp bug (lỗi phần mềm). Hiện tại coding agent chưa phát triển đến mức làm hoàn hảo mọi yêu cầu của bạn mà không có tí lỗi nào.
 
-## Bản tóm tắt năm phần
+Thực ra hồi mới bắt đầu code với Coding agents, đâu đó tầm 40% thời gian mình dành để lên kế hoạch và xây sản phẩm thôi, 60% thời gian còn lại mình dành cho debugging (khắc phục lỗi). Thực ra hoàn thành tốt giai đoạn planning và implementation plan đã giúp bạn giảm khá khá bugs rồi. Nhưng vẫn khó tránh khỏi việc bạn sẽ gặp bug trong quá trình xây sản phẩm.
 
-Sau mỗi phần xây dựng, Codex phải nói rõ:
+Vậy khi gặp bug thì xử lý thế nào?
 
-1. Điều đã thay đổi.
-2. Điều bạn nên chú ý trong website.
-3. Điều chủ động giữ nguyên.
-4. Kiểm tra đã chạy và kết quả.
-5. Rủi ro, giới hạn hoặc quyết định còn lại.
+### Khi lỗi xuất hiện trên màn hình
 
-Nếu bản tóm tắt chỉ nói “đã xong” hoặc “mọi thứ hoạt động”, hãy yêu cầu Codex làm lại. Một lời khẳng định không thay thế kết quả kiểm tra hoặc hành vi bạn quan sát được.
+Khi gặp một bug có thể nhìn thấy trên màn hình, hãy chụp lại bug đó và gửi ảnh cho coding agent.
 
-## Milestone 1 — Tạo nền ứng dụng có thể kiểm chứng
+Đừng chỉ gửi ảnh. Hãy nói thêm bạn đang làm gì, bạn mong đợi điều gì và kết quả thực tế ra sao. Từ những thông tin này, agent có thể kiểm tra code, tìm nguyên nhân và giải thích lỗi bằng ngôn ngữ dễ hiểu trước khi sửa.
 
-Codex đọc PRD, implementation plan và first bounded task hiện tại. Trước khi ghi tệp hoặc cài dependency, Codex phải đề xuất:
+Sau khi agent sửa xong, hãy thực hiện lại đúng thao tác đã gây lỗi. Nếu lỗi không còn xuất hiện, chúng ta có thể tiếp tục.
 
-- lệnh sẽ chạy;
-- dependency cùng phiên bản;
-- tệp sẽ tạo;
-- kết quả có thể quan sát;
-- cách kiểm chứng;
-- nhu cầu dùng mạng hoặc quyền phê duyệt.
+Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.
 
-Sau khi bạn duyệt, Codex chỉ tạo React, TypeScript và Vite. Nền ứng dụng có trang trung tính, style dễ đọc, lockfile, `.gitignore`, `README.md`, `AGENTS.md` và các lệnh `dev`, `typecheck`, `lint`, `build`, `preview`, `check`.
+### Khi ảnh chụp chưa cho thấy nguyên nhân
 
-Lệnh `npm run check` chạy typecheck, lint rồi build theo thứ tự. Milestone này chưa tạo Hero, dự án, About, Contact, thiết kế hoàn chỉnh, thư viện tùy chọn hoặc cấu hình deployment.
+Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.
 
-Bạn mở trang trung tính bằng `npm run dev`, xác nhận kết quả rồi kiểm tra bản build qua `npm run preview`. Báo cáo được lưu tại `evidence/module-3/scaffold-report.md`. Recovery snapshot chỉ được dùng khi đường phục hồi thông thường không giải quyết được lỗi và phải được ghi rõ.
+Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra. Những dòng log này sẽ cho coding agent biết được tại sao app lại bị lỗi chứ không phải phỏng đoán. Và sau khi lỗi đã được khắc phục thì bạn có thể bảo coding agent xoá những đoạn logs không cần thiết
 
-## Milestone 2 — Làm rõ thiết kế và xây phiên bản đầu tiên
+### Khi lỗi vẫn quay lại
 
-### Làm rõ hướng thiết kế
+Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra. Cách này giúp quá trình điều tra có hệ thống hơn và thường tìm ra nguyên nhân gốc, thay vì chỉ vá những biểu hiện trước mắt.
 
-Bạn có thể bắt đầu bằng câu bình thường như “Tôi thích chữ lớn ở phần đầu”. Codex đối chiếu tham chiếu với PRD và nội dung thật, sau đó giải thích thứ tự thông tin cùng đặc điểm hình ảnh bằng lời dễ hiểu.
+Sau đó, hãy yêu cầu coding agent kiểm tra từng nguyên nhân và dựa vào bằng chứng để xác định nguyên nhân nào thực sự gây ra lỗi.
 
-Codex đề xuất điều nên giữ lại, điều chỉnh, đơn giản hóa hoặc loại bỏ. Mỗi quyết định lớn được hỏi riêng. Hướng đã duyệt phải mô tả cách chuyển sang màn hình `390 × 844`; không được sao chép nội dung, thương hiệu, hình ảnh hoặc mã nguồn của trang tham chiếu.
+## Git và GitHub
 
-Quyết định được lưu tại `evidence/module-3/design-direction.md` trước khi sửa ứng dụng.
+### Vì sao cần Git?
 
-### Xây theo bốn phần
+Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng
 
-1. **Nền trang và Hero:** cấu trúc trang, navigation, Hero, kiểu chữ, màu, khoảng cách, mobile cơ bản và focus hiển thị.
-2. **Selected Work:** ít nhất hai dự án có vấn đề, vai trò, cách làm, kết quả hoặc bằng chứng hiện tại, cùng một giới hạn hay bài học.
-3. **About, Contact và footer:** câu chuyện liên quan, năng lực, hướng đi, phương thức liên hệ đã kiểm chứng và liên kết nghề nghiệp phù hợp.
-4. **Tích hợp responsive và accessibility:** desktop/mobile, heading, landmark, bàn phím, focus, văn bản thay thế, link chính và console.
+Git là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.
 
-Mỗi phần phải đi hết vòng triển khai chuẩn. Phần chưa đạt sẽ chặn phần tiếp theo. Nhật ký tại `evidence/module-3/build-log.md` giữ bốn biên nhận riêng; kiểm chứng trực tiếp được lưu ở `evidence/module-3/browser-validation.md`.
+Repository, hay kho lưu trữ dự án, là nơi Git quản lý các tệp của dự án cùng lịch sử thay đổi của chúng.
 
-Portfolio core là phần bắt buộc. Chuyển động, theme, modal hoặc tính năng bổ sung vẫn là phần tùy chọn.
+“Phân tán” có nghĩa là repository trên máy tính của bạn không chỉ giữ phiên bản mới nhất, mà còn có lịch sử của dự án. Bạn có thể thấy được tất cả phiên bản cũ mà bạn từng làm, cũng như các phiên bản mà hiện tại bạn đang phát triển.
 
-## Milestone 3 — Xem lại và cải thiện toàn trang
+### Git khác GitHub như thế nào?
 
-Bạn xem toàn bộ website theo PRD, hướng thiết kế, nội dung thật và mục tiêu của người xem chính. Bạn có thể phản hồi bằng câu như “các dự án xuất hiện quá muộn” hoặc “phần đầu chưa nói rõ tôi làm gì”.
+Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.
 
-Codex chuyển phản hồi đó thành một đề xuất sửa duy nhất. Đề xuất phải nói rõ điều sẽ đổi, điều giữ nguyên, kết quả mong đợi và kiểm tra hồi quy. Sau khi bạn duyệt, Codex sửa, kiểm tra và lưu kết quả tại `evidence/module-3/revision-record.md`.
+Git là một hệ thống hoạt động trên máy tính của bạn. Git theo dõi các tệp trong repository và lưu lại lịch sử thay đổi của chúng. Bạn có thể dùng Git mà không cần kết nối với GitHub.
 
-Milestone này không phải một vòng làm đẹp tùy ý. Mọi sửa đổi phải xuất phát từ điều quan sát được hoặc tiêu chí đã duyệt.
+GitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu thêm một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.
 
-## Milestone 4 — Gỡ một lỗi từ bằng chứng
+GitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc.
 
-Ưu tiên dùng lỗi thật. Nếu chưa có lỗi phù hợp, khóa học có thể tạo một lỗi nhỏ, dễ đảo ngược và được kiểm soát. Codex không được sửa trước khi tái hiện lỗi và thu thập bằng chứng.
+### Commit: lưu một phiên bản của dự án
 
-Báo cáo tại `evidence/module-3/debugging-report.md` ghi bước tái hiện, mong đợi, thực tế, bằng chứng, một giả thuyết, bản sửa nhỏ nhất, kiểm tra gốc và kiểm tra hồi quy. Bạn giải thích lỗi nhìn thấy, bằng chứng đã dùng và việc bản sửa có giải quyết đúng lỗi hay không.
+Khi bạn thay đổi các tệp trong một repository, Git chưa tự coi những thay đổi đó là một phiên bản đã hoàn thành. Khi dự án đạt đến trạng thái mà bạn muốn lưu lại, bạn có thể tạo một commit.
 
-Nếu lỗi do khóa học tạo ra, dấu vết của lỗi phải được loại bỏ trước khi milestone đạt.
+Commit là một phiên bản của dự án được lưu trong lịch sử Git. Nó ghi lại trạng thái của dự án tại thời điểm đó và đi kèm một lời nhắn ngắn để mô tả thay đổi. Nhiều commit nối tiếp nhau tạo thành lịch sử của dự án.
 
-## Milestone 5 — Tự định hướng một cải tiến nhỏ
+Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.
 
-Bạn chọn một cải tiến có giới hạn rồi tự nêu mục tiêu và tiêu chí chấp nhận. Codex đề xuất kế hoạch nhỏ và chờ bạn duyệt. Ví dụ phù hợp gồm đổi theme, mở chi tiết dự án, chuyển động tiết chế hoặc tải CV đã được kiểm tra.
+Một commit được lưu trong repository trên máy tính của bạn. Nó không tự động xuất hiện trên GitHub.
 
-Cải tiến không được thêm backend, authentication, analytics, payment, database hoặc dịch vụ xử lý dữ liệu nếu chưa có phạm vi bảo mật riêng. Kế hoạch và bằng chứng được lưu tại `evidence/module-3/enhancement-plan.md`.
+Nếu muốn lưu các commit trên GitHub, bạn cần thực hiện một bước riêng. Trang tiếp theo sẽ giải thích bước đó.
 
-Cuối module, Codex tạo `evidence/module-3/final-change-summary.md`. Module 4 chỉ mở khi đủ tám artifact hiện tại, năm biên nhận milestone, bốn biên nhận phần xây dựng, `npm run check` đạt, kiểm chứng trình duyệt đạt, mastery đạt và bạn đã duyệt phiên bản hiện tại.
+### Push: đưa commit lên GitHub
+
+Push là thao tác gửi những commit mới từ repository trên máy tính lên repository của cùng dự án trên GitHub.
+
+Sau khi push thành công, các commit đó sẽ xuất hiện trong lịch sử dự án trên GitHub. Push không tạo commit mới; nó chỉ đưa những commit đã có trên máy tính lên GitHub.
+
+Phần này không giới thiệu câu lệnh, remote hoặc `origin`. Agent sẽ xử lý các thao tác kỹ thuật.
+
+Việc giới thiệu push không có nghĩa là sau mỗi giai đoạn đều phải đưa commit lên GitHub. Push là một hành động đưa dữ liệu ra ngoài và được xử lý riêng, thay vì tự động trở thành một bước trong mỗi vòng triển khai.
+
+### Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định
+
+Bây giờ, giả sử bạn đang phát triển một tính năng mới. Bạn chưa chắc mình có muốn đưa tính năng đó vào sản phẩm hay không, nhưng vẫn muốn thử nghiệm thêm.
+
+Bạn không nên thử trực tiếp trên phiên bản đang hoạt động ổn định. Những thay đổi chưa hoàn thiện có thể làm hỏng phần đang hoạt động tốt.
+
+Đây là lúc bạn có thể dùng branch. Branch là một hướng phát triển riêng trong cùng repository. Nó cho phép bạn thử nghiệm tính năng mới mà chưa làm thay đổi phiên bản ổn định.
+
+Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
+
+## Practice: Xây portfolio
+
+Trong phần Practice này, bạn sẽ tiếp tục làm việc trong task Codex đã dùng ở Module 2. Codex sẽ dựa vào PRD và implementation plan đã được duyệt để bắt đầu xây website.
+
+Codex sẽ thực hiện từng phần của plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và kiểm tra kết quả. Bạn sẽ xem website thực tế rồi quyết định tiếp tục hoặc yêu cầu chỉnh sửa.
+
+Nếu gặp lỗi trong quá trình xây, hãy trao đổi ngay với Codex trong task đang thực hiện. Codex đã có bối cảnh của website và biết những thay đổi vừa được thực hiện.
+
+Khi bạn hài lòng với website hiện tại, hãy bấm **Hoàn thành bài** ngay trên Teacher Triết.
+
+## Điều kiện hoàn thành
+
+Course Companion kiểm tra các phần bắt buộc của website, kết quả kiểm tra hiện tại và bằng chứng trong workspace. Sau khi các phần này đã đầy đủ, bạn xem lại website lần cuối rồi xác nhận chấp nhận phiên bản hiện tại.
+
+Cuối cùng, bạn trả lời năm câu hỏi tổng kết về cách thực hiện plan, báo lỗi, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.
 
 ## Nguồn phương pháp
 
-- [Google Engineering Practices — Small CLs](https://google.github.io/eng-practices/review/developer/small-cls.html): thay đổi nhỏ giúp dễ hiểu, kiểm tra và khôi phục hơn.
-- [W3C WAI — Evaluating Web Accessibility](https://www.w3.org/WAI/test-evaluate/): kiểm tra accessibility cần bắt đầu sớm và kết hợp công cụ với đánh giá của con người.
-- [MDN — Testing](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Testing): kiểm tra gồm hành vi, khả năng sử dụng, accessibility, ghi nhận kết quả và kiểm tra hồi quy.
-- [Microsoft Engineering Playbook — Debugging](https://microsoft.github.io/code-with-engineering-playbook/automated-testing/debugging/): điều tra lỗi cần dựa trên tái hiện, bằng chứng và giả thuyết có thể kiểm tra.
-- [Quyết định chương trình D-011 và D-013](../../../../docs/planning/portfolio-course-v1/DECISION_LOG.md): Module 3 dùng năm milestone, bốn phần xây dựng và bản tóm tắt năm phần dành cho người mới.
+- [OpenAI — Introducing Codex](https://openai.com/index/introducing-codex/)
+- [Git — About Version Control](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control)
+- [Git — What is Git?](https://git-scm.com/book/en/v2/Getting-Started-What-is-Git%3F)
+- [Git — Branches in a Nutshell](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
+- [GitHub — What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github)
+- [GitHub — About remote repositories](https://docs.github.com/en/get-started/basics/about-remote-repositories)

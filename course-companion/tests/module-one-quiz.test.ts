@@ -74,7 +74,7 @@ async function loadCourseStructure(): Promise<{ modules: CourseModule[] }> {
 }
 
 describe('Course module assessment banks', () => {
-  it('keeps the introduction separate and exposes setup before planning', async () => {
+  it('keeps the introduction separate and exposes Module 2 knowledge before Practice', async () => {
     const course = await loadCourseStructure()
     const introduction = course.modules.find((module) => module.id === 'intro')
     const moduleOne = course.modules.find((module) => module.id === 'module-1')
@@ -89,11 +89,7 @@ describe('Course module assessment banks', () => {
       'Thực hành và ôn tập cuối Module 1'
     ])
     expect(moduleTwo?.lessons.map((lesson) => lesson.titleVi)).toEqual([
-      'Tạo bản mô tả ngắn cho portfolio',
-      'Kiểm kê nội dung và bằng chứng',
-      'Chọn một tham chiếu hình ảnh',
-      'Tạo và duyệt PRD cho portfolio',
-      'Tạo hợp đồng xây dựng và kiểm chứng'
+      'Tạo bản mô tả ngắn cho portfolio'
     ])
     expect(moduleOne?.lessons.reduce((total, lesson) => total + (lesson.estimatedMinutes ?? 0), 0)).toBe(42)
     expect(moduleTwo?.lessons.every((lesson) => lesson.estimatedMinutes === undefined)).toBe(true)
@@ -127,17 +123,12 @@ describe('Course module assessment banks', () => {
     for (const visualFile of visualFiles) expect(sources).toContain(`\`${visualFile}\``)
   })
 
-  it('places retrieval checks after each milestone and delayed checks near the gate', async () => {
+  it('keeps only the final Module 2 assessment after Executor Practice', async () => {
     const quiz = await loadQuiz('module-2')
     expect(Object.fromEntries((quiz.groups ?? []).map((group) => [group.id, group.questions.length]))).toEqual({
-      'brief-retrieval': 2,
-      'evidence-retrieval': 2,
-      'reference-retrieval': 2,
-      'prd-retrieval': 2,
-      'planning-retrieval': 2,
       'final-assessment': 5
     })
-    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(15)
+    expect((quiz.groups ?? []).flatMap((group) => group.questions)).toHaveLength(5)
   })
 
   it('gives every question an answer contract and approved source', async () => {
@@ -175,7 +166,13 @@ describe('Course module assessment banks', () => {
         expect(question.answerIndex).toBeGreaterThanOrEqual(0)
         expect(question.answerIndex).toBeLessThan(4)
       } else {
-        expect((question.criteria ?? question.expectedSignals)?.length).toBeGreaterThanOrEqual(3)
+        const reviewSignals = question.criteria ?? question.expectedSignals ?? []
+        if (reviewSignals.length === 0) {
+          expect(question.id).toBe('mastery-audience-choice')
+          expect(question.explanation).toMatch(/^Câu hỏi này không tính điểm/)
+        } else {
+          expect(reviewSignals.length).toBeGreaterThanOrEqual(3)
+        }
       }
     }
   })

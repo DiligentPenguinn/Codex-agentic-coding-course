@@ -32,20 +32,16 @@ async function manifest(): Promise<ModuleTwoManifest> {
 }
 
 describe('Module 2 portfolio contract', () => {
-  it('declares five ordered milestones and a combined evidence/mastery unlock gate', async () => {
+  it('declares one Course Companion lesson and keeps the five-stage Practice gate', async () => {
     const moduleTwo = await manifest()
 
     expect(moduleTwo.titleVi).toBe('Planning và PRD trước khi code với AI')
     expect(moduleTwo.estimatedMinutes).toBeUndefined()
     expect(moduleTwo.lessons.map((lesson) => lesson.id)).toEqual([
-      'm2-portfolio-brief',
-      'm2-content-evidence-inventory',
-      'm2-visual-reference',
-      'm2-portfolio-prd',
-      'm2-implementation-contract'
+      'm2-portfolio-brief'
     ])
     expect(moduleTwo.lessons.every((lesson) => lesson.estimatedMinutes === undefined)).toBe(true)
-    expect(moduleTwo.lessons.flatMap((lesson) => lesson.checkpoints)).toEqual(moduleTwo.checkpoints)
+    expect(moduleTwo.lessons[0]?.checkpoints).toEqual(moduleTwo.checkpoints)
     expect(moduleTwo.artifactGateCheckpoint).toBe('m2-portfolio-planning')
     expect(moduleTwo.masteryGateCheckpoint).toBe('m2-portfolio-mastery')
     expect(moduleTwo.nextLessonId).toBe('module-3')

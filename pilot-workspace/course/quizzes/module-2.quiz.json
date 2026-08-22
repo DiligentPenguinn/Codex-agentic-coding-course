@@ -25,246 +25,6 @@
   },
   "groups": [
     {
-      "id": "brief-retrieval",
-      "title": "Kiểm tra lại bản mô tả ngắn",
-      "placement": "after-m2-portfolio-brief",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "brief-retrieval-1",
-          "sceneId": "module-2-check-brief-viewer",
-          "type": "multiple-choice",
-          "prompt": "An muốn portfolio giúp mình được mời phỏng vấn vị trí phân tích dữ liệu. Nhóm nào là người xem chính rõ nhất cho phiên bản đầu?",
-          "choices": [
-            "Tất cả những người dùng internet.",
-            "Người tuyển dụng hoặc quản lý tuyển vị trí phân tích dữ liệu.",
-            "Bạn bè thích giao diện đẹp.",
-            "Bất kỳ ai làm trong ngành công nghệ."
-          ],
-          "answerIndex": 1,
-          "explanation": "Người xem chính phải liên kết với mục tiêu và quyết định cần đưa ra. Nhóm tuyển đúng vai trò có thể đánh giá bằng chứng và quyết định mời phỏng vấn; các nhóm còn lại quá rộng hoặc không gắn với mục tiêu.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "GOV.UK — Learning about users and their needs",
-            "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
-            "basis": "Thiết kế nên bắt đầu từ nhóm người dùng có khả năng sử dụng sản phẩm, điều họ muốn làm và kết quả họ cần đạt."
-          }
-        },
-        {
-          "id": "brief-retrieval-2",
-          "sceneId": "module-2-check-brief-success",
-          "type": "multiple-choice",
-          "prompt": "Sau khi xem portfolio, người xem cần hiểu hoặc làm được điều gì để bạn biết trang đã truyền đạt đúng thông điệp?",
-          "choices": [
-            "Portfolio trông thật chuyên nghiệp.",
-            "Ai cũng thích portfolio.",
-            "Người xem tìm được vai trò, hai dự án liên quan và cách liên hệ mà không phải hỏi lại.",
-            "Portfolio tạo cảm giác tuyệt vời."
-          ],
-          "answerIndex": 2,
-          "explanation": "Câu trả lời rõ nêu thông tin người xem cần hiểu hoặc hành động họ cần làm được. Những từ như chuyên nghiệp, thích hoặc tuyệt vời chưa cho biết trang cần truyền đạt điều gì.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Cột mốc portfolio brief yêu cầu một người xem chính, quyết định của họ và một success statement có thể dùng để đánh giá kết quả truyền đạt."
-          }
-        }
-      ]
-    },
-    {
-      "id": "evidence-retrieval",
-      "title": "Kiểm tra lại nội dung và bằng chứng",
-      "placement": "after-m2-content-evidence-inventory",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "evidence-retrieval-1",
-          "sceneId": "module-2-check-evidence-status",
-          "type": "multiple-choice",
-          "prompt": "Bạn nhớ mình từng tăng doanh thu 30% nhưng chưa tìm được báo cáo gốc. Trạng thái phù hợp nhất lúc này là gì?",
-          "choices": [
-            "Có bằng chứng.",
-            "Còn thiếu bằng chứng và chưa công khai như một sự thật chắc chắn.",
-            "Được phép công khai nên chắc chắn đúng.",
-            "Không cần ghi vào inventory."
-          ],
-          "answerIndex": 1,
-          "explanation": "Khi chưa có nguồn phù hợp, con số không nên được trình bày như một sự thật đã có bằng chứng. Ghi rõ khoảng trống giữ cho kế hoạch trung thực và tạo một việc tiếp theo cụ thể.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "GOV.UK — Learning about users and their needs",
-            "url": "https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs",
-            "basis": "Ý kiến hoặc đề xuất không xuất phát từ bằng chứng người dùng phải được coi là giả định cần được kiểm chứng."
-          }
-        },
-        {
-          "id": "evidence-retrieval-2",
-          "sceneId": "module-2-check-evidence-permission",
-          "type": "multiple-choice",
-          "prompt": "Một ảnh chụp dự án là ảnh thật nhưng khách hàng chưa cho phép công bố. Tài liệu nên ghi thế nào?",
-          "choices": [
-            "Có bằng chứng và được phép công khai.",
-            "Có bằng chứng, nhưng quyền công bố chưa rõ nên chưa dùng công khai.",
-            "Đang giả định và được phép công khai.",
-            "Xóa thông tin nguồn để tránh phải xin phép."
-          ],
-          "answerIndex": 1,
-          "explanation": "Trạng thái sự thật và quyền công bố là hai kiểm tra riêng. Ảnh có thể là bằng chứng thật nhưng vẫn phải nằm ngoài bản công khai cho đến khi quyền sử dụng rõ ràng.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Cột mốc inventory được phê duyệt yêu cầu phân biệt bằng chứng, khoảng trống, rủi ro riêng tư và ràng buộc công bố."
-          }
-        }
-      ]
-    },
-    {
-      "id": "reference-retrieval",
-      "title": "Kiểm tra lại tham chiếu hình ảnh",
-      "placement": "after-m2-visual-reference",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "reference-retrieval-1",
-          "sceneId": "module-2-check-reference-boundary",
-          "type": "multiple-choice",
-          "prompt": "Cách nào dùng một portfolio tham chiếu đúng ranh giới của khóa học?",
-          "choices": [
-            "Sao chép nguyên nội dung và ảnh rồi đổi tên.",
-            "Ghi điều mình thích về thứ bậc thông tin, lưu nguồn và không dùng lại tài sản của trang.",
-            "Tải mã nguồn để Codex làm giống hệt.",
-            "Xóa URL nguồn sau khi chụp ảnh."
-          ],
-          "answerIndex": 1,
-          "explanation": "Tham chiếu dùng để diễn đạt hướng và điểm nhấn. Lưu nguồn, mô tả điều muốn học theo và không dùng lại nội dung hoặc tài sản giúp giữ ranh giới sở hữu rõ ràng.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Gói tham chiếu được phê duyệt chỉ giữ một nguồn, ảnh chụp hữu ích và URL; việc diễn giải thiết kế được hoãn sang Module 3."
-          }
-        },
-        {
-          "id": "reference-retrieval-2",
-          "sceneId": "module-2-check-reference-record",
-          "type": "multiple-choice",
-          "prompt": "Một trang tham chiếu có chuyển động và có thể thay đổi. Bằng chứng nào giúp bạn kiểm tra lại điều đã chọn?",
-          "choices": [
-            "Chỉ nhớ tên trang.",
-            "URL nguồn, ngày truy cập và ảnh chụp đúng trạng thái hữu ích.",
-            "Một ảnh không có nguồn.",
-            "Bản sao toàn bộ hình ảnh của trang."
-          ],
-          "answerIndex": 1,
-          "explanation": "URL giữ nguồn gốc, ngày truy cập cho biết thời điểm quan sát và ảnh chụp giữ đúng trạng thái đã dùng để thảo luận mà không cần sao chép tài sản vào sản phẩm.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Kết luận kiểm toán nguồn Module 3",
-            "url": "docs/planning/portfolio-course-v1/RESEARCH_SOURCES.md#module-3-source-audit-conclusion",
-            "basis": "Khóa học dùng brief, nội dung và hướng hình ảnh đã duyệt làm đầu vào để so sánh và lặp lại trong trình duyệt; ảnh chụp giữ trạng thái tham chiếu cần kiểm tra."
-          }
-        }
-      ]
-    },
-    {
-      "id": "prd-retrieval",
-      "title": "Kiểm tra lại PRD",
-      "placement": "after-m2-portfolio-prd",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "prd-retrieval-1",
-          "sceneId": "module-2-check-prd-requirement",
-          "type": "multiple-choice",
-          "prompt": "Yêu cầu nào phù hợp với PRD Module 2 nhất?",
-          "choices": [
-            "Dùng React và thư viện giao diện X.",
-            "Trên màn hình hẹp, người xem vẫn đọc được tên dự án và vai trò mà không cuộn ngang.",
-            "Tạo component ProjectCard trong tệp đã định.",
-            "Cài ba dependency trước khi bắt đầu."
-          ],
-          "answerIndex": 1,
-          "explanation": "PRD mô tả kết quả sản phẩm có thể quan sát mà chưa khóa cách triển khai. Các lựa chọn còn lại quyết định công nghệ, tệp hoặc dependency quá sớm.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Task Design Review",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
-            "basis": "Task design tách mục tiêu và tiêu chí chấp nhận trong phạm vi khỏi lựa chọn công nghệ và phương án triển khai."
-          }
-        },
-        {
-          "id": "prd-retrieval-2",
-          "sceneId": "module-2-check-prd-accessibility",
-          "type": "multiple-choice",
-          "prompt": "Vì sao PRD cần nêu bàn phím, focus và văn bản thay thế trước khi xây?",
-          "choices": [
-            "Để chọn framework nhanh hơn.",
-            "Để khả năng tiếp cận trở thành yêu cầu có thể kiểm tra từ sớm, không phải phần trang trí thêm sau.",
-            "Để bỏ kiểm tra của con người.",
-            "Để đảm bảo mọi công cụ tự động đều cho cùng kết quả."
-          ],
-          "answerIndex": 1,
-          "explanation": "W3C khuyên đánh giá khả năng tiếp cận sớm và trong suốt quá trình. Công cụ hỗ trợ nhưng vẫn cần đánh giá của con người, nên các hành vi cần được đưa vào yêu cầu và phép kiểm tra ngay từ đầu.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "W3C WAI — Evaluating Web Accessibility",
-            "url": "https://www.w3.org/WAI/test-evaluate/",
-            "basis": "Khả năng tiếp cận nên được đánh giá sớm và xuyên suốt; công cụ có ích nhưng không thay thế hoàn toàn đánh giá của con người."
-          }
-        }
-      ]
-    },
-    {
-      "id": "planning-retrieval",
-      "title": "Kiểm tra trì hoãn trước mastery",
-      "placement": "before-m2-mastery",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "planning-retrieval-1",
-          "sceneId": "module-2-check-delayed-scope",
-          "type": "multiple-choice",
-          "prompt": "PRD để blog ở ngoài phạm vi nhưng implementation plan có phase xây blog. Bạn nên làm gì trước?",
-          "choices": [
-            "Giữ phase vì Codex đã đề xuất.",
-            "Loại phase, hoặc chủ động sửa và duyệt lại PRD trước khi giữ nó.",
-            "Bắt đầu xây rồi quyết định sau.",
-            "Ẩn phase trong câu hỏi còn mở."
-          ],
-          "answerIndex": 1,
-          "explanation": "Plan phải phục vụ mục tiêu trong phạm vi. Một phase ngoài PRD phải bị loại hoặc trở thành một thay đổi phạm vi rõ ràng được Learner xem xét và duyệt trước.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Task Design Review",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/design/design-reviews/recipes/templates/template-task-design-review/",
-            "basis": "Task design tách rõ Goals/In-Scope và Non-goals/Out-of-Scope trước khi trình bày phương án thực hiện."
-          }
-        },
-        {
-          "id": "planning-retrieval-2",
-          "sceneId": "module-2-check-delayed-evidence",
-          "type": "multiple-choice",
-          "prompt": "Ngay trước gate, một kết quả dự án vẫn chỉ do bạn xác nhận và ảnh minh họa chưa rõ quyền công bố. Kết luận phù hợp là gì?",
-          "choices": [
-            "Đủ sẵn sàng vì PRD đã viết xong.",
-            "Giữ đúng nhãn, chặn nội dung chưa có quyền khỏi bản công khai và ghi việc cần làm trước khi xây.",
-            "Đổi cả hai thành Có bằng chứng để qua gate.",
-            "Bỏ qua vì đây chỉ là planning."
-          ],
-          "answerIndex": 1,
-          "explanation": "Gate phải giữ nguyên sự trung thực và ràng buộc công bố đã ghi trong inventory. PRD hoặc plan hoàn chỉnh không biến bằng chứng yếu hay quyền chưa rõ thành bằng chứng hợp lệ.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-008 — Module 2",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-008-define-the-capability-milestones-within-modules-2-4",
-            "basis": "Readiness evidence yêu cầu inventory trung thực với khoảng trống, rủi ro riêng tư và ràng buộc công bố được nhận diện trước khi triển khai."
-          }
-        }
-      ]
-    },
-    {
       "id": "final-assessment",
       "title": "Mastery Module 2",
       "placement": "after-passed-m2-portfolio-planning",
@@ -274,7 +34,7 @@
           "id": "mastery-1",
           "sceneId": "module-2-mastery-scenario-viewer",
           "type": "multiple-choice",
-          "prompt": "Bạn đang cân nhắc hai việc: sửa một lỗi chính tả đã biết và xây một portfolio mới khi chưa chốt người xem, nội dung hay phạm vi. Cách làm nào phù hợp nhất?",
+          "prompt": "Bạn đang cân nhắc hai việc: 1) sửa một lỗi chính tả; 2) xây một portfolio mới ngay từ đầu. Với mỗi đầu việc, cách làm nào là hợp lý nhất?",
           "choices": [
             "Lập một kế hoạch chi tiết cho cả hai việc trước khi thay đổi bất cứ điều gì.",
             "Giao cả hai việc cho coding agent làm ngay vì đều liên quan đến ứng dụng.",
@@ -299,10 +59,10 @@
             "Chọn React trước để coding agent có thể quyết định phần còn lại dựa trên công nghệ.",
             "Tạo ngay phiên bản đầu, rồi dùng kết quả đó để đoán người xem phù hợp.",
             "Viết danh sách tệp và thư viện trước, còn mục tiêu của portfolio sẽ bổ sung sau.",
-            "Làm rõ người xem, vấn đề, kết quả cần đạt và phạm vi đầu tiên; để lựa chọn kỹ thuật sang bước triển khai."
+            "Làm rõ người xem, vấn đề, kết quả cần đạt và phạm vi triển khai đầu tiên; để lựa chọn kỹ thuật sang Implementation plan."
           ],
           "answerIndex": 3,
-          "explanation": "PRD thống nhất sản phẩm cần giải quyết vấn đề gì, dành cho ai và phải đạt kết quả nào. React, thư viện hay cấu trúc tệp là cách triển khai; chọn chúng trước không thể thay thế các quyết định về sản phẩm.",
+          "explanation": "Trước khi bắt đầu làm, hãy thống nhất sản phẩm dành cho ai, giải quyết vấn đề gì và cần đạt kết quả nào. Sau đó mới chọn các chi tiết kỹ thuật như React, thư viện và cách sắp xếp tệp.",
           "source": {
             "kind": "authoritative-source",
             "label": "Microsoft Engineering Playbook — Task Design Review",
@@ -317,12 +77,12 @@
           "prompt": "Bản nháp PRD viết “portfolio phải chuyên nghiệp và dễ dùng”, đồng thời thêm một trang blog mà bạn chưa yêu cầu. Trước khi duyệt, bạn nên làm gì?",
           "choices": [
             "Duyệt bản nháp vì coding agent đã viết đủ các phần của PRD.",
-            "Yêu cầu agent chỉ ra từ ngữ mơ hồ, nội dung tự mở rộng và kết quả chưa thể kiểm tra, rồi sửa lại trước khi bạn duyệt.",
+            "Yêu cầu coding agent chỉ ra chỗ nào mà nó cảm thấy chưa rõ, nội dung nào nó đang tự mở rộng và kết quả nào nó chưa kiểm tra được, rồi sửa lại trước khi bạn duyệt.",
             "Giữ nguyên trang blog để phòng trường hợp sau này bạn cần dùng.",
             "Bỏ toàn bộ PRD và yêu cầu coding agent bắt đầu viết ứng dụng từ đầu."
           ],
           "answerIndex": 1,
-          "explanation": "Rà soát PRD là lúc tìm yêu cầu mơ hồ, nội dung vượt phạm vi và kết quả chưa thể kiểm tra. Bạn chỉ nên duyệt sau khi bản nháp nói rõ điều cần đạt và không tự thêm những phần chưa được thống nhất.",
+          "explanation": "Nội dung PRD cần cụ thể, nêu rõ ra sản phẩm cần đạt được điều gì. Chỉ phê duyệt khi nội dung dễ hiểu, đầy đủ, và không thêm phần ngoài phạm vi đã thống nhất.",
           "source": {
             "kind": "authoritative-source",
             "label": "Microsoft Engineering Playbook — Task Design Review",
@@ -334,11 +94,11 @@
           "id": "mastery-6",
           "sceneId": "module-2-mastery-scenario-first-task",
           "type": "multiple-choice",
-          "prompt": "Bạn mới mô tả ý tưởng ban đầu, nhưng coding agent đã tự chọn người xem, mục tiêu và phạm vi rồi gửi một PRD hoàn chỉnh. Cách phản hồi nào giúp bạn vẫn giữ quyền quyết định?",
+          "prompt": "Bạn mới mô tả ý tưởng ban đầu chưa đào sâu thêm, nhưng coding agent đã tự chọn người xem, mục tiêu và phạm vi rồi gửi một PRD hoàn chỉnh. Bạn nên phản hồi lại coding agent như thế nào cho hợp lý?",
           "choices": [
             "Duyệt PRD vì coding agent đã tiết kiệm cho bạn bước trả lời câu hỏi.",
             "Yêu cầu agent bổ sung thêm nội dung nhưng giữ nguyên người xem và phạm vi đã tự chọn.",
-            "Yêu cầu agent dừng lại, hỏi bạn từng câu còn thiếu, soạn lại bản nháp và chờ bạn quyết định trước khi duyệt.",
+            "Yêu cầu agent dừng lại, hỏi bạn những ý bạn chưa chốt, soạn lại bản nháp và chờ bạn quyết định trước khi duyệt.",
             "Bỏ qua PRD và yêu cầu agent bắt đầu viết ứng dụng để bạn xem kết quả trước."
           ],
           "answerIndex": 2,
@@ -355,12 +115,8 @@
           "sceneId": "module-2-mastery-owned-audience",
           "type": "short-answer",
           "prompt": "Trong bài học, việc lập kế hoạch bắt đầu từ câu hỏi sản phẩm dành cho ai và cần giúp họ làm gì. Hãy mở `planning/portfolio-brief.md` của bạn rồi giải thích: người xem chính là ai, họ cần đưa ra quyết định gì sau khi xem portfolio, và lựa chọn này hỗ trợ mục tiêu của bạn như thế nào?",
-          "criteria": [
-            "Dẫn chiếu quyết định thật trong bản mô tả portfolio hiện tại của người học.",
-            "Nối người xem với một quyết định cụ thể và mục tiêu của chính người học.",
-            "Không dùng người xem hoặc mục tiêu trong ví dụ Mai làm câu trả lời."
-          ],
-          "explanation": "Câu trả lời cần cho thấy bạn hiểu vì sao portfolio của mình ưu tiên một người xem cụ thể. Chỉ nhắc lại định nghĩa hoặc dùng người xem trong ví dụ Mai chưa chứng minh được quyết định của bạn.",
+          "criteria": [],
+          "explanation": "Câu hỏi này không tính điểm, nó chỉ tạo cơ hội cho bạn tự xem lại PRD của mình",
           "source": {
             "kind": "authoritative-source",
             "label": "GOV.UK — Learning about users and their needs",

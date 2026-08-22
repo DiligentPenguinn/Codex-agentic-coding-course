@@ -246,10 +246,15 @@ export class PortfolioModuleCompletionService {
     if (slices.length !== 4 || !slices.every((receipt, index) => receipt.courseRunId === progress.courseRunId
       && receipt.sliceIndex === index + 1 && receipt.freshness === 'current'
       && sameDigests(receipt.artifactDigests, digests))) throw new Error('Four current build slice receipts are required')
-    const questionIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+    const questionIds = [
+      'm3-mastery-plan',
+      'm3-mastery-visible-error',
+      'm3-mastery-logs',
+      'm3-mastery-repeated-error',
+      'm3-mastery-branch'
+    ]
     const answers = questionIds.map((id) => progress.decisions[`assessment:${id}`] ?? '')
-    if (answers.some((answer) => !answer.startsWith('correct'))
-      || answers.slice(3).some((answer) => answer.slice('correct:self-review:'.length).trim().length < 20)) {
+    if (answers.some((answer) => !answer.startsWith('correct'))) {
       throw new Error('Module 3 mastery evidence is incomplete')
     }
     const sourceCheckpoint = receipts.find((item) => item.stageId === 'independent-enhancement')?.evidence.executorReportedChecks.find((item) => /checkpoint|commit/i.test(item))
@@ -265,7 +270,7 @@ export class PortfolioModuleCompletionService {
       status: 'completed',
       completedAt,
       evidenceSummary: 'Đã đối chiếu tám artifact, năm stage, bốn phần xây dựng, npm run check và bằng chứng trình duyệt hiện tại.',
-      masterySummary: 'Đã lưu ba câu tình huống và hai câu giải thích từ artifact của người học.',
+      masterySummary: 'Đã lưu năm câu trả lời tổng kết Module 3.',
       destination: { lessonId: 'module-3', checkpointId: 'm3-complete', sceneId: 'module-3-complete' },
       portfolioBuildHandoff: {
         schemaVersion: 1,

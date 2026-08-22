@@ -48,14 +48,53 @@ const RETIRED_MODULE_ONE_SCENES = new Set([
   'module-1-project-setup'
 ])
 const RETIRED_MODULE_ONE_ASSESSMENT_SCENES = new Set<string>()
+const RETIRED_MODULE_TWO_PLAN_SCENES = new Set([
+  'module-2-plan-example',
+  'module-2-plan-requirements',
+  'module-2-plan-steps',
+  'module-2-plan-testing',
+  'module-2-plan-risks'
+])
+const RETIRED_MODULE_TWO_PRACTICE_SETUP_SCENES = new Set([
+  'module-2-portfolio-practice-intro',
+  'module-2-portfolio-agents-setup',
+  'module-2-portfolio-brief',
+  'module-2-portfolio-brief-example',
+  'module-2-check-brief-viewer',
+  'module-2-check-brief-success',
+  'module-2-content-evidence-inventory',
+  'module-2-content-evidence-example',
+  'module-2-check-evidence-status',
+  'module-2-check-evidence-permission',
+  'module-2-visual-reference',
+  'module-2-visual-reference-example',
+  'module-2-check-reference-boundary',
+  'module-2-check-reference-record',
+  'module-2-portfolio-prd',
+  'module-2-portfolio-prd-example',
+  'module-2-check-prd-requirement',
+  'module-2-check-prd-accessibility',
+  'module-2-implementation-contract',
+  'module-2-implementation-contract-example',
+  'module-2-check-delayed-scope',
+  'module-2-check-delayed-evidence'
+])
 const RETIRED_MODULE_TWO_SCENES = new Set([
   'module-2-prd-anatomy',
   'module-2-prd-introduction',
+  ...RETIRED_MODULE_TWO_PLAN_SCENES,
+  ...RETIRED_MODULE_TWO_PRACTICE_SETUP_SCENES,
   'module-2-mastery-scenario-evidence',
   'module-2-mastery-scenario-reference',
   'module-2-mastery-owned-scope',
   'module-2-mastery-owned-evidence',
   'module-2-mastery-owned-validation'
+])
+const RETIRED_MODULE_TWO_LESSONS = new Set([
+  'm2-content-evidence-inventory',
+  'm2-visual-reference',
+  'm2-portfolio-prd',
+  'm2-implementation-contract'
 ])
 const RETIRED_MODULE_ONE_CHECKPOINTS = new Set([
   'm1-permissions',
@@ -93,6 +132,31 @@ const RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS = new Set([
   'mastery-scope-boundary',
   'mastery-evidence-gap',
   'mastery-requirement-validation'
+])
+const RETIRED_MODULE_THREE_SCENE_DESTINATIONS = new Map<string, SceneId>([
+  ['module-3-scaffold-intro', 'module-3-readiness'],
+  ['module-3-check-scaffold-boundary', 'module-3-readiness'],
+  ['module-3-implementation-cycle', 'module-3-readiness'],
+  ['module-3-first-version-intro', 'module-3-debugging-intro'],
+  ['module-3-check-slice-gate', 'module-3-debugging-intro'],
+  ['module-3-revision-intro', 'module-3-git-intro'],
+  ['module-3-check-revision-scope', 'module-3-git-intro'],
+  ['module-3-check-debug-order', 'module-3-repeated-error'],
+  ['module-3-enhancement-intro', 'module-3-portfolio-practice'],
+  ['module-3-check-enhancement-boundary', 'module-3-portfolio-practice'],
+  ['module-3-practice-intro', 'module-3-portfolio-practice'],
+  ['module-3-mastery-scaffold', 'module-3-portfolio-mastery'],
+  ['module-3-mastery-slice', 'module-3-portfolio-mastery'],
+  ['module-3-mastery-debug', 'module-3-portfolio-mastery'],
+  ['module-3-mastery-owned-revision', 'module-3-portfolio-mastery'],
+  ['module-3-mastery-owned-enhancement', 'module-3-portfolio-mastery']
+])
+const RETIRED_MODULE_THREE_MASTERY_QUESTION_IDS = new Set([
+  'm3-mastery-1',
+  'm3-mastery-2',
+  'm3-mastery-3',
+  'm3-mastery-owned-revision',
+  'm3-mastery-owned-enhancement'
 ])
 
 function hasRetiredModuleOneReferences(value: Record<string, unknown>): boolean {
@@ -168,6 +232,8 @@ function redirectRetiredModuleOneReferences(raw: Record<string, unknown>): Recor
 
 function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Record<string, unknown> {
   const hasRetiredScene = typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(raw.sceneId)
+  const hasRetiredLesson = typeof raw.currentCourseLessonId === 'string'
+    && RETIRED_MODULE_TWO_LESSONS.has(raw.currentCourseLessonId)
   const hasRetiredHistory = Array.isArray(raw.sceneHistory) && raw.sceneHistory.some(
     (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(sceneId)
   )
@@ -175,16 +241,28 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
     && Object.keys(raw.decisions).some((key) =>
       key.startsWith('assessment:')
       && RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length)))
-  if (!hasRetiredScene && !hasRetiredHistory && !hasRetiredMasteryAnswer) return raw
+  if (!hasRetiredScene && !hasRetiredLesson && !hasRetiredHistory && !hasRetiredMasteryAnswer) return raw
+  const destination = typeof raw.sceneId === 'string'
+    && RETIRED_MODULE_TWO_PRACTICE_SETUP_SCENES.has(raw.sceneId)
+    ? 'module-2-portfolio-practice'
+    : undefined
   return {
     ...raw,
-    sceneId: raw.sceneId === 'module-2-prd-anatomy'
+    sceneId: destination
+      ? destination
+      : raw.sceneId === 'module-2-prd-anatomy'
       ? 'module-2-prd-review-workflow'
       : raw.sceneId === 'module-2-prd-introduction'
         ? 'module-2-prd-agent-workflow'
-        : typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(raw.sceneId)
-          ? 'module-2-mastery-scenario-viewer'
-        : raw.sceneId,
+        : typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_PLAN_SCENES.has(raw.sceneId)
+          ? 'module-2-implementation-plan-intro'
+          : typeof raw.sceneId === 'string' && RETIRED_MODULE_TWO_SCENES.has(raw.sceneId)
+            ? 'module-2-mastery-scenario-viewer'
+            : raw.sceneId,
+    checkpointId: destination ? sceneCheckpoint[destination] : raw.checkpointId,
+    currentCourseLessonId: destination || hasRetiredLesson
+      ? 'm2-portfolio-brief'
+      : raw.currentCourseLessonId,
     sceneHistory: Array.isArray(raw.sceneHistory)
       ? raw.sceneHistory.filter(
           (sceneId) => typeof sceneId !== 'string' || !RETIRED_MODULE_TWO_SCENES.has(sceneId)
@@ -194,6 +272,35 @@ function redirectRetiredModuleTwoReferences(raw: Record<string, unknown>): Recor
       ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) =>
           !key.startsWith('assessment:')
           || !RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length))))
+      : raw.decisions
+  }
+}
+
+function redirectRetiredModuleThreeReferences(raw: Record<string, unknown>): Record<string, unknown> {
+  const destination = typeof raw.sceneId === 'string'
+    ? RETIRED_MODULE_THREE_SCENE_DESTINATIONS.get(raw.sceneId)
+    : undefined
+  const hasRetiredHistory = Array.isArray(raw.sceneHistory) && raw.sceneHistory.some(
+    (sceneId) => typeof sceneId === 'string' && RETIRED_MODULE_THREE_SCENE_DESTINATIONS.has(sceneId)
+  )
+  const hasRetiredMasteryAnswer = isRecord(raw.decisions)
+    && Object.keys(raw.decisions).some((key) =>
+      key.startsWith('assessment:')
+      && RETIRED_MODULE_THREE_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length)))
+  if (!destination && !hasRetiredHistory && !hasRetiredMasteryAnswer) return raw
+  return {
+    ...raw,
+    sceneId: destination ?? raw.sceneId,
+    checkpointId: destination ? sceneCheckpoint[destination] : raw.checkpointId,
+    currentCourseLessonId: destination ? courseLessonIdForScene(destination) : raw.currentCourseLessonId,
+    sceneHistory: Array.isArray(raw.sceneHistory)
+      ? raw.sceneHistory.filter((sceneId) =>
+          typeof sceneId !== 'string' || !RETIRED_MODULE_THREE_SCENE_DESTINATIONS.has(sceneId))
+      : raw.sceneHistory,
+    decisions: isRecord(raw.decisions)
+      ? Object.fromEntries(Object.entries(raw.decisions).filter(([key]) =>
+          !key.startsWith('assessment:')
+          || !RETIRED_MODULE_THREE_MASTERY_QUESTION_IDS.has(key.slice('assessment:'.length))))
       : raw.decisions
   }
 }
@@ -533,7 +640,9 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
   if (!isIsoDate(startedAt) || !isIsoDate(updatedAt)) return null
 
   if (schemaVersion === LEARNER_STATE_SCHEMA_VERSION && courseVersion === COURSE_VERSION) {
-    const redirected = redirectRetiredModuleTwoReferences(redirectRetiredModuleOneReferences(raw))
+    const redirected = redirectRetiredModuleThreeReferences(
+      redirectRetiredModuleTwoReferences(redirectRetiredModuleOneReferences(raw))
+    )
     const compatible = {
       ...redirected,
       ...(redirected.courseRunId === undefined ? { courseRunId: courseRunId(startedAt) } : {}),
@@ -721,7 +830,13 @@ export class ProgressRepository {
       if (progress.sceneId !== 'module-3-mastery-summary' || receipt.courseRunId !== progress.courseRunId) {
         throw new Error('Module 3 completion does not match the current learner checkpoint')
       }
-      const masteryIds = ['m3-mastery-1', 'm3-mastery-2', 'm3-mastery-3', 'm3-mastery-owned-revision', 'm3-mastery-owned-enhancement']
+      const masteryIds = [
+        'm3-mastery-plan',
+        'm3-mastery-visible-error',
+        'm3-mastery-logs',
+        'm3-mastery-repeated-error',
+        'm3-mastery-branch'
+      ]
       if (!masteryIds.every((id) => progress.decisions[`assessment:${id}`]?.startsWith('correct'))) {
         throw new Error('Module 3 mastery evidence is incomplete')
       }

@@ -358,6 +358,21 @@ async function loadSurface(
   })
 }
 
+function openNewWindowsInDefaultBrowser(targetWindow: BrowserWindow): void {
+  targetWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const destination = new URL(url)
+      if (destination.protocol === 'https:') {
+        void shell.openExternal(destination.toString())
+      }
+    } catch {
+      // Reject malformed or non-web destinations without navigating the app.
+    }
+
+    return { action: 'deny' }
+  })
+}
+
 function createMainWindow(): BrowserWindow {
   const window = new BrowserWindow({
     width: 1180,
@@ -375,6 +390,7 @@ function createMainWindow(): BrowserWindow {
     }
   })
 
+  openNewWindowsInDefaultBrowser(window)
   window.once('ready-to-show', () => window.show())
 
   window.on('close', (event) => {
