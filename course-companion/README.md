@@ -33,6 +33,8 @@ The current app proves:
 - recoverable fresh Practice switching that leaves the old Codex chat unchanged;
 - Teacher and Progress peer tabs with persisted compact/full presentation state;
 - a checklist-based Practice progress view;
+- automatic, versioned first-run guidance for the Module 1 Practice loop, with
+  accessible pause, skip, resume, replay, and mastery confirmation;
 - an Electron-owned fixture evidence adapter with started, approval-required,
   success,
   stale-evidence, offline, and error fixtures;
@@ -59,6 +61,11 @@ Learner progress is stored by Electron in the operating system's application
 data directory. It is not stored in browser `localStorage` or inside the
 repository.
 
+Practice guidance is stored separately in `practice-guide-state.json` in the
+same operating-system application-data directory. It contains presentation
+state only; it never changes learner checkpoints, Practice evidence, review
+results, completion receipts, or the five Module 1 configuration criteria.
+
 Production uses the real local Codex App Server for Teacher inference. Development
 smoke tests set `COURSE_COMPANION_FAKE_CODEX=1`; only that deterministic path is
 visibly labeled **MÔ PHỎNG**.
@@ -70,6 +77,24 @@ Starting a Practice is different: Course Companion creates and verifies a real
 Codex chat. In development tests only, `COURSE_COMPANION_FAKE_CODEX=1` swaps in
 a deterministic non-packaged gateway so the smoke suite never creates user tasks.
 
+
+## Module 1 Practice guidance
+
+When a fresh Module 1 Practice run reaches the stable full Teacher workspace,
+Course Companion automatically opens the first-run guide. The learner controls
+every step: **Esc** pauses it, **Bỏ qua** skips it, the paused notice resumes it,
+and **Xem lại hướng dẫn Practice** starts an in-memory replay. Replay does not
+reset the guide, Practice run, evidence, review, or course progress.
+
+The guide observes real tab selections, review requests, and course return. It
+never clicks those controls, sends an Executor or Teacher message, edits
+configuration, or awards completion. It is ungraded; the existing evidence
+review and completion receipt remain the only authorities.
+
+Guide definitions live in `content/practice-guides/`. Development and packaged
+content resolution mirrors Practice definitions. Set
+`COURSE_COMPANION_PRACTICE_GUIDES_DIR` to an absolute directory only when
+testing alternate local guide content.
 ## Start on Windows
 
 From the repository root, run:
@@ -134,9 +159,14 @@ run `./start-course.command --smoke`.
 5. Single-click the bubble for the quick Teacher/Progress window. Use the
    expand icon for the full Teacher workspace; double-clicking the bubble is a
    shortcut to the same full-screen state.
-6. In full-screen Teacher, use the minimize icon to return directly to the
+6. Confirm the Module 1 guide opens automatically in the stable full Teacher
+   workspace. Exercise pause/resume or skip, then use the real tabs, evidence,
+   review, and return controls. Confirm the guide never performs those actions.
+7. After returning, dismiss the inline Practice-loop confirmation. Reopen the
+   full Teacher workspace and confirm **Xem lại hướng dẫn Practice** is available.
+8. In full-screen Teacher, use the minimize icon to return directly to the
    72px bubble. Use the close icon to reveal the unchanged lesson.
-7. Bring Codex forward and confirm the bubble stays above it when always-on-top
+9. Bring Codex forward and confirm the bubble stays above it when always-on-top
    is enabled, then quit and relaunch to confirm the preference persists.
 
 The UI, repository, state machine, IPC contracts, and one-active-Practice rule

@@ -41,6 +41,16 @@ describe('Codex configuration normalizer', () => {
     expect(result.fullAccess).toEqual({ protocolValue: 'off', label: 'Off' })
   })
 
+  it.each([null, 'default', 'standard'])(
+    'canonicalizes persisted Standard tier alias %s',
+    (serviceTier) => {
+      expect(normalize(startPayload({ serviceTier })).serviceTier).toEqual({
+        protocolValue: 'standard',
+        label: 'Standard'
+      })
+    }
+  )
+
   it.each([
     ['model', { model: 'gpt-5.6-terra' }, 'gpt-5.6-terra'],
     ['effort', { reasoningEffort: 'medium' }, 'medium'],

@@ -130,7 +130,7 @@ describe('Module 1 Practice renderer', () => {
       }))
     }))
     expect(stale).toContain('CHƯA THỂ XÁC MINH')
-    expect(stale).toContain('Mất kết nối')
+    expect(stale).toContain('Chưa đọc được')
 
     const unavailable = renderToStaticMarkup(createElement(PracticeProgress, {
       workspace: workspace(null)
@@ -160,6 +160,48 @@ describe('Module 1 Practice renderer', () => {
     expect(full).toContain('ĐÃ ĐẠT')
     expect(full).toContain('Quay lại khóa học</button>')
     expect(compact).toContain('practice-progress is-compact')
+  })
+
+  it('keeps objectives, criteria, configuration, and timestamps out of compact mode', () => {
+    const compact = renderToStaticMarkup(createElement(PracticeProgress, {
+      workspace: {
+        ...workspace(),
+        review: {
+          status: 'needs-work',
+          canReview: true,
+          canReturn: false,
+          result: {
+            schemaVersion: 1,
+            practiceId: 'm1-codex-safe-setup',
+            practiceVersion: '2.0.0',
+            runId: 'run-1',
+            verdict: 'needs-work',
+            criteria: [{
+              criterionId: 'unmapped-private-detail',
+              status: 'unsatisfied',
+              evidenceRefs: ['configuration-model'],
+              explanation: 'PRIVATE CRITERION EXPLANATION'
+            }],
+            summary: 'PRIVATE REVIEW SUMMARY',
+            reviewedAt: observedAt,
+            sourceDigest: 'a'.repeat(64)
+          }
+        }
+      },
+      compact: true
+    }))
+
+    expect(compact).toContain('0/1 bước hoàn thành')
+    expect(compact).toContain('Hiện tại: Chọn Model 5.6 Sol')
+    expect(compact).toContain('Tất cả các bước Practice')
+    expect(compact).toContain('aria-expanded="false"')
+    expect(compact).not.toContain('Mở bộ chọn Model trong task Codex')
+    expect(compact).not.toContain('Thiết lập Codex an toàn.')
+    expect(compact).not.toContain('Đủ năm giá trị.')
+    expect(compact).not.toContain('PRIVATE CRITERION EXPLANATION')
+    expect(compact).not.toContain('PRIVATE REVIEW SUMMARY')
+    expect(compact).not.toContain('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN')
+    expect(compact).not.toContain(observedAt)
   })
 
   it('keeps Practice animation disabled for reduced-motion users', async () => {
@@ -269,14 +311,23 @@ describe('Module 2 Practice renderer', () => {
     expect(html).not.toContain('m2-planning-package')
   })
 
-  it('uses the same evidence projection in compact mode', () => {
+  it('uses a progress-only projection in compact mode', () => {
     const html = renderToStaticMarkup(createElement(PracticeProgress, {
       workspace: planningWorkspace,
       compact: true
     }))
     expect(html).toContain('practice-progress is-compact')
-    expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).toContain('1/3 bước hoàn thành')
+    expect(html).toContain('Hiện tại: Đối chiếu alignment')
     expect(html).toContain('CẦN BỔ SUNG')
+    expect(html).toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')
+    for (const step of planningWorkspace.checklist) expect(html).toContain(step.title)
+    expect(html.match(/aria-expanded="false"/g)).toHaveLength(planningWorkspace.checklist.length)
+    expect(html).not.toContain('HƯỚNG DẪN')
+    expect(html).not.toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).not.toContain('app/globals.css')
+    expect(html).not.toContain('PLANNING PACKAGE')
+    expect(html).not.toContain('PRD.md')
   })
 })
 

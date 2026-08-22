@@ -12,6 +12,9 @@ import type {
   PortfolioWorkspaceRequest,
   PortfolioWorkspaceView,
   PracticeReviewResponse,
+  PracticeGuideSurfaceContext,
+  PracticeGuideUpdateRequest,
+  PracticeGuideView,
   PracticeStartRequest,
   PracticeWorkspaceView,
   PracticeFixtureRequest,
@@ -45,6 +48,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:emit-practice-fixture', request) as Promise<PracticeState>,
   loadPracticeWorkspace: (identity?: PracticeIdentity) =>
     ipcRenderer.invoke('course:load-practice-workspace', identity) as Promise<PracticeWorkspaceView>,
+  hasActivePractice: () =>
+    ipcRenderer.invoke('course:has-active-practice') as Promise<boolean>,
   startPractice: (request: PracticeStartRequest) =>
     ipcRenderer.invoke('course:start-practice', request) as Promise<PracticeWorkspaceView>,
   resumePractice: (identity?: PracticeIdentity) =>
@@ -61,6 +66,10 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>
     ipcRenderer.invoke('course:review-practice') as Promise<PracticeReviewResponse>,
+  loadPracticeGuide: (context: PracticeGuideSurfaceContext) =>
+    ipcRenderer.invoke('course:load-practice-guide', context) as Promise<PracticeGuideView | null>,
+  updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext) =>
+    ipcRenderer.invoke('course:update-practice-guide', request, context) as Promise<PracticeGuideView | null>,
   returnPassedPractice: () =>
     ipcRenderer.invoke('course:return-passed-practice') as Promise<void>,
   onPracticeReturned: (callback: () => void) => {

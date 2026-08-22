@@ -12,6 +12,8 @@ import {
   type LessonId,
   type ProgressLoadResult,
   type ProgressUpdate,
+  type PracticeGuideUpdateRequest,
+  type PracticeGuideView,
   type RuntimeInfo,
   type SceneId
 } from '../../../../shared/contracts'
@@ -46,6 +48,7 @@ import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
+import { PracticeGuide } from '../components/PracticeGuide'
 import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
   registryLessonDefinitions,
@@ -2431,6 +2434,7 @@ export function LearningWindow() {
   const [visualExpanded, setVisualExpanded] = useState(false)
   const [secondaryVisualExpanded, setSecondaryVisualExpanded] = useState(false)
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
+  const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
@@ -2495,6 +2499,9 @@ export function LearningWindow() {
 
         const loadedProgress = await advanceFromCompletedPractice(loadResult.progress)
         setProgress(loadedProgress)
+        if (api) {
+          setPracticeGuide(await api.loadPracticeGuide({ surface: 'learning' }))
+        }
         setRecovered(loadResult.status === 'recovered')
         setView('resume')
       } catch {
@@ -2524,6 +2531,8 @@ export function LearningWindow() {
           const loadResult = await window.courseCompanion?.loadProgress()
           if (!loadResult || (loadResult.status !== 'returning' && loadResult.status !== 'recovered')) return
           setProgress(loadResult.progress)
+          const guide = await window.courseCompanion?.loadPracticeGuide({ surface: 'learning' })
+          setPracticeGuide(guide ?? null)
           setPracticeBriefOpen(false)
           setPracticeFullOpen(false)
           setTeacherOpen(false)
@@ -2536,6 +2545,15 @@ export function LearningWindow() {
     })
     return () => unsubscribe?.()
   }, [])
+  const updatePracticeGuide = async (request: PracticeGuideUpdateRequest) => {
+    if (!window.courseCompanion) return
+    try {
+      setPracticeGuide(await window.courseCompanion.updatePracticeGuide(request, { surface: 'learning' }))
+    } catch {
+      // The lesson and its navigation remain authoritative if optional guidance fails.
+    }
+  }
+
   const persist = async (update: ProgressUpdate): Promise<LearnerProgress> => {
     const saved = window.courseCompanion
       ? await window.courseCompanion.saveProgress(update)
@@ -2569,6 +2587,7 @@ export function LearningWindow() {
       setProgress(null)
       setAppSettings(defaultAppSettings)
       setDestination('home')
+      setPracticeGuide(null)
       setTeacherOpen(false)
       setReviewHistoryIndex(null)
       setRecovered(false)
@@ -3061,6 +3080,7 @@ export function LearningWindow() {
           title={scene.copyPromptTitle}
         />
       ) : null}
+      <PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />
       {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}

@@ -106,7 +106,7 @@ describe('Practice review state recovery', () => {
     })
   })
 
-  it('keeps the first completion receipt while a later review needs work', async () => {
+  it('revokes the completion receipt when a later review needs work', async () => {
     const repository = new PracticeRunRepository(await directory())
     await repository.save(workspace())
     await repository.saveReview({
@@ -123,6 +123,6 @@ describe('Practice review state recovery', () => {
       updatedAt: '2026-08-10T00:01:00.000Z'
     })
     expect(later.activeRun?.reviewStatus).toBe('needs-work')
-    expect(later.activeRun?.completion).toEqual(completion)
+    expect(later.activeRun).not.toHaveProperty('completion')
   })
 })

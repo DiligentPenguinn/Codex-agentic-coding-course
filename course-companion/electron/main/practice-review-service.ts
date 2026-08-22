@@ -1,16 +1,12 @@
-import { randomUUID } from 'node:crypto'
 import type {
-  CodexTaskConfigurationSnapshot,
   PracticeCompletionReceipt,
   PracticeDefinition,
   PracticeReviewResult,
-  PracticeReviewResponse,
-  TeacherMessage
+  PracticeReviewSuccess
 } from '../../shared/contracts'
-import type { ExecutorActivityObserver } from './executor-activity-observer'
+import type { ExecutorActivitySnapshotReader } from './executor-activity-snapshot-reader'
 import type { PracticeCoordinator } from './practice-coordinator'
 import type { ProgressRepository } from './progress-repository'
-import type { TeacherChatRepository } from './teacher-fixture'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
 import {
   derivePracticeChecklist,
@@ -118,94 +114,44 @@ function evaluateConfiguration(
   }
 }
 
-function configurationGuidance(
-  configuration: CodexTaskConfigurationSnapshot | undefined,
-  result: PracticeReviewResult
-): string[] {
-  const byId = new Map(result.criteria.map((criterion) => [criterion.criterionId, criterion.status]))
-  const matches = configurationChecks
-    .filter((check) => byId.get(check.criterionId) === 'satisfied')
-    .map((check) => check.label + ' ' + check.expectedLabel)
-  const mismatches = configurationChecks
-    .filter((check) => byId.get(check.criterionId) !== 'satisfied')
-    .map((check) => {
-      const current = configuration?.[check.field]
-      return check.label + ': ' + (current?.label ?? 'chưa xác minh được')
-        + ' → cần ' + check.expectedLabel
-    })
-  const next = configurationChecks.find((check) => byId.get(check.criterionId) !== 'satisfied')
-  return [
-    'Đang khớp: ' + (matches.length > 0 ? matches.join(', ') : 'chưa có giá trị nào được xác minh.'),
-    ...(mismatches.length > 0 ? ['Chưa khớp hoặc chưa xác minh: ' + mismatches.join('; ') + '.'] : []),
-    ...(next ? ['Thao tác cài đặt tiếp theo: ' + next.action] : [])
-  ]
-}
-
-function planningGuidance(
-  envelope: PracticeReviewEnvelope,
-  result: PracticeReviewResult
-): string[] {
-  const labels = new Map(envelope.definition.criteria.map((criterion) => [
-    criterion.id,
-    criterion.description
-  ]))
-  const passed = result.criteria
-    .filter((criterion) => criterion.status === 'satisfied')
-    .map((criterion) => labels.get(criterion.criterionId) ?? criterion.criterionId)
-  const problems = result.criteria.filter((criterion) => criterion.status !== 'satisfied')
-  const prd = envelope.planning?.artifacts.find((artifact) =>
-    artifact.path === 'artifacts/PRD.md')
-  const plan = envelope.planning?.artifacts.find((artifact) =>
-    artifact.path === 'artifacts/implementation-plan.md')
-  const nextByCriterion: Record<string, string> = {
-    'prd-quality': 'Sửa PRD theo vấn đề đầu tiên được nêu rồi phê duyệt lại PRD.',
-    'plan-quality': 'Sửa implementation plan theo vấn đề đầu tiên được nêu rồi kiểm tra lại từng bước.',
-    'artifact-alignment': 'Đối chiếu lại bốn điểm alignment và xác nhận lại trên đúng hai artifact hiện tại.',
-    'scope-control': 'Khôi phục thay đổi ngoài phạm vi hoặc loại bỏ implementation code khỏi planning package.',
-    'learner-ownership': 'Hoàn tất phê duyệt hoặc viết lời giải thích quyết định phạm vi bằng lời của bạn.',
-    'evidence-freshness': 'Làm mới bằng chứng và phê duyệt lại trên đúng digest hiện tại.'
-  }
-  const firstProblem = problems[0]
-  return [
-    'Kết luận: ' + (result.verdict === 'passed' ? 'Đạt.' : 'Cần chỉnh sửa.'),
-    'Bằng chứng đã duyệt: '
-      + (prd ? 'PRD ' + prd.digest.slice(0, 12) : 'thiếu PRD')
-      + '; '
-      + (plan ? 'implementation plan ' + plan.digest.slice(0, 12) : 'thiếu implementation plan')
-      + '; phê duyệt, alignment, quyết định phạm vi và provenance của run hiện tại.',
-    'Đã đạt: ' + (passed.length > 0 ? passed.join(' ') : 'Chưa có tiêu chí nào được xác nhận.'),
-    ...(problems.length > 0
-      ? ['Cần sửa: ' + problems.map((criterion) => criterion.explanation).join(' ')]
-      : []),
-    'Thao tác tiếp theo: ' + (firstProblem
-      ? nextByCriterion[firstProblem.criterionId]
-        ?? 'Sửa vấn đề đầu tiên rồi yêu cầu Triết duyệt lại.'
-      : 'Quay lại khóa học để tiếp tục phần kiểm tra cuối Module 2.')
-  ]
+function configurationIdentity(
+  configuration: import('../../shared/contracts').CodexTaskConfigurationSnapshot | null
+): string | null {
+  if (!configuration) return null
+  return JSON.stringify({
+    freshness: configuration.freshness,
+    connection: configuration.connection,
+    model: configuration.model,
+    reasoningEffort: configuration.reasoningEffort,
+    serviceTier: configuration.serviceTier,
+    approvalPolicy: configuration.approvalPolicy,
+    fullAccess: configuration.fullAccess,
+    sandboxType: configuration.sandboxType,
+    activePermissionProfile: configuration.activePermissionProfile
+  })
 }
 
 export class PracticeReviewService {
-  private readonly pending = new Map<string, Promise<PracticeReviewResponse>>()
+  private readonly pending = new Map<string, Promise<PracticeReviewSuccess>>()
+  private lastReturnedCompletion: PracticeCompletionReceipt | null = null
 
   constructor(
     private readonly definitions: PracticeDefinitionRepository,
     private readonly runs: PracticeRunRepository,
     private readonly coordinator: PracticeCoordinator,
     private readonly progress: ProgressRepository,
-    private readonly activity: ExecutorActivityObserver,
+    private readonly activity: Pick<ExecutorActivitySnapshotReader, 'read'>,
     private readonly evaluator: PracticeReviewEvaluator,
-    private readonly chat: TeacherChatRepository,
-    private readonly simulated: boolean,
     private readonly now: () => Date = () => new Date(),
-    private readonly createId: () => string = randomUUID,
-    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry
+    private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry,
+    private readonly releaseExecutor?: () => Promise<void>
   ) {}
 
-  review(): Promise<PracticeReviewResponse> {
+  review(): Promise<PracticeReviewSuccess> {
     return this.reviewCurrentRun()
   }
 
-  private async reviewCurrentRun(): Promise<PracticeReviewResponse> {
+  private async reviewCurrentRun(): Promise<PracticeReviewSuccess> {
     const active = (await this.runs.load()).activeRun
     if (!active) throw new Error('Kh\u00f4ng c\u00f3 Practice \u0111ang ho\u1ea1t \u0111\u1ed9ng \u0111\u1ec3 duy\u1ec7t.')
     const key = [active.runId, active.generation, active.practiceId, active.practiceVersion].join(':')
@@ -218,15 +164,23 @@ export class PracticeReviewService {
     return operation
   }
 
-  private async reviewDirect(active: PracticeRunRecord): Promise<PracticeReviewResponse> {
+  private async reviewDirect(active: PracticeRunRecord): Promise<PracticeReviewSuccess> {
+    try {
+      return await this.reviewWithOwnership(active)
+    } finally {
+      await this.releaseExecutor?.()
+    }
+  }
+
+  private async reviewWithOwnership(active: PracticeRunRecord): Promise<PracticeReviewSuccess> {
     const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
     const reviewedAt = this.now().toISOString()
     let reviewRun = active
     let activity = definition.evidenceProfile === 'planning-package'
-      ? await this.activity.bind(active.binding)
+      ? await this.activity.read(active.binding)
       : null
     if (definition.evidenceProfile === 'codex-task-configuration') {
-      activity = await this.activity.bind(active.binding)
+      activity = await this.activity.read(active.binding)
       const refreshed = await this.runs.saveConfiguration({
         runId: active.runId,
         generation: active.generation,
@@ -244,6 +198,9 @@ export class PracticeReviewService {
         await this.progress.revokePracticeCompletion(active.completion)
       }
       reviewRun = refreshed.activeRun
+    }
+    if (activity?.status === 'working' || activity?.status === 'waiting-for-learner') {
+      throw new Error('PRACTICE_SNAPSHOT_BUSY')
     }
     if (definition.evidenceProfile === 'planning-package') {
       if (!this.evidenceAdapters) throw new Error('Module 2 evidence adapter is unavailable.')
@@ -294,7 +251,7 @@ export class PracticeReviewService {
         : null
       if (!learnerProgress) throw new Error('Kh\u00f4ng th\u1ec3 t\u1ea3i ti\u1ebfn tr\u00ecnh kh\u00f3a h\u1ecdc \u0111\u1ec3 duy\u1ec7t Practice.')
 
-      activity ??= await this.activity.bind(reviewRun.binding)
+      activity ??= await this.activity.read(reviewRun.binding)
       const frozenRun = reviewing.activeRun
       const envelope = buildPracticeReviewEnvelope({
         definition,
@@ -315,8 +272,18 @@ export class PracticeReviewService {
             reviewedAt,
             planningEvidenceDigest: envelope.planning?.evidenceDigest
           })
+      if (definition.evidenceProfile === 'codex-task-configuration') {
+        const latestActivity = await this.activity.read(reviewRun.binding)
+        if (latestActivity.status === 'working' || latestActivity.status === 'waiting-for-learner') {
+          throw new Error('PRACTICE_SNAPSHOT_BUSY')
+        }
+        if (configurationIdentity(latestActivity.configuration) !== configurationIdentity(activity.configuration)) {
+          throw new Error('PRACTICE_EVIDENCE_CHANGED')
+        }
+        activity = latestActivity
+      }
       if (definition.evidenceProfile === 'planning-package') {
-        const latestActivity = await this.activity.bind(reviewRun.binding)
+        const latestActivity = await this.activity.read(reviewRun.binding)
         activity = latestActivity
         const latestEvidence = await this.evidenceAdapters!.resolve('planning-package').collect({
           definition,
@@ -373,7 +340,7 @@ export class PracticeReviewService {
             hasCompletion: false
           }).checklist
         : derivePracticeChecklist(definition, result, active.checklist)
-      const completion: PracticeCompletionReceipt | undefined = result.verdict === 'passed'
+      const generatedCompletion: PracticeCompletionReceipt | undefined = result.verdict === 'passed'
         ? {
             schemaVersion: 1,
             courseRunId: learnerProgress.courseRunId,
@@ -403,6 +370,11 @@ export class PracticeReviewService {
               : {})
           }
         : undefined
+      const completion = generatedCompletion
+        && reviewRun.completion
+        && reviewRun.reviewResult?.sourceDigest === result.sourceDigest
+        ? structuredClone(reviewRun.completion)
+        : generatedCompletion
       const saved = await this.runs.saveReview({
         runId: reviewRun.runId,
         generation: reviewRun.generation,
@@ -418,54 +390,24 @@ export class PracticeReviewService {
         || saved.activeRun.reviewResult?.sourceDigest !== result.sourceDigest) {
         throw new Error('Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
       }
+      if (reviewRun.completion && !saved.activeRun.completion) {
+        await this.progress.revokePracticeCompletion(reviewRun.completion)
+      }
+      if (reviewRun.completion && saved.activeRun.completion
+        && JSON.stringify(reviewRun.completion) !== JSON.stringify(saved.activeRun.completion)) {
+        await this.progress.revokePracticeCompletion(reviewRun.completion)
+      }
       if (saved.activeRun.completion) {
         await this.progress.recordPracticeCompletion(saved.activeRun.completion)
       }
 
-      const reported = envelope.evidence.some((item) =>
-        item.kind === 'executor-reported-verification' && result.criteria.some((criterion) =>
-          criterion.evidenceRefs.includes(item.id)))
-      const details = result.criteria
-        .filter((criterion) => criterion.status !== 'satisfied')
-        .map((criterion) => criterion.explanation)
-        .slice(0, 3)
-      const content = definition.evidenceProfile === 'planning-package'
-        ? [result.summary, ...planningGuidance(envelope, result)].join('\n\n')
-        : [
-        result.summary,
-        ...(definition.evidenceProfile === 'codex-task-configuration'
-          ? configurationGuidance(envelope.configuration, result)
-          : []),
-        ...details,
-        ...(reported
-          ? ['L\u01b0u \u00fd: k\u1ebft qu\u1ea3 ki\u1ec3m ch\u1ee9ng n\u00e0y do Codex b\u00e1o c\u00e1o; Course Companion ch\u01b0a t\u1ef1 ch\u1ea1y l\u1ea1i c\u00e1c ki\u1ec3m tra.']
-          : []),
-        ...(result.verdict === 'passed'
-          ? ['Bạn đã vượt qua Practice. Dùng biểu tượng quay lại khóa học để tiếp tục phần mastery.']
-          : ['Hãy bổ sung phần còn thiếu rồi yêu cầu Triết duyệt lại.'])
-      ].join('\n\n')
-      const teacherMessage: TeacherMessage = {
-        schemaVersion: 1,
-        id: this.createId(),
-        role: 'teacher',
-        source: this.simulated ? 'fixture' : 'live',
-        content,
-        timestamp: this.now().toISOString(),
-        checkpointId: completion?.checkpointId,
-        practiceRunId: active.runId,
-        deliveryStatus: 'delivered'
-      }
-      await this.chat.append([teacherMessage])
       const workspace = await this.coordinator.loadWorkspace({
           practiceId: active.practiceId,
           practiceVersion: active.practiceVersion
         })
-      return {
-        workspace: envelope.configuration
-          ? { ...workspace, configuration: structuredClone(envelope.configuration) }
-          : workspace,
-        teacherMessage
-      }
+      return { workspace: envelope.configuration
+        ? { ...workspace, configuration: structuredClone(envelope.configuration) }
+        : workspace }
     } catch (error) {
       await this.runs.clearReviewing({
         runId: active.runId,
@@ -487,8 +429,22 @@ export class PracticeReviewService {
   }
 
   async returnPassedPractice(): Promise<PracticeCompletionReceipt> {
+    const active = (await this.runs.load()).activeRun
+    if (!active) {
+      if (this.lastReturnedCompletion) return structuredClone(this.lastReturnedCompletion)
+      throw new Error('Practice chưa được Triết xác nhận là đã đạt.')
+    }
+    await this.review()
     const receipt = await this.passedCompletion()
     await this.progress.returnFromPractice(receipt)
+    await this.runs.closeCompletedRun({
+      runId: active.runId,
+      generation: active.generation,
+      practiceId: active.practiceId,
+      practiceVersion: active.practiceVersion,
+      updatedAt: this.now().toISOString()
+    })
+    this.lastReturnedCompletion = structuredClone(receipt)
     return receipt
   }
 }

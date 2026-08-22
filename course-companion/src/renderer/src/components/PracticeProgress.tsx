@@ -5,6 +5,7 @@ import type {
   PracticePlanningArtifactView,
   PracticeWorkspaceView
 } from '../../../../shared/contracts'
+import { practiceGuideAnchor } from './practice-guide-anchors'
 
 type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
@@ -95,6 +96,20 @@ const portfolioIssueLabels: Record<string, string> = {
   'unexpected-workspace-change': 'Có thay đổi ngoài phạm vi'
 }
 
+const criterionNextActions: Record<string, string> = {
+  'model-matches': 'Trong task Codex, chọn Model 5.6 Sol rồi duyệt lại.',
+  'effort-matches': 'Trong task Codex, chọn Effort High rồi duyệt lại.',
+  'speed-matches': 'Trong task Codex, chọn Speed Standard rồi duyệt lại.',
+  'approval-matches': 'Trong task Codex, chọn Approve for me rồi duyệt lại.',
+  'full-access-off': 'Trong task Codex, tắt Full access rồi duyệt lại.',
+  'prd-quality': 'Sửa vấn đề đầu tiên trong PRD rồi phê duyệt lại phiên bản mới.',
+  'plan-quality': 'Sửa vấn đề đầu tiên trong implementation plan rồi kiểm tra lại.',
+  'artifact-alignment': 'Đối chiếu lại PRD và implementation plan, sau đó xác nhận alignment.',
+  'scope-control': 'Khôi phục thay đổi ngoài phạm vi rồi làm mới bằng chứng.',
+  'learner-ownership': 'Hoàn tất hành động phê duyệt hoặc quyết định còn thiếu bằng lời của bạn.',
+  'evidence-freshness': 'Làm mới bằng chứng từ đúng task Codex rồi duyệt lại.'
+}
+
 export function PracticeProgress({
   workspace,
   compact = false,
@@ -106,7 +121,18 @@ export function PracticeProgress({
   onRefresh
 }: PracticeProgressProps) {
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
+  const [expandedCompactStepId, setExpandedCompactStepId] = useState<string | null>(null)
   const reviewStatus = workspace.review?.status
+  const reviewResult = workspace.review?.result
+  const unresolvedCriterion = reviewResult?.criteria.find((criterion) => criterion.status !== 'satisfied')
+  const nextChecklistStep = workspace.checklist.find((step) =>
+    step.status === 'current' || step.status === 'stale' || step.status === 'pending')
+  const reviewNextAction = reviewStatus === 'passed'
+    ? 'Quay lại khóa học để tiếp tục.'
+    : unresolvedCriterion
+      ? criterionNextActions[unresolvedCriterion.criterionId] ?? unresolvedCriterion.explanation
+      : nextChecklistStep?.reason
+        ?? (nextChecklistStep ? `Hoàn thành: ${nextChecklistStep.title}.` : 'Bổ sung bằng chứng rồi duyệt lại.')
   const configurationPractice = workspace.activePractice?.practiceId === 'm1-codex-safe-setup'
     || workspace.checklist.some((step) => step.id === 'set-model')
   const configuration = workspace.configuration
@@ -121,9 +147,99 @@ export function PracticeProgress({
   const scopeDecision = scopeDraft.runId === activeRunId ? scopeDraft.value : ''
   const checklistTitle = (stepId: string) =>
     workspace.checklist.find((step) => step.id === stepId)?.title ?? 'Bước cần xem lại'
+  const completedStepCount = workspace.checklist.filter((step) => step.status === 'completed').length
+  const compactCurrentStep = workspace.checklist.find((step) =>
+    step.status === 'current' || step.status === 'stale' || step.status === 'pending')
+  const compactNextAction = reviewStatus === 'passed'
+    ? 'Quay lại khóa học để tiếp tục.'
+    : unresolvedCriterion && criterionNextActions[unresolvedCriterion.criterionId]
+      ? criterionNextActions[unresolvedCriterion.criterionId]
+      : compactCurrentStep
+        ? `Hoàn thành bước hiện tại: ${compactCurrentStep.title}.`
+        : 'Bổ sung bằng chứng rồi duyệt lại.'
+  const compactStepStatus = {
+    completed: 'Đã hoàn thành',
+    current: 'Đang thực hiện',
+    pending: 'Chưa bắt đầu',
+    stale: 'Cần làm mới',
+    upcoming: 'Chưa đến lượt'
+  } as const
+  const compactConfigurationGuidance: Record<string, string> = {
+    'set-model': 'Mở bộ chọn Model trong task Codex và chọn 5.6 Sol.',
+    'set-effort': 'Mở Effort trong task Codex và chọn High.',
+    'set-speed': 'Mở Speed trong task Codex và chọn Standard.',
+    'set-approval': 'Mở Approval trong task Codex và chọn Approve for me.',
+    'disable-full-access': 'Giữ Full access ở trạng thái tắt trong task Codex.'
+  }
+  const compactGuidance = (step: PracticeWorkspaceView['checklist'][number]) =>
+    compactConfigurationGuidance[step.id]
+      ?? (step.status === 'completed'
+        ? 'Bước này đã được xác minh trong lần duyệt gần nhất.'
+        : step.status === 'pending' || step.status === 'upcoming'
+          ? 'Hoàn thành các bước trước đó, sau đó thực hiện bước này trong đúng task Codex.'
+          : 'Thực hiện yêu cầu trong tên bước tại đúng task Codex, sau đó cập nhật và duyệt lại tiến độ.')
 
   const planningAction = (action: PlanningPracticeActionRequest['action']) => {
     if (!actionBusy) onPlanningAction?.(action)
+  }
+  if (compact) {
+    return (
+      <section className="practice-progress is-compact" aria-label="Tiến độ Practice">
+        <div className="practice-compact-progress" role="status">
+          <div>
+            <small>TIẾN ĐỘ</small>
+            <strong>{completedStepCount}/{workspace.checklist.length} bước hoàn thành</strong>
+            <span>{compactCurrentStep
+              ? `Hiện tại: ${compactCurrentStep.title}`
+              : reviewStatus === 'passed' ? 'Đã hoàn thành các bước bắt buộc.' : 'Đang chờ bằng chứng mới.'}</span>
+          </div>
+          <b className={`is-${reviewStatus ?? 'not-reviewed'}`}>
+            {reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : reviewStatus === 'needs-work' ? 'CẦN BỔ SUNG' : 'CHƯA DUYỆT'}
+          </b>
+        </div>
+        <ol className="practice-compact-checklist" aria-label="Tất cả các bước Practice">
+          {workspace.checklist.map((step, index) => {
+            const expanded = expandedCompactStepId === step.id
+            const panelId = `practice-compact-step-${step.id}`
+            return (
+              <li className={`is-${step.status}`} key={step.id}>
+                <button
+                  aria-controls={panelId}
+                  aria-expanded={expanded}
+                  type="button"
+                  onClick={() => setExpandedCompactStepId(expanded ? null : step.id)}
+                >
+                  <span className="practice-compact-step-icon" aria-hidden="true">{stepIcon[step.status]}</span>
+                  <span className="practice-compact-step-copy">
+                    <small>BƯỚC {index + 1}</small>
+                    <strong>{step.title}</strong>
+                  </span>
+                  <span className="practice-compact-step-state">{compactStepStatus[step.status]}</span>
+                  <span className="practice-compact-step-disclosure" aria-hidden="true" />
+                </button>
+                {expanded ? (
+                  <div className="practice-compact-step-guide" id={panelId} role="region" aria-label={`Hướng dẫn: ${step.title}`}>
+                    <small>HƯỚNG DẪN</small>
+                    <p>{compactGuidance(step)}</p>
+                  </div>
+                ) : null}
+              </li>
+            )
+          })}
+        </ol>
+        {reviewStatus !== 'passed' ? (
+          <div className="practice-compact-next" aria-label="Hành động tiếp theo">
+            <small>TIẾP THEO</small>
+            <strong>{compactNextAction}</strong>
+          </div>
+        ) : null}
+        {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
+          <button {...practiceGuideAnchor('return-to-course')} className="practice-compact-return" type="button" disabled={returnBusy} onClick={onReturn}>
+            {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
+          </button>
+        ) : null}
+      </section>
+    )
   }
   return (
     <section className={'practice-progress' + (compact ? ' is-compact' : '')} aria-label="Tiến độ Practice">
@@ -138,8 +254,43 @@ export function PracticeProgress({
         ) : null}
       </div>
 
+      {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
+        <section className={`practice-review-result is-${reviewStatus}`} role="status" aria-label="Kết quả duyệt Practice">
+          <div>
+            <small>KẾT QUẢ DUYỆT</small>
+            <strong>{reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : 'CẦN BỔ SUNG'}</strong>
+            <p>{reviewResult?.summary ?? (reviewStatus === 'passed'
+              ? 'Bằng chứng đáp ứng các tiêu chí bắt buộc.'
+              : 'Hãy bổ sung bằng chứng theo các bước còn lại rồi yêu cầu duyệt lại.')}</p>
+            {reviewResult ? (
+              <ol className="practice-review-criteria" aria-label="Kết quả theo từng tiêu chí">
+                {reviewResult.criteria.map((criterion) => (
+                  <li className={`is-${criterion.status}`} key={criterion.criterionId}>
+                    <span aria-hidden="true">{criterion.status === 'satisfied' ? '✓' : criterion.status === 'unsatisfied' ? '!' : '?'}</span>
+                    <div>
+                      <strong>{criterion.status === 'satisfied' ? 'Đã đáp ứng' : criterion.status === 'unsatisfied' ? 'Cần chỉnh sửa' : 'Chưa thể xác minh'}</strong>
+                      <p>{criterion.explanation}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : null}
+            <div className="practice-review-next-action">
+              <small>TIẾP THEO</small>
+              <strong>{reviewNextAction}</strong>
+            </div>
+            {reviewResult?.reviewedAt ? <time dateTime={reviewResult.reviewedAt}>Duyệt lúc {new Date(reviewResult.reviewedAt).toLocaleString('vi-VN')}</time> : null}
+          </div>
+          {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
+            <button {...practiceGuideAnchor('return-to-course')} type="button" disabled={returnBusy} onClick={onReturn}>
+              {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
+            </button>
+          ) : null}
+        </section>
+      ) : null}
+
       {configurationPractice ? (
-        <section className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
+        <section {...practiceGuideAnchor('configuration-evidence')} className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
           <header>
             <div>
               <small>CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN</small>
@@ -154,7 +305,7 @@ export function PracticeProgress({
                 ? 'Mới'
                 : !configuration ? 'Đang chờ'
                 : configuration.connection === 'disconnected'
-                  ? 'Mất kết nối'
+                  ? 'Chưa đọc được'
                   : configuration.freshness === 'stale' ? 'Đã cũ' : 'Không khả dụng'}
             </span>
           </header>
@@ -356,25 +507,6 @@ export function PracticeProgress({
           </ol>
           {actionBusy ? <small>Đang đối chiếu đúng phiên bản tài liệu hiện tại…</small> : null}
         </section>
-      ) : null}
-
-      {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
-        <div className={`practice-review-result is-${reviewStatus}`} role="status">
-          <div>
-            <small>KẾT QUẢ DUYỆT</small>
-            <strong>{reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : 'CẦN BỔ SUNG'}</strong>
-            <p>
-              {workspace.review?.result?.summary ?? (reviewStatus === 'passed'
-                ? 'Bằng chứng đáp ứng các tiêu chí bắt buộc.'
-                : 'Hãy bổ sung bằng chứng theo các bước còn lại rồi yêu cầu duyệt lại.')}
-            </p>
-          </div>
-          {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-            <button type="button" disabled={returnBusy} onClick={onReturn}>
-              {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
-            </button>
-          ) : null}
-        </div>
       ) : null}
 
       <ol className="practice-checklist">

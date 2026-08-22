@@ -5,6 +5,8 @@ import type {
   PlanningPracticeActionRequest,
   PracticeState,
   PracticeWorkspaceView,
+  PracticeGuideUpdateRequest,
+  PracticeGuideView,
   TeacherContext,
   TeacherMessage,
   TeacherRuntimeView,
@@ -13,6 +15,8 @@ import type {
 } from '../../../../shared/contracts'
 import teacherImage from '../assets/teacher-triet.png'
 import { PracticeProgress } from './PracticeProgress'
+import { PracticeGuide } from './PracticeGuide'
+import { practiceGuideAnchor } from './practice-guide-anchors'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -107,6 +111,9 @@ export function TeacherWorkspace({
   const [activeTab, setActiveTab] = useState<'teacher' | 'progress'>('teacher')
   const [practice, setPractice] = useState<PracticeState>(emptyPractice)
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
+  const [workspaceLoaded, setWorkspaceLoaded] = useState(false)
+  const [workspaceUnavailable, setWorkspaceUnavailable] = useState(false)
+  const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const [practiceBusy, setPracticeBusy] = useState(false)
   const [reviewBusy, setReviewBusy] = useState(false)
   const [returnBusy, setReturnBusy] = useState(false)
@@ -141,9 +148,17 @@ export function TeacherWorkspace({
         setRecovered(state.conversation.recovered)
         setTeacherRuntime(state.teacher)
         setWorkspace(loadedWorkspace ?? null)
+        setWorkspaceUnavailable(false)
         setTestFixturesEnabled(runtime?.testFixturesEnabled === true)
         if (loadedWorkspace) {
           setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
+        }
+        if (loadedWorkspace && embedded && window.courseCompanion) {
+          const initialTab = loadedWorkspace.presentation.fullPanel
+          setPracticeGuide(await window.courseCompanion.loadPracticeGuide({
+            surface: 'full',
+            activeTab: initialTab
+          }))
         }
         setPractice(
           window.courseCompanion
@@ -151,8 +166,11 @@ export function TeacherWorkspace({
             : emptyPractice
         )
         await refreshContext()
+        setWorkspaceLoaded(true)
       } catch {
-        setError('Không thể tải lịch sử trò chuyện.')
+        setWorkspaceUnavailable(true)
+        setWorkspaceLoaded(true)
+        setError('Không thể xác minh trạng thái Practice. Triết tạm khóa tương tác để tránh dùng sai chế độ.')
       }
     }
 
@@ -181,6 +199,18 @@ export function TeacherWorkspace({
   }, [])
 
 
+
+  const updatePracticeGuide = async (request: PracticeGuideUpdateRequest) => {
+    if (!window.courseCompanion || !embedded) return
+    try {
+      setPracticeGuide(await window.courseCompanion.updatePracticeGuide(request, {
+        surface: 'full',
+        activeTab
+      }))
+    } catch {
+      // Guidance is optional and must never interrupt Practice.
+    }
+  }
   const selectTab = async (next: 'teacher' | 'progress') => {
     setActiveTab(next)
     if (!window.courseCompanion) return
@@ -227,19 +257,18 @@ export function TeacherWorkspace({
     setError('')
     try {
       const reviewed = await window.courseCompanion.reviewPractice()
-      setMessages((current) => current.some((message) => message.id === reviewed.teacherMessage.id)
-        ? current
-        : [...current, reviewed.teacherMessage])
+      if ('error' in reviewed) {
+        setError(reviewed.error.message)
+        return
+      }
       setWorkspace(reviewed.workspace)
-      setActiveTab('progress')
-      try {
-        const selected = await window.courseCompanion.selectPracticePanel({
-          surface: embedded ? 'full' : 'compact',
-          panel: 'progress'
-        })
-        setWorkspace(selected)
-      } catch {
-        // The review result is authoritative even if persisting the selected tab fails.
+      if (embedded) {
+        const request = practiceGuide?.currentStageId === 'request-review'
+          ? { type: 'review-requested' as const, expectedStageId: 'request-review' }
+          : { type: 'start' as const }
+        setPracticeGuide(await window.courseCompanion.updatePracticeGuide(
+          request, { surface: 'full', activeTab: 'progress' }
+        ))
       }
     } catch {
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
@@ -282,7 +311,7 @@ export function TeacherWorkspace({
   }
 
   const returnToCourse = async () => {
-    if (returnBusy || !window.courseCompanion) return
+    if (returnBusy || reviewBusy || !window.courseCompanion) return
     setReturnBusy(true)
     setError('')
     try {
@@ -292,6 +321,13 @@ export function TeacherWorkspace({
       setReturnBusy(false)
     }
   }
+
+  const minimizeToBubble = async () => {
+    if (practiceGuide?.currentStageId && practiceGuide.presentation) {
+      await updatePracticeGuide({ type: 'pause', expectedStageId: practiceGuide.currentStageId })
+    }
+    onMinimizeToBubble?.()
+  }
   const sendMessage = async (contentOverride?: string) => {
     const content = (contentOverride ?? draft).trim()
     if (!content || busy) return
@@ -299,7 +335,7 @@ export function TeacherWorkspace({
     setBusy(true)
     setError('')
     try {
-      const request: TeacherSendRequest = { content, context }
+      const request: TeacherSendRequest = { content }
       if (window.courseCompanion) {
         await window.courseCompanion.sendTeacherMessage(request)
         const state = await window.courseCompanion.loadCompanionState()
@@ -377,6 +413,8 @@ export function TeacherWorkspace({
     }
   }
   const currentTeacherStatus = teacherStatus[teacherRuntime.connection]
+  const practiceMode = Boolean(workspace?.activePractice)
+  const compactPractice = practiceMode && !embedded
   const contextFreshnessNote = teacherRuntime.contextFreshness === 'stale'
     ? 'Ngữ cảnh Codex đã cũ.'
     : teacherRuntime.contextFreshness === 'disconnected'
@@ -389,44 +427,27 @@ export function TeacherWorkspace({
   ].filter(Boolean).join(' · ')
 
   return (
-    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}`} aria-label="Triết, giáo viên đồng hành">
+    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}${practiceMode ? ' is-practice-review' : ''}`} aria-label={practiceMode ? 'Duyệt Practice với Triết' : 'Triết, giáo viên đồng hành'}>
       <header>
         <div className="pixel-teacher-identity">
           <span className="pixel-teacher-portrait-frame" aria-hidden="true">
             <img src={teacherImage} alt="" />
           </span>
           <div>
-            <small>{currentTeacherStatus.label}</small>
-            <strong>Triết</strong>
+            <small>{practiceMode ? 'TRIẾT · DUYỆT PRACTICE' : currentTeacherStatus.label}</small>
+            <strong>{practiceMode ? 'Duyệt Practice' : 'Triết'}</strong>
           </div>
         </div>
         <div className="pixel-panel-controls">
-          {workspace?.activePractice && workspace.review?.canReview ? (
-            <button
-              className={'pixel-panel-control pixel-panel-control--review' + (reviewBusy ? ' is-busy' : '')}
-              type="button"
-              aria-label="Yêu cầu Triết duyệt tiến độ"
-              title="Yêu cầu Triết duyệt tiến độ"
-              aria-busy={reviewBusy}
-              disabled={reviewBusy}
-              onClick={() => void reviewProgress()}
-            >
-              <span className="pixel-review-control-visual" aria-hidden="true">
-                <svg className="pixel-review-control-icon" viewBox="0 0 24 24">
-                  <path d="M9 5h6M9 3h6v4H9zM7 5H5v16h14V5h-2M8 13l2.5 2.5L16 10" />
-                </svg>
-                {reviewBusy ? <span className="pixel-review-spinner" /> : null}
-              </span>
-            </button>
-          ) : null}
           {workspace?.review?.canReturn ? (
             <button
+              {...practiceGuideAnchor('return-to-course')}
               className="pixel-panel-control pixel-panel-control--return"
               type="button"
               aria-label="Quay lại khóa học nhanh"
               title="Quay lại khóa học nhanh"
-              aria-busy={returnBusy}
-              disabled={returnBusy}
+              aria-busy={returnBusy || reviewBusy}
+              disabled={returnBusy || reviewBusy}
               onClick={() => void returnToCourse()}
             >
               {returnBusy ? <span className="pixel-control-spinner" aria-hidden="true" /> : (
@@ -453,7 +474,7 @@ export function TeacherWorkspace({
               type="button"
               aria-label="Thu nhỏ Triết thành bong bóng"
               title="Thu nhỏ thành bong bóng"
-              onClick={onMinimizeToBubble}
+              onClick={() => void minimizeToBubble()}
             >
               <span aria-hidden="true">—</span>
             </button>
@@ -470,30 +491,78 @@ export function TeacherWorkspace({
         </div>
       </header>
 
-      <div className={`pixel-fixture-notice is-${teacherRuntime.connection}`} role={teacherRuntime.error ? 'alert' : 'status'} aria-live="polite">
+      {workspaceLoaded && !workspaceUnavailable && !practiceMode ? <div className={`pixel-fixture-notice is-${teacherRuntime.connection}`} role={teacherRuntime.error ? 'alert' : 'status'} aria-live="polite">
         <strong>{currentTeacherStatus.strong}</strong>
         <span>{teacherStatusDetail}</span>
-      </div>
+      </div> : null}
 
-      <div className="pixel-chat-context">
+      {!compactPractice ? <div className="pixel-chat-context">
         <span>BƯỚC HỌC HIỆN TẠI</span>
         <strong>
           {workspace?.activePractice
             ? workspace.title
             : context ? 'Bước hiện tại trong khóa học' : 'Chưa bắt đầu bài học'}
         </strong>
-      </div>
+      </div> : null}
 
-      <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
+      {workspaceLoaded && !workspaceUnavailable && !practiceMode ? <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
         <button aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
           HỎI TRIẾT
         </button>
         <button aria-selected={activeTab === 'progress'} className={activeTab === 'progress' ? 'is-active' : ''} onClick={() => void selectTab('progress')} role="tab" type="button">
           TIẾN ĐỘ
         </button>
-      </div>
+      </div> : null}
 
-      {activeTab === 'teacher' ? (
+      {!workspaceLoaded ? (
+        <div className="pixel-practice-status" role="status">Đang tải không gian của Triết…</div>
+      ) : workspaceUnavailable ? (
+        <div className="pixel-practice-status is-error" role="alert">
+          <strong>CHƯA THỂ XÁC MINH CHẾ ĐỘ</strong>
+          <p>Triết tạm khóa chat và duyệt tiến độ. Hãy đóng rồi mở lại cửa sổ này.</p>
+        </div>
+      ) : practiceMode ? (
+        <section className="pixel-practice-review" aria-label="Duyệt tiến độ Practice">
+          <div {...practiceGuideAnchor('review-progress')} className="pixel-practice-review__primary">
+            {!compactPractice ? <div role="status" aria-live="polite">
+              <small>TRẠNG THÁI HIỆN TẠI</small>
+              <strong>{workspace?.review?.status === 'passed'
+                ? 'Tiến độ đã đạt yêu cầu'
+                : workspace?.review?.status === 'needs-work'
+                  ? 'Có mục cần bổ sung'
+                  : 'Sẵn sàng đối chiếu tiến độ'}</strong>
+              {!compactPractice ? <p>Triết sẽ cập nhật bằng chứng từ đúng task Codex rồi duyệt tiến độ hiện tại.</p> : null}
+            </div> : null}
+            {workspace?.review?.canReview ? (
+              <button
+                className={'pixel-review-primary' + (reviewBusy ? ' is-busy' : '')}
+                type="button"
+                aria-label="Cập nhật và duyệt tiến độ Practice"
+                aria-busy={reviewBusy}
+                disabled={reviewBusy}
+                onClick={() => void reviewProgress()}
+              >
+                {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
+                {reviewBusy ? 'ĐANG CẬP NHẬT & DUYỆT…' : 'CẬP NHẬT & DUYỆT TIẾN ĐỘ'}
+              </button>
+            ) : null}
+          </div>
+          {error ? <div className="pixel-chat-warning" role="alert">{error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
+          <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+            {workspace ? (
+              <PracticeProgress
+                workspace={workspace}
+                compact={!embedded}
+                returnBusy={returnBusy || reviewBusy}
+                actionBusy={planningActionBusy}
+                onPlanningAction={(action) => void recordPlanningAction(action)}
+                onRefresh={() => void refreshPracticeWorkspace()}
+                onReturn={() => void returnToCourse()}
+              />
+            ) : null}
+          </section>
+        </section>
+      ) : activeTab === 'teacher' ? (
         <>
           {workspace?.planning?.invalidations[0] ? (
             <aside className="pixel-teacher-invalidation" role="status" aria-live="polite">
@@ -605,7 +674,17 @@ export function TeacherWorkspace({
         </section>
       )}
 
-      {error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
+      {workspaceLoaded && !workspaceUnavailable && !practiceMode && error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
+      {embedded
+        && workspace?.activePractice?.practiceId === 'm1-codex-safe-setup'
+        && practiceGuide
+        && !practiceGuide.replay
+        && (practiceGuide.status === 'skipped' || practiceGuide.status === 'completed') ? (
+        <button className="practice-guide-replay" type="button" onClick={() => void updatePracticeGuide({ type: 'replay' })}>
+          Xem lại hướng dẫn Practice
+        </button>
+      ) : null}
+      <PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />
 
       {!embedded ? <footer>
         <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>Thoát ứng dụng</button>

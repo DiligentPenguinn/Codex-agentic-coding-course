@@ -36,10 +36,91 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` | `passed` — the integrated tree passed 303 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit on 22 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, and question-only assessment layout were explicitly approved | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
-| Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The delegated Teacher/Executor, five-document Practice, evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the integrated content scope on 22 August 2026 — 303 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
-| Module 3 | `implemented` — the approved five-section lesson, 11 knowledge scenes, six illustrations, revised visible-error prompt example, repeated-error Codex prompt illustration, Git/GitHub image in place of that scene's standalone title box, non-overlapping commit-history illustration/dialogue layout, single merged opening page titled “Thực hiện Implementation Plan, từng bước một,” direct knowledge-to-Practice route, final Teacher review, and five-question mastery check are wired into the Pilot and Course Companion. The redundant `module-3-practice-intro` setup scene is retired; `module-3-git-branch` now opens `module-3-portfolio-practice` directly | `passed` for the integrated content scope on 22 August 2026 — 303 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, merged opening page, Git/GitHub image replacement with title-box removal, commit-history layout repair, and retirement of the redundant Practice-transition slide were explicitly approved | `pending` | Present the verified integrated content evidence for overall owner review. |
-| Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present on `Triet-V2-planning`; the temporary content-review launcher, session-only routing, and per-Practice bypasses remain excluded; artifact templates, Practice/evidence adapters, official completion, and graduation wiring remain deferred | `passed` for the integrated content scope on 22 August 2026: 303 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and a source audit confirming that review-only runtime identifiers are absent; macOS provider rehearsal passed on 16 August 2026 and Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
+| Foundation | `implemented` — the current course content is integrated with Duy's Practice Guide lifecycle, authoritative Hỏi Triết context, non-owning Practice review, atomic task handoff, compact progress disclosure, activity snapshots, and Standard-speed canonicalization | `passed` — the integrated tree passed 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit on 22 August 2026 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, first-slide back-navigation boundary, and selective Duy workflow integration were explicitly approved | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
+| Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The merged Teacher/Practice infrastructure does not replace the still-pending five-document Module 2 redesign; its evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
+| Module 3 | `implemented` — the approved five-section lesson, 11 knowledge scenes, six illustrations, revised visible-error prompt example, repeated-error Codex prompt illustration, Git/GitHub image in place of that scene's standalone title box, non-overlapping commit-history illustration/dialogue layout, single merged opening page titled “Thực hiện Implementation Plan, từng bước một,” direct knowledge-to-Practice route, final Teacher review, and five-question mastery check are wired into the Pilot and Course Companion. The redundant `module-3-practice-intro` setup scene is retired; `module-3-git-branch` now opens `module-3-portfolio-practice` directly | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, merged opening page, Git/GitHub image replacement with title-box removal, commit-history layout repair, and retirement of the redundant Practice-transition slide were explicitly approved | `pending` | Present the verified integrated content evidence for overall owner review. |
+| Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present on `Triet-V2-planning`; the temporary content-review launcher, session-only routing, and per-Practice bypasses remain excluded; artifact templates, Practice/evidence adapters, official completion, and graduation wiring remain deferred | `passed` for the integrated content and shared runtime scope on 22 August 2026: 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and a source audit confirming that review-only runtime identifiers are absent; macOS provider rehearsal passed on 16 August 2026 and Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
+
+**Current merged-branch verification — 18 August 2026:** After merging
+`origin/Triet-V2-planning` into `feature/course-companion-practice-workflow`,
+the combined branch passes 317 unit tests with two intentional skips, nine
+startup tests, typecheck, lint, production build, full Electron smoke, and
+`git diff --check`. Module 2 integration and owner/pilot acceptance remain pending.
+
+**Hỏi Triết context and pedagogy verification — 19 August 2026:** The embedded
+Teacher now receives an authoritative, integrity-checked package containing the
+current module lesson, Teacher script, start prompt, quiz, active assessment,
+saved learner decisions, and Practice evidence. A dedicated pedagogy Skill
+prevents answer and future-question disclosure while an assessment is open.
+Repository and adversarial tests cover Intro and Modules 1–4; live model checks
+cover Modules 1, 2, and 4. The branch passes 340 unit tests with two intentional
+skips, nine startup tests, typecheck, lint, production build, full Electron
+smoke, Skill validation, and `git diff --check`. This technical verification
+does not change owner approval or pilot acceptance.
+
+**Practice-only Teacher review role verification — 19 August 2026:** While an
+authoritative Practice run is active, Triết now exposes one structured review
+workspace instead of direct chat: current evidence, criterion-level results,
+one next action, and gated return. The main process rejects direct Teacher sends
+for every active run, including mismatched progress; unavailable Practice state
+fails closed. Return revalidates evidence, revokes stale completion, archives
+the exact completed run, advances the lesson, completes the first-run guide, and
+restores ordinary Hỏi Triết outside Practice. Focused adversarial coverage and
+the full Electron journey exercise concurrent review/return, changed evidence,
+failure preservation, and post-Practice restoration. Owner approval records the
+approved role and Option A workspace direction; pilot acceptance remains
+`pending`.
+
+**Practice handoff, compact view, and guide repair verification — 19 August
+2026:** Opening or resuming a Codex Practice now uses an atomic App Server
+ownership handoff, and every review releases that ownership again on success or
+failure. The compact companion polls only persisted Practice presence and shows
+progress, the current step, one curated next action, review, and eligible return;
+objectives, criteria, configuration, evidence, timestamps, and invalidation
+details remain in the full workspace. Guide step five has an awaited `Tiếp`
+action that enters a hidden waiting state, while step six remains gated on an
+authoritative persisted pass in normal and replay flows. The branch passes 350
+unit tests with two intentional skips, nine startup tests, typecheck, lint,
+production build, full Electron smoke including reset/reopen, and independent
+adversarial source review. Owner approval covers this repair design; pilot
+acceptance remains `pending`.
+
+**Non-owning Practice review and compact checklist verification — 19 August
+2026:** Practice evidence refresh and review now use a dedicated read-only App
+Server client that accepts only `thread/read`; it never resumes, starts, lists,
+or switches the learner's task. Exact task metadata is read from the bound Codex
+state and rollout with thread, workspace, schema, timestamp, and mutation checks,
+then projected through the same activity and workspace-reconciliation functions
+as the previous observer. Pre-open planning baseline capture is workspace-only,
+so a newly created task does not require rollout metadata before Codex Desktop
+opens it. Configuration review compares semantic settings before and after
+evaluation, preserves the last result on failure, and returns a structured
+actionable error to the Teacher workspace. The compact companion now lists every
+Practice step and its progress as a single-open accordion with guidance collapsed
+by default; detailed evidence and evaluation remain in the full workspace. The
+Codex service-tier representations `null`, `default`, and `standard` now
+canonicalize to the single strict Standard protocol value; missing and unknown
+values remain unverifiable, and Fast remains distinct. The compact accordion's
+font chevron was replaced by the approved outlined C2 control: CSS-drawn plus
+and minus states, a 52 px row target, visible focus, and reduced-motion handling.
+The branch passes 373
+unit tests with two intentional skips, nine startup tests,
+typecheck, lint, production build, full Electron smoke, a real read-only bound-task
+diagnostic while Codex Desktop retained ownership, and independent adversarial
+review. Owner approval covers this repair design; pilot acceptance remains
+`pending`.
+
+**Current Duy workflow integration reconciliation — 22 August 2026:** The
+latest Duy branch at `3b71da2` is merged by responsibility: the current Intro,
+Module 1–3 wording, sequence, assessments, illustrations, progress migrations,
+and the disabled first-slide Module 1 back control remain authoritative, while
+the compatible Practice Guide, Teacher context, non-owning review, task handoff,
+activity snapshot, and compact-disclosure runtime is integrated. The only
+content/runtime fixture mismatch was updated from retired Module 2/3 scene IDs
+to the current assessment scenes. The integrated tree passes 388/388 unit
+tests, all nine startup tests, typecheck, lint, production build, full Electron
+smoke, `git diff --check`, and the review-only source audit. Overall owner
+approval and pilot acceptance remain pending.
 
 ## Historical temporary content-first authoring exception
 
@@ -1608,7 +1689,7 @@ pending.
 **Current checkpoint reconciliation — 22 August 2026:** The `mastery-5`
 contract assertion follows the approved current wording without changing
 learner copy. After selectively merging current content into
-`Triet-V2-planning`, the integrated tree passes 303/303 unit tests, all nine
+`Triet-V2-planning`, the integrated tree passes 388/388 unit tests, all nine
 startup tests, typecheck, lint, the production build, and full Electron smoke.
 `git diff --check` and the source audit also pass, with no review-only launcher,
 Practice bypass, or session-only review routing restored. Module 2 and Module 3
@@ -1793,7 +1874,7 @@ Neither blocker is attributed to this Module 3 route change, and overall owner
 approval and pilot acceptance remain `pending`.
 
 The 22 August checkpoint reconciliation resolves that Module 2 assertion. In
-the selectively merged tree, the current complete unit run passes 303/303 and
+the selectively merged tree, the current complete unit run passes 388/388 and
 full Electron smoke reaches and passes the Module 3 journey without restoring
 the temporary Module 1 review-bypass control.
 

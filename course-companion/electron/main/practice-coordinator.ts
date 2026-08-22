@@ -263,7 +263,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>,
     private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>,
     private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry,
-    private readonly revokeCompletion?: (receipt: PracticeCompletionReceipt) => Promise<unknown>
+    private readonly revokeCompletion?: (receipt: PracticeCompletionReceipt) => Promise<unknown>,
+    private readonly handoffExecutor?: (openTarget: () => Promise<void>) => Promise<void>
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
@@ -316,8 +317,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           ...pending,
           pendingTransition: { ...transition, stage: 'target-created', targetBinding }
         })
-        if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
-          await this.prepareExecutor?.(targetBinding, definition.evidenceProfile === 'planning-package')
+        if (definition.evidenceProfile === 'planning-package') {
+          await this.prepareExecutor?.(targetBinding, true)
         }
         await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
@@ -325,7 +326,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         this.lastError = safeCreationError(error)
         throw new Error(this.lastError, { cause: error })
       }
-      await this.openTarget(targetBinding, false)
+      await this.openTarget(targetBinding)
       return this.toView(committed)
     })
   }
@@ -341,7 +342,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           || record.activeRun.practiceVersion !== identity.practiceVersion)) {
         throw new Error('Practice đang hoạt động không khớp nội dung được yêu cầu.')
       }
-      await this.openTarget(record.activeRun.binding, false)
+      await this.openTarget(record.activeRun.binding)
       return this.toView(record)
     })
   }
@@ -361,8 +362,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       if (transition.stage === 'target-created' && transition.targetBinding) {
         let committed
         try {
-          if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
-            await this.prepareExecutor?.(transition.targetBinding, definition.evidenceProfile === 'planning-package')
+          if (definition.evidenceProfile === 'planning-package') {
+            await this.prepareExecutor?.(transition.targetBinding, true)
           }
           await this.executor.prepareTarget(transition.targetBinding, definition)
           committed = await this.commitTarget(record)
@@ -370,7 +371,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           this.lastError = safeCreationError(error)
           throw new Error(this.lastError, { cause: error })
         }
-        await this.openTarget(transition.targetBinding, false)
+        await this.openTarget(transition.targetBinding)
         return this.toView(committed)
       }
       let targetBinding
@@ -390,8 +391,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       })
       let committed
       try {
-        if (definition.evidenceProfile === 'planning-package' || isPortfolioProfile(definition.evidenceProfile)) {
-          await this.prepareExecutor?.(targetBinding, definition.evidenceProfile === 'planning-package')
+        if (definition.evidenceProfile === 'planning-package') {
+          await this.prepareExecutor?.(targetBinding, true)
         }
         await this.executor.prepareTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
@@ -399,7 +400,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         this.lastError = safeCreationError(error)
         throw new Error(this.lastError, { cause: error })
       }
-      await this.openTarget(targetBinding, false)
+      await this.openTarget(targetBinding)
       return this.toView(committed)
     })
   }
@@ -598,10 +599,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     return running
   }
 
-  private async openTarget(binding: PracticeRunRecord['binding'], captureBaseline: boolean): Promise<void> {
+  private async openTarget(binding: PracticeRunRecord['binding']): Promise<void> {
     try {
-      await this.prepareExecutor?.(binding, captureBaseline)
-      await this.executor.openTarget(binding)
+      const open = () => this.executor.openTarget(binding)
+      if (this.handoffExecutor) await this.handoffExecutor(open)
+      else await open()
       this.lastError = ''
     } catch {
       this.lastError =

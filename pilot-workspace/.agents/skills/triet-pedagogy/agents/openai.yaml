@@ -1,0 +1,7 @@
+interface:
+  display_name: "Triết Pedagogy"
+  short_description: "Coach learners without leaking assessment answers"
+  default_prompt: "Use $triet-pedagogy to coach me through the current course step."
+
+policy:
+  allow_implicit_invocation: true

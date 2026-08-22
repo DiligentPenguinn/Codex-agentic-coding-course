@@ -452,7 +452,7 @@ export type CodexTaskConfigurationSnapshot = {
   schemaVersion: 1
   runId: string
   threadId: string
-  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated'
+  source: 'thread-start' | 'thread-resume' | 'thread-settings-updated' | 'thread-settings-snapshot'
   eventTimestampMs: number
   observedAt: string
   freshness: 'fresh' | 'stale' | 'unverifiable'
@@ -1024,6 +1024,120 @@ export type PracticeStartRequest = {
 }
 
 export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
+export const practiceGuidePresentationTypes = [
+  'intro-dialog',
+  'orientation-card',
+  'coach-mark',
+  'mastery-confirmation'
+] as const
+export type PracticeGuidePresentationType = (typeof practiceGuidePresentationTypes)[number]
+
+export const practiceGuideAdvancementModes = [
+  'continue',
+  'review-requested',
+  'course-returned'
+] as const
+export type PracticeGuideAdvancementMode = (typeof practiceGuideAdvancementModes)[number]
+
+export const practiceGuideAnchorIds = [
+  'configuration-evidence',
+  'review-progress',
+  'return-to-course'
+] as const
+export type PracticeGuideAnchorId = (typeof practiceGuideAnchorIds)[number]
+
+export type PracticeGuideStageDefinition = {
+  id: string
+  presentation: PracticeGuidePresentationType
+  advancement: PracticeGuideAdvancementMode
+  anchor?: PracticeGuideAnchorId
+  title: string
+  body: string
+  primaryLabel?: string
+  secondaryLabel?: string
+}
+
+export type PracticeGuideDefinition = {
+  schemaVersion: 1
+  guideId: string
+  version: string
+  eligiblePractice: {
+    practiceId: string
+    minimumVersion: string
+    maximumVersion: string
+  }
+  replayPolicy: 'once-per-course-run'
+  stages: PracticeGuideStageDefinition[]
+}
+export type PracticeGuideStatus = 'not-started' | 'in-progress' | 'paused' | 'skipped' | 'completed'
+
+export type PracticeGuideStateIdentity = {
+  guideId: string
+  guideVersion: string
+  courseRunId: string
+  practiceId: string
+  practiceRunId: string
+}
+
+export type PracticeGuideStateRecord = PracticeGuideStateIdentity & {
+  schemaVersion: 1
+  status: PracticeGuideStatus
+  lastStageId: string
+  masteryConfirmation: 'pending' | 'dismissed' | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type PracticeGuideView = {
+  schemaVersion: 1
+  guideId: string
+  guideVersion: string
+  courseRunId: string
+  practiceId: string
+  practiceRunId: string
+  status: PracticeGuideStatus
+  currentStageId: string | null
+  step: number
+  stepCount: number
+  presentation: PracticeGuidePresentationType | null
+  anchor: PracticeGuideAnchorId | null
+  title: string | null
+  body: string | null
+  primaryLabel: string | null
+  secondaryLabel: string | null
+  replay: boolean
+  masteryConfirmation: 'pending' | 'dismissed' | null
+  error?: string
+}
+
+export type PracticeGuideSurfaceContext = {
+  surface: 'full' | 'compact' | 'learning'
+  activeTab?: 'teacher' | 'progress'
+}
+
+export type PracticeGuideContext = {
+  progress: LearnerProgress | null
+  workspace: PracticeWorkspaceView | null
+  surface: 'full' | 'compact' | 'learning'
+  activeTab?: 'teacher' | 'progress'
+}
+
+export type PracticeGuideUpdateRequest =
+  | { type: 'start' }
+  | { type: 'continue'; expectedStageId: string }
+  | { type: 'pause'; expectedStageId: string }
+  | { type: 'resume' }
+  | { type: 'skip'; expectedStageId: string }
+  | { type: 'replay' }
+  | { type: 'dismiss-confirmation' }
+  | { type: 'review-requested'; expectedStageId: string }
+  | { type: 'course-returned'; expectedStageId: string }
+
+export type PracticeGuideCoordinatorAdapter = {
+  load: (context: PracticeGuideContext) => Promise<PracticeGuideView | null>
+  update: (request: PracticeGuideUpdateRequest, context: PracticeGuideContext) => Promise<PracticeGuideView | null>
+  reset: () => Promise<void>
+}
 
 export type PortfolioWorkspaceStatus =
   | 'unselected'
@@ -1109,9 +1223,15 @@ export type PracticeAdapter = {
   emitFixture: (request: PracticeFixtureRequest) => Promise<PracticeState>
 }
 
-export type PracticeReviewResponse = {
+export type PracticeReviewSuccess = {
   workspace: PracticeWorkspaceView
-  teacherMessage: TeacherMessage
+}
+
+export type PracticeReviewResponse = PracticeReviewSuccess | {
+  error: {
+    code: 'task-busy' | 'metadata-unavailable' | 'transport-unavailable' | 'binding-mismatch' | 'evidence-changed' | 'review-unavailable'
+    message: string
+  }
 }
 
 export type CourseCompanionApi = {
@@ -1131,6 +1251,7 @@ export type CourseCompanionApi = {
   choosePortfolioWorkspace: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   confirmPortfolioPlanning: (request: PortfolioWorkspaceRequest) => Promise<PortfolioWorkspaceView>
   loadPracticeWorkspace: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  hasActivePractice: () => Promise<boolean>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
@@ -1139,6 +1260,11 @@ export type CourseCompanionApi = {
   recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
+  loadPracticeGuide: (
+    context: PracticeGuideSurfaceContext
+  ) => Promise<PracticeGuideView | null>
+  updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext)
+    => Promise<PracticeGuideView | null>
   returnPassedPractice: () => Promise<void>
   onPracticeReturned: (callback: () => void) => () => void
   loadAppSettings: () => Promise<AppSettings>

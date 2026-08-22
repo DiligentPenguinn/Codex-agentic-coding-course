@@ -31,7 +31,7 @@ export function isCodexTaskConfigurationSnapshot(
     && item.schemaVersion === 1
     && typeof item.runId === 'string'
     && typeof item.threadId === 'string'
-    && ['thread-start', 'thread-resume', 'thread-settings-updated'].includes(String(item.source))
+    && ['thread-start', 'thread-resume', 'thread-settings-updated', 'thread-settings-snapshot'].includes(String(item.source))
     && Number.isSafeInteger(item.eventTimestampMs)
     && typeof item.observedAt === 'string'
     && !Number.isNaN(Date.parse(item.observedAt))
@@ -70,6 +70,7 @@ const effortLabels: Record<string, string> = {
 const tierLabels: Record<string, string> = {
   standard: 'Standard',
   default: 'Standard',
+  priority: 'Fast',
   fast: 'Fast',
   flex: 'Flex'
 }
@@ -90,7 +91,9 @@ function normalizeString(
 
 function normalizeTier(settings: Record<string, unknown>): CodexConfigurationValue {
   if (!Object.hasOwn(settings, 'serviceTier')) return value(null, null)
-  if (settings.serviceTier === null) return value('standard', 'Standard')
+  if (settings.serviceTier === null || settings.serviceTier === 'default' || settings.serviceTier === 'standard') {
+    return value('standard', 'Standard')
+  }
   return normalizeString(settings.serviceTier, tierLabels)
 }
 
@@ -110,11 +113,11 @@ function normalizeFullAccess(
   const sandboxType = typeof sandbox?.type === 'string' ? sandbox.type : null
   const fullAccessProfile = profile?.id === ':danger-full-access' ||
     profile?.extends === ':danger-full-access'
-  if (sandboxType === 'dangerFullAccess' || fullAccessProfile) {
+  if (sandboxType === 'dangerFullAccess' || sandboxType === 'danger-full-access' || fullAccessProfile) {
     return { value: value('on', 'On'), sandboxType }
   }
   if (sandboxType === 'readOnly' || sandboxType === 'workspaceWrite' ||
-    sandboxType === 'externalSandbox') {
+    sandboxType === 'externalSandbox' || (sandboxType === 'managed' && record(sandbox?.file_system)?.type === 'restricted')) {
     return { value: value('off', 'Off'), sandboxType }
   }
   return { value: value(null, null), sandboxType }

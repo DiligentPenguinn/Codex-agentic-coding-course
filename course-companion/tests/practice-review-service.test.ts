@@ -6,7 +6,6 @@ import type {
   CodexTaskConfigurationSnapshot,
   ExecutorActivitySnapshot
 } from '../shared/contracts'
-import type { ExecutorActivityObserver } from '../electron/main/executor-activity-observer'
 import { PracticeCoordinator } from '../electron/main/practice-coordinator'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
 import { DeterministicPracticeReviewEvaluator } from '../electron/main/practice-review-evaluator'
@@ -16,7 +15,6 @@ import {
   PracticeRunRepository
 } from '../electron/main/practice-run-repository'
 import { ProgressRepository } from '../electron/main/progress-repository'
-import { TeacherChatRepository } from '../electron/main/teacher-fixture'
 
 const directories: string[] = []
 const timestamp = '2026-08-09T00:00:00.000Z'
@@ -124,11 +122,19 @@ async function harness(
     }
   })
   let current: ExecutorActivitySnapshot = activity(initial)
+  let currentTime = timestamp
+  let releases = 0
+  let reads = 0
+  let configurationAfterFirstRead: CodexTaskConfigurationSnapshot | null | undefined
   const observer = {
-    async bind() {
+    async read() {
+      reads += 1
+      if (reads > 1 && configurationAfterFirstRead !== undefined) {
+        current = activity(configurationAfterFirstRead)
+      }
       return structuredClone(current)
     }
-  } as unknown as ExecutorActivityObserver
+  }
   const coordinator = new PracticeCoordinator(
     runs,
     definitions,
@@ -138,8 +144,6 @@ async function harness(
       async openTarget() { throw new Error('not used') }
     }
   )
-  const chat = new TeacherChatRepository(directory)
-  let messageId = 0
   const createService = () => new PracticeReviewService(
       definitions,
       runs,
@@ -147,32 +151,45 @@ async function harness(
       progress,
       observer,
       new DeterministicPracticeReviewEvaluator(),
-      chat,
-      true,
-      () => new Date(timestamp),
-      () => 'review-message-' + String(++messageId)
+      () => new Date(currentTime),
+      undefined,
+      async () => { releases += 1 }
     )
   const service = createService()
   return {
-    chat,
     progress,
     runs,
     service,
     restartService: createService,
+    releaseCount() { return releases },
+    advanceClock() {
+      currentTime = '2026-08-09T00:01:00.000Z'
+    },
     setConfiguration(value: CodexTaskConfigurationSnapshot | null) {
+      reads = 0
+      configurationAfterFirstRead = undefined
       current = activity(value)
+    },
+    changeConfigurationDuringReview(value: CodexTaskConfigurationSnapshot | null) {
+      reads = 0
+      configurationAfterFirstRead = value
+    },
+    setActivityStatus(status: ExecutorActivitySnapshot['status']) {
+      current = { ...current, status }
     }
   }
 }
 
 describe('Module 1 Practice review service', () => {
   it('passes only all five fresh values and persists the approved task configuration', async () => {
-    const { chat, progress, runs, service } = await harness()
+    const { progress, runs, service, releaseCount } = await harness()
 
     const response = await service.review()
 
+    expect(Object.keys(response)).toEqual(['workspace'])
     expect(response.workspace.review).toMatchObject({ status: 'passed', canReturn: true })
     expect(response.workspace.checklist.every((step) => step.status === 'completed')).toBe(true)
+    expect(releaseCount()).toBe(1)
     const receipt = await service.passedCompletion()
     expect(receipt).toMatchObject({
       practiceId: 'm1-codex-safe-setup',
@@ -189,9 +206,6 @@ describe('Module 1 Practice review service', () => {
       reviewStatus: 'passed',
       binding: { configuration: configuration() }
     })
-    expect((await chat.loadConversation()).messages.at(-1)?.content).toContain(
-      'cả năm thiết lập'
-    )
   })
 
   it.each([
@@ -209,8 +223,9 @@ describe('Module 1 Practice review service', () => {
     const response = await service.review()
 
     expect(response.workspace.review).toMatchObject({ status: 'needs-work', canReturn: false })
-    expect(response.teacherMessage.content).toContain(label)
-    expect(response.teacherMessage.content.match(/Thao tác cài đặt tiếp theo:/g)).toHaveLength(1)
+    expect(response.workspace.review?.result?.criteria).toEqual(expect.arrayContaining([
+      expect.objectContaining({ explanation: expect.stringContaining(label) })
+    ]))
     await expect(service.passedCompletion()).rejects.toThrow()
   })
 
@@ -231,7 +246,7 @@ describe('Module 1 Practice review service', () => {
 
   it('passes after reconnect and keeps review, receipt, and return idempotent', async () => {
     const disconnected = configuration({ freshness: 'stale', connection: 'disconnected' })
-    const { progress, service, restartService, setConfiguration } = await harness(disconnected)
+    const { progress, runs, service, restartService, setConfiguration } = await harness(disconnected)
     expect((await service.review()).workspace.review).toMatchObject({ status: 'needs-work' })
 
     setConfiguration(configuration({ eventTimestampMs: 2 }))
@@ -244,5 +259,86 @@ describe('Module 1 Practice review service', () => {
     expect((await progress.load()).status).toBe('returning')
     await expect(service.returnPassedPractice()).resolves.toEqual(receipt)
     await expect(service.returnPassedPractice()).resolves.toEqual(receipt)
+    const closed = await runs.load()
+    expect(closed.activeRun).toBeNull()
+    expect(closed.archivedRuns.at(-1)).toMatchObject({
+      runId: receipt.runId,
+      outcome: 'completed'
+    })
+  })
+
+  it('refreshes evidence and blocks return when configuration changed after a pass', async () => {
+    const { progress, runs, service, setConfiguration } = await harness()
+    await expect(service.review()).resolves.toMatchObject({
+      workspace: { review: { status: 'passed' } }
+    })
+
+    setConfiguration(configuration({
+      eventTimestampMs: 2,
+      model: { protocolValue: 'gpt-5.6-terra', label: '5.6 Terra' }
+    }))
+    await expect(service.returnPassedPractice()).rejects.toThrow('chưa được Triết xác nhận')
+
+    const activeRun = (await runs.load()).activeRun
+    expect(activeRun?.reviewStatus).toBe('needs-work')
+    expect(activeRun).not.toHaveProperty('completion')
+    const loadedProgress = await progress.load()
+    expect(loadedProgress.status).toBe('returning')
+    if (loadedProgress.status === 'returning' || loadedProgress.status === 'recovered') {
+      expect(loadedProgress.progress.practiceCompletions).toEqual([])
+      expect(loadedProgress.progress.checkpointId).toBe('m1-setup-checklist')
+    }
+  })
+
+  it('rejects a configuration change between observation and persistence', async () => {
+    const { runs, service, changeConfigurationDuringReview } = await harness()
+    changeConfigurationDuringReview(configuration({
+      eventTimestampMs: 2,
+      reasoningEffort: { protocolValue: 'medium', label: 'Medium' }
+    }))
+
+    await expect(service.review()).rejects.toThrow('PRACTICE_EVIDENCE_CHANGED')
+    expect((await runs.load()).activeRun).toMatchObject({ reviewStatus: 'not-reviewed' })
+  })
+
+  it('does not review while the exact Practice task is still working', async () => {
+    const { runs, service, setActivityStatus } = await harness()
+    setActivityStatus('working')
+
+    await expect(service.review()).rejects.toThrow('PRACTICE_SNAPSHOT_BUSY')
+    expect((await runs.load()).activeRun).toMatchObject({ reviewStatus: 'not-reviewed' })
+  })
+
+  it('returns a still-passed Practice when the review clock has advanced', async () => {
+    const { progress, runs, service, advanceClock } = await harness()
+    await service.review()
+    const original = await service.passedCompletion()
+    advanceClock()
+
+    await expect(service.returnPassedPractice()).resolves.toEqual(original)
+    await expect(progress.load()).resolves.toMatchObject({
+      progress: { sceneId: 'module-1-mastery', checkpointId: 'm1-mastery' }
+    })
+    expect((await runs.load()).activeRun).toBeNull()
+  })
+
+  it('replaces a stale receipt when changed evidence still passes', async () => {
+    const { progress, service, advanceClock, setConfiguration } = await harness()
+    await service.review()
+    const original = await service.passedCompletion()
+    advanceClock()
+    setConfiguration(configuration({
+      eventTimestampMs: 2,
+      observedAt: '2026-08-09T00:01:00.000Z'
+    }))
+
+    const returned = await service.returnPassedPractice()
+    expect(returned.destination.sceneId).toBe('module-1-mastery')
+    const loaded = await progress.load()
+    expect(loaded).toMatchObject({ progress: { sceneId: 'module-1-mastery' } })
+    if (loaded.status === 'returning' || loaded.status === 'recovered') {
+      expect(loaded.progress.practiceCompletions).toContainEqual(returned)
+      expect(loaded.progress.practiceCompletions).not.toContainEqual(original)
+    }
   })
 })

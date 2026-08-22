@@ -9,8 +9,10 @@ import type {
 } from '../../shared/contracts'
 import type { PracticeRunRecord } from './practice-run-repository'
 import { practiceSummaryKey } from './teacher-memory-repository'
+import type { TeacherCoursePackage } from './teacher-course-context-repository'
 
-const MAX_ENVELOPE_CHARACTERS = 24_000
+const MAX_DYNAMIC_CONTEXT_CHARACTERS = 24_000
+const MAX_TEACHER_TURN_CHARACTERS = 200_000
 function boundedText(value: string, maximum: number): string {
   const points = [...value]
   return points.length <= maximum ? value : `${points.slice(0, maximum - 1).join('')}?`
@@ -26,9 +28,13 @@ export type TeacherContextEnvelope = {
   generatedAt: string
   course: {
     lessonId: string
+    courseLessonId: string
     sceneId: string
     checkpointId: string
+    completedCheckpointIds: string[]
     decisions: Record<string, string>
+    practiceState: LearnerProgress['practice']
+    package: Omit<TeacherCoursePackage, 'pedagogyInstructions'>
   }
   practice: {
     practiceId: string | null
@@ -56,6 +62,7 @@ type EnvelopeInput = {
   activity: ExecutorActivitySnapshot | null
   memory: TeacherMemoryDocument
   conversation: TeacherConversation
+  coursePackage: TeacherCoursePackage
   excludeMessageId?: string
   now?: () => Date
 }
@@ -118,7 +125,9 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
     || JSON.stringify(activity) !== JSON.stringify(input.activity)
     || JSON.stringify({ learnerDecisions, learningSignals, unresolvedNeeds })
       !== JSON.stringify({ learnerDecisions: input.memory.learnerDecisions, learningSignals: input.memory.learningSignals, unresolvedNeeds: input.memory.unresolvedNeeds })
-  const freshness = input.activity?.status === 'disconnected'
+  const freshness = !input.activeRun
+    ? 'fresh'
+    : input.activity?.status === 'disconnected'
     ? 'disconnected'
     : input.activity?.status === 'stale' || !input.activity
       ? 'stale'
@@ -129,9 +138,20 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
     generatedAt: now().toISOString(),
     course: {
       lessonId: input.progress.currentLessonId,
+      courseLessonId: input.progress.currentCourseLessonId,
       sceneId: input.progress.sceneId,
       checkpointId: input.progress.checkpointId,
-      decisions: structuredClone(input.progress.decisions)
+      completedCheckpointIds: structuredClone(input.progress.completedCheckpointIds),
+      decisions: structuredClone(input.progress.decisions),
+      practiceState: structuredClone(input.progress.practice),
+      package: {
+        schemaVersion: input.coursePackage.schemaVersion,
+        moduleId: input.coursePackage.moduleId,
+        sources: structuredClone(input.coursePackage.sources),
+        characterCount: input.coursePackage.characterCount,
+        digest: input.coursePackage.digest,
+        activeAssessment: structuredClone(input.coursePackage.activeAssessment)
+      }
     },
     practice: {
       practiceId,
@@ -157,13 +177,26 @@ export function buildTeacherEnvelope(input: EnvelopeInput): { envelope: TeacherC
   })
 
   let envelope = create()
-  while (JSON.stringify({ envelope, recentChat }).length > MAX_ENVELOPE_CHARACTERS && recentChat.length > 2) {
+  const dynamicSize = () => JSON.stringify({
+    envelope: {
+      ...envelope,
+      course: { ...envelope.course, package: undefined }
+    },
+    recentChat
+  }).length
+  while (dynamicSize() > MAX_DYNAMIC_CONTEXT_CHARACTERS && recentChat.length > 2) {
     recentChat = recentChat.slice(2)
     envelope = create()
   }
-  while (JSON.stringify({ envelope, recentChat }).length > MAX_ENVELOPE_CHARACTERS && previousRuns.length > 0) {
+  while (dynamicSize() > MAX_DYNAMIC_CONTEXT_CHARACTERS && previousRuns.length > 0) {
     previousRuns = previousRuns.slice(1)
     envelope = create()
+  }
+  if (dynamicSize() > MAX_DYNAMIC_CONTEXT_CHARACTERS) {
+    throw new Error('Teacher dynamic context exceeds its hard size cap')
+  }
+  if (JSON.stringify({ envelope, recentChat }).length > MAX_TEACHER_TURN_CHARACTERS) {
+    throw new Error('Teacher context envelope exceeds its hard size cap')
   }
   return { envelope, recentChat }
 }

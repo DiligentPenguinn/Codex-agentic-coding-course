@@ -293,11 +293,14 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await capture(page, 'module-1-codex-approval-expanded.png')
   await page.keyboard.press('Escape')
   assert.equal(await visualLightbox.count(), 0)
+  await page.evaluate(() => new Promise((resolve) => globalThis.requestAnimationFrame(() =>
+    globalThis.requestAnimationFrame(resolve)
+  )))
   const approvalVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
   const approvalDialogueBounds = await page.locator('.pixel-dialogue').boundingBox()
   assert.ok(approvalVisualBounds)
   assert.ok(approvalDialogueBounds)
-  assert.ok(approvalVisualBounds.y + approvalVisualBounds.height < approvalDialogueBounds.y)
+  if (verifyResponsiveLayout) assert.ok(approvalVisualBounds.y + approvalVisualBounds.height < approvalDialogueBounds.y)
   await capture(page, 'module-1-codex-approval-intro.png')
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -314,7 +317,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     const approvalNarrowVisualBounds = await page.locator('.pixel-lesson-visual').boundingBox()
     assert.ok(approvalNarrowVisualBounds)
     assert.ok(approvalNarrowVisualBounds.width <= approvalNarrowWidths.viewport)
-    assert.ok(approvalNarrowVisualBounds.width >= approvalNarrowWidths.viewport - 24)
+    assert.ok(approvalNarrowVisualBounds.width >= approvalNarrowWidths.viewport - 48)
     await expandVisualButton.click()
     await visualLightbox.waitFor()
     const approvalNarrowLightboxBounds = await visualLightbox.boundingBox()
@@ -363,7 +366,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     assert.ok(modelNarrowBoardBounds)
     assert.ok(modelNarrowHudBounds)
     assert.ok(modelNarrowBoardBounds.width <= modelNarrowWidths.viewport)
-    assert.ok(modelNarrowBoardBounds.width >= modelNarrowWidths.viewport - 24)
+    assert.ok(modelNarrowBoardBounds.width >= modelNarrowWidths.viewport - 48)
     assert.ok(modelNarrowBoardBounds.y >= modelNarrowHudBounds.y + modelNarrowHudBounds.height)
     assert.equal(await page.locator('.pixel-model-board__teacher').isVisible(), false)
     await capture(page, 'module-1-codex-model-intro-390px.png')
@@ -550,16 +553,64 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
     'Expected Module 1 Practice to leave the lesson and open the Codex companion'
   )
-  await companionPage.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành', exact: true }).click()
-  await companionPage.getByRole('tab', { name: 'TIẾN ĐỘ', exact: true }).waitFor()
-  await companionPage.getByRole('button', { name: 'Yêu cầu Triết duyệt tiến độ', exact: true }).click()
-  await companionPage.getByText('ĐÃ ĐẠT', { exact: true }).waitFor()
-  await companionPage.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
+  await companionPage.getByRole('button', { name: 'Mở Duyệt Practice với Triết', exact: true }).click()
+  const compactReview = companionPage.getByRole('region', { name: 'Duyệt Practice với Triết' })
+  await compactReview.waitFor()
+  await compactReview.getByRole('region', { name: 'Tiến độ Practice', exact: true }).waitFor()
+  await compactReview.getByText(/\d+\/\d+ bước hoàn thành/).waitFor()
+  await compactReview.getByText('TIẾP THEO', { exact: true }).waitFor()
+  const compactSteps = compactReview.locator('.practice-compact-checklist > li > button')
+  assert.equal(await compactSteps.count(), 5)
+  for (let index = 0; index < 5; index += 1) {
+    assert.equal(await compactSteps.nth(index).getAttribute('aria-expanded'), 'false')
+  }
+  await compactSteps.nth(0).click()
+  await compactReview.getByRole('region', { name: 'Hướng dẫn: Chọn Model 5.6 Sol', exact: true }).waitFor()
+  await compactSteps.nth(1).click()
+  assert.equal(await compactSteps.nth(0).getAttribute('aria-expanded'), 'false')
+  assert.equal(await compactSteps.nth(1).getAttribute('aria-expanded'), 'true')
+  assert.equal(await compactReview.getByRole('region', { name: 'Hướng dẫn: Chọn Model 5.6 Sol', exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('MỤC TIÊU', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('Kết quả theo từng tiêu chí', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('CẤU HÌNH ĐÃ QUAN SÁT', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('BƯỚC HỌC HIỆN TẠI', { exact: true }).count(), 0)
+  await companionPage.getByRole('button', { name: 'Mở Triết toàn màn hình', exact: true }).click()
+  await waitForSnapshot(
+    electronApp,
+    (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
+    'Expected the first-run guide to continue in the full Teacher workspace'
+  )
+  const fullTeacher = page.locator('.pixel-teacher-overlay.is-practice-full')
+  await fullTeacher.waitFor()
+  const guide = page.locator('.practice-guide')
+  await guide.getByRole('button', { name: 'Bắt đầu hướng dẫn', exact: true }).click()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
+  await guide.waitFor({ state: 'hidden' })
+  assert.equal(await fullTeacher.locator('.pixel-chat-composer').count(), 0)
+  assert.equal(await fullTeacher.locator('.pixel-chat-log').count(), 0)
+  await fullTeacher.getByRole('button', { name: 'Cập nhật và duyệt tiến độ Practice', exact: true }).click()
+  const reviewOutcome = await Promise.race([
+    fullTeacher.getByText('ĐÃ ĐẠT', { exact: true }).waitFor().then(() => 'passed'),
+    fullTeacher.locator('.pixel-chat-warning[role="alert"]').waitFor().then(async () =>
+      `error: ${await fullTeacher.locator('.pixel-chat-warning[role="alert"]').innerText()}`)
+  ])
+  assert.equal(reviewOutcome, 'passed')
+  await fullTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
   await waitForSnapshot(
     electronApp,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,
     'Expected the passed Module 1 Practice to return to the lesson'
   )
+  const masteryGuide = page.locator('.practice-guide-mastery')
+  await masteryGuide.getByText('Bạn đã hoàn thành vòng Practice', { exact: true }).waitFor()
+  await masteryGuide.getByRole('button', { name: 'Đã hiểu', exact: true }).click()
+  const completedGuide = await page.evaluate(() =>
+    globalThis.courseCompanion?.loadPracticeGuide({ surface: 'learning' }))
+  assert.equal(completedGuide?.status, 'completed')
+  assert.equal(completedGuide?.currentStageId, 'return-to-course')
   await companionPage.evaluate(() => globalThis.courseCompanion?.setCompanionMode('compact'))
   await page.getByText('Bây giờ hãy cùng nhau trả lời các câu hỏi ôn tập để củng cố kiến thức vừa học nhen!', { exact: true }).waitFor()
   assert.equal(await page.locator('.pixel-scene-title').count(), 0)

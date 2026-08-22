@@ -311,14 +311,26 @@ describe('PortfolioPlanningEvidenceAdapter', () => {
     const workspace = await temporaryWorkspace()
     await writeValidArtifacts(workspace)
     await rm(join(workspace, 'planning/portfolio-brief.md'))
-    await symlink(resolve(workspace, 'planning/PRD.md'), join(workspace, 'planning/portfolio-brief.md'))
+    let symlinkCreated = true
+    try {
+      await symlink(resolve(workspace, 'planning/PRD.md'), join(workspace, 'planning/portfolio-brief.md'))
+    } catch (error) {
+      if (process.platform !== 'win32'
+        || !(error instanceof Error)
+        || !('code' in error)
+        || error.code !== 'EPERM') throw error
+      symlinkCreated = false
+    }
     const mapPath = join(workspace, 'planning/requirement-validation-map.md')
     await writeFile(mapPath, (await readFile(mapPath, 'utf8')).replace('REQ-01', 'REQ-99'), 'utf8')
     const evidence = await adapter().collect(context(workspace))
 
-    expect(evidence.portfolioPlanning?.issues).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 'symlink', path: 'planning/portfolio-brief.md' }),
+    const expectedIssues = [
       expect.objectContaining({ code: 'requirement-coverage', path: 'planning/requirement-validation-map.md' })
-    ]))
+    ]
+    if (symlinkCreated) {
+      expectedIssues.push(expect.objectContaining({ code: 'symlink', path: 'planning/portfolio-brief.md' }))
+    }
+    expect(evidence.portfolioPlanning?.issues).toEqual(expect.arrayContaining(expectedIssues))
   })
 })

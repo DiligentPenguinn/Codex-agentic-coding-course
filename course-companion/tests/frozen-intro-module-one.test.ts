@@ -40,8 +40,10 @@ function digest(content: string | Uint8Array): string {
 describe('frozen introduction and approved Module 1', () => {
   it('keeps authoritative content, UI, images, prompts, quizzes, and Practice files exact', async () => {
     for (const [relativePath, expectedDigest] of Object.entries(frozenFiles)) {
-      const content = await readFile(resolve(process.cwd(), relativePath))
-      expect(digest(content), relativePath).toBe(expectedDigest)
+      const textFile = /\.(?:css|html|js|json|md)$/.test(relativePath)
+      const content = await readFile(resolve(process.cwd(), relativePath), textFile ? 'utf8' : undefined)
+      expect(digest(typeof content === 'string' ? content.replace(/\r\n/g, '\n') : content), relativePath)
+        .toBe(expectedDigest)
     }
   })
 
@@ -49,7 +51,7 @@ describe('frozen introduction and approved Module 1', () => {
     const source = await readFile(resolve(
       process.cwd(),
       'src/renderer/src/surfaces/LearningWindow.tsx'
-    ), 'utf8')
+    ), 'utf8').then((content) => content.replace(/\r\n/g, '\n'))
     const assessment = source.slice(
       source.indexOf('const setupAssessmentGroup'),
       source.indexOf('const assessmentGroups')

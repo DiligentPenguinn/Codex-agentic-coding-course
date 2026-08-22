@@ -32,4 +32,15 @@ describe('Module 2 outline menu', () => {
     expect(css).toMatch(/\.pixel-hud-actions\s*\{[^}]*justify-self: end;/s)
     expect(css).toContain('.pixel-quit-version { display: none; }')
   })
+
+  it('keeps the copyable Practice prompt above the persistent lesson dialogue', async () => {
+    const css = await readFile(join(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    const promptLayer = css.match(/\.pixel-copy-prompt\s*\{[^}]*z-index:\s*(\d+);/s)
+    const dialogueLayer = css.match(/\.pixel-dialogue\s*\{[^}]*z-index:\s*(\d+);/s)
+
+    expect(promptLayer).not.toBeNull()
+    expect(dialogueLayer).not.toBeNull()
+    expect(Number(promptLayer?.[1])).toBeGreaterThan(Number(dialogueLayer?.[1]))
+    expect(Number(promptLayer?.[1])).toBeLessThan(20)
+  })
 })
