@@ -197,7 +197,10 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     const wrongSurface = confirmation
       ? context.surface !== 'learning' || context.progress?.sceneId !== 'module-1-mastery'
       : context.surface !== 'full'
-    const unavailable = (stage.id === 'request-review' && !context.workspace?.review?.canReview)
+    const unavailable = (stage.id === 'request-review' && (
+      !context.workspace?.review?.canReview
+      || (context.workspace.review.status === 'needs-work' && Boolean(context.workspace.review.result))
+    ))
       || (stage.id === 'return-to-course' && !context.workspace?.review?.canReturn)
     const inactive = !replay && (
       record.status === 'paused'

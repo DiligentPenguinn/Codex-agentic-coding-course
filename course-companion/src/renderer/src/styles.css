@@ -2289,9 +2289,103 @@ button:focus-visible {
   height: 14px;
   border: 2px solid currentColor;
   border-right-color: transparent;
+  border-radius: 50%;
   transform: none;
   animation: pixel-control-spin .75s steps(8) infinite;
 }
+
+.practice-review-overview,
+.practice-progress.is-compact {
+  font-family: var(--app-font);
+}
+.practice-review-overview strong {
+  font-family: var(--app-font);
+  font-size: 16px;
+  line-height: 1.35;
+}
+.practice-review-overview .pixel-review-primary {
+  font: 800 13px/1.35 var(--app-font);
+}
+
+.practice-return-action {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 2px solid var(--pixel-status);
+  color: #000;
+  background: var(--pixel-status);
+  font-family: var(--app-font);
+  cursor: pointer;
+}
+.practice-return-action:hover:not(:disabled) { filter: brightness(1.06); }
+.practice-return-action:focus-visible { outline: 3px solid var(--pixel-white); outline-offset: 2px; }
+.practice-return-action:disabled { cursor: wait; }
+.practice-return-action.is-compact { width: 100%; }
+.practice-return-action.is-quick {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  color: var(--pixel-status);
+  background: var(--pixel-panel);
+}
+.practice-return-action__visual {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  flex: 0 0 20px;
+  place-items: center;
+}
+.practice-return-action__icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  opacity: 1;
+}
+.practice-return-action[aria-busy="true"] .practice-return-action__icon { opacity: .38; }
+.practice-return-action__spinner {
+  position: absolute;
+  top: -4px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  border: 2px solid var(--pixel-panel);
+  border-top-color: var(--pixel-yellow);
+  border-right-color: var(--pixel-yellow);
+  border-radius: 50%;
+  background: var(--pixel-panel);
+  animation: pixel-review-spin .7s linear infinite;
+}
+.practice-return-action__copy { display: grid; gap: 2px; text-align: left; }
+.practice-return-action__copy strong { font-size: 12px; line-height: 1.25; }
+.practice-return-action__copy small { font-size: 10px; line-height: 1.25; }
+.practice-compact-change,
+.practice-review-change {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--pixel-warning);
+  color: var(--pixel-white);
+  background: rgba(255, 255, 255, .04);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.practice-compact-details { margin-top: 10px; }
+.practice-compact-details > summary {
+  min-height: 40px;
+  padding: 9px 10px;
+  border: 1px solid rgba(255, 214, 102, .5);
+  color: var(--pixel-yellow);
+  cursor: pointer;
+  font: 700 11px/1.4 var(--app-font);
+}
+.practice-compact-details > summary:focus-visible { outline: 3px solid var(--pixel-yellow); outline-offset: 2px; }
+.practice-compact-details[open] > summary { border-color: var(--pixel-yellow); }
 
 @keyframes pixel-control-spin {
   to { transform: rotate(360deg); }
@@ -2305,6 +2399,7 @@ button:focus-visible {
     background: var(--pixel-yellow);
   }
   .pixel-control-spinner { animation: none; border-right-color: currentColor; }
+  .practice-return-action__spinner { animation: none; border-color: var(--pixel-yellow); }
 }
 
 .pixel-fixture-notice {

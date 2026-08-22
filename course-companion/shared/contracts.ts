@@ -846,6 +846,23 @@ export type PracticeReviewResult = {
   sourceDigest: string
 }
 
+export type PracticeReviewChangedStep = {
+  stepId: string
+  title: string
+  reason?: string
+}
+
+export type PracticeReviewComparisonView = {
+  kind: 'first-review' | 'unchanged' | 'changed'
+  previousReviewedAt: string | null
+  currentReviewedAt: string
+  previousCompletedCount: number | null
+  currentCompletedCount: number
+  totalStepCount: number
+  newlyVerified: PracticeReviewChangedStep[]
+  needsReverification: PracticeReviewChangedStep[]
+}
+
 export type PracticeCompletionReceipt = {
   schemaVersion: 1
   courseRunId: string
@@ -951,6 +968,7 @@ export type PracticeWorkspaceView = {
     canReview: boolean
     canReturn: boolean
     result?: PracticeReviewResult
+    comparison?: PracticeReviewComparisonView
   }
   completion?: PracticeCompletionReceipt
   configuration?: CodexTaskConfigurationSnapshot
@@ -1266,6 +1284,7 @@ export type CourseCompanionApi = {
   updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext)
     => Promise<PracticeGuideView | null>
   returnPassedPractice: () => Promise<void>
+  onPracticeWorkspaceChanged: (callback: () => void) => () => void
   onPracticeReturned: (callback: () => void) => () => void
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>

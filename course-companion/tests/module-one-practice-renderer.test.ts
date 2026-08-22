@@ -158,8 +158,20 @@ describe('Module 1 Practice renderer', () => {
       onReturn: () => undefined
     }))
     expect(full).toContain('ĐÃ ĐẠT')
-    expect(full).toContain('Quay lại khóa học</button>')
+    expect(full).toContain('Lưu kết quả và quay lại khóa học')
     expect(compact).toContain('practice-progress is-compact')
+  })
+
+  it('keeps the return action geometry and icon stable while loading', async () => {
+    const [action, css] = await Promise.all([
+      readFile(join(process.cwd(), 'src', 'renderer', 'src', 'components', 'PracticeReturnAction.tsx'), 'utf8'),
+      readFile(join(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    expect(action).toContain('Đang lưu kết quả và quay lại…')
+    expect(action).toContain('practice-return-action__icon')
+    expect(action).toContain('practice-return-action__spinner')
+    expect(css).toMatch(/\.practice-return-action__spinner[^{]*\{[^}]*border-radius:\s*50%/s)
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)')
   })
 
   it('keeps objectives, criteria, configuration, and timestamps out of compact mode', () => {
@@ -191,7 +203,7 @@ describe('Module 1 Practice renderer', () => {
       compact: true
     }))
 
-    expect(compact).toContain('0/1 bước hoàn thành')
+    expect(compact).toContain('0/1 bước đã xác minh')
     expect(compact).toContain('Hiện tại: Chọn Model 5.6 Sol')
     expect(compact).toContain('Tất cả các bước Practice')
     expect(compact).toContain('aria-expanded="false"')
@@ -202,6 +214,38 @@ describe('Module 1 Practice renderer', () => {
     expect(compact).not.toContain('PRIVATE REVIEW SUMMARY')
     expect(compact).not.toContain('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN')
     expect(compact).not.toContain(observedAt)
+  })
+
+  it('explains a regression without presenting prior work as never started', () => {
+    const compact = renderToStaticMarkup(createElement(PracticeProgress, {
+      workspace: {
+        ...workspace(),
+        checklist: [
+          { id: 'set-model', title: 'Chọn Model 5.6 Sol', status: 'completed' },
+          { id: 'set-effort', title: 'Chọn Effort High', status: 'stale', reason: 'Effort đã thay đổi.' }
+        ],
+        review: {
+          status: 'needs-work', canReview: true, canReturn: false,
+          comparison: {
+            kind: 'changed',
+            previousReviewedAt: '2026-08-11T00:00:00.000Z',
+            currentReviewedAt: '2026-08-11T00:01:00.000Z',
+            previousCompletedCount: 2,
+            currentCompletedCount: 1,
+            totalStepCount: 2,
+            newlyVerified: [],
+            needsReverification: [{ stepId: 'set-effort', title: 'Chọn Effort High', reason: 'Effort đã thay đổi.' }]
+          }
+        }
+      },
+      compact: true
+    }))
+
+    expect(compact).toContain('1/2 bước đã xác minh')
+    expect(compact).toContain('Cần xác minh lại: Chọn Effort High.')
+    expect(compact).toContain('Cần xác minh lại')
+    expect(compact).toContain('Xem tất cả 2 bước')
+    expect(compact).not.toContain('Chọn Effort High</strong></span><span class="practice-compact-step-state">Chưa bắt đầu')
   })
 
   it('keeps Practice animation disabled for reduced-motion users', async () => {
@@ -317,7 +361,7 @@ describe('Module 2 Practice renderer', () => {
       compact: true
     }))
     expect(html).toContain('practice-progress is-compact')
-    expect(html).toContain('1/3 bước hoàn thành')
+    expect(html).toContain('1/3 bước đã xác minh')
     expect(html).toContain('Hiện tại: Đối chiếu alignment')
     expect(html).toContain('CẦN BỔ SUNG')
     expect(html).toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')

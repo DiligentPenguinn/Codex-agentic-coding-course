@@ -131,22 +131,29 @@ export function derivePracticeChecklist(
   result: PracticeReviewResult,
   previous: PracticeChecklistStep[] = []
 ): PracticeChecklistStep[] {
-  const results = new Map(result.criteria.map((criterion) => [criterion.criterionId, criterion.status]))
+  const results = new Map(result.criteria.map((criterion) => [criterion.criterionId, criterion]))
   const previouslyCompleted = new Set(previous
     .filter((step) => step.status === 'completed')
     .map((step) => step.id))
   const completed = new Set<string>()
+  const staleReasons = new Map<string, string>()
 
   for (const step of definition.checklist) {
     const required = definition.criteria.filter((criterion) =>
       criterion.required && criterion.checklistStepId === step.id)
-    const allSatisfied = required.every((criterion) => results.get(criterion.id) === 'satisfied')
+    const allSatisfied = required.every((criterion) => results.get(criterion.id)?.status === 'satisfied')
     const hasFreshRegression = required.some((criterion) =>
-      criterion.freshness === 'fresh' && results.get(criterion.id) !== 'satisfied')
+      criterion.freshness === 'fresh' && results.get(criterion.id)?.status !== 'satisfied')
     if (result.verdict === 'passed'
       || allSatisfied
       || (previouslyCompleted.has(step.id) && !hasFreshRegression)) {
       completed.add(step.id)
+    } else if (previouslyCompleted.has(step.id) && hasFreshRegression) {
+      const reason = required
+        .filter((criterion) => criterion.freshness === 'fresh')
+        .map((criterion) => results.get(criterion.id))
+        .find((criterion) => criterion?.status !== 'satisfied')?.explanation
+      if (reason) staleReasons.set(step.id, reason)
     }
   }
 
@@ -156,6 +163,8 @@ export function derivePracticeChecklist(
     title: step.title,
     status: completed.has(step.id)
       ? 'completed'
-      : index === firstUnmet ? 'current' : 'upcoming'
+      : staleReasons.has(step.id) ? 'stale'
+      : index === firstUnmet ? 'current' : 'upcoming',
+    ...(staleReasons.has(step.id) ? { reason: staleReasons.get(step.id) } : {})
   }))
 }

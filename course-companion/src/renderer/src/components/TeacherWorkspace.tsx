@@ -17,6 +17,7 @@ import teacherImage from '../assets/teacher-triet.png'
 import { PracticeProgress } from './PracticeProgress'
 import { PracticeGuide } from './PracticeGuide'
 import { practiceGuideAnchor } from './practice-guide-anchors'
+import { PracticeReturnAction } from './PracticeReturnAction'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -176,6 +177,23 @@ export function TeacherWorkspace({
 
     void load()
   }, [embedded, refreshContext])
+
+  useEffect(() => {
+    if (!window.courseCompanion) return
+    return window.courseCompanion.onPracticeWorkspaceChanged(() => {
+      void (async () => {
+        try {
+          const next = await window.courseCompanion?.loadPracticeWorkspace()
+          if (next) {
+            setWorkspace(next)
+            setWorkspaceUnavailable(false)
+          }
+        } catch {
+          setError('Không thể đồng bộ tiến độ Practice mới nhất. Kết quả đã lưu vẫn được giữ nguyên.')
+        }
+      })()
+    })
+  }, [])
 
   useEffect(() => {
     if (activeTab !== 'teacher' || busy) return
@@ -440,22 +458,11 @@ export function TeacherWorkspace({
         </div>
         <div className="pixel-panel-controls">
           {workspace?.review?.canReturn ? (
-            <button
-              {...practiceGuideAnchor('return-to-course')}
-              className="pixel-panel-control pixel-panel-control--return"
-              type="button"
-              aria-label="Quay lại khóa học nhanh"
-              title="Quay lại khóa học nhanh"
-              aria-busy={returnBusy || reviewBusy}
-              disabled={returnBusy || reviewBusy}
-              onClick={() => void returnToCourse()}
-            >
-              {returnBusy ? <span className="pixel-control-spinner" aria-hidden="true" /> : (
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5zM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5A2.5 2.5 0 0 1 20 21.5zM17 10h4m-2-2 2 2-2 2" />
-                </svg>
-              )}
-            </button>
+            <PracticeReturnAction
+              busy={returnBusy || reviewBusy}
+              quick
+              onReturn={() => void returnToCourse()}
+            />
           ) : null}
           {!embedded && onExpand ? (
             <button
@@ -523,7 +530,7 @@ export function TeacherWorkspace({
         </div>
       ) : practiceMode ? (
         <section className="pixel-practice-review" aria-label="Duyệt tiến độ Practice">
-          <div {...practiceGuideAnchor('review-progress')} className="pixel-practice-review__primary">
+          <div {...practiceGuideAnchor('review-progress')} className="pixel-practice-review__primary practice-review-overview">
             {!compactPractice ? <div role="status" aria-live="polite">
               <small>TRẠNG THÁI HIỆN TẠI</small>
               <strong>{workspace?.review?.status === 'passed'
@@ -537,13 +544,13 @@ export function TeacherWorkspace({
               <button
                 className={'pixel-review-primary' + (reviewBusy ? ' is-busy' : '')}
                 type="button"
-                aria-label="Cập nhật và duyệt tiến độ Practice"
+                aria-label="Cập nhật và kiểm tra tiến độ Practice"
                 aria-busy={reviewBusy}
                 disabled={reviewBusy}
                 onClick={() => void reviewProgress()}
               >
                 {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
-                {reviewBusy ? 'ĐANG CẬP NHẬT & DUYỆT…' : 'CẬP NHẬT & DUYỆT TIẾN ĐỘ'}
+                {reviewBusy ? 'ĐANG CẬP NHẬT & KIỂM TRA…' : 'Cập nhật và kiểm tra tiến độ'}
               </button>
             ) : null}
           </div>
@@ -684,7 +691,14 @@ export function TeacherWorkspace({
           Xem lại hướng dẫn Practice
         </button>
       ) : null}
-      <PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />
+      <PracticeGuide
+        view={practiceGuide}
+        onUpdate={updatePracticeGuide}
+        onReview={() => void reviewProgress()}
+        onReturn={() => void returnToCourse()}
+        actionBusy={reviewBusy || returnBusy}
+        actionError={error}
+      />
 
       {!embedded ? <footer>
         <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>Thoát ứng dụng</button>

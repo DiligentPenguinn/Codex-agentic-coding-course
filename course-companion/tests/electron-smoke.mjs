@@ -566,8 +566,9 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   const compactReview = companionPage.getByRole('region', { name: 'Duyệt Practice với Triết' })
   await compactReview.waitFor()
   await compactReview.getByRole('region', { name: 'Tiến độ Practice', exact: true }).waitFor()
-  await compactReview.getByText(/\d+\/\d+ bước hoàn thành/).waitFor()
+  await compactReview.getByText(/\d+\/\d+ bước đã xác minh/).waitFor()
   await compactReview.getByText('TIẾP THEO', { exact: true }).waitFor()
+  await compactReview.getByText('Xem tất cả 5 bước', { exact: true }).click()
   const compactSteps = compactReview.locator('.practice-compact-checklist > li > button')
   assert.equal(await compactSteps.count(), 5)
   for (let index = 0; index < 5; index += 1) {
@@ -600,7 +601,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await guide.getByRole('button', { name: 'Tiếp', exact: true }).count(), 0)
   assert.equal(await fullTeacher.locator('.pixel-chat-composer').count(), 0)
   assert.equal(await fullTeacher.locator('.pixel-chat-log').count(), 0)
-  await fullTeacher.getByRole('button', { name: 'Cập nhật và duyệt tiến độ Practice', exact: true }).click()
+  await guide.getByRole('button', { name: 'Cập nhật và kiểm tra ngay', exact: true }).click()
   const reviewOutcome = await Promise.race([
     fullTeacher.getByText('ĐÃ ĐẠT', { exact: true }).waitFor().then(() => 'passed'),
     fullTeacher.locator('.pixel-chat-warning[role="alert"]').waitFor().then(async () =>
@@ -608,7 +609,14 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   ])
   assert.equal(reviewOutcome, 'passed')
   await guide.getByText('Quay lại đúng phần tiếp theo', { exact: true }).waitFor()
-  await fullTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
+  const repeatedReview = await page.evaluate(() => globalThis.courseCompanion?.reviewPractice())
+  assert.equal('error' in repeatedReview, false)
+  assert.equal(repeatedReview.workspace.review.comparison.kind, 'unchanged')
+  assert.equal(repeatedReview.workspace.review.comparison.previousCompletedCount, 5)
+  assert.equal(repeatedReview.workspace.review.comparison.currentCompletedCount, 5)
+  assert.deepEqual(repeatedReview.workspace.review.comparison.needsReverification, [])
+  assert.deepEqual(repeatedReview.workspace.review.comparison.newlyVerified, [])
+  await guide.getByRole('button', { name: 'Lưu kết quả và quay lại', exact: true }).click()
   await waitForSnapshot(
     electronApp,
     (windows) => learningWindow(windows)?.visible === true && companionWindow(windows)?.visible === false,

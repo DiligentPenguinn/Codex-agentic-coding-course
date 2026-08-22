@@ -6,6 +6,7 @@ import type {
   PracticeWorkspaceView
 } from '../../../../shared/contracts'
 import { practiceGuideAnchor } from './practice-guide-anchors'
+import { PracticeReturnAction } from './PracticeReturnAction'
 
 type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
@@ -161,7 +162,7 @@ export function PracticeProgress({
     completed: 'Đã hoàn thành',
     current: 'Đang thực hiện',
     pending: 'Chưa bắt đầu',
-    stale: 'Cần làm mới',
+    stale: 'Cần xác minh lại',
     upcoming: 'Chưa đến lượt'
   } as const
   const compactConfigurationGuidance: Record<string, string> = {
@@ -178,6 +179,14 @@ export function PracticeProgress({
         : step.status === 'pending' || step.status === 'upcoming'
           ? 'Hoàn thành các bước trước đó, sau đó thực hiện bước này trong đúng task Codex.'
           : 'Thực hiện yêu cầu trong tên bước tại đúng task Codex, sau đó cập nhật và duyệt lại tiến độ.')
+  const comparison = workspace.review?.comparison
+  const comparisonSummary = comparison?.kind === 'unchanged'
+    ? 'Không có bước nào thay đổi sau lần kiểm tra trước.'
+    : comparison?.needsReverification[0]
+      ? `Cần xác minh lại: ${comparison.needsReverification[0].title}.`
+      : comparison?.newlyVerified[0]
+        ? `Mới xác minh: ${comparison.newlyVerified[0].title}.`
+        : comparison?.kind === 'first-review' ? 'Đã hoàn tất lần kiểm tra đầu tiên.' : ''
 
   const planningAction = (action: PlanningPracticeActionRequest['action']) => {
     if (!actionBusy) onPlanningAction?.(action)
@@ -188,7 +197,7 @@ export function PracticeProgress({
         <div className="practice-compact-progress" role="status">
           <div>
             <small>TIẾN ĐỘ</small>
-            <strong>{completedStepCount}/{workspace.checklist.length} bước hoàn thành</strong>
+            <strong>{completedStepCount}/{workspace.checklist.length} bước đã xác minh</strong>
             <span>{compactCurrentStep
               ? `Hiện tại: ${compactCurrentStep.title}`
               : reviewStatus === 'passed' ? 'Đã hoàn thành các bước bắt buộc.' : 'Đang chờ bằng chứng mới.'}</span>
@@ -197,6 +206,9 @@ export function PracticeProgress({
             {reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : reviewStatus === 'needs-work' ? 'CẦN BỔ SUNG' : 'CHƯA DUYỆT'}
           </b>
         </div>
+        {comparisonSummary ? <p className="practice-compact-change" role="status">{comparisonSummary}</p> : null}
+        <details className="practice-compact-details">
+          <summary>Xem tất cả {workspace.checklist.length} bước</summary>
         <ol className="practice-compact-checklist" aria-label="Tất cả các bước Practice">
           {workspace.checklist.map((step, index) => {
             const expanded = expandedCompactStepId === step.id
@@ -227,6 +239,7 @@ export function PracticeProgress({
             )
           })}
         </ol>
+        </details>
         {reviewStatus !== 'passed' ? (
           <div className="practice-compact-next" aria-label="Hành động tiếp theo">
             <small>TIẾP THEO</small>
@@ -234,9 +247,7 @@ export function PracticeProgress({
           </div>
         ) : null}
         {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-          <button {...practiceGuideAnchor('return-to-course')} className="practice-compact-return" type="button" disabled={returnBusy} onClick={onReturn}>
-            {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
-          </button>
+          <PracticeReturnAction busy={returnBusy} compact onReturn={onReturn} />
         ) : null}
       </section>
     )
@@ -259,6 +270,7 @@ export function PracticeProgress({
           <div>
             <small>KẾT QUẢ DUYỆT</small>
             <strong>{reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : 'CẦN BỔ SUNG'}</strong>
+            {comparisonSummary ? <p className="practice-review-change">{comparisonSummary}</p> : null}
             <p>{reviewResult?.summary ?? (reviewStatus === 'passed'
               ? 'Bằng chứng đáp ứng các tiêu chí bắt buộc.'
               : 'Hãy bổ sung bằng chứng theo các bước còn lại rồi yêu cầu duyệt lại.')}</p>
@@ -282,9 +294,7 @@ export function PracticeProgress({
             {reviewResult?.reviewedAt ? <time dateTime={reviewResult.reviewedAt}>Duyệt lúc {new Date(reviewResult.reviewedAt).toLocaleString('vi-VN')}</time> : null}
           </div>
           {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-            <button {...practiceGuideAnchor('return-to-course')} type="button" disabled={returnBusy} onClick={onReturn}>
-              {returnBusy ? 'ĐANG QUAY LẠI…' : 'Quay lại khóa học'}
-            </button>
+            <PracticeReturnAction busy={returnBusy} onReturn={onReturn} />
           ) : null}
         </section>
       ) : null}

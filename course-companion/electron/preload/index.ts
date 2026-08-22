@@ -72,6 +72,11 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:update-practice-guide', request, context) as Promise<PracticeGuideView | null>,
   returnPassedPractice: () =>
     ipcRenderer.invoke('course:return-passed-practice') as Promise<void>,
+  onPracticeWorkspaceChanged: (callback: () => void) => {
+    const listener = () => callback()
+    ipcRenderer.on('course:practice-workspace-changed', listener)
+    return () => ipcRenderer.removeListener('course:practice-workspace-changed', listener)
+  },
   onPracticeReturned: (callback: () => void) => {
     const listener = () => callback()
     ipcRenderer.on('course:practice-returned', listener)

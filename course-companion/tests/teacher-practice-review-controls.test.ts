@@ -8,8 +8,9 @@ async function source(path: string): Promise<string> {
 
 describe('Teacher Practice review controls', () => {
   it('uses one unified review implementation for windowed and full-screen Teacher', async () => {
-    const [teacher, companion, learning] = await Promise.all([
+    const [teacher, returnAction, companion, learning] = await Promise.all([
       source('src/renderer/src/components/TeacherWorkspace.tsx'),
+      source('src/renderer/src/components/PracticeReturnAction.tsx'),
       source('src/renderer/src/surfaces/CompanionWindow.tsx'),
       source('src/renderer/src/surfaces/LearningWindow.tsx')
     ])
@@ -18,8 +19,8 @@ describe('Teacher Practice review controls', () => {
     expect(learning).toContain('<TeacherWorkspace')
     expect(teacher).toContain('pixel-practice-review__primary')
     expect(teacher).toContain('pixel-review-primary')
-    expect(teacher).toContain('pixel-panel-control--return')
-    expect(teacher).toContain('CẬP NHẬT & DUYỆT TIẾN ĐỘ')
+    expect(returnAction).toContain('pixel-panel-control--return')
+    expect(teacher).toContain('Cập nhật và kiểm tra tiến độ')
   })
 
   it('gates return on persisted review state rather than Teacher prose', async () => {
@@ -32,21 +33,38 @@ describe('Teacher Practice review controls', () => {
   })
 
   it('provides accessible labels, busy state, and reduced-motion styling', async () => {
-    const [teacher, styles] = await Promise.all([
+    const [teacher, returnAction, styles] = await Promise.all([
       source('src/renderer/src/components/TeacherWorkspace.tsx'),
+      source('src/renderer/src/components/PracticeReturnAction.tsx'),
       source('src/renderer/src/styles.css')
     ])
 
-    expect(teacher).toContain('aria-label="Cập nhật và duyệt tiến độ Practice"')
-    expect(teacher).toContain('aria-label="Quay lại khóa học nhanh"')
+    expect(teacher).toContain('aria-label="Cập nhật và kiểm tra tiến độ Practice"')
+    expect(returnAction).toContain("quick ? 'Quay lại khóa học nhanh'")
     expect(teacher).toContain('onReturn={() => void returnToCourse()}')
     expect(teacher).toContain('returnBusy={returnBusy}')
     expect(teacher).toContain('aria-busy={reviewBusy}')
     expect(teacher).toContain('reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null')
     expect(styles).toContain('.pixel-review-primary .pixel-review-spinner')
     expect(styles).toContain('border-radius: 50%')
+    expect(styles).toMatch(/\.practice-review-overview[^{]*\{[^}]*font-family:\s*var\(--app-font\)/s)
+    expect(styles).toMatch(/\.pixel-control-spinner[^{]*\{[^}]*border-radius:\s*50%/s)
     expect(styles).toContain('animation: pixel-review-spin .7s linear infinite')
     expect(styles).toContain('@media (prefers-reduced-motion: reduce)')
+  })
+
+  it('synchronizes persisted review changes across full and windowed Teacher surfaces', async () => {
+    const [teacher, preload, main] = await Promise.all([
+      source('src/renderer/src/components/TeacherWorkspace.tsx'),
+      source('electron/preload/index.ts'),
+      source('electron/main/index.ts')
+    ])
+
+    expect(preload).toContain("ipcRenderer.on('course:practice-workspace-changed'")
+    expect(main).toContain("target.webContents.send('course:practice-workspace-changed')")
+    expect(main).toContain('broadcastPracticeWorkspaceChanged()')
+    expect(teacher).toContain('onPracticeWorkspaceChanged(() =>')
+    expect(teacher).toContain('loadPracticeWorkspace()')
   })
 
   it('removes every direct chat control from the authoritative active-Practice branch', async () => {

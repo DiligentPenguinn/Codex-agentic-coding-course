@@ -52,6 +52,7 @@ function activeRun(overrides: Partial<PracticeRunRecord> = {}): PracticeRunRecor
     learnerApprovals: {},
     evidence: null,
     invalidations: [],
+    reviewHistory: [],
     reviewStatus: 'not-reviewed',
     ...overrides
   }
@@ -281,6 +282,94 @@ describe('PracticeRunRepository', () => {
         practiceId: 'm1-codex-safe-setup',
         practiceVersion: '2.0.0',
         reviewStatus: 'not-reviewed'
+      }
+    })
+  })
+
+  it('migrates an existing review result into bounded review history', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    const result = {
+      schemaVersion: 1 as const,
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
+      runId: 'run-1',
+      verdict: 'passed' as const,
+      criteria: [],
+      summary: 'Passed',
+      reviewedAt: '2026-08-08T00:00:00.000Z',
+      sourceDigest: 'a'.repeat(64)
+    }
+
+    const saved = await repository.save(activeRecord(activeRun({
+      reviewStatus: 'passed',
+      reviewResult: result,
+      reviewHistory: undefined
+    })))
+
+    expect(saved.activeRun?.reviewHistory).toEqual([result])
+  })
+
+  it('retains the five latest review events, including unchanged rechecks', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory())
+    await repository.save(activeRecord())
+    const identity = {
+      runId: 'run-1', generation: 1,
+      practiceId: 'm1-codex-safe-setup', practiceVersion: '2.0.0'
+    }
+    for (let index = 0; index < 6; index += 1) {
+      await repository.saveReview({
+        ...identity,
+        result: {
+          schemaVersion: 1,
+          practiceId: identity.practiceId,
+          practiceVersion: identity.practiceVersion,
+          runId: identity.runId,
+          verdict: 'passed',
+          criteria: [],
+          summary: 'Passed',
+          reviewedAt: `2026-08-08T00:0${index}:00.000Z`,
+          sourceDigest: 'a'.repeat(64)
+        },
+        checklist: activeRun().checklist,
+        updatedAt: `2026-08-08T00:0${index}:00.000Z`
+      })
+    }
+
+    const history = (await repository.load()).activeRun?.reviewHistory ?? []
+    expect(history).toHaveLength(5)
+    expect(history.map((item) => item.reviewedAt)).toEqual([
+      '2026-08-08T00:01:00.000Z',
+      '2026-08-08T00:02:00.000Z',
+      '2026-08-08T00:03:00.000Z',
+      '2026-08-08T00:04:00.000Z',
+      '2026-08-08T00:05:00.000Z'
+    ])
+  })
+
+  it('restores the exact prior review after an interrupted recheck', async () => {
+    const directory = await temporaryDirectory()
+    const result = {
+      schemaVersion: 1 as const,
+      practiceId: 'm1-codex-safe-setup',
+      practiceVersion: '2.0.0',
+      runId: 'run-1',
+      verdict: 'passed' as const,
+      criteria: [],
+      summary: 'Passed',
+      reviewedAt: '2026-08-08T00:00:00.000Z',
+      sourceDigest: 'a'.repeat(64)
+    }
+    await new PracticeRunRepository(directory).save(activeRecord(activeRun({
+      reviewStatus: 'reviewing',
+      reviewResult: result,
+      reviewHistory: [result]
+    })))
+
+    await expect(new PracticeRunRepository(directory).load()).resolves.toMatchObject({
+      activeRun: {
+        reviewStatus: 'passed',
+        reviewResult: result,
+        reviewHistory: [result]
       }
     })
   })

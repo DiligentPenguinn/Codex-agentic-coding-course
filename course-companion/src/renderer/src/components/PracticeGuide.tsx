@@ -6,6 +6,10 @@ import { PRACTICE_GUIDE_ANCHOR_ATTRIBUTE } from './practice-guide-anchors'
 type PracticeGuideProps = {
   view: PracticeGuideView | null
   onUpdate: (request: PracticeGuideUpdateRequest) => void | Promise<void>
+  onReview?: () => void | Promise<void>
+  onReturn?: () => void | Promise<void>
+  actionBusy?: boolean
+  actionError?: string
 }
 
 type Placement = { left: number; top: number; fallback: boolean; above: boolean }
@@ -16,7 +20,7 @@ function findPracticeGuideAnchor(id: PracticeGuideAnchorId): HTMLElement | null 
 }
 
 
-export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
+export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy = false, actionError = '' }: PracticeGuideProps) {
   const panelRef = useRef<HTMLElement>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
   const [placement, setPlacement] = useState(initialPlacement)
@@ -92,6 +96,19 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
     }
   }
 
+  const runPrimaryAction = async () => {
+    if (updating || actionBusy) return
+    if (view.currentStageId === 'request-review' && onReview) {
+      await onReview()
+      return
+    }
+    if (view.currentStageId === 'return-to-course' && onReturn) {
+      await onReturn()
+      return
+    }
+    await update(nextType)
+  }
+
   if (view.status === 'paused') {
     return (
       <aside className="practice-guide-resume" role="status">
@@ -165,11 +182,13 @@ export function PracticeGuide({ view, onUpdate }: PracticeGuideProps) {
           <h2 id="practice-guide-title">{view.title}</h2>
         </header>
         <p id="practice-guide-body">{view.body}</p>
-        {view.error ? <div className="practice-guide-warning" role="status">{view.error}</div> : null}
+        {view.error || actionError ? <div className="practice-guide-warning" role="status">{actionError || view.error}</div> : null}
         <div className="practice-guide-actions">
           {view.primaryLabel ? (
-            <button data-guide-primary disabled={updating} type="button" onClick={() => void update(nextType)}>
-              {view.primaryLabel}
+            <button data-guide-primary disabled={updating || actionBusy} type="button" onClick={() => void runPrimaryAction()}>
+              {actionBusy
+                ? view.currentStageId === 'return-to-course' ? 'Đang lưu và quay lại…' : 'Đang cập nhật và kiểm tra…'
+                : view.primaryLabel}
             </button>
           ) : null}
           {view.secondaryLabel ? (

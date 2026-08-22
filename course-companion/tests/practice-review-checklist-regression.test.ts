@@ -77,7 +77,12 @@ describe('Practice checklist regression policy', () => {
       { id: 'fresh', title: 'Fresh step', status: 'completed' }
     ])).toEqual([
       { id: 'durable', title: 'Durable step', status: 'completed' },
-      { id: 'fresh', title: 'Fresh step', status: 'current' }
+      {
+        id: 'fresh',
+        title: 'Fresh step',
+        status: 'stale',
+        reason: 'Fresh verification is missing.'
+      }
     ])
   })
 })

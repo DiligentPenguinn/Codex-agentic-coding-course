@@ -36,7 +36,7 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `in-progress` — the verified 22 August Practice repair remains authoritative after selective integration of the approved Triet V2 content and Course Companion support | `passed` for the selective merge: 391 tests passed with two intentional skips, nine startup tests passed, and typecheck, lint, production build, full Electron smoke, `git diff --check`, the isolated installed-App-Server diagnostic, and the exact active-run diagnostic all passed | `pending` overall; the baseline-plus-updates settings recovery, semantic guide repair, selective content-integration boundary, and required workspace-selection compatibility boundary were explicitly approved | `pending` | Present the integrated result for review without inferring overall approval or pilot acceptance. |
+| Foundation | `in-progress` — the verified automatic settings recovery remains authoritative after selective integration of the approved Triet V2 content; review history, regression clarity, cross-window synchronization, first-run guide actions, and compact/full Practice hierarchy are implemented | `passed` for the current repair: 401 tests passed with two intentional skips, nine startup tests passed, and typecheck, lint, production build, full Electron smoke with repeated-review preservation, `git diff --check`, and the isolated installed-App-Server diagnostic all passed | `pending` overall; the automatic metadata recovery, review-clarity design, guide actions, selective content-integration boundary, and required workspace-selection compatibility boundary were explicitly approved | `pending` | Present the repaired Practice workflow for review without inferring overall approval or pilot acceptance. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now lead through one technical portfolio-folder readiness boundary to the existing Practice entry; the other 22 Teacher-led Practice-setup slides and all five formative quiz groups are retired, while the final assessment, Practice entry prompt, saved-progress redirects, five Practice checkpoints, and detailed integration handoff remain. The redesigned five-document Practice runtime is still pending | `passed` for the selectively integrated content and workspace boundary; the full static suite and Electron journey verify routing, consent-before-write, `planning/` creation, Practice launch, review, mastery, and persistence | `pending` overall; the compact knowledge route, direct-to-summary assessment flow, and required technical workspace boundary were explicitly approved, while the redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement and verify the redesigned five-document Practice without treating the current runtime as that redesign. |
 | Module 3 | `in-progress` — the approved five-section lesson, 11 knowledge scenes, six illustrations, consolidated implementation-plan opening, direct knowledge-to-Practice route, final Teacher review, and five-question mastery check are integrated while the destination branch's strict Practice evidence contract remains authoritative | `passed` for the selectively integrated content and preserved Practice contract; tests and Electron smoke verify the merged journey while five stage receipts and four build-slice receipts remain required | `pending` overall; the incoming Module 3 content and the decision to preserve five stage receipts, four build-slice receipts, and all existing Practice gates were explicitly approved | `pending` | Present the merged content and strict Practice evidence for overall owner review without weakening the gate. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present; Practice, artifact templates, completion, and graduation wiring remain deferred | `passed` for the previously integrated content scope; Windows provider runtime remains unverified | `pending` overall; learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
@@ -158,6 +158,29 @@ Full access off from the saved thread-start baseline without acquiring task
 ownership. Owner approval covers the selective integration and compatibility
 boundary; overall Foundation or module approval and pilot acceptance remain
 `pending`.
+
+**Practice review clarity, synchronization, and guide-action repair — 23 August
+2026:** A learner rehearsal exposed three verification gaps: guide step five had
+no primary action, successful reviews were displayed as isolated snapshots with
+no explanation when a previously verified step regressed, and only the surface
+that initiated a review refreshed immediately. The repair retains the automatic
+exact-task metadata path, stores the five latest review events, derives explicit
+first-review/unchanged/changed comparisons, and marks a regressed completed step
+as `stale` (`Cần xác minh lại`) instead of `pending` (`Chưa bắt đầu`). Failed or
+interrupted reviews restore the exact prior result and history. The main process
+now broadcasts persisted workspace changes to both Teacher surfaces. Compact
+Practice leads with verified count, one change summary, one next action, and one
+dominant action while keeping the full checklist behind disclosure; the full
+workspace retains criteria, evidence, and timestamps. Guide steps five and six
+invoke the real review and return operations, and the return loader preserves
+its geometry and book icon while using a circular busy badge. Verification
+passes 401 tests with two intentional skips, nine startup tests, typecheck, lint,
+production build, full Electron smoke that directly operates both guide actions
+and performs an unchanged second review, `git diff --check`, and an isolated
+installed-App-Server diagnostic that recovered all five settings from
+authoritative `thread-start` metadata without a settings event. Owner approval
+covers this repair design; overall Foundation approval and pilot acceptance
+remain `pending`.
 
 ## Historical temporary content-first authoring exception
 

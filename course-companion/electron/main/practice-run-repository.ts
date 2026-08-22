@@ -60,6 +60,7 @@ export type PracticeRunRecord = {
   buildSliceReceipts?: PracticeBuildSliceReceipt[]
   reviewStatus: 'not-reviewed' | 'reviewing' | 'needs-work' | 'passed'
   reviewResult?: PracticeReviewResult
+  reviewHistory?: PracticeReviewResult[]
   completion?: PracticeCompletionReceipt
 }
 
@@ -72,6 +73,7 @@ export type ArchivedPracticeReceipt = {
   name: string
   outcome: 'completed' | 'replaced' | 'historical'
   archivedAt: string
+  reviewHistory?: PracticeReviewResult[]
 }
 
 export type PracticeTransitionRecord = {
@@ -400,6 +402,18 @@ function isReviewResult(value: unknown): value is PracticeReviewResult {
     && /^[a-f0-9]{64}$/.test(String(value.sourceDigest))
 }
 
+function isReviewHistory(
+  value: unknown,
+  identity: { practiceId: string; practiceVersion: string; runId: string }
+): value is PracticeReviewResult[] {
+  return Array.isArray(value)
+    && value.length <= 5
+    && value.every((result) => isReviewResult(result)
+      && result.practiceId === identity.practiceId
+      && result.practiceVersion === identity.practiceVersion
+      && result.runId === identity.runId)
+}
+
 function isCompletion(value: unknown): value is PracticeCompletionReceipt {
   if (!isRecord(value)) return false
   const destination = isRecord(value.destination) ? value.destination : null
@@ -464,6 +478,11 @@ function isRun(value: unknown): value is PracticeRunRecord {
       : value.stageReceipts === undefined) &&
     ['not-reviewed', 'reviewing', 'needs-work', 'passed'].includes(String(value.reviewStatus)) &&
     (value.reviewResult === undefined || isReviewResult(value.reviewResult)) &&
+    (value.reviewHistory === undefined || isReviewHistory(value.reviewHistory, {
+      practiceId: String(value.practiceId),
+      practiceVersion: String(value.practiceVersion),
+      runId: String(value.runId)
+    })) &&
     (value.completion === undefined || isCompletion(value.completion)) &&
     (value.reviewResult === undefined || (
       value.practiceId === value.reviewResult.practiceId
@@ -492,7 +511,12 @@ function isArchive(value: unknown): value is ArchivedPracticeReceipt {
     value.name.length > 0 &&
     value.name.length <= 500 &&
     (value.outcome === 'completed' || value.outcome === 'replaced' || value.outcome === 'historical') &&
-    isIso(value.archivedAt)
+    isIso(value.archivedAt) &&
+    (value.reviewHistory === undefined || isReviewHistory(value.reviewHistory, {
+      practiceId: String(value.practiceId),
+      practiceVersion: String(value.practiceVersion),
+      runId: String(value.runId)
+    }))
   )
 }
 
@@ -519,15 +543,21 @@ export function defaultPracticeWorkspaceRecord(): PracticeWorkspaceRecord {
 }
 
 function normalizeWorkspaceRecord(record: PracticeWorkspaceRecord, recoverInterruptedReview: boolean): PracticeWorkspaceRecord {
-  if (!record.activeRun) return record
+  const archivedRuns = record.archivedRuns.map((archived) => ({
+    ...archived,
+    reviewHistory: structuredClone(archived.reviewHistory ?? [])
+  }))
+  if (!record.activeRun) return { ...record, archivedRuns }
   const active = record.activeRun
   const reviewStatus = recoverInterruptedReview && active.reviewStatus === 'reviewing'
     ? active.reviewResult?.verdict ?? 'not-reviewed'
     : active.reviewStatus
   return {
     ...record,
+    archivedRuns,
     activeRun: {
       ...active,
+      reviewHistory: structuredClone(active.reviewHistory ?? (active.reviewResult ? [active.reviewResult] : [])),
       reviewStatus
     }
   }
@@ -696,7 +726,7 @@ export class PracticeRunRepository {
     if (!isPracticeWorkspaceRecord(record)) {
       return Promise.reject(new Error('Invalid Practice workspace record'))
     }
-    return this.runExclusive(() => this.saveDirect(record))
+    return this.runExclusive(() => this.saveDirect(normalizeWorkspaceRecord(record, false)))
   }
 
   selectPanel(surface: 'full' | 'compact', panel: PracticePanel): Promise<PracticeWorkspaceRecord> {
@@ -733,7 +763,8 @@ export class PracticeRunRepository {
           threadId: active.binding.threadId,
           name: active.binding.name,
           outcome: 'completed' as const,
-          archivedAt: input.updatedAt
+          archivedAt: input.updatedAt,
+          reviewHistory: structuredClone(active.reviewHistory ?? (active.reviewResult ? [active.reviewResult] : []))
         }].slice(-100),
         presentation: { fullPanel: 'teacher', compactPanel: 'teacher' }
       })
@@ -1202,6 +1233,10 @@ export class PracticeRunRepository {
         ...active,
         reviewStatus: input.result.verdict,
         reviewResult: structuredClone(input.result),
+        reviewHistory: [
+          ...(active.reviewHistory ?? (active.reviewResult ? [active.reviewResult] : [])),
+          structuredClone(input.result)
+        ].slice(-5),
         checklist: structuredClone(input.checklist),
         updatedAt: input.updatedAt
       }

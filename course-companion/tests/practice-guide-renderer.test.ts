@@ -36,10 +36,11 @@ describe('PracticeGuide renderer', () => {
   it('integrates with the unified Practice review controls without a Practice chat stage', async () => {
     const teacher = await source('src/renderer/src/components/TeacherWorkspace.tsx')
     const progress = await source('src/renderer/src/components/PracticeProgress.tsx')
+    const returnAction = await source('src/renderer/src/components/PracticeReturnAction.tsx')
     expect(teacher).toContain("practiceGuideAnchor('review-progress')")
     expect(teacher).not.toContain("practiceGuideAnchor('teacher-tab')")
     expect(teacher).not.toContain("practiceGuideAnchor('progress-tab')")
-    expect(teacher).toContain('CẬP NHẬT & DUYỆT TIẾN ĐỘ')
+    expect(teacher).toContain('Cập nhật và kiểm tra tiến độ')
     expect(teacher).toContain('Xem lại hướng dẫn Practice')
     expect(teacher).toContain('!practiceGuide.replay')
     expect(teacher).toContain("practiceGuide.status === 'skipped'")
@@ -47,7 +48,7 @@ describe('PracticeGuide renderer', () => {
     expect(teacher).toContain('reviewPractice()')
     expect(teacher).toContain('returnPassedPractice()')
     expect(progress).toContain("practiceGuideAnchor('configuration-evidence')")
-    expect(progress).toContain("practiceGuideAnchor('return-to-course')")
+    expect(returnAction).toContain("practiceGuideAnchor('return-to-course')")
   })
 
   it('keeps step five bound to the authoritative review action', async () => {
@@ -57,9 +58,12 @@ describe('PracticeGuide renderer', () => {
     ])
     const definition = JSON.parse(definitionSource) as { stages: Array<Record<string, unknown>> }
     const review = definition.stages.find((stage) => stage.id === 'request-review')
-    expect(review).toMatchObject({ advancement: 'review-requested' })
-    expect(review).not.toHaveProperty('primaryLabel')
-    expect(teacher).toContain('<PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />')
+    expect(review).toMatchObject({
+      advancement: 'review-requested',
+      primaryLabel: 'Cập nhật và kiểm tra ngay'
+    })
+    expect(teacher).toContain('onReview={() => void reviewProgress()}')
+    expect(teacher).toContain('onReturn={() => void returnToCourse()}')
     expect(teacher).toContain("practiceGuide?.currentStageId === 'request-review'")
     expect(teacher).toContain("type: 'review-requested' as const")
   })

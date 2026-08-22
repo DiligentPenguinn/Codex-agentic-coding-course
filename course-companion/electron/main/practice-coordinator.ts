@@ -27,6 +27,7 @@ import {
   selectiveTransferUnavailable
 } from './selective-handoff'
 import type { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
+import { derivePracticeReviewComparison } from './practice-review-comparison'
 
 function initialChecklist(definition: PracticeDefinition): PracticeChecklistStep[] {
   return definition.checklist.map((step, index) => ({
@@ -715,6 +716,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       taskPolicy: definition.taskPolicy,
       evidenceProfile: definition.evidenceProfile,
       reviewStatus: 'not-reviewed',
+      reviewHistory: [],
       status: 'active',
       binding: transition.targetBinding,
       startedAt: transition.startedAt,
@@ -738,7 +740,11 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
             threadId: record.activeRun.binding.threadId,
             name: record.activeRun.binding.name,
             outcome: 'replaced' as const,
-            archivedAt: timestamp
+            archivedAt: timestamp,
+            reviewHistory: structuredClone(
+              record.activeRun.reviewHistory
+                ?? (record.activeRun.reviewResult ? [record.activeRun.reviewResult] : [])
+            )
           }
         ].slice(-100)
       : record.archivedRuns
@@ -794,8 +800,16 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         status: displayedRun?.reviewStatus ?? 'not-reviewed',
         canReview,
         canReturn: Boolean(displayedRun?.reviewStatus === 'passed' && displayedRun.completion),
-        ...(displayedRun?.reviewResult
-          ? { result: structuredClone(displayedRun.reviewResult) }
+        ...(displayedRun?.reviewResult && definition
+          ? {
+              result: structuredClone(displayedRun.reviewResult),
+              comparison: derivePracticeReviewComparison({
+                definition,
+                previous: displayedRun.reviewHistory?.at(-2) ?? null,
+                current: displayedRun.reviewResult,
+                checklist: displayedRun.checklist
+              })
+            }
           : {})
       },
       ...(displayedRun?.completion ? { completion: structuredClone(displayedRun.completion) } : {}),

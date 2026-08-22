@@ -68,6 +68,14 @@ if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
 
 let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
+
+function broadcastPracticeWorkspaceChanged(): void {
+  for (const target of [mainWindow, companionWindow]) {
+    if (target && !target.isDestroyed()) {
+      target.webContents.send('course:practice-workspace-changed')
+    }
+  }
+}
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
 let pendingPracticeReturn: Promise<void> | null = null
@@ -800,8 +808,10 @@ function registerIpcHandlers(): void {
     try {
       const response = await practiceReviewService.review()
       await reconcilePracticeGuide({ surface: 'full' })
+      broadcastPracticeWorkspaceChanged()
       return response
     } catch (error) {
+      broadcastPracticeWorkspaceChanged()
       return practiceReviewFailure(error)
     }
   })
