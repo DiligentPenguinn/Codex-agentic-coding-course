@@ -2906,9 +2906,10 @@ export function LearningWindow() {
   const outlineModuleLabel = scene.lessonId === 'intro'
     ? 'GIỚI THIỆU'
     : `MODULE ${scene.lessonId.slice(-1)}`
-  const canOpenPreviousPage = isReviewing
+  const isFirstModuleOneSlide = displayedSceneId === 'module-1-codex-orientation'
+  const canOpenPreviousPage = !isFirstModuleOneSlide && (isReviewing
     ? currentReviewIndex > 0
-    : progress.sceneHistory.length > 0
+    : progress.sceneHistory.length > 0)
   const openPreviousPage = () => {
     if (!canOpenPreviousPage) return
     setApprovalFocus(null)

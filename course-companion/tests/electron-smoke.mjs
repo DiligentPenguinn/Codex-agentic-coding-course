@@ -225,6 +225,10 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   assert.equal(await page.locator('.pixel-lesson-visual figcaption').count(), 0)
   assert.equal(await page.getByRole('button', { name: 'Phóng to ảnh minh họa', exact: true }).count(), 1)
+  assert.equal(
+    await page.getByRole('button', { name: '← Trang trước', exact: true }).isDisabled(),
+    true
+  )
   await capture(page, 'module-1-codex-introduction.png')
 
   if (verifyResponsiveLayout) {
@@ -248,6 +252,10 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 2/4', { exact: true }).first().waitFor()
+  assert.equal(
+    await page.getByRole('button', { name: '← Trang trước', exact: true }).isDisabled(),
+    false
+  )
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)
   assert.equal(await page.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Được rồi, vậy chúng ta sẽ bắt đầu tìm hiểu Codex cùng nhau nha/)

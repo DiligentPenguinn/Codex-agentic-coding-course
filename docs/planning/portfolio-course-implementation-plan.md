@@ -296,6 +296,13 @@ there first and remain synchronized with Course Companion.
   visual inspection, full responsive Electron smoke, and `git diff --check`
   passed. This scoped UI approval does not mark overall Foundation owner
   approval or pilot acceptance complete.
+- On 22 August 2026, the owner made the `← Trang trước` control unavailable on
+  the first Module 1 slide so the lesson cannot navigate back into the completed
+  course introduction. The same control becomes available again on the second
+  slide and keeps its existing behavior everywhere else. Typecheck, lint, all
+  303 unit tests, nine startup tests, production build, full Electron smoke, and
+  `git diff --check` passed. This scoped navigation approval does not mark
+  overall Foundation owner approval or pilot acceptance complete.
 - On 18 August 2026, the owner extended the same question-only presentation to
   every formative and mastery question page in Modules 2–4. A shared renderer
   rule now removes the Teacher row, dialogue, scene title, assessment title,
