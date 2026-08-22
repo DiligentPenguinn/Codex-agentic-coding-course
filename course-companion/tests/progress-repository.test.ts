@@ -312,12 +312,209 @@ describe('ProgressRepository', () => {
     expect(JSON.stringify(migrated)).not.toContain('module-2-prd-introduction')
   })
 
+  it('redirects all retired implementation-plan pages to the combined introduction', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-implementation-plan-intro',
+      sceneHistory: [
+        'module-2-portfolio-workspace',
+        'module-2-prd-definition',
+        'module-2-prd-review-workflow',
+        'module-2-prd-agent-workflow'
+      ],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+    const retiredProgress = {
+      ...started,
+      sceneId: 'module-2-plan-risks',
+      sceneHistory: [
+        ...started.sceneHistory,
+        'module-2-plan-example',
+        'module-2-plan-requirements',
+        'module-2-plan-steps',
+        'module-2-plan-testing'
+      ]
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm2-portfolio-brief',
+        checkpointId: 'm2-portfolio-brief',
+        sceneId: 'module-2-implementation-plan-intro',
+        sceneHistory: [
+          'module-2-portfolio-workspace',
+          'module-2-prd-definition',
+          'module-2-prd-review-workflow',
+          'module-2-prd-agent-workflow'
+        ]
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-2-plan-example')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-plan-requirements')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-plan-steps')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-plan-testing')
+    expect(JSON.stringify(migrated)).not.toContain('module-2-plan-risks')
+  })
+
+  it('redirects all retired Module 2 Practice-setup slides directly to Practice', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-brief',
+      sceneId: 'module-2-implementation-plan-intro',
+      sceneHistory: [
+        'module-2-portfolio-workspace',
+        'module-2-prd-definition',
+        'module-2-prd-review-workflow',
+        'module-2-prd-agent-workflow'
+      ],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+    const retiredSceneIds = [
+      'module-2-portfolio-practice-intro',
+      'module-2-portfolio-folder',
+      'module-2-portfolio-agents-setup',
+      'module-2-portfolio-brief',
+      'module-2-portfolio-brief-example',
+      'module-2-check-brief-viewer',
+      'module-2-check-brief-success',
+      'module-2-content-evidence-inventory',
+      'module-2-content-evidence-example',
+      'module-2-check-evidence-status',
+      'module-2-check-evidence-permission',
+      'module-2-visual-reference',
+      'module-2-visual-reference-example',
+      'module-2-check-reference-boundary',
+      'module-2-check-reference-record',
+      'module-2-portfolio-prd',
+      'module-2-portfolio-prd-example',
+      'module-2-check-prd-requirement',
+      'module-2-check-prd-accessibility',
+      'module-2-implementation-contract',
+      'module-2-implementation-contract-example',
+      'module-2-check-delayed-scope',
+      'module-2-check-delayed-evidence'
+    ]
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify({
+        ...started,
+        currentCourseLessonId: 'm2-implementation-contract',
+        checkpointId: 'm2-implementation-contract',
+        sceneId: retiredSceneIds.at(-1),
+        sceneHistory: [...started.sceneHistory, ...retiredSceneIds]
+      }, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm2-portfolio-brief',
+        checkpointId: 'm2-portfolio-planning',
+        sceneId: 'module-2-portfolio-practice',
+        sceneHistory: started.sceneHistory
+      }
+    })
+    const migrated = await readFile(join(directory, 'learner-state.json'), 'utf8')
+    for (const retiredSceneId of retiredSceneIds) expect(migrated).not.toContain(retiredSceneId)
+    expect(migrated).not.toContain('m2-implementation-contract')
+  })
+
+  it('redirects saved progress from the retired Module 3 implementation-cycle page to the merged opening', async () => {
+    const directory = await temporaryDirectory()
+    const repository = new ProgressRepository(directory)
+    const started = await repository.save(introStart)
+    const retiredProgress = {
+      ...started,
+      currentLessonId: 'module-3',
+      currentCourseLessonId: 'm3-scaffold-baseline',
+      checkpointId: 'm3-scaffold-baseline',
+      sceneId: 'module-3-implementation-cycle',
+      sceneHistory: ['module-3-readiness', 'module-3-implementation-cycle'],
+      completedCheckpointIds: [],
+      decisions: {}
+    }
+    await writeFile(
+      join(directory, 'learner-state.json'),
+      `${JSON.stringify(retiredProgress, null, 2)}\n`,
+      'utf8'
+    )
+
+    await expect(repository.load()).resolves.toMatchObject({
+      status: 'returning',
+      progress: {
+        currentCourseLessonId: 'm3-scaffold-baseline',
+        checkpointId: 'm3-scaffold-baseline',
+        sceneId: 'module-3-readiness',
+        sceneHistory: ['module-3-readiness']
+      }
+    })
+    const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
+    expect(JSON.stringify(migrated)).not.toContain('module-3-implementation-cycle')
+  })
+
+  it('redirects retired Module 3 Practice-setup scenes directly to Practice', async () => {
+    const retiredSceneIds = [
+      'module-3-enhancement-intro',
+      'module-3-check-enhancement-boundary',
+      'module-3-practice-intro'
+    ]
+
+    for (const retiredSceneId of retiredSceneIds) {
+      const directory = await temporaryDirectory()
+      const repository = new ProgressRepository(directory)
+      const started = await repository.save(introStart)
+      await writeFile(
+        join(directory, 'learner-state.json'),
+        `${JSON.stringify({
+          ...started,
+          currentLessonId: 'module-3',
+          currentCourseLessonId: 'm3-evidence-debugging',
+          checkpointId: 'm3-evidence-debugging',
+          sceneId: retiredSceneId,
+          sceneHistory: ['module-3-git-branch', ...retiredSceneIds],
+          completedCheckpointIds: [],
+          decisions: {}
+        }, null, 2)}\n`,
+        'utf8'
+      )
+
+      await expect(repository.load()).resolves.toMatchObject({
+        status: 'returning',
+        progress: {
+          currentCourseLessonId: 'm3-evidence-debugging',
+          checkpointId: 'm3-portfolio-build',
+          sceneId: 'module-3-portfolio-practice',
+          sceneHistory: ['module-3-git-branch']
+        }
+      })
+      const migrated = await readFile(join(directory, 'learner-state.json'), 'utf8')
+      for (const sceneId of retiredSceneIds) expect(migrated).not.toContain(sceneId)
+    }
+  })
+
   it('removes saved progress for retired Module 2 mastery questions', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save({
       currentLessonId: 'module-2',
-      currentCourseLessonId: 'm2-implementation-contract',
+      currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-mastery',
       sceneId: 'module-2-portfolio-mastery',
       sceneHistory: ['module-2-portfolio-practice'],

@@ -65,7 +65,7 @@ async function fixture() {
   ])
   const update: ProgressUpdate = {
     currentLessonId: 'module-2',
-    currentCourseLessonId: 'm2-implementation-contract',
+    currentCourseLessonId: 'm2-portfolio-brief',
     checkpointId: 'm2-portfolio-mastery',
     sceneId: 'module-2-portfolio-mastery-summary',
     sceneHistory: ['module-2-portfolio-practice'],
@@ -160,11 +160,11 @@ async function moduleThreeFixture() {
   const moduleThreeReady = await base.service.completeModuleTwo()
   const decisions = {
     ...moduleThreeReady.decisions,
-    'assessment:m3-mastery-1': 'correct:1',
-    'assessment:m3-mastery-2': 'correct:1',
-    'assessment:m3-mastery-3': 'correct:1',
-    'assessment:m3-mastery-owned-revision': 'correct:self-review:Tôi đưa dự án lên sớm hơn và kiểm tra lại navigation ở hai viewport.',
-    'assessment:m3-mastery-owned-enhancement': 'correct:self-review:Tôi thêm link CV tĩnh và kiểm tra tải file, keyboard cùng npm run check.'
+    'assessment:m3-mastery-plan': 'correct:1',
+    'assessment:m3-mastery-visible-error': 'correct:2',
+    'assessment:m3-mastery-logs': 'correct:3',
+    'assessment:m3-mastery-repeated-error': 'correct:0',
+    'assessment:m3-mastery-branch': 'correct:1'
   }
   const mastery = await base.progressRepository.save({
     currentLessonId: 'module-3',

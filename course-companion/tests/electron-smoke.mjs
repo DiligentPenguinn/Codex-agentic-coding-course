@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
@@ -14,7 +14,6 @@ const userDataDirectory = await mkdtemp(join(tmpdir(), 'course-companion-electro
 const repositoryRoot = resolve(process.cwd(), '..')
 const practiceWorkspace = await createDisposablePracticeWorkspace({ repositoryRoot })
 const canonicalStarterFingerprint = await fingerprintTree(practiceWorkspace.canonicalStarter)
-const portfolioWorkspaceDirectory = await mkdtemp(join(tmpdir(), 'portfolio learner đầu tiên-'))
 const learningPortfolioWorkspaceDirectory = await mkdtemp(join(tmpdir(), 'portfolio hành trình module 2-'))
 const screenshotDirectory = process.env.COURSE_COMPANION_SCREENSHOT_DIR
 const screenshotFilter = process.env.COURSE_COMPANION_SCREENSHOT_FILTER
@@ -24,19 +23,29 @@ const setupQuiz = JSON.parse(
 const planningQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-2.quiz.json'), 'utf8')
 )
+const buildQuiz = JSON.parse(
+  await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-3.quiz.json'), 'utf8')
+)
 const releaseQuiz = JSON.parse(
   await readFile(join(process.cwd(), '..', 'pilot-workspace', 'course', 'quizzes', 'module-4.quiz.json'), 'utf8')
 )
-const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Đầu tiên, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi. Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedModuleTwoOpening = 'Sau khi hoàn thành module 1, hy vọng các bạn đã hiểu hơn về cách sử dụng Codex. Tiếp theo, chúng ta sẽ cùng tìm hiểu về cách planning khi sử dụng Coding agents. Nhiều bạn mới bắt đầu code với AI thường bỏ qua phần lên kế hoạch mà nhảy thẳng vào phần thực thi.\n\n Các bạn ấy nghĩ rằng mình đang tiết kiệm thời gian, nhưng thực chất các bạn đang lầm. Nếu có một kế hoạch tốt trước khi bắt đầu xây sản phẩm. Bạn sẽ tiết kiệm được biết bao thời gian debug và sửa lại từ đầu vì không đúng ý. Tin mình đi, mình đã phạm phải sai lầm này và đã phải trả giá.'
+const approvedImplementationPlanIntro = 'Vậy, sau khi có PRD rồi thì làm gì? Ta sẽ tạo implementation plan.\n\nImplementation plan về căn bản sẽ viết ra những bước chi tiết để coding agent có thể hiện thực hoá PRD. Bạn có thể hiểu nếu PRD là bản kế hoạch tổng quan, thì implementation plan sẽ ghi chi tiết từng bước để thực hiện kế hoạch đó.\n\nThông thường một implementation plan sẽ được chia ra thành nhiều giai đoạn. Mỗi giai đoạn sẽ có tiêu chí hoàn thành rõ ràng.\n\nThường agent tạo PRD và Implementation plan khá tốt nên bạn chỉ cần bảo nó tạo rồi duyệt là được.'
 const approvedPracticeTransitionCopy = 'Okay, không để các bạn đợi lâu nữa, bây giờ các bạn có thể qua Codex để tiếp tục thực hành rồi. Trước khi bấm chuyển sang Codex để thực hành, hãy copy prompt ở gốc trên bên phải để tẹo nữa paste vào Codex nha'
 const approvedPortfolioPracticePrompt = 'Tôi muốn xây dựng một portfolio cá nhân nhưng chưa biết nên bắt đầu từ đâu. Hãy giúp tôi lập kế hoạch từ đầu bằng cách phỏng vấn tôi từng câu một. Trước tiên, hãy tìm hiểu mục tiêu của portfolio, người tôi muốn thuyết phục, nội dung tôi có thể đưa vào và phiên bản đầu tiên nên gồm những gì. Nếu tôi chưa chắc về câu trả lời, hãy đưa ra một vài lựa chọn dễ hiểu để tôi cân nhắc. Sau mỗi phần quan trọng, hãy tóm tắt những gì đã thống nhất và chờ tôi xác nhận trước khi tiếp tục. Trong quá trình này, chỉ tạo hoặc cập nhật tài liệu trong thư mục planning; chưa viết code, cài gói phụ thuộc hay tạo ứng dụng.'
 const approvedPortfolioMasteryTransitionCopy = 'Hãy cùng ôn tập lại kiến thức một chút nhen'
-
-async function openModuleTwoPortfolioWorkspace(page, stepsRemaining = 5) {
+const designReferenceLinks = [
+  ['Pafolios', 'https://pafolios.com/'],
+  ['Awwwards', 'https://www.awwwards.com/'],
+  ['Dribbble', 'https://dribbble.com/'],
+  ['Mobbin', 'https://mobbin.com/'],
+  ['Pinterest', 'https://www.pinterest.com/']
+]
+async function openModuleTwoPractice(page, stepsRemaining = 5) {
   for (let index = 0; index < stepsRemaining; index += 1) {
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   }
-  await page.getByRole('heading', { name: 'Chọn nơi lưu portfolio', exact: true }).waitFor()
+  await page.getByText(approvedPracticeTransitionCopy, { exact: true }).waitFor()
 }
 
 function assessmentGroup(groupId) {
@@ -47,7 +56,7 @@ function assessmentGroup(groupId) {
       questions: setupQuiz.questions
     }
   }
-  const group = [...planningQuiz.groups, ...releaseQuiz.groups]
+  const group = [...planningQuiz.groups, ...buildQuiz.groups, ...releaseQuiz.groups]
     .find((candidate) => candidate.id === groupId)
   assert.ok(group, `Expected assessment group ${groupId}`)
   return group
@@ -140,22 +149,40 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
   }
 
   let firstChoiceQuestion
-  for (const question of group.questions) {
-    const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-    if (question.type === 'multiple-choice') {
-      const answerIndex = retryFirstChoice && !firstChoiceQuestion
-        ? (question.answerIndex + 1) % question.choices.length
-        : question.answerIndex
-      if (!firstChoiceQuestion) firstChoiceQuestion = question
-      await questionCard.getByRole('button', { name: question.choices[answerIndex], exact: true }).click()
-    } else {
-      await questionCard.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill(
-        `Câu trả lời do người học tự viết để đáp ứng các tiêu chí công khai của câu ${question.id}.`
-      )
+  const answerQuestions = async (answerFirstChoiceIncorrectly) => {
+    for (const question of group.questions) {
+      const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
+      if (question.type === 'multiple-choice') {
+        const answerIndex = answerFirstChoiceIncorrectly && !firstChoiceQuestion
+          ? (question.answerIndex + 1) % question.choices.length
+          : question.answerIndex
+        if (!firstChoiceQuestion) firstChoiceQuestion = question
+        await questionCard.getByRole('button', { name: question.choices[answerIndex], exact: true }).click()
+      } else {
+        await questionCard.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill(
+          `Câu trả lời do người học tự viết để đáp ứng các tiêu chí công khai của câu ${question.id}.`
+        )
+      }
     }
   }
 
+  await answerQuestions(retryFirstChoice)
   await page.getByRole('button', { name: `Nộp ${group.questions.length} câu trả lời`, exact: true }).click()
+
+  if (group.id === 'final-assessment') {
+    await page.getByText(`Bạn đã trả lời ${group.questions.length}/${group.questions.length} câu`, { exact: false }).waitFor()
+    assert.equal(await page.getByRole('button', { name: `Xem kết quả ${group.questions.length} câu`, exact: true }).count(), 0)
+    if (retryFirstChoice) {
+      await page.getByRole('button', { name: `Làm lại ${group.questions.length} câu`, exact: true }).click()
+      for (const question of group.questions) {
+        await page.getByText(question.prompt, { exact: true }).waitFor()
+      }
+      await answerQuestions(false)
+      await page.getByRole('button', { name: `Nộp ${group.questions.length} câu trả lời`, exact: true }).click()
+      await page.getByText(`Bạn đã trả lời ${group.questions.length}/${group.questions.length} câu`, { exact: false }).waitFor()
+    }
+    return
+  }
 
   if (retryFirstChoice && firstChoiceQuestion) {
     const retryButton = page.getByRole('button', { name: 'Chọn lại câu chưa đúng', exact: true })
@@ -174,14 +201,8 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
 
   for (const question of group.questions) {
     const questionCard = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-    await questionCard.getByText(
-      question.source.kind === 'curriculum-judgment'
-        ? 'QUYẾT ĐỊNH CHƯƠNG TRÌNH'
-        : 'NGUỒN PHƯƠNG PHÁP',
-      { exact: true }
-    ).waitFor()
-    await questionCard.getByText(question.source.label, { exact: true }).waitFor()
-    await questionCard.getByText(question.source.url, { exact: true }).waitFor()
+    const sourcePanel = questionCard.locator('.pixel-assessment-source')
+    assert.equal(await sourcePanel.count(), 0)
     if (question.type !== 'multiple-choice') {
       await questionCard.getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
     }
@@ -624,6 +645,75 @@ async function capture(page, filename) {
   })
 }
 
+async function verifyDesignReferenceLinks(page) {
+  for (const [label, href] of designReferenceLinks) {
+    const link = page.getByRole('link', { name: label, exact: true })
+    assert.equal(await link.count(), 1)
+    assert.equal(await link.getAttribute('href'), href)
+    assert.equal(await link.getAttribute('target'), '_blank')
+    assert.equal(await link.getAttribute('rel'), 'noreferrer')
+  }
+
+  const firstLink = page.getByRole('link', { name: 'Pafolios', exact: true })
+  const defaultColor = await firstLink.evaluate((element) => globalThis.getComputedStyle(element).color)
+  await firstLink.hover()
+  await page.waitForTimeout(150)
+  const hoverColor = await firstLink.evaluate((element) => globalThis.getComputedStyle(element).color)
+  assert.notEqual(hoverColor, defaultColor)
+  await page.keyboard.press('Tab')
+  await firstLink.focus()
+  assert.notEqual(
+    await firstLink.evaluate((element) => globalThis.getComputedStyle(element).outlineStyle),
+    'none'
+  )
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).focus()
+}
+
+async function moduleTwoHistoryReviewLayout(page) {
+  return page.evaluate(() => {
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review')?.getBoundingClientRect()
+    const dialogueText = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review > p')?.getBoundingClientRect()
+    const backButton = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review > .pixel-page-back')?.getBoundingClientRect()
+    const returnButton = globalThis.document.querySelector('.pixel-dialogue.is-module-two-review .pixel-review-return .pixel-choice')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewportWidth: globalThis.innerWidth,
+      viewportHeight: globalThis.innerHeight,
+      dialogue: dialogue ? { top: dialogue.top, right: dialogue.right, bottom: dialogue.bottom, left: dialogue.left } : null,
+      dialogueText: dialogueText ? { top: dialogueText.top, right: dialogueText.right, bottom: dialogueText.bottom, left: dialogueText.left } : null,
+      backButton: backButton ? { top: backButton.top, right: backButton.right, bottom: backButton.bottom, left: backButton.left } : null,
+      returnButton: returnButton ? { top: returnButton.top, right: returnButton.right, bottom: returnButton.bottom, left: returnButton.left } : null
+    }
+  })
+}
+
+function assertModuleTwoHistoryReviewLayout(layout, label) {
+  assert.equal(layout.body, layout.viewportWidth, `${label} body should not overflow horizontally`)
+  assert.equal(layout.document, layout.viewportWidth, `${label} document should not overflow horizontally`)
+  assert.ok(layout.dialogue, `${label} should render the Module 2 review dialogue`)
+  assert.ok(layout.dialogueText, `${label} should render the review copy`)
+  assert.ok(layout.backButton, `${label} should render the previous-page control`)
+  assert.ok(layout.returnButton, `${label} should render the return control`)
+  assert.ok(layout.dialogue.top >= 16, `${label} should preserve visible space above the lowered dialogue: ${JSON.stringify(layout)}`)
+  assert.ok(layout.dialogue.bottom <= layout.viewportHeight, `${label} dialogue should remain inside the viewport: ${JSON.stringify(layout)}`)
+  assert.ok(
+    Math.abs((layout.dialogueText.left - layout.dialogue.left) - (layout.dialogue.right - layout.dialogueText.right)) <= 2,
+    `${label} review copy should be horizontally centered: ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    Math.abs(layout.backButton.bottom - layout.returnButton.bottom) <= 2,
+    `${label} review controls should share one bottom row: ${JSON.stringify(layout)}`
+  )
+  assert.ok(
+    Math.min(layout.backButton.top, layout.returnButton.top) - layout.dialogueText.bottom >= 8,
+    `${label} review copy should not overlap the controls: ${JSON.stringify(layout)}`
+  )
+  assert.ok(layout.backButton.left >= layout.dialogue.left && layout.returnButton.right <= layout.dialogue.right)
+  assert.ok(layout.backButton.bottom <= layout.dialogue.bottom && layout.returnButton.bottom <= layout.dialogue.bottom)
+}
+
+
 async function launchCourseCompanion(environment = {}) {
   return electron.launch({
     executablePath: electronExecutable,
@@ -747,7 +837,7 @@ async function verifyHomeBase(page) {
     .getByText('Planning và PRD trước khi code với AI', { exact: true })
     .waitFor()
   await page.getByText('MODULE 1 · 3 BÀI HỌC', { exact: true }).waitFor()
-  await page.getByText('MODULE 2 · 5 BÀI HỌC', { exact: true }).waitFor()
+  await page.getByText('MODULE 2 · 1 BÀI HỌC', { exact: true }).waitFor()
   await capture(page, 'home-base.png')
   if (screenshotDirectory) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -769,7 +859,6 @@ async function verifyHomeBase(page) {
 let firstLaunch
 let resumedLaunch
 let chatHistoryLaunch
-let portfolioLaunch
 
 try {
   firstLaunch = await launchCourseCompanion()
@@ -838,7 +927,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Trong khoá học này, bạn sẽ được xây dựng một ứng dụng có khả năng tự động hoá quá trình sáng tạo nội dung. Nó sẽ giúp bạn lên nội dung hàng ngày cho kênh Facebook.'
+    'Trong khoá học này, bạn sẽ được học cách dùng coding agents thông qua một dự án thực hành: Xây Portfolio cá nhân.'
   )
   const desktopContinueButton = await firstWindows.learningPage
     .getByRole('button', { name: 'Tiếp tục' })
@@ -873,7 +962,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Bạn chỉ cần nhập thông tin thương hiệu/kênh Facebook của mình, app sẽ tự động giúp bạn nghiên cứu những thông tin đang trending liên quan đến lĩnh vực của bạn, draft nội dung dựa trên giọng văn mà thương hiệu bạn theo đuổi, tạo cả hình ảnh giúp bạn, và bạn chỉ cần duyệt nội dung thôi.'
+    'Cuối khoá này, bạn sẽ có một web portfolio thật để có thể gửi cho nhà tuyển dụng.'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-2.png')
   await firstWindows.learningPage
@@ -886,7 +975,7 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(
     await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(),
-    'Khóa học này dành cho người mới muốn học cách làm việc cùng coding agent, kể cả khi bạn chưa biết lập trình. Sau khi học, bạn sẽ được thực hành bằng cách xây dựng Portfolio cá nhân. Trong quá trình xây dựng Portfolio, bạn cũng sẽ được học những kỹ năng chuyển đổi để có thể áp dụng cho bất kỳ coding agents nào, với bất kỳ ứng dụng nào bạn muốn.'
+    'Những kỹ năng bạn học được trong khoá này không chỉ giúp bạn xây Portfolio, mà còn trang bị cho bạn kiến thức để tạo bất kỳ công cụ nào bạn muốn với AI'
   )
   await capture(firstWindows.learningPage, 'course-introduction-page-3.png')
   if (screenshotDirectory) {
@@ -933,11 +1022,13 @@ try {
     .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
     .waitFor()
   await firstWindows.learningPage
-    .getByText('MODULE 2 · PHẦN 1/4', { exact: true })
+    .getByText('MODULE 2 · PHẦN 1/5', { exact: true })
     .first()
     .waitFor()
   assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 0)
   const desktopHudBounds = await firstWindows.learningPage.locator('.pixel-hud').boundingBox()
   const desktopOutlineBounds = await firstWindows.learningPage.locator('.pixel-outline').boundingBox()
@@ -948,7 +1039,7 @@ try {
   assert.ok(desktopActionsBounds.x > desktopOutlineBounds.x + desktopOutlineBounds.width)
   assert.ok(Math.abs((desktopActionsBounds.x + desktopActionsBounds.width) - (desktopHudBounds.x + desktopHudBounds.width - 22)) <= 2)
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 4)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li').count(), 5)
   assert.equal(await firstWindows.learningPage.getByText('Năm giai đoạn, năm tài liệu', { exact: true }).count(), 0)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
   await capture(firstWindows.learningPage, 'module-2-opening.png')
@@ -989,23 +1080,37 @@ try {
   }
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
-  const prdTitleBounds = await firstWindows.learningPage.locator('.pixel-scene-title').boundingBox()
-  const prdPanelBounds = await firstWindows.learningPage.locator('.pixel-consequence').boundingBox()
-  assert.ok(prdTitleBounds)
-  assert.ok(prdPanelBounds)
-  assert.ok(
-    prdPanelBounds.y - (prdTitleBounds.y + prdTitleBounds.height) >= 12,
-    `Expected a visible gap between the PRD title and panel, got ${JSON.stringify({ prdTitleBounds, prdPanelBounds })}`
+  await firstWindows.learningPage.getByRole('button', { name: '← Trang trước', exact: true }).click()
+  await firstWindows.learningPage.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).waitFor()
+  assertModuleTwoHistoryReviewLayout(
+    await moduleTwoHistoryReviewLayout(firstWindows.learningPage),
+    'Module 2 review at 1180 × 780'
   )
+  await capture(firstWindows.learningPage, 'module-2-opening-review-1180x780.png')
+  await firstWindows.learningPage.setViewportSize({ width: 1512, height: 982 })
+  assertModuleTwoHistoryReviewLayout(
+    await moduleTwoHistoryReviewLayout(firstWindows.learningPage),
+    'Module 2 review at 1512 × 982'
+  )
+  await capture(firstWindows.learningPage, 'module-2-opening-review-1512x982.png')
+  await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  await firstWindows.learningPage.getByRole('button', { name: 'Quay lại trang đang học', exact: true }).click()
+  await firstWindows.learningPage.getByText('Giữ quyết định về sản phẩm trước khi chọn cách xây', { exact: true }).waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-complete').count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-active').count(), 1)
-  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 2)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-outline-menu li.is-upcoming').count(), 3)
   await capture(firstWindows.learningPage, 'module-2-part-2-outline.png')
   await firstWindows.learningPage.locator('.pixel-outline summary').click()
   await capture(firstWindows.learningPage, 'module-2-prd-definition.png')
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByText('Để AI hỗ trợ mà không giao luôn quyền quyết định', { exact: true }).waitFor()
+  assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual').count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual img').getAttribute('data-fit'), 'contain')
   await capture(firstWindows.learningPage, 'module-2-prd-review-workflow.png')
   await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await firstWindows.learningPage.getByLabel('Hai nguồn tham khảo thiết kế', { exact: true }).waitFor()
@@ -1013,8 +1118,10 @@ try {
   assert.equal(await firstWindows.learningPage.locator('.pixel-consequence').count(), 0)
   assert.equal(await firstWindows.learningPage.getByLabel('Hai nguồn tham khảo thiết kế', { exact: true }).count(), 1)
   assert.equal(await firstWindows.learningPage.locator('.pixel-lesson-visual-group img').count(), 2)
-  assert.equal(await firstWindows.learningPage.getByText('Pafolios', { exact: true }).count(), 1)
-  assert.equal(await firstWindows.learningPage.getByText('Awwwards', { exact: true }).count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('figcaption').getByText('Pafolios', { exact: true }).count(), 1)
+  assert.equal(await firstWindows.learningPage.locator('figcaption').getByText('Awwwards', { exact: true }).count(), 1)
+  await verifyDesignReferenceLinks(firstWindows.learningPage)
+  assert.equal(await firstWindows.learningPage.getByText('Trước khi bắt đầu xây sản phẩm thật, bạn cũng có thể nhờ coding agent tạo một visual prototype bằng HTML — tức là một bản mẫu giao diện có thể mở trong trình duyệt.', { exact: false }).count(), 1)
   await capture(firstWindows.learningPage, 'module-2-five-stage-map.png')
   if (screenshotDirectory) {
     await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
@@ -1030,11 +1137,37 @@ try {
     await capture(firstWindows.learningPage, 'module-2-five-stage-map-390px.png')
     await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
   }
-  await openModuleTwoPortfolioWorkspace(firstWindows.learningPage, 2)
-  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 4/4', { exact: true }).first().waitFor()
-  assert.equal(await firstWindows.learningPage.locator('.pixel-dialogue > p').count(), 0)
-  assert.equal(await firstWindows.learningPage.locator('.portfolio-workspace-picker').count(), 1)
-  await capture(firstWindows.learningPage, 'module-2-portfolio-workspace-entry.png')
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  const implementationPlanBoard = firstWindows.learningPage.locator('.pixel-plan-board')
+  await implementationPlanBoard.waitFor()
+  await implementationPlanBoard.getByRole('heading', { name: 'Implementation plan là gì?', exact: true }).waitFor()
+  assert.deepEqual(
+    await implementationPlanBoard.locator('.pixel-plan-board__lesson-copy p').allTextContents(),
+    approvedImplementationPlanIntro.split('\n\n')
+  )
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-document > section').count(), 4)
+  assert.equal(await implementationPlanBoard.locator('.pixel-plan-phase__criteria:visible').count(), 4)
+  assert.match(await implementationPlanBoard.textContent(), /Portfolio mở được trong trình duyệt/)
+  assert.match(await implementationPlanBoard.textContent(), /Ảnh giao diện desktop và điện thoại đã được lưu/)
+  assert.equal(await implementationPlanBoard.getByText('Chia việc xây sản phẩm thành nhiều phase', { exact: true }).count(), 0)
+  assert.equal(await implementationPlanBoard.getByText('Biết khi nào một phase đã hoàn thành', { exact: true }).count(), 0)
+  await capture(firstWindows.learningPage, 'module-2-implementation-plan-combined.png')
+  if (screenshotDirectory) {
+    await firstWindows.learningPage.setViewportSize({ width: 390, height: 844 })
+    const planNarrowWidths = await firstWindows.learningPage.evaluate(() => ({
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth
+    }))
+    assert.equal(planNarrowWidths.body, planNarrowWidths.viewport)
+    assert.equal(planNarrowWidths.document, planNarrowWidths.viewport)
+    await capture(firstWindows.learningPage, 'module-2-implementation-plan-combined-390px.png')
+    await firstWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
+  }
+  await firstWindows.learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await firstWindows.learningPage.getByText('MODULE 2 · PHẦN 5/5', { exact: true }).first().waitFor()
+  await firstWindows.learningPage.getByText(approvedPracticeTransitionCopy, { exact: true }).waitFor()
+  await capture(firstWindows.learningPage, 'module-2-portfolio-practice-entry.png')
   await firstLaunch.close()
   firstLaunch = undefined
 
@@ -1098,75 +1231,15 @@ try {
     .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
     .waitFor()
   assert.equal(await learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await openModuleTwoPortfolioWorkspace(learningPage)
-  assert.equal(await learningPage.locator('.pixel-scene-title').count(), 1)
-  assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
-
-  await learningPage.getByRole('button', { name: 'Chọn thư mục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tạo thư mục planning', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục với thư mục này', exact: true }).click()
-
-  await learningPage.getByText('Tạo bộ quy luật cho dự án của bạn', { exact: true }).waitFor()
-  assert.match(await learningPage.locator('.pixel-dialogue > p').textContent(), /Hãy giữ ứng dụng này mở, đừng tắt/)
-  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /# Portfolio Project Working Agreements/)
-  assert.match(await learningPage.locator('.pixel-copy-prompt > p').textContent(), /Never invent personal experience/)
-  await learningPage.getByRole('button', { name: 'SAO CHÉP PROMPT', exact: true }).click()
-  assert.match(await learningPage.evaluate(() => navigator.clipboard.readText()), /Create an AGENTS\.md file at the root/)
-  await learningPage.getByRole('button', { name: 'Tôi đã tạo AGENTS.md', exact: true }).click()
-
-  await learningPage.getByText('MỤC TIÊU → NGƯỜI XEM → HÀNH ĐỘNG', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByText('VÍ DỤ · MAI', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'brief-retrieval')
-
-  await learningPage.getByText('CÓ THẬT? · CÓ ĐƯỢC CÔNG KHAI?', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'evidence-retrieval')
-
-  await learningPage.getByText('URL · ẢNH CHỤP · RANH GIỚI', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'reference-retrieval')
-
-  await learningPage.getByText('YÊU CẦU · RANH GIỚI · TIÊU CHÍ', { exact: true }).waitFor()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'prd-retrieval')
-
-  await learningPage.getByText('YÊU CẦU · KIỂM CHỨNG · GIAI ĐOẠN', { exact: true }).waitFor()
-  await capture(learningPage, 'module-2-implementation-contract.png')
-  if (screenshotDirectory) {
-    await learningPage.setViewportSize({ width: 390, height: 844 })
-    const moduleTwoNarrowWidths = await learningPage.evaluate(() => {
-      const browserDocument = globalThis.document
-      return {
-        body: browserDocument.body.scrollWidth,
-        document: browserDocument.documentElement.scrollWidth,
-        viewport: globalThis.innerWidth
-      }
-    })
-    assert.equal(moduleTwoNarrowWidths.body, moduleTwoNarrowWidths.viewport)
-    assert.equal(moduleTwoNarrowWidths.document, moduleTwoNarrowWidths.viewport)
-    await capture(learningPage, 'module-2-implementation-contract-390px.png')
-    await learningPage.setViewportSize({ width: 1180, height: 780 })
-  }
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await learningPage.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await answerAssessmentGroup(learningPage, 'planning-retrieval')
-
+  await openModuleTwoPractice(learningPage)
   await learningPage.locator('.pixel-copy-prompt').waitFor()
-  const promptVerticalAlignment = await learningPage.locator('.pixel-copy-prompt').evaluate((element) => {
-    const bounds = element.getBoundingClientRect()
-    return {
-      cardCenter: bounds.top + bounds.height / 2,
-      viewportCenter: globalThis.innerHeight / 2
-    }
-  })
+  const promptBounds = await learningPage.locator('.pixel-copy-prompt').boundingBox()
+  const promptDialogueBounds = await learningPage.locator('.pixel-dialogue').boundingBox()
+  assert.ok(promptBounds)
+  assert.ok(promptDialogueBounds)
   assert.ok(
-    Math.abs(promptVerticalAlignment.cardCenter - promptVerticalAlignment.viewportCenter) <= 1,
-    `Expected portfolio Practice prompt to be vertically centered, got ${JSON.stringify(promptVerticalAlignment)}`
+    promptDialogueBounds.y - (promptBounds.y + promptBounds.height) >= 16,
+    `Expected at least 16px between the portfolio prompt and Teacher panel, got ${JSON.stringify({ promptBounds, promptDialogueBounds })}`
   )
   assert.equal(await learningPage.locator('.pixel-scene-title').count(), 0)
   assert.equal(await learningPage.locator('.pixel-consequence').count(), 0)
@@ -1185,6 +1258,14 @@ try {
     }))
     assert.equal(promptNarrowWidths.body, promptNarrowWidths.viewport)
     assert.equal(promptNarrowWidths.document, promptNarrowWidths.viewport)
+    const promptNarrowBounds = await learningPage.locator('.pixel-copy-prompt').boundingBox()
+    const promptNarrowDialogueBounds = await learningPage.locator('.pixel-dialogue').boundingBox()
+    assert.ok(promptNarrowBounds)
+    assert.ok(promptNarrowDialogueBounds)
+    assert.ok(
+      promptNarrowDialogueBounds.y - (promptNarrowBounds.y + promptNarrowBounds.height) >= 10,
+      `Expected at least 10px between the narrow portfolio prompt and Teacher panel, got ${JSON.stringify({ promptNarrowBounds, promptNarrowDialogueBounds })}`
+    )
     await learningPage.locator('.pixel-copy-prompt').scrollIntoViewIfNeeded()
     await capture(learningPage, 'module-2-portfolio-practice-prompt-390px.png')
     await learningPage.setViewportSize({ width: 1180, height: 780 })
@@ -1205,7 +1286,7 @@ try {
     }
     await globalThis.courseCompanion?.saveProgress({
       currentLessonId: 'module-2',
-      currentCourseLessonId: 'm2-implementation-contract',
+      currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-mastery',
       sceneId: 'module-2-portfolio-mastery',
       sceneHistory: [...loaded.progress.sceneHistory, loaded.progress.sceneId].slice(-200),
@@ -1278,7 +1359,7 @@ try {
   assert.equal(persisted.checkpointId, 'm2-portfolio-mastery')
   assert.equal(persisted.schemaVersion, 6)
   assert.equal(persisted.courseVersion, '0.3.0')
-  assert.equal(persisted.currentCourseLessonId, 'm2-implementation-contract')
+  assert.equal(persisted.currentCourseLessonId, 'm2-portfolio-brief')
   assert.ok(persisted.sceneHistory.length > 10)
   assert.equal(persisted.decisions.portfolioPlanningPractice, 'five-current-stage-receipts')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
@@ -1338,68 +1419,14 @@ try {
     canonicalStarterFingerprint
   )
 
-  portfolioLaunch = await launchCourseCompanion({
-    COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE: portfolioWorkspaceDirectory
-  })
-  const portfolioWindows = await loadWindows(portfolioLaunch)
-  await portfolioWindows.learningPage
-    .getByRole('heading', { name: 'Tiếp tục đúng nơi bạn dừng lại' })
-    .waitFor()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Mở Course Companion', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: /MODULE 2.*MỞ BÀI HỌC/ })
-    .click()
-  await portfolioWindows.learningPage
-    .getByText('Chốt điều cần làm trước khi Codex chọn cách làm', { exact: true })
-    .waitFor()
-  assert.equal(await portfolioWindows.learningPage.locator('.pixel-dialogue > p').textContent(), approvedModuleTwoOpening)
-  await openModuleTwoPortfolioWorkspace(portfolioWindows.learningPage)
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-unselected.png')
-
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Chọn thư mục', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
-    .waitFor()
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), [])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation.png')
-
-  await portfolioWindows.learningPage.setViewportSize({ width: 390, height: 844 })
-  const portfolioNarrowWidths = await portfolioWindows.learningPage.evaluate(() => ({
-    body: globalThis.document.body.scrollWidth,
-    document: globalThis.document.documentElement.scrollWidth,
-    viewport: globalThis.innerWidth
-  }))
-  assert.equal(portfolioNarrowWidths.body, portfolioNarrowWidths.viewport)
-  assert.equal(portfolioNarrowWidths.document, portfolioNarrowWidths.viewport)
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-confirmation-390px.png')
-  await portfolioWindows.learningPage.setViewportSize({ width: 1180, height: 780 })
-
-  await portfolioWindows.learningPage
-    .getByRole('button', { name: 'Tạo thư mục planning', exact: true })
-    .click()
-  await portfolioWindows.learningPage
-    .getByRole('heading', { name: 'Thư mục portfolio đã sẵn sàng', exact: true })
-    .waitFor()
-  assert.deepEqual(await readdir(portfolioWorkspaceDirectory), ['planning'])
-  await capture(portfolioWindows.learningPage, 'portfolio-workspace-ready.png')
-  await portfolioLaunch.close()
-  portfolioLaunch = undefined
-
   console.log(
-    'Electron smoke: frozen course regression, portfolio workspace consent, responsive layout, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
+    'Electron smoke: frozen course regression, responsive layout, review-safe back navigation, roadmap entry, Teacher overlay, settings, journey resume/reset, in-app mock Practice, mastery, persistence, security, and companion lifecycle passed'
   )
 } finally {
   await firstLaunch?.close().catch(() => undefined)
   await resumedLaunch?.close().catch(() => undefined)
   await chatHistoryLaunch?.close().catch(() => undefined)
-  await portfolioLaunch?.close().catch(() => undefined)
   await rm(userDataDirectory, { recursive: true, force: true })
-  await rm(portfolioWorkspaceDirectory, { recursive: true, force: true })
   await rm(learningPortfolioWorkspaceDirectory, { recursive: true, force: true })
   await practiceWorkspace.cleanup()
 }

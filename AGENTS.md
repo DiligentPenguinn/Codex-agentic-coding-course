@@ -9,9 +9,17 @@
 
 ## Consequential decisions
 
+- Don't execute a multi-step actions without defining to me what are the steps and get my approval
 - Resolve small, reversible details from repository evidence or a safe default.
 - For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
 - Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
+
+## Verification batching
+
+- For small, related, user-approved changes, define the batch scope first, implement the changes together, and run narrow focused checks while iterating.
+- Run the required full test suite, build, Electron verification, planning-ledger synchronization, and any eligible checkpoint commit once after the coherent batch is complete.
+- Verify a change separately when it is unrelated, high-risk, must be delivered independently, or focused evidence shows that earlier full verification is necessary.
+- Never use batching to skip required final verification or postpone a failing focused check.
 
 ## Implementation-plan synchronization
 
@@ -30,6 +38,12 @@
 - If the user asks to resume without specifying time, ask whether they have 10, 20, 30, 45, or 60 minutes.
 - Read `docs/internal/target-learner-definition.md` before curriculum, product, or learner-experience decisions. Keep it internal and out of learner-facing or public packages.
 - Treat `starters/contentpilot/` as the real application baseline. Treat `prototypes/` and `codex_content_creator_course_plan_v8.html` as historical references only; never fall back to them when current Pilot material is missing.
+
+## Learning-device scope
+
+- Treat Course Companion and all learner-facing lesson, review, and assessment flows as desktop-only experiences. Do not optimize, design, or verify these learning surfaces for phone-sized viewports, and do not require `390 × 844` evidence for them.
+- Continue checking supported desktop window sizes for readability, clipping, overlap, and horizontal overflow.
+- This desktop-only learning scope does not remove responsive requirements from learner-built products such as the portfolio. Keep mobile behavior in scope for those outputs when their approved requirements or curriculum require it.
 
 ## Page preservation
 

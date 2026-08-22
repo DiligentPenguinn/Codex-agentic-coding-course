@@ -1,15 +1,15 @@
 {
   "schemaVersion": "3.0.0",
   "moduleId": "module-3",
-  "title": "Kiểm tra Module 3 — Xây dựng và gỡ lỗi",
+  "title": "Tổng kết Module 3",
   "delivery": {
     "mode": "one-question-at-a-time",
     "doNotStackQuestions": true,
     "feedbackTiming": "after-answer",
-    "feedbackPolicy": "Chỉ hiện lời giải, tiêu chí và nguồn sau khi Learner đã gửi câu trả lời cho câu hiện tại.",
-    "sourcePolicy": "Mỗi đáp án phải truy ngược đến nguồn trong hồ sơ nghiên cứu hoặc một quyết định chương trình được ghi rõ.",
-    "learnerOwnedAnswerPolicy": "Câu trả lời tự viết phải dẫn chiếu artifact và quan sát của chính Learner; lặp lại ví dụ trong bài không được tính là đạt.",
-    "practiceBoundary": "Practice receipt và mastery receipt là hai điều kiện độc lập; không điều kiện nào thay thế điều kiện còn lại."
+    "feedbackPolicy": "Chỉ hiện lời giải và nguồn sau khi người học đã gửi câu trả lời cho câu hiện tại.",
+    "sourcePolicy": "Mỗi đáp án phải truy ngược đến nội dung đã được duyệt hoặc một nguồn chính thức.",
+    "learnerOwnedAnswerPolicy": "Tất cả câu hỏi trong bài tổng kết này dùng lựa chọn trắc nghiệm.",
+    "practiceBoundary": "Practice receipt và kết quả tổng kết là hai điều kiện độc lập; không điều kiện nào thay thế điều kiện còn lại."
   },
   "masteryPolicy": {
     "strategy": "pilot-configured",
@@ -18,249 +18,113 @@
     "fallback": "manual-review-required",
     "requiresCurrentArtifactDigests": true,
     "requiresPracticeReceipt": true,
-    "manualReviewTypes": ["short-answer", "artifact-answer"]
+    "manualReviewTypes": []
   },
   "groups": [
     {
-      "id": "scaffold-retrieval",
-      "title": "Kiểm tra nền ứng dụng",
-      "placement": "after-m3-scaffold-baseline",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "scaffold-retrieval-1",
-          "sceneId": "module-3-check-scaffold-boundary",
-          "type": "multiple-choice",
-          "prompt": "Đề xuất scaffold nào giữ đúng ranh giới của milestone đầu tiên?",
-          "choices": [
-            "Tạo React, TypeScript, Vite, các lệnh kiểm tra và một trang trung tính rồi dừng.",
-            "Tạo luôn Hero, dự án và hiệu ứng chuyển động để tiết kiệm thời gian.",
-            "Tự chọn mọi dependency rồi báo lại sau.",
-            "Thêm cấu hình Vercel để chuẩn bị trước."
-          ],
-          "answerIndex": 0,
-          "explanation": "Scaffold chỉ tạo môi trường chạy và kiểm chứng. Portfolio sections, thư viện tùy chọn và deployment đều cần quyết định riêng sau baseline.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-009 — Scaffold từ đầu",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-009-define-how-learners-start-implementation-in-module-3",
-            "basis": "Scaffold được giới hạn ở React, TypeScript, Vite, lệnh kiểm tra, trang trung tính và tài liệu vận hành tối thiểu."
-          }
-        }
-      ]
-    },
-    {
-      "id": "first-version-retrieval",
-      "title": "Kiểm tra cách xây phiên bản đầu",
-      "placement": "during-m3-complete-first-version",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "first-version-retrieval-1",
-          "sceneId": "module-3-check-slice-gate",
-          "type": "multiple-choice",
-          "prompt": "Phần Hero đã đạt nhưng Selected Work chưa có bằng chứng hiện tại. Bước phù hợp là gì?",
-          "choices": [
-            "Bỏ qua Selected Work và làm Contact trước.",
-            "Cho đạt cả phiên bản đầu vì Hero trông tốt.",
-            "Giữ checkpoint Hero, hoàn thiện và duyệt Selected Work trước khi sang phần tiếp theo.",
-            "Tạo toàn bộ phần còn lại trong một thay đổi."
-          ],
-          "answerIndex": 2,
-          "explanation": "Mỗi phần có gate riêng. Phần đạt được giữ nguyên; phần chưa đạt phải được sửa và kiểm chứng trước khi công việc phụ thuộc tiếp tục.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Google Engineering Practices — Small CLs",
-            "url": "https://google.github.io/eng-practices/review/developer/small-cls.html",
-            "basis": "Thay đổi nhỏ, tự chứa giúp dễ xem xét, sửa và khôi phục hơn."
-          }
-        }
-      ]
-    },
-    {
-      "id": "revision-retrieval",
-      "title": "Kiểm tra vòng cải thiện",
-      "placement": "after-m3-whole-page-revision",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "revision-retrieval-1",
-          "sceneId": "module-3-check-revision-scope",
-          "type": "multiple-choice",
-          "prompt": "Learner nói: “Các dự án xuất hiện quá muộn.” Đề xuất nào có giới hạn rõ nhất?",
-          "choices": [
-            "Thiết kế lại toàn bộ trang.",
-            "Đưa Selected Work lên ngay sau Hero, giữ nguyên nội dung và kiểm tra lại navigation cùng hai viewport.",
-            "Thêm nhiều animation để thu hút chú ý.",
-            "Đổi framework giao diện."
-          ],
-          "answerIndex": 1,
-          "explanation": "Đề xuất đúng chuyển phản hồi quan sát được thành một thay đổi cụ thể, nêu điều giữ nguyên và các kiểm tra hồi quy liên quan.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-011 — Năm milestone Module 3",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-011-use-five-source-audited-milestones-for-module-3",
-            "basis": "Milestone review yêu cầu một vòng sửa có giới hạn dựa trên bằng chứng toàn trang."
-          }
-        }
-      ]
-    },
-    {
-      "id": "debugging-retrieval",
-      "title": "Kiểm tra vòng gỡ lỗi",
-      "placement": "after-m3-evidence-debugging",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "debugging-retrieval-1",
-          "sceneId": "module-3-check-debug-order",
-          "type": "multiple-choice",
-          "prompt": "Một link trong navigation không cuộn tới phần Contact. Việc nào cần làm trước khi sửa?",
-          "choices": [
-            "Đổi toàn bộ component navigation.",
-            "Tái hiện lỗi, ghi mong đợi và thực tế, rồi thu thập bằng chứng về link cùng phần đích.",
-            "Cài thư viện router mới.",
-            "Thử nhiều bản sửa cùng lúc."
-          ],
-          "answerIndex": 1,
-          "explanation": "Tái hiện và bằng chứng giúp tách lỗi thật khỏi phỏng đoán. Chỉ sau đó mới chọn một giả thuyết và bản sửa nhỏ nhất.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Microsoft Engineering Playbook — Debugging",
-            "url": "https://microsoft.github.io/code-with-engineering-playbook/automated-testing/debugging/",
-            "basis": "Điều tra có hệ thống bắt đầu bằng cách tái hiện, quan sát và kiểm tra giả thuyết."
-          }
-        }
-      ]
-    },
-    {
-      "id": "enhancement-retrieval",
-      "title": "Kiểm tra ranh giới cải tiến",
-      "placement": "during-m3-independent-enhancement",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "enhancement-retrieval-1",
-          "sceneId": "module-3-check-enhancement-boundary",
-          "type": "multiple-choice",
-          "prompt": "Cải tiến nào cần dừng để mở phạm vi bảo mật riêng thay vì tiếp tục trong Module 3 chuẩn?",
-          "choices": [
-            "Thêm chế độ sáng và tối.",
-            "Thêm trang chi tiết dự án tĩnh.",
-            "Thêm form liên hệ lưu dữ liệu vào database.",
-            "Thêm link tải CV đã kiểm tra."
-          ],
-          "answerIndex": 2,
-          "explanation": "Form lưu dữ liệu tạo backend và xử lý dữ liệu cá nhân. Nó cần phạm vi bảo mật riêng; các lựa chọn còn lại có thể giữ ở phía trình duyệt và được giới hạn rõ.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-006 — Portfolio core và phần tùy chọn",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-006-define-the-required-portfolio-core-and-optional-features",
-            "basis": "Portfolio core không gồm analytics, contact-form backend hoặc dịch vụ xử lý dữ liệu; những phần này cần phạm vi riêng."
-          }
-        }
-      ]
-    },
-    {
       "id": "m3-final-assessment",
-      "title": "Mastery Module 3",
+      "title": "Tổng kết Module 3",
       "placement": "after-passed-m3-portfolio-build",
       "mode": "mastery",
       "questions": [
         {
-          "id": "m3-mastery-1",
-          "sceneId": "module-3-mastery-scaffold",
+          "id": "m3-mastery-plan",
+          "sceneId": "module-3-mastery-plan",
           "type": "multiple-choice",
-          "prompt": "`npm run check` đạt nhưng trang trung tính không mở được trong trình duyệt. Gate scaffold nên xử lý thế nào?",
+          "prompt": "Coding agent vừa hoàn thành một phần của implementation plan. Bạn nên làm gì trước khi cho agent chuyển sang phần tiếp theo?",
           "choices": [
-            "Cho đạt vì automated check đã xanh.",
-            "Giữ gate chưa đạt, điều tra runtime rồi kiểm tra lại trang và các lệnh.",
-            "Bỏ kiểm tra trình duyệt.",
-            "Bắt đầu xây Hero để xem lỗi có tự hết không."
+            "Chuyển ngay vì implementation plan đã được duyệt từ trước.",
+            "Xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi chấp nhận hoặc yêu cầu chỉnh sửa.",
+            "Yêu cầu agent hoàn thành luôn toàn bộ phần còn lại để tiết kiệm thời gian.",
+            "Chỉ tạo một commit mà không cần mở website."
           ],
           "answerIndex": 1,
-          "explanation": "Automated check không thay thế hành vi runtime. Baseline chỉ đạt khi cả lệnh và trang trung tính được kiểm chứng.",
+          "explanation": "Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.",
+          "source": {
+            "kind": "curriculum-judgment",
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-1--thực-hiện-plan-theo-từng-phần",
+            "basis": "Người học xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra trước khi quyết định cho coding agent tiếp tục."
+          }
+        },
+        {
+          "id": "m3-mastery-visible-error",
+          "sceneId": "module-3-mastery-visible-error",
+          "type": "multiple-choice",
+          "prompt": "Bạn nhìn thấy nút **Xem dự án** đang che lên phần giới thiệu của website. Thông tin nào nên được gửi cho coding agent để agent điều tra lỗi?",
+          "choices": [
+            "Gửi ảnh chụp, mô tả thao tác vừa thực hiện, rồi chỉ rõ phần giao diện bạn muốn agent sửa.",
+            "Gửi ảnh chụp, mô tả kết quả mong đợi, rồi yêu cầu agent kiểm tra phần giao diện đang bị che.",
+            "Gửi ảnh chụp, mô tả thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.",
+            "Gửi ảnh chụp, mô tả kết quả thực tế, rồi liệt kê các tệp agent vừa thay đổi."
+          ],
+          "answerIndex": 2,
+          "explanation": "Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.",
           "source": {
             "kind": "authoritative-source",
-            "label": "MDN — Testing",
-            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Testing",
-            "basis": "Kiểm thử web kết hợp nhiều loại bằng chứng; một phép kiểm tra không chứng minh mọi hành vi."
+            "label": "OpenAI — Image inputs",
+            "url": "https://learn.chatgpt.com/docs/image-inputs",
+            "basis": "Ảnh cung cấp bằng chứng trực quan; mô tả thao tác, mong đợi và thực tế bổ sung bối cảnh cần thiết để agent điều tra đúng vấn đề."
           }
         },
         {
-          "id": "m3-mastery-2",
-          "sceneId": "module-3-mastery-slice",
+          "id": "m3-mastery-logs",
+          "sceneId": "module-3-mastery-logs",
           "type": "multiple-choice",
-          "prompt": "Codex báo đã xây xong toàn bộ portfolio trong một lần và mọi check đều đạt. Bằng chứng nào vẫn bắt buộc?",
+          "prompt": "Bạn đã gửi ảnh lỗi nhưng coding agent vẫn chưa xác định được nguyên nhân. Bước tiếp theo phù hợp nhất là gì?",
           "choices": [
-            "Chỉ cần ảnh trang cuối.",
-            "Bốn biên nhận phần xây dựng theo thứ tự, browser evidence và phê duyệt hiện tại cho từng phần.",
-            "Chỉ cần package.json.",
-            "Không cần thêm vì Codex đã báo đạt."
+            "Yêu cầu agent xem lại ảnh, chọn nguyên nhân có khả năng nhất rồi sửa thử để kiểm tra.",
+            "Yêu cầu agent thêm log, tái hiện lỗi rồi sửa phần code nằm gần dòng log xuất hiện cuối cùng.",
+            "Yêu cầu agent liệt kê các nguyên nhân có thể xảy ra, chọn một nguyên nhân rồi sửa trước.",
+            "Yêu cầu agent thêm log cần thiết, tái hiện lỗi và dùng thông tin trong terminal để xác định nguyên nhân trước khi sửa."
           ],
-          "answerIndex": 1,
-          "explanation": "Một lần sinh code lớn không được đi vòng qua các gate. Mỗi phần cần phạm vi, kiểm tra, quan sát, tóm tắt và lời chấp nhận riêng.",
+          "answerIndex": 3,
+          "explanation": "Lựa chọn 2 cũng sử dụng log, nhưng dòng code nằm gần một thông báo chưa chắc là nguyên nhân gây lỗi. Coding agent cần tái hiện lỗi và dùng thông tin trong terminal làm bằng chứng trước khi sửa. Sau khi lỗi đã được khắc phục, bạn có thể yêu cầu agent xoá những đoạn log không còn cần thiết.",
           "source": {
             "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-011 — Bốn phần xây dựng",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-011-use-five-source-audited-milestones-for-module-3",
-            "basis": "Complete first version là kết quả cho người học, không phải một thay đổi code duy nhất."
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-3--dùng-log-để-tìm-nguyên-nhân",
+            "basis": "Log trong terminal được dùng làm bằng chứng để coding agent xác định nguyên nhân trước khi sửa, thay vì chọn phần code gần nhất."
           }
         },
         {
-          "id": "m3-mastery-3",
-          "sceneId": "module-3-mastery-debug",
+          "id": "m3-mastery-repeated-error",
+          "sceneId": "module-3-mastery-repeated-error",
           "type": "multiple-choice",
-          "prompt": "Sau bản sửa, lỗi gốc đã hết nhưng navigation bàn phím bị hỏng. Kết luận phù hợp là gì?",
+          "prompt": "Coding agent đã sửa cùng một lỗi nhiều lần nhưng lỗi vẫn quay lại. Bạn nên yêu cầu agent làm gì?",
           "choices": [
-            "Đạt vì lỗi ban đầu đã hết.",
-            "Chưa đạt; kiểm tra hồi quy đã phát hiện tác dụng phụ cần xử lý trong cùng phạm vi.",
-            "Xóa kết quả kiểm tra hồi quy.",
-            "Chuyển sang enhancement trước."
+            "Tạm dừng sửa, nêu các nguyên nhân có thể rồi dùng log và việc tái hiện lỗi để kiểm tra nguyên nhân nào có bằng chứng.",
+            "Tạm dừng sửa, chọn nguyên nhân có vẻ hợp lý nhất rồi sửa thử; nếu chưa được thì chuyển sang nguyên nhân khác.",
+            "Khôi phục commit ổn định gần nhất và bỏ qua tính năng đang gây lỗi.",
+            "Tiếp tục chỉnh phần đang hiển thị sai cho đến khi lỗi không còn xuất hiện."
+          ],
+          "answerIndex": 0,
+          "explanation": "Cả lựa chọn 1 và 2 đều bắt đầu từ những nguyên nhân có thể xảy ra. Điểm khác biệt là lựa chọn 1 kiểm tra bằng chứng trước khi sửa, còn lựa chọn 2 tiếp tục sửa theo phỏng đoán. Kiểm tra log và tái hiện lỗi giúp agent xác định nguyên nhân thực sự, thay vì chỉ thử lần lượt nhiều cách sửa.",
+          "source": {
+            "kind": "curriculum-judgment",
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-4--khi-lỗi-liên-tục-quay-lại",
+            "basis": "Khi lỗi quay lại, coding agent cần tạm dừng, nêu các nguyên nhân và kiểm tra bằng chứng trước khi tiếp tục sửa."
+          }
+        },
+        {
+          "id": "m3-mastery-branch",
+          "sceneId": "module-3-mastery-branch",
+          "type": "multiple-choice",
+          "prompt": "Website đang hoạt động ổn định, nhưng những thay đổi mới nhất chưa được lưu thành commit. Bạn muốn thử một bố cục mới và chưa chắc sẽ giữ lại. Bạn nên yêu cầu coding agent làm gì?",
+          "choices": [
+            "Tạo branch mới ngay, thử bố cục rồi tạo một commit chứa cả phiên bản ổn định và phần thử nghiệm.",
+            "Tạo commit cho phiên bản ổn định, sau đó tạo một branch riêng để thử bố cục mới.",
+            "Tạo commit cho phiên bản ổn định, sau đó thử bố cục mới trên branch hiện tại và quay lại commit cũ nếu không thích.",
+            "Push các tệp hiện tại lên GitHub, sau đó thử bố cục mới vì GitHub sẽ tự lưu phiên bản cũ."
           ],
           "answerIndex": 1,
-          "explanation": "Bản sửa phải giải quyết lỗi gốc mà không phá hành vi liên quan đã được chấp nhận. Regression failure giữ gate ở trạng thái chưa đạt.",
+          "explanation": "Lựa chọn 2 và 3 đều lưu phiên bản ổn định bằng commit. Điểm khác biệt là branch riêng giữ phần thử nghiệm tách khỏi phiên bản đang hoạt động tốt. Nếu không muốn giữ bố cục mới, bạn vẫn có thể quay lại branch ổn định mà không phải gỡ các thay đổi thử nghiệm khỏi đó.",
           "source": {
             "kind": "authoritative-source",
-            "label": "MDN — Testing",
-            "url": "https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Testing",
-            "basis": "Sau khi sửa lỗi, cần chạy lại phép kiểm tra ban đầu và kiểm tra liên quan để phát hiện hồi quy."
-          }
-        },
-        {
-          "id": "m3-mastery-owned-revision",
-          "sceneId": "module-3-mastery-owned-revision",
-          "type": "short-answer",
-          "prompt": "Dựa trên `revision-record.md` của bạn, nêu điều bạn quan sát trước khi sửa, thay đổi có giới hạn đã duyệt và bằng chứng cho thấy kết quả mới tốt hơn.",
-          "criteria": [
-            "Dẫn chiếu quan sát và checkpoint thật của Learner.",
-            "Nêu rõ điều thay đổi cùng điều chủ động giữ nguyên.",
-            "Dùng kết quả ở hai viewport hoặc một acceptance criterion phù hợp; không lặp lại ví dụ trong bài."
-          ],
-          "explanation": "Câu trả lời đạt chứng minh Learner có thể nối phản hồi quan sát được với một thay đổi được phê duyệt và kết quả hiện tại.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-011 — Whole-page revision",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-011-use-five-source-audited-milestones-for-module-3",
-            "basis": "Milestone 3 yêu cầu một vòng cải thiện có bằng chứng trên phiên bản hoàn chỉnh."
-          }
-        },
-        {
-          "id": "m3-mastery-owned-enhancement",
-          "sceneId": "module-3-mastery-owned-enhancement",
-          "type": "short-answer",
-          "prompt": "Dựa trên `enhancement-plan.md` của bạn, giải thích vì sao bạn chọn cải tiến này, tiêu chí nào quyết định thành công và cách bạn biết portfolio core không bị phá vỡ.",
-          "criteria": [
-            "Nêu lựa chọn và lý do thật của Learner.",
-            "Dẫn chiếu acceptance criterion cùng bằng chứng kiểm tra hiện tại.",
-            "Nêu kiểm tra hồi quy cho portfolio core và ranh giới không thêm backend."
-          ],
-          "explanation": "Câu trả lời đạt cho thấy Learner tự định hướng một thay đổi nhỏ và đánh giá kết quả bằng tiêu chí của mình.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Quyết định chương trình D-011 — Independent enhancement",
-            "url": "docs/planning/portfolio-course-v1/DECISION_LOG.md#d-011-use-five-source-audited-milestones-for-module-3",
-            "basis": "Milestone cuối giảm hướng dẫn và yêu cầu Learner tự chọn, lập tiêu chí rồi nghiệm thu cải tiến."
+            "label": "Git — Branches in a Nutshell",
+            "url": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+            "basis": "Commit lưu trạng thái hiện tại trong lịch sử, còn branch tạo một hướng phát triển riêng để phần thử nghiệm không làm thay đổi hướng ổn định."
           }
         }
       ]

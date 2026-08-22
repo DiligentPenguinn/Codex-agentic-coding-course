@@ -30,7 +30,7 @@ export type RegistrySceneContent = {
   tone: 'neutral' | 'bad' | 'good'
   request: string
   evidence: Array<{ label: string; value: string; ready?: boolean }>
-  dialogue: string
+  dialogue?: string
   choices: RegistryChoice[]
   copyPrompt?: string
   copyPromptLabel?: string
