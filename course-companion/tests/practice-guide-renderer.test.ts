@@ -50,19 +50,18 @@ describe('PracticeGuide renderer', () => {
     expect(progress).toContain("practiceGuideAnchor('return-to-course')")
   })
 
-  it('renders the approved step-five Next action without treating it as review', async () => {
-    const [definition, component, teacher] = await Promise.all([
+  it('keeps step five bound to the authoritative review action', async () => {
+    const [definitionSource, teacher] = await Promise.all([
       source('content/practice-guides/m1-practice-mode-first-run.json'),
-      source('src/renderer/src/components/PracticeGuide.tsx'),
       source('src/renderer/src/components/TeacherWorkspace.tsx')
     ])
-    expect(definition).toContain('"id": "request-review"')
-    expect(definition).toContain('"advancement": "continue"')
-    expect(definition).toContain('"primaryLabel": "Tiếp"')
-    expect(component).not.toContain("view.currentStageId === 'request-review' ? 'review-requested'")
-    expect(component).toContain('await onUpdate({ type, expectedStageId: view.currentStageId! }')
-    expect(component).toContain('disabled={updating}')
+    const definition = JSON.parse(definitionSource) as { stages: Array<Record<string, unknown>> }
+    const review = definition.stages.find((stage) => stage.id === 'request-review')
+    expect(review).toMatchObject({ advancement: 'review-requested' })
+    expect(review).not.toHaveProperty('primaryLabel')
     expect(teacher).toContain('<PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />')
+    expect(teacher).toContain("practiceGuide?.currentStageId === 'request-review'")
+    expect(teacher).toContain("type: 'review-requested' as const")
   })
 
   it('restores and dismisses mastery confirmation without changing lesson navigation', async () => {

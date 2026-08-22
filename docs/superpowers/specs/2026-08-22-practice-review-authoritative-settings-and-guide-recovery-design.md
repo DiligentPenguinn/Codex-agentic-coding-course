@@ -1,7 +1,7 @@
 # Practice review authoritative settings and guide recovery
 
 **Date:** 22 August 2026
-**Status:** Owner-approved design; implementation pending
+**Status:** Implemented and technically verified; overall Foundation approval and pilot acceptance pending
 **Scope:** Module 1 Practice review, first-run Practice guide, and verification gates
 
 ## Problem
@@ -23,10 +23,9 @@ changing the production paths.
 
 ## Root cause
 
-The original automatic configuration path resumed the exact bound task through
-Codex App Server. `thread/resume` returned the effective model, reasoning effort,
-service tier, approval policy, and sandbox or permission profile; live
-`thread/settings/updated` notifications kept the snapshot current.
+The original automatic configuration path captured the exact bound task's
+effective configuration from Codex App Server when the task was created. Live
+`thread/settings/updated` notifications then kept that saved snapshot current.
 
 That observer was long-lived. After Codex Desktop became the learner-facing
 owner of the task, Course Companion could remain a competing writer and trigger
@@ -35,10 +34,12 @@ the long-lived resume observer, but replaced it with a rollout-file reader that
 expects an `event_msg/thread_settings_applied` item.
 
 Current newly created Codex Desktop tasks can have only `session_meta` in their
-rollout until a turn is started. They do not necessarily persist the settings
-event required by the replacement reader. The tests generated that event
-themselves, so they verified the reader against an invented happy path rather
-than the empty-task state produced by the current runtime.
+rollout until a setting changes or a turn is started. They do not persist a
+redundant settings event when the configuration already equals the task-start
+values. The replacement reader incorrectly discarded the exact saved
+`thread-start` configuration in that valid case. The tests generated a later
+settings event themselves, so they verified the reader against an invented
+happy path rather than the empty-task state produced by the current runtime.
 
 The guide regression was introduced alongside that ownership repair. Step 5
 changed from the semantic `review-requested` advancement event to a generic
@@ -48,43 +49,46 @@ that stage because return is not yet allowed.
 
 ## Approved configuration design
 
-Practice review restores the proven configuration-bearing App Server operation,
-but uses it only as a short-lived verification transaction:
+Practice review uses the exact saved task-start configuration as its baseline
+and applies a later persisted settings event when one exists:
 
 1. Load the authoritative active Practice run and exact persisted task binding.
-2. Start the dedicated Practice verification transport.
-3. Call `thread/read` for the exact thread before acquiring ownership.
+2. Start the dedicated read-only Practice verification transport.
+3. Call `thread/read` for the exact thread.
 4. Validate the returned thread ID and workspace against the binding.
 5. Fail with the existing busy diagnostic if any turn is in progress.
-6. Call `thread/resume` for that same exact thread.
-7. Validate the resumed thread ID and workspace again.
-8. Normalize the effective configuration from the resume response.
-9. Read and reconcile the exact thread activity and workspace evidence.
-10. Persist the normalized snapshot and continue through the existing review
-    envelope and evaluator.
-11. Stop the dedicated verification transport in `finally`, on success,
+6. Resolve the exact rollout through the read-only Codex state database and
+   validate its thread ID, workspace, filename, and sessions-root containment.
+7. Scan a stable rollout snapshot for the latest valid
+   `thread_settings_applied` event.
+8. If an event exists, normalize it and let it supersede the baseline. If no
+   event exists, validate and use the exact persisted `thread-start` snapshot.
+9. Reconcile the exact thread activity and workspace evidence.
+10. Continue through the existing review envelope and evaluator.
+11. Stop the dedicated read-only transport in `finally`, on success,
     needs-work, busy state, protocol failure, validation failure, or evaluator
     failure.
 
-The verifier never starts a turn, sends a prompt, chooses a focused window,
-switches tasks, or keeps a settings subscription alive. The temporary ownership
-window begins only after an idle exact-task preflight and ends before the learner
-can be sent back to Codex. This retains automatic, authoritative verification
-without restoring the old long-lived competing owner.
+The verifier never resumes a task, starts a turn, sends a prompt, chooses a
+focused window, switches tasks, or keeps a settings subscription alive. It uses
+only `thread/read` plus read-only persisted evidence, so it never acquires task
+ownership. This retains automatic, authoritative verification without restoring
+the old competing owner.
 
-The rollout metadata reader is not authoritative for this workflow because it
-cannot distinguish an unchanged persisted event from newer in-memory settings
-in Codex Desktop. It may remain as isolated compatibility code, but Practice
-review must not pass or fail based on its synthetic settings event.
+The baseline-plus-updates model is authoritative because Codex Desktop emits a
+settings update when a value changes, while unchanged values remain represented
+by the exact configuration returned at task creation. A rollout event may
+supersede the baseline; its absence is not an error.
 
 ## Binding and failure invariants
 
 - Only the active Practice run's persisted thread ID and workspace are valid.
-- Thread ID and workspace are checked before and after resume.
-- A running turn prevents resume and produces the specific busy recovery path.
+- Thread ID and workspace are checked in the task read, database row, session
+  metadata, rollout filename, and saved baseline.
+- A running turn prevents review and produces the specific busy recovery path.
 - Missing or unrecognized configuration fields remain unverifiable and cannot
   satisfy a criterion.
-- A resume, binding, transport, or normalization failure preserves the last
+- A binding, transport, stable-read, or normalization failure preserves the last
   structured review result and leaves return locked.
 - The verification transport is released after every terminal path.
 - Direct Teacher chat and non-Practice Teacher ownership behavior are unchanged.
@@ -134,12 +138,13 @@ runtime compatibility.
 - Capture a sanitized fixture representing a real newly created task rollout
   with `session_meta` and no settings event. Assert that review does not depend
   on a rollout settings record.
-- Assert the exact protocol sequence: idle `thread/read`, exact
-  `thread/resume`, final exact read, then transport release.
-- Assert that the resume response, not expected Practice values or persisted
-  rollout values, supplies all five reviewed configuration fields.
-- Assert exact thread and workspace validation before and after resume.
-- Assert no resume while a turn is in progress.
+- Assert the exact protocol sequence contains one exact `thread/read` and never
+  calls `thread/resume`.
+- Assert the exact saved `thread-start` snapshot supplies all five reviewed
+  fields when no later settings event exists.
+- Assert the latest valid settings event supersedes the baseline field values.
+- Assert exact run, thread, workspace, rollout path, and session validation.
+- Assert review stops before metadata access while a turn is in progress.
 - Assert release after success, needs-work, busy, malformed response, binding
   mismatch, disconnect, and evaluator failure.
 - Assert repeated review and concurrent-review coalescing do not retain an
@@ -160,9 +165,11 @@ against an isolated temporary Codex home and temporary workspace. It must:
 1. create an empty task without starting a turn;
 2. prove the rollout lacks the synthetic settings event when that is the
    runtime's actual behavior;
-3. resume the exact task and validate the effective configuration response;
+3. capture the exact `thread-start` response and validate the production
+   reader's baseline fallback;
 4. stop the first client;
-5. resume the same task from a second client to prove ownership was released;
+5. read the same task from a second client without resuming it to prove the
+   diagnostic and product path remain non-owning;
 6. clean up only its explicit temporary directories; and
 7. fail loudly when the installed protocol no longer satisfies the contract.
 
@@ -172,23 +179,27 @@ not evidence of runtime compatibility and must be reported separately.
 
 ### End-to-end acceptance
 
-Before handoff, run the packaged or production-built Course Companion against a
-real newly created Module 1 Practice task and verify:
+The release gate combines independent evidence so it does not need to mutate a
+learner's real task merely to test the verifier:
 
-- settings can be changed in Codex before any turn is sent;
-- review reads the new settings automatically;
-- a deliberately wrong setting yields needs-work and leaves guide step 5
-  visible;
-- correcting that setting and reviewing again passes;
-- guide step 6 appears and returns to the Module 1 mastery scene;
-- step 7 appears there;
-- reopening Codex after a needs-work review does not report a retained second
-  owner; and
-- restarting Course Companion repairs a previously stranded step-6 state.
+- the installed-App-Server diagnostic creates a real empty task, captures its
+  start configuration, confirms the missing-event rollout shape, exercises the
+  production reader, and proves a second client can read the task without a
+  retained owner;
+- the bound-run diagnostic applies the production reader read-only to the exact
+  active Practice run that exposed the defect;
+- focused review tests prove a deliberately wrong setting yields needs-work,
+  the corrected value passes, and a later settings event supersedes the saved
+  baseline; and
+- the production-built Electron journey proves step 5 has no generic advance,
+  a successful review reveals step 6, return reaches the Module 1 mastery scene,
+  and step 7 completes the guide. Coordinator tests cover needs-work visibility,
+  restart repair, invalidation, and replay.
 
 Record the exact commands and observed outcomes in the affected implementation
-plan ledger. Unit tests, a green build, or fake-gateway Electron smoke alone do
-not satisfy this acceptance gate.
+plan ledger. Unit tests, a green build, fake-gateway Electron smoke, synthetic
+rollout fixtures, or a real protocol diagnostic alone do not satisfy this gate;
+all complementary layers must pass.
 
 ## Alternatives not selected
 
@@ -204,11 +215,19 @@ Companion-owned controls would be easy to verify, but would stop assessing the
 learner's ability to configure the real Codex task. The owner explicitly chose
 to retain the existing Codex UI workflow.
 
+### Resume the task during review
+
+This initially appeared to offer an authoritative short-lived snapshot. A real
+two-client App Server diagnostic disproved that design: after restarting the
+server, `thread/resume` could rebuild the task with process defaults, losing the
+saved reasoning effort and sandbox configuration. It also acquires task
+ownership. The approved design therefore never resumes the learner's task.
+
 ### Restore the long-lived observer
 
 This would recover live notifications but reintroduce the previous competing
-owner. The approved design reuses only its authoritative resume response inside
-a bounded transaction.
+owner. Persisted task-start state plus emitted updates provides the same
+configuration history without a second live owner.
 
 ### Read Codex Desktop UI or private in-memory state
 

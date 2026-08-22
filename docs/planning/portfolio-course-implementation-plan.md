@@ -35,7 +35,7 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `in-progress` — the owner-approved authoritative settings and guide recovery is pending implementation | `failed` — a live Module 1 run on 22 August 2026 proved that a newly created empty Codex task has no rollout settings event, so Practice review cannot fetch configuration; the guide then advances into a hidden step 6. The prior 373-test result used a synthetic metadata event and encoded the hidden guide state as expected behavior. | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, Practice-only Teacher review role, explicit task-ownership handoff, compact all-step progress accordion with the C2 disclosure control, and the short-lived authoritative resume plus semantic step-five review repair were explicitly approved | `pending` | Implement the approved Practice repair, run the isolated real-runtime contract diagnostic and packaged end-to-end acceptance, then present corrected Foundation evidence; do not infer overall approval. |
+| Foundation | `implemented` — the approved Practice repair now uses the exact saved task-start configuration as its baseline, applies later persisted settings events, remains non-owning, restores semantic guide steps 5–7, and repairs stranded guide state | `passed` — 378 unit/integration tests with two intentional skips, nine startup tests, typecheck, lint, production build, full Electron smoke, an isolated real App Server empty-task diagnostic, and a read-only diagnostic against the original failing active run all passed on 22 August 2026; the smoke now asserts step 5 has no generic advance, review reveals step 6, and return completes step 7 | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, Practice-only Teacher review role, explicit task-ownership handoff, compact all-step progress accordion with the C2 disclosure control, and the baseline-plus-updates settings recovery plus semantic step-five review repair were explicitly approved | `pending` | Present the corrected Foundation evidence for owner review; do not infer overall approval or pilot acceptance. |
 | Module 2 | `in-progress` — the four-page Course Companion explanation slice, restored original opening copy, approved stage names, agent-independent question revisions, two-source reference gallery, copyable Practice prompt, four-item outline, simplified mastery introduction, five lesson-aligned mastery questions, question-only group-level Course Companion assessment submission without standalone Teacher/title guidance above the questions, and detailed integration handoff are implemented; the delegated Teacher/Executor, five-document Practice, evidence, completion, migration, and Module 3 handoff runtime remain on the old seven-artifact contract | `passed` for the integrated content scope on 18 August 2026: 290 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, responsive assertions, and `git diff --check`; delegated integration and the new completion gate remain `pending` | `pending` overall; the five-stage/five-document product design, one-task Practice workflow, artifact contracts, Module 2/3 boundary, content-vs-integration ownership split, restoration of the original opening copy, PRD-first explanation order, exact page and mastery-question deletions, reference-gallery revision, copyable Practice prompt, outline-item removal, mastery-introduction simplification, lesson-aligned mastery rewrite, group-level Course Companion submission, and removal of standalone assessment chrome were explicitly approved, but the implemented content has not been reviewed or accepted | `pending` | Hand the integration plan to the implementation owner; do not treat the old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented`; every formative and mastery question page uses the shared question-only assessment layout | `passed` — 290 unit tests, nine startup tests, typecheck, lint, production build, shared all-module assessment regression, responsive checks, and full Electron smoke on 18 August 2026 | `pending` overall; the global Course Companion palette, learner-facing Codex terminology correction, and question-only Module 3 assessment layout were explicitly approved | `pending` | Present Module 3 evidence for owner review; do not infer overall approval. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present on `Triet-V2-planning`; the temporary content-review launcher, session-only routing, and per-Practice bypasses remain excluded; artifact templates, Practice/evidence adapters, official completion, and graduation wiring remain deferred | `passed` for the integrated content scope on 18 August 2026: 290 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and a source audit confirming that review-only runtime identifiers are absent; macOS provider rehearsal passed on 16 August 2026 and Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
@@ -109,20 +109,25 @@ diagnostic while Codex Desktop retained ownership, and independent adversarial
 review. Owner approval covers this repair design; pilot acceptance remains
 `pending`.
 
-**Practice settings and guide regression — 22 August 2026:** A real Module 1
-Practice run invalidated the 19 August verification claim. The current empty
-Codex task rollout contains `session_meta` but no
+**Practice settings and guide regression repair — 22 August 2026:** A real
+Module 1 Practice run invalidated the 19 August verification claim. The empty
+Codex task rollout contained `session_meta` but no
 `event_msg/thread_settings_applied`, while the metadata tests generated that
-event synthetically. Review therefore cannot read the five effective settings.
-The guide's generic step-five `Tiếp` transition also advances durable state to
-step six before review passes, and the coordinator then hides step six. The
-owner approved restoring an exact-task, idle-preflight `thread/resume` inside a
-short-lived verification transport, semantic `review-requested` advancement,
-recovery of already stranded guide state, and stronger verification. Foundation
-implementation is `in-progress` and verification is `failed` until the focused
-tests, full suite, isolated real-runtime App Server diagnostic, and packaged
-end-to-end Practice journey all pass. Fake-gateway Electron smoke and synthetic
-rollout fixtures alone are not sufficient evidence.
+event synthetically. The repair now validates and uses the exact saved
+`thread-start` snapshot when no later update exists; a latest valid persisted
+settings event still supersedes that baseline. The review path performs one
+exact `thread/read`, never resumes or owns the learner's task, and keeps the
+existing fail-closed binding and stable-rollout checks. Guide step five now
+advances only on semantic `review-requested`, needs-work remains visible, pass
+reveals step six, and existing stranded cursors reconcile back to step five.
+Verification passed with 378 tests and two intentional skips, nine startup
+tests, typecheck, lint, production build, full Electron smoke through steps
+5–7, an isolated installed-App-Server diagnostic reproducing an empty rollout,
+and a read-only production-reader diagnostic against the original failing
+active run. The latter returned its exact saved model, effort, speed, approval,
+and Full access values without acquiring task ownership. Owner approval covers
+the revised repair design; overall Foundation approval and pilot acceptance
+remain `pending`.
 
 ## Historical temporary content-first authoring exception
 

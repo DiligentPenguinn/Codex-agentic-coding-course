@@ -110,6 +110,7 @@ describe('Teacher Practice review controls', () => {
     expect(snapshot).toContain("this.client.request('thread/read'")
     expect(snapshot).not.toContain("'thread/resume'")
     expect(snapshot).not.toContain("'thread/start'")
+    expect(main).toContain('CodexTaskMetadataReader')
   })
 
   it('keeps chat navigation hidden while Practice authority is loading or unavailable', async () => {

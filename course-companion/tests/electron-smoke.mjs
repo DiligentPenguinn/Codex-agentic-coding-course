@@ -558,8 +558,8 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
-  await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
-  await guide.waitFor({ state: 'hidden' })
+  await guide.getByText('Cập nhật và duyệt bằng chứng', { exact: true }).waitFor()
+  assert.equal(await guide.getByRole('button', { name: 'Tiếp', exact: true }).count(), 0)
   assert.equal(await fullTeacher.locator('.pixel-chat-composer').count(), 0)
   assert.equal(await fullTeacher.locator('.pixel-chat-log').count(), 0)
   await fullTeacher.getByRole('button', { name: 'Cập nhật và duyệt tiến độ Practice', exact: true }).click()
@@ -569,6 +569,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
       `error: ${await fullTeacher.locator('.pixel-chat-warning[role="alert"]').innerText()}`)
   ])
   assert.equal(reviewOutcome, 'passed')
+  await guide.getByText('Quay lại đúng phần tiếp theo', { exact: true }).waitFor()
   await fullTeacher.getByRole('button', { name: 'Quay lại khóa học', exact: true }).click()
   await waitForSnapshot(
     electronApp,

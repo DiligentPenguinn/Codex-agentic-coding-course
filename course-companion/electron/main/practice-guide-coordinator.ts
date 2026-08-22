@@ -230,7 +230,23 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     if (this.replayStages.has(key) || value.record.status !== 'in-progress') return value
     const index = definition.stages.findIndex((stage) => stage.id === value.record.lastStageId)
     const returnIndex = definition.stages.findIndex((stage) => stage.id === 'return-to-course')
-    if (context.workspace?.review?.status !== 'passed' || index >= returnIndex) return value
+    const reviewPassed = context.workspace?.review?.status === 'passed'
+    if (!reviewPassed && value.record.lastStageId === 'return-to-course') {
+      try {
+        const next = await this.states.advance(
+          identity(definition, context, value.record) as PracticeGuideStateIdentity,
+          value.record.lastStageId,
+          'request-review'
+        )
+        this.volatile.set(key, next)
+        return { record: next, error: value.error }
+      } catch {
+        const next = { ...value.record, lastStageId: 'request-review' }
+        this.volatile.set(key, next)
+        return { record: next, error: WARNING }
+      }
+    }
+    if (!reviewPassed || index >= returnIndex) return value
     try {
       const next = await this.states.advance(
         identity(definition, context, value.record) as PracticeGuideStateIdentity,
@@ -297,7 +313,9 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
         || request.type === 'course-returned'
       ) {
         const stage = definition.stages[replayIndex]!
-        if (request.expectedStageId === stage.id && request.type === stage.advancement) {
+        const reviewPassed = request.type !== 'review-requested'
+          || context.workspace?.review?.status === 'passed'
+        if (request.expectedStageId === stage.id && request.type === stage.advancement && reviewPassed) {
           if (replayIndex >= definition.stages.length - 1) this.replayStages.delete(key)
           else this.replayStages.set(key, replayIndex + 1)
         }

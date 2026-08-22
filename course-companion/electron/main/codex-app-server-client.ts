@@ -44,6 +44,12 @@ export type CodexConnectionState = 'connecting' | 'connected' | 'disconnected'
 export type CodexNotificationListener = (notification: CodexNotification) => void
 export type CodexConnectionListener = (state: CodexConnectionState) => void
 
+export type CodexAppServerLaunchOptions = {
+  command?: string
+  env?: NodeJS.ProcessEnv
+  clientName?: string
+}
+
 export type CodexClientError = Error & { code: string; detail?: string }
 
 const APP_SERVER_STOP_GRACE_MS = 1_000
@@ -80,13 +86,19 @@ export class CodexAppServerClient {
   private notificationListeners = new Set<CodexNotificationListener>()
   private connectionListeners = new Set<CodexConnectionListener>()
   private connectionState: CodexConnectionState = 'disconnected'
+  private readonly launch: CodexAppServerLaunchOptions
+
+  constructor(launch: CodexAppServerLaunchOptions = {}) {
+    this.launch = launch
+  }
 
   async start(): Promise<void> {
     if (this.process) throw typedError('APP_SERVER_ALREADY_STARTED', 'Codex App Server is already running')
     this.setConnectionState('connecting')
-    const child = spawn('codex', ['app-server'], {
+    const child = spawn(this.launch.command ?? 'codex', ['app-server'], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      windowsHide: true
+      windowsHide: true,
+      env: this.launch.env ?? process.env
     })
     this.process = child
     child.stderr.resume()
@@ -97,7 +109,7 @@ export class CodexAppServerClient {
     try {
       await this.rawRequest('initialize', {
         clientInfo: {
-          name: 'content_builder_academy_course_companion',
+          name: this.launch.clientName ?? 'content_builder_academy_course_companion',
           title: 'Content Builder Academy Course Companion',
           version: '0.1.0'
         }

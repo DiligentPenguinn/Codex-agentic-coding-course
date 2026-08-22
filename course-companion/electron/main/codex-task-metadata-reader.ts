@@ -5,7 +5,10 @@ import readline from 'node:readline'
 import { DatabaseSync } from 'node:sqlite'
 import type { CodexTaskConfigurationSnapshot } from '../../shared/contracts'
 import type { ExecutorChatBinding } from './practice-run-repository'
-import { normalizeCodexTaskConfiguration } from './codex-configuration-normalizer'
+import {
+  isCodexTaskConfigurationSnapshot,
+  normalizeCodexTaskConfiguration
+} from './codex-configuration-normalizer.ts'
 
 const THREAD_ID = /^[A-Za-z0-9_-]{1,160}$/
 const MAX_ROLLOUT_BYTES = 128 * 1024 * 1024
@@ -58,11 +61,19 @@ function timestamp(value: unknown): number | null {
 }
 
 export class CodexTaskMetadataReader {
+  private readonly stateDatabasePath: string
+  private readonly sessionsDirectory: string
+  private readonly now: () => Date
+
   constructor(
-    private readonly stateDatabasePath: string,
-    private readonly sessionsDirectory: string,
-    private readonly now: () => Date = () => new Date()
-  ) {}
+    stateDatabasePath: string,
+    sessionsDirectory: string,
+    now: () => Date = () => new Date()
+  ) {
+    this.stateDatabasePath = stateDatabasePath
+    this.sessionsDirectory = sessionsDirectory
+    this.now = now
+  }
 
   async read(binding: ExecutorChatBinding): Promise<CodexTaskConfigurationSnapshot> {
     if (!THREAD_ID.test(binding.threadId)) throw new Error('PRACTICE_METADATA_BINDING_INVALID')
@@ -97,12 +108,23 @@ export class CodexTaskMetadataReader {
       if (error instanceof Error && error.message.startsWith('PRACTICE_METADATA_')) throw error
       throw new Error('PRACTICE_METADATA_ROLLOUT_UNAVAILABLE', { cause: error })
     }
-    if (!latest) throw new Error('PRACTICE_METADATA_UNAVAILABLE')
     const after = await stat(rolloutPath).catch((error) => {
       throw new Error('PRACTICE_METADATA_ROLLOUT_UNAVAILABLE', { cause: error })
     })
     if (after.size !== details.size || after.mtimeMs !== details.mtimeMs) {
       throw new Error('PRACTICE_METADATA_CHANGED_DURING_READ')
+    }
+    if (!latest) {
+      const baseline = binding.configuration
+      if (!isCodexTaskConfigurationSnapshot(baseline)
+        || baseline.runId !== binding.runId
+        || baseline.threadId !== binding.threadId
+        || baseline.source !== 'thread-start'
+        || baseline.freshness !== 'fresh'
+        || baseline.connection !== 'connected') {
+        throw new Error('PRACTICE_METADATA_UNAVAILABLE')
+      }
+      return structuredClone(baseline)
     }
     const observed = this.now()
     return normalizeCodexTaskConfiguration({

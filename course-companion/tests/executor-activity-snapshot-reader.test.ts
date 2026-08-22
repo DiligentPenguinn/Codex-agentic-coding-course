@@ -46,19 +46,19 @@ describe('ExecutorActivitySnapshotReader', () => {
     expect(result.workspaceBaseline?.head).toBe('abc123')
   })
 
-  it('rebuilds the prior semantic activity through one exact non-owning read', async () => {
+  it('rebuilds semantic activity through one exact non-owning read', async () => {
     const methods: Array<[string, Record<string, unknown> | undefined]> = []
     const saved: unknown[] = []
     const configuration = normalizeCodexTaskConfiguration({
       runId: binding.runId,
       threadId: binding.threadId,
-      source: 'thread-settings-snapshot',
+      source: 'thread-start',
       payload: {
         model: 'gpt-5.6-sol',
         reasoningEffort: 'high',
-        serviceTier: null,
+        serviceTier: 'priority',
         approvalPolicy: 'on-request',
-        sandboxPolicy: { type: 'workspaceWrite' },
+        sandbox: { type: 'workspaceWrite' },
         activePermissionProfile: { id: ':workspace', extends: null }
       },
       observedAt: '2026-08-19T12:00:00.000Z',
@@ -141,5 +141,31 @@ describe('ExecutorActivitySnapshotReader', () => {
 
     await expect(reader.read(binding)).rejects.toThrow('PRACTICE_SNAPSHOT_BINDING_MISMATCH')
     expect(saves).toBe(0)
+  })
+
+  it('does not read metadata or save while the exact task has an in-progress turn', async () => {
+    const calls: string[] = []
+    const reader = new ExecutorActivitySnapshotReader(
+      {
+        async request() {
+          calls.push('thread/read')
+          return {
+            thread: {
+              id: binding.threadId,
+              cwd: binding.workspaceRoot,
+              turns: [{ id: 'turn-1', status: 'inProgress', items: [] }]
+            }
+          }
+        }
+      },
+      {
+        async load() { return null },
+        async save(snapshot) { calls.push('save'); return snapshot }
+      },
+      { async read() { calls.push('metadata'); throw new Error('must not read') } }
+    )
+
+    await expect(reader.read(binding)).rejects.toThrow('PRACTICE_SNAPSHOT_BUSY')
+    expect(calls).toEqual(['thread/read'])
   })
 })

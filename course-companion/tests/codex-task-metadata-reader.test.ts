@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { describe, expect, it } from 'vitest'
 import { CodexTaskMetadataReader } from '../electron/main/codex-task-metadata-reader'
+import { normalizeCodexTaskConfiguration } from '../electron/main/codex-configuration-normalizer'
 
 const THREAD_ID = '01a019f0-f875-76e2-8e50-976539a7974f'
 const WORKSPACE = 'D:\\course\\pilot-workspace'
@@ -14,6 +15,7 @@ async function fixture(overrides: {
   sessionThreadId?: string
   settingsWorkspace?: string
   omitSettings?: boolean
+  omitBaseline?: boolean
   omitServiceTier?: boolean
   serviceTier?: unknown
   settingsTimestamp?: string
@@ -81,6 +83,21 @@ async function fixture(overrides: {
       .run(overrides.rowThreadId ?? THREAD_ID, overrides.rowWorkspace ?? WORKSPACE, rollout, Date.parse('2026-08-19T12:01:00.000Z'))
   }
   database.close()
+  const baseline = normalizeCodexTaskConfiguration({
+    runId: 'run-1',
+    threadId: THREAD_ID,
+    source: 'thread-start',
+    payload: {
+      model: 'gpt-5.6-sol',
+      reasoningEffort: 'high',
+      serviceTier: 'priority',
+      approvalPolicy: 'on-request',
+      sandbox: { type: 'workspaceWrite' },
+      activePermissionProfile: { id: ':workspace', extends: null }
+    },
+    observedAt: '2026-08-19T12:00:00.000Z',
+    eventTimestampMs: Date.parse('2026-08-19T12:00:00.000Z')
+  })
   return {
     reader: new CodexTaskMetadataReader(databasePath, sessions, () => new Date('2026-08-19T12:02:00.000Z')),
     binding: {
@@ -88,7 +105,8 @@ async function fixture(overrides: {
       threadId: THREAD_ID,
       name: 'Practice',
       workspaceRoot: WORKSPACE,
-      createdAt: '2026-08-19T11:59:00.000Z'
+      createdAt: '2026-08-19T11:59:00.000Z',
+      ...(!overrides.omitBaseline ? { configuration: baseline } : {})
     }
   }
 }
@@ -120,6 +138,24 @@ describe('CodexTaskMetadataReader', () => {
     expect(snapshot.freshness).toBe('unverifiable')
   })
 
+  it('uses the exact saved thread-start snapshot when the empty task has no update event', async () => {
+    const { reader, binding } = await fixture({ omitSettings: true })
+    const snapshot = await reader.read(binding)
+
+    expect(snapshot).toMatchObject({
+      runId: 'run-1',
+      threadId: THREAD_ID,
+      source: 'thread-start',
+      freshness: 'fresh',
+      connection: 'connected',
+      model: { protocolValue: 'gpt-5.6-sol', label: '5.6 Sol' },
+      reasoningEffort: { protocolValue: 'high', label: 'High' },
+      serviceTier: { protocolValue: 'priority', label: 'Fast' },
+      approvalPolicy: { protocolValue: 'on-request', label: 'Approve for me' },
+      fullAccess: { protocolValue: 'off', label: 'Off' }
+    })
+  })
+
   it('preserves the persisted priority tier as Fast', async () => {
     const { reader, binding } = await fixture({ serviceTier: 'priority' })
     const snapshot = await reader.read(binding)
@@ -138,7 +174,7 @@ describe('CodexTaskMetadataReader', () => {
     [{ rowWorkspace: 'D:\\wrong' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ sessionThreadId: 'wrong-thread' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ settingsWorkspace: 'D:\\wrong' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
-    [{ omitSettings: true }, 'PRACTICE_METADATA_UNAVAILABLE'],
+    [{ omitSettings: true, omitBaseline: true }, 'PRACTICE_METADATA_UNAVAILABLE'],
     [{ settingsTimestamp: 'not-a-timestamp' }, 'PRACTICE_METADATA_ROLLOUT_INVALID'],
     [{ duplicateSession: true }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ wrongFilename: true }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
