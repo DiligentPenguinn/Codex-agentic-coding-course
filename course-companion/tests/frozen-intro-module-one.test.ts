@@ -65,7 +65,7 @@ describe('frozen introduction and approved Module 1', () => {
       scenes.indexOf("'module-1-complete': {")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('df14a7173c05fe5e8cdeaf4232b4d461ffe31b2326e584cc352b0febf75fb65a')
+    expect(digest(scenes)).toBe('3d6adf3fa0625a97949365a112b203b5698eee715e51b3ebfb59008ce48f4013')
     expect(scenes).toContain("dialogue: 'Trong khoá học này, bạn sẽ được học cách dùng coding agents thông qua một dự án thực hành: Xây Portfolio cá nhân.'")
     expect(scenes).toContain("dialogue: 'Cuối khoá này, bạn sẽ có một web portfolio thật để có thể gửi cho nhà tuyển dụng.'")
     expect(scenes).toContain("dialogue: 'Những kỹ năng bạn học được trong khoá này không chỉ giúp bạn xây Portfolio, mà còn trang bị cho bạn kiến thức để tạo bất kỳ công cụ nào bạn muốn với AI'")

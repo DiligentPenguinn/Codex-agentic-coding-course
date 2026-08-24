@@ -324,6 +324,26 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'SPEED', value: 'Tốc độ xử lý' }
     ],
     dialogue: 'Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy menu Model, Effort và Speed. Màn hình này giải thích từng lựa chọn, các trường hợp sử dụng và cấu hình mình đề xuất cho ContentPilot.',
+    choices: [{ label: 'Tiếp theo: Effort và Speed', next: 'module-1-codex-effort-speed', primary: true }]
+  },
+  'module-1-codex-effort-speed': {
+    lessonId: 'module-1',
+    checkpointId: 'm1-codex-orientation',
+    step: 1,
+    totalSteps: 6,
+    lessonLabel: 'MODULE 1 · THIẾT LẬP CODEX',
+    mission: 'Làm quen với giao diện Codex',
+    objective: 'Effort và Speed',
+    panelLabel: 'EFFORT · SPEED',
+    panelStatus: 'CHỌN MỨC SUY LUẬN VÀ TỐC ĐỘ',
+    tone: 'neutral',
+    request: 'Xem Effort và Speed đang dùng cho task.',
+    evidence: [
+      { label: 'EFFORT', value: 'Mức suy luận' },
+      { label: 'SPEED', value: 'Tốc độ xử lý' },
+      { label: 'ĐỀ XUẤT', value: 'High · Standard' }
+    ],
+    dialogue: 'Effort điều chỉnh mức suy luận của model. Speed điều chỉnh tốc độ xử lý và mức dùng credit. Với ContentPilot, mình đề xuất High và Standard.',
     choices: [{ label: 'Tiếp theo: Lệnh /', next: 'module-1-codex-slash-commands', primary: true }]
   },
   'module-1-codex-slash-commands': {
@@ -1157,6 +1177,10 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
     image: m1ModelSettingsImage,
     alt: 'Menu Codex hiển thị Model 5.6 Sol, Effort High và Speed Standard'
   },
+  'module-1-codex-effort-speed': {
+    image: m1ModelSettingsImage,
+    alt: 'Menu Codex hiển thị Model 5.6 Sol, Effort High và Speed Standard'
+  },
   'module-1-codex-slash-commands': {
     image: m1SlashCommandsImage,
     alt: 'Danh sách lệnh mở trong Codex sau khi người dùng nhập dấu gạch chéo vào ô soạn tin'
@@ -1238,6 +1262,7 @@ const courseLessonPages = {
     ['module-1-codex-orientation'],
     ['module-1-codex-examples'],
     ['module-1-codex-model-intro'],
+    ['module-1-codex-effort-speed'],
     ['module-1-codex-slash-commands']
   ],
   'm1-agents-and-skills': [
@@ -1564,10 +1589,11 @@ function LessonVisualLightbox({
   )
 }
 
-type ModelLessonBoardKind = 'complete'
+type ModelLessonBoardKind = 'models' | 'settings'
 
 const modelLessonBoardByScene: Partial<Record<SceneId, ModelLessonBoardKind>> = {
-  'module-1-codex-model-intro': 'complete'
+  'module-1-codex-model-intro': 'models',
+  'module-1-codex-effort-speed': 'settings'
 }
 
 function ModelLessonBoard({
@@ -1595,48 +1621,53 @@ function ModelLessonBoard({
     <section className={`pixel-model-board is-${kind}`} aria-labelledby={titleId}>
       <div className="pixel-model-board__copy">
         <header>
-          <small>MODEL · EFFORT · SPEED</small>
-          <h1 id={titleId}>Chọn cách Codex xử lý công việc</h1>
-          <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p>
+          <h1 id={titleId}>{kind === 'models' ? 'Chọn cách Codex xử lý công việc' : 'Effort và Speed'}</h1>
+          {kind === 'models' ? <p>Ở góc dưới bên phải, ngay cạnh nút microphone, bạn sẽ thấy một menu xổ xuống. Menu này có ba mục: Model, Effort và Speed.</p> : null}
         </header>
-        <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
-        <div className="pixel-model-board__models">
-          <article>
-            <span>SOL</span>
-            <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
-          </article>
-          <article>
-            <span>TERRA</span>
-            <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
-          </article>
-          <article>
-            <span>LUNA</span>
-            <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
-          </article>
-        </div>
+        {kind === 'settings' ? (
+          <div className="pixel-model-board__tradeoffs">
+            <section>
+              <h2>Effort</h2>
+              <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
+              <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+            </section>
+            <section>
+              <h2>Speed</h2>
+              <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
+              <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+            </section>
+          </div>
+        ) : null}
       </div>
 
       <div className="pixel-model-board__media">
-        <figure>
-          <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
-          <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
-        </figure>
-        <div className="pixel-model-board__tradeoffs">
-          <section>
-            <h2>Effort</h2>
-            <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
-            <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
-          </section>
-          <section>
-            <h2>Speed</h2>
-            <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
-            <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
-          </section>
-        </div>
-        <div className="pixel-model-board__recommendation">
-          <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-          <strong>GPT-5.6 Sol · High · Standard</strong>
-        </div>
+        {kind === 'models' ? (
+          <div className="pixel-model-board__models">
+            <article>
+              <span>SOL</span>
+              <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+            </article>
+            <article>
+              <span>TERRA</span>
+              <div><h2>GPT-5.6 Terra</h2><p>Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.</p><small>Ví dụ: trả lời tin nhắn khách hàng theo hướng dẫn đã có.</small></div>
+            </article>
+            <article>
+              <span>LUNA</span>
+              <div><h2>GPT-5.6 Luna</h2><p>Thông thường mình không dùng Luna quá nhiều.</p><small>Theo hiểu biết của mình, Luna có thể làm sub-agent. Đây là một agent nhỏ do agent lớn gọi ra để xử lý phần việc ít phức tạp hơn. Chẳng hạn, khi GPT-5.6 Sol sửa một tính năng, Sol có thể gọi Luna khảo sát codebase trước.</small></div>
+            </article>
+          </div>
+        ) : (
+          <>
+            <figure>
+              <LessonVisualMedia activeFocus={null} isApprovalTour={false} visual={visual} />
+              <button aria-label="Phóng to ảnh minh họa" className="pixel-visual-expand" type="button" onClick={onExpand}>PHÓNG TO</button>
+            </figure>
+            <div className="pixel-model-board__recommendation">
+              <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
+              <strong>GPT-5.6 Sol · High · Standard</strong>
+            </div>
+          </>
+        )}
       </div>
 
       <img className="pixel-model-board__teacher" src={teacherImage} alt="Triết, giáo viên đồng hành" />
