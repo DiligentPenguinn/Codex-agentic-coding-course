@@ -7,6 +7,19 @@ async function source(path: string): Promise<string> {
 }
 
 describe('Teacher Practice review controls', () => {
+  it('keeps the macOS companion above fullscreen Codex windows', async () => {
+    const main = await source('electron/main/index.ts')
+    const companionStart = main.indexOf('function createCompanionWindow')
+    const companionEnd = main.indexOf('function applyCompanionTopmost', companionStart)
+    const companionWindow = main.slice(companionStart, companionEnd)
+
+    expect(companionStart).toBeGreaterThan(-1)
+    expect(companionEnd).toBeGreaterThan(companionStart)
+    expect(companionWindow).toContain("process.platform === 'darwin' ? { type: 'panel' } : {}")
+    expect(companionWindow).toContain('visibleOnFullScreen: true')
+    expect(main).toContain("target.setAlwaysOnTop(true, 'screen-saver')")
+  })
+
   it('uses one unified review implementation for windowed and full-screen Teacher', async () => {
     const [teacher, companion, learning] = await Promise.all([
       source('src/renderer/src/components/TeacherWorkspace.tsx'),
