@@ -9,15 +9,22 @@
 
 ## Consequential decisions
 
-- Don't execute a multi-step actions without defining to me what are the steps and get my approval
+- For consequential multi-step work, define the steps and get approval before execution.
 - Resolve small, reversible details from repository evidence or a safe default.
 - For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
 - Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
 
+## Trivial-edit fast path
+
+- Treat an edit as trivial when the user specifies an exact file, value, or otherwise unambiguous change of only a few reversible lines; the change does not affect security, persisted data, schemas, migrations, dependencies, or external systems; and the user has not requested broader verification.
+- Make a trivial edit directly without proposing a plan or requesting approval. Inspect the target before editing and review only the scoped diff afterward.
+- Do not run the full test suite, build, Electron verification, screenshot testing, planning-ledger synchronization, or checkpoint commit for a trivial edit unless the user requests it or a narrow syntax check is clearly necessary.
+- When a trivial edit changes visible behavior and the user says they will verify it, leave runtime verification to the user and state explicitly that it was not run.
+
 ## Verification batching
 
 - For small, related, user-approved changes, define the batch scope first, implement the changes together, and run narrow focused checks while iterating.
-- Run the required full test suite, build, Electron verification, planning-ledger synchronization, and any eligible checkpoint commit once after the coherent batch is complete.
+- Run the required full test suite, build, Electron verification, planning-ledger synchronization, and any eligible checkpoint commit once after the coherent batch is complete. This does not apply to an edit that qualifies for the trivial-edit fast path.
 - Verify a change separately when it is unrelated, high-risk, must be delivered independently, or focused evidence shows that earlier full verification is necessary.
 - Never use batching to skip required final verification or postpone a failing focused check.
 
