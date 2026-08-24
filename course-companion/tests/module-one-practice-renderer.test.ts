@@ -92,6 +92,10 @@ describe('Module 1 Practice renderer', () => {
       'LearningWindow.tsx'
     ), 'utf8')
     expect(source).toContain('if (practiceScene.practice')
+    expect(source).toContain("next: 'module-1-setup-checklist', action: 'practice'")
+    expect(source).toContain("if (choice.next) await advanceToScene(choice.next, progress.decisions)")
+    expect(source).toContain("if (loadedProgress.sceneId === 'module-1-setup-checklist') setPracticeBriefOpen(true)")
+    expect(source).not.toContain("'m1-assessment': [\n    ['module-1-setup-checklist']")
     expect(source).toContain('practiceVersion: activePracticeDefinition.version')
     expect(source).not.toContain('mock-completed')
     expect(source).not.toContain('practicePreview:')

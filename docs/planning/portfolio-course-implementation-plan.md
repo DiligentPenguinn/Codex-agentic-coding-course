@@ -354,6 +354,18 @@ there first and remain synchronized with Course Companion.
   instruction, the full test, lint, build, and Electron suites were not rerun.
   This scoped UI approval does not mark overall Foundation owner approval or
   pilot acceptance complete.
+- On 24 August 2026, the owner explicitly removed the redundant learner-facing
+  setup page immediately before Module 1 Practice. The final Skills page now
+  saves the existing `m1-setup-checklist` checkpoint and opens the unchanged
+  `m1-codex-safe-setup` Practice in the same action, so the ten-page assessment
+  inventory becomes nine pages without weakening the Practice review or return
+  contract. Existing saved progress at the technical setup route reopens the
+  Practice brief. Typecheck, lint, 389 unit tests, nine startup tests, the
+  production build, focused Practice completion/review regressions, and
+  `git diff --check` passed. Full Electron smoke launched successfully but
+  remained blocked before this flow by its stale first-lesson expectation
+  `MODULE 1 · BÀI 1/3 · TRANG 1/4`. This scoped UI approval does not mark
+  overall Foundation owner approval or pilot acceptance complete.
 - On 18 August 2026, the owner explicitly reopened the Module 1 review to add
   two multiple-choice questions about `AGENTS.md` and Skills while preserving
   the four existing questions. The new questions use project-rule and reusable-

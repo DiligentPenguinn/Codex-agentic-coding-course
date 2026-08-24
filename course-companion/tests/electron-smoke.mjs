@@ -517,10 +517,11 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 3/3 · TRANG 1/10', { exact: true }).first().waitFor()
+  await page.locator('.practice-brief-overlay').waitFor()
+  assert.equal(await page.getByText('Chứng minh cấu hình thật trong Codex', { exact: true }).count(), 0)
   assert.equal(await page.locator('.pixel-harness-board').count(), 0)
   assert.equal(await page.getByText('Dùng cấu hình đã chọn', { exact: true }).count(), 0)
-  const practiceBrief = page.locator('[data-practice-id="m1-codex-safe-setup"]')
+  const practiceBrief = page.locator('.practice-brief-overlay [data-practice-id="m1-codex-safe-setup"]')
   await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
   await practiceBrief.getByRole('heading', { name: 'ĐIỀU KIỆN ĐẠT', exact: true }).waitFor()
@@ -553,8 +554,6 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 
-  await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
-  await page.locator('.practice-brief-overlay').waitFor()
   await page.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).click()
   await waitForSnapshot(
     electronApp,

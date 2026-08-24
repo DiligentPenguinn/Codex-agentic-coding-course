@@ -421,7 +421,8 @@ const staticScenes: Partial<Record<SceneId, SceneContent>> = {
       { label: 'COPYWRITING', value: 'Viết nội dung dựa trên thông tin thật' }
     ],
     dialogue: 'Trong quá trình xây portfolio, bạn sẽ dùng frontend-design cho giao diện và copywriting cho nội dung. Bạn cũng có thể tự khám phá thêm skill tại skills.sh.',
-    choices: [{ label: 'Tiếp theo: thực hành cấu hình', next: 'module-1-setup-checklist', primary: true }]
+    practice: setupPracticeDefinition,
+    choices: [{ label: 'Tiếp theo: thực hành cấu hình', next: 'module-1-setup-checklist', action: 'practice', primary: true }]
   },
   'module-1-setup-checklist': {
     lessonId: 'module-1',
@@ -1271,7 +1272,6 @@ const courseLessonPages = {
     ['module-1-skills-portfolio']
   ],
   'm1-assessment': [
-    ['module-1-setup-checklist'],
     ['module-1-mastery'],
     ['module-1-final-1'],
     ['module-1-final-2'],
@@ -2530,6 +2530,7 @@ export function LearningWindow() {
 
         const loadedProgress = await advanceFromCompletedPractice(loadResult.progress)
         setProgress(loadedProgress)
+        if (loadedProgress.sceneId === 'module-1-setup-checklist') setPracticeBriefOpen(true)
         if (api) {
           setPracticeGuide(await api.loadPracticeGuide({ surface: 'learning' }))
         }
@@ -2850,9 +2851,17 @@ export function LearningWindow() {
       if (practiceScene.practice
         || progress.sceneId === 'module-2-portfolio-practice'
         || progress.sceneId === 'module-3-portfolio-practice') {
+        setBusy(true)
         setReviewHistoryIndex(null)
         setError('')
-        setPracticeBriefOpen(true)
+        try {
+          if (choice.next) await advanceToScene(choice.next, progress.decisions)
+          setPracticeBriefOpen(true)
+        } catch {
+          setError('Không thể lưu checkpoint này. Hãy thử lại trước khi tiếp tục.')
+        } finally {
+          setBusy(false)
+        }
       }
       return
     }
