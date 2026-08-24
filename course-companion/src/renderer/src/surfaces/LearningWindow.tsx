@@ -2952,7 +2952,10 @@ export function LearningWindow() {
     : progress.sceneHistory[reviewHistoryIndex]
   const isReviewing = reviewingSceneId !== undefined
   const currentReviewIndex = reviewHistoryIndex ?? progress.sceneHistory.length
-  const displayedSceneId = reviewingSceneId ?? progress.sceneId
+  const displayedSceneId = reviewingSceneId
+    ?? (progress.sceneId === 'module-1-setup-checklist'
+      ? 'module-1-skills-portfolio'
+      : progress.sceneId)
   const scene = scenes[displayedSceneId]
   const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]

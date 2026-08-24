@@ -360,11 +360,13 @@ there first and remain synchronized with Course Companion.
   `m1-codex-safe-setup` Practice in the same action, so the ten-page assessment
   inventory becomes nine pages without weakening the Practice review or return
   contract. Existing saved progress at the technical setup route reopens the
-  Practice brief. Typecheck, lint, 389 unit tests, nine startup tests, the
-  production build, focused Practice completion/review regressions, and
-  `git diff --check` passed. Full Electron smoke launched successfully but
-  remained blocked before this flow by its stale first-lesson expectation
-  `MODULE 1 · BÀI 1/3 · TRANG 1/4`. This scoped UI approval does not mark
+  Practice brief. A follow-up regression repair now renders the final Skills
+  page behind that technical route instead of reading a removed page position,
+  preventing the blank Course Companion window while keeping the redundant
+  setup page absent. The five-page first lesson and current Practice brief
+  assertions are synchronized. Typecheck, lint, 389 unit tests, nine startup
+  tests, the production build, focused Module 1 regressions, full Electron
+  smoke, and `git diff --check` passed. This scoped UI approval does not mark
   overall Foundation owner approval or pilot acceptance complete.
 - On 18 August 2026, the owner explicitly reopened the Module 1 review to add
   two multiple-choice questions about `AGENTS.md` and Skills while preserving

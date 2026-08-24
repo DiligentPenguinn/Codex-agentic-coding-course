@@ -216,7 +216,7 @@ async function answerAssessmentGroup(page, groupId, { retryFirstChoice = false }
 
 async function completeSetupModule(page, companionPage, electronApp, verifyResponsiveLayout = false) {
   await page.getByRole('button', { name: /MODULE 1.*MỞ BÀI HỌC/ }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 1/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 1/5', { exact: true }).first().waitFor()
   assert.equal(
     await page.locator('.pixel-dialogue > p').textContent(),
     'Codex là coding agent của OpenAI. Ở bài này, mình chỉ cần bạn hiểu coding agent là một trợ lý có thể thực hiện công việc liên quan đến code: tạo ứng dụng, xây trang web, chỉnh sửa dự án và tự động hóa những việc lặp lại.'
@@ -251,7 +251,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   }
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 2/4', { exact: true }).first().waitFor()
+  await page.getByText('MODULE 1 · BÀI 1/3 · TRANG 2/5', { exact: true }).first().waitFor()
   assert.equal(
     await page.getByRole('button', { name: '← Trang trước', exact: true }).isDisabled(),
     false
@@ -516,20 +516,22 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     assert.ok(copywritingSkillBounds.y >= frontendSkillBounds.y + frontendSkillBounds.height)
     await page.setViewportSize({ width: 1180, height: 780 })
   }
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
   await page.locator('.practice-brief-overlay').waitFor()
   assert.equal(await page.getByText('Chứng minh cấu hình thật trong Codex', { exact: true }).count(), 0)
   assert.equal(await page.locator('.pixel-harness-board').count(), 0)
   assert.equal(await page.getByText('Dùng cấu hình đã chọn', { exact: true }).count(), 0)
-  const practiceBrief = page.locator('.practice-brief-overlay [data-practice-id="m1-codex-safe-setup"]')
-  await practiceBrief.getByRole('heading', { name: 'MỤC TIÊU', exact: true }).waitFor()
-  await practiceBrief.getByRole('heading', { name: 'KẾT QUẢ CẦN NỘP', exact: true }).waitFor()
-  await practiceBrief.getByRole('heading', { name: 'ĐIỀU KIỆN ĐẠT', exact: true }).waitFor()
-  assert.match(await practiceBrief.textContent(), /Model5.6 Sol/)
-  assert.match(await practiceBrief.textContent(), /EffortHigh/)
-  assert.match(await practiceBrief.textContent(), /SpeedStandard/)
-  assert.match(await practiceBrief.textContent(), /ApprovalApprove for me/)
-  assert.match(await practiceBrief.textContent(), /Full accessTắt/)
+  const practiceBrief = page.locator('.practice-brief-overlay')
+  await practiceBrief.getByRole('heading', {
+    name: 'Thiết lập task Codex của Practice theo cấu hình khuyến nghị và để Triết duyệt trực tiếp từ metadata hiệu lực của đúng task đó.',
+    exact: true
+  }).waitFor()
+  const practiceBriefText = await practiceBrief.textContent()
+  assert.match(practiceBriefText, /Model 5\.6 Sol/)
+  assert.match(practiceBriefText, /Effort High/)
+  assert.match(practiceBriefText, /Speed Standard/)
+  assert.match(practiceBriefText, /Approval: Approve for me/)
+  assert.match(practiceBriefText, /Full access ở trạng thái tắt/)
   await capture(page, 'module-1-codex-setup-practice.png')
 
   if (verifyResponsiveLayout) {
