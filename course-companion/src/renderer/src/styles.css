@@ -774,8 +774,12 @@ button:focus-visible {
 
 .pixel-guidance-board.is-agents {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
 }
+
+.pixel-guidance-board.is-agents .pixel-guidance-board__copy { grid-row: 2; }
+.pixel-guidance-board.is-agents .pixel-guidance-board__panel { grid-row: 3; }
+.pixel-guidance-board.is-agents .pixel-guidance-board__actions { grid-row: 5; }
 
 .pixel-guidance-board.is-agents .pixel-guidance-board__copy {
   padding-bottom: 16px;
@@ -3068,6 +3072,9 @@ button:focus-visible {
     overflow: visible;
   }
   .pixel-guidance-board.is-agents { grid-template-rows: auto auto auto; }
+  .pixel-guidance-board.is-agents .pixel-guidance-board__copy,
+  .pixel-guidance-board.is-agents .pixel-guidance-board__panel,
+  .pixel-guidance-board.is-agents .pixel-guidance-board__actions { grid-row: auto; }
   .pixel-guidance-board__copy { padding: 18px 16px; overflow: visible; }
   .pixel-guidance-board__copy h1 { font-size: 22px; }
   .pixel-guidance-board__copy header > p,

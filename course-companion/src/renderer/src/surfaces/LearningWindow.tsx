@@ -1628,13 +1628,13 @@ function ModelLessonBoard({
           <div className="pixel-model-board__tradeoffs">
             <section>
               <h2>Effort</h2>
-              <p>Light phù hợp việc nhỏ. Medium là mức cân bằng. High phù hợp việc có nhiều bước. Extra High và Ultra dành cho tác vụ khó hơn.</p>
-              <aside>Trong những lần mình thử, Extra High không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
+              <p><strong>Light</strong> phù hợp việc nhỏ. <strong>Medium</strong> là mức cân bằng. <strong>High</strong> phù hợp việc có nhiều bước. <strong>Extra High</strong> và <strong>Ultra</strong> dành cho tác vụ khó hơn.</p>
+              <aside>Trong những lần mình thử, <strong>Extra High</strong> không tạo khác biệt đủ lớn cho đa số công việc hằng ngày. Tác vụ lại mất nhiều thời gian hơn.</aside>
             </section>
             <section>
               <h2>Speed</h2>
-              <p>OpenAI cho biết Fast có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần Standard.</p>
-              <aside>Trong những lần mình thử, Fast thường chỉ nhanh hơn Standard khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn Fast làm mặc định.</aside>
+              <p>OpenAI cho biết <strong>Fast</strong> có thể tăng tốc 1,5 lần. Với GPT-5.6, chế độ này dùng credit ở mức 2,5 lần <strong>Standard</strong>.</p>
+              <aside>Trong những lần mình thử, <strong>Fast</strong>  thường chỉ nhanh hơn <strong>Standard</strong> khoảng 0,5 giây. Mức chênh này không đủ lớn để mình chọn <strong>Fast</strong> làm mặc định.</aside>
             </section>
           </div>
         ) : null}
