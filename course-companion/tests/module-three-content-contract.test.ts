@@ -135,9 +135,12 @@ describe('Module 3 content and evidence contract', () => {
   })
 
   it('keeps all Module 3 knowledge pages and routes the approved recap into Practice', async () => {
-    const [sceneSource, rendererRegistry] = await Promise.all([
+    const [lesson, sceneSource, rendererRegistry, learningWindow, styles] = await Promise.all([
+      read('lessons/module-3.vi.md'),
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
-      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8')
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
     ])
     const retainedKnowledgeScenes = [
       'module-3-debugging-intro',
@@ -155,7 +158,14 @@ describe('Module 3 content and evidence contract', () => {
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
     expect(sceneSource).toContain("choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]")
     expect(sceneSource).toMatch(/'module-3-pre-practice-summary': \{[\s\S]*?choices: \[\{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true \}\]/)
-    expect(sceneSource).toContain('Tóm lại, một số điều bạn cần phải nhớ là:')
+    expect(lesson).toContain('4 điều cần nhớ trước khi bắt đầu Practice:')
+    expect(sceneSource).toContain("objective: 'Điều cần nhớ', panelLabel: '4'")
+    expect(sceneSource).toContain("panelStatus: 'TÓM LẠI', tone: 'good'")
+    expect(sceneSource).toContain("request: 'trước khi bắt đầu Practice'")
+    expect(learningWindow).toContain("displayedSceneId === 'module-3-pre-practice-summary'")
+    expect(learningWindow).toContain('className="pixel-scene-title is-pre-practice-summary"')
+    expect(styles).toContain('.pixel-scene-title.is-pre-practice-summary')
+    expect(styles).toContain('.pixel-recap-title__count')
     expect(sceneSource).toContain('Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.')
     expect(sceneSource).not.toContain('Thực hiện implementation plan theo từng phần. Sau mỗi phần, hãy xem kết quả thực tế')
     expect(sceneSource).not.toContain("'module-3-practice-intro': {")

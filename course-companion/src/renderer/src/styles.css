@@ -259,6 +259,60 @@ button:focus-visible {
 .pixel-scene-title small { color: var(--pixel-yellow); font-size: 8px; letter-spacing: 0.12em; }
 .pixel-scene-title strong { margin-top: 8px; font-size: clamp(13px, 1.35vw, 18px); line-height: 1.35; }
 
+.pixel-scene-title.is-pre-practice-summary {
+  width: min(540px, 48vw);
+  padding: 20px 22px 22px;
+  border-color: rgba(255, 214, 102, .72);
+}
+
+.pixel-recap-title__kicker {
+  margin-top: 16px;
+  display: block;
+  color: var(--pixel-yellow);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .18em;
+}
+
+.pixel-recap-title {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  gap: 18px;
+}
+
+.pixel-recap-title__count {
+  color: var(--pixel-yellow);
+  font-family: var(--pixel-font);
+  font-size: clamp(68px, 6vw, 86px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  line-height: .78;
+}
+
+.pixel-recap-title__copy {
+  min-width: 0;
+  display: block;
+}
+
+.pixel-scene-title.is-pre-practice-summary .pixel-recap-title__copy strong {
+  margin-top: 0;
+  font-size: clamp(23px, 2.25vw, 32px);
+  letter-spacing: -.035em;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.pixel-recap-title__context {
+  margin-top: 8px;
+  display: block;
+  color: rgba(255, 255, 255, .74);
+  font-size: 14px;
+  line-height: 1.3;
+}
+
 .pixel-scene-summary {
   position: absolute;
   z-index: 5;
@@ -3123,6 +3177,10 @@ button:focus-visible {
   .pixel-copy-prompt__actions button { width: 100%; }
   .pixel-scene-title { position: relative; top: auto; right: auto; width: 100%; padding: 11px; }
   .pixel-scene-title strong { font-size: 12px; }
+  .pixel-scene-title.is-pre-practice-summary { padding: 16px 18px 18px; }
+  .pixel-recap-title { grid-template-columns: 56px minmax(0, 1fr); gap: 14px; }
+  .pixel-recap-title__count { font-size: 58px; }
+  .pixel-scene-title.is-pre-practice-summary .pixel-recap-title__copy strong { font-size: clamp(22px, 5vw, 28px); }
   .pixel-teacher-character { display: none; }
   .pixel-model-board {
     position: relative;

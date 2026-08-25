@@ -86,7 +86,7 @@ Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa t�
 
 ## Tóm lại
 
-Tóm lại, một số điều bạn cần phải nhớ là:
+4 điều cần nhớ trước khi bắt đầu Practice:
 
 - Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được. Nếu vẫn không được thì bảo agent add log vào terminal để xem lỗi là gì, paste cái log đó vào coding agent và bảo nó sửa lại lần nữa
 - Bạn nên bảo agent hãy commit sau mỗi quyết định lớn, để sau này bạn sẽ dễ quay lại phiên bản cũ hơn nếu gặp bug.

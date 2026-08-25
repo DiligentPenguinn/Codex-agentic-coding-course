@@ -1877,6 +1877,32 @@ recap page only; overall Module 3 approval and pilot acceptance remain
 1 review-only mismatch, rerunning the full Electron smoke, then presenting the
 overall Module 3 evidence for owner review.
 
+### Pre-Practice recap visual hierarchy — 25 August 2026
+
+**Implementation:** `implemented`. The owner approved replacing the recap's
+generic sentence-style title with a scene-specific visual hierarchy: a large
+yellow `4`, the heading `ĐIỀU CẦN NHỚ`, and the supporting line
+`trước khi bắt đầu Practice`. The Pilot lesson and content-design draft use the
+synchronized sentence `4 điều cần nhớ trước khi bắt đầu Practice:`. The four
+approved reminders, previous/next navigation, recap route and every adjacent
+Module 3 page remain unchanged. The specialized renderer treatment is gated to
+`module-3-pre-practice-summary`, so shared titles on other scenes retain their
+existing presentation.
+
+**Verification:** `blocked` overall. Focused verification passed: the two
+registry/content-contract files pass 22/22 tests, typecheck and the production
+Electron build pass, and the focused content-review Electron journey passes.
+Its `1440 × 900` bounds checks confirm no horizontal overflow, at least `16px`
+between the recap title and dialogue, at least `10px` between the reminder text
+and actions, and a count size at least twice the heading size; rendered
+inspection confirms the heading dominates the supporting line without clipping
+or overlap. `git diff --check` passes. Lint, the complete unit suite and the full
+Electron smoke were intentionally not run because this is a scene-local copy
+and presentation adjustment with no runtime, persistence, Practice, completion,
+security, dependency, route or cross-module behavior change. Owner approval
+applies to this recap treatment only; overall Module 3 owner approval and pilot
+acceptance remain `pending`, and the next permitted action is unchanged.
+
 ### Summary-panel presentation simplification — 20 August 2026
 
 The owner approved removing the generic right-side lesson summary panels while

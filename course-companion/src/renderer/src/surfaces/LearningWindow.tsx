@@ -3086,8 +3086,23 @@ export function LearningWindow() {
     && Boolean(lessonVisual)
     && !usesLessonBoard
     && (showsSceneTitle || usesModuleTwoVisualGallery)
+  const isPrePracticeSummary = displayedSceneId === 'module-3-pre-practice-summary'
   const sceneTitle = showsSceneTitle
-    ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
+    ? isPrePracticeSummary
+      ? (
+          <section className="pixel-scene-title is-pre-practice-summary">
+            <small>{lessonContextLabel}</small>
+            <span className="pixel-recap-title__kicker">{scene.panelStatus}</span>
+            <span className="pixel-recap-title">
+              <span className="pixel-recap-title__count">{scene.panelLabel}</span>
+              <span className="pixel-recap-title__copy">
+                <strong>{scene.objective}</strong>
+                <span className="pixel-recap-title__context">{scene.request}</span>
+              </span>
+            </span>
+          </section>
+        )
+      : <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
     : null
   const pageBackControl = (
     <button
