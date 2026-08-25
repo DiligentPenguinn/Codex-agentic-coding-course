@@ -25,6 +25,8 @@
 
 ## Verification
 
-- Review every changed file and run the narrowest relevant checks while iterating.
-- Before delivery of a coherent Course Companion change, run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and `npm run test:electron` from this directory unless the task explicitly documents a narrower acceptance gate.
-- Report any skipped or blocked check; do not convert automated verification into owner approval or pilot acceptance.
+- Review every changed file and choose either a focused or full acceptance gate from the risk rules in the repository root.
+- Use a focused gate for a narrow, additive change confined to one module, scene, local route, copy surface, or component presentation when it does not touch runtime integrity, persistence, saved-progress compatibility, Practice lifecycle, evidence, receipts, unlock gates, security, dependencies, build configuration, shared layout, or cross-module behavior.
+- A focused gate normally includes the directly affected contract or unit tests, typecheck when typed code or registries change, `git diff --check`, and one focused Electron desktop journey only when the change affects visible layout or navigation. Run lint or a production build only when the changed code makes that evidence relevant. Do not run the complete unit suite or full Electron smoke merely because a Course Companion file changed.
+- Use the full gate for runtime, persistence, migration, Practice, completion, security, dependency, build, shared-renderer, cross-module, broad-refactor, release, rehearsal, or application-wide acceptance work. The full gate is `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and `npm run test:electron` from this directory.
+- A known unrelated full-suite blocker does not invalidate a passing focused gate. Report the focused evidence and the separate blocker without claiming full-app verification, owner approval, or pilot acceptance.

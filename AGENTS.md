@@ -14,12 +14,14 @@
 - For consequential product, curriculum, architecture, or workflow choices, explain why the decision matters, recommend a direction, describe meaningful alternatives and tradeoffs, and state which downstream choices it settles.
 - Group linked choices into one decision packet and ask only one packet at a time. Escalate scope, learner outcomes, cost, safety, external effects, or difficult reversals separately.
 
-## Verification batching
+## Risk-based verification and batching
 
-- For small, related, user-approved changes, define the batch scope first, implement the changes together, and run narrow focused checks while iterating.
-- Run the required full test suite, build, Electron verification, planning-ledger synchronization, and any eligible checkpoint commit once after the coherent batch is complete.
-- Verify a change separately when it is unrelated, high-risk, must be delivered independently, or focused evidence shows that earlier full verification is necessary.
-- Never use batching to skip required final verification or postpone a failing focused check.
+- Define the smallest meaningful acceptance gate from the actual scope and risk before implementation. Do not treat the full repository suite as the default for every change.
+- A focused gate is sufficient for a narrow, additive, local change such as copy, scene metadata, one new learner page, a local route, or a component-level presentation adjustment when it does not affect security, persisted data, schemas, migrations, dependencies, external systems, Practice lifecycle, completion receipts, unlock gates, or shared cross-module behavior.
+- For a focused gate, inspect the affected source and adjacent route or page inventory, run only the relevant contract or unit tests, run typecheck when typed code or registries change, inspect a supported desktop size only when visible layout or navigation changes, and finish with a scoped diff plus `git diff --check`. Do not add lint, the complete unit suite, a production build, or the full Electron smoke unless the changed surface or focused evidence makes that check relevant.
+- Require the full project gate when a change affects runtime integrity, persistence or saved-progress migration, Practice coordination, evidence or completion gates, security boundaries, dependencies or build configuration, shared renderer or cross-module navigation, broad refactors, release behavior, or application-wide acceptance. Also run it before merge, release, pilot rehearsal, or any claim of full-app verification.
+- For small related changes, define the batch scope first, implement them together, and run focused checks while iterating. Run the full gate once at the end only when the combined batch meets a full-gate trigger.
+- Report whether verification was focused or full, list what ran, and state why intentionally skipped broad checks were unnecessary. Never postpone a failing focused check or present focused evidence as full-app verification.
 
 ## Implementation-plan synchronization
 
