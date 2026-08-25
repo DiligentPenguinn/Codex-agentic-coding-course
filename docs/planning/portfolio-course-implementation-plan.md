@@ -1829,6 +1829,30 @@ horizontal overflow or overlap. The focused content-review smoke then stopped
 at an existing uncommitted repeated-error title expectation before the remaining
 Module 3 screenshots; this does not establish overall Module 3 acceptance.
 
+### Module 3 keyword highlighting — 25 August 2026
+
+**Implementation:** implemented. The owner approved highlighting important
+Module 3 terminology throughout the explanatory Teacher dialogue while leaving
+Practice and assessment pages unchanged. Scene-owned keyword metadata now
+covers the debugging terms `implementation plan`, `bug`, `debugging`, `prompt`,
+`screenshot`, `terminal`, `log` and `nguyên nhân gốc`, followed by the Git terms
+`Git`, `hệ thống quản lý phiên bản`, `phân tán`, `repository`, `GitHub`, `commit`,
+`push`, `branch` and `phiên bản ổn định`. A shared renderer matches longer
+overlapping terms first, preserves the approved source text and wraps matches
+in semantic `mark` elements. After reviewing the initial yellow-background
+treatment, the owner explicitly replaced it with bold yellow text on a
+transparent background.
+
+**Verification:** blocked overall. Focused term-segmentation and content-contract
+tests, typecheck, lint, all 314 unit/startup tests, production build and
+`git diff --check` passed. The focused Electron content-review journey passed
+and desktop inspection at `1440 × 900` confirmed the Debug, repeated-error,
+Git/GitHub and Commit pages remain readable without clipped text, overlap or
+horizontal overflow. The required full Electron smoke still stops at the
+pre-existing Module 1 review-bypass control before reaching Module 3. Owner
+approval applies to this highlight treatment only; overall Module 3 approval
+and pilot acceptance remain `pending`.
+
 ### Summary-panel presentation simplification — 20 August 2026
 
 The owner approved removing the generic right-side lesson summary panels while

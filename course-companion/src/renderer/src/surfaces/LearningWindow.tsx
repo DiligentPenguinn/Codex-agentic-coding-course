@@ -46,6 +46,7 @@ import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
+import { HighlightedDialogue } from '../components/HighlightedDialogue'
 import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
 import {
   registryLessonDefinitions,
@@ -120,6 +121,7 @@ type SceneContent = {
   request: string
   evidence: EvidenceItem[]
   dialogue?: string
+  highlightTerms?: readonly string[]
   choices: Choice[]
   copyPrompt?: string
   copyPromptLabel?: string
@@ -3324,6 +3326,8 @@ export function LearningWindow() {
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : displayedSceneId === 'module-2-prd-agent-workflow'
                 ? <DesignReferenceDialogue dialogue={scene.dialogue ?? ''} />
+              : scene.highlightTerms
+                ? <HighlightedDialogue dialogue={scene.dialogue ?? ''} highlightTerms={scene.highlightTerms} />
               : scene.dialogue}</p>
         )}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}

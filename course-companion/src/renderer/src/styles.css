@@ -1306,6 +1306,13 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+.pixel-keyword-highlight {
+  padding: 0;
+  color: var(--pixel-yellow);
+  background: transparent;
+  font-weight: 800;
+}
+
 .pixel-dialogue.has-practice-brief {
   min-height: 360px;
 }

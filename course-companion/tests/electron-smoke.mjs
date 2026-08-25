@@ -1237,7 +1237,7 @@ async function verifyContentReviewMode(page) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await waitForImageDecode(page.getByAltText('Terminal hiển thị một dòng log được làm nổi bật để coding agent điều tra lỗi'))
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.locator('.pixel-scene-title strong').getByText('Kiểm tra từng nguyên nhân bằng bằng chứng', { exact: true }).waitFor()
+  await page.locator('.pixel-scene-title strong').getByText('Liệt kê các lỗi có thể xảy ra trước khi sửa tiếp', { exact: true }).waitFor()
   await waitForImageDecode(page.getByAltText('Codex nhận yêu cầu dừng sửa, liệt kê các nguyên nhân có thể và kiểm tra từng nguyên nhân bằng bằng chứng'))
   assert.equal(await page.locator('.pixel-consequence').count(), 0)
   assert.equal(await page.locator('.pixel-lesson-visual').count(), 1)

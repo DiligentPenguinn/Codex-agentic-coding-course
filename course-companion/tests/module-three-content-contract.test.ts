@@ -77,6 +77,29 @@ describe('Module 3 content and evidence contract', () => {
     expect(styles).toContain('max-width: 1200px;')
   })
 
+  it('highlights the approved Module 3 terminology with yellow text', async () => {
+    const [sceneSource, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    const declarations = [
+      "highlightTerms: ['implementation plan', 'bug', 'bugs', 'lỗi phần mềm', 'debugging', 'khắc phục lỗi', 'planning']",
+      "highlightTerms: ['prompt', 'screenshot']",
+      "highlightTerms: ['log', 'logs', 'terminal']",
+      "highlightTerms: ['nguyên nhân gốc']",
+      "highlightTerms: ['debugging', 'Git', 'hệ thống quản lý phiên bản', 'phân tán', 'repository', 'kho lưu trữ dự án', 'phiên bản']",
+      "highlightTerms: ['Git', 'GitHub', 'repository']",
+      "highlightTerms: ['Git', 'GitHub', 'repository', 'commit', 'commits', 'lịch sử Git']",
+      "highlightTerms: ['push', 'commit', 'commits', 'repository', 'GitHub']",
+      "highlightTerms: ['branch', 'repository', 'phiên bản ổn định']",
+      "highlightTerms: ['plan', 'log', 'branch']"
+    ]
+    for (const declaration of declarations) expect(sceneSource).toContain(declaration)
+    expect(styles).toContain('.pixel-keyword-highlight')
+    expect(styles).toContain('color: var(--pixel-yellow);')
+    expect(styles).toContain('background: transparent;')
+  })
+
   it('preserves the approved lesson wording and teaching order', async () => {
     const [lesson, script, prompt, sceneSource] = await Promise.all([
       read('lessons/module-3.vi.md'),
