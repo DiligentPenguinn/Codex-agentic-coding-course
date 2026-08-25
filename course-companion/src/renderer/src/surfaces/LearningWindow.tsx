@@ -3099,7 +3099,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">

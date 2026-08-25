@@ -1815,6 +1815,20 @@ Course Companion registry, content contracts and smoke expectations no longer
 expose the deleted page or its copy. Overall owner approval and pilot acceptance
 for Module 3 remain `pending` until the existing acceptance gate is completed.
 
+### Module 3 dialogue-width balancing — 25 August 2026
+
+The owner approved checking the opening-page alignment issue across Module 3.
+All explanatory pages with one primary action now use a Module-3-scoped
+`1200px` maximum dialogue width instead of the shared `1050px` limit. This lets
+longer Vietnamese lines extend beyond the left edge of the yellow action button
+and balances the dialogue panel without changing Module 1, Module 2, Module 4,
+Practice or assessment layouts. Focused content-contract tests, typecheck, lint,
+build and `git diff --check` passed. Electron inspection at `1440 × 900`
+confirmed the wider opening, visible-error and prompt-example pages without
+horizontal overflow or overlap. The focused content-review smoke then stopped
+at an existing uncommitted repeated-error title expectation before the remaining
+Module 3 screenshots; this does not establish overall Module 3 acceptance.
+
 ### Summary-panel presentation simplification — 20 August 2026
 
 The owner approved removing the generic right-side lesson summary panels while

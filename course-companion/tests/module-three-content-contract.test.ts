@@ -67,6 +67,16 @@ describe('Module 3 content and evidence contract', () => {
     expect(templates.join('\n')).toContain('390 × 844')
   })
 
+  it('widens explanatory dialogue without changing Practice or assessment layouts', async () => {
+    const [learningWindow, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    expect(learningWindow).toContain("scene.lessonId === 'module-3' ? ' is-module-three' : ''")
+    expect(styles).toContain('.pixel-learning-shell.is-module-three .pixel-dialogue.has-single-choice > p')
+    expect(styles).toContain('max-width: 1200px;')
+  })
+
   it('preserves the approved lesson wording and teaching order', async () => {
     const [lesson, script, prompt, sceneSource] = await Promise.all([
       read('lessons/module-3.vi.md'),

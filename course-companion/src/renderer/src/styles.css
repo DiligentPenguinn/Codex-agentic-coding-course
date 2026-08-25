@@ -1265,6 +1265,10 @@ button:focus-visible {
   margin-inline: auto;
 }
 
+.pixel-learning-shell.is-module-three .pixel-dialogue.has-single-choice > p {
+  max-width: 1200px;
+}
+
 .pixel-dialogue.is-module-two-review {
   transform: translateY(16px);
 }
