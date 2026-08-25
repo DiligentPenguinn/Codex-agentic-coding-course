@@ -436,7 +436,7 @@ describe('ProgressRepository', () => {
     expect(migrated).not.toContain('m2-implementation-contract')
   })
 
-  it('redirects saved progress from the retired Module 3 implementation-cycle page to the merged opening', async () => {
+  it('redirects saved progress from retired Module 3 opening pages to debugging', async () => {
     const directory = await temporaryDirectory()
     const repository = new ProgressRepository(directory)
     const started = await repository.save(introStart)
@@ -459,14 +459,15 @@ describe('ProgressRepository', () => {
     await expect(repository.load()).resolves.toMatchObject({
       status: 'returning',
       progress: {
-        currentCourseLessonId: 'm3-scaffold-baseline',
-        checkpointId: 'm3-scaffold-baseline',
-        sceneId: 'module-3-readiness',
-        sceneHistory: ['module-3-readiness']
+        currentCourseLessonId: 'm3-complete-first-version',
+        checkpointId: 'm3-complete-first-version',
+        sceneId: 'module-3-debugging-intro',
+        sceneHistory: []
       }
     })
     const migrated = JSON.parse(await readFile(join(directory, 'learner-state.json'), 'utf8'))
     expect(JSON.stringify(migrated)).not.toContain('module-3-implementation-cycle')
+    expect(JSON.stringify(migrated)).not.toContain('module-3-readiness')
   })
 
   it('redirects retired Module 3 Practice-setup scenes directly to Practice', async () => {

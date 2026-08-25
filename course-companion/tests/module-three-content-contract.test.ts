@@ -32,12 +32,11 @@ async function moduleThree() {
 }
 
 describe('Module 3 content and evidence contract', () => {
-  it('registers the five approved learner-facing sections and viewport pair', async () => {
+  it('registers the four remaining learner-facing sections and viewport pair', async () => {
     const module = await moduleThree()
     expect(module.titleVi).toBe('Hiện thực hoá sản phẩm cùng coding agent')
     expect(module.estimatedMinutes).toBeUndefined()
     expect(module.lessons.map((lesson) => lesson.titleVi)).toEqual([
-      'Thực hiện Implementation Plan, từng bước một',
       'Debug cùng coding agent',
       'Git và GitHub',
       'Practice: Xây portfolio',
@@ -75,7 +74,7 @@ describe('Module 3 content and evidence contract', () => {
       read('prompts/start-module-3.vi.md'),
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8')
     ])
-    expect(lesson).toContain('Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.')
+    expect(lesson).not.toContain('Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.')
     expect(lesson).toContain('Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.')
     expect(lesson).not.toContain('Ví dụ prompt gửi cùng ảnh lỗi:')
     expect(lesson).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
@@ -84,7 +83,6 @@ describe('Module 3 content and evidence contract', () => {
     expect(lesson).toContain('Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra.')
     expect(lesson).toContain('Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra.')
     const headings = [
-      '## Thực hiện Implementation Plan, từng bước một',
       '## Debug cùng coding agent',
       '## Git và GitHub',
       '### Commit: lưu một phiên bản của dự án',
@@ -108,7 +106,6 @@ describe('Module 3 content and evidence contract', () => {
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8')
     ])
     const retainedKnowledgeScenes = [
-      'module-3-readiness',
       'module-3-debugging-intro',
       'module-3-visible-error',
       'module-3-visible-error-prompt',

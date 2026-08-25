@@ -1,19 +1,6 @@
 import type { RegistrySceneContent } from '../../module-contracts'
 
 export const moduleThreeScenes = {
-  'module-3-readiness': {
-    lessonId: 'module-3', checkpointId: 'm3-scaffold-baseline', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HIỆN PLAN', mission: 'Bắt đầu từ plan đã duyệt',
-    objective: 'Thực hiện Implementation Plan, từng bước một', panelLabel: 'ĐẦU VÀO',
-    panelStatus: 'PRD · IMPLEMENTATION PLAN', tone: 'good',
-    request: 'Module 2 đã chuẩn bị hai tài liệu để Codex bắt đầu xây website.',
-    evidence: [
-      { label: 'PRD', value: 'Đã duyệt', ready: true },
-      { label: 'PLAN', value: 'Đã duyệt', ready: true }
-    ],
-    dialogue: 'Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.\n\nChúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn\n\nCodex sẽ thực hiện từng phần của implementation plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và chạy các kiểm tra phù hợp. Bạn xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi quyết định chấp nhận hoặc yêu cầu chỉnh sửa.',
-    choices: [{ label: 'Tìm hiểu cách xử lý lỗi', next: 'module-3-debugging-intro', primary: true }]
-  },
   'module-3-debugging-intro': {
     lessonId: 'module-3', checkpointId: 'm3-complete-first-version', step: 2, totalSteps: 5,
     lessonLabel: 'MODULE 3 · DEBUG', mission: 'Chuẩn bị khi gặp bug',

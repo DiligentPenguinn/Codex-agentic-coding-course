@@ -42,12 +42,6 @@ const designReferenceLinks = [
   ['Mobbin', 'https://mobbin.com/'],
   ['Pinterest', 'https://www.pinterest.com/']
 ]
-const approvedMergedModuleThreeOpening = [
-  'Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.',
-  'Chúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn',
-  'Codex sẽ thực hiện từng phần của implementation plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và chạy các kiểm tra phù hợp. Bạn xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi quyết định chấp nhận hoặc yêu cầu chỉnh sửa.'
-]
-
 async function openModuleTwoPractice(page, stepsRemaining = 5) {
   for (let index = 0; index < stepsRemaining; index += 1) {
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
@@ -1196,31 +1190,18 @@ async function verifyContentReviewMode(page) {
   await page.getByText('Bạn đã trả lời 5/5 câu', { exact: false }).waitFor()
   await capture(page, 'module-2-direct-summary-content-review-1180x780.png')
   await page.getByRole('button', { name: 'Duyệt nội dung Module 3', exact: true }).click()
-  await page.locator('.pixel-scene-title strong').getByText('Thực hiện Implementation Plan, từng bước một', { exact: true }).waitFor()
+  await page.locator('.pixel-scene-title strong').getByText('Biết cách phối hợp với coding agent khi sản phẩm gặp lỗi', { exact: true }).waitFor()
   const moduleThreeOutline = page.locator('.pixel-outline')
   await moduleThreeOutline.locator('summary').click()
-  await moduleThreeOutline.getByText('Thực hiện Implementation Plan, từng bước một', { exact: true }).waitFor()
+  await moduleThreeOutline.getByText('Debug cùng coding agent', { exact: true }).waitFor()
   await moduleThreeOutline.locator('summary').click()
   assert.equal(
     await page.locator('.pixel-scene-title strong').textContent(),
-    'Thực hiện Implementation Plan, từng bước một'
+    'Biết cách phối hợp với coding agent khi sản phẩm gặp lỗi'
   )
   assert.equal(await page.locator('.pixel-consequence').count(), 0)
-  assert.equal(await page.locator('.pixel-dialogue > p').textContent(), approvedMergedModuleThreeOpening.join('\n\n'))
   await page.setViewportSize({ width: 1440, height: 900 })
-  await capture(page, 'module-3-opening-1440x900.png')
-  await page.setViewportSize({ width: 390, height: 844 })
-  const moduleThreeOpeningNarrowWidths = await page.evaluate(() => ({
-    body: globalThis.document.body.scrollWidth,
-    document: globalThis.document.documentElement.scrollWidth,
-    viewport: globalThis.innerWidth
-  }))
-  assert.equal(moduleThreeOpeningNarrowWidths.body, moduleThreeOpeningNarrowWidths.viewport)
-  assert.equal(moduleThreeOpeningNarrowWidths.document, moduleThreeOpeningNarrowWidths.viewport)
-  await capture(page, 'module-3-opening-390x844.png')
-  await page.setViewportSize({ width: 1440, height: 900 })
-
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await capture(page, 'module-3-debugging-intro-1440x900.png')
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await waitForImageDecode(page.getByAltText('Nút Xem dự án che lên phần giới thiệu của một website portfolio'))
   assert.equal(await page.locator('.pixel-consequence').count(), 0)

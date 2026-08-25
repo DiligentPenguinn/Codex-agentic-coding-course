@@ -135,9 +135,10 @@ const RETIRED_MODULE_TWO_MASTERY_QUESTION_IDS = new Set([
   'mastery-requirement-validation'
 ])
 const RETIRED_MODULE_THREE_SCENE_DESTINATIONS = new Map<string, SceneId>([
-  ['module-3-scaffold-intro', 'module-3-readiness'],
-  ['module-3-check-scaffold-boundary', 'module-3-readiness'],
-  ['module-3-implementation-cycle', 'module-3-readiness'],
+  ['module-3-scaffold-intro', 'module-3-debugging-intro'],
+  ['module-3-check-scaffold-boundary', 'module-3-debugging-intro'],
+  ['module-3-implementation-cycle', 'module-3-debugging-intro'],
+  ['module-3-readiness', 'module-3-debugging-intro'],
   ['module-3-first-version-intro', 'module-3-debugging-intro'],
   ['module-3-check-slice-gate', 'module-3-debugging-intro'],
   ['module-3-revision-intro', 'module-3-git-intro'],
@@ -481,7 +482,7 @@ function hasPortfolioModuleCompletion(progress: LearnerProgress): boolean {
     && receipt.practiceId === 'm2-portfolio-planning'
     && receipt.checkpointId === 'm2-portfolio-complete'
     && receipt.destination.lessonId === 'module-3'
-    && receipt.destination.sceneId === 'module-3-readiness'
+    && receipt.destination.sceneId === 'module-3-debugging-intro'
     && receipt.portfolioPlanningHandoff !== undefined)
 }
 
@@ -768,8 +769,8 @@ export class ProgressRepository {
       || receipt.practiceId !== 'm2-portfolio-planning'
       || receipt.checkpointId !== 'm2-portfolio-complete'
       || receipt.destination.lessonId !== 'module-3'
-      || receipt.destination.checkpointId !== 'm3-scaffold-baseline'
-      || receipt.destination.sceneId !== 'module-3-readiness'
+      || receipt.destination.checkpointId !== 'm3-complete-first-version'
+      || receipt.destination.sceneId !== 'module-3-debugging-intro'
       || !receipt.portfolioPlanningHandoff) {
       return Promise.reject(new Error('Invalid Module 2 completion receipt'))
     }
@@ -798,9 +799,9 @@ export class ProgressRepository {
       const updated: LearnerProgress = {
         ...progress,
         currentLessonId: 'module-3',
-        currentCourseLessonId: 'm3-scaffold-baseline',
-        checkpointId: 'm3-scaffold-baseline',
-        sceneId: 'module-3-readiness',
+        currentCourseLessonId: 'm3-complete-first-version',
+        checkpointId: 'm3-complete-first-version',
+        sceneId: 'module-3-debugging-intro',
         sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
         completedCheckpointIds,
         practiceCompletions: [...completions, structuredClone(receipt)],

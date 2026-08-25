@@ -1088,7 +1088,7 @@ type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
 
 const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
   'module-2': 'module-2-portfolio-workspace',
-  'module-3': 'module-3-readiness',
+  'module-3': 'module-3-debugging-intro',
   'module-4': 'module-4-release-intro'
 }
 
@@ -3318,7 +3318,7 @@ export function LearningWindow() {
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
             : assessmentGroup
               ? 'Bạn có thể xem toàn bộ câu hỏi trước khi nộp.'
-            : displayedSceneId === 'module-3-readiness' && portfolioPlanningHandoff
+            : displayedSceneId === 'module-3-debugging-intro' && portfolioPlanningHandoff
               ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />

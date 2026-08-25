@@ -1,17 +1,5 @@
 # Module 3 — Hiện thực hoá sản phẩm cùng coding agent
 
-## Kết quả của module
-
-Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.
-
-Chúng ta sẽ thực hiện từng đoạn một của implementation plan, và kiểm tra lại sau mỗi giai đoạn để chắc chắn rằng chúng ta đang đi đúng hướng. Cách này dù lâu nhưng sẽ đảm bảo về sau ta ít bị mắc lỗi hơn
-
-## Thực hiện Implementation Plan, từng bước một
-
-Codex sẽ thực hiện từng phần của implementation plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và chạy các kiểm tra phù hợp.
-
-Bạn xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi quyết định chấp nhận hoặc yêu cầu chỉnh sửa. Chỉ khi phần hiện tại đi đúng hướng, Codex mới chuyển sang phần tiếp theo.
-
 ## Debug cùng coding agent
 
 Okay, bây giờ bạn đã có một implementation plan và bắt đầu thực hiện nó. Đến giai đoạn này, có một điều mình chắc chắn bạn sẽ không thể tránh khỏi. Đó chính là gặp bug (lỗi phần mềm). Hiện tại coding agent chưa phát triển đến mức làm hoàn hảo mọi yêu cầu của bạn mà không có tí lỗi nào.

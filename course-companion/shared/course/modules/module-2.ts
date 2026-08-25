@@ -56,5 +56,5 @@ export const moduleTwoDefinition = {
     'planning/implementation-plan.md',
     'planning/first-bounded-task.md'
   ],
-  completionDestination: { moduleId: 'module-3', sceneId: 'module-3-readiness' }
+  completionDestination: { moduleId: 'module-3', sceneId: 'module-3-debugging-intro' }
 } as const

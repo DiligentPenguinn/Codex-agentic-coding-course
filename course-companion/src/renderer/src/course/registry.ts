@@ -41,9 +41,6 @@ const rendererModules = [
     titleVi: moduleThreeDefinition.titleVi,
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
-      'm3-scaffold-baseline': [
-        ['module-3-readiness']
-      ],
       'm3-complete-first-version': [
         ['module-3-debugging-intro'],
         ['module-3-visible-error'],

@@ -1713,9 +1713,10 @@ values.
 
 **Change**
 
-1. Add Module 3 and its five learner-facing sections to
-   `course-structure.json`: implementation loop, debugging, Git and GitHub,
-   Practice, and final mastery.
+1. Add Module 3 and its four learner-facing sections to
+   `course-structure.json`: debugging, Git and GitHub, Practice, and final
+   mastery. Keep the implementation-loop checkpoint as an internal technical
+   boundary rather than a learner-facing section.
 2. Add the lesson, Teacher script, start prompt, quiz, and solution-free
    templates for the eight Module 3 evidence artifacts.
 3. Teach the standard implementation loop and debugging loop in plain language.
@@ -1800,6 +1801,19 @@ invalid scene. Focused registry, progress-migration, content-contract, desktop,
 and `390 × 844` Electron checks passed. The full Electron smoke remains failed
 at the unrelated pre-Module-3 review-only mismatch recorded in the progress
 ledger; this consolidation does not claim the overall Module 3 gate has passed.
+
+### Opening-page retirement — 25 August 2026
+
+The owner explicitly approved deleting the remaining Module 3 implementation-
+loop opening page, `module-3-readiness`. Module 3 now opens directly on
+`module-3-debugging-intro`; Module 2 completion receipts and content-review
+routing use that destination. The implementation-loop checkpoint remains an
+internal technical boundary under the debugging lesson. Saved progress on the
+deleted page and older opening-page IDs is redirected to the debugging page so
+returning learners do not reach an invalid scene. The Pilot lesson source,
+Course Companion registry, content contracts and smoke expectations no longer
+expose the deleted page or its copy. Overall owner approval and pilot acceptance
+for Module 3 remain `pending` until the existing acceptance gate is completed.
 
 ### Summary-panel presentation simplification — 20 August 2026
 

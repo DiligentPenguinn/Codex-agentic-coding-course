@@ -178,8 +178,8 @@ export class PortfolioModuleCompletionService {
       masterySummary: 'Đã đối chiếu 4 tình huống và lưu 1 câu trả lời do người học tự viết trên planning package hiện tại.',
       destination: {
         lessonId: 'module-3',
-        checkpointId: 'm3-scaffold-baseline',
-        sceneId: 'module-3-readiness'
+        checkpointId: 'm3-complete-first-version',
+        sceneId: 'module-3-debugging-intro'
       },
       portfolioPlanningHandoff: {
         schemaVersion: 1,
