@@ -41,9 +41,11 @@ describe('portfolio course registry', () => {
       .not.toContain('module-3-implementation-cycle')
   })
 
-  it('routes Module 3 knowledge directly into Practice without a setup scene', () => {
+  it('routes Module 3 knowledge through the approved recap and into Practice', () => {
     const moduleThree = portfolioModuleDefinitions[1]
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
+      .toBe('module-3-pre-practice-summary')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-pre-practice-summary')?.nextSceneId)
       .toBe('module-3-portfolio-practice')
     expect(moduleThree.scenes.map((scene) => String(scene.id)))
       .not.toContain('module-3-practice-intro')

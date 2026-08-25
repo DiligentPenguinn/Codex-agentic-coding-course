@@ -1383,6 +1383,29 @@ async function verifyContentReviewMode(page) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.locator('.pixel-scene-title strong').getByText('Tóm lại, một số điều bạn cần phải nhớ là:', { exact: true }).waitFor()
+  await page.getByText('- Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.', { exact: false }).waitFor()
+  const moduleThreeRecapLayout = await page.evaluate(() => {
+    const title = globalThis.document.querySelector('.pixel-scene-title')?.getBoundingClientRect()
+    const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
+    const dialogueText = globalThis.document.querySelector('.pixel-dialogue > p')?.getBoundingClientRect()
+    const actions = globalThis.document.querySelector('.pixel-lesson-actions.is-paired')?.getBoundingClientRect()
+    return {
+      body: globalThis.document.body.scrollWidth,
+      document: globalThis.document.documentElement.scrollWidth,
+      viewport: globalThis.innerWidth,
+      titleToDialogueGap: title && dialogue ? dialogue.top - title.bottom : -1,
+      dialogueToViewportGap: dialogue ? globalThis.innerHeight - dialogue.bottom : -1,
+      textToActionsGap: dialogueText && actions ? actions.top - dialogueText.bottom : -1
+    }
+  })
+  assert.equal(moduleThreeRecapLayout.body, moduleThreeRecapLayout.viewport)
+  assert.equal(moduleThreeRecapLayout.document, moduleThreeRecapLayout.viewport)
+  assert.ok(moduleThreeRecapLayout.titleToDialogueGap >= 16, `Expected recap title/dialogue gap >= 16px, got ${JSON.stringify(moduleThreeRecapLayout)}`)
+  assert.ok(moduleThreeRecapLayout.dialogueToViewportGap >= 16, `Expected recap dialogue inside the viewport, got ${JSON.stringify(moduleThreeRecapLayout)}`)
+  assert.ok(moduleThreeRecapLayout.textToActionsGap >= 10, `Expected recap text/action gap >= 10px, got ${JSON.stringify(moduleThreeRecapLayout)}`)
+  await capture(page, 'module-3-pre-practice-summary-1440x900.png')
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài', exact: true }).waitFor()
   const moduleThreePracticeWidths = await page.evaluate(() => ({
     body: globalThis.document.body.scrollWidth,

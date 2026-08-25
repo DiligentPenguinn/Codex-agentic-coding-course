@@ -121,6 +121,7 @@ describe('Module 3 content and evidence contract', () => {
       '### Commit: lưu một phiên bản của dự án',
       '### Push: đưa commit lên GitHub',
       '### Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định',
+      '## Tóm lại',
       '## Practice: Xây portfolio'
     ]
     let prior = -1
@@ -133,7 +134,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(`${script}\n${prompt}`).toContain('Teacher Triết không mở chat')
   })
 
-  it('keeps all Module 3 knowledge pages and routes branch directly to Practice', async () => {
+  it('keeps all Module 3 knowledge pages and routes the approved recap into Practice', async () => {
     const [sceneSource, rendererRegistry] = await Promise.all([
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8')
@@ -148,12 +149,18 @@ describe('Module 3 content and evidence contract', () => {
       'module-3-git-github',
       'module-3-git-commit',
       'module-3-git-push',
-      'module-3-git-branch'
+      'module-3-git-branch',
+      'module-3-pre-practice-summary'
     ]
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
-    expect(sceneSource).toContain("choices: [{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true }]")
+    expect(sceneSource).toContain("choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]")
+    expect(sceneSource).toMatch(/'module-3-pre-practice-summary': \{[\s\S]*?choices: \[\{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true \}\]/)
+    expect(sceneSource).toContain('Tóm lại, một số điều bạn cần phải nhớ là:')
+    expect(sceneSource).toContain('Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.')
+    expect(sceneSource).not.toContain('Thực hiện implementation plan theo từng phần. Sau mỗi phần, hãy xem kết quả thực tế')
     expect(sceneSource).not.toContain("'module-3-practice-intro': {")
     expect(rendererRegistry).not.toContain("['module-3-practice-intro']")
+    expect(rendererRegistry).toContain("['module-3-pre-practice-summary']")
     expect(rendererRegistry).toContain("'m3-evidence-debugging': [\n        ['module-3-portfolio-practice']\n      ]")
   })
 

@@ -2,7 +2,7 @@
 
 ## Hợp đồng điều phối
 
-Teacher mở bài bằng đúng hai đoạn đã duyệt trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: thực hiện plan theo từng phần, debug, Git và GitHub, Practice, rồi năm câu hỏi tổng kết.
+Teacher mở bài bằng đúng hai đoạn đã duyệt trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: thực hiện plan theo từng phần, debug, Git và GitHub, trang chốt trước Practice, Practice, rồi năm câu hỏi tổng kết.
 
 Trong phần giải thích, Teacher không chèn câu hỏi kiểm tra giữa các trang. Người học chỉ trả lời câu hỏi ở cuối bài.
 
@@ -34,6 +34,10 @@ Teacher không biến phần này thành bài đọc log hoặc bài học lập
 Teacher dạy từng khái niệm theo đúng thứ tự: Git, GitHub, commit, push, branch.
 
 Teacher giải thích mục đích và hệ quả, không yêu cầu người học ghi nhớ câu lệnh. Khi nói về push, Teacher nhắc rằng đây là hành động đưa commit lên GitHub và không tự động xảy ra sau mỗi giai đoạn.
+
+## Trang chốt trước Practice
+
+Teacher dùng nguyên văn phần **Tóm lại** trong lesson. Không thêm nội dung về implementation plan vào trang này.
 
 ## Practice
 

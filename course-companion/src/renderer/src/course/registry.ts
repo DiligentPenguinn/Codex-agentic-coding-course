@@ -53,7 +53,8 @@ const rendererModules = [
         ['module-3-git-github'],
         ['module-3-git-commit'],
         ['module-3-git-push'],
-        ['module-3-git-branch']
+        ['module-3-git-branch'],
+        ['module-3-pre-practice-summary']
       ],
       'm3-evidence-debugging': [
         ['module-3-portfolio-practice']

@@ -125,6 +125,16 @@ export const moduleThreeScenes = {
     evidence: [],
     dialogue: 'Bây giờ, giả sử bạn đang phát triển một tính năng mới. Bạn chưa chắc mình có muốn đưa tính năng đó vào sản phẩm hay không, nhưng vẫn muốn thử nghiệm thêm.\n\nBạn không nên thử trực tiếp trên phiên bản đang hoạt động ổn định. Những thay đổi chưa hoàn thiện có thể làm hỏng phần đang hoạt động tốt.\n\nĐây là lúc bạn có thể dùng branch. Branch là một hướng phát triển riêng trong cùng repository. Nó cho phép bạn thử nghiệm tính năng mới mà chưa làm thay đổi phiên bản ổn định.\n\nSau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.',
     highlightTerms: ['branch', 'repository', 'phiên bản ổn định'],
+    choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]
+  },
+  'module-3-pre-practice-summary': {
+    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
+    lessonLabel: 'MODULE 3 · TÓM LẠI', mission: 'Chuẩn bị trước khi Practice',
+    objective: 'Tóm lại, một số điều bạn cần phải nhớ là:', panelLabel: 'TÓM LẠI',
+    panelStatus: 'TRƯỚC KHI PRACTICE', tone: 'good',
+    request: 'Tóm lại, một số điều bạn cần phải nhớ là:',
+    evidence: [],
+    dialogue: '- Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được. Nếu vẫn không được thì bảo agent add log vào terminal để xem lỗi là gì, paste cái log đó vào coding agent và bảo nó sửa lại lần nữa\n\n- Bạn nên bảo agent hãy commit sau mỗi quyết định lớn, để sau này bạn sẽ dễ quay lại phiên bản cũ hơn nếu gặp bug.\n\n- Mỗi khi muốn phát triển một tính năng mới, hãy tạo một branch mới để lỡ agent có quậy thì cũng không ảnh hưởng đến tính năng hiện tại. Bạn chỉ cần bảo agent tạo branch là nó sẽ tự động hướng dẫn cho bạn\n\n- Bạn có thể tạo một tài khoản github rồi bảo agent push code hiện tại của bạn lên đó nếu bạn muốn hợp tác với một người khác',
     choices: [{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true }]
   },
   'module-3-portfolio-practice': {
