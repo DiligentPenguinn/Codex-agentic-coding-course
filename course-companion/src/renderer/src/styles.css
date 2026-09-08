@@ -1332,14 +1332,6 @@ button:focus-visible {
   margin-inline: auto;
 }
 
-.pixel-dialogue.is-module-two-review .pixel-review-return {
-  position: absolute;
-  right: 20px;
-  bottom: 15px;
-  left: 20px;
-  margin-top: 0;
-}
-
 .pixel-dialogue-link {
   border-radius: 3px;
   color: var(--pixel-accent);
@@ -1554,19 +1546,6 @@ button:focus-visible {
   .pixel-visual-lightbox { animation: none; }
 }
 
-.pixel-review-return {
-  position: relative;
-  z-index: 1;
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.pixel-review-return .pixel-choice {
-  width: min(260px, 100%);
-  text-align: center;
-}
-
 .pixel-page-back {
   position: absolute;
   z-index: 2;
@@ -1642,7 +1621,7 @@ button:focus-visible {
   position: absolute;
   z-index: 2;
   right: 20px;
-  bottom: 15px;
+  bottom: 12px;
   left: 20px;
   display: flex;
   align-items: flex-end;
@@ -1681,10 +1660,53 @@ button:focus-visible {
   min-height: 0;
 }
 
-.pixel-dialogue.has-assessment > .pixel-page-back {
-  position: static;
-  width: fit-content;
+/* Keep previous/next controls together, including scrollable review pages. */
+.pixel-dialogue.has-assessment .pixel-lesson-actions.is-paired {
+  position: relative;
+  inset: auto;
   margin-top: 18px;
+}
+
+.pixel-lesson-actions.is-paired .pixel-page-back,
+.pixel-lesson-actions.is-paired .pixel-choice,
+.pixel-model-board__actions > button,
+.pixel-guidance-board__actions > button,
+.pixel-plan-board__actions > button {
+  min-height: 42px;
+}
+
+.pixel-assessment-actions > .pixel-page-back,
+.pixel-summary-navigation > .pixel-page-back {
+  position: static;
+  flex: 0 0 auto;
+  margin: 0 auto 0 0;
+}
+
+.pixel-summary-navigation {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+.pixel-summary-navigation > .pixel-page-back,
+.pixel-summary-navigation .pixel-choice,
+.pixel-summary-navigation .pixel-assessment-review-actions button {
+  min-height: 46px;
+  margin-top: 0;
+}
+
+.pixel-summary-navigation > .pixel-choice {
+  width: min(310px, 100%);
+}
+
+.pixel-summary-navigation > .pixel-assessment-review-actions {
+  flex-wrap: nowrap;
+}
+
+.pixel-summary-navigation .pixel-assessment-review-actions .pixel-choice {
+  width: auto;
 }
 
 @media (min-width: 821px) {
@@ -1994,6 +2016,7 @@ button:focus-visible {
 .pixel-assessment-actions button.is-primary { color: #000; background: var(--pixel-yellow); }
 .pixel-assessment-actions button:disabled { cursor: not-allowed; opacity: 0.55; }
 .pixel-assessment-summary {
+  flex-wrap: wrap;
   position: relative;
   z-index: 1;
   margin-top: 18px;
@@ -3301,8 +3324,6 @@ button:focus-visible {
   .pixel-dialogue.has-single-choice .pixel-choice { width: 100%; }
   .pixel-lesson-actions.is-paired { position: relative; right: auto; bottom: auto; left: auto; margin-top: 12px; flex-direction: column-reverse; align-items: stretch; gap: 12px; }
   .pixel-lesson-actions.is-paired .pixel-page-back { width: 100%; margin-top: 0; }
-  .pixel-review-return { display: block; }
-  .pixel-review-return .pixel-choice { width: 100%; }
   .pixel-page-back { position: relative; bottom: auto; left: auto; width: 100%; margin-top: 12px; }
   .pixel-dialogue.has-many-choices { min-height: 0; }
   .pixel-dialogue.has-assessment { top: auto; max-height: none; overflow: visible; }
@@ -4174,6 +4195,8 @@ button:focus-visible {
   border-color: var(--pixel-yellow);
   color: var(--pixel-white);
 }
+
+.pixel-choice.is-primary:hover { color: var(--obsidian-canvas); }
 
 .pixel-app-actions button.is-active,
 .pixel-companion-tabs button.is-active {

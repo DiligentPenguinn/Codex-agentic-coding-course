@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
@@ -1940,6 +1940,7 @@ function AssessmentControls({
   busy,
   questionOnly,
   continueLabel,
+  backControl,
   onConfirmWritten,
   onSubmit,
   onContinue
@@ -1949,6 +1950,7 @@ function AssessmentControls({
   busy: boolean
   questionOnly?: boolean
   continueLabel: string
+  backControl: ReactNode
   onConfirmWritten: (question: AssessmentQuestion, answer: string) => Promise<boolean>
   onSubmit: (answers: Record<string, string>) => Promise<boolean>
   onContinue: () => void
@@ -2086,6 +2088,7 @@ function AssessmentControls({
       </div>
 
       <footer className="pixel-assessment-actions">
+        {backControl}
         {showFeedback ? (
           <>
             {incorrectChoiceCount > 0 ? (
@@ -3010,6 +3013,14 @@ export function LearningWindow() {
     setSecondaryVisualExpanded(false)
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
+  const openNextReviewPage = () => {
+    if (!isReviewing) return
+    setApprovalFocus(null)
+    setVisualExpanded(false)
+    setSecondaryVisualExpanded(false)
+    const nextIndex = currentReviewIndex + 1
+    setReviewHistoryIndex(nextIndex < progress.sceneHistory.length ? nextIndex : null)
+  }
   const lessonContextLabel = scene.lessonId === 'module-2'
     ? moduleTwoOutlineSections[outlineCurrentIndex]!
     : scene.lessonId === 'intro'
@@ -3069,10 +3080,7 @@ export function LearningWindow() {
     : undefined
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
-  const usesPairedLessonNavigation = !isReviewing
-    && !assessmentQuestion
-    && !scene.assessmentSummary
-    && scene.choices.length === 1
+  const usesPairedLessonNavigation = isReviewing || (!assessmentQuestion && !scene.assessmentSummary)
   const showsSceneTitle = scene.showTitle !== false
     && !usesLessonBoard
     && !isAssessmentQuestionPage
@@ -3243,13 +3251,13 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={modelLessonBoardKind}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           visual={lessonVisual}
           onBack={openPreviousPage}
           onExpand={() => setVisualExpanded(true)}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3263,11 +3271,11 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={guidanceLessonBoardKind}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3282,12 +3290,12 @@ export function LearningWindow() {
           canOpenPreviousPage={canOpenPreviousPage}
           dialogue={scene.dialogue ?? ''}
           eyebrow={scene.lessonLabel}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           title={scene.objective}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3347,18 +3355,17 @@ export function LearningWindow() {
         )}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
-          <div className="pixel-review-return">
-            <button className="pixel-choice is-primary" type="button" onClick={() => {
-              setApprovalFocus(null)
-              setVisualExpanded(false)
-              setSecondaryVisualExpanded(false)
-              setReviewHistoryIndex(null)
-            }}>
-              Quay lại trang đang học
-            </button>
+          <div className="pixel-lesson-actions is-paired">
+            {pageBackControl}
+            <div className="pixel-choices">
+              <button className="pixel-choice is-primary" type="button" onClick={openNextReviewPage}>
+                Tiếp tục
+              </button>
+            </div>
           </div>
         ) : assessmentQuestion && assessmentGroup ? (
           <AssessmentControls
+            backControl={pageBackControl}
             busy={busy}
             continueLabel={assessmentContinueLabel}
             group={assessmentGroup}
@@ -3373,7 +3380,9 @@ export function LearningWindow() {
           <div className="pixel-assessment-summary" data-result={isPortfolioMasterySummary ? 'review' : finalPassed ? 'pass' : 'retry'}>
             <strong>{isPortfolioMasterySummary ? 'ĐÃ TRẢ LỜI' : finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
             <span>{isPortfolioMasterySummary ? finalAnsweredCount : finalCorrectCount}/{finalQuestionCount} câu</span>
-            {contentReviewMode ? (
+            <div className="pixel-summary-navigation">
+              {pageBackControl}
+              {contentReviewMode ? (
               <div className="pixel-assessment-review-actions">
                 <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
                   Làm lại {finalQuestionCount} câu
@@ -3431,6 +3440,7 @@ export function LearningWindow() {
                     : `Làm lại ${finalQuestionCount} câu`}
               </button>
             )}
+            </div>
           </div>
         ) : (
           <div className={`pixel-lesson-actions${usesPairedLessonNavigation ? ' is-paired' : ''}`}>
@@ -3460,7 +3470,6 @@ export function LearningWindow() {
             </div>
           </div>
         )}
-        {usesPairedLessonNavigation ? null : pageBackControl}
       </section>
 
       {practiceBriefOpen ? (
