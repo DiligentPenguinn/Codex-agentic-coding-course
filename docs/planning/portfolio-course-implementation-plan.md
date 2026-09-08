@@ -67,6 +67,30 @@ and must never be inferred from a passing automated check.
   the verified navigation for owner review. This change does not authorize a
   new module or alter Practice completion gates.
 
+### Desktop lesson-panel alignment — 8 September 2026
+
+- Implementation: `implemented`. The layout fix from `codex/full-window-alignment`
+  was integrated into `practice-disabled-content-development` at the owner's
+  request. The model, AGENTS.md, both Skill, and implementation-plan panels now
+  fit their content within a 1320 px width limit and center in the desktop area.
+  Skill columns share a top edge. The setup Practice illustration and instructions
+  use the existing stacked flow to prevent overlap in short windows.
+- Verification: `passed`. The isolated renderer audit covered 56 lesson and
+  assessment pages at 1180 × 748, 1920 × 1080, and 2702 × 1514 without horizontal
+  overflow. Final geometry checks covered the six changed pages and three long
+  scrolling pages at those sizes and 1180 × 664. Panel bounds, column gaps,
+  illustration separation, and reachable navigation passed.
+- Integration verification: `passed` on the current primary checkout. Typecheck,
+  lint, all 314 unit tests, nine startup tests, production build, full Electron
+  smoke, and the scoped diff checks passed. The earlier worktree-only Module 2
+  copy assertion failure does not recur with the target branch's current test.
+- Owner approval: local integration was explicitly requested on 8 September 2026.
+  Overall course approval and pilot acceptance remain pending. Electron uses
+  simulated Codex fixtures and does not establish live integration or acceptance.
+- Remaining gap and next permitted action: review the updated primary-checkout UI.
+  No layout integration blocker remains. Existing uncommitted content edits are
+  preserved separately; Practice gates and saved-progress contracts are unchanged.
+
 ## Temporary content-first authoring exception
 
 On 17 August 2026, the owner approved branch
