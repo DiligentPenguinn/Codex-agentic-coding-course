@@ -47,7 +47,7 @@ import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
 import { HighlightedDialogue } from '../components/HighlightedDialogue'
-import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
+import { adjacentOutlinePage, courseOutline, outlineSectionIndex } from '../../../../shared/course/outline'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -1069,21 +1069,6 @@ type LearningPosition = {
   totalLessons: number
   page: number
   totalPages: number
-}
-
-const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
-  'module-2-portfolio-workspace': 0,
-  'module-2-prd-definition': 1,
-  'module-2-prd-review-workflow': 2,
-  'module-2-prd-agent-workflow': 2,
-  'module-2-implementation-plan-intro': 3
-}
-
-function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
-  if (sceneId.startsWith('module-2-')) {
-    return moduleTwoOutlinePartByScene[sceneId] ?? moduleTwoOutlineSections.length - 1
-  }
-  return Math.max(0, position.lessonIndex - 1)
 }
 
 type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
@@ -2478,6 +2463,8 @@ export function LearningWindow() {
   const [teacherOpen, setTeacherOpen] = useState(false)
   const [practiceBriefOpen, setPracticeBriefOpen] = useState(false)
   const [practiceFullOpen, setPracticeFullOpen] = useState(false)
+  const [outlineSceneId, setOutlineSceneId] = useState<SceneId | null>(null)
+  const outlineRef = useRef<HTMLDetailsElement | null>(null)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
   const [visualExpanded, setVisualExpanded] = useState(false)
@@ -2486,6 +2473,13 @@ export function LearningWindow() {
   const [contentReviewMode, setContentReviewMode] = useState(false)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
   const savedProgressBeforeContentReview = useRef<LearnerProgress | null>(null)
+
+  useEffect(() => {
+    // Each page opened from the outline starts at the top, including after
+    // browsing a long assessment or a short desktop window.
+    document.querySelector('.pixel-learning-shell')?.scrollTo(0, 0)
+    window.scrollTo(0, 0)
+  }, [outlineSceneId, reviewHistoryIndex, progress?.sceneId])
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
     if (current.sceneId !== 'module-2-planning-package' || current.practice.status !== 'completed') return current
@@ -2617,6 +2611,7 @@ export function LearningWindow() {
       decisions: {}
     }, progress))
     setContentReviewMode(true)
+    setOutlineSceneId(null)
     setReviewHistoryIndex(null)
     setError('')
     setDestination('lesson')
@@ -2631,6 +2626,7 @@ export function LearningWindow() {
     if (saved) setProgress(saved)
     savedProgressBeforeContentReview.current = null
     setContentReviewMode(false)
+    setOutlineSceneId(null)
     setReviewHistoryIndex(null)
     setError('')
     setDestination('home')
@@ -2642,6 +2638,7 @@ export function LearningWindow() {
     try {
       await persist(initialUpdate())
       setRecovered(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
       setTeacherOpen(false)
@@ -2662,6 +2659,7 @@ export function LearningWindow() {
       setAppSettings(defaultAppSettings)
       setDestination('home')
       setTeacherOpen(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setRecovered(false)
       setView('welcome')
@@ -2692,6 +2690,7 @@ export function LearningWindow() {
     try {
       const completed = await window.courseCompanion.completePortfolioPlanningModule()
       setProgress(completed)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
     } catch {
@@ -2708,6 +2707,7 @@ export function LearningWindow() {
     try {
       const completed = await window.courseCompanion.completePortfolioBuildModule()
       setProgress(completed)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
     } catch {
@@ -2878,6 +2878,7 @@ export function LearningWindow() {
     if (!progress || busy) return
     if (choice.action === 'home') {
       setTeacherOpen(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('home')
       return
@@ -2896,6 +2897,7 @@ export function LearningWindow() {
       if (practiceScene.practice
         || progress.sceneId === 'module-2-portfolio-practice'
         || progress.sceneId === 'module-3-portfolio-practice') {
+        setOutlineSceneId(null)
         setReviewHistoryIndex(null)
         setError('')
         setPracticeBriefOpen(true)
@@ -2905,6 +2907,7 @@ export function LearningWindow() {
     if (!choice.next) return
 
     setBusy(true)
+    setOutlineSceneId(null)
     setReviewHistoryIndex(null)
     setError('')
     try {
@@ -2939,6 +2942,7 @@ export function LearningWindow() {
         busy={busy}
         onPrimary={() => {
           if (view === 'resume') {
+            setOutlineSceneId(null)
             setReviewHistoryIndex(null)
             setDestination(progress?.currentLessonId === 'intro' ? 'lesson' : 'home')
             setTeacherOpen(false)
@@ -2988,41 +2992,78 @@ export function LearningWindow() {
   const reviewingSceneId = reviewHistoryIndex === null
     ? undefined
     : progress.sceneHistory[reviewHistoryIndex]
-  const isReviewing = reviewingSceneId !== undefined
+  const isReviewing = outlineSceneId !== null || reviewingSceneId !== undefined
   const currentReviewIndex = reviewHistoryIndex ?? progress.sceneHistory.length
-  const displayedSceneId = reviewingSceneId ?? progress.sceneId
+  const displayedSceneId = outlineSceneId ?? reviewingSceneId ?? progress.sceneId
   const scene = scenes[displayedSceneId]
   const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]
-  const outlineItems = scene.lessonId === 'module-2'
-    ? [...moduleTwoOutlineSections]
-    : scene.lessonId === 'intro'
-      ? [learningPosition.lessonTitle]
-      : moduleLessonIds[scene.lessonId].map((lessonId) => courseLessonTitle.get(lessonId) ?? lessonId)
-  const outlineCurrentIndex = outlinePartIndex(displayedSceneId, learningPosition)
+  const modulePages = (scene.lessonId === 'intro' ? ['intro-overview' as const] : moduleLessonIds[scene.lessonId])
+    .flatMap((lessonId) => courseLessonPages[lessonId].flat())
+  const outlineItems = courseOutline[scene.lessonId]
+  const outlineCurrentIndex = outlineSectionIndex(outlineItems, modulePages, displayedSceneId)
   const outlineModuleLabel = scene.lessonId === 'intro'
     ? 'GIỚI THIỆU'
     : `MODULE ${scene.lessonId.slice(-1)}`
-  const canOpenPreviousPage = isReviewing
-    ? currentReviewIndex > 0
-    : progress.sceneHistory.length > 0
-  const openPreviousPage = () => {
-    if (!canOpenPreviousPage) return
+  const clearPageOverlays = () => {
     setApprovalFocus(null)
     setVisualExpanded(false)
     setSecondaryVisualExpanded(false)
+    setPracticeBriefOpen(false)
+    setPracticeFullOpen(false)
+    setTeacherOpen(false)
+    setError('')
+  }
+  const closeOutline = () => {
+    if (outlineRef.current) {
+      outlineRef.current.open = false
+      outlineRef.current.querySelector('summary')?.focus({ preventScroll: true })
+    }
+  }
+  const openOutlinePage = (sceneId: SceneId) => {
+    if (busy || !modulePages.includes(sceneId)) return
+    clearPageOverlays()
+    setReviewHistoryIndex(null)
+    setOutlineSceneId(sceneId)
+    closeOutline()
+  }
+  const returnToLearningPage = () => {
+    clearPageOverlays()
+    setOutlineSceneId(null)
+    setReviewHistoryIndex(null)
+    closeOutline()
+  }
+  const canOpenPreviousPage = outlineSceneId !== null
+    ? adjacentOutlinePage(modulePages, displayedSceneId, -1) !== undefined
+    : isReviewing
+      ? currentReviewIndex > 0
+      : progress.sceneHistory.length > 0
+  const openPreviousPage = () => {
+    if (!canOpenPreviousPage) return
+    clearPageOverlays()
+    if (outlineSceneId !== null) {
+      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, -1) ?? outlineSceneId)
+      return
+    }
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
   const openNextReviewPage = () => {
     if (!isReviewing) return
-    setApprovalFocus(null)
-    setVisualExpanded(false)
-    setSecondaryVisualExpanded(false)
+    clearPageOverlays()
+    if (outlineSceneId !== null) {
+      // Browsing is session-only, including Practice and assessment pages.
+      // Resuming the saved learning page is an explicit action.
+      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, 1) ?? null)
+      return
+    }
     const nextIndex = currentReviewIndex + 1
     setReviewHistoryIndex(nextIndex < progress.sceneHistory.length ? nextIndex : null)
   }
+  const reviewNextLabel = outlineSceneId !== null && !adjacentOutlinePage(modulePages, displayedSceneId, 1)
+    ? 'Về trang đang học'
+    : 'Tiếp tục'
   const lessonContextLabel = scene.lessonId === 'module-2'
-    ? moduleTwoOutlineSections[outlineCurrentIndex]!
+    ? outlineItems[outlineCurrentIndex]!.title
     : scene.lessonId === 'intro'
     ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
     : `MODULE ${scene.lessonId.slice(-1)} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
@@ -3124,7 +3165,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3137,13 +3178,16 @@ export function LearningWindow() {
           setVisualExpanded(false)
           setSecondaryVisualExpanded(false)
           setTeacherOpen(false)
+          setOutlineSceneId(null)
           setReviewHistoryIndex(null)
           setDestination('home')
         }}>
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
-        <details className="pixel-outline">
+        <details className="pixel-outline" ref={outlineRef} onKeyDown={(event) => {
+          if (event.key === 'Escape') closeOutline()
+        }}>
           <summary aria-label={`Mở mục lục ${outlineModuleLabel}`}>
             <span className="pixel-outline__dots" aria-hidden="true">•••</span>
             <span>{scene.lessonId === 'module-2'
@@ -3155,19 +3199,22 @@ export function LearningWindow() {
             <ol>
               {outlineItems.map((item, index) => (
                 <li
-                  className={index < outlineCurrentIndex
-                    ? 'is-complete'
-                    : index === outlineCurrentIndex
-                      ? 'is-active'
-                      : 'is-upcoming'}
+                  className={index === outlineCurrentIndex ? 'is-active' : undefined}
                   aria-current={index === outlineCurrentIndex ? 'step' : undefined}
-                  key={item}
+                  key={item.startSceneId}
                 >
-                  <i aria-hidden="true" />
-                  <span>{item}</span>
+                  <button type="button" disabled={busy} onClick={() => openOutlinePage(item.startSceneId)}>
+                    <i aria-hidden="true" />
+                    <span>{item.title}</span>
+                  </button>
                 </li>
               ))}
             </ol>
+            {isReviewing ? (
+              <button className="pixel-outline-resume" type="button" onClick={returnToLearningPage}>
+                Về trang đang học
+              </button>
+            ) : null}
           </div>
         </details>
         <div className="pixel-hud-actions">
@@ -3251,7 +3298,7 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={modelLessonBoardKind}
-          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           visual={lessonVisual}
           onBack={openPreviousPage}
           onExpand={() => setVisualExpanded(true)}
@@ -3271,7 +3318,7 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={guidanceLessonBoardKind}
-          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
@@ -3290,7 +3337,7 @@ export function LearningWindow() {
           canOpenPreviousPage={canOpenPreviousPage}
           dialogue={scene.dialogue ?? ''}
           eyebrow={scene.lessonLabel}
-          nextLabel={isReviewing ? 'Tiếp tục' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           title={scene.objective}
           onBack={openPreviousPage}
           onNext={() => {
@@ -3359,7 +3406,7 @@ export function LearningWindow() {
             {pageBackControl}
             <div className="pixel-choices">
               <button className="pixel-choice is-primary" type="button" onClick={openNextReviewPage}>
-                Tiếp tục
+                {reviewNextLabel}
               </button>
             </div>
           </div>

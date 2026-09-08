@@ -67,6 +67,35 @@ and must never be inferred from a passing automated check.
   the verified navigation for owner review. This change does not authorize a
   new module or alter Practice completion gates.
 
+### Clickable module outlines, 8 September 2026
+
+- Implementation: `implemented`. Intro has 3 sections; Modules 1, 2, 3, and 4
+  have 8, 8, 6, and 8 sections. Each section opens its existing first page and
+  closes the menu. Previous and Continue follow the module's existing page
+  order while browsing. The menu provides `Về trang đang học` to resume the
+  saved learning page. The final browsing page also returns there.
+- Browsing uses local renderer state. It does not save answers, mark skipped
+  checkpoints complete, launch Practice, or unlock another module. The active
+  section has a filled dot; earlier sections are no longer styled as completed
+  merely because of their position. Long menus scroll within the viewport.
+- Verification: `passed` with the full project gate: typecheck, lint, 319 unit
+  tests, nine startup tests, production build, and full Electron smoke.
+  All 33 section destinations were exercised with pointer or keyboard input.
+  Desktop menu bounds and screenshots cover `1440 × 900` and `1180 × 748` in
+  Intro and every module. Navigation preserves the learner-state file byte for
+  byte, including the resumed-window journey. Existing page inventories and
+  lesson dialogue are unchanged by this work.
+- Test maintenance: the Module 2 menu assertions now cover the added sections
+  and active-only highlighting. A stale Module 3 keyword assertion was aligned
+  with the owner's earlier Commit copy edit and kept outside this checkpoint.
+- Owner approval: the owner approved the section additions and browsing
+  behavior before implementation. Overall Foundation and module approval are
+  unchanged. Pilot acceptance remains `pending`; Electron uses simulated
+  Codex fixtures and disposable learner data.
+- Remaining gap and next permitted action: owner review of the updated menus
+  and the existing live pilot acceptance. No additional module is unlocked by
+  this change.
+
 ### Desktop lesson-panel alignment — 8 September 2026
 
 - Implementation: `implemented`. The layout fix from `codex/full-window-alignment`

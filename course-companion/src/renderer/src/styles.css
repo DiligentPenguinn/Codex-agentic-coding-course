@@ -180,6 +180,9 @@ button:focus-visible {
   top: calc(100% + 10px);
   left: 50%;
   width: min(390px, calc(100vw - 24px));
+  max-height: calc(100dvh - 110px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 15px;
   border: 2px solid rgba(255, 255, 255, .42);
   border-radius: 16px;
@@ -204,15 +207,46 @@ button:focus-visible {
   list-style: none;
 }
 
-.pixel-outline-menu li {
+.pixel-outline-menu li > button {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
   min-height: 42px;
   padding: 8px 5px;
   display: grid;
   grid-template-columns: 12px 1fr;
   align-items: center;
   gap: 10px;
+  color: inherit;
+  font: inherit;
+}
+
+.pixel-outline-menu li {
   color: var(--pixel-white);
   font: 500 9px/1.45 var(--pixel-font);
+}
+
+.pixel-outline-menu li > button:hover,
+.pixel-outline-menu li > button:focus-visible {
+  background: rgba(255, 214, 102, .12);
+  outline: 2px solid var(--pixel-yellow);
+  outline-offset: -2px;
+}
+
+.pixel-outline-resume {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 5px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, .22);
+  color: var(--pixel-yellow);
+  background: transparent;
+  font: 700 9px/1.45 var(--pixel-font);
+  text-align: left;
+  cursor: pointer;
 }
 
 .pixel-outline-menu li i {
@@ -227,8 +261,6 @@ button:focus-visible {
   font-weight: 800;
 }
 .pixel-outline-menu li.is-active i { background: currentColor; }
-.pixel-outline-menu li.is-complete { opacity: .42; }
-.pixel-outline-menu li.is-upcoming { opacity: 1; }
 
 .pixel-quit {
   justify-self: end;
