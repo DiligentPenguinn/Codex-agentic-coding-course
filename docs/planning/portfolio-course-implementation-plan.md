@@ -1815,6 +1815,26 @@ values.
 
 **Checkpoint output:** Complete Module 3 content and evidence contract.
 
+### Terminal-log prompt example — 8 September 2026
+
+Added the requested example prompt to the `module-3-terminal-logs` dialogue
+and synchronized the Pilot lesson and Module 3 content-design draft. Existing
+copy, illustration, and navigation are preserved. This M3.1 copy addition is
+`implemented`; verification is `pending`. No automated checks or rendered UI
+inspection ran, following the owner's instruction to leave verification of
+small scoped edits to them. The next action for this addition is owner review
+on the lesson screen. Overall Module 3 approval and pilot acceptance are unchanged.
+
+### Approved debugging-log copy replacement — 10 September 2026
+
+Replaced the M3.1 `module-3-terminal-logs` dialogue and example prompt with
+the owner's exact supplied wording, synchronized the Pilot lesson and Module 3
+content-design draft, and updated the existing wording contract assertion.
+This copy replacement is `implemented`; verification is `pending`. No automated
+checks or rendered UI inspection ran, following the owner's instruction for
+small scoped edits. The remaining step is owner review of the lesson screen.
+Overall Module 3 approval and pilot acceptance are unchanged.
+
 ### Approved learner-facing redesign — 19 August 2026
 
 The owner approved a content-first redesign that removes implementation-plan
@@ -2071,6 +2091,93 @@ missing Module 1 review-bypass control before reaching Module 3, so overall
 verification remains `failed`. This decision has owner approval only for the
 new illustration; overall owner approval and pilot acceptance remain `pending`,
 and the next permitted action is unchanged.
+
+### Git introduction paragraph removal — 8 September 2026
+
+At the owner's request, removed the two pictured paragraphs defining repository
+and distributed history from `module-3-git-intro` and the Pilot lesson authority.
+The dialogue box now uses content-driven height without a minimum-height floor
+on this scene. The remaining copy and page navigation are preserved.
+Implementation: `implemented`; verification: `pending`. No automated or rendered
+checks were run for this small edit under the owner's working agreement.
+Next action for this edit: owner visual review. Overall module acceptance and
+progression gates remain unchanged.
+
+### Commit page copy replacement — 8 September 2026
+
+Replaced the `module-3-git-commit` dialogue with the owner's four supplied
+paragraphs and synchronized its image caption, Pilot lesson, and content design
+draft. Implementation: `implemented`; verification: `pending`. No automated or
+rendered checks were run for this small copy edit under the owner's working
+agreement. Next action for this edit: owner visual review. Overall module
+approval, acceptance, and progression gates remain unchanged.
+
+### Git push dialogue replacement — 8 September 2026
+
+Replaced the pictured dialogue on `module-3-git-push` with the owner's exact
+supplied paragraph, synchronized in the Pilot lesson and content-design draft.
+Implementation: `implemented`; verification: `pending`. Checks were not run
+for this small copy edit under the owner's working agreement. Next action for
+this edit: owner review. Overall module gates remain unchanged.
+
+### Commit explanation with portfolio example — 10 September 2026
+
+Replaced the pictured `module-3-git-commit` dialogue with the owner's supplied
+introduction, portfolio animation example, graph explanation, and sample agent
+prompt. Corrected "gốc" to "góc" and narrowed the recovery claim to finding a
+saved version after accidental code changes. Synchronized the Pilot lesson and
+content-design draft. The sample prompt is lesson content, not an instruction
+to commit the working tree. Implementation: `implemented`; verification:
+`pending`. No automated or rendered checks were run for this small copy edit
+under the owner's working agreement. Next action for this edit: owner visual
+review. Overall module approval, acceptance, and progression gates remain
+unchanged.
+
+### GitHub commit image on the push page — 10 September 2026
+
+Added the owner's supplied GitHub commit-list screenshot to
+`module-3-git-push`, with the exact caption
+"commit của dự án khi được push lên github" below the image. Reused the
+existing stacked image/dialogue layout and synchronized the Pilot lesson,
+content-design draft, and TODO. Implementation: `implemented`; verification:
+`pending`. No automated or rendered checks were run for this small edit under
+the owner's working agreement. Next action: owner visual review. Overall
+module approval, acceptance, and progression gates remain unchanged.
+
+### Branch dialogue with 3D example — 10 September 2026
+
+Replaced the `module-3-git-branch` dialogue with the owner's supplied passage,
+including the approved left/right rotation conflict example, branch and merge
+prompts, and the owner's closing wording. Synchronized the Pilot lesson and
+content-design draft. Embedded prompts remain lesson content, not instructions
+to create or merge a repository branch. Implementation: `implemented`;
+verification: `pending`. No automated or rendered checks were run for this
+small copy edit under the owner's working agreement. Next action: owner visual
+review, including readability of the longer dialogue. Overall module approval,
+acceptance, and progression gates remain unchanged.
+
+### Split branch and merge into two pages — 10 September 2026
+
+Split the approved branch passage immediately after the branch-creation prompt.
+The existing `module-3-git-branch` page now leads to the new
+`module-3-git-merge` page, then to `module-3-pre-practice-summary`. All dialogue
+wording is preserved. Updated shared routing, renderer page inventory, Pilot
+lesson, content-design draft, and existing navigation test expectations.
+Implementation: `implemented`; verification: `pending`. No checks were run
+under the owner's small-edit working agreement. Next action: owner desktop
+review of both pages and forward/back navigation. No checkpoint commit was
+created without verification. Overall module acceptance remains unchanged.
+
+### Branches screenshot on the merge page — 10 September 2026
+
+Added the owner's supplied GitHub branches screenshot to `module-3-git-merge`,
+the page identified in the first attachment, with the exact caption
+"ảnh các branches trong một dự án trên github của mình" below it. Reused the
+stacked image/dialogue layout and synchronized the Pilot lesson and design
+draft. Existing dialogue and navigation are preserved. Implementation:
+`implemented`; verification: `pending`. No automated or rendered checks were
+run under the owner's small-edit working agreement. Next action: owner desktop
+visual review. Overall module acceptance remains unchanged.
 
 ### M3.2 — Implement constrained from-scratch scaffolding
 

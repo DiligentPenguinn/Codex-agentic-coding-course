@@ -44,6 +44,8 @@ describe('portfolio course registry', () => {
   it('routes Module 3 knowledge through the approved recap and into Practice', () => {
     const moduleThree = portfolioModuleDefinitions[1]
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
+      .toBe('module-3-git-merge')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-merge')?.nextSceneId)
       .toBe('module-3-pre-practice-summary')
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-pre-practice-summary')?.nextSceneId)
       .toBe('module-3-portfolio-practice')

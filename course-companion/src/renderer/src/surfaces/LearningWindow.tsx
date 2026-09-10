@@ -43,6 +43,8 @@ import m3TerminalLogErrorImage from '../assets/lesson-visuals/m3-terminal-log-er
 import m3RepeatedErrorCodexPromptImage from '../assets/lesson-visuals/m3-repeated-error-codex-prompt.png'
 import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-example.png'
 import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
+import m3GithubPushedCommitsImage from '../assets/lesson-visuals/m3-github-pushed-commits.png'
+import m3GithubBranchesImage from '../assets/lesson-visuals/m3-github-branches.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
@@ -1226,7 +1228,19 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
   'module-3-git-commit': {
     image: m3CommitHistoryImage,
     alt: 'Danh sách nhiều commit nối tiếp nhau trong lịch sử Git',
-    caption: 'Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.',
+    caption: 'Trong hình, mỗi dòng đại diện cho một commit — tức một phiên bản của dự án đã được lưu lại.',
+    fit: 'contain'
+  },
+  'module-3-git-merge': {
+    image: m3GithubBranchesImage,
+    alt: 'Danh sách các branch của một dự án trên GitHub',
+    caption: 'ảnh các branches trong một dự án trên github của mình',
+    fit: 'contain'
+  },
+  'module-3-git-push': {
+    image: m3GithubPushedCommitsImage,
+    alt: 'Danh sách commit của dự án trên GitHub sau khi push',
+    caption: 'commit của dự án khi được push lên github',
     fit: 'contain'
   }
 }
@@ -1618,8 +1632,8 @@ function ModelLessonBoard({
         <h2 className="pixel-model-board__section-title">Model: chọn theo loại công việc</h2>
         <div className="pixel-model-board__models">
           <article>
-            <span>SOL</span>
-            <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+            <span>ASTRA</span>
+            <div><h2>GPT-6 Astra</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
           </article>
           <article>
             <span>TERRA</span>
@@ -1651,7 +1665,8 @@ function ModelLessonBoard({
         </div>
         <div className="pixel-model-board__recommendation">
           <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-          <strong>GPT-5.6 Sol · High · Standard</strong>
+          <strong>GPT-6 Astra · High · Standard</strong>
+          <p>Nếu lo tốn token, bạn có thể dùng GPT-5.6 Sol.</p>
         </div>
       </div>
 
@@ -1769,14 +1784,12 @@ function GuidanceLessonBoard({
             <article>
               <span>GLOBAL</span>
               <code>~/.codex/AGENTS.md</code>
-              <p>Áp dụng cho mọi repo bạn mở bằng Codex.</p>
-              <small>Triết dùng level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt và không đưa thay đổi lên mạng khi chưa được yêu cầu.</small>
+              <p>Áp dụng cho bất kỳ dự án nào mà bạn xây dựng với coding agent sau này.</p>
             </article>
             <article>
               <span>CURRENT REPO</span>
               <code>AGENTS.md</code>
-              <p>Chỉ áp dụng cho repo đang mở.</p>
-              <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
+              <p>Chỉ áp dụng cho dự án hiện tại.</p>
             </article>
           </div>
         ) : kind === 'skills' ? (
@@ -3135,24 +3148,6 @@ export function LearningWindow() {
     && Boolean(lessonVisual)
     && !usesLessonBoard
     && (showsSceneTitle || usesModuleTwoVisualGallery)
-  const isPrePracticeSummary = displayedSceneId === 'module-3-pre-practice-summary'
-  const sceneTitle = showsSceneTitle
-    ? isPrePracticeSummary
-      ? (
-          <section className="pixel-scene-title is-pre-practice-summary">
-            <small>{lessonContextLabel}</small>
-            <span className="pixel-recap-title__kicker">{scene.panelStatus}</span>
-            <span className="pixel-recap-title">
-              <span className="pixel-recap-title__count">{scene.panelLabel}</span>
-              <span className="pixel-recap-title__copy">
-                <strong>{scene.objective}</strong>
-                <span className="pixel-recap-title__context">{scene.request}</span>
-              </span>
-            </span>
-          </section>
-        )
-      : <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
-    : null
   const pageBackControl = (
     <button
       className="pixel-page-back"
@@ -3165,7 +3160,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3225,7 +3220,6 @@ export function LearningWindow() {
         </div>
       </header>
 
-      {sceneTitle}
       {scene.copyPrompt && !usesLessonBoard ? (
         <CopyPromptCard
           label={scene.copyPromptLabel}
@@ -3279,6 +3273,9 @@ export function LearningWindow() {
                 isApprovalTour={isApprovalTour}
                 visual={lessonVisual}
               />
+              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge') && lessonVisual.caption ? (
+                <figcaption>{lessonVisual.caption}</figcaption>
+              ) : null}
               {canExpandLessonVisual ? (
                 <button
                   aria-label="Phóng to ảnh minh họa"
@@ -3372,7 +3369,7 @@ export function LearningWindow() {
       <section
         aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
         aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
+        className={`pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
         {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
         {isAssessmentQuestionPage ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (

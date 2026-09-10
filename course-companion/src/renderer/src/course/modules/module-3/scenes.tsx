@@ -47,7 +47,7 @@ export const moduleThreeScenes = {
       { label: 'TRƯỚC KHI SỬA', value: 'Thêm log · tái hiện lỗi' },
       { label: 'SAU KHI SỬA', value: 'Xoá log không cần thiết' }
     ],
-    dialogue: 'Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.\n\nNếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra. Những dòng log này sẽ cho coding agent biết được tại sao app lại bị lỗi chứ không phải phỏng đoán. Và sau khi lỗi đã được khắc phục thì bạn có thể bảo coding agent xoá những đoạn logs không cần thiết',
+    dialogue: 'Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.\n\nNếu bạn đã gửi ảnh lỗi mà agent vẫn chưa sửa được, bạn có thể yêu cầu agent thêm log, tức là thông tin ghi lại những hoạt động diễn ra khi ứng dụng đang chạy. Log có thể giúp agent có thêm thông tin về nguyên nhân gây ra lỗi, thay vì chỉ đoán mò\n\nPrompt mẫu: “Hãy thêm log cần thiết để tìm nguyên nhân lỗi. Nếu cần tôi thực hiện lại thao tác gây lỗi, hãy hướng dẫn tôi. Sau khi sửa, hãy kiểm tra lại và xóa những log tạm không còn cần thiết.”',
     highlightTerms: ['log', 'logs', 'terminal'],
     choices: [{ label: 'Khi lỗi vẫn quay lại', next: 'module-3-repeated-error', primary: true }]
   },
@@ -72,7 +72,7 @@ export const moduleThreeScenes = {
       { label: 'REPOSITORY', value: 'Tệp dự án và lịch sử thay đổi' },
       { label: 'KHI CẦN', value: 'Quay lại một phiên bản trước' }
     ],
-    dialogue: 'Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng\n\nGit là một hệ thống quản lý phiên bản phân tán. Hệ thống quản lý phiên bản giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.\n\nRepository, hay kho lưu trữ dự án, là nơi Git quản lý các tệp của dự án cùng lịch sử thay đổi của chúng.\n\n“Phân tán” có nghĩa là repository trên máy tính của bạn không chỉ giữ phiên bản mới nhất, mà còn có lịch sử của dự án. Bạn có thể thấy được tất cả phiên bản cũ mà bạn từng làm, cũng như các phiên bản mà hiện tại bạn đang phát triển.',
+    dialogue: 'Trong quá trình debugging, có thể bạn sẽ cần phải khôi phục phiên bản trước khi có lỗi, để xem lỗi nằm ở đâu. Đó là lúc Git có tác dụng\n\nGit là một hệ thống quản lý phiên bản phân tán. Nó giúp ghi lại những thay đổi của dự án theo thời gian và cho phép quay lại một phiên bản trước đó khi cần.',
     highlightTerms: ['debugging', 'Git', 'hệ thống quản lý phiên bản', 'phân tán', 'repository', 'kho lưu trữ dự án', 'phiên bản'],
     choices: [{ label: 'Phân biệt Git và GitHub', next: 'module-3-git-github', primary: true }]
   },
@@ -87,7 +87,7 @@ export const moduleThreeScenes = {
       { label: 'GIT', value: 'Hoạt động trên máy tính' },
       { label: 'GITHUB', value: 'Nền tảng trực tuyến' }
     ],
-    dialogue: 'Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.\n\nGit là một hệ thống hoạt động trên máy tính của bạn. Git theo dõi các tệp trong repository và lưu lại lịch sử thay đổi của chúng. Bạn có thể dùng Git mà không cần kết nối với GitHub.\n\nGitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu thêm một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.\n\nGitHub cũng cung cấp các công cụ giúp mọi người cùng thảo luận và quản lý công việc.',
+    dialogue: 'Git và GitHub thường được nhắc đến cùng nhau, nhưng thực ra chúng là hai khái niệm khác nhau.\n\nGit là một hệ thống hoạt động trên máy tính của bạn. Git theo dõi các tệp trong repository và lưu lại lịch sử thay đổi của chúng. Bạn có thể dùng Git mà không cần kết nối với GitHub.\n\nGitHub là một nền tảng trực tuyến. Bạn có thể đưa repository từ máy tính lên GitHub để lưu thêm một bản trên mạng. Sau đó, bạn có thể truy cập dự án từ máy khác hoặc chia sẻ với người khác.\n',
     highlightTerms: ['Git', 'GitHub', 'repository'],
     choices: [{ label: 'Commit là gì?', next: 'module-3-git-commit', primary: true }]
   },
@@ -101,8 +101,8 @@ export const moduleThreeScenes = {
       { label: 'NƠI LƯU', value: 'Repository trên máy tính' },
       { label: 'MÔ TẢ', value: 'Một lời nhắn ngắn' }
     ],
-    dialogue: 'Khi bạn thay đổi các tệp trong một repository, Git chưa tự coi những thay đổi đó là một phiên bản đã hoàn thành. Khi dự án đạt đến trạng thái mà bạn muốn lưu lại, bạn có thể tạo một commit.\n\nCommit là một phiên bản của dự án được lưu trong lịch sử Git. Nó ghi lại trạng thái của dự án tại thời điểm đó. Nhiều commit nối tiếp nhau tạo thành lịch sử của dự án.\n\nMỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.\n\nMột commit được lưu trong repository trên máy tính của bạn. Nó không tự động xuất hiện trên GitHub.\n\nNếu muốn lưu các commit trên GitHub, bạn cần thực hiện một bước riêng. Trang tiếp theo sẽ giải thích bước đó.',
-    highlightTerms: ['Git', 'GitHub', 'repository', 'commit', 'commits', 'lịch sử Git'],
+    dialogue: 'Bây giờ, mình sẽ giới thiệu thêm một số khái niệm để bạn hiểu thêm về cách Git hoạt động.\n\nĐầu tiên là Commit.\n\nVề căn bản, Commit là một phiên bản của dự án mà bạn đã lưu lại tại một thời điểm cụ thể. Giả dụ sau khi bạn sửa xong hiệu ứng animation của portfolio thấy đẹp quá nên bạn muốn lưu nó lại để sau này nếu lỡ phá code thì vẫn tìm lại phiên bản cũ được. Commit sẽ giúp bạn làm điều đó.\n\nHình ở góc bên phải màn hình chính là git tree, biểu đồ để minh hoạ lịch sử của dự án. Các bạn có thể thấy mỗi chấm là một commit, và nhiều chấm nối lại với nhau tạo thành lịch sử phát triển dự án.\n\nCác bạn nên tạo commit ngay sau mỗi thay đổi lớn trong dự án, hoặc thay đổi nào mà bạn thấy thích, để có thể tìm lại phiên bản đã lưu nếu lỡ sửa hỏng code. Bạn chỉ cần bảo agents là "commit all the current changes with appropriate messages" là được.',
+    highlightTerms: ['Commit', 'lịch sử Git', 'repository trên máy tính của bạn', 'GitHub'],
     choices: [{ label: 'Đưa commit lên GitHub', next: 'module-3-git-push', primary: true }]
   },
   'module-3-git-push': {
@@ -112,7 +112,7 @@ export const moduleThreeScenes = {
     panelStatus: 'MÁY TÍNH → GITHUB', tone: 'neutral',
     request: 'Push không tạo commit mới và không tự động xảy ra sau mỗi giai đoạn.',
     evidence: [],
-    dialogue: 'Push là thao tác gửi những commit mới từ repository trên máy tính lên repository của cùng dự án trên GitHub.\n\nSau khi push thành công, các commit đó sẽ xuất hiện trong lịch sử dự án trên GitHub. Push không tạo commit mới; nó chỉ đưa những commit đã có trên máy tính lên GitHub.\n\nPhần này không giới thiệu câu lệnh, remote hoặc origin. Agent sẽ xử lý các thao tác kỹ thuật.\n\nViệc giới thiệu push không có nghĩa là sau mỗi giai đoạn đều phải đưa commit lên GitHub. Push là một hành động đưa dữ liệu ra ngoài và được xử lý riêng, thay vì tự động trở thành một bước trong mỗi vòng triển khai.',
+    dialogue: 'Khi bạn muốn chuyển một commit từ môi trường máy tính của bạn lên GitHub, bạn sẽ sử dụng lệnh \'git push\' (cụ thể như nào thì bạn có thể nhờ agent làm). Sau khi push thành công, lịch sử commit của bạn cũng sẽ được lưu trên github và bạn có thể chia sẻ nó cho người khác.',
     highlightTerms: ['push', 'commit', 'commits', 'repository', 'GitHub'],
     choices: [{ label: 'Thử nghiệm bằng branch', next: 'module-3-git-branch', primary: true }]
   },
@@ -123,7 +123,18 @@ export const moduleThreeScenes = {
     panelStatus: 'HƯỚNG PHÁT TRIỂN RIÊNG', tone: 'good',
     request: 'Sau khi thử, bạn quyết định có đưa thay đổi vào phiên bản ổn định hay không.',
     evidence: [],
-    dialogue: 'Bây giờ, giả sử bạn đang phát triển một tính năng mới. Bạn chưa chắc mình có muốn đưa tính năng đó vào sản phẩm hay không, nhưng vẫn muốn thử nghiệm thêm.\n\nBạn không nên thử trực tiếp trên phiên bản đang hoạt động ổn định. Những thay đổi chưa hoàn thiện có thể làm hỏng phần đang hoạt động tốt.\n\nĐây là lúc bạn có thể dùng branch. Branch là một hướng phát triển riêng trong cùng repository. Nó cho phép bạn thử nghiệm tính năng mới mà chưa làm thay đổi phiên bản ổn định.\n\nSau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.',
+    dialogue: "Một khái niệm nữa mà mình muốn giới thiệu cho bạn là branch, hay còn gọi là nhánh.\n\nGiả sử portfolio của bạn đang hoạt động ổn, nhưng bạn muốn thử tạo thêm một khối 3D. Tính năng này khá phức tạp, và bạn chưa chắc làm xong có đẹp hay không. Nếu sửa trực tiếp trên nhánh chính, bạn có thể làm hỏng cả những phần đang chạy tốt.\n\nLúc này, bạn có thể tạo một branch riêng để phát triển tính năng 3D. Cứ hình dung đó là một “vùng riêng” để quậy. Những thay đổi bạn thực hiện và commit trên branch này sẽ không ảnh hưởng đến nhánh chính, cho đến khi bạn quyết định gộp chúng vào.\n\nNếu thử nghiệm không ổn, bạn có thể nhờ agent xử lý phần đang làm dở và quay lại nhánh chính. Bạn không bắt buộc phải đưa tính năng 3D vào portfolio, cũng không cần xóa branch ngay nếu muốn giữ lại để thử tiếp sau này.\n\nĐể bắt đầu, bạn chỉ cần bảo agent:\n\nTạo và chuyển sang branch feature/3d-development (hoặc bất kỳ tên nào bạn thích) để phát triển tính năng 3D.",
+    highlightTerms: ['branch', 'repository', 'phiên bản ổn định'],
+    choices: [{ label: 'Tiếp tục', next: 'module-3-git-merge', primary: true }]
+  },
+  'module-3-git-merge': {
+    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
+    lessonLabel: 'MODULE 3 · MERGE', mission: 'Gộp nhánh và xử lý xung đột',
+    objective: 'Hiểu merge và xung đột khi gộp nhánh', panelLabel: 'MERGE',
+    panelStatus: 'GỘP NHÁNH', tone: 'neutral',
+    request: 'Sau khi thử, bạn quyết định có đưa thay đổi vào phiên bản ổn định hay không.',
+    evidence: [],
+    dialogue: "Sau khi đã xem và kiểm tra tính năng, nếu muốn đưa nó vào nhánh chính, bạn có thể bảo:\n\nGộp branch hiện tại vào nhánh chính main. Nếu có xung đột, hãy giải thích và đề xuất cách xử lý để tôi quyết định. Sau khi gộp, kiểm tra lại tính năng một lần nữa để chắc không có lỗi gì xảy ra\n\nThao tác gộp nhánh này được gọi là merge.\n\nNgoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vùng xung đột xảy ra. Ví dụ, file hiệu ứng 3D của nhanh a quy định khối 3D xoay sang trái, trong khi nhánh b sửa cùng dòng đó để khối 3D xoay sang phải. Git sẽ không biết phải chọn cái nào, khiến xung đột (conflict) xảy ra\n\nXử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.",
     highlightTerms: ['branch', 'repository', 'phiên bản ổn định'],
     choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]
   },

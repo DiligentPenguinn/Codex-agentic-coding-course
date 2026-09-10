@@ -339,7 +339,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.match(modelIntroText, /Sol có thể gọi Luna khảo sát codebase trước/)
   assert.match(modelIntroText, /Extra High/)
   assert.match(modelIntroText, /chỉ nhanh hơn Standard khoảng 0,5 giây/)
-  assert.match(modelIntroText, /GPT-5.6 Sol · High · Standard/)
+  assert.match(modelIntroText, /GPT-6 Astra · High · Standard/)
   await capture(page, 'module-1-codex-model-intro.png')
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -1412,6 +1412,8 @@ async function verifyContentReviewMode(page) {
 
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.locator('[data-scene-id="module-3-git-merge"]').waitFor()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.locator('.pixel-scene-title.is-pre-practice-summary').waitFor()
   await page.locator('.pixel-recap-title__kicker').getByText('TÓM LẠI', { exact: true }).waitFor()

@@ -89,7 +89,7 @@ describe('Module 3 content and evidence contract', () => {
       "highlightTerms: ['nguyên nhân gốc']",
       "highlightTerms: ['debugging', 'Git', 'hệ thống quản lý phiên bản', 'phân tán', 'repository', 'kho lưu trữ dự án', 'phiên bản']",
       "highlightTerms: ['Git', 'GitHub', 'repository']",
-      "highlightTerms: ['Git', 'GitHub', 'repository', 'commit', 'commits', 'lịch sử Git']",
+      "highlightTerms: ['Commit', 'lịch sử Git', 'repository trên máy tính của bạn', 'GitHub']",
       "highlightTerms: ['push', 'commit', 'commits', 'repository', 'GitHub']",
       "highlightTerms: ['branch', 'repository', 'phiên bản ổn định']",
       "highlightTerms: ['plan', 'log', 'branch']"
@@ -113,7 +113,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(lesson).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
     expect(sceneSource).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
     expect(sceneSource).toContain("dialogue: 'Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.'")
-    expect(lesson).toContain('Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra.')
+    expect(lesson).toContain('Nếu bạn đã gửi ảnh lỗi mà agent vẫn chưa sửa được, bạn có thể yêu cầu agent thêm log, tức là thông tin ghi lại những hoạt động diễn ra khi ứng dụng đang chạy. Log có thể giúp agent có thêm thông tin về nguyên nhân gây ra lỗi, thay vì chỉ đoán mò')
     expect(lesson).toContain('Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra.')
     const headings = [
       '## Debug cùng coding agent',
@@ -153,6 +153,7 @@ describe('Module 3 content and evidence contract', () => {
       'module-3-git-commit',
       'module-3-git-push',
       'module-3-git-branch',
+      'module-3-git-merge',
       'module-3-pre-practice-summary'
     ]
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)

@@ -24,8 +24,9 @@ Teacher nói: "Ở góc dưới bên phải, ngay cạnh nút microphone, bạn 
 Model, Effort và Speed. Model chọn dòng model phù hợp với công việc. Effort điều
 chỉnh lượng công sức dành cho phân tích. Speed chọn tốc độ xử lý."
 
-Teacher nói: "Trong dòng GPT-5.6, Sol có năng lực cao nhất cho công việc chuyên
-môn phức tạp. Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.
+Teacher nói: "GPT-6 Astra có năng lực cao nhất cho công việc chuyên
+môn phức tạp. Nếu lo tốn token, bạn có thể dùng GPT-5.6 Sol.
+Terra tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày.
 Ví dụ, bạn có thể dùng Terra để trả lời tin nhắn khách hàng theo hướng dẫn đã
 có."
 
