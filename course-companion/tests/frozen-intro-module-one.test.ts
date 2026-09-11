@@ -5,9 +5,9 @@ import { describe, expect, it } from 'vitest'
 
 const frozenFiles: Record<string, string> = {
   '../pilot-workspace/course/lessons/intro.vi.md': '85b293c5ecf0d07f5aba6ad00181be185f4def7da0faaadcde40aaaf01b39ed9',
-  '../pilot-workspace/course/lessons/module-1.vi.md': '751ee5f7309105cfa15f018c9af727ce2418ac04c21b34ba3751872fb76132cf',
+  '../pilot-workspace/course/lessons/module-1.vi.md': 'fa3977e398d091cd4c5662086999488963b273db1c3f2f8f5fb9b5622e783704',
   '../pilot-workspace/course/lesson-scripts/intro.script.vi.md': 'ac50c545ed4c301b7fee15f5277d7b482fef34c980d4102513c1fd2cf9a54d82',
-  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '594adfdd64d6feb4f2309f45c6105798e0097285d0f4d78a6d9b8d71ef8c5d97',
+  '../pilot-workspace/course/lesson-scripts/module-1.script.vi.md': '5ad1d3f50dfea652f79c7c7700a2c7e6bdb1b50dd5007f692cb1289d794c835c',
   '../pilot-workspace/course/prompts/start-intro.vi.md': '1092f834e3dd9859a00469342ac828a388a806e202796d3171cd76b9fba09863',
   '../pilot-workspace/course/prompts/start-module-1.vi.md': '67edac770b9f1f3b9a309e639c5e5b9d8534cc108957a228354f0b5eb1e3c3ab',
   '../pilot-workspace/course/quizzes/intro.quiz.json': 'c9e61547579f9a07389c4f9498dd8a23c674c71f0860181c5fe22021f1c220e1',
@@ -65,7 +65,7 @@ describe('frozen introduction and approved Module 1', () => {
       scenes.indexOf("'module-1-complete': {")
     )
     expect(digest(assessment)).toBe('e9569f7111a13d7db61fef221f3a85a436f29899494ece43dc9ced61bde46b65')
-    expect(digest(scenes)).toBe('df14a7173c05fe5e8cdeaf4232b4d461ffe31b2326e584cc352b0febf75fb65a')
+    expect(digest(scenes)).toBe('0b7dc0e3780aabeabdedf92c13732c965f5a48c39314337370e89fc6b068d9ec')
     expect(scenes).toContain("dialogue: 'Trong khoá học này, bạn sẽ được học cách dùng coding agents thông qua một dự án thực hành: Xây Portfolio cá nhân.'")
     expect(scenes).toContain("dialogue: 'Cuối khoá này, bạn sẽ có một web portfolio thật để có thể gửi cho nhà tuyển dụng.'")
     expect(scenes).toContain("dialogue: 'Những kỹ năng bạn học được trong khoá này không chỉ giúp bạn xây Portfolio, mà còn trang bị cho bạn kiến thức để tạo bất kỳ công cụ nào bạn muốn với AI'")
@@ -77,6 +77,7 @@ describe('frozen introduction and approved Module 1', () => {
     expect(scenes).toContain("Đó là lúc ta sử dụng Skill.")
     expect(scenes).toContain("'module-1-skills-portfolio': {")
     expect(scenes).toContain("choices: [{ label: 'Tiếp theo: hai skill cho portfolio', next: 'module-1-skills-portfolio', primary: true }]")
+    expect(scenes).toContain("choices: [{ label: 'Tiếp theo: thực hành cấu hình', next: 'module-1-setup-checklist', action: 'practice', primary: true }]")
     expect(scenes).not.toContain("'module-1-model-choice': {")
     expect(scenes).not.toContain("Dùng cấu hình đã chọn")
     expect(scenes).toContain("panelStatus: 'BỘ QUY LUẬT CHO CODING AGENTS'")

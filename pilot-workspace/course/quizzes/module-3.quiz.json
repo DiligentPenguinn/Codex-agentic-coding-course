@@ -51,20 +51,20 @@
           "id": "m3-mastery-visible-error",
           "sceneId": "module-3-mastery-visible-error",
           "type": "multiple-choice",
-          "prompt": "Bạn nhìn thấy nút **Xem dự án** đang che lên phần giới thiệu của website. Thông tin nào nên được gửi cho coding agent để agent điều tra lỗi?",
+          "prompt": "Phát biểu nào mô tả đúng vai trò của Git và GitHub?",
           "choices": [
-            "Gửi ảnh chụp, mô tả thao tác vừa thực hiện, rồi chỉ rõ phần giao diện bạn muốn agent sửa.",
-            "Gửi ảnh chụp, mô tả kết quả mong đợi, rồi yêu cầu agent kiểm tra phần giao diện đang bị che.",
-            "Gửi ảnh chụp, mô tả thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.",
-            "Gửi ảnh chụp, mô tả kết quả thực tế, rồi liệt kê các tệp agent vừa thay đổi."
+            "Git giúp quản lý các phiên bản của dự án; GitHub cung cấp nơi lưu repository Git trực tuyến.",
+            "Khi chạy trên máy tính thì gọi là Git, còn phiên bản chạy trên đám mây là GitHub.",
+            "Git và GitHub là hai tên gọi của cùng một công cụ.",
+            "Git dành cho người làm việc một mình, còn GitHub dành cho nhóm."
           ],
-          "answerIndex": 2,
-          "explanation": "Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.",
+          "answerIndex": 0,
+          "explanation": "Git là hệ thống quản lý phiên bản, giúp lưu lịch sử thay đổi của dự án. GitHub là nền tảng trực tuyến để lưu repository Git, chia sẻ và cộng tác. Bạn có thể dùng Git mà không cần GitHub. Cả Git và GitHub đều hỗ trợ làm việc cá nhân lẫn làm việc nhóm.",
           "source": {
             "kind": "authoritative-source",
-            "label": "OpenAI — Image inputs",
-            "url": "https://learn.chatgpt.com/docs/image-inputs",
-            "basis": "Ảnh cung cấp bằng chứng trực quan; mô tả thao tác, mong đợi và thực tế bổ sung bối cảnh cần thiết để agent điều tra đúng vấn đề."
+            "label": "GitHub — What is GitHub?",
+            "url": "https://docs.github.com/en/get-started/start-your-journey/what-is-github",
+            "basis": "Git quản lý lịch sử thay đổi; GitHub lưu repository Git trực tuyến và bổ sung các công cụ cộng tác. Câu hỏi tham khảo câu 2 tại https://devops.vn/posts/50-cau-hoi-phong-van-git-co-ban-den-nang-cao/, với cách hỏi và các lựa chọn đã được điều chỉnh theo nội dung chủ sở hữu duyệt."
           }
         },
         {

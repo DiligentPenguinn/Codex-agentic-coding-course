@@ -42,9 +42,6 @@ const rendererModules = [
     titleVi: moduleThreeDefinition.titleVi,
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
-      'm3-scaffold-baseline': [
-        ['module-3-readiness']
-      ],
       'm3-complete-first-version': [
         ['module-3-debugging-intro'],
         ['module-3-visible-error'],
@@ -57,7 +54,9 @@ const rendererModules = [
         ['module-3-git-github'],
         ['module-3-git-commit'],
         ['module-3-git-push'],
-        ['module-3-git-branch']
+        ['module-3-git-branch'],
+        ['module-3-git-merge'],
+        ['module-3-pre-practice-summary']
       ],
       'm3-evidence-debugging': [
         ['module-3-portfolio-practice']

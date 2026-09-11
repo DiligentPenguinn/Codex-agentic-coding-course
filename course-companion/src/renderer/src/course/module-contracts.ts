@@ -31,6 +31,7 @@ export type RegistrySceneContent = {
   request: string
   evidence: Array<{ label: string; value: string; ready?: boolean }>
   dialogue?: string
+  highlightTerms?: readonly string[]
   choices: RegistryChoice[]
   copyPrompt?: string
   copyPromptLabel?: string

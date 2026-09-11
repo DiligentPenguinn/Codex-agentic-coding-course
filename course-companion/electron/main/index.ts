@@ -418,6 +418,7 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   const initialBounds = getCompanionBounds(display.workArea, mode)
   const window = new BrowserWindow({
     ...initialBounds,
+    ...(process.platform === 'darwin' ? { type: 'panel' } : {}),
     show: false,
     frame: false,
     transparent: true,
@@ -437,7 +438,7 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   })
 
   applyCompanionTopmost(window)
-  window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: false })
+  window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   window.on('show', () => applyCompanionTopmost(window))
   window.on('close', (event) => {

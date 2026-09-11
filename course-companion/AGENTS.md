@@ -26,4 +26,5 @@
 
 - Review every changed file and run the narrowest relevant checks while iterating.
 - Before delivery of a coherent Course Companion change, run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and `npm run test:electron` from this directory unless the task explicitly documents a narrower acceptance gate.
+- The root `AGENTS.md` trivial-edit fast path counts as a narrower acceptance gate: review only the target and scoped diff, and skip the full suite, build, Electron verification, screenshots, planning-ledger synchronization, and checkpoint commit unless the user requests them or a narrow syntax check is clearly necessary.
 - Report any skipped or blocked check; do not convert automated verification into owner approval or pilot acceptance.

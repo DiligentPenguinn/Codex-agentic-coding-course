@@ -98,7 +98,7 @@ const instructionalScenes = {
     request: 'Sau Giai đoạn 5, Module 2 dừng. Module 3 mới đề xuất task đầu tiên.',
     evidence: [
       { label: '1 · MỤC ĐÍCH', value: 'Bản định hướng portfolio' },
-      { label: '2 · HIỆN CÓ', value: 'Những gì bạn đang có' },
+      { label: '2 · HIỆN CÓ', value: 'Tư liệu cho portfolio' },
       { label: '3 · THAM KHẢO', value: 'Nguồn tham khảo cho portfolio' },
       { label: '4 · PRD', value: 'PRD của portfolio' },
       { label: '5 · KẾ HOẠCH', value: 'Kế hoạch triển khai' }

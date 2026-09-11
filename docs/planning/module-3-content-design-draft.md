@@ -75,7 +75,9 @@ Dưới hình minh hoạ, Teacher nói:
 
 > Đôi khi ảnh chụp chỉ cho thấy kết quả bị sai, nhưng chưa cho biết vì sao lỗi xảy ra.
 >
-> Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra. Những dòng log này sẽ cho coding agent biết được tại sao app lại bị lỗi chứ không phải phỏng đoán. Và sau khi lỗi đã được khắc phục thì bạn có thể bảo coding agent xoá những đoạn logs không cần thiết
+> Nếu bạn đã gửi ảnh lỗi mà agent vẫn chưa sửa được, bạn có thể yêu cầu agent thêm log, tức là thông tin ghi lại những hoạt động diễn ra khi ứng dụng đang chạy. Log có thể giúp agent có thêm thông tin về nguyên nhân gây ra lỗi, thay vì chỉ đoán mò
+
+> **Prompt mẫu:** “Hãy thêm log cần thiết để tìm nguyên nhân lỗi. Nếu cần tôi thực hiện lại thao tác gây lỗi, hãy hướng dẫn tôi. Sau khi sửa, hãy kiểm tra lại và xóa những log tạm không còn cần thiết.”
 
 ### Trang 3 — Khi lỗi vẫn quay lại
 
@@ -153,43 +155,76 @@ Trang này chỉ giới thiệu mục đích của Git, chưa dạy câu lệnh.
 
 Nội dung và ảnh minh họa dưới đây đã được duyệt.
 
-Khi bạn thay đổi các tệp trong một repository, Git chưa tự coi những thay đổi đó là một phiên bản đã hoàn thành. Khi dự án đạt đến trạng thái mà bạn muốn lưu lại, bạn có thể tạo một commit.
+Bây giờ, mình sẽ giới thiệu thêm một số khái niệm để bạn hiểu thêm về cách Git hoạt động.
 
-Commit là một phiên bản của dự án được lưu trong lịch sử Git. Nó ghi lại trạng thái của dự án tại thời điểm đó và đi kèm một lời nhắn ngắn để mô tả thay đổi. Nhiều commit nối tiếp nhau tạo thành lịch sử của dự án.
+Đầu tiên là Commit.
+
+Về căn bản, Commit là một phiên bản của dự án mà bạn đã lưu lại tại một thời điểm cụ thể. Giả dụ sau khi bạn sửa xong hiệu ứng animation của portfolio thấy đẹp quá nên bạn muốn lưu nó lại để sau này nếu lỡ phá code thì vẫn tìm lại phiên bản cũ được. Commit sẽ giúp bạn làm điều đó.
+
+Hình ở góc bên phải màn hình chính là git tree, biểu đồ để minh hoạ lịch sử của dự án. Các bạn có thể thấy mỗi chấm là một commit, và nhiều chấm nối lại với nhau tạo thành lịch sử phát triển dự án.
+
+Các bạn nên tạo commit ngay sau mỗi thay đổi lớn trong dự án, hoặc thay đổi nào mà bạn thấy thích, để có thể tìm lại phiên bản đã lưu nếu lỡ sửa hỏng code. Bạn chỉ cần bảo agents là "commit all the current changes with appropriate messages" là được.
 
 ![Ví dụ về nhiều commit nối tiếp nhau trong lịch sử Git](assets/module-3/commit-history-example.png)
 
 Chú thích đi cùng ảnh:
 
-> Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.
-
-Một commit được lưu trong repository trên máy tính của bạn. Nó không tự động xuất hiện trên GitHub.
-
-Nếu muốn lưu các commit trên GitHub, bạn cần thực hiện một bước riêng. Trang tiếp theo sẽ giải thích bước đó.
+> Trong hình, mỗi dòng đại diện cho một **commit** — tức một phiên bản của dự án đã được lưu lại.
 
 ### Trang 4 — Push: đưa commit lên GitHub
 
 Trang này nối trực tiếp với commit đã được tạo trên máy tính.
 
-Push là thao tác gửi những commit mới từ repository trên máy tính lên repository của cùng dự án trên GitHub.
+![Danh sách commit của dự án trên GitHub sau khi push](../../course-companion/src/renderer/src/assets/lesson-visuals/m3-github-pushed-commits.png)
 
-Sau khi push thành công, các commit đó sẽ xuất hiện trong lịch sử dự án trên GitHub. Push không tạo commit mới; nó chỉ đưa những commit đã có trên máy tính lên GitHub.
+Chú thích dưới ảnh:
 
-Phần này không giới thiệu câu lệnh, remote hoặc `origin`. Agent sẽ xử lý các thao tác kỹ thuật.
+> commit của dự án khi được push lên github
 
-Việc giới thiệu push không có nghĩa là sau mỗi giai đoạn đều phải đưa commit lên GitHub. Push là một hành động đưa dữ liệu ra ngoài và được xử lý riêng, thay vì tự động trở thành một bước trong mỗi vòng triển khai.
+Khi bạn muốn chuyển một commit từ môi trường máy tính của bạn lên GitHub, bạn sẽ sử dụng lệnh 'git push' (cụ thể như nào thì bạn có thể nhờ agent làm). Sau khi push thành công, lịch sử commit của bạn cũng sẽ được lưu trên github và bạn có thể chia sẻ nó cho người khác.
 
 ### Trang 5 — Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định
 
 Nội dung dưới đây đã được duyệt:
 
-Bây giờ, giả sử bạn đang phát triển một tính năng mới. Bạn chưa chắc mình có muốn đưa tính năng đó vào sản phẩm hay không, nhưng vẫn muốn thử nghiệm thêm.
+Một khái niệm nữa mà mình muốn giới thiệu cho bạn là **branch**, hay còn gọi là nhánh.
 
-Bạn không nên thử trực tiếp trên phiên bản đang hoạt động ổn định. Những thay đổi chưa hoàn thiện có thể làm hỏng phần đang hoạt động tốt.
+Giả sử portfolio của bạn đang hoạt động ổn, nhưng bạn muốn thử tạo thêm một khối 3D. Tính năng này khá phức tạp, và bạn chưa chắc làm xong có đẹp hay không. Nếu sửa trực tiếp trên nhánh chính, bạn có thể làm hỏng cả những phần đang chạy tốt.
 
-Đây là lúc bạn có thể dùng branch. Branch là một hướng phát triển riêng trong cùng repository. Nó cho phép bạn thử nghiệm tính năng mới mà chưa làm thay đổi phiên bản ổn định.
+Lúc này, bạn có thể tạo một branch riêng để phát triển tính năng 3D. Cứ hình dung đó là một “vùng riêng” để quậy. Những thay đổi bạn thực hiện và commit trên branch này sẽ không ảnh hưởng đến nhánh chính, cho đến khi bạn quyết định gộp chúng vào.
 
-Sau khi thử nghiệm, bạn xem kết quả rồi quyết định có đưa tính năng vào phiên bản ổn định hay không. Agent sẽ thực hiện phần kỹ thuật sau khi bạn lựa chọn.
+Nếu thử nghiệm không ổn, bạn có thể nhờ agent xử lý phần đang làm dở và quay lại nhánh chính. Bạn không bắt buộc phải đưa tính năng 3D vào portfolio, cũng không cần xóa branch ngay nếu muốn giữ lại để thử tiếp sau này.
+
+Để bắt đầu, bạn chỉ cần bảo agent:
+
+> Tạo và chuyển sang branch `feature/3d-development` (hoặc bất kỳ tên nào bạn thích) để phát triển tính năng 3D.
+
+### Trang 6 — Merge: gộp nhánh và xử lý xung đột
+
+![Danh sách các branch của một dự án trên GitHub](../../course-companion/src/renderer/src/assets/lesson-visuals/m3-github-branches.png)
+
+ảnh các branches trong một dự án trên github của mình
+
+Sau khi đã xem và kiểm tra tính năng, nếu muốn đưa nó vào nhánh chính, bạn có thể bảo:
+
+> Gộp branch hiện tại vào nhánh chính `main`. Nếu có xung đột, hãy giải thích và đề xuất cách xử lý để tôi quyết định. Sau khi gộp, kiểm tra lại tính năng một lần nữa để chắc không có lỗi gì xảy ra
+
+Thao tác gộp nhánh này được gọi là **merge**.
+
+Ngoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vùng xung đột xảy ra. Ví dụ, file hiệu ứng 3D của nhanh a quy định khối 3D xoay sang trái, trong khi nhánh b sửa cùng dòng đó để khối 3D xoay sang phải. Git sẽ không biết phải chọn cái nào, khiến xung đột (conflict) xảy ra
+
+Xử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.
+
+### Trang chốt trước khi Practice
+
+Nội dung dưới đây đã được duyệt:
+
+4 điều cần nhớ trước khi bắt đầu Practice:
+
+- Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được. Nếu vẫn không được thì bảo agent add log vào terminal để xem lỗi là gì, paste cái log đó vào coding agent và bảo nó sửa lại lần nữa
+- Bạn nên bảo agent hãy commit sau mỗi quyết định lớn, để sau này bạn sẽ dễ quay lại phiên bản cũ hơn nếu gặp bug.
+- Mỗi khi muốn phát triển một tính năng mới, hãy tạo một branch mới để lỡ agent có quậy thì cũng không ảnh hưởng đến tính năng hiện tại. Bạn chỉ cần bảo agent tạo branch là nó sẽ tự động hướng dẫn cho bạn
+- Bạn có thể tạo một tài khoản github rồi bảo agent push code hiện tại của bạn lên đó nếu bạn muốn hợp tác với một người khác
 
 ## 6. Practice
 
@@ -277,24 +312,26 @@ Quy tắc thiết kế câu hỏi:
 
 > Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.
 
-### Câu 2 — Báo lỗi bằng ảnh chụp
+### Câu 2 — Phân biệt Git và GitHub
 
 **Câu hỏi**
 
-> Bạn nhìn thấy nút **Xem dự án** đang che lên phần giới thiệu của website. Thông tin nào nên được gửi cho coding agent để agent điều tra lỗi?
+> Phát biểu nào mô tả đúng vai trò của Git và GitHub?
 
 **Lựa chọn**
 
-1. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, rồi chỉ rõ phần giao diện bạn muốn agent sửa.
-2. Gửi ảnh chụp, mô tả kết quả mong đợi, rồi yêu cầu agent kiểm tra phần giao diện đang bị che.
-3. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.
-4. Gửi ảnh chụp, mô tả kết quả thực tế, rồi liệt kê các tệp agent vừa thay đổi.
+1. Git giúp quản lý các phiên bản của dự án; GitHub cung cấp nơi lưu repository Git trực tuyến.
+2. Khi chạy trên máy tính thì gọi là Git, còn phiên bản chạy trên đám mây là GitHub.
+3. Git và GitHub là hai tên gọi của cùng một công cụ.
+4. Git dành cho người làm việc một mình, còn GitHub dành cho nhóm.
 
-**Đáp án:** 3
+**Đáp án:** 1
 
 **Giải thích sau khi trả lời**
 
-> Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.
+> Git là hệ thống quản lý phiên bản, giúp lưu lịch sử thay đổi của dự án. GitHub là nền tảng trực tuyến để lưu repository Git, chia sẻ và cộng tác. Bạn có thể dùng Git mà không cần GitHub. Cả Git và GitHub đều hỗ trợ làm việc cá nhân lẫn làm việc nhóm.
+
+**Nguồn:** Tham khảo câu 2 trong [DevOps.vn — 50 câu hỏi phỏng vấn Git](https://devops.vn/posts/50-cau-hoi-phong-van-git-co-ban-den-nang-cao/). Cách hỏi và các lựa chọn đã được điều chỉnh theo bản chủ sở hữu duyệt ngày 11 tháng 9 năm 2026. Nội dung giải thích dựa trên [GitHub — What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github).
 
 ### Câu 3 — Dùng log để tìm nguyên nhân
 

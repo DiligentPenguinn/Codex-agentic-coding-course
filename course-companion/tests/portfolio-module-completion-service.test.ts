@@ -161,7 +161,7 @@ async function moduleThreeFixture() {
   const decisions = {
     ...moduleThreeReady.decisions,
     'assessment:m3-mastery-plan': 'correct:1',
-    'assessment:m3-mastery-visible-error': 'correct:2',
+    'assessment:m3-mastery-visible-error': 'correct:0',
     'assessment:m3-mastery-logs': 'correct:3',
     'assessment:m3-mastery-repeated-error': 'correct:0',
     'assessment:m3-mastery-branch': 'correct:1'
@@ -249,14 +249,14 @@ async function moduleThreeFixture() {
 }
 
 describe('PortfolioModuleCompletionService', () => {
-  it('atomically saves the receipt and opens Module 3 readiness with explicit artifact inputs only', async () => {
+  it('atomically saves the receipt and opens Module 3 debugging with explicit artifact inputs only', async () => {
     const test = await fixture()
 
     const completed = await test.service.completeModuleTwo()
 
     expect(completed).toMatchObject({
       currentLessonId: 'module-3',
-      sceneId: 'module-3-readiness',
+      sceneId: 'module-3-debugging-intro',
       completedCheckpointIds: expect.arrayContaining([
         'm2-portfolio-planning', 'm2-portfolio-mastery', 'm2-portfolio-complete'
       ])
@@ -272,7 +272,7 @@ describe('PortfolioModuleCompletionService', () => {
       expect.arrayContaining([expect.objectContaining({ stageId: 'implementation-contract' })]))
     expect(JSON.stringify(receipt)).not.toMatch(/thread|chat|transcript/i)
     await expect(new ProgressRepository(join(test.root, 'data')).load()).resolves.toMatchObject({
-      status: 'returning', progress: { sceneId: 'module-3-readiness' }
+      status: 'returning', progress: { sceneId: 'module-3-debugging-intro' }
     })
   })
 
@@ -308,9 +308,9 @@ describe('PortfolioModuleCompletionService', () => {
 
     await expect(test.progressRepository.save({
       currentLessonId: 'module-3',
-      currentCourseLessonId: 'm3-scaffold-baseline',
-      checkpointId: 'm3-scaffold-baseline',
-      sceneId: 'module-3-readiness',
+      currentCourseLessonId: 'm3-complete-first-version',
+      checkpointId: 'm3-complete-first-version',
+      sceneId: 'module-3-debugging-intro',
       sceneHistory: ['module-2-portfolio-mastery-summary'],
       completedCheckpointIds: ['m2-portfolio-planning', 'm2-portfolio-mastery'],
       decisions: test.progress.decisions
