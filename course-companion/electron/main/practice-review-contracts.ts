@@ -33,6 +33,7 @@ export function parsePracticeReviewResult(input: {
   evidence: PracticeEvidenceReference[]
   reviewedAt: string
   planningEvidenceDigest?: string
+  portfolioPackage?: { ready: boolean; approved: boolean }
 }): PracticeReviewResult {
   const parsed = record(JSON.parse(jsonText(input.text)))
   if (!parsed) throw new Error('Practice review must be an object')
@@ -105,6 +106,12 @@ export function parsePracticeReviewResult(input: {
       || requiredEvidenceIds.some((id) => byEvidenceId.get(id)?.freshness !== 'fresh')) {
       throw new Error('Planning package pass lacks complete fresh canonical evidence')
     }
+  }
+  if (input.definition.practiceId === 'm2-portfolio-planning' && input.definition.version === '2.0.0'
+    && parsed.verdict === 'passed'
+    && (!input.portfolioPackage?.ready || !input.portfolioPackage.approved || !input.planningEvidenceDigest
+      || !input.evidence.some((item) => item.id === 'portfolio-package-approval' && item.freshness === 'fresh'))) {
+    throw new Error('Portfolio package pass lacks current approval or canonical evidence')
   }
   return {
     schemaVersion: 1,

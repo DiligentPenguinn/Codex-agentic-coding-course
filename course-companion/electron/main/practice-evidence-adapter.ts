@@ -15,6 +15,7 @@ export type PracticeEvidenceAdapterContext = {
   generation: number
   workspaceRoot: string
   task: PracticeEvidenceTaskIdentity | null
+  allowedLegacyArtifactPaths?: readonly string[]
 }
 
 export interface PracticeEvidenceAdapter {

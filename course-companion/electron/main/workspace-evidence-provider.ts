@@ -12,6 +12,13 @@ const MAX_DIRTY_PATHS = 500
 const MAX_GIT_OUTPUT = 1_000_000
 const GIT_TIMEOUT_MS = 10_000
 
+class GitCommandExitError extends Error {
+  constructor(readonly exitCode: number | null, readonly stderr: string) {
+    super('Git command exited unsuccessfully')
+    this.name = 'GitCommandExitError'
+  }
+}
+
 function containedRelativePath(value: string, workspaceRoot: string): string | null {
   const absolute = isAbsolute(value) ? normalize(value) : resolve(workspaceRoot, value)
   const result = relative(workspaceRoot, absolute).replaceAll('\\', '/')
@@ -48,9 +55,10 @@ function gitOutput(workspaceRoot: string, args: string[]): Promise<Buffer> {
       cwd: workspaceRoot,
       windowsHide: true,
       shell: false,
-      stdio: ['ignore', 'pipe', 'ignore']
+      stdio: ['ignore', 'pipe', 'pipe']
     })
     const chunks: Buffer[] = []
+    const errorChunks: Buffer[] = []
     let size = 0
     let settled = false
     const fail = (message: string): void => {
@@ -68,13 +76,21 @@ function gitOutput(workspaceRoot: string, args: string[]): Promise<Buffer> {
       }
       chunks.push(chunk)
     })
+    child.stderr.on('data', (chunk: Buffer) => {
+      size += chunk.length
+      if (size > MAX_GIT_OUTPUT) {
+        fail('Git output exceeded its safe bound')
+        return
+      }
+      errorChunks.push(chunk)
+    })
     child.once('error', () => fail('Git command failed'))
     child.once('exit', (code) => {
       clearTimeout(timeout)
       if (settled) return
       settled = true
       if (code !== 0) {
-        rejectOutput(new Error('Git command failed'))
+        rejectOutput(new GitCommandExitError(code, Buffer.concat(errorChunks).toString('utf8')))
         return
       }
       resolveOutput(Buffer.concat(chunks))
@@ -174,6 +190,17 @@ async function committedPathsSince(
 }
 
 async function snapshotEntries(workspaceRoot: string): Promise<Record<string, string>> {
+  try {
+    const isWorkTree = (await gitOutput(workspaceRoot, ['rev-parse', '--is-inside-work-tree']))
+      .toString('utf8').trim()
+    if (isWorkTree !== 'true') throw new WorkspaceGitUnavailableError()
+  } catch (error) {
+    if (error instanceof GitCommandExitError && error.exitCode === 128
+      && /not a git repository(?: \(or any of the parent directories\))?/i.test(error.stderr)) {
+      throw new WorkspaceGitUnavailableError()
+    }
+    throw error
+  }
   const paths = await gitStatus(workspaceRoot)
   const signatures = await Promise.all(paths.map(async (path) => [path, await contentSignature(workspaceRoot, path)] as const))
   return Object.fromEntries(signatures)
@@ -187,6 +214,13 @@ export type WorkspaceEvidenceProvider = {
     reportedPaths?: string[],
     runStartedAt?: string
   ) => Promise<WorkspaceEvidenceReconciliation>
+}
+
+export class WorkspaceGitUnavailableError extends Error {
+  constructor() {
+    super('Workspace Git evidence is unavailable')
+    this.name = 'WorkspaceGitUnavailableError'
+  }
 }
 
 export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
@@ -203,8 +237,11 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
         head,
         entries
       }
-    } catch {
-      return { schemaVersion: 1, capturedAt, gitAvailable: false, head: null, entries: {} }
+    } catch (error) {
+      if (error instanceof WorkspaceGitUnavailableError) {
+        return { schemaVersion: 1, capturedAt, gitAvailable: false, head: null, entries: {} }
+      }
+      throw error
     }
   }
 
@@ -214,8 +251,6 @@ export class GitWorkspaceEvidenceProvider implements WorkspaceEvidenceProvider {
     reportedPaths: string[] = [],
     runStartedAt?: string
   ): Promise<WorkspaceEvidenceReconciliation> {
-    if (baseline && !baseline.gitAvailable) throw new Error('Workspace Git evidence is unavailable')
-
     const current = await snapshotEntries(workspaceRoot)
 
     const reported = new Set(

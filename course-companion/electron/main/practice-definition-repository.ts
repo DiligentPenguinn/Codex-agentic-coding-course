@@ -386,7 +386,10 @@ export class PracticeDefinitionRepository {
       throw new Error('Invalid Practice version')
     }
     const parsed = await this.readDefinition(practiceId)
-    const definition = parsePracticeDefinition(parsed)
+    let definition = parsePracticeDefinition(parsed)
+    if (practiceId === 'm2-portfolio-planning' && expectedVersion === '1.0.0' && definition.version !== expectedVersion) {
+      definition = parsePracticeDefinition(await this.readDefinition(practiceId + '.v1'))
+    }
     if (definition.practiceId !== practiceId) throw new Error('Practice definition id mismatch')
     if (expectedVersion !== undefined && definition.version !== expectedVersion) {
       throw new Error('Practice definition version mismatch')

@@ -12,6 +12,7 @@ import {
   type PracticeEvidenceReference
 } from '../../shared/contracts'
 import { practiceWorkspaceIdentityDigest } from './practice-run-repository'
+import { collectPortfolioPackage } from './portfolio-package-evidence'
 import type {
   PracticeEvidenceAdapter,
   PracticeEvidenceAdapterContext
@@ -245,6 +246,7 @@ export class PortfolioPlanningEvidenceAdapter implements PracticeEvidenceAdapter
   async collect(
     context: Readonly<PracticeEvidenceAdapterContext>
   ): Promise<PracticeAdapterEvidenceState> {
+    if (context.definition.version === '2.0.0') return collectPortfolioPackage(context, this.now)
     const observedAt = this.now().toISOString()
     const canonicalRoot = await realpath(resolve(context.workspaceRoot))
     const issues: PortfolioPlanningIssue[] = []

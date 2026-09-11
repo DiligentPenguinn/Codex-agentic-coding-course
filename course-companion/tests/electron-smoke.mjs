@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { verifyOutlineNavigation } from './support/outline-navigation.mjs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -1444,6 +1444,20 @@ try {
   await capture(learningPage, 'module-2-portfolio-practice-brief.png')
   await learningPage.getByRole('button', { name: 'Đóng trang Practice', exact: true }).click()
 
+  // Simulated prerequisite for this theory-only journey. The separate portfolio
+  // rehearsal exercises actual collection, approval, review and task continuity.
+  const masterySeedPath = join(userDataDirectory, 'learner-state.json')
+  const masterySeed = JSON.parse(await readFile(masterySeedPath, 'utf8'))
+  masterySeed.practiceCompletions.push({
+    schemaVersion: 1, courseRunId: masterySeed.courseRunId,
+    practiceId: 'm2-portfolio-planning', practiceVersion: '2.0.0', runId: 'simulated-theory-prerequisite',
+    checkpointId: 'm2-portfolio-planning', status: 'completed', completedAt: new Date().toISOString(),
+    submissionDigest: '0'.repeat(64), evidenceSummary: 'Simulated theory-only prerequisite.',
+    masterySummary: 'Simulated review; not live or pilot evidence.',
+    destination: { lessonId: 'module-2', checkpointId: 'm2-portfolio-mastery', sceneId: 'module-2-portfolio-mastery' }
+  })
+  await writeFile(masterySeedPath, JSON.stringify(masterySeed), 'utf8')
+
   await learningPage.evaluate(async () => {
     const loaded = await globalThis.courseCompanion?.loadProgress()
     if (!loaded || (loaded.status !== 'returning' && loaded.status !== 'recovered')) {
@@ -1466,7 +1480,7 @@ try {
       ])],
       decisions: {
         ...loaded.progress.decisions,
-        portfolioPlanningPractice: 'five-current-stage-receipts'
+        portfolioPlanningPractice: 'simulated-five-document-review'
       }
     })
   })
@@ -1526,7 +1540,7 @@ try {
   assert.equal(persisted.courseVersion, '0.3.0')
   assert.equal(persisted.currentCourseLessonId, 'm2-portfolio-brief')
   assert.ok(persisted.sceneHistory.length > 10)
-  assert.equal(persisted.decisions.portfolioPlanningPractice, 'five-current-stage-receipts')
+  assert.equal(persisted.decisions.portfolioPlanningPractice, 'simulated-five-document-review')
   assert.equal(persisted.decisions.setupPractice, 'teacher-reviewed-setup')
   assert.equal(persisted.decisions.setupMastery, 'passed-five-of-six')
   assert.equal(persisted.decisions.masteryEvidence, undefined)

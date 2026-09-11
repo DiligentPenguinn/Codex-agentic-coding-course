@@ -6,9 +6,10 @@
   passes through one required technical portfolio-folder boundary, and retires
   the other 22 Teacher-led Practice-setup slides. The combined fictional implementation-plan page, final assessment,
   saved-progress redirects, and detailed Teacher/Executor integration handoff
-  are implemented and verified for this scoped content change. The previous seven-artifact
-  runtime remains active until the delegated integration plan is implemented;
-  Module 2 is therefore still `in-progress` and owner acceptance remains
+  are implemented and verified for this scoped content change. The approved
+  five-document Practice runtime is implemented with final-package approval,
+  actual-content review, recoverable same-task migration and versioned handoff.
+  Module 2 remains `in-progress` overall because owner acceptance remains
   pending. Module 4 learner content, five formative checks, and a six-question
   final review were brought into `Triet-V2-planning` on 18 August 2026 without
   the temporary content-review launcher, Practice bypasses, or session-only
@@ -37,11 +38,73 @@ and must never be inferred from a passing automated check.
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
 | Foundation | `in-progress` — automatic settings recovery, review history, regression clarity, cross-window synchronization, guide actions, and compact/full Practice hierarchy are preserved alongside the incoming Model/Effort/Speed split, clickable outlines, shared navigation, desktop layout, and macOS fullscreen panel policy | `passed` for the 11 September 2026 merge into the Practice branch: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the automatic metadata recovery, review-clarity design, guide actions, selective content-integration boundary, and required workspace-selection compatibility boundary were explicitly approved; the current branch merge was explicitly requested | `pending` | Present the merged course and preserved Practice workflow for review; native macOS fullscreen evidence and overall acceptance remain outstanding. |
-| Module 2 | `in-progress` — the incoming five knowledge slides, eight-section outline, and revised portfolio-material label are integrated with the existing technical portfolio-folder boundary, Practice launch, review, mastery, and persistence. The five-document Practice redesign remains pending | `passed` for the merged content and existing workspace/Practice boundary: the full static suite and Electron journey pass; this does not verify the proposed five-document runtime | `pending` overall; the compact knowledge route, direct-to-summary assessment flow, and required technical workspace boundary were explicitly approved, while the redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Reconcile I1–I6 with the 11 September handoff, including five-document evidence, approval, completion, task continuity, and old-progress handling, before implementing the redesigned Practice. |
+| Module 2 | `in-progress` overall — five-document Practice implementation is complete: one explicit final PRD/plan approval, deterministic collection plus actual-content AI review, preserved legacy history, same-task revision, archived completion and v2 handoff. Incoming theory and existing mastery remain unchanged | `passed` for technical checks: 467 unit tests with two intentional skips, nine startup tests, typecheck, lint, build, full Electron smoke and extended disposable portfolio rehearsal; simulated review is not live AI or pilot evidence | `pending` overall; the five-document design and preservation-with-fresh-review migration were explicitly approved, not final runtime acceptance | `pending` | Obtain owner review and required learner/native rehearsal evidence before acceptance; independent review and the local checkpoint are complete. Do not invent replacement Module 3 criteria. |
 | Module 3 | `in-progress` — the incoming debugging opening, separate branch and merge pages, Git screenshots and dialogue, highlighted terminology, pre-Practice recap, and updated Git/GitHub mastery question are integrated unchanged; the Practice branch's five stage receipts, four build-slice receipts, and strict completion contract remain authoritative | `passed` for the merged lesson content and preserved Practice contract: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the incoming branch integration and preservation of the Practice/theory ownership boundary were explicitly requested; this does not approve replacement Practice criteria | `pending` | Review the merged lesson content; after the required Module 2 gate, settle the replacement Module 3 build/debugging criteria from the handoff before changing current Practice gates. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present; Practice, artifact templates, completion, and graduation wiring remain deferred | `passed` for the previously integrated content scope; Windows provider runtime remains unverified | `pending` overall; learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
 
 ## Merge into the Practice branch — 11 September 2026
+
+### Five-document Practice implementation — 11 September 2026
+
+The owner authorized following the new handoff and implementing the Practice
+side, with advance notice before modifying theory or shared course-app code.
+Baseline inspection confirmed the portfolio path used seven artifacts
+and five stage receipts, disabled normal submission review, and did not supply
+portfolio document contents to the AI evaluator. The baseline completion service
+also depended on an active run and a first-task document.
+
+The owner-approved implementation design is recorded in
+`docs/superpowers/specs/2026-09-11-five-document-portfolio-practice-design.md`.
+It replaces stage gates with final-package approval and submission, preserves
+the existing review/recovery infrastructure, and defines a versioned
+five-document handoff carrying the Executor task binding. The owner has been
+notified of the required narrow changes to shared Practice contracts, Module 2
+registry metadata, the Practice launcher, and course-structure gate metadata.
+
+Implementation of the redesigned runtime is `implemented`; verification
+is `passed` for technical checks. Versioned contracts, bounded five-document
+collection, explicit final approval, actual-content AI review, retained-run
+completion, and same-task handoff are implemented in the working tree.
+Final technical verification passes 467 unit tests (two intentional skips), nine
+startup tests, typecheck, lint, production build, full Electron smoke, and the
+extended five-document rehearsal. The rehearsal verifies keyboard approval,
+desktop/narrow layouts without horizontal overflow, actual persisted review,
+UI return, post-return document revision, stale-completion rejection, reopening
+the original task with fresh approval/review, completion, and exact Module 3 task
+continuity. Mastery answers and AI review are explicitly simulated in disposable
+data. Git-dependent fresh-folder rejection, legacy-path forwarding, active and
+archive-only migration, retained-v2 revision, and section-summary defects found
+during verification are fixed with regression coverage. Intermediate default
+worker runs hit Git fixture timing failures; both the complete single-worker
+suite and the final standard `npm test` pass with unchanged assertions and
+timeouts. Independent final spec/quality review is approved with no remaining
+actionable findings. The verified local checkpoint is complete on the existing
+Practice branch; no changes were pushed to either branch.
+The existing merged-runtime verification above remains historical evidence for
+the old workflow only. The owner explicitly approved preserving old work/task/history
+and requiring fresh five-document review. Next permitted action: seek
+owner/runtime acceptance and required learner rehearsal evidence; do not invent replacement Module 3 criteria or
+infer overall approval/pilot acceptance from the implementation request.
+
+#### Reconciled checkpoint scope
+
+The 11 September handoff and approved design supersede older per-stage approval
+requirements in M2.4, M2.6, and integration checkpoints I1–I6. The five checklist
+items describe the documents; they are not five learner approval gates. One
+explicit approval of the current PRD and plan precedes whole-package review.
+Validation coverage lives in the implementation plan; the first bounded build
+task remains in Module 3. Older source handoffs remain unchanged as history.
+
+| Checkpoint | Implementation | Verification | Remaining gap / next permitted action |
+|---|---|---|---|
+| I1 / M2.1 — contract | `implemented` | `passed` for focused tests | Five unique paths, v2 manifest, unchanged v1 definition retained for history; no theory/template rewrite. |
+| I2 — task and migration | `implemented` | `passed` | Active v1, unambiguous replaced/complete v1 archives, retained v2 revision and active Module 3 recovery preserve task/files/history; ambiguous or unavailable task/workspace recovery fails closed. |
+| I3 — evidence | `implemented` | `passed` for 14 filesystem tests | Bounded contents, digests, sections, requirement references, scope, optional validated images; semantic quality remains AI-assessed. |
+| I4 / M2.4–M2.5 — submission | `implemented` | `passed` | Final-package approval/review, fresh-folder validation, busy/error preservation, Teacher chat exclusion and responsive controls are verified. |
+| I5 / M2.6 — completion/handoff | `implemented` | `passed` | Five current references, original task, archived completion/revision, existing mastery and bounded relevant summaries are verified; Module 3 replacement criteria remain deferred. |
+| I6 — verification | `implemented` | `passed` | Independent review and local checkpoint are complete. Native/live AI and learner/pilot acceptance are not established by simulated checks; seek those acceptance decisions next. |
+
+### Verified merge record
 
 Merged `origin/triet-v3-planning` at `4513318` into
 `feature/course-companion-practice-workflow` at `8a18349`, retaining both
@@ -1475,7 +1538,8 @@ I1–I6 are implemented.
 
 **Change**
 
-1. Add the Practice definition with five ordered stage checkpoints.
+1. Add the version 2 Practice definition with five descriptive document
+   checklist items and one final-package submission gate.
 2. Open the learner-selected portfolio folder in one persistent Executor task.
 3. Limit write scope to the five approved planning documents and bounded
    reference screenshots.
@@ -1489,24 +1553,25 @@ I1–I6 are implemented.
    - phased plan dependencies, non-goals, and the absence of a Module 2
      implementation task;
    - learner approval of the current versions.
-5. After every stage, Course Companion must inspect the current filesystem
-   artifact, show a learner-readable digest summary, and record only an explicit
-   **Chấp nhận** decision; **Yêu cầu sửa** keeps the same task and stage open.
-6. Stage 4 and Stage 5 synthesize current approved inputs before asking any
-   question. Ask only for unresolved high-impact decisions.
+5. On submission, Course Companion inspects the current five documents and
+   records explicit learner approval of the current PRD and plan before AI
+   review. A needs-work result keeps the same task available for revision;
+   do not require five separate approvals or additional interviews.
+6. Executor synthesizes settled document inputs and asks only for unresolved
+   high-impact decisions, without re-interviewing settled PRD requirements.
 7. Prevent implementation source, task creation, dependency installation, or
    deployment work.
 
 **Verify**
 
-- Missing, stale, malformed, or unapproved artifacts fail the matching stage.
+- Missing, stale, malformed, or unapproved packages cannot pass final review.
 - Unexpected application files fail scope control.
 - A reference may be a URL, screenshot, or learner-owned image; unclear rights
   remain explicitly bounded and never authorize public reuse.
-- Each stage can resume after relaunch without starting a new task.
-- Every stage receipt binds to the current digests required by that stage and
-  its dependency chain; a downstream edit invalidates the affected receipts.
-- Completing Stage 5 returns to the Module 2 mastery scene, not Module 3.
+- The existing task can resume after relaunch without creating a replacement.
+- Approval and submission bind to the current course, run, task, workspace and
+  five document digests; any changed input requires fresh approval and review.
+- Returning from the passed submission opens Module 2 mastery, not Module 3.
 
 **Checkpoint output:** A live, resumable portfolio-planning Practice with fresh
 artifact evidence.
@@ -2011,15 +2076,17 @@ remain pending.
 
 **Change**
 
-1. Require all five current documents, five stage receipts, learner approval,
-   and mastery evidence.
+1. Require all five current documents, current final-package approval and
+   passed review, and the existing mastery evidence. Historical stage receipts
+   do not satisfy the version 2 gate.
 2. Generate a plain-language completion summary: what the learner decided,
    which evidence is missing or bounded, the approved implementation sequence,
    and what is deliberately out of scope. Do not claim a first implementation
    task was created in Module 2.
 3. Unlock Module 3 only after the completion receipt is saved atomically.
-4. Pass Module 3 the workspace path and artifact references, not the old chat
-   transcript as hidden context.
+4. Pass Module 3 the workspace path, five artifact references/digests, verified
+   submission and exact existing task binding, not the old chat transcript as
+   hidden context. Missing or mismatched task access must fail closed.
 5. Make Module 3's first action read the five current documents, propose one
    bounded implementation task with technology/dependency/file consequences,
    and wait for learner approval before writing application code.
@@ -2048,9 +2115,10 @@ Module 2 is accepted only when:
   learner portfolio folder;
 - exactly five explanation pages lead to one persistent Practice task;
 - all five planning documents are reviewed semantically on their current
-  digests, and Stage 5 stops at the implementation plan;
-- the same Executor thread remains bound through all five stages and every
-  **Yêu cầu sửa** cycle;
+  digests after explicit final PRD/plan approval; the package stops at the
+  implementation plan and has no five-stage approval prerequisite;
+- the same Executor thread remains bound through planning, every resubmission,
+  and the Module 3 handoff;
 - Module 3 stays locked before the combined evidence/mastery gate;
 - Module 3 proposes and waits for approval of the first concrete task instead
   of receiving one created in Module 2;

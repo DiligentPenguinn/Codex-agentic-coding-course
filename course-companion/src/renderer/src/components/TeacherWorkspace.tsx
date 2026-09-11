@@ -559,6 +559,9 @@ export function TeacherWorkspace({
             {workspace ? (
               <PracticeProgress
                 workspace={workspace}
+                api={window.courseCompanion}
+                onWorkspaceChange={setWorkspace}
+                onBusyChange={setReviewBusy}
                 compact={!embedded}
                 returnBusy={returnBusy || reviewBusy}
                 actionBusy={planningActionBusy}
@@ -640,6 +643,9 @@ export function TeacherWorkspace({
           {workspace ? (
             <PracticeProgress
               workspace={workspace}
+              api={window.courseCompanion}
+              onWorkspaceChange={setWorkspace}
+              onBusyChange={setReviewBusy}
               compact={!embedded}
               returnBusy={returnBusy}
               actionBusy={planningActionBusy}

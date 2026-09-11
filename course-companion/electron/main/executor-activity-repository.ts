@@ -31,6 +31,8 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   if (!isRecord(value) || value.schemaVersion !== 1) return null
   if (typeof value.runId !== 'string' || typeof value.threadId !== 'string') return null
   if (!['ready', 'working', 'waiting-for-learner', 'response-ready', 'stale', 'disconnected'].includes(String(value.status))) return null
+  if (value.workspaceEvidenceStatus !== undefined
+    && !['available', 'git-unavailable', 'failed'].includes(String(value.workspaceEvidenceStatus))) return null
   if (typeof value.cursor !== 'string' || value.cursor.length > 500) return null
   if (!isStringArray(value.learnerPrompts, 50) || !isStringArray(value.executorResponses, 50)) return null
   if (!isStringArray(value.approvalEvents, 50) || !isStringArray(value.changedFiles, 100)) return null
@@ -54,6 +56,8 @@ function normalizeSnapshot(value: unknown): ExecutorActivitySnapshot | null {
   if (!isStringArray(workspaceConfirmedChangedFiles, 100) || !isStringArray(workspaceCommittedReportedFilesSinceRunStart, 100)) return null
   if (!isStringArray(workspaceCurrentlyDirtyReportedFiles, 100)) return null
   if (!validBaseline(workspaceBaseline)) return null
+  if (value.workspaceEvidenceStatus === 'git-unavailable'
+    && (value.status !== 'stale' || (isRecord(workspaceBaseline) && workspaceBaseline.gitAvailable !== false))) return null
   if (configuration !== null && !isCodexTaskConfigurationSnapshot(configuration)) return null
   return {
     ...(value as Omit<ExecutorActivitySnapshot, 'learnerAuthoredPrompts' | 'reportedChangedFiles' | 'reportedVerificationEvidence' | 'workspaceConfirmedChangedFiles' | 'workspaceCommittedReportedFilesSinceRunStart' | 'workspaceCurrentlyDirtyReportedFiles' | 'workspaceBaseline' | 'configuration'>),

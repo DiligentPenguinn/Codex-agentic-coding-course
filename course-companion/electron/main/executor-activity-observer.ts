@@ -3,7 +3,11 @@ import type { ExecutorActivitySnapshot, WorkspaceEvidenceBaseline } from '../../
 import type { CodexConnectionState, CodexNotification } from './codex-app-server-client'
 import type { ExecutorChatBinding } from './practice-run-repository'
 import { ExecutorActivityRepository } from './executor-activity-repository'
-import { GitWorkspaceEvidenceProvider, type WorkspaceEvidenceProvider } from './workspace-evidence-provider'
+import {
+  GitWorkspaceEvidenceProvider,
+  WorkspaceGitUnavailableError,
+  type WorkspaceEvidenceProvider
+} from './workspace-evidence-provider'
 import {
   mergeCodexTaskConfiguration,
   normalizeCodexTaskConfiguration,
@@ -310,14 +314,26 @@ export async function reconcileExecutorActivity(
     )
     return {
       ...snapshot,
+      workspaceEvidenceStatus: 'available',
       workspaceConfirmedChangedFiles: [...new Set(reconciliation.changedSinceBaseline)].slice(-100),
       workspaceCommittedReportedFilesSinceRunStart: [...new Set(reconciliation.committedReportedFilesSinceRunStart)].slice(-100),
       workspaceCurrentlyDirtyReportedFiles: [...new Set(reconciliation.currentlyDirtyReportedFiles)].slice(-100)
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof WorkspaceGitUnavailableError) {
+      return {
+        ...snapshot,
+        status: 'stale',
+        workspaceEvidenceStatus: 'git-unavailable',
+        workspaceConfirmedChangedFiles: [],
+        workspaceCommittedReportedFilesSinceRunStart: [],
+        workspaceCurrentlyDirtyReportedFiles: []
+      }
+    }
     return {
       ...snapshot,
       status: 'stale',
+      workspaceEvidenceStatus: 'failed',
       workspaceConfirmedChangedFiles: previous.workspaceConfirmedChangedFiles,
       workspaceCommittedReportedFilesSinceRunStart: previous.workspaceCommittedReportedFilesSinceRunStart,
       workspaceCurrentlyDirtyReportedFiles: previous.workspaceCurrentlyDirtyReportedFiles

@@ -48,7 +48,7 @@ export const moduleTwoDefinition = {
   ],
   practice: {
     id: 'm2-portfolio-planning',
-    version: '1.0.0',
+    version: '2.0.0',
     evidenceProfile: 'portfolio-planning'
   },
   artifactPaths: [
@@ -56,9 +56,7 @@ export const moduleTwoDefinition = {
     'planning/content-evidence-inventory.md',
     'planning/reference/reference.md',
     'planning/PRD.md',
-    'planning/requirement-validation-map.md',
-    'planning/implementation-plan.md',
-    'planning/first-bounded-task.md'
+    'planning/implementation-plan.md'
   ],
   completionDestination: { moduleId: 'module-3', sceneId: 'module-3-debugging-intro' }
 } as const

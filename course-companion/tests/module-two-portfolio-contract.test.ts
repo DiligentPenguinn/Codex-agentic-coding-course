@@ -13,7 +13,7 @@ type ModuleTwoManifest = {
     nextLessonId: string
     requiresCurrentArtifactDigests: boolean
     requiresLearnerApproval: boolean
-    requiresStageReceiptCount: number
+    requiresPassedPracticeReview: boolean
     requiresMasteryReceipt: boolean
   }
   checkpoints: string[]
@@ -32,7 +32,7 @@ async function manifest(): Promise<ModuleTwoManifest> {
 }
 
 describe('Module 2 portfolio contract', () => {
-  it('declares one Course Companion lesson and keeps the five-stage Practice gate', async () => {
+  it('preserves the lesson and requires final-package review with current approval', async () => {
     const moduleTwo = await manifest()
 
     expect(moduleTwo.titleVi).toBe('Planning và PRD trước khi code với AI')
@@ -49,15 +49,18 @@ describe('Module 2 portfolio contract', () => {
       nextLessonId: 'module-3',
       requiresCurrentArtifactDigests: true,
       requiresLearnerApproval: true,
-      requiresStageReceiptCount: 5,
+      requiresPassedPracticeReview: true,
       requiresMasteryReceipt: true
     })
   })
 
-  it('maps seven unique planning artifacts to solution-free templates', async () => {
+  it('requires exactly five unique planning artifacts and preserves the existing templates', async () => {
     const moduleTwo = await manifest()
-    expect(moduleTwo.artifactPaths).toHaveLength(7)
-    expect(new Set(moduleTwo.artifactPaths).size).toBe(7)
+    expect(moduleTwo.artifactPaths).toEqual([
+      'planning/portfolio-brief.md', 'planning/content-evidence-inventory.md',
+      'planning/reference/reference.md', 'planning/PRD.md', 'planning/implementation-plan.md'
+    ])
+    expect(new Set(moduleTwo.artifactPaths).size).toBe(5)
     expect(moduleTwo.artifactPaths.every((path) => path.startsWith('planning/'))).toBe(true)
     expect(moduleTwo.artifactPaths.every((path) => !path.includes('..'))).toBe(true)
 
@@ -79,6 +82,6 @@ describe('Module 2 portfolio contract', () => {
     expect(combined).toContain('quyền riêng tư')
     expect(combined).toContain('quyền sở hữu')
     expect(combined).toContain('planning/reference/screenshots/')
-    expect(combined).toContain('chưa được chạy để tạo ứng dụng')
+    expect(combined).not.toMatch(/```(?:jsx|tsx|ts|js|html|css)/)
   })
 })

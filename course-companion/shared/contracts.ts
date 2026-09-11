@@ -487,6 +487,7 @@ export type ExecutorActivitySnapshot = {
   workspaceCurrentlyDirtyReportedFiles: string[]
   observedAt: string
   workspaceBaseline: WorkspaceEvidenceBaseline | null
+  workspaceEvidenceStatus?: 'available' | 'git-unavailable' | 'failed'
   configuration: CodexTaskConfigurationSnapshot | null
 }
 
@@ -695,12 +696,33 @@ export const portfolioPlanningArtifactPaths = [
 
 export type PortfolioPlanningArtifactPath = (typeof portfolioPlanningArtifactPaths)[number]
 
+export const portfolioPackageVersion = '2.0.0' as const
+export const portfolioPackageArtifactPaths = [
+  'planning/portfolio-brief.md',
+  'planning/content-evidence-inventory.md',
+  'planning/reference/reference.md',
+  'planning/PRD.md',
+  'planning/implementation-plan.md'
+] as const
+
+export type PortfolioPackageApproval = {
+  courseRunId: string
+  runId: string
+  generation: number
+  threadId: string
+  workspaceIdentityDigest: string
+  sourceDigest: string
+  artifactDigests: Record<string, string>
+  recordedAt: string
+}
+
 export type PortfolioPlanningArtifactSnapshot = {
   path: string
   digest: string
   byteLength: number
   modifiedAt: string
   observedAt: string
+  content?: string
 }
 
 export type PortfolioPlanningIssue = {
@@ -876,6 +898,7 @@ export type PracticeCompletionReceipt = {
   completedAt: string
   evidenceSummary: string
   masterySummary: string
+  submissionDigest?: string
   destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
   portfolioPlanningHandoff?: PortfolioPlanningHandoff
@@ -892,7 +915,16 @@ export type PortfolioBuildHandoff = {
   moduleFourInput: { workspacePath: string; sourceCheckpoint: string }
 }
 
-export type PortfolioPlanningHandoff = {
+export type PortfolioPlanningHandoff = LegacyPortfolioPlanningHandoff | PortfolioPackageHandoff
+
+export type PortfolioPackageHandoff = Omit<LegacyPortfolioPlanningHandoff, 'schemaVersion' | 'stageReceipts'> & {
+  schemaVersion: 2
+  approval: PortfolioPackageApproval
+  submission: { runId: string; generation: number; sourceDigest: string; reviewDigest: string; reviewedAt: string }
+  task: { runId: string; threadId: string; name: string; workspaceRoot: string; createdAt: string }
+}
+
+export type LegacyPortfolioPlanningHandoff = {
   schemaVersion: 1
   workspace: {
     canonicalPath: string
@@ -975,6 +1007,14 @@ export type PracticeWorkspaceView = {
   completion?: PracticeCompletionReceipt
   configuration?: CodexTaskConfigurationSnapshot
   planning?: PracticePlanningWorkspaceView
+  portfolioPackage?: {
+    sourceDigest: string | null
+    ready: boolean
+    approved: boolean
+    artifactPaths: string[]
+    issues: string[]
+    unexpectedPaths: string[]
+  }
   portfolioPlanning?: {
     freshness: 'fresh' | 'stale' | 'unverifiable'
     observedAt?: string
@@ -1215,6 +1255,13 @@ export type PortfolioStageActionRequest = PlanningActionIdentity & {
   decision: 'approved' | 'revision-requested'
 }
 
+export type PortfolioPackageApprovalRequest = PlanningActionIdentity & {
+  courseRunId: string
+  sourceDigest: string
+  approvePrd: true
+  approvePlan: true
+}
+
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
   panel: PracticePanel
@@ -1228,6 +1275,7 @@ export type PracticeWorkspaceAdapter = {
   cancel: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
+  approvePortfolioPackage?: (request: PortfolioPackageApprovalRequest) => Promise<PracticeWorkspaceView>
   selectPanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reset: () => Promise<void>
 }
@@ -1278,6 +1326,7 @@ export type CourseCompanionApi = {
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
   recordPortfolioStageAction: (request: PortfolioStageActionRequest) => Promise<PracticeWorkspaceView>
+  approvePortfolioPackage?: (request: PortfolioPackageApprovalRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
   loadPracticeGuide: (

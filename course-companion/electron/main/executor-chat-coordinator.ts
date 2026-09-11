@@ -11,6 +11,7 @@ import {
 } from './practice-task-policy'
 import type { PracticeWorkspaceResolverPort } from './practice-workspace-resolver'
 import { normalizeCodexTaskConfiguration } from './codex-configuration-normalizer'
+import { portfolioPackageArtifactPaths } from '../../shared/contracts'
 
 export type CodexRequestClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
@@ -109,12 +110,20 @@ export class ExecutorChatCoordinator {
       )
       if (definition.taskPolicy === 'safe-workspace-write') {
         const turns = Array.isArray(thread.turns) ? thread.turns : []
-        if (turns.length === 0) {
+        const continuesPortfolio = (definition.practiceId === 'm2-portfolio-planning' && definition.version === '2.0.0')
+          || definition.practiceId === 'm3-portfolio-build'
+        const marker = 'PRACTICE_CONTRACT:' + binding.runId + ':' + definition.practiceId + ':' + definition.version
+        if (turns.length === 0 || (continuesPortfolio && !JSON.stringify(turns).includes(marker))) {
           await this.client.request('turn/start', {
             threadId: binding.threadId,
             input: [{
               type: 'text',
               text: [
+                ...(continuesPortfolio ? [marker,
+                  'Tiếp tục trong chính task này với các tài liệu đã có; không tạo task hoặc workspace thay thế.',
+                  ...(definition.practiceId === 'm3-portfolio-build' ? [
+                    'Đọc năm tài liệu planning đã được duyệt làm nguồn yêu cầu. Trước khi viết ứng dụng, xác nhận tác vụ triển khai đầu tiên với người học; không cần first-bounded-task.md. Giữ nguyên ranh giới và các cổng kiểm chứng hiện hành của Module 3.'
+                  ] : [])] : []),
                 'Thực hiện Practice ' + definition.practiceId + '.',
                 'Mục tiêu: ' + definition.objective,
                 'Kết quả cần đạt: ' + definition.expectedOutcome,
@@ -124,6 +133,15 @@ export class ExecutorChatCoordinator {
                       'Chỉ được thay đổi artifacts/PRD.md và artifacts/implementation-plan.md; không viết implementation code.',
                       'Dùng chính task này cho toàn bộ Practice, phỏng vấn từng câu một, và chờ các nút phê duyệt trong Course Companion. Tin nhắn trong chat không thay thế phê duyệt của người học.'
                     ]
+                  : definition.practiceId === 'm2-portfolio-planning' && definition.version === '2.0.0'
+                    ? [
+                        'Dùng chính task này để soạn, sửa và tiếp tục toàn bộ gói planning. Tận dụng các quyết định đã có; chỉ hỏi thông tin còn thiếu hoặc quyết định quan trọng. Không phỏng vấn lại theo bộ câu hỏi bắt buộc và không dừng duyệt từng tài liệu.',
+                        'Chỉ tạo hoặc sửa: ' + portfolioPackageArtifactPaths.join(', ') + '. Mỗi tài liệu có các mục Markdown với nội dung cụ thể, không để mục trống.',
+                        'PRD dùng mã REQ ổn định và tiêu chí chấp nhận kiểm tra được. implementation-plan.md chứa các bước/giai đoạn, phụ thuộc, kết quả quan sát và cách kiểm chứng cho mọi mã REQ của PRD; không thêm yêu cầu ngoài PRD.',
+                        'Tham chiếu ghi nguồn và quyền sử dụng; ảnh chụp là tùy chọn, chỉ lưu ảnh được dẫn trong reference.md dưới planning/reference/screenshots/. Không tạo bản đồ kiểm chứng riêng hoặc tệp tác vụ đầu tiên.',
+                        'Khi gói hoàn chỉnh, người học đọc và duyệt PRD cùng kế hoạch, rồi nộp cả gói trong Course Companion. Văn bản phê duyệt trong tệp hoặc chat không thay thế hành động phê duyệt tại đó.',
+                        'Không tạo ứng dụng, cài dependencies, viết package manifest, chạy build hay deploy trong Module 2. Việc chọn tác vụ triển khai đầu tiên thuộc Module 3.'
+                      ]
                   : definition.stages
                     ? [
                         'Dùng chính task này cho cả năm stage; không tạo task mới cho từng milestone.',
@@ -142,6 +160,29 @@ export class ExecutorChatCoordinator {
         }
       }
     })
+  }
+
+  async validateExistingTarget(
+    binding: ExecutorChatBinding,
+    definition: PracticeDefinition
+  ): Promise<boolean> {
+    try {
+      const workspaceRoot = await this.workspaces.resolve(definition.workspaceKind)
+      if (!THREAD_ID.test(binding.threadId)
+        || !samePath(binding.workspaceRoot, workspaceRoot)) return false
+      return await this.withBootstrap(async () => {
+        const read = await this.client.request('thread/read', {
+          threadId: binding.threadId,
+          includeTurns: false
+        })
+        return isRecord(read)
+          && isRecord(read.thread)
+          && read.thread.id === binding.threadId
+          && samePath(read.thread.cwd, workspaceRoot)
+      })
+    } catch {
+      return false
+    }
   }
 
   private async waitUntilReadable(

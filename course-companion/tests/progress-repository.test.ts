@@ -528,14 +528,15 @@ describe('ProgressRepository', () => {
     const started = await repository.save({
       currentLessonId: 'module-2',
       currentCourseLessonId: 'm2-portfolio-brief',
-      checkpointId: 'm2-portfolio-mastery',
-      sceneId: 'module-2-portfolio-mastery',
+      checkpointId: 'm2-portfolio-planning',
+      sceneId: 'module-2-portfolio-practice',
       sceneHistory: ['module-2-portfolio-practice'],
       completedCheckpointIds: ['m2-portfolio-planning'],
       decisions: {}
     })
     const retiredProgress = {
       ...started,
+      checkpointId: 'm2-portfolio-mastery',
       sceneId: 'module-2-mastery-scenario-reference',
       sceneHistory: [
         ...started.sceneHistory,

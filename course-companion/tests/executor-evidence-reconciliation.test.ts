@@ -10,7 +10,11 @@ import {
 } from '../electron/main/executor-activity-observer'
 import { ExecutorActivityRepository } from '../electron/main/executor-activity-repository'
 import type { ExecutorChatBinding } from '../electron/main/practice-run-repository'
-import type { WorkspaceEvidenceProvider } from '../electron/main/workspace-evidence-provider'
+import {
+  GitWorkspaceEvidenceProvider,
+  WorkspaceGitUnavailableError,
+  type WorkspaceEvidenceProvider
+} from '../electron/main/workspace-evidence-provider'
 import { TestCodexGateway } from '../electron/main/test-codex-gateway'
 
 const directories: string[] = []
@@ -69,6 +73,7 @@ class ReconciledWorkspace implements WorkspaceEvidenceProvider {
   reportedPaths: string[] = []
   confirmReportedChange = true
   failReconciliation = false
+  gitUnavailable = false
 
   async capture(_workspaceRoot: string, capturedAt: string) {
     this.captureCalls += 1
@@ -82,6 +87,7 @@ class ReconciledWorkspace implements WorkspaceEvidenceProvider {
   }
 
   async reconcile(_workspaceRoot: string, _baseline: unknown, reportedPaths: string[] = []) {
+    if (this.gitUnavailable) throw new WorkspaceGitUnavailableError()
     if (this.failReconciliation) throw new Error('Git temporarily unavailable')
     this.reportedPaths = reportedPaths
     return {
@@ -119,6 +125,31 @@ const silentDesktopTurn = {
 }
 
 describe('Executor evidence reconciliation', () => {
+  it('classifies a real non-Git workspace separately from a Git command failure', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-real-non-git-'))
+    directories.push(directory)
+    const provider = new GitWorkspaceEvidenceProvider()
+
+    const baseline = await provider.capture(directory, timestamp)
+    expect(baseline).toMatchObject({ gitAvailable: false })
+    await expect(provider.reconcile(directory, baseline)).rejects.toBeInstanceOf(WorkspaceGitUnavailableError)
+  })
+
+  it('keeps malformed Git metadata and a stale false baseline as generic failures', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-invalid-git-'))
+    directories.push(directory)
+    await writeFile(join(directory, '.git'), 'not a valid gitdir declaration', 'utf8')
+    const provider = new GitWorkspaceEvidenceProvider()
+
+    const captureError = await provider.capture(directory, timestamp).then(() => null, (error: unknown) => error)
+    expect(captureError).toBeInstanceOf(Error)
+    expect(captureError).not.toBeInstanceOf(WorkspaceGitUnavailableError)
+    const staleBaseline = { schemaVersion: 1 as const, capturedAt: timestamp, gitAvailable: false, head: null, entries: {} }
+    const reconcileError = await provider.reconcile(directory, staleBaseline).then(() => null, (error: unknown) => error)
+    expect(reconcileError).toBeInstanceOf(Error)
+    expect(reconcileError).not.toBeInstanceOf(WorkspaceGitUnavailableError)
+  })
+
   it('models incorrect Module 1 defaults, settings notifications, disconnects, and safe or unsafe later tasks', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'test-codex-gateway-'))
     directories.push(directory)
@@ -358,6 +389,28 @@ describe('Executor evidence reconciliation', () => {
     const stale = await observer.refresh()
     expect(stale?.workspaceConfirmedChangedFiles).toEqual(['starters/contentpilot/app/globals.css'])
     expect(stale?.status).toBe('stale')
+    expect(stale?.workspaceEvidenceStatus).toBe('failed')
+    observer.dispose()
+  })
+
+  it('distinguishes an intentionally non-Git workspace from a failed Git reconciliation', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'executor-evidence-non-git-'))
+    directories.push(directory)
+    const gateway = new SilentDesktopGateway()
+    gateway.turns = [silentDesktopTurn]
+    const workspace = new ReconciledWorkspace()
+    workspace.gitUnavailable = true
+    const observer = new ExecutorActivityObserver(
+      gateway,
+      new ExecutorActivityRepository(directory),
+      () => new Date(timestamp),
+      workspace
+    )
+
+    const stale = await observer.bind(binding)
+    expect(stale.status).toBe('stale')
+    expect(stale.workspaceEvidenceStatus).toBe('git-unavailable')
+    expect(stale.workspaceConfirmedChangedFiles).toEqual([])
     observer.dispose()
   })
 

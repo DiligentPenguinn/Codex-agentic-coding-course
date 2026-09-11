@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { portfolioBuildSliceIds } from '../../shared/contracts'
+import type { PortfolioPackageApprovalRequest, PortfolioPackageHandoff } from '../../shared/contracts'
+import { currentPortfolioPackageApproval, isPortfolioPackage, portfolioPackageIsReady } from './portfolio-package-state'
 import type {
   ApprovedCodexConfiguration,
   PracticeAdapterEvidenceState,
@@ -17,6 +19,7 @@ import type {
 import type { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
 import {
+  type PortfolioPackageMigrationRecovery,
   type PracticeRunRecord,
   type PracticeTransitionRecord,
   type PracticeWorkspaceRecord,
@@ -46,6 +49,9 @@ function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
 
 function safeCreationError(error: unknown): string {
   const message = error instanceof Error ? error.message : ''
+  if (message === 'PORTFOLIO_CONTINUATION_UNAVAILABLE') {
+    return 'Chưa thể tiếp tục task portfolio đã bàn giao. Hãy kiểm tra gói planning và kết nối lại đúng task; ứng dụng không tạo task thay thế.'
+  }
   if (message === 'Approved Module 1 configuration is required') {
     return 'Bạn cần hoàn thành Practice thiết lập Codex ở Module 1 trước khi bắt đầu Practice này.'
   }
@@ -258,20 +264,36 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   constructor(
     private readonly repository: PracticeRunRepository,
     private readonly definitions: PracticeDefinitionRepository,
-    private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'prepareTarget' | 'openTarget'>,
+    private readonly executor: Pick<ExecutorChatCoordinator, 'createTarget' | 'prepareTarget' | 'openTarget'>
+      & Partial<Pick<ExecutorChatCoordinator, 'validateExistingTarget'>>,
     private readonly now: () => Date = () => new Date(),
     private readonly createId: () => string = randomUUID,
     private readonly prepareExecutor?: (binding: PracticeRunRecord['binding'], captureBaseline: boolean) => Promise<void>,
     private readonly loadApprovedConfiguration?: () => Promise<ApprovedCodexConfiguration | null>,
     private readonly evidenceAdapters?: PracticeEvidenceAdapterRegistry,
     private readonly revokeCompletion?: (receipt: PracticeCompletionReceipt) => Promise<unknown>,
-    private readonly handoffExecutor?: (openTarget: () => Promise<void>) => Promise<void>
+    private readonly handoffExecutor?: (openTarget: () => Promise<void>) => Promise<void>,
+    private readonly loadPortfolioHandoff?: () => Promise<PortfolioPackageHandoff | null>,
+    private readonly loadPortfolioMigrationRecovery?: () => Promise<Omit<PortfolioPackageMigrationRecovery, 'validateTask'> | null>
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       const refreshError = 'Chưa thể làm mới bằng chứng từ Codex. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
       let record = await this.repository.load()
+      if (identity && isPortfolioPackage(identity)) {
+        const definition = await this.definitions.load(identity.practiceId, identity.practiceVersion)
+        const migration = await this.loadPortfolioMigrationRecovery?.().catch(() => null) ?? null
+        record = await this.repository.migratePortfolioPackage(
+          definition,
+          this.now().toISOString(),
+          migration && this.executor.validateExistingTarget
+            ? {
+                ...migration,
+                validateTask: (binding) => this.executor.validateExistingTarget!(binding, definition)
+              }
+            : undefined)
+      }
       if (record.pendingTransition && !this.lastError) {
         this.lastError = 'Lần chuyển trước bị gián đoạn. Bạn có thể thử lại hoặc hủy.'
       }
@@ -285,12 +307,26 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     })
   }
 
+  approvePortfolioPackage(request: PortfolioPackageApprovalRequest): Promise<PracticeWorkspaceView> {
+    return this.runExclusive(async () => {
+      if (request.approvePrd !== true || request.approvePlan !== true || !isPortfolioPackage(request)) {
+        throw new Error('Explicit approval of the current PRD and plan is required')
+      }
+      await this.refreshPracticeEvidence(await this.repository.load())
+      const record = await this.repository.approvePortfolioPackage({ ...request, updatedAt: this.now().toISOString() })
+      return this.toView(record, request)
+    })
+  }
+
   startNew(request: PracticeStartRequest): Promise<PracticeWorkspaceView> {
     if (request.transfer) return Promise.reject(selectiveTransferUnavailable())
     return this.runExclusive(async () => {
       this.lastError = ''
       const record = await this.repository.load()
       if (record.pendingTransition) throw new Error('A Practice switch is already pending')
+      if (record.activeRun && isPortfolioPackage(record.activeRun) && record.activeRun.reviewStatus === 'reviewing') {
+        throw new Error('Wait for the current portfolio review before switching Practice')
+      }
       const definition = await this.definitions.load(request.practiceId, request.practiceVersion)
       const approvedConfiguration = definition.taskPolicy === 'safe-workspace-write'
         ? await this.loadApprovedConfiguration?.() ?? undefined
@@ -309,7 +345,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       let targetBinding
       let committed
       try {
-        targetBinding = await this.executor.createTarget({
+        targetBinding = await this.createPracticeTarget({
           runId: transition.targetRunId,
           definition,
           approvedConfiguration
@@ -321,7 +357,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         if (definition.evidenceProfile === 'planning-package') {
           await this.prepareExecutor?.(targetBinding, true)
         }
-        await this.executor.prepareTarget(targetBinding, definition)
+        await this.preparePracticeTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)
@@ -342,6 +378,10 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         && (record.activeRun.practiceId !== identity.practiceId
           || record.activeRun.practiceVersion !== identity.practiceVersion)) {
         throw new Error('Practice đang hoạt động không khớp nội dung được yêu cầu.')
+      }
+      if (isPortfolioPackage(record.activeRun) || record.activeRun.evidenceProfile === 'portfolio-build') {
+        await this.executor.prepareTarget(record.activeRun.binding,
+          await this.definitions.load(record.activeRun.practiceId, record.activeRun.practiceVersion))
       }
       await this.openTarget(record.activeRun.binding)
       return this.toView(record)
@@ -366,7 +406,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           if (definition.evidenceProfile === 'planning-package') {
             await this.prepareExecutor?.(transition.targetBinding, true)
           }
-          await this.executor.prepareTarget(transition.targetBinding, definition)
+          await this.preparePracticeTarget(transition.targetBinding, definition)
           committed = await this.commitTarget(record)
         } catch (error) {
           this.lastError = safeCreationError(error)
@@ -377,7 +417,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       }
       let targetBinding
       try {
-        targetBinding = await this.executor.createTarget({
+        targetBinding = await this.createPracticeTarget({
           runId: transition.targetRunId,
           definition,
           approvedConfiguration
@@ -395,7 +435,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         if (definition.evidenceProfile === 'planning-package') {
           await this.prepareExecutor?.(targetBinding, true)
         }
-        await this.executor.prepareTarget(targetBinding, definition)
+        await this.preparePracticeTarget(targetBinding, definition)
         committed = await this.commitTarget(targetCreated)
       } catch (error) {
         this.lastError = safeCreationError(error)
@@ -413,6 +453,28 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       this.lastError = ''
       return this.toView(await this.repository.save({ ...record, pendingTransition: null }))
     })
+  }
+
+  private async createPracticeTarget(input: Parameters<ExecutorChatCoordinator['createTarget']>[0]): Promise<PracticeRunRecord['binding']> {
+    if (input.definition.practiceId !== 'm3-portfolio-build') return this.executor.createTarget(input)
+    const handoff = await this.loadPortfolioHandoff?.()
+    if (!handoff) throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE')
+    if (handoff.task.workspaceRoot !== handoff.workspace.canonicalPath
+      || handoff.task.threadId !== handoff.approval.threadId) throw new Error('The approved portfolio task binding is invalid')
+    return { ...handoff.task, runId: input.runId }
+  }
+
+  private async preparePracticeTarget(binding: PracticeRunRecord['binding'], definition: PracticeDefinition): Promise<void> {
+    if (definition.practiceId !== 'm3-portfolio-build') return this.executor.prepareTarget(binding, definition)
+    try {
+      const handoff = await this.loadPortfolioHandoff?.()
+      if (!handoff || binding.threadId !== handoff.task.threadId || binding.workspaceRoot !== handoff.workspace.canonicalPath) {
+        throw new Error('Portfolio handoff changed')
+      }
+      await this.executor.prepareTarget(binding, definition)
+    } catch {
+      throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE')
+    }
   }
 
   selectPanel(update: PracticePanelUpdate): Promise<PracticeWorkspaceView> {
@@ -475,6 +537,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         || active.practiceId !== request.practiceId
         || active.practiceVersion !== request.practiceVersion
         || (active.evidenceProfile !== 'portfolio-planning' && active.evidenceProfile !== 'portfolio-build')
+        || isPortfolioPackage(active)
         || !this.evidenceAdapters) {
         throw new Error('Portfolio stage action does not belong to the active Practice run')
       }
@@ -629,6 +692,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       runId: active.runId,
       generation: active.generation,
       workspaceRoot: active.binding.workspaceRoot,
+      allowedLegacyArtifactPaths: active.allowedLegacyArtifactPaths,
       task: {
         threadId: active.binding.threadId,
         workspaceRoot: active.binding.workspaceRoot
@@ -651,12 +715,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       runId: active.runId,
       generation: active.generation,
       workspaceRoot: active.binding.workspaceRoot,
+      allowedLegacyArtifactPaths: active.allowedLegacyArtifactPaths,
       task: {
         threadId: active.binding.threadId,
         workspaceRoot: active.binding.workspaceRoot
       }
     })
     let refreshed = await this.saveEvidence(active, evidence)
+    if (isPortfolioPackage(active)) return refreshed
     const current = refreshed.activeRun
     if (!current || current.runId !== active.runId || current.generation !== active.generation) {
       return refreshed
@@ -690,7 +756,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       invalidations: evidence.invalidations,
       updatedAt: evidence.observedAt
     })
-    if (active.completion && !saved.activeRun?.completion) {
+    if (!isPortfolioPackage(active) && active.completion && !saved.activeRun?.completion) {
       await this.revokeCompletion?.(active.completion)
     }
     return saved
@@ -741,6 +807,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
             name: record.activeRun.binding.name,
             outcome: 'replaced' as const,
             archivedAt: timestamp,
+            ...(record.activeRun.evidenceProfile === 'portfolio-planning' ? { retainedRun: structuredClone(record.activeRun) } : {}),
             reviewHistory: structuredClone(
               record.activeRun.reviewHistory
                 ?? (record.activeRun.reviewResult ? [record.activeRun.reviewResult] : [])
@@ -774,7 +841,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       : null
     const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
-    const canReview = Boolean(displayedRun && !isPortfolioProfile(displayedRun.evidenceProfile) && (
+    const canReview = Boolean(displayedRun && (!isPortfolioProfile(displayedRun.evidenceProfile) || isPortfolioPackage(displayedRun)) && (
       displayedRun.evidenceProfile !== 'planning-package'
       || (displayedRun.learnerDecisions['scope-decision']
         && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
@@ -819,7 +886,15 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       ...(displayedRun?.evidenceProfile === 'planning-package'
         ? { planning: planningWorkspaceView(displayedRun) }
         : {}),
-      ...(displayedRun?.evidenceProfile === 'portfolio-planning' && definition
+      ...(displayedRun && isPortfolioPackage(displayedRun) ? { portfolioPackage: {
+        sourceDigest: displayedRun.evidence?.sourceDigest ?? null,
+        ready: portfolioPackageIsReady(displayedRun),
+        approved: Boolean(currentPortfolioPackageApproval(displayedRun)),
+        artifactPaths: displayedRun.evidence?.portfolioPlanning?.artifacts.map((artifact) => artifact.path) ?? [],
+        issues: displayedRun.evidence?.portfolioPlanning?.issues.map((issue) => issue.path + ': ' + issue.message) ?? [],
+        unexpectedPaths: displayedRun.evidence?.portfolioPlanning?.unexpectedPaths ?? []
+      } } : {}),
+      ...(displayedRun?.evidenceProfile === 'portfolio-planning' && !isPortfolioPackage(displayedRun) && definition
         ? { portfolioPlanning: portfolioPlanningWorkspaceView(displayedRun, definition) }
         : {}),
       ...(displayedRun?.evidenceProfile === 'portfolio-build' && definition

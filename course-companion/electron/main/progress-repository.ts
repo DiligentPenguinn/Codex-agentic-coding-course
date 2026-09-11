@@ -15,6 +15,7 @@ import {
   LEARNER_STATE_SCHEMA_VERSION,
   lessonIds,
   portfolioPlanningArtifactPaths,
+  portfolioPackageArtifactPaths,
   sceneCheckpoint,
   sceneIds,
   type CourseLessonId,
@@ -335,6 +336,7 @@ function isDigestRecord(value: unknown): value is Record<string, string> {
 }
 
 function isPortfolioPlanningHandoff(value: unknown): boolean {
+  if (isRecord(value) && value.schemaVersion === 2) return isPortfolioPackageHandoff(value)
   if (!isRecord(value) || !hasExactKeys(value, [
     'schemaVersion',
     'workspace',
@@ -399,6 +401,35 @@ function isPortfolioPlanningHandoff(value: unknown): boolean {
   return true
 }
 
+function isPortfolioPackageHandoff(value: Record<string, unknown>): boolean {
+  if (!hasExactKeys(value, ['schemaVersion', 'workspace', 'artifacts', 'mastery', 'summary', 'moduleThreeInput', 'approval', 'submission', 'task'])) return false
+  const { workspace, artifacts, mastery, summary, moduleThreeInput: input, approval, submission, task } = value
+  if (!isRecord(workspace) || !isRecord(mastery) || !isRecord(summary) || !isRecord(input)
+    || !isRecord(approval) || !isRecord(submission) || !isRecord(task)) return false
+  if (typeof workspace.canonicalPath !== 'string' || !isAbsolute(workspace.canonicalPath)
+    || !DIGEST.test(String(workspace.identityDigest)) || task.workspaceRoot !== workspace.canonicalPath
+    || !SAFE_ID.test(String(task.threadId)) || !SAFE_ID.test(String(task.runId))
+    || typeof task.name !== 'string' || !task.name.trim() || task.name.length > 500 || !isIsoDate(task.createdAt)) return false
+  if (!Array.isArray(artifacts) || artifacts.length !== portfolioPackageArtifactPaths.length
+    || !artifacts.every((artifact) => isRecord(artifact) && hasExactKeys(artifact, ['path', 'digest'])
+      && portfolioPackageArtifactPaths.includes(artifact.path as never) && DIGEST.test(String(artifact.digest)))
+    || new Set(artifacts.map((artifact) => artifact.path)).size !== artifacts.length) return false
+  if (!SAFE_ID.test(String(approval.courseRunId)) || approval.runId !== task.runId || approval.threadId !== task.threadId
+    || !Number.isSafeInteger(approval.generation) || Number(approval.generation) < 1
+    || approval.workspaceIdentityDigest !== workspace.identityDigest || !DIGEST.test(String(approval.sourceDigest))
+    || !isIsoDate(approval.recordedAt) || !isDigestRecord(approval.artifactDigests)
+    || !artifacts.every((artifact) => approval.artifactDigests && (approval.artifactDigests as Record<string, string>)[artifact.path] === artifact.digest)) return false
+  if (submission.runId !== task.runId || submission.generation !== approval.generation
+    || submission.sourceDigest !== approval.sourceDigest || !DIGEST.test(String(submission.reviewDigest))
+    || !isIsoDate(submission.reviewedAt)) return false
+  return Array.isArray(mastery.questionIds) && mastery.questionIds.length === moduleTwoMasteryQuestionIds.length
+    && moduleTwoMasteryQuestionIds.every((id) => (mastery.questionIds as string[]).includes(id))
+    && DIGEST.test(String(mastery.answerDigest))
+    && hasExactKeys(summary, ['learnerDecision', 'evidenceBoundary', 'firstBuild', 'deliberatelyOutOfScope'])
+    && Object.values(summary).every((text) => typeof text === 'string' && text.trim().length > 0 && text.length <= 700)
+    && input.workspacePath === workspace.canonicalPath && JSON.stringify(input.artifactReferences) === JSON.stringify(artifacts)
+}
+
 function isLessonId(value: unknown): value is LessonId {
   return typeof value === 'string' && lessonSet.has(value)
 }
@@ -440,10 +471,17 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
       isApprovedCodexConfiguration(value.approvedConfiguration))
     && (value.portfolioPlanningHandoff === undefined
       || isPortfolioPlanningHandoff(value.portfolioPlanningHandoff))
+    && (value.submissionDigest === undefined || DIGEST.test(String(value.submissionDigest)))
+    && (!isRecord(value.portfolioPlanningHandoff) || value.portfolioPlanningHandoff.schemaVersion !== 2
+      || (value.practiceVersion === '2.0.0' && isRecord(value.portfolioPlanningHandoff.approval)
+        && value.portfolioPlanningHandoff.approval.courseRunId === value.courseRunId
+        && value.portfolioPlanningHandoff.approval.runId === value.runId))
 }
 
 function completionKey(receipt: PracticeCompletionReceipt): string {
-  return `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
+  const base = `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
+  return receipt.practiceId === 'm2-portfolio-planning' && receipt.practiceVersion === '2.0.0'
+    ? `${base}:${receipt.checkpointId}:${receipt.submissionDigest ?? ''}` : base
 }
 
 const moduleTwoFinalQuestionIds = Array.from({ length: 15 }, (_, index) => `final-${index + 1}`)
@@ -480,15 +518,25 @@ function hasPortfolioModuleCompletion(progress: LearnerProgress): boolean {
     receipt.courseRunId === progress.courseRunId
     && receipt.practiceId === 'm2-portfolio-planning'
     && receipt.checkpointId === 'm2-portfolio-complete'
+    && receipt.practiceVersion === '2.0.0'
     && receipt.destination.lessonId === 'module-3'
     && receipt.destination.sceneId === 'module-3-debugging-intro'
-    && receipt.portfolioPlanningHandoff !== undefined)
+    && receipt.portfolioPlanningHandoff?.schemaVersion === 2)
 }
 
 function assertModuleThreeUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
   if (update.currentLessonId !== 'module-3') return
   if (!current || !hasPortfolioModuleCompletion(current)) {
     throw new Error('Module 3 requires an atomic Module 2 completion receipt')
+  }
+}
+
+function assertPortfolioMasteryGate(update: ProgressUpdate, current: LearnerProgress | null): void {
+  if (update.currentLessonId !== 'module-2' || update.checkpointId !== 'm2-portfolio-mastery') return
+  if (!current?.practiceCompletions.some((receipt) => receipt.courseRunId === current.courseRunId
+    && receipt.practiceId === 'm2-portfolio-planning' && receipt.practiceVersion === '2.0.0'
+    && receipt.checkpointId === 'm2-portfolio-planning' && Boolean(receipt.submissionDigest))) {
+    throw new Error('Module 2 mastery requires a passed five-document Practice submission')
   }
 }
 
@@ -650,7 +698,15 @@ function migrateLearnerProgress(value: unknown): LearnerProgress | null {
       ...(redirected.practiceCompletions === undefined ? { practiceCompletions: [] } : {})
     }
     const normalized = normalizeCurrentModuleTwoOrder(compatible)
-    return isLearnerProgress(normalized) ? normalized : null
+    if (!isLearnerProgress(normalized)) return null
+    const requiresFreshPortfolioReview = normalized.currentLessonId === 'module-3'
+      && !hasPortfolioModuleCompletion(normalized)
+      && normalized.practiceCompletions.some((receipt) => receipt.practiceId === 'm2-portfolio-planning'
+        && receipt.practiceVersion === '1.0.0' && receipt.courseRunId === normalized.courseRunId)
+    return requiresFreshPortfolioReview ? {
+      ...normalized, currentLessonId: 'module-2', currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-planning', sceneId: 'module-2-portfolio-practice'
+    } : normalized
   }
 
   return null
@@ -732,6 +788,7 @@ export class ProgressRepository {
   private async saveUnlocked(update: ProgressUpdate): Promise<LearnerProgress> {
     const current = await this.readProgress(this.statePath)
     assertModuleTwoCompletionGate(update, current.status === 'valid' ? current.progress : null)
+    assertPortfolioMasteryGate(update, current.status === 'valid' ? current.progress : null)
     assertModuleThreeUnlockGate(update, current.status === 'valid' ? current.progress : null)
     assertModuleFourUnlockGate(update, current.status === 'valid' ? current.progress : null)
     const timestamp = this.now().toISOString()
@@ -770,13 +827,16 @@ export class ProgressRepository {
       || receipt.destination.lessonId !== 'module-3'
       || receipt.destination.checkpointId !== 'm3-complete-first-version'
       || receipt.destination.sceneId !== 'module-3-debugging-intro'
-      || !receipt.portfolioPlanningHandoff) {
+      || receipt.practiceVersion !== '2.0.0'
+      || receipt.portfolioPlanningHandoff?.schemaVersion !== 2) {
       return Promise.reject(new Error('Invalid Module 2 completion receipt'))
     }
     return this.runExclusive(async () => {
       const current = await this.readProgress(this.statePath)
       if (current.status !== 'valid') throw new Error('Learner progress is unavailable')
       const progress = current.progress
+      if (receipt.portfolioPlanningHandoff?.schemaVersion === 2 && progress.practiceCompletions.some((item) =>
+        completionKey(item) === completionKey(receipt) && JSON.stringify(item) === JSON.stringify(receipt))) return progress
       if (progress.sceneId !== 'module-2-portfolio-mastery-summary'
         || receipt.courseRunId !== progress.courseRunId) {
         throw new Error('Module 2 completion does not match the current learner checkpoint')
@@ -792,7 +852,8 @@ export class ProgressRepository {
         'm2-portfolio-complete' as CheckpointId
       ])]
       const completions = progress.practiceCompletions.filter((candidate) =>
-        !(candidate.courseRunId === receipt.courseRunId
+        receipt.practiceVersion === '2.0.0' ? completionKey(candidate) !== completionKey(receipt)
+          : !(candidate.courseRunId === receipt.courseRunId
           && candidate.practiceId === receipt.practiceId
           && candidate.runId === receipt.runId))
       const updated: LearnerProgress = {

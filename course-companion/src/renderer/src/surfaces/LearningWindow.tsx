@@ -3083,9 +3083,11 @@ export function LearningWindow() {
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
     || displayedSceneId === 'module-3-mastery-summary'
     || displayedSceneId === 'module-4-mastery-summary'
-  const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
+  const portfolioPlanningHandoff = [...progress.practiceCompletions].reverse().find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
-    && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
+    && receipt.practiceVersion === '2.0.0'
+    && receipt.courseRunId === progress.courseRunId
+    && receipt.portfolioPlanningHandoff?.schemaVersion === 2)?.portfolioPlanningHandoff
   const lessonVisual = sceneVisuals[displayedSceneId] ?? (learningPosition.page === 1
     ? lessonVisuals[learningPosition.lessonId]
     : undefined)
@@ -3464,7 +3466,7 @@ export function LearningWindow() {
                 practiceVersion: activePracticeDefinition.version
               }
             : progress.sceneId === 'module-2-portfolio-practice'
-              ? { practiceId: 'm2-portfolio-planning', practiceVersion: '1.0.0' }
+              ? { practiceId: 'm2-portfolio-planning', practiceVersion: '2.0.0' }
               : { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }}
           courseRunId={progress.sceneId === 'module-2-portfolio-practice'
             || progress.sceneId === 'module-3-portfolio-practice'

@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { lstat, mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { isAbsolute, join, resolve } from 'node:path'
 import type {
   PracticeAdapterEvidenceState,
@@ -9,6 +9,7 @@ import type {
   PracticeEvidenceProfile,
   PracticeDefinition,
   PracticeLearnerApproval,
+  PortfolioPackageApproval,
   PracticeBuildSliceReceipt,
   PracticeStageReceipt,
   PlanningPracticeActionRequest,
@@ -24,6 +25,7 @@ import {
   practiceWorkspaceKinds
 } from '../../shared/contracts'
 import { isApprovedCodexConfiguration } from './practice-task-policy'
+import { currentPortfolioPackageApproval, isPortfolioPackage, legacyPortfolioPackagePaths, portfolioPackageDigests, portfolioPackageIsReady } from './portfolio-package-state'
 import { isCodexTaskConfigurationSnapshot } from './codex-configuration-normalizer'
 import {
   applyPlanningPracticeAction,
@@ -62,6 +64,8 @@ export type PracticeRunRecord = {
   reviewResult?: PracticeReviewResult
   reviewHistory?: PracticeReviewResult[]
   completion?: PracticeCompletionReceipt
+  packageApproval?: PortfolioPackageApproval
+  allowedLegacyArtifactPaths?: string[]
 }
 
 export type ArchivedPracticeReceipt = {
@@ -74,6 +78,7 @@ export type ArchivedPracticeReceipt = {
   outcome: 'completed' | 'replaced' | 'historical'
   archivedAt: string
   reviewHistory?: PracticeReviewResult[]
+  retainedRun?: PracticeRunRecord
 }
 
 export type PracticeTransitionRecord = {
@@ -96,6 +101,69 @@ export type PracticeWorkspaceRecord = {
     fullPanel: PracticePanel
     compactPanel: PracticePanel
   }
+}
+
+export type PortfolioPackageMigrationRecovery = {
+  courseRunId: string
+  runId: string
+  workspaceRoot: string
+  validateTask: (binding: ExecutorChatBinding) => Promise<boolean>
+}
+
+export function selectPortfolioPackageMigrationRecovery(input: {
+  courseRunId: string
+  selectedWorkspaceRoot: string
+  record: PracticeWorkspaceRecord
+  completions: PracticeCompletionReceipt[]
+}): Omit<PortfolioPackageMigrationRecovery, 'validateTask'> | null {
+  if (!ID.test(input.courseRunId) || !isAbsolute(input.selectedWorkspaceRoot)) return null
+  const workspaceRoot = resolve(input.selectedWorkspaceRoot)
+  const active = input.record.activeRun
+  if (active?.practiceId === 'm2-portfolio-planning' && active.practiceVersion === '1.0.0'
+    && resolve(active.binding.workspaceRoot) === workspaceRoot) {
+    return { courseRunId: input.courseRunId, runId: active.runId, workspaceRoot }
+  }
+  const completion = [...input.completions].reverse().find((receipt) => {
+    const handoff = receipt.portfolioPlanningHandoff
+    if (receipt.courseRunId !== input.courseRunId
+      || receipt.practiceId !== 'm2-portfolio-planning'
+      || receipt.checkpointId !== 'm2-portfolio-complete'
+      || (receipt.practiceVersion !== '1.0.0' && receipt.practiceVersion !== '2.0.0')
+      || (handoff?.schemaVersion !== 1 && handoff?.schemaVersion !== 2)
+      || resolve(handoff.workspace.canonicalPath) !== workspaceRoot
+      || handoff.workspace.identityDigest !== practiceWorkspaceIdentityDigest(workspaceRoot)) return false
+    return input.record.archivedRuns.some((archive) => archive.runId === receipt.runId
+      && archive.practiceId === receipt.practiceId
+      && archive.practiceVersion === receipt.practiceVersion
+      && (receipt.practiceVersion === '1.0.0' || archive.retainedRun !== undefined))
+  })
+  if (completion) {
+    return { courseRunId: input.courseRunId, runId: completion.runId, workspaceRoot }
+  }
+  const retained = [...input.record.archivedRuns].reverse().find((archive) =>
+    archive.practiceId === 'm2-portfolio-planning'
+    && (archive.practiceVersion === '1.0.0' || archive.practiceVersion === '2.0.0')
+    && archive.retainedRun
+    && resolve(archive.retainedRun.binding.workspaceRoot) === workspaceRoot)
+  if (retained) {
+    return { courseRunId: input.courseRunId, runId: retained.runId, workspaceRoot }
+  }
+  const legacyArchives = input.record.archivedRuns.filter((archive) =>
+    archive.practiceId === 'm2-portfolio-planning'
+    && archive.practiceVersion === '1.0.0'
+    && archive.retainedRun === undefined)
+  const currentTaskLegacy = active?.practiceId === 'm3-portfolio-build'
+    && resolve(active.binding.workspaceRoot) === workspaceRoot
+    ? legacyArchives.filter((archive) => archive.threadId === active.binding.threadId)
+    : []
+  const unambiguousLegacy = currentTaskLegacy.length === 1
+    ? currentTaskLegacy[0]
+    : legacyArchives.length === 1
+      ? legacyArchives[0]
+      : null
+  return unambiguousLegacy
+    ? { courseRunId: input.courseRunId, runId: unambiguousLegacy.runId, workspaceRoot }
+    : null
 }
 
 const ID = /^[A-Za-z0-9_-]{1,160}$/
@@ -339,6 +407,7 @@ function isPortfolioPlanningEvidence(value: unknown): boolean {
     && Number.isSafeInteger(artifact.byteLength)
     && Number(artifact.byteLength) > 0
     && isIso(artifact.modifiedAt)
+    && (artifact.content === undefined || (typeof artifact.content === 'string' && Buffer.byteLength(artifact.content, 'utf8') <= 128 * 1024))
     && isIso(artifact.observedAt))) return false
   if (!value.issues.every((item) => isRecord(item)
     && ID.test(String(item.stageId))
@@ -455,6 +524,19 @@ function isRun(value: unknown): value is PracticeRunRecord {
     isIso(value.updatedAt) &&
     isStringRecord(value.learnerDecisions, 40, 2000) &&
     isApprovals(value.learnerApprovals) &&
+    (value.allowedLegacyArtifactPaths === undefined || (Array.isArray(value.allowedLegacyArtifactPaths)
+      && value.allowedLegacyArtifactPaths.length <= 2
+      && value.allowedLegacyArtifactPaths.every((path) => legacyPortfolioPackagePaths.includes(path)))) &&
+    (value.packageApproval === undefined || (isRecord(value.packageApproval)
+      && isPortfolioPackage({ practiceId: String(value.practiceId), practiceVersion: String(value.practiceVersion) })
+      && ID.test(String(value.packageApproval.courseRunId))
+      && value.packageApproval.runId === value.runId
+      && value.packageApproval.generation === value.generation
+      && value.packageApproval.threadId === (value.binding as ExecutorChatBinding).threadId
+      && DIGEST.test(String(value.packageApproval.workspaceIdentityDigest))
+      && DIGEST.test(String(value.packageApproval.sourceDigest))
+      && isDigestRecord(value.packageApproval.artifactDigests)
+      && isIso(value.packageApproval.recordedAt))) &&
     (value.evidence === null || (isEvidence(value.evidence)
       && value.evidence.practiceId === value.practiceId
       && value.evidence.practiceVersion === value.practiceVersion
@@ -512,6 +594,12 @@ function isArchive(value: unknown): value is ArchivedPracticeReceipt {
     value.name.length <= 500 &&
     (value.outcome === 'completed' || value.outcome === 'replaced' || value.outcome === 'historical') &&
     isIso(value.archivedAt) &&
+    (value.retainedRun === undefined || (isRun(value.retainedRun)
+      && value.retainedRun.runId === value.runId
+      && value.retainedRun.generation === value.generation
+      && value.retainedRun.practiceId === value.practiceId
+      && value.retainedRun.practiceVersion === value.practiceVersion
+      && value.retainedRun.binding.threadId === value.threadId)) &&
     (value.reviewHistory === undefined || isReviewHistory(value.reviewHistory, {
       practiceId: String(value.practiceId),
       practiceVersion: String(value.practiceVersion),
@@ -742,12 +830,168 @@ export class PracticeRunRepository {
     })
   }
 
+  migratePortfolioPackage(
+    definition: PracticeDefinition,
+    updatedAt: string,
+    recovery?: PortfolioPackageMigrationRecovery
+  ): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      if (!isPortfolioPackage({ practiceId: definition.practiceId, practiceVersion: definition.version })
+        || record.pendingTransition) return record
+      if (record.activeRun && isPortfolioPackage(record.activeRun)) return record
+
+      if (!recovery || !ID.test(recovery.courseRunId) || !ID.test(recovery.runId)
+        || !isAbsolute(recovery.workspaceRoot)) return record
+      const workspaceRoot = resolve(recovery.workspaceRoot)
+      const activePrior = record.activeRun?.practiceId === definition.practiceId
+        && record.activeRun.practiceVersion === '1.0.0'
+        && record.activeRun.runId === recovery.runId
+        && resolve(record.activeRun.binding.workspaceRoot) === workspaceRoot
+        ? record.activeRun
+        : null
+      const archivedIndex = activePrior ? -1 : record.archivedRuns.findLastIndex((archive) =>
+        archive.practiceId === definition.practiceId
+        && archive.runId === recovery.runId
+        && (archive.practiceVersion === '1.0.0'
+          || (archive.practiceVersion === definition.version && archive.retainedRun !== undefined)))
+      const archivedPrior = archivedIndex >= 0 ? record.archivedRuns[archivedIndex]! : null
+      let prior = activePrior ?? archivedPrior?.retainedRun ?? null
+
+      if (!prior && archivedPrior?.practiceVersion === '1.0.0') {
+        const binding: ExecutorChatBinding = {
+          runId: archivedPrior.runId,
+          threadId: archivedPrior.threadId,
+          name: archivedPrior.name,
+          workspaceRoot,
+          createdAt: archivedPrior.archivedAt
+        }
+        prior = {
+          runId: archivedPrior.runId,
+          generation: archivedPrior.generation,
+          status: 'active',
+          practiceId: archivedPrior.practiceId,
+          practiceVersion: archivedPrior.practiceVersion,
+          workspaceKind: definition.workspaceKind,
+          taskPolicy: definition.taskPolicy,
+          evidenceProfile: definition.evidenceProfile,
+          binding,
+          startedAt: archivedPrior.archivedAt,
+          updatedAt: archivedPrior.archivedAt,
+          checklist: definition.checklist.map((step, index) => ({
+            id: step.id,
+            title: step.title,
+            status: index === 0 ? 'current' : 'pending'
+          })),
+          learnerDecisions: {},
+          learnerApprovals: {},
+          evidence: null,
+          invalidations: [],
+          stageReceipts: [],
+          reviewStatus: 'not-reviewed',
+          reviewHistory: []
+        }
+      }
+      if (!prior || prior.practiceId !== definition.practiceId
+        || (prior.practiceVersion !== '1.0.0' && prior.practiceVersion !== definition.version)) return record
+      if (recovery.runId !== prior.runId
+        || resolve(prior.binding.workspaceRoot) !== workspaceRoot
+        || !await recovery.validateTask(prior.binding)) return record
+      if (record.activeRun && !activePrior
+        && (record.activeRun.practiceId !== 'm3-portfolio-build'
+          || resolve(record.activeRun.binding.workspaceRoot) !== workspaceRoot)) return record
+
+      const preservePrior = Boolean(activePrior || prior.practiceVersion === '1.0.0')
+      const additions = (preservePrior ? 1 : 0) + (record.activeRun && !activePrior ? 1 : 0)
+      if (record.archivedRuns.length + additions > 100) return record
+
+      const archivedRuns = structuredClone(record.archivedRuns)
+      if (preservePrior) {
+        archivedRuns.push({
+          runId: prior.runId,
+          generation: prior.generation,
+          practiceId: prior.practiceId,
+          practiceVersion: prior.practiceVersion,
+          threadId: prior.binding.threadId,
+          name: prior.binding.name,
+          outcome: 'historical',
+          archivedAt: updatedAt,
+          retainedRun: structuredClone(prior),
+          reviewHistory: structuredClone(archivedPrior?.reviewHistory
+            ?? prior.reviewHistory
+            ?? (prior.reviewResult ? [prior.reviewResult] : []))
+        })
+      }
+      if (record.activeRun && !activePrior) {
+        const displaced = record.activeRun
+        archivedRuns.push({
+          runId: displaced.runId,
+          generation: displaced.generation,
+          practiceId: displaced.practiceId,
+          practiceVersion: displaced.practiceVersion,
+          threadId: displaced.binding.threadId,
+          name: displaced.binding.name,
+          outcome: 'historical',
+          archivedAt: updatedAt,
+          retainedRun: structuredClone(displaced),
+          reviewHistory: structuredClone(displaced.reviewHistory ?? (displaced.reviewResult ? [displaced.reviewResult] : []))
+        })
+      }
+      const preservedLegacyPaths = prior.practiceVersion === '1.0.0'
+        ? (await Promise.all(legacyPortfolioPackagePaths.map(async (path) => {
+            try { return (await lstat(join(prior.binding.workspaceRoot, path))).isFile() ? path : null }
+            catch (error) {
+              if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+              throw error
+            }
+          }))).filter((path): path is (typeof legacyPortfolioPackagePaths)[number] => path !== null)
+        : prior.allowedLegacyArtifactPaths
+      const highestGeneration = Math.max(
+        prior.generation,
+        record.activeRun?.generation ?? 0,
+        ...record.archivedRuns.map((archive) => archive.generation)
+      )
+      if (!Number.isSafeInteger(highestGeneration + 1)) return record
+      const activeRun: PracticeRunRecord = {
+        ...prior, generation: highestGeneration + 1, practiceVersion: definition.version,
+        updatedAt, checklist: definition.checklist.map((step, index) => ({
+          id: step.id, title: step.title, status: index === 0 ? 'current' : 'pending'
+        })), learnerApprovals: {}, stageReceipts: [], evidence: null, invalidations: [],
+        packageApproval: undefined, completion: undefined, reviewResult: undefined,
+        reviewHistory: [], reviewStatus: 'not-reviewed',
+        allowedLegacyArtifactPaths: preservedLegacyPaths
+      }
+      return this.saveDirect({ ...record, activeRun, archivedRuns })
+    })
+  }
+
+  approvePortfolioPackage(input: RunIdentity & {
+    courseRunId: string; sourceDigest: string; updatedAt: string
+  }): Promise<PracticeWorkspaceRecord> {
+    return this.runExclusive(async () => {
+      const record = await this.loadDirect()
+      const run = record.activeRun
+      if (!matchesRun(run, input) || !portfolioPackageIsReady(run)
+        || run.reviewStatus === 'reviewing' || record.pendingTransition
+        || run.evidence?.sourceDigest !== input.sourceDigest || !ID.test(input.courseRunId)) {
+        throw new Error('The portfolio package changed or is not ready for approval')
+      }
+      const approval: PortfolioPackageApproval = {
+        courseRunId: input.courseRunId, runId: run.runId, generation: run.generation,
+        threadId: run.binding.threadId, workspaceIdentityDigest: run.evidence!.portfolioPlanning!.workspaceIdentityDigest,
+        sourceDigest: input.sourceDigest, artifactDigests: portfolioPackageDigests(run.evidence), recordedAt: input.updatedAt
+      }
+      return this.saveDirect({ ...record, activeRun: { ...run, packageApproval: approval, updatedAt: input.updatedAt } })
+    })
+  }
+
   closeCompletedRun(input: RunIdentity & { updatedAt: string }): Promise<PracticeWorkspaceRecord> {
     return this.runExclusive(async () => {
       const record = await this.loadDirect()
       const active = record.activeRun
       if (!matchesRun(active, input)
         || active.reviewStatus !== 'passed'
+        || (isPortfolioPackage(active) && record.pendingTransition !== null)
         || !active.completion) {
         throw new Error('Only the exact passed Practice run can be closed')
       }
@@ -764,6 +1008,7 @@ export class PracticeRunRepository {
           name: active.binding.name,
           outcome: 'completed' as const,
           archivedAt: input.updatedAt,
+          ...(active.evidenceProfile === 'portfolio-planning' ? { retainedRun: structuredClone(active) } : {}),
           reviewHistory: structuredClone(active.reviewHistory ?? (active.reviewResult ? [active.reviewResult] : []))
         }].slice(-100),
         presentation: { fullPanel: 'teacher', compactPanel: 'teacher' }
@@ -1035,7 +1280,9 @@ export class PracticeRunRepository {
         })),
         invalidations: structuredClone(invalidations)
       }
-      const invalidated = invalidations.length > 0
+      const packageChanged = isPortfolioPackage(record.activeRun) && Boolean(record.activeRun.packageApproval)
+        && !currentPortfolioPackageApproval({ ...record.activeRun, evidence })
+      const invalidated = invalidations.length > 0 || packageChanged
       return this.saveDirect({
         ...record,
         activeRun: {
@@ -1044,6 +1291,7 @@ export class PracticeRunRepository {
           checklist: structuredClone(checklist),
           learnerDecisions: planningState?.learnerDecisions ?? record.activeRun.learnerDecisions,
           learnerApprovals: planningState?.learnerApprovals ?? record.activeRun.learnerApprovals,
+          packageApproval: packageChanged ? undefined : record.activeRun.packageApproval,
           invalidations: structuredClone(invalidations),
           reviewStatus: invalidated ? 'not-reviewed' : record.activeRun.reviewStatus,
           reviewResult: invalidated ? undefined : record.activeRun.reviewResult,
@@ -1179,6 +1427,7 @@ export class PracticeRunRepository {
       const record = await this.loadDirect()
       const active = record.activeRun
       if (!matchesRun(active, input)) return record
+      if (isPortfolioPackage(active) && record.pendingTransition) throw new Error('A portfolio Practice switch is pending')
       return this.saveDirect({
         ...record,
         activeRun: {
@@ -1222,12 +1471,17 @@ export class PracticeRunRepository {
     checklist: PracticeChecklistStep[]
     completion?: PracticeCompletionReceipt
     updatedAt: string
+    expectedPackageDigest?: string
   }): Promise<PracticeWorkspaceRecord> {
     return this.runExclusive(async () => {
       const record = await this.loadDirect()
       const active = record.activeRun
       if (!matchesRun(active, input)) {
         return record
+      }
+      if (isPortfolioPackage(active) && (record.pendingTransition !== null || active.evidence?.sourceDigest !== input.expectedPackageDigest
+        || (input.result.verdict === 'passed' && !currentPortfolioPackageApproval(active, input.completion?.courseRunId)))) {
+        throw new Error('Portfolio package changed before the review could be saved')
       }
       const nextActive: PracticeRunRecord = {
         ...active,

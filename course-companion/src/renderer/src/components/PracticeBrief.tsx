@@ -215,7 +215,18 @@ export function PracticeBrief({
 
       <PracticeProgress
         workspace={workspace}
+        api={window.courseCompanion}
+        onWorkspaceChange={setWorkspace}
+        onBusyChange={setBusy}
         actionBusy={busy}
+        returnBusy={busy}
+        onReturn={() => {
+          if (busy || !window.courseCompanion) return
+          setBusy(true)
+          void window.courseCompanion.returnPassedPractice().then(() => {
+            onClose()
+          }).catch(() => setError('Không thể quay lại khóa học. Hãy làm mới gói và thử lại.')).finally(() => setBusy(false))
+        }}
         onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
         onRefresh={() => void load()}
       />

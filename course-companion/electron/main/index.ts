@@ -12,6 +12,7 @@ import type {
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PortfolioStageActionRequest,
+  PortfolioPackageApprovalRequest,
   PortfolioWorkspaceRequest,
   PortfolioWorkspaceView,
   PracticeStartRequest,
@@ -28,7 +29,7 @@ import { ExecutorActivitySnapshotReader } from './executor-activity-snapshot-rea
 import { CodexTaskMetadataReader } from './codex-task-metadata-reader'
 import { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeCoordinator } from './practice-coordinator'
-import { PracticeRunRepository } from './practice-run-repository'
+import { PracticeRunRepository, selectPortfolioPackageMigrationRecovery } from './practice-run-repository'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
 import { PracticeGuideDefinitionRepository } from './practice-guide-definition-repository'
 import { PracticeGuideStateRepository } from './practice-guide-state-repository'
@@ -290,7 +291,36 @@ const practiceCoordinator = new PracticeCoordinator(
   },
   evidenceAdapters,
   (receipt) => progressRepository.revokePracticeCompletion(receipt),
-  (openTarget) => useTestCodexGateway ? openTarget() : appServerLifecycle.handoff(openTarget)
+  (openTarget) => useTestCodexGateway ? openTarget() : appServerLifecycle.handoff(openTarget),
+  async () => {
+    const loaded = await progressRepository.load()
+    if (loaded.status !== 'returning' && loaded.status !== 'recovered') return null
+    const receipt = [...loaded.progress.practiceCompletions].reverse().find((item) =>
+      item.courseRunId === loaded.progress.courseRunId && item.checkpointId === 'm2-portfolio-complete'
+      && item.practiceVersion === '2.0.0' && item.portfolioPlanningHandoff?.schemaVersion === 2)
+    const handoff = receipt?.portfolioPlanningHandoff
+    if (handoff?.schemaVersion !== 2) return null
+    const definition = await practiceDefinitionRepository.load('m2-portfolio-planning', '2.0.0')
+    const runRecord = await practiceRunRepository.load()
+    const source = [runRecord.activeRun, ...runRecord.archivedRuns.map((item) => item.retainedRun)].find((run) =>
+      run?.runId === handoff.submission.runId && run.generation === handoff.submission.generation)
+    if (!source) return null
+    const evidence = await portfolioPlanningEvidenceAdapter.collect({ definition, runId: source.runId, generation: source.generation,
+      workspaceRoot: handoff.workspace.canonicalPath, task: handoff.task, allowedLegacyArtifactPaths: source.allowedLegacyArtifactPaths })
+    return evidence.freshness === 'fresh' && evidence.sourceDigest === handoff.submission.sourceDigest ? handoff : null
+  },
+  async () => {
+    const loaded = await progressRepository.load()
+    if (loaded.status !== 'returning' && loaded.status !== 'recovered') return null
+    const workspace = await portfolioWorkspaceRepository.load({ courseRunId: loaded.progress.courseRunId })
+    if (workspace.status !== 'ready' || !workspace.selectedPath) return null
+    return selectPortfolioPackageMigrationRecovery({
+      courseRunId: loaded.progress.courseRunId,
+      selectedWorkspaceRoot: workspace.selectedPath,
+      record: await practiceRunRepository.load(),
+      completions: loaded.progress.practiceCompletions
+    })
+  }
 )
 const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
   progressRepository,
@@ -591,6 +621,16 @@ function isPortfolioStageActionRequest(value: unknown): value is PortfolioStageA
     && (value.decision === 'approved' || value.decision === 'revision-requested')
 }
 
+function isPortfolioPackageApprovalRequest(value: unknown): value is PortfolioPackageApprovalRequest {
+  return isRecord(value) && Object.keys(value).length === 8
+    && value.practiceId === 'm2-portfolio-planning' && value.practiceVersion === '2.0.0'
+    && typeof value.runId === 'string' && /^[A-Za-z0-9_-]{1,160}$/.test(value.runId)
+    && Number.isSafeInteger(value.generation) && Number(value.generation) > 0
+    && typeof value.courseRunId === 'string' && /^[A-Za-z0-9_-]{1,160}$/.test(value.courseRunId)
+    && typeof value.sourceDigest === 'string' && /^[a-f0-9]{64}$/.test(value.sourceDigest)
+    && value.approvePrd === true && value.approvePlan === true
+}
+
 function isPracticeGuideSurfaceContext(value: unknown): value is PracticeGuideSurfaceContext {
   return isRecord(value)
     && (value.surface === 'full' || value.surface === 'compact' || value.surface === 'learning')
@@ -792,6 +832,15 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:select-practice-panel', (_event, update: PracticePanelUpdate) => {
     if (!isPracticePanelUpdate(update)) throw new Error('Invalid Practice panel update')
     return practiceCoordinator.selectPanel(update)
+  })
+
+  ipcMain.handle('course:approve-portfolio-package', async (_event, request: PortfolioPackageApprovalRequest) => {
+    if (!isPortfolioPackageApprovalRequest(request)) throw new Error('Invalid portfolio package approval')
+    const loaded = await progressRepository.load()
+    if ((loaded.status !== 'returning' && loaded.status !== 'recovered') || loaded.progress.courseRunId !== request.courseRunId) {
+      throw new Error('Portfolio approval does not match the current course run')
+    }
+    return practiceCoordinator.approvePortfolioPackage(request)
   })
 
   ipcMain.handle('course:load-practice-guide', async (_event, surface) => {

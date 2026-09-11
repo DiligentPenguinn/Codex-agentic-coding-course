@@ -7,9 +7,11 @@ import type {
 } from '../../../../shared/contracts'
 import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
+import { PortfolioPackageSubmission } from './PortfolioPackageSubmission'
 
 type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
+  api?: import('../../../../shared/contracts').CourseCompanionApi
   compact?: boolean
   returnBusy?: boolean
   onReturn?: () => void
@@ -21,6 +23,8 @@ type PracticeProgressProps = {
     sliceId?: PortfolioStageActionRequest['sliceId']
   ) => void
   onRefresh?: () => void
+  onWorkspaceChange?: (workspace: PracticeWorkspaceView) => void
+  onBusyChange?: (busy: boolean) => void
 }
 
 const stepIcon = {
@@ -113,14 +117,20 @@ const criterionNextActions: Record<string, string> = {
 
 export function PracticeProgress({
   workspace,
+  api,
   compact = false,
   returnBusy = false,
   onReturn,
   actionBusy = false,
   onPlanningAction,
   onPortfolioStageAction,
-  onRefresh
+  onRefresh,
+  onWorkspaceChange,
+  onBusyChange
 }: PracticeProgressProps) {
+  const packageSubmission = workspace.portfolioPackage ? <PortfolioPackageSubmission
+    key={[workspace.activePractice?.runId, workspace.activePractice?.generation, workspace.portfolioPackage.sourceDigest].join(':')}
+    workspace={workspace} api={api} disabled={actionBusy || returnBusy} onWorkspaceChange={onWorkspaceChange} onBusyChange={onBusyChange} onRefresh={onRefresh} /> : null
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
   const [expandedCompactStepId, setExpandedCompactStepId] = useState<string | null>(null)
   const reviewStatus = workspace.review?.status
@@ -194,6 +204,7 @@ export function PracticeProgress({
   if (compact) {
     return (
       <section className="practice-progress is-compact" aria-label="Tiến độ Practice">
+        {packageSubmission}
         <div className="practice-compact-progress" role="status">
           <div>
             <small>TIẾN ĐỘ</small>
@@ -254,6 +265,7 @@ export function PracticeProgress({
   }
   return (
     <section className={'practice-progress' + (compact ? ' is-compact' : '')} aria-label="Tiến độ Practice">
+      {packageSubmission}
       <div className="practice-progress__summary">
         <small>MỤC TIÊU</small>
         <strong>{workspace.objective}</strong>

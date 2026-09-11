@@ -1,18 +1,18 @@
 import { createHash } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import {
-  portfolioPlanningArtifactPaths,
+  portfolioPackageArtifactPaths,
   type LearnerProgress,
-  type PortfolioPlanningArtifactPath,
   type PracticeCompletionReceipt
 } from '../../shared/contracts'
 import type { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
 import type { PortfolioBuildEvidenceAdapter } from './portfolio-build-evidence-adapter'
 import type { PortfolioWorkspaceRepository } from './portfolio-workspace-repository'
 import type { PracticeDefinitionRepository } from './practice-definition-repository'
-import { practiceWorkspaceIdentityDigest, type PracticeRunRepository } from './practice-run-repository'
+import type { PracticeRunRepository } from './practice-run-repository'
 import type { ProgressRepository } from './progress-repository'
+import { currentPortfolioPackageApproval, isPortfolioPackage } from './portfolio-package-state'
+import { buildPracticeReviewEnvelope } from './practice-review-context'
 
 const masteryQuestionIds = [
   'mastery-1',
@@ -32,15 +32,6 @@ function digest(value: string): string {
 function bounded(value: string, maximum = 650): string {
   const compact = value.replace(/\s+/g, ' ').trim()
   return compact.length <= maximum ? compact : `${compact.slice(0, maximum - 1).trimEnd()}…`
-}
-
-function section(content: string, heading: string): string {
-  const marker = `## ${heading}`
-  const start = content.split('\n').findIndex((line) => line.trim() === marker)
-  if (start < 0) return ''
-  const lines = content.split('\n').slice(start + 1)
-  const next = lines.findIndex((line) => line.startsWith('## '))
-  return bounded((next < 0 ? lines : lines.slice(0, next)).join('\n'))
 }
 
 function requireText(value: string, label: string): string {
@@ -66,148 +57,94 @@ export class PortfolioModuleCompletionService {
   ) {}
 
   async completeModuleTwo(): Promise<LearnerProgress> {
-    const progressResult = await this.progressRepository.load()
-    if (progressResult.status !== 'returning' && progressResult.status !== 'recovered') {
-      throw new Error('Learner progress is unavailable')
-    }
-    const progress = progressResult.progress
-    if (progress.sceneId !== 'module-2-portfolio-mastery-summary') {
+    const loaded = await this.progressRepository.load()
+    if (loaded.status !== 'returning' && loaded.status !== 'recovered') throw new Error('Learner progress is unavailable')
+    const progress = loaded.progress
+    const priorCompletion = [...progress.practiceCompletions].reverse().find((receipt) =>
+      receipt.practiceId === 'm2-portfolio-planning' && receipt.practiceVersion === '2.0.0'
+      && receipt.courseRunId === progress.courseRunId && receipt.checkpointId === 'm2-portfolio-complete')
+    if (progress.sceneId !== 'module-2-portfolio-mastery-summary' && !priorCompletion) {
       throw new Error('Finish the Module 2 mastery assessment before completing the module')
     }
-
     const workspace = await this.workspaceRepository.load({ courseRunId: progress.courseRunId })
-    if (workspace.status !== 'ready' || !workspace.selectedPath) {
-      throw new Error('The selected portfolio workspace is not ready')
-    }
-    const canonicalPath = resolve(workspace.selectedPath)
+    if (workspace.status !== 'ready' || !workspace.selectedPath) throw new Error('The selected portfolio workspace is not ready')
     const record = await this.practiceRunRepository.load()
-    const active = record.activeRun
-    if (!active
-      || active.practiceId !== 'm2-portfolio-planning'
-      || active.practiceVersion !== '1.0.0'
-      || resolve(active.binding.workspaceRoot) !== canonicalPath) {
-      throw new Error('The active planning Practice does not match this portfolio workspace')
+    const active = record.activeRun && isPortfolioPackage(record.activeRun)
+      ? record.activeRun
+      : [...record.archivedRuns].reverse().map((archive) => archive.retainedRun).find((run) => run && isPortfolioPackage(run)
+          && run.completion?.courseRunId === progress.courseRunId)
+    if (!active || !active.completion || !active.reviewResult
+      || active.reviewStatus !== 'passed' || active.reviewResult.verdict !== 'passed' || record.pendingTransition
+      || resolve(active.binding.workspaceRoot) !== resolve(workspace.selectedPath)) {
+      throw new Error('A fresh five-document submission review is required; legacy receipts remain historical')
     }
     const definition = await this.definitionRepository.load(active.practiceId, active.practiceVersion)
-    const fresh = await this.evidenceAdapter.collect({
-      definition,
-      runId: active.runId,
-      generation: active.generation,
-      workspaceRoot: canonicalPath,
-      task: { threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot }
-    })
-    const planning = fresh.portfolioPlanning
-    if (fresh.freshness !== 'fresh' || !planning
-      || planning.issues.length > 0 || planning.unexpectedPaths.length > 0) {
-      throw new Error('The current planning package has missing, invalid, or out-of-scope evidence')
+    const context = { definition, runId: active.runId, generation: active.generation,
+      workspaceRoot: active.binding.workspaceRoot, task: { threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot },
+      allowedLegacyArtifactPaths: active.allowedLegacyArtifactPaths }
+    const fresh = await this.evidenceAdapter.collect(context)
+    const approval = currentPortfolioPackageApproval({ ...active, evidence: fresh }, progress.courseRunId)
+    const envelope = buildPracticeReviewEnvelope({ definition, run: { ...active, evidence: fresh }, activity: null, generatedAt: this.now().toISOString() })
+    if (!approval || !envelope.portfolioPackage?.ready
+      || envelope.portfolioPackage.evidenceDigest !== active.completion.submissionDigest
+      || !progress.practiceCompletions.some((receipt) => receipt.runId === active.runId
+        && receipt.practiceVersion === '2.0.0' && receipt.courseRunId === progress.courseRunId
+        && receipt.submissionDigest === active.completion?.submissionDigest)) {
+      throw new Error('The approved portfolio package changed; return to the same Practice task and submit a fresh review')
     }
-    if (planning.workspaceIdentityDigest !== practiceWorkspaceIdentityDigest(canonicalPath)) {
-      throw new Error('The portfolio workspace identity changed')
-    }
-    const freshDigests = new Map(planning.artifacts.map((artifact) => [artifact.path, artifact.digest]))
-    if (!portfolioPlanningArtifactPaths.every((path) => freshDigests.has(path))) {
-      throw new Error('All seven current planning artifacts are required')
-    }
-
-    const receipts = active.stageReceipts ?? []
-    if (receipts.length !== 5 || !definition.stages
-      || !definition.stages.every((stage) => {
-        const receipt = receipts.find((candidate) => candidate.stageId === stage.id)
-        return receipt?.courseRunId === progress.courseRunId
-          && receipt.stageIndex === stage.order
-          && receipt.status === 'completed'
-          && receipt.freshness === 'current'
-          && receipt.workspace.identityDigest === planning.workspaceIdentityDigest
-          && receipt.workspace.canonicalPath === canonicalPath
-          && receipt.approval.approvedAt.length > 0
-          && sameDigests(receipt.artifactDigests, freshDigests)
-          && stage.requiredArtifactPaths.every((path) =>
-            receipt.artifactDigests[path] === freshDigests.get(path))
-      })) {
-      throw new Error('Five current learner-approved stage receipts are required')
-    }
-
-    const masteryAnswers = masteryQuestionIds.map((questionId) => ({
-      questionId,
-      result: progress.decisions[`assessment:${questionId}`] ?? ''
-    }))
-    if (masteryAnswers.some(({ result }) => !result.startsWith('correct'))) {
-      throw new Error('All Module 2 mastery evidence must be satisfied')
-    }
+    const masteryAnswers = masteryQuestionIds.map((questionId) => ({ questionId, result: progress.decisions[`assessment:${questionId}`] ?? '' }))
+    if (masteryAnswers.some(({ result }) => !result.startsWith('correct'))) throw new Error('All Module 2 mastery evidence must be satisfied')
     for (const questionId of writtenQuestionIds) {
       const result = progress.decisions[`assessment:${questionId}`] ?? ''
-      if (!result.startsWith('correct:self-review:')
-        || result.slice('correct:self-review:'.length).trim().length < 20) {
+      if (!result.startsWith('correct:self-review:') || result.slice('correct:self-review:'.length).trim().length < 20) {
         throw new Error('Learner-owned mastery answers must be saved before completion')
       }
     }
-
-    const contents = new Map<PortfolioPlanningArtifactPath, string>()
-    await Promise.all(portfolioPlanningArtifactPaths.map(async (path) => {
-      contents.set(path, await readFile(join(canonicalPath, path), 'utf8'))
-    }))
-    const brief = contents.get('planning/portfolio-brief.md') ?? ''
-    const inventory = contents.get('planning/content-evidence-inventory.md') ?? ''
-    const prd = contents.get('planning/PRD.md') ?? ''
-    const firstTask = contents.get('planning/first-bounded-task.md') ?? ''
-    const learnerDecision = requireText([
-      section(brief, 'Người xem chính'),
-      section(brief, 'Quyết định người xem cần đưa ra')
-    ].filter(Boolean).join(' — '), 'learner decision')
-    const evidenceBoundary = requireText([
-      section(inventory, 'Khoảng trống bằng chứng'),
-      section(inventory, 'Nội dung không được công khai')
-    ].filter(Boolean).join(' — '), 'evidence boundary')
-    const firstBuild = requireText(section(firstTask, 'Mục tiêu duy nhất'), 'first bounded build')
-    const deliberatelyOutOfScope = requireText(section(prd, 'Ngoài phạm vi'), 'out-of-scope decision')
-    const artifacts = portfolioPlanningArtifactPaths.map((path) => ({
-      path,
-      digest: freshDigests.get(path)!
-    }))
-    const completedAt = this.now().toISOString()
+    const artifacts = portfolioPackageArtifactPaths.map((path) => ({ path, digest: approval.artifactDigests[path]! }))
+    const contents = new Map(envelope.portfolioPackage.artifacts.map((artifact) => [artifact.path, artifact.content]))
+    const excerpt = (path: string, headings: RegExp) => {
+      const content = contents.get(path) ?? ''
+      const sections = content.split(/(?=^#{1,6}\s)/m)
+      return requireText(sections.filter((part) => headings.test(part.split('\n')[0] ?? '')).join(' ') || content, path)
+    }
+    const summary = {
+      learnerDecision: excerpt('planning/portfolio-brief.md', /người xem|quyết định|audience|decision/i),
+      evidenceBoundary: excerpt('planning/content-evidence-inventory.md', /khoảng trống|công khai|gap|privacy|permission/i),
+      // Compatibility display key: this is the implementation order, not a first-task document.
+      firstBuild: excerpt('planning/implementation-plan.md', /giai đoạn|bước|phase|step|order/i),
+      deliberatelyOutOfScope: excerpt('planning/PRD.md', /ngoài phạm vi|non-goals|out.of.scope|constraints|ràng buộc/i)
+    }
+    const latest = await this.evidenceAdapter.collect(context)
+    if (latest.sourceDigest !== fresh.sourceDigest || latest.freshness !== 'fresh') throw new Error('Portfolio evidence changed before completion')
+    const latestRecord = await this.practiceRunRepository.load()
+    const latestRun = latestRecord.activeRun?.practiceId === active.practiceId ? latestRecord.activeRun
+      : [...latestRecord.archivedRuns].reverse().find((item) => item.runId === active.runId && item.generation === active.generation)?.retainedRun
+    if (latestRecord.pendingTransition || !latestRun || latestRun.runId !== active.runId
+      || latestRun.generation !== active.generation || latestRun.reviewStatus !== 'passed'
+      || latestRun.reviewResult?.sourceDigest !== active.reviewResult.sourceDigest) throw new Error('The current portfolio submission changed before completion')
+    if (priorCompletion) {
+      if (priorCompletion.submissionDigest === active.completion.submissionDigest) return progress
+    }
     const receipt: PracticeCompletionReceipt = {
-      schemaVersion: 1,
-      courseRunId: progress.courseRunId,
-      practiceId: active.practiceId,
-      practiceVersion: active.practiceVersion,
-      runId: active.runId,
-      checkpointId: 'm2-portfolio-complete',
-      status: 'completed',
-      completedAt,
-      evidenceSummary: bounded(`Quyết định: ${learnerDecision} Bằng chứng còn thiếu hoặc bị giới hạn: ${evidenceBoundary} Xây trước: ${firstBuild} Ngoài phạm vi: ${deliberatelyOutOfScope}`, 1500),
+      schemaVersion: 1, courseRunId: progress.courseRunId, practiceId: active.practiceId,
+      practiceVersion: active.practiceVersion, runId: active.runId, checkpointId: 'm2-portfolio-complete',
+      status: 'completed', completedAt: this.now().toISOString(), submissionDigest: active.completion.submissionDigest,
+      evidenceSummary: bounded(active.reviewResult.summary, 1500),
       masterySummary: 'Đã đối chiếu 4 tình huống và lưu 1 câu trả lời do người học tự viết trên planning package hiện tại.',
-      destination: {
-        lessonId: 'module-3',
-        checkpointId: 'm3-complete-first-version',
-        sceneId: 'module-3-debugging-intro'
-      },
+      destination: { lessonId: 'module-3', checkpointId: 'm3-complete-first-version', sceneId: 'module-3-debugging-intro' },
       portfolioPlanningHandoff: {
-        schemaVersion: 1,
-        workspace: {
-          canonicalPath,
-          identityDigest: planning.workspaceIdentityDigest
-        },
-        artifacts,
-        stageReceipts: receipts
-          .sort((left, right) => left.stageIndex - right.stageIndex)
-          .map((stageReceipt) => ({
-            stageId: stageReceipt.stageId,
-            stageIndex: stageReceipt.stageIndex,
-            observedAt: stageReceipt.observedAt,
-            artifactDigests: { ...stageReceipt.artifactDigests }
-          })),
-        mastery: {
-          questionIds: [...masteryQuestionIds],
-          answerDigest: digest(JSON.stringify(masteryAnswers))
-        },
-        summary: { learnerDecision, evidenceBoundary, firstBuild, deliberatelyOutOfScope },
-        moduleThreeInput: {
-          workspacePath: canonicalPath,
-          artifactReferences: artifacts
-        }
+        schemaVersion: 2, workspace: { canonicalPath: active.binding.workspaceRoot, identityDigest: approval.workspaceIdentityDigest },
+        artifacts, approval, submission: { runId: active.runId, generation: active.generation,
+          sourceDigest: approval.sourceDigest, reviewDigest: active.reviewResult.sourceDigest, reviewedAt: active.reviewResult.reviewedAt },
+        task: { runId: active.runId, threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot,
+          name: active.binding.name, createdAt: active.binding.createdAt },
+        mastery: { questionIds: [...masteryQuestionIds], answerDigest: digest(JSON.stringify(masteryAnswers)) },
+        summary, moduleThreeInput: { workspacePath: active.binding.workspaceRoot, artifactReferences: artifacts }
       }
     }
-    return this.progressRepository.completePortfolioPlanning(receipt)
+    return progress.sceneId === 'module-2-portfolio-mastery-summary'
+      ? this.progressRepository.completePortfolioPlanning(receipt)
+      : this.progressRepository.recordPracticeCompletion(receipt)
   }
 
   async completeModuleThree(): Promise<LearnerProgress> {

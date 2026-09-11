@@ -4,32 +4,27 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PortfolioModuleCompletionService } from '../electron/main/portfolio-module-completion-service'
+import { PortfolioPlanningEvidenceAdapter } from '../electron/main/portfolio-planning-evidence-adapter'
+import { PortfolioWorkspaceRepository } from '../electron/main/portfolio-workspace-repository'
+import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
+import { buildPracticeReviewEnvelope } from '../electron/main/practice-review-context'
+import { PracticeRunRepository } from '../electron/main/practice-run-repository'
 import { ProgressRepository } from '../electron/main/progress-repository'
 import {
-  portfolioPlanningArtifactPaths,
+  portfolioPackageArtifactPaths,
   portfolioBuildSliceIds,
   type PracticeBuildSliceReceipt,
-  type PortfolioPlanningEvidenceState,
   type PracticeStageReceipt,
   type ProgressUpdate
 } from '../shared/contracts'
+import {
+  portfolioPackageTimestamp,
+  savePortfolioPackageRun,
+  writePortfolioPackage
+} from './fixtures/portfolio-package-fixture'
 
 const temporaryDirectories: string[] = []
-const observedAt = '2026-08-15T10:00:00.000Z'
-const stagePaths = [
-  ['planning/portfolio-brief.md'],
-  ['planning/content-evidence-inventory.md'],
-  ['planning/reference/reference.md'],
-  ['planning/PRD.md'],
-  ['planning/requirement-validation-map.md', 'planning/implementation-plan.md', 'planning/first-bounded-task.md']
-] as const
-const stageIds = [
-  'portfolio-brief',
-  'content-evidence-inventory',
-  'visual-reference',
-  'portfolio-prd',
-  'implementation-contract'
-] as const
+const observedAt = portfolioPackageTimestamp
 
 afterEach(async () => {
   await Promise.all(temporaryDirectories.splice(0).map((directory) =>
@@ -40,30 +35,93 @@ function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex')
 }
 
-async function fixture() {
+async function fixture(documentOverrides: Record<string, string> = {}) {
   const root = await mkdtemp(join(tmpdir(), 'portfolio-module-completion-'))
   temporaryDirectories.push(root)
   const dataDirectory = join(root, 'data')
   const workspace = join(root, 'portfolio')
-  await mkdir(join(workspace, 'planning/reference'), { recursive: true })
-  const contents: Record<string, string> = {
-    'planning/portfolio-brief.md': '# Brief\n\n## Người xem chính\nNhà tuyển dụng sản phẩm.\n\n## Quyết định người xem cần đưa ra\nMời tôi phỏng vấn.\n',
-    'planning/content-evidence-inventory.md': '# Inventory\n\n## Khoảng trống bằng chứng\nChưa có số liệu chuyển đổi.\n\n## Nội dung không được công khai\nEmail cá nhân.\n',
-    'planning/reference/reference.md': '# Reference\n',
-    'planning/PRD.md': '# PRD\n\n## Ngoài phạm vi\nBlog và backend.\n',
-    'planning/requirement-validation-map.md': '# Map\n',
-    'planning/implementation-plan.md': '# Plan\n',
-    'planning/first-bounded-task.md': '# First task\n\n## Mục tiêu duy nhất\nĐề xuất scaffold trung tính rồi dừng chờ duyệt.\n'
-  }
-  await Promise.all(Object.entries(contents).map(([path, content]) =>
-    writeFile(join(workspace, path), content, 'utf8')))
-  const digests = new Map(Object.entries(contents).map(([path, content]) => [path, sha256(content)]))
+  const courseRoot = join(root, 'course-root')
+  await Promise.all([mkdir(workspace), mkdir(courseRoot), mkdir(dataDirectory)])
   const progressRepository = new ProgressRepository(dataDirectory, () => new Date(observedAt))
   const decisions = Object.fromEntries([
     ...[1, 4, 5, 6].map((index) => [`assessment:mastery-${index}`, 'correct:1']),
     ['assessment:mastery-audience-choice', 'correct:self-review:Nhà tuyển dụng cần quyết định mời tôi phỏng vấn dựa trên dự án thật.']
   ])
-  const update: ProgressUpdate = {
+  const initialUpdate: ProgressUpdate = {
+    currentLessonId: 'module-2',
+    currentCourseLessonId: 'm2-portfolio-brief',
+    checkpointId: 'm2-portfolio-planning',
+    sceneId: 'module-2-portfolio-practice',
+    sceneHistory: [],
+    completedCheckpointIds: ['m2-portfolio-planning'],
+    decisions
+  }
+  const initialProgress = await progressRepository.save(initialUpdate)
+  const workspaceRepository = new PortfolioWorkspaceRepository(
+    dataDirectory, courseRoot, () => new Date(observedAt))
+  await workspaceRepository.selectPath({ courseRunId: initialProgress.courseRunId }, workspace)
+  await workspaceRepository.confirmPlanning({ courseRunId: initialProgress.courseRunId })
+  await writePortfolioPackage(workspace, documentOverrides)
+  const definitionRepository = new PracticeDefinitionRepository(
+    join(process.cwd(), '..', 'pilot-workspace', 'course', 'practices'))
+  const definition = await definitionRepository.load('m2-portfolio-planning', '2.0.0')
+  const practiceRunRepository = new PracticeRunRepository(dataDirectory)
+  let active = await savePortfolioPackageRun({
+    runs: practiceRunRepository,
+    definition,
+    workspaceRoot: workspace,
+    courseRunId: initialProgress.courseRunId,
+    approve: true
+  })
+  const envelope = buildPracticeReviewEnvelope({
+    definition,
+    run: active,
+    activity: null,
+    generatedAt: observedAt
+  })
+  const reviewResult = {
+    schemaVersion: 1 as const,
+    practiceId: definition.practiceId,
+    practiceVersion: definition.version,
+    runId: active.runId,
+    verdict: 'passed' as const,
+    criteria: [],
+    summary: 'Năm tài liệu planning đã được duyệt như một gói cuối cùng nhất quán.',
+    reviewedAt: observedAt,
+    sourceDigest: 'a'.repeat(64)
+  }
+  const reviewCompletion = {
+    schemaVersion: 1 as const,
+    courseRunId: initialProgress.courseRunId,
+    practiceId: definition.practiceId,
+    practiceVersion: definition.version,
+    runId: active.runId,
+    checkpointId: 'm2-portfolio-planning' as const,
+    status: 'completed' as const,
+    completedAt: observedAt,
+    evidenceSummary: reviewResult.summary,
+    masterySummary: 'Đã duyệt PRD và kế hoạch hiện tại.',
+    submissionDigest: envelope.portfolioPackage!.evidenceDigest,
+    destination: {
+      lessonId: 'module-2' as const,
+      checkpointId: 'm2-portfolio-mastery' as const,
+      sceneId: 'module-2-portfolio-mastery' as const
+    }
+  }
+  const reviewed = await practiceRunRepository.saveReview({
+    runId: active.runId,
+    generation: active.generation,
+    practiceId: active.practiceId,
+    practiceVersion: active.practiceVersion,
+    result: reviewResult,
+    checklist: definition.checklist.map((step) => ({ ...step, status: 'completed' as const })),
+    completion: reviewCompletion,
+    expectedPackageDigest: active.evidence!.sourceDigest!,
+    updatedAt: observedAt
+  })
+  active = reviewed.activeRun!
+  await progressRepository.recordPracticeCompletion(reviewCompletion)
+  const progress = await progressRepository.save({
     currentLessonId: 'module-2',
     currentCourseLessonId: 'm2-portfolio-brief',
     checkpointId: 'm2-portfolio-mastery',
@@ -71,88 +129,18 @@ async function fixture() {
     sceneHistory: ['module-2-portfolio-practice'],
     completedCheckpointIds: ['m2-portfolio-planning'],
     decisions
-  }
-  const progress = await progressRepository.save(update)
-  const workspaceDigest = sha256(workspace)
-  const receipts: PracticeStageReceipt[] = stageIds.map((stageId, index) => {
-    const artifactDigests = Object.fromEntries(stagePaths[index]!.map((path) => [path, digests.get(path)!]))
-    return {
-      schemaVersion: 1,
-      courseRunId: progress.courseRunId,
-      practiceId: 'm2-portfolio-planning',
-      practiceVersion: '1.0.0',
-      runId: 'run-portfolio',
-      stageId,
-      stageIndex: (index + 1) as 1 | 2 | 3 | 4 | 5,
-      workspace: { canonicalPath: workspace, identityDigest: workspaceDigest },
-      artifactDigests,
-      approval: { approvedAt: observedAt, artifactDigests },
-      evidence: { executorReportedChecks: [], corroboratedArtifacts: artifactDigests },
-      status: 'completed',
-      freshness: 'current',
-      observedAt
-    }
   })
-  const planning: PortfolioPlanningEvidenceState = {
-    schemaVersion: 1,
-    workspaceIdentityDigest: workspaceDigest,
-    artifacts: portfolioPlanningArtifactPaths.map((path) => ({
-      path,
-      digest: digests.get(path)!,
-      byteLength: Buffer.byteLength(contents[path]!),
-      modifiedAt: observedAt,
-      observedAt
-    })),
-    issues: [],
-    unexpectedPaths: [],
-    stages: stageIds.map((stageId, index) => ({
-      stageId,
-      stageIndex: (index + 1) as 1 | 2 | 3 | 4 | 5,
-      status: 'ready',
-      artifactDigests: receipts[index]!.artifactDigests,
-      executorReportedChecks: [],
-      corroboratedArtifacts: receipts[index]!.artifactDigests,
-      issueCodes: []
-    }))
-  }
-  const active = {
-    runId: 'run-portfolio',
-    generation: 1,
-    practiceId: 'm2-portfolio-planning',
-    practiceVersion: '1.0.0',
-    binding: { threadId: 'thread-portfolio', workspaceRoot: workspace },
-    stageReceipts: receipts
-  }
-  const definition = {
-    practiceId: active.practiceId,
-    version: active.practiceVersion,
-    stages: stageIds.map((id, index) => ({
-      id,
-      order: (index + 1) as 1 | 2 | 3 | 4 | 5,
-      dependsOn: index === 0 ? [] : [stageIds[index - 1]!],
-      requiredArtifactPaths: [...stagePaths[index]!]
-    }))
-  }
-  const dependencies = {
-    workspaceRepository: { load: async () => ({ status: 'ready', selectedPath: workspace }) },
-    practiceRunRepository: { load: async () => ({ activeRun: active }) },
-    definitionRepository: { load: async () => definition },
-    evidenceAdapter: {
-      collect: async () => ({
-        freshness: 'fresh',
-        portfolioPlanning: planning
-      })
-    }
-  }
+  const evidenceAdapter = new PortfolioPlanningEvidenceAdapter(undefined, () => new Date(observedAt))
+  const dependencies = { workspaceRepository, practiceRunRepository, definitionRepository, evidenceAdapter }
   const service = new PortfolioModuleCompletionService(
     progressRepository,
-    dependencies.workspaceRepository as never,
-    dependencies.practiceRunRepository as never,
-    dependencies.definitionRepository as never,
-    dependencies.evidenceAdapter as never,
+    workspaceRepository,
+    practiceRunRepository,
+    definitionRepository,
+    evidenceAdapter,
     () => new Date(observedAt)
   )
-  return { root, workspace, progressRepository, progress, planning, receipts, dependencies, service }
+  return { root, workspace, progressRepository, progress, active, definition, dependencies, service }
 }
 
 async function moduleThreeFixture() {
@@ -249,8 +237,45 @@ async function moduleThreeFixture() {
 }
 
 describe('PortfolioModuleCompletionService', () => {
-  it('atomically saves the receipt and opens Module 3 debugging with explicit artifact inputs only', async () => {
+  it('prevents ordinary progress writes from bypassing the reviewed v2 submission gate', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'portfolio-module-progress-gate-'))
+    temporaryDirectories.push(root)
+    const repository = new ProgressRepository(root, () => new Date(observedAt))
+    const progress = await repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-planning',
+      sceneId: 'module-2-portfolio-practice',
+      sceneHistory: [],
+      completedCheckpointIds: [],
+      decisions: {}
+    })
+
+    await expect(repository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-mastery',
+      sceneId: 'module-2-portfolio-mastery-summary',
+      sceneHistory: ['module-2-portfolio-practice'],
+      completedCheckpointIds: ['m2-portfolio-planning'],
+      decisions: progress.decisions
+    })).rejects.toThrow(/submission|completion|review/i)
+  })
+
+  it.each([
+    ['active', false],
+    ['retained archived', true]
+  ])('atomically completes an %s reviewed v2 submission', async (_label, archived) => {
     const test = await fixture()
+    if (archived) {
+      await test.dependencies.practiceRunRepository.closeCompletedRun({
+        runId: test.active.runId,
+        generation: test.active.generation,
+        practiceId: test.active.practiceId,
+        practiceVersion: test.active.practiceVersion,
+        updatedAt: observedAt
+      })
+    }
 
     const completed = await test.service.completeModuleTwo()
 
@@ -263,61 +288,246 @@ describe('PortfolioModuleCompletionService', () => {
     })
     const receipt = completed.practiceCompletions.at(-1)!
     expect(receipt.portfolioPlanningHandoff).toMatchObject({
+      schemaVersion: 2,
       workspace: { canonicalPath: test.workspace },
-      moduleThreeInput: { workspacePath: test.workspace }
+      task: {
+        runId: test.active.runId,
+        threadId: test.active.binding.threadId,
+        workspaceRoot: test.workspace
+      },
+      moduleThreeInput: { workspacePath: test.workspace },
+      submission: { runId: test.active.runId, generation: test.active.generation }
     })
-    expect(receipt.portfolioPlanningHandoff?.artifacts).toEqual(
-      expect.arrayContaining([expect.objectContaining({ path: 'planning/PRD.md' })]))
-    expect(receipt.portfolioPlanningHandoff?.stageReceipts).toEqual(
-      expect.arrayContaining([expect.objectContaining({ stageId: 'implementation-contract' })]))
-    expect(JSON.stringify(receipt)).not.toMatch(/thread|chat|transcript/i)
+    expect(receipt.portfolioPlanningHandoff?.artifacts.map(({ path }) => path))
+      .toEqual(portfolioPackageArtifactPaths)
+    expect(receipt.portfolioPlanningHandoff).not.toHaveProperty('stageReceipts')
+    expect(receipt.submissionDigest).toBe(test.active.completion?.submissionDigest)
     await expect(new ProgressRepository(join(test.root, 'data')).load()).resolves.toMatchObject({
       status: 'returning', progress: { sceneId: 'module-3-debugging-intro' }
     })
   })
 
-  it('rejects a stale stage digest without moving the learner checkpoint', async () => {
-    const test = await fixture()
-    test.planning.artifacts[0]!.digest = 'f'.repeat(64)
+  it('extracts late relevant sections for the bounded Module 3 handoff summary', async () => {
+    const irrelevant = `IRRELEVANT-OPENING ${'generic introduction '.repeat(60)}`
+    const inventory = [
+      '# Content evidence inventory',
+      irrelevant,
+      '## Available material and provenance',
+      'Project Alpha has owner-authored evidence.',
+      '## Gaps, privacy, and publication restrictions',
+      'LATE-PRIVACY-GAP: client names and conversion metrics remain private until permission is confirmed.'
+    ].join('\n\n')
+    const prd = [
+      '# Portfolio PRD',
+      irrelevant,
+      '## Product requirements',
+      'REQ-HERO: Introduce the owner before the first project.',
+      '## Acceptance criteria',
+      'A reviewer can locate the owner with a keyboard.',
+      '## Out of scope',
+      'LATE-EXCLUSION: publishing, analytics, and a backend are deliberately excluded.'
+    ].join('\n\n')
+    const plan = [
+      '# Implementation plan',
+      irrelevant,
+      '## Delivery steps and order',
+      'LATE-IMPLEMENTATION-ORDER: first build REQ-HERO, then validate responsive keyboard use.',
+      '## Dependencies and stopping point',
+      'Verified inventory content is required before implementation stops for learner review.',
+      '## Checks, validation, and expected evidence',
+      'Verify REQ-HERO on desktop, mobile, and keyboard navigation.'
+    ].join('\n\n')
+    expect(inventory.indexOf('LATE-PRIVACY-GAP')).toBeGreaterThan(650)
+    expect(prd.indexOf('LATE-EXCLUSION')).toBeGreaterThan(650)
+    expect(plan.indexOf('LATE-IMPLEMENTATION-ORDER')).toBeGreaterThan(650)
+    const test = await fixture({
+      'planning/content-evidence-inventory.md': inventory,
+      'planning/PRD.md': prd,
+      'planning/implementation-plan.md': plan
+    })
 
-    await expect(test.service.completeModuleTwo()).rejects.toThrow('stage receipts')
-    await expect(test.progressRepository.load()).resolves.toMatchObject({
-      status: 'returning', progress: { sceneId: 'module-2-portfolio-mastery-summary' }
+    const completed = await test.service.completeModuleTwo()
+    const summary = completed.practiceCompletions.at(-1)?.portfolioPlanningHandoff?.summary
+    expect(summary?.evidenceBoundary).toContain('LATE-PRIVACY-GAP')
+    expect(summary?.deliberatelyOutOfScope).toContain('LATE-EXCLUSION')
+    expect(summary?.firstBuild).toContain('LATE-IMPLEMENTATION-ORDER')
+    expect([summary?.evidenceBoundary, summary?.deliberatelyOutOfScope, summary?.firstBuild])
+      .not.toContainEqual(expect.stringContaining('IRRELEVANT-OPENING'))
+  })
+
+  it('survives a repository relaunch before completing the reviewed submission', async () => {
+    const test = await fixture()
+    const relaunched = new PortfolioModuleCompletionService(
+      new ProgressRepository(join(test.root, 'data'), () => new Date(observedAt)),
+      new PortfolioWorkspaceRepository(join(test.root, 'data'), join(test.root, 'course-root'), () => new Date(observedAt)),
+      new PracticeRunRepository(join(test.root, 'data')),
+      test.dependencies.definitionRepository,
+      new PortfolioPlanningEvidenceAdapter(undefined, () => new Date(observedAt)),
+      () => new Date(observedAt)
+    )
+
+    await expect(relaunched.completeModuleTwo()).resolves.toMatchObject({
+      sceneId: 'module-3-debugging-intro'
     })
   })
 
-  it.each([
-    ['incomplete validation mapping', 'requirement-coverage'],
-    ['hidden implementation', 'unexpected-workspace-change']
-  ])('rejects %s reported by the independent adapter', async (_label, code) => {
+  it('does not fall back to an archived pass while a newer active attempt is unpassed', async () => {
     const test = await fixture()
-    test.planning.issues.push({
-      stageId: 'implementation-contract',
-      path: code === 'requirement-coverage' ? 'planning/requirement-validation-map.md' : 'src/App.tsx',
-      code: code as 'requirement-coverage' | 'unexpected-workspace-change',
-      message: 'Blocked fixture'
+    const archived = await test.dependencies.practiceRunRepository.closeCompletedRun({
+      runId: test.active.runId,
+      generation: test.active.generation,
+      practiceId: test.active.practiceId,
+      practiceVersion: test.active.practiceVersion,
+      updatedAt: observedAt
+    })
+    await test.dependencies.practiceRunRepository.save({
+      ...archived,
+      activeRun: {
+        ...test.active,
+        runId: 'run-package-retry',
+        generation: test.active.generation + 1,
+        binding: {
+          ...test.active.binding,
+          runId: 'run-package-retry',
+          threadId: 'thread-package-retry'
+        },
+        evidence: null,
+        stageReceipts: [],
+        packageApproval: undefined,
+        reviewStatus: 'not-reviewed',
+        reviewResult: undefined,
+        reviewHistory: [],
+        completion: undefined
+      }
     })
 
-    await expect(test.service.completeModuleTwo()).rejects.toThrow('missing, invalid, or out-of-scope')
+    await expect(test.service.completeModuleTwo()).rejects.toThrow('five-document submission review')
+    expect((await test.dependencies.practiceRunRepository.load()).archivedRuns.at(-1)?.retainedRun)
+      .toMatchObject({ runId: test.active.runId, reviewStatus: 'passed' })
   })
 
-  it('rejects a missing learner approval and prevents ordinary progress writes from bypassing the gate', async () => {
+  it('rejects changed files without moving the learner checkpoint or deleting the review receipt', async () => {
     const test = await fixture()
-    test.receipts[0]!.approval.approvedAt = ''
-    await expect(test.service.completeModuleTwo()).rejects.toThrow('learner-approved')
+    await writeFile(join(test.workspace, 'planning/PRD.md'), '# Changed PRD\n', 'utf8')
 
-    await expect(test.progressRepository.save({
-      currentLessonId: 'module-3',
-      currentCourseLessonId: 'm3-complete-first-version',
-      checkpointId: 'm3-complete-first-version',
-      sceneId: 'module-3-debugging-intro',
-      sceneHistory: ['module-2-portfolio-mastery-summary'],
-      completedCheckpointIds: ['m2-portfolio-planning', 'm2-portfolio-mastery'],
-      decisions: test.progress.decisions
-    })).rejects.toThrow('atomic Module 2 completion receipt')
+    await expect(test.service.completeModuleTwo()).rejects.toThrow('changed')
+    const loaded = await test.progressRepository.load()
+    expect(loaded).toMatchObject({
+      status: 'returning',
+      progress: {
+        sceneId: 'module-2-portfolio-mastery-summary',
+        practiceCompletions: [expect.objectContaining({
+          checkpointId: 'm2-portfolio-planning',
+          submissionDigest: test.active.completion?.submissionDigest
+        })]
+      }
+    })
   })
 
-  it('reset removes the receipt and the unlocked destination', async () => {
+  it('requires all current mastery answers before completion', async () => {
+    const test = await fixture()
+    await test.progressRepository.save({
+      currentLessonId: 'module-2',
+      currentCourseLessonId: 'm2-portfolio-brief',
+      checkpointId: 'm2-portfolio-mastery',
+      sceneId: 'module-2-portfolio-mastery-summary',
+      sceneHistory: ['module-2-portfolio-practice'],
+      completedCheckpointIds: ['m2-portfolio-planning'],
+      decisions: { ...test.progress.decisions, 'assessment:mastery-4': 'incorrect:0' }
+    })
+
+    await expect(test.service.completeModuleTwo()).rejects.toThrow('mastery')
+  })
+
+  it('rejects a legacy v1 pass while preserving its historical run and completion receipt', async () => {
+    const test = await fixture()
+    const legacyDefinition = await test.dependencies.definitionRepository.load('m2-portfolio-planning', '1.0.0')
+    const legacyResult = {
+      schemaVersion: 1 as const,
+      practiceId: legacyDefinition.practiceId,
+      practiceVersion: legacyDefinition.version,
+      runId: 'run-legacy',
+      verdict: 'passed' as const,
+      criteria: [],
+      summary: 'Historical seven-document review.',
+      reviewedAt: observedAt,
+      sourceDigest: 'b'.repeat(64)
+    }
+    const legacyCompletion = {
+      schemaVersion: 1 as const,
+      courseRunId: test.progress.courseRunId,
+      practiceId: legacyDefinition.practiceId,
+      practiceVersion: legacyDefinition.version,
+      runId: 'run-legacy',
+      checkpointId: 'm2-portfolio-planning' as const,
+      status: 'completed' as const,
+      completedAt: observedAt,
+      evidenceSummary: legacyResult.summary,
+      masterySummary: 'Historical five-stage approvals.',
+      destination: {
+        lessonId: 'module-2' as const,
+        checkpointId: 'm2-portfolio-mastery' as const,
+        sceneId: 'module-2-portfolio-mastery' as const
+      }
+    }
+    const record = await test.dependencies.practiceRunRepository.load()
+    await test.dependencies.practiceRunRepository.save({
+      ...record,
+      activeRun: {
+        runId: 'run-legacy',
+        generation: 1,
+        status: 'active',
+        practiceId: legacyDefinition.practiceId,
+        practiceVersion: legacyDefinition.version,
+        workspaceKind: legacyDefinition.workspaceKind,
+        taskPolicy: legacyDefinition.taskPolicy,
+        evidenceProfile: legacyDefinition.evidenceProfile,
+        binding: {
+          runId: 'run-legacy',
+          threadId: 'thread-legacy',
+          name: 'Historical Module 2 Practice',
+          workspaceRoot: test.workspace,
+          createdAt: observedAt
+        },
+        startedAt: observedAt,
+        updatedAt: observedAt,
+        checklist: legacyDefinition.checklist.map((step) => ({ ...step, status: 'completed' as const })),
+        learnerDecisions: {},
+        learnerApprovals: {},
+        evidence: null,
+        invalidations: [],
+        stageReceipts: [],
+        reviewStatus: 'passed',
+        reviewResult: legacyResult,
+        reviewHistory: [legacyResult],
+        completion: legacyCompletion
+      }
+    })
+    await test.progressRepository.recordPracticeCompletion(legacyCompletion)
+
+    await expect(test.service.completeModuleTwo()).rejects.toThrow('five-document submission review')
+    expect((await test.dependencies.practiceRunRepository.load()).activeRun).toMatchObject({
+      runId: 'run-legacy',
+      practiceVersion: '1.0.0',
+      reviewHistory: [legacyResult]
+    })
+    const loaded = await test.progressRepository.load()
+    if (loaded.status === 'returning' || loaded.status === 'recovered') {
+      expect(loaded.progress.practiceCompletions).toContainEqual(legacyCompletion)
+    }
+  })
+
+  it('is idempotent after completion and writes only one final receipt', async () => {
+    const test = await fixture()
+    const first = await test.service.completeModuleTwo()
+    const second = await test.service.completeModuleTwo()
+
+    expect(second).toEqual(first)
+    expect(second.practiceCompletions.filter((receipt) =>
+      receipt.checkpointId === 'm2-portfolio-complete')).toHaveLength(1)
+  })
+
+  it('reset removes both the submission receipt and the unlocked destination', async () => {
     const test = await fixture()
     await test.service.completeModuleTwo()
     await test.progressRepository.reset()
