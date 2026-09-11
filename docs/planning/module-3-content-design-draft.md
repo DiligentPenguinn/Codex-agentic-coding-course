@@ -312,24 +312,26 @@ Quy tắc thiết kế câu hỏi:
 
 > Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.
 
-### Câu 2 — Báo lỗi bằng ảnh chụp
+### Câu 2 — Phân biệt Git và GitHub
 
 **Câu hỏi**
 
-> Bạn nhìn thấy nút **Xem dự án** đang che lên phần giới thiệu của website. Thông tin nào nên được gửi cho coding agent để agent điều tra lỗi?
+> Phát biểu nào mô tả đúng vai trò của Git và GitHub?
 
 **Lựa chọn**
 
-1. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, rồi chỉ rõ phần giao diện bạn muốn agent sửa.
-2. Gửi ảnh chụp, mô tả kết quả mong đợi, rồi yêu cầu agent kiểm tra phần giao diện đang bị che.
-3. Gửi ảnh chụp, mô tả thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế.
-4. Gửi ảnh chụp, mô tả kết quả thực tế, rồi liệt kê các tệp agent vừa thay đổi.
+1. Git giúp quản lý các phiên bản của dự án; GitHub cung cấp nơi lưu repository Git trực tuyến.
+2. Khi chạy trên máy tính thì gọi là Git, còn phiên bản chạy trên đám mây là GitHub.
+3. Git và GitHub là hai tên gọi của cùng một công cụ.
+4. Git dành cho người làm việc một mình, còn GitHub dành cho nhóm.
 
-**Đáp án:** 3
+**Đáp án:** 1
 
 **Giải thích sau khi trả lời**
 
-> Các lựa chọn 1 và 2 cung cấp một phần bối cảnh, nhưng vẫn thiếu thông tin cần thiết để tái hiện hoặc xác định chính xác lỗi. Khi có ảnh chụp, thao tác vừa thực hiện, kết quả mong đợi và kết quả thực tế, coding agent sẽ có đủ bằng chứng để bắt đầu điều tra.
+> Git là hệ thống quản lý phiên bản, giúp lưu lịch sử thay đổi của dự án. GitHub là nền tảng trực tuyến để lưu repository Git, chia sẻ và cộng tác. Bạn có thể dùng Git mà không cần GitHub. Cả Git và GitHub đều hỗ trợ làm việc cá nhân lẫn làm việc nhóm.
+
+**Nguồn:** Tham khảo câu 2 trong [DevOps.vn — 50 câu hỏi phỏng vấn Git](https://devops.vn/posts/50-cau-hoi-phong-van-git-co-ban-den-nang-cao/). Cách hỏi và các lựa chọn đã được điều chỉnh theo bản chủ sở hữu duyệt ngày 11 tháng 9 năm 2026. Nội dung giải thích dựa trên [GitHub — What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github).
 
 ### Câu 3 — Dùng log để tìm nguyên nhân
 

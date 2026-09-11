@@ -69,7 +69,7 @@
     },
     {
       "id": "content-evidence-inventory",
-      "title": "Duyệt bản kiểm kê nội dung và bằng chứng",
+      "title": "Duyệt tư liệu cho portfolio",
       "dependsOn": [
         "portfolio-brief"
       ]

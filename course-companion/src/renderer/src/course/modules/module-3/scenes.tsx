@@ -58,7 +58,7 @@ export const moduleThreeScenes = {
     panelStatus: 'TẠM DỪNG VÀ ĐIỀU TRA', tone: 'neutral',
     request: 'Nêu các nguyên nhân có thể, rồi kiểm tra nguyên nhân nào thực sự có bằng chứng.',
     evidence: [],
-    dialogue: 'Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra. Cách này giúp quá trình điều tra có hệ thống hơn và thường tìm ra nguyên nhân gốc, thay vì chỉ vá những biểu hiện trước mắt.\n\nSau đó, hãy yêu cầu coding agent kiểm tra từng nguyên nhân và dựa vào bằng chứng để xác định nguyên nhân nào thực sự gây ra lỗi.',
+    dialogue: 'Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra. Cách này giúp quá trình điều tra có hệ thống hơn, giúp bạn tìm ra nguyên nhân gốc, thay vì chỉ vá những biểu hiện trước mắt.\n\nSau đó, hãy yêu cầu coding agent kiểm tra từng nguyên nhân và dựa vào bằng chứng để xác định nguyên nhân nào thực sự gây ra lỗi.',
     highlightTerms: ['nguyên nhân gốc'],
     choices: [{ label: 'Tìm hiểu Git', next: 'module-3-git-intro', primary: true }]
   },
@@ -101,7 +101,7 @@ export const moduleThreeScenes = {
       { label: 'NƠI LƯU', value: 'Repository trên máy tính' },
       { label: 'MÔ TẢ', value: 'Một lời nhắn ngắn' }
     ],
-    dialogue: 'Bây giờ, mình sẽ giới thiệu thêm một số khái niệm để bạn hiểu thêm về cách Git hoạt động.\n\nĐầu tiên là Commit.\n\nVề căn bản, Commit là một phiên bản của dự án mà bạn đã lưu lại tại một thời điểm cụ thể. Giả dụ sau khi bạn sửa xong hiệu ứng animation của portfolio thấy đẹp quá nên bạn muốn lưu nó lại để sau này nếu lỡ phá code thì vẫn tìm lại phiên bản cũ được. Commit sẽ giúp bạn làm điều đó.\n\nHình ở góc bên phải màn hình chính là git tree, biểu đồ để minh hoạ lịch sử của dự án. Các bạn có thể thấy mỗi chấm là một commit, và nhiều chấm nối lại với nhau tạo thành lịch sử phát triển dự án.\n\nCác bạn nên tạo commit ngay sau mỗi thay đổi lớn trong dự án, hoặc thay đổi nào mà bạn thấy thích, để có thể tìm lại phiên bản đã lưu nếu lỡ sửa hỏng code. Bạn chỉ cần bảo agents là "commit all the current changes with appropriate messages" là được.',
+    dialogue: 'Bây giờ, mình sẽ giới thiệu thêm một số khái niệm để bạn hiểu thêm về cách Git hoạt động.\n\nĐầu tiên là Commit.\n\nVề căn bản, Commit là một phiên bản của dự án mà bạn đã lưu lại tại một thời điểm cụ thể. Giả dụ sau khi bạn sửa xong hiệu ứng animation của portfolio, bạn thấy đẹp quá nên bạn muốn lưu nó lại, để sau này nếu lỡ phá code thì vẫn tìm lại phiên bản cũ được. Commit sẽ giúp bạn làm điều đó.\n\nHình ở góc bên phải màn hình chính là git tree, biểu đồ để minh hoạ lịch sử của dự án. Các bạn có thể thấy mỗi chấm là một commit, và nhiều chấm nối lại với nhau tạo thành lịch sử phát triển dự án.\n\nCác bạn nên tạo commit ngay sau mỗi thay đổi lớn trong dự án, hoặc thay đổi nào mà bạn thấy thích, để có thể tìm lại phiên bản đã lưu nếu lỡ sửa hỏng code. Bạn chỉ cần bảo agents là "commit all the current changes with appropriate messages" là được.',
     highlightTerms: ['Commit', 'lịch sử Git', 'repository trên máy tính của bạn', 'GitHub'],
     choices: [{ label: 'Đưa commit lên GitHub', next: 'module-3-git-push', primary: true }]
   },
@@ -134,7 +134,7 @@ export const moduleThreeScenes = {
     panelStatus: 'GỘP NHÁNH', tone: 'neutral',
     request: 'Sau khi thử, bạn quyết định có đưa thay đổi vào phiên bản ổn định hay không.',
     evidence: [],
-    dialogue: "Sau khi đã xem và kiểm tra tính năng, nếu muốn đưa nó vào nhánh chính, bạn có thể bảo:\n\nGộp branch hiện tại vào nhánh chính main. Nếu có xung đột, hãy giải thích và đề xuất cách xử lý để tôi quyết định. Sau khi gộp, kiểm tra lại tính năng một lần nữa để chắc không có lỗi gì xảy ra\n\nThao tác gộp nhánh này được gọi là merge.\n\nNgoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vùng xung đột xảy ra. Ví dụ, file hiệu ứng 3D của nhanh a quy định khối 3D xoay sang trái, trong khi nhánh b sửa cùng dòng đó để khối 3D xoay sang phải. Git sẽ không biết phải chọn cái nào, khiến xung đột (conflict) xảy ra\n\nXử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.",
+    dialogue: "Sau khi đã xem và kiểm tra tính năng, nếu muốn đưa nó vào nhánh chính, bạn có thể bảo:\n\n“Gộp branch hiện tại vào nhánh chính main. Nếu có xung đột, hãy giải thích và đề xuất cách xử lý để tôi quyết định. Sau khi gộp, kiểm tra lại tính năng một lần nữa để chắc không có lỗi gì xảy ra”\n\nThao tác gộp nhánh này được gọi là merge.\n\nNgoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vùng xung đột xảy ra. Ví dụ, file hiệu ứng 3D của nhanh a quy định khối 3D xoay sang trái, trong khi nhánh b sửa cùng dòng đó để khối 3D xoay sang phải. Git sẽ không biết phải chọn cái nào, khiến xung đột (conflict) xảy ra\n\nXử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.",
     highlightTerms: ['branch', 'repository', 'phiên bản ổn định'],
     choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]
   },
@@ -145,7 +145,7 @@ export const moduleThreeScenes = {
     panelStatus: 'TÓM LẠI', tone: 'good',
     request: 'trước khi bắt đầu Practice',
     evidence: [],
-    dialogue: '- Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được. Nếu vẫn không được thì bảo agent add log vào terminal để xem lỗi là gì, paste cái log đó vào coding agent và bảo nó sửa lại lần nữa\n\n- Bạn nên bảo agent hãy commit sau mỗi quyết định lớn, để sau này bạn sẽ dễ quay lại phiên bản cũ hơn nếu gặp bug.\n\n- Mỗi khi muốn phát triển một tính năng mới, hãy tạo một branch mới để lỡ agent có quậy thì cũng không ảnh hưởng đến tính năng hiện tại. Bạn chỉ cần bảo agent tạo branch là nó sẽ tự động hướng dẫn cho bạn\n\n- Bạn có thể tạo một tài khoản github rồi bảo agent push code hiện tại của bạn lên đó nếu bạn muốn hợp tác với một người khác',
+    dialogue: '- Khi debug, trong đa số trường hợp, bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được. Nếu vẫn không được thì bảo agent add log để xem lỗi là gì, paste cái log đó vào coding agent và bảo nó sửa lại lần nữa\n\n- Bạn nên bảo agent hãy commit sau mỗi quyết định lớn, để sau này bạn sẽ dễ quay lại phiên bản cũ hơn nếu gặp bug.\n\n- Mỗi khi muốn phát triển một tính năng mới, hãy tạo một branch mới để lỡ agent có quậy thì cũng không ảnh hưởng đến tính năng hiện tại. Bạn chỉ cần bảo agent tạo branch là nó sẽ tự động hướng dẫn cho bạn\n\n- Bạn có thể tạo một tài khoản github rồi bảo agent push code hiện tại của bạn lên đó nếu bạn muốn hợp tác với một người khác',
     choices: [{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true }]
   },
   'module-3-portfolio-practice': {
@@ -168,7 +168,7 @@ export const moduleThreeScenes = {
     panelStatus: '5 CÂU', tone: 'good',
     request: 'Các câu hỏi được đặt cùng nhau ở cuối bài.',
     evidence: [],
-    dialogue: 'Bạn sẽ trả lời năm tình huống về cách thực hiện plan, báo lỗi, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.',
+    dialogue: 'Bạn sẽ trả lời năm câu hỏi về cách thực hiện plan, vai trò của Git và GitHub, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.',
     highlightTerms: ['plan', 'log', 'branch'],
     choices: [{ label: 'Bắt đầu tổng kết', next: 'module-3-mastery-plan', primary: true }]
   },
@@ -180,8 +180,8 @@ export const moduleThreeScenes = {
   },
   'module-3-mastery-visible-error': {
     lessonId: 'module-3', checkpointId: 'm3-mastery', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · TỔNG KẾT', mission: 'Báo lỗi bằng ảnh', objective: 'Gửi đủ bối cảnh để agent điều tra',
-    panelLabel: 'CÂU 2/5', panelStatus: 'TÌNH HUỐNG', tone: 'neutral', request: 'Chọn cách xử lý phù hợp nhất.', evidence: [], dialogue: '', choices: [],
+    lessonLabel: 'MODULE 3 · TỔNG KẾT', mission: 'Phân biệt Git và GitHub', objective: 'Hiểu vai trò của Git và GitHub',
+    panelLabel: 'CÂU 2/5', panelStatus: 'KHÁI NIỆM', tone: 'neutral', request: 'Chọn phát biểu đúng.', evidence: [], dialogue: '', choices: [],
     assessmentQuestionId: 'm3-mastery-visible-error', assessmentGroupId: 'm3-final-assessment'
   },
   'module-3-mastery-logs': {

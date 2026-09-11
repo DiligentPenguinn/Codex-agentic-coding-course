@@ -297,6 +297,14 @@ button:focus-visible {
   border-color: rgba(255, 214, 102, .72);
 }
 
+@media (min-width: 821px) {
+  .pixel-scene-title.is-pre-practice-summary {
+    top: clamp(120px, 24vh, 220px);
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+
 .pixel-recap-title__kicker {
   margin-top: 16px;
   display: block;

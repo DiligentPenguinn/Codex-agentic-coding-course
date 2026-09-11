@@ -3220,6 +3220,12 @@ export function LearningWindow() {
         </div>
       </header>
 
+      {displayedSceneId === 'module-3-pre-practice-summary' ? (
+        <aside className="pixel-scene-title is-pre-practice-summary">
+          <strong>Túm lại, đây là 4 điều cần nhớ trước khi bạn bắt đầu thực hành</strong>
+        </aside>
+      ) : null}
+
       {scene.copyPrompt && !usesLessonBoard ? (
         <CopyPromptCard
           label={scene.copyPromptLabel}

@@ -2179,6 +2179,23 @@ draft. Existing dialogue and navigation are preserved. Implementation:
 run under the owner's small-edit working agreement. Next action: owner desktop
 visual review. Overall module acceptance remains unchanged.
 
+### Git and GitHub assessment replacement — 11 September 2026
+
+Replaced M3.1 mastery question 2 with the owner-approved question distinguishing
+the roles of Git and GitHub, adapted from DevOps.vn question 2. Option 1 is
+correct; the explanation cites GitHub documentation. Synchronized the Pilot
+quiz, Course Companion question labels and assessment introduction, design
+draft, and existing completion-test fixture. Existing question and scene IDs
+are retained; no saved learner answers or completion rules were changed.
+
+Implementation: `implemented`; verification: `pending`. Owner approval covers
+this question replacement. No automated or rendered checks ran under the
+owner's small-edit working agreement, and no checkpoint commit was created
+without verification. Remaining gap and next action: owner review of question
+2 and its answer feedback in Course Companion. Earlier full-app evidence does
+not verify this replacement; overall Module 3 approval and pilot acceptance
+remain unchanged.
+
 ### M3.2 — Implement constrained from-scratch scaffolding
 
 **Change**

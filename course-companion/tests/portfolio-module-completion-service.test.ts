@@ -161,7 +161,7 @@ async function moduleThreeFixture() {
   const decisions = {
     ...moduleThreeReady.decisions,
     'assessment:m3-mastery-plan': 'correct:1',
-    'assessment:m3-mastery-visible-error': 'correct:2',
+    'assessment:m3-mastery-visible-error': 'correct:0',
     'assessment:m3-mastery-logs': 'correct:3',
     'assessment:m3-mastery-repeated-error': 'correct:0',
     'assessment:m3-mastery-branch': 'correct:1'
