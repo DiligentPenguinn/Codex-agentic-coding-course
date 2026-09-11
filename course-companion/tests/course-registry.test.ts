@@ -21,7 +21,6 @@ describe('portfolio course registry', () => {
     expect(portfolioModuleDefinitions.flatMap((module) =>
       module.lessons.map((lesson) => lesson.id))).toEqual([
       'm2-portfolio-brief',
-      'm3-scaffold-baseline',
       'm3-complete-first-version',
       'm3-whole-page-revision',
       'm3-evidence-debugging',
@@ -34,18 +33,21 @@ describe('portfolio course registry', () => {
     ])
   })
 
-  it('routes the merged Module 3 opening directly into debugging', () => {
+  it('starts Module 3 directly with debugging', () => {
     const moduleThree = portfolioModuleDefinitions[1]
-    expect(moduleThree.lessons[0]?.titleVi).toBe('Thực hiện Implementation Plan, từng bước một')
-    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-readiness')?.nextSceneId)
-      .toBe('module-3-debugging-intro')
+    expect(moduleThree.lessons[0]?.titleVi).toBe('Debug cùng coding agent')
+    expect(moduleThree.scenes.map((scene) => String(scene.id))).not.toContain('module-3-readiness')
     expect(moduleThree.scenes.map((scene) => String(scene.id)))
       .not.toContain('module-3-implementation-cycle')
   })
 
-  it('routes Module 3 knowledge directly into Practice without a setup scene', () => {
+  it('routes Module 3 knowledge through the approved recap and into Practice', () => {
     const moduleThree = portfolioModuleDefinitions[1]
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
+      .toBe('module-3-git-merge')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-merge')?.nextSceneId)
+      .toBe('module-3-pre-practice-summary')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-pre-practice-summary')?.nextSceneId)
       .toBe('module-3-portfolio-practice')
     expect(moduleThree.scenes.map((scene) => String(scene.id)))
       .not.toContain('module-3-practice-intro')
@@ -89,7 +91,7 @@ describe('portfolio course registry', () => {
       ...definitions[1]!,
       scenes: [{
         ...definitions[1]!.scenes[0]!,
-        courseLessonId: 'm3-complete-first-version'
+        courseLessonId: 'm3-whole-page-revision'
       }]
     }
     expect(() => validateCourseModuleDefinitions(definitions)).toThrow('different lessons')

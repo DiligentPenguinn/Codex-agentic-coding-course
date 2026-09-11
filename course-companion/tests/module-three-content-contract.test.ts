@@ -32,12 +32,11 @@ async function moduleThree() {
 }
 
 describe('Module 3 content and evidence contract', () => {
-  it('registers the five approved learner-facing sections and viewport pair', async () => {
+  it('registers the four remaining learner-facing sections and viewport pair', async () => {
     const module = await moduleThree()
     expect(module.titleVi).toBe('Hiện thực hoá sản phẩm cùng coding agent')
     expect(module.estimatedMinutes).toBeUndefined()
     expect(module.lessons.map((lesson) => lesson.titleVi)).toEqual([
-      'Thực hiện Implementation Plan, từng bước một',
       'Debug cùng coding agent',
       'Git và GitHub',
       'Practice: Xây portfolio',
@@ -68,6 +67,39 @@ describe('Module 3 content and evidence contract', () => {
     expect(templates.join('\n')).toContain('390 × 844')
   })
 
+  it('widens explanatory dialogue without changing Practice or assessment layouts', async () => {
+    const [learningWindow, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    expect(learningWindow).toContain("scene.lessonId === 'module-3' ? ' is-module-three' : ''")
+    expect(styles).toContain('.pixel-learning-shell.is-module-three .pixel-dialogue.has-single-choice > p')
+    expect(styles).toContain('max-width: 1200px;')
+  })
+
+  it('highlights the approved Module 3 terminology with yellow text', async () => {
+    const [sceneSource, styles] = await Promise.all([
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
+    ])
+    const declarations = [
+      "highlightTerms: ['implementation plan', 'bug', 'bugs', 'lỗi phần mềm', 'debugging', 'khắc phục lỗi', 'planning']",
+      "highlightTerms: ['prompt', 'screenshot']",
+      "highlightTerms: ['log', 'logs', 'terminal']",
+      "highlightTerms: ['nguyên nhân gốc']",
+      "highlightTerms: ['debugging', 'Git', 'hệ thống quản lý phiên bản', 'phân tán', 'repository', 'kho lưu trữ dự án', 'phiên bản']",
+      "highlightTerms: ['Git', 'GitHub', 'repository']",
+      "highlightTerms: ['Commit', 'lịch sử Git', 'repository trên máy tính của bạn', 'GitHub']",
+      "highlightTerms: ['push', 'commit', 'commits', 'repository', 'GitHub']",
+      "highlightTerms: ['branch', 'repository', 'phiên bản ổn định']",
+      "highlightTerms: ['plan', 'log', 'branch']"
+    ]
+    for (const declaration of declarations) expect(sceneSource).toContain(declaration)
+    expect(styles).toContain('.pixel-keyword-highlight')
+    expect(styles).toContain('color: var(--pixel-yellow);')
+    expect(styles).toContain('background: transparent;')
+  })
+
   it('preserves the approved lesson wording and teaching order', async () => {
     const [lesson, script, prompt, sceneSource] = await Promise.all([
       read('lessons/module-3.vi.md'),
@@ -75,21 +107,21 @@ describe('Module 3 content and evidence contract', () => {
       read('prompts/start-module-3.vi.md'),
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8')
     ])
-    expect(lesson).toContain('Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.')
+    expect(lesson).not.toContain('Kết thúc module 2, chúng ta đã có một PRD và một implementation plan. Trong module 3, chúng ta sẽ cùng hiện thực hoá nó.')
     expect(lesson).toContain('Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.')
     expect(lesson).not.toContain('Ví dụ prompt gửi cùng ảnh lỗi:')
     expect(lesson).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
     expect(sceneSource).not.toContain('Log là những dòng thông tin ứng dụng ghi lại trong lúc hoạt động.')
     expect(sceneSource).toContain("dialogue: 'Trên đây là ví dụ của một prompt bạn có thể áp dụng. Trong trường hợp này, lỗi có thể thấy ngay ở trên trang web, nên bạn chỉ việc cắt screenshot và nhắn prompt như trên là được.'")
-    expect(lesson).toContain('Nếu bạn copy paste ảnh lỗi mà vẫn chưa sửa được, bạn có thể bảo agent add logs vào terminal để kiểm tra.')
+    expect(lesson).toContain('Nếu bạn đã gửi ảnh lỗi mà agent vẫn chưa sửa được, bạn có thể yêu cầu agent thêm log, tức là thông tin ghi lại những hoạt động diễn ra khi ứng dụng đang chạy. Log có thể giúp agent có thêm thông tin về nguyên nhân gây ra lỗi, thay vì chỉ đoán mò')
     expect(lesson).toContain('Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra.')
     const headings = [
-      '## Thực hiện Implementation Plan, từng bước một',
       '## Debug cùng coding agent',
       '## Git và GitHub',
       '### Commit: lưu một phiên bản của dự án',
       '### Push: đưa commit lên GitHub',
       '### Branch: thử nghiệm mà không ảnh hưởng phiên bản ổn định',
+      '## Tóm lại',
       '## Practice: Xây portfolio'
     ]
     let prior = -1
@@ -102,13 +134,15 @@ describe('Module 3 content and evidence contract', () => {
     expect(`${script}\n${prompt}`).toContain('Teacher Triết không mở chat')
   })
 
-  it('keeps all Module 3 knowledge pages and routes branch directly to Practice', async () => {
-    const [sceneSource, rendererRegistry] = await Promise.all([
+  it('keeps all Module 3 knowledge pages and routes the approved recap into Practice', async () => {
+    const [lesson, sceneSource, rendererRegistry, learningWindow, styles] = await Promise.all([
+      read('lessons/module-3.vi.md'),
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
-      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8')
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'registry.ts'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'surfaces', 'LearningWindow.tsx'), 'utf8'),
+      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
     ])
     const retainedKnowledgeScenes = [
-      'module-3-readiness',
       'module-3-debugging-intro',
       'module-3-visible-error',
       'module-3-visible-error-prompt',
@@ -118,12 +152,26 @@ describe('Module 3 content and evidence contract', () => {
       'module-3-git-github',
       'module-3-git-commit',
       'module-3-git-push',
-      'module-3-git-branch'
+      'module-3-git-branch',
+      'module-3-git-merge',
+      'module-3-pre-practice-summary'
     ]
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
-    expect(sceneSource).toContain("choices: [{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true }]")
+    expect(sceneSource).toContain("choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]")
+    expect(sceneSource).toMatch(/'module-3-pre-practice-summary': \{[\s\S]*?choices: \[\{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true \}\]/)
+    expect(lesson).toContain('4 điều cần nhớ trước khi bắt đầu Practice:')
+    expect(sceneSource).toContain("objective: 'Điều cần nhớ', panelLabel: '4'")
+    expect(sceneSource).toContain("panelStatus: 'TÓM LẠI', tone: 'good'")
+    expect(sceneSource).toContain("request: 'trước khi bắt đầu Practice'")
+    expect(learningWindow).toContain("displayedSceneId === 'module-3-pre-practice-summary'")
+    expect(learningWindow).toContain('className="pixel-scene-title is-pre-practice-summary"')
+    expect(styles).toContain('.pixel-scene-title.is-pre-practice-summary')
+    expect(styles).toContain('.pixel-recap-title__count')
+    expect(sceneSource).toContain('Khi debug, trong đa số trường hợp, bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.')
+    expect(sceneSource).not.toContain('Thực hiện implementation plan theo từng phần. Sau mỗi phần, hãy xem kết quả thực tế')
     expect(sceneSource).not.toContain("'module-3-practice-intro': {")
     expect(rendererRegistry).not.toContain("['module-3-practice-intro']")
+    expect(rendererRegistry).toContain("['module-3-pre-practice-summary']")
     expect(rendererRegistry).toContain("'m3-evidence-debugging': [\n        ['module-3-portfolio-practice']\n      ]")
   })
 
@@ -202,7 +250,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(final).toMatchObject({ id: 'm3-final-assessment', mode: 'mastery' })
     expect(final.questions).toHaveLength(5)
     expect(final.questions.every((question) => question.type === 'multiple-choice')).toBe(true)
-    expect(final.questions.map((question) => question.answerIndex)).toEqual([1, 2, 3, 0, 1])
+    expect(final.questions.map((question) => question.answerIndex)).toEqual([1, 0, 3, 0, 1])
     expect(final.questions.every((question) => question.choices.length === 4)).toBe(true)
     for (const question of final.questions) {
       expect(question.source.basis.length).toBeGreaterThan(40)

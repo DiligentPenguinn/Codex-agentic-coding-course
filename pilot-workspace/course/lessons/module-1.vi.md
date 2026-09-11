@@ -37,12 +37,11 @@ giải thích sự khác nhau giữa ranh giới truy cập và chính sách xin
 
 ## Model: chọn theo loại công việc
 
-Trong dòng GPT-5.6, Codex cho bạn chọn ba model ngôn ngữ lớn, thường được gọi
-là LLM:
+Codex cho bạn chọn các model ngôn ngữ lớn, thường được gọi là LLM:
 
 | Model | Điểm mạnh | Ví dụ phù hợp |
 |---|---|---|
-| **Sol** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
+| **GPT-6 Astra** | Dòng có năng lực cao nhất cho công việc chuyên môn phức tạp | Lên kiến trúc ứng dụng, nghiên cứu sâu, xử lý yêu cầu còn mơ hồ |
 | **Terra** | Tiết kiệm hơn Sol nhưng vẫn đáp ứng tốt công việc hằng ngày | Trả lời tin nhắn khách hàng theo hướng dẫn đã có |
 | **Luna** | Thông thường mình không dùng trực tiếp; theo hiểu biết của mình, model này có thể làm sub-agent | GPT-5.6 Sol gọi Luna khảo sát codebase trước khi sửa một tính năng |
 
@@ -175,13 +174,13 @@ cấu trúc và cách Codex dùng skill.
 Mình chọn cấu hình này cho dự án thực hành ContentPilot. Đây không phải thiết
 lập mặc định của mọi tài khoản Codex:
 
-- Model: **5.6 Sol**
+- Model: **GPT-6 Astra**, có thể dùng **GPT-5.6 Sol** nếu lo tốn token
 - Effort: **High**
 - Speed: **Standard**
 - Approval: **Approve for me**
 - Full access: **Tắt**
 
-Sol và High cho người học thêm khoảng trống khi yêu cầu còn mới. Standard giữ
+Astra và High cho người học thêm khoảng trống khi yêu cầu còn mới. Standard giữ
 mức sử dụng hợp lý trong quá trình học. Approve for me giữ nhịp học. Việc tắt
 Full access giữ ranh giới an toàn.
 

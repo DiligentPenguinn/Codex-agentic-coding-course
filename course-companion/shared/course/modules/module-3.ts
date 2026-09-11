@@ -3,14 +3,13 @@ export const moduleThreeDefinition = {
   order: 3,
   titleVi: 'Hiện thực hoá sản phẩm cùng coding agent',
   lessons: [
-    { id: 'm3-scaffold-baseline', titleVi: 'Thực hiện Implementation Plan, từng bước một' },
     { id: 'm3-complete-first-version', titleVi: 'Debug cùng coding agent' },
     { id: 'm3-whole-page-revision', titleVi: 'Git và GitHub' },
     { id: 'm3-evidence-debugging', titleVi: 'Practice: Xây portfolio' },
     { id: 'm3-independent-enhancement', titleVi: 'Tổng kết Module 3' }
   ],
   checkpoints: [
-    { id: 'm3-scaffold-baseline', courseLessonId: 'm3-scaffold-baseline' },
+    { id: 'm3-scaffold-baseline', courseLessonId: 'm3-complete-first-version' },
     { id: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version' },
     { id: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision' },
     { id: 'm3-evidence-debugging', courseLessonId: 'm3-evidence-debugging' },
@@ -20,7 +19,6 @@ export const moduleThreeDefinition = {
     { id: 'm3-complete', courseLessonId: 'm3-independent-enhancement' }
   ],
   scenes: [
-    { id: 'module-3-readiness', checkpointId: 'm3-scaffold-baseline', courseLessonId: 'm3-scaffold-baseline', nextSceneId: 'module-3-debugging-intro' },
     { id: 'module-3-debugging-intro', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-visible-error' },
     { id: 'module-3-visible-error', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-visible-error-prompt' },
     { id: 'module-3-visible-error-prompt', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-terminal-logs' },
@@ -30,7 +28,9 @@ export const moduleThreeDefinition = {
     { id: 'module-3-git-github', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-commit' },
     { id: 'module-3-git-commit', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-push' },
     { id: 'module-3-git-push', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-branch' },
-    { id: 'module-3-git-branch', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-portfolio-practice' },
+    { id: 'module-3-git-branch', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-merge' },
+    { id: 'module-3-git-merge', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-pre-practice-summary' },
+    { id: 'module-3-pre-practice-summary', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-portfolio-practice' },
     { id: 'module-3-portfolio-practice', checkpointId: 'm3-portfolio-build', courseLessonId: 'm3-evidence-debugging', nextSceneId: 'module-3-portfolio-mastery' },
     { id: 'module-3-portfolio-mastery', checkpointId: 'm3-mastery', courseLessonId: 'm3-independent-enhancement', nextSceneId: 'module-3-mastery-plan' },
     { id: 'module-3-mastery-plan', checkpointId: 'm3-mastery', courseLessonId: 'm3-independent-enhancement' },

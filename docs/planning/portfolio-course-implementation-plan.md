@@ -36,9 +36,9 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `implemented` — the current course content is integrated with Duy's Practice Guide lifecycle, authoritative Hỏi Triết context, non-owning Practice review, atomic task handoff, compact progress disclosure, activity snapshots, Standard-speed canonicalization, a two-page Model/Effort/Speed presentation, and a macOS panel window that keeps Duyệt Practice eligible above fullscreen Codex | `blocked` for the current integrated tree — the 22 August tree passed 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit. The 24 August fullscreen-panel repair passes 389 unit tests, nine startup tests, typecheck, lint, production build, the focused window-policy regression, an isolated Electron runtime check confirming visible/all-workspaces/always-on-top/non-fullscreenable state, and `git diff --check`; full Electron smoke now starts but times out on the stale expectation `MODULE 1 · BÀI 1/3 · TRANG 1/4` after the current Module 1 page inventory changed, before fullscreen behavior is exercised | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, first-slide back-navigation boundary, the two-page Model/Effort/Speed split with two redundant labels removed, selective Duy workflow integration, and the macOS fullscreen Companion direction were explicitly approved | `pending` | Align the stale Module 1 smoke expectation with the current page inventory, rerun full Electron smoke, and capture visible Duyệt Practice evidence above native Codex fullscreen before presenting Foundation for overall owner review. |
+| Foundation | `implemented` — the current course content is integrated with Duy's Practice Guide lifecycle, authoritative Hỏi Triết context, non-owning Practice review, atomic task handoff, compact progress disclosure, activity snapshots, Standard-speed canonicalization, a two-page Model/Effort/Speed presentation, and a macOS panel window that keeps Duyệt Practice eligible above fullscreen Codex | `passed` for the 11 September 2026 content merge: typecheck, lint, 398 unit tests, nine startup tests, production build, full Electron smoke, source audit excluding temporary Practice bypasses, and `git diff --check`. Isolated renderer fixtures also verify the new Module 3 pages at 1440 × 900 and 1180 × 748. Live Codex and pilot acceptance remain pending | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, first-slide back-navigation boundary, the two-page Model/Effort/Speed split with two redundant labels removed, selective Duy workflow integration, and the macOS fullscreen Companion direction were explicitly approved | `pending` | Present the merged app for owner review; capture the outstanding native Codex fullscreen evidence before pilot acceptance. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The merged Teacher/Practice infrastructure does not replace the still-pending five-document Module 2 redesign; its evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
-| Module 3 | `implemented` — the approved five-section lesson, 11 knowledge scenes, six illustrations, revised visible-error prompt example, repeated-error Codex prompt illustration, Git/GitHub image in place of that scene's standalone title box, non-overlapping commit-history illustration/dialogue layout, single merged opening page titled “Thực hiện Implementation Plan, từng bước một,” direct knowledge-to-Practice route, final Teacher review, and five-question mastery check are wired into the Pilot and Course Companion. The redundant `module-3-practice-intro` setup scene is retired; `module-3-git-branch` now opens `module-3-portfolio-practice` directly | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, merged opening page, Git/GitHub image replacement with title-box removal, commit-history layout repair, and retirement of the redundant Practice-transition slide were explicitly approved | `pending` | Present the verified integrated content evidence for overall owner review. |
+| Module 3 | `implemented` — the incoming approved content replaces the opening with debugging, adds the separate Git merge page and pre-Practice recap, updates Git dialogue and screenshots, highlights lesson terms, and replaces mastery question 2 with the Git/GitHub comparison. The target Practice and Teacher flow remains intact. The knowledge route ends with branch → merge → recap → Practice. | `passed` for the 11 September 2026 content merge: typecheck, lint, 398 unit tests, nine startup tests, production build, full Electron smoke, source audit excluding temporary Practice bypasses, and `git diff --check`. Isolated renderer fixtures also verify the new Module 3 pages at 1440 × 900 and 1180 × 748. Live Codex and pilot acceptance remain pending | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, merged opening page, Git/GitHub image replacement with title-box removal, commit-history layout repair, and retirement of the redundant Practice-transition slide were explicitly approved | `pending` | Owner review of the merged lesson content and question feedback; overall Module 3 approval and pilot acceptance remain pending. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present on `Triet-V2-planning`; the temporary content-review launcher, session-only routing, and per-Practice bypasses remain excluded; artifact templates, Practice/evidence adapters, official completion, and graduation wiring remain deferred | `passed` for the integrated content and shared runtime scope on 22 August 2026: 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and a source audit confirming that review-only runtime identifiers are absent; macOS provider rehearsal passed on 16 August 2026 and Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
 
 **Current merged-branch verification — 18 August 2026:** After merging
@@ -134,6 +134,126 @@ workspaces, always on top, and not fullscreenable. Full Electron smoke launches
 outside the sandbox but is blocked earlier by its stale Module 1
 `BÀI 1/3 · TRANG 1/4` expectation, so visible native Codex fullscreen evidence
 and pilot acceptance remain pending.
+
+## Content merge into triet-v3-planning, 11 September 2026
+
+Merged the content-development branch through `09fd348` into target `2a779d5`.
+The owner explicitly requested new content without temporary Practice bypasses.
+Implementation: `implemented`; verification: `passed` for this local merge.
+
+The target retains its Practice Guide, Teacher review, completion workflow,
+separate Model and Effort/Speed pages, and current Practice entry. Temporary
+content-review launchers, session-only bypass state, and per-Practice bypass
+controls are absent from the merged runtime. The new Module 1 outline points
+to the target's existing Skills/Practice entry. The existing approved retirement
+of `module-3-readiness` in source commit `968d1c8` is retained with its saved-page
+redirect; no other lesson scene was removed by this merge.
+
+Incoming lesson copy, illustrations, Module 2 material labels, Module 3 quiz,
+term highlighting, clickable outlines, and desktop layout updates are included.
+Merge validation aligned stale quiz and Teacher-context fixtures with the new
+content, retained the target's Practice smoke journey, replaced waits for removed
+title boxes with current page identifiers, and used the approved black/white
+palette for the two new screenshot captions.
+
+Full gate passed: `npm run typecheck`, `npm run lint`, `npm test` with 398 unit
+tests and nine startup tests, `npm run build`, and the Electron smoke script
+against that build. The smoke exercises deterministic Codex fixtures, Practice
+Guide and Teacher review, completion, restart, saved progress, and navigation.
+The source audit confirms the target Practice/Teacher implementation files are
+unchanged and temporary bypass identifiers are absent. Desktop renderer fixtures
+verify push, merge, and recap pages at 1440 × 900 and 1180 × 748, including panel
+separation, horizontal bounds, and scrolling to the longer merge page's controls.
+These fixtures are local UI evidence, not live Codex integration evidence.
+
+This run supersedes pending automated verification for the incoming content
+changes. Owner content review, native fullscreen evidence, and pilot acceptance
+remain separate outstanding gates. Next permitted action: owner review of the
+merged content and quiz feedback. Do not infer overall module approval or start
+the next gated implementation phase from this merge.
+
+## Source-branch content verification history
+
+These records describe the content-development branch before this merge.
+They do not verify the integrated target branch.
+
+### Shared page navigation, 8 September 2026
+
+- Implementation: `implemented`. Previous and forward controls share a row on
+  lesson boards, dialogue pages, history review, assessments, and summaries.
+  Review uses `Tiếp tục` to advance one visited history entry at a time. It
+  returns to the active page only after the final history entry.
+- Verification: `passed`. Typecheck, lint, 314 unit tests, nine startup tests,
+  production build, and full Electron smoke pass. Desktop checks cover
+  `1180 × 780`, `1440 × 900`, and `1512 × 982`. Multi-page backward and forward
+  journeys in Modules 1–4 preserve the saved learner-state file byte for byte.
+  Alignment checks cover lesson boards, dialogue, review, assessments, and
+  summaries. The scene inventory and learner copy are preserved.
+- Test maintenance: the full smoke now verifies that normal Module 1 learning
+  has no Practice bypass, then reaches assessment through the existing simulated
+  Practice. Its Module 2 copy expectation matches the existing approved source,
+  and reference-link assertions distinguish links from image captions.
+- Owner approval: the shared alignment and sequential review direction was
+  explicitly approved on 8 September 2026. Other learner copy and page
+  inventory remain unchanged by this navigation work.
+- Pilot acceptance: `pending`. Electron uses simulated Codex fixtures.
+- Remaining gap and next permitted action: owner review of the rendered
+  navigation and the existing live pilot acceptance remain pending. Present
+  the verified navigation for owner review. This change does not authorize a
+  new module or alter Practice completion gates.
+
+### Clickable module outlines, 8 September 2026
+
+- Implementation: `implemented`. Intro has 3 sections; Modules 1, 2, 3, and 4
+  have 8, 8, 6, and 8 sections. Each section opens its existing first page and
+  closes the menu. Previous and Continue follow the module's existing page
+  order while browsing. The menu provides `Về trang đang học` to resume the
+  saved learning page. The final browsing page also returns there.
+- Browsing uses local renderer state. It does not save answers, mark skipped
+  checkpoints complete, launch Practice, or unlock another module. The active
+  section has a filled dot; earlier sections are no longer styled as completed
+  merely because of their position. Long menus scroll within the viewport.
+- Verification: `passed` with the full project gate: typecheck, lint, 319 unit
+  tests, nine startup tests, production build, and full Electron smoke.
+  All 33 section destinations were exercised with pointer or keyboard input.
+  Desktop menu bounds and screenshots cover `1440 × 900` and `1180 × 748` in
+  Intro and every module. Navigation preserves the learner-state file byte for
+  byte, including the resumed-window journey. Existing page inventories and
+  lesson dialogue are unchanged by this work.
+- Test maintenance: the Module 2 menu assertions now cover the added sections
+  and active-only highlighting. A stale Module 3 keyword assertion was aligned
+  with the owner's earlier Commit copy edit and kept outside this checkpoint.
+- Owner approval: the owner approved the section additions and browsing
+  behavior before implementation. Overall Foundation and module approval are
+  unchanged. Pilot acceptance remains `pending`; Electron uses simulated
+  Codex fixtures and disposable learner data.
+- Remaining gap and next permitted action: owner review of the updated menus
+  and the existing live pilot acceptance. No additional module is unlocked by
+  this change.
+
+### Desktop lesson-panel alignment — 8 September 2026
+
+- Implementation: `implemented`. The layout fix from `codex/full-window-alignment`
+  was integrated into `practice-disabled-content-development` at the owner's
+  request. The model, AGENTS.md, both Skill, and implementation-plan panels now
+  fit their content within a 1320 px width limit and center in the desktop area.
+  Skill columns share a top edge. The setup Practice illustration and instructions
+  use the existing stacked flow to prevent overlap in short windows.
+- Verification: `passed`. The isolated renderer audit covered 56 lesson and
+  assessment pages at 1180 × 748, 1920 × 1080, and 2702 × 1514 without horizontal
+  overflow. Final geometry checks covered the six changed pages and three long
+  scrolling pages at those sizes and 1180 × 664. Panel bounds, column gaps,
+  illustration separation, and reachable navigation passed.
+- Integration verification: `passed` on the current primary checkout. Typecheck,
+  lint, all 314 unit tests, nine startup tests, production build, full Electron
+  smoke, and the scoped diff checks passed. The earlier worktree-only Module 2
+  copy assertion failure does not recur with the target branch's current test.
+- Owner approval: local integration was explicitly requested on 8 September 2026.
+  Overall course approval and pilot acceptance remain pending. Electron uses
+  simulated Codex fixtures and does not establish live integration or acceptance.
+- Remaining gap and next permitted action: review the updated primary-checkout UI.
+  No layout integration blocker remains. Existing uncommitted content edits are
+  preserved separately; Practice gates and saved-progress contracts are unchanged.
 
 ## Historical temporary content-first authoring exception
 
@@ -1858,9 +1978,10 @@ values.
 
 **Change**
 
-1. Add Module 3 and its five learner-facing sections to
-   `course-structure.json`: implementation loop, debugging, Git and GitHub,
-   Practice, and final mastery.
+1. Add Module 3 and its four learner-facing sections to
+   `course-structure.json`: debugging, Git and GitHub, Practice, and final
+   mastery. Keep the implementation-loop checkpoint as an internal technical
+   boundary rather than a learner-facing section.
 2. Add the lesson, Teacher script, start prompt, quiz, and solution-free
    templates for the eight Module 3 evidence artifacts.
 3. Teach the standard implementation loop and debugging loop in plain language.
@@ -1880,6 +2001,26 @@ values.
 - Required core and optional enhancement remain visibly separate.
 
 **Checkpoint output:** Complete Module 3 content and evidence contract.
+
+### Terminal-log prompt example — 8 September 2026
+
+Added the requested example prompt to the `module-3-terminal-logs` dialogue
+and synchronized the Pilot lesson and Module 3 content-design draft. Existing
+copy, illustration, and navigation are preserved. This M3.1 copy addition is
+`implemented`; verification is `pending`. No automated checks or rendered UI
+inspection ran, following the owner's instruction to leave verification of
+small scoped edits to them. The next action for this addition is owner review
+on the lesson screen. Overall Module 3 approval and pilot acceptance are unchanged.
+
+### Approved debugging-log copy replacement — 10 September 2026
+
+Replaced the M3.1 `module-3-terminal-logs` dialogue and example prompt with
+the owner's exact supplied wording, synchronized the Pilot lesson and Module 3
+content-design draft, and updated the existing wording contract assertion.
+This copy replacement is `implemented`; verification is `pending`. No automated
+checks or rendered UI inspection ran, following the owner's instruction for
+small scoped edits. The remaining step is owner review of the lesson screen.
+Overall Module 3 approval and pilot acceptance are unchanged.
 
 ### Approved learner-facing redesign — 19 August 2026
 
@@ -1946,6 +2087,107 @@ invalid scene. Focused registry, progress-migration, content-contract, desktop,
 and `390 × 844` Electron checks passed. The full Electron smoke remains failed
 at the unrelated pre-Module-3 review-only mismatch recorded in the progress
 ledger; this consolidation does not claim the overall Module 3 gate has passed.
+
+### Opening-page retirement — 25 August 2026
+
+The owner explicitly approved deleting the remaining Module 3 implementation-
+loop opening page, `module-3-readiness`. Module 3 now opens directly on
+`module-3-debugging-intro`; Module 2 completion receipts and content-review
+routing use that destination. The implementation-loop checkpoint remains an
+internal technical boundary under the debugging lesson. Saved progress on the
+deleted page and older opening-page IDs is redirected to the debugging page so
+returning learners do not reach an invalid scene. The Pilot lesson source,
+Course Companion registry, content contracts and smoke expectations no longer
+expose the deleted page or its copy. Overall owner approval and pilot acceptance
+for Module 3 remain `pending` until the existing acceptance gate is completed.
+
+### Module 3 dialogue-width balancing — 25 August 2026
+
+The owner approved checking the opening-page alignment issue across Module 3.
+All explanatory pages with one primary action now use a Module-3-scoped
+`1200px` maximum dialogue width instead of the shared `1050px` limit. This lets
+longer Vietnamese lines extend beyond the left edge of the yellow action button
+and balances the dialogue panel without changing Module 1, Module 2, Module 4,
+Practice or assessment layouts. Focused content-contract tests, typecheck, lint,
+build and `git diff --check` passed. Electron inspection at `1440 × 900`
+confirmed the wider opening, visible-error and prompt-example pages without
+horizontal overflow or overlap. The focused content-review smoke then stopped
+at an existing uncommitted repeated-error title expectation before the remaining
+Module 3 screenshots; this does not establish overall Module 3 acceptance.
+
+### Module 3 keyword highlighting — 25 August 2026
+
+**Implementation:** implemented. The owner approved highlighting important
+Module 3 terminology throughout the explanatory Teacher dialogue while leaving
+Practice and assessment pages unchanged. Scene-owned keyword metadata now
+covers the debugging terms `implementation plan`, `bug`, `debugging`, `prompt`,
+`screenshot`, `terminal`, `log` and `nguyên nhân gốc`, followed by the Git terms
+`Git`, `hệ thống quản lý phiên bản`, `phân tán`, `repository`, `GitHub`, `commit`,
+`push`, `branch` and `phiên bản ổn định`. A shared renderer matches longer
+overlapping terms first, preserves the approved source text and wraps matches
+in semantic `mark` elements. After reviewing the initial yellow-background
+treatment, the owner explicitly replaced it with bold yellow text on a
+transparent background.
+
+**Verification:** blocked overall. Focused term-segmentation and content-contract
+tests, typecheck, lint, all 314 unit/startup tests, production build and
+`git diff --check` passed. The focused Electron content-review journey passed
+and desktop inspection at `1440 × 900` confirmed the Debug, repeated-error,
+Git/GitHub and Commit pages remain readable without clipped text, overlap or
+horizontal overflow. The required full Electron smoke still stops at the
+pre-existing Module 1 review-bypass control before reaching Module 3. Owner
+approval applies to this highlight treatment only; overall Module 3 approval
+and pilot acceptance remain `pending`.
+
+### Pre-Practice recap page — 25 August 2026
+
+**Implementation:** `implemented`. The owner approved one new recap page after
+`module-3-git-branch` and before `module-3-portfolio-practice`. Its heading and
+four bullets preserve the supplied wording exactly, including the requested
+debug, commit, branch and GitHub reminders. The page does not add an
+implementation-plan reminder. The Pilot lesson, Teacher script, start prompt,
+content-design draft, typed shared registry, renderer registry, focused content
+contracts and Electron journey are synchronized. The retired
+`module-3-practice-intro` scene remains retired.
+
+**Verification:** `blocked` overall. The two focused registry/content-contract
+files pass 22/22 tests; typecheck, lint, all 314 unit tests, nine startup tests,
+production build and `git diff --check` pass. The focused Electron
+content-review journey passes. Its `1440 × 900` screenshot and automated bounds
+checks confirm the new page has positive title-to-dialogue and text-to-action
+gaps, remains inside the viewport and has no horizontal overflow. The required
+full Electron smoke launches but still stops at the pre-existing Module 1
+review-bypass control before reaching Module 3. Owner approval applies to this
+recap page only; overall Module 3 approval and pilot acceptance remain
+`pending`. The next permitted action remains reconciling that unrelated Module
+1 review-only mismatch, rerunning the full Electron smoke, then presenting the
+overall Module 3 evidence for owner review.
+
+### Pre-Practice recap visual hierarchy — 25 August 2026
+
+**Implementation:** `implemented`. The owner approved replacing the recap's
+generic sentence-style title with a scene-specific visual hierarchy: a large
+yellow `4`, the heading `ĐIỀU CẦN NHỚ`, and the supporting line
+`trước khi bắt đầu Practice`. The Pilot lesson and content-design draft use the
+synchronized sentence `4 điều cần nhớ trước khi bắt đầu Practice:`. The four
+approved reminders, previous/next navigation, recap route and every adjacent
+Module 3 page remain unchanged. The specialized renderer treatment is gated to
+`module-3-pre-practice-summary`, so shared titles on other scenes retain their
+existing presentation.
+
+**Verification:** `blocked` overall. Focused verification passed: the two
+registry/content-contract files pass 22/22 tests, typecheck and the production
+Electron build pass, and the focused content-review Electron journey passes.
+Its `1440 × 900` bounds checks confirm no horizontal overflow, at least `16px`
+between the recap title and dialogue, at least `10px` between the reminder text
+and actions, and a count size at least twice the heading size; rendered
+inspection confirms the heading dominates the supporting line without clipping
+or overlap. `git diff --check` passes. Lint, the complete unit suite and the full
+Electron smoke were intentionally not run because this is a scene-local copy
+and presentation adjustment with no runtime, persistence, Practice, completion,
+security, dependency, route or cross-module behavior change. Owner approval
+applies to this recap treatment only; overall Module 3 owner approval and pilot
+acceptance remain `pending`, and the next permitted action is unchanged.
 
 ### Summary-panel presentation simplification — 20 August 2026
 
@@ -2037,6 +2279,110 @@ missing Module 1 review-bypass control before reaching Module 3, so overall
 verification remains `failed`. This decision has owner approval only for the
 new illustration; overall owner approval and pilot acceptance remain `pending`,
 and the next permitted action is unchanged.
+
+### Git introduction paragraph removal — 8 September 2026
+
+At the owner's request, removed the two pictured paragraphs defining repository
+and distributed history from `module-3-git-intro` and the Pilot lesson authority.
+The dialogue box now uses content-driven height without a minimum-height floor
+on this scene. The remaining copy and page navigation are preserved.
+Implementation: `implemented`; verification: `pending`. No automated or rendered
+checks were run for this small edit under the owner's working agreement.
+Next action for this edit: owner visual review. Overall module acceptance and
+progression gates remain unchanged.
+
+### Commit page copy replacement — 8 September 2026
+
+Replaced the `module-3-git-commit` dialogue with the owner's four supplied
+paragraphs and synchronized its image caption, Pilot lesson, and content design
+draft. Implementation: `implemented`; verification: `pending`. No automated or
+rendered checks were run for this small copy edit under the owner's working
+agreement. Next action for this edit: owner visual review. Overall module
+approval, acceptance, and progression gates remain unchanged.
+
+### Git push dialogue replacement — 8 September 2026
+
+Replaced the pictured dialogue on `module-3-git-push` with the owner's exact
+supplied paragraph, synchronized in the Pilot lesson and content-design draft.
+Implementation: `implemented`; verification: `pending`. Checks were not run
+for this small copy edit under the owner's working agreement. Next action for
+this edit: owner review. Overall module gates remain unchanged.
+
+### Commit explanation with portfolio example — 10 September 2026
+
+Replaced the pictured `module-3-git-commit` dialogue with the owner's supplied
+introduction, portfolio animation example, graph explanation, and sample agent
+prompt. Corrected "gốc" to "góc" and narrowed the recovery claim to finding a
+saved version after accidental code changes. Synchronized the Pilot lesson and
+content-design draft. The sample prompt is lesson content, not an instruction
+to commit the working tree. Implementation: `implemented`; verification:
+`pending`. No automated or rendered checks were run for this small copy edit
+under the owner's working agreement. Next action for this edit: owner visual
+review. Overall module approval, acceptance, and progression gates remain
+unchanged.
+
+### GitHub commit image on the push page — 10 September 2026
+
+Added the owner's supplied GitHub commit-list screenshot to
+`module-3-git-push`, with the exact caption
+"commit của dự án khi được push lên github" below the image. Reused the
+existing stacked image/dialogue layout and synchronized the Pilot lesson,
+content-design draft, and TODO. Implementation: `implemented`; verification:
+`pending`. No automated or rendered checks were run for this small edit under
+the owner's working agreement. Next action: owner visual review. Overall
+module approval, acceptance, and progression gates remain unchanged.
+
+### Branch dialogue with 3D example — 10 September 2026
+
+Replaced the `module-3-git-branch` dialogue with the owner's supplied passage,
+including the approved left/right rotation conflict example, branch and merge
+prompts, and the owner's closing wording. Synchronized the Pilot lesson and
+content-design draft. Embedded prompts remain lesson content, not instructions
+to create or merge a repository branch. Implementation: `implemented`;
+verification: `pending`. No automated or rendered checks were run for this
+small copy edit under the owner's working agreement. Next action: owner visual
+review, including readability of the longer dialogue. Overall module approval,
+acceptance, and progression gates remain unchanged.
+
+### Split branch and merge into two pages — 10 September 2026
+
+Split the approved branch passage immediately after the branch-creation prompt.
+The existing `module-3-git-branch` page now leads to the new
+`module-3-git-merge` page, then to `module-3-pre-practice-summary`. All dialogue
+wording is preserved. Updated shared routing, renderer page inventory, Pilot
+lesson, content-design draft, and existing navigation test expectations.
+Implementation: `implemented`; verification: `pending`. No checks were run
+under the owner's small-edit working agreement. Next action: owner desktop
+review of both pages and forward/back navigation. No checkpoint commit was
+created without verification. Overall module acceptance remains unchanged.
+
+### Branches screenshot on the merge page — 10 September 2026
+
+Added the owner's supplied GitHub branches screenshot to `module-3-git-merge`,
+the page identified in the first attachment, with the exact caption
+"ảnh các branches trong một dự án trên github của mình" below it. Reused the
+stacked image/dialogue layout and synchronized the Pilot lesson and design
+draft. Existing dialogue and navigation are preserved. Implementation:
+`implemented`; verification: `pending`. No automated or rendered checks were
+run under the owner's small-edit working agreement. Next action: owner desktop
+visual review. Overall module acceptance remains unchanged.
+
+### Git and GitHub assessment replacement — 11 September 2026
+
+Replaced M3.1 mastery question 2 with the owner-approved question distinguishing
+the roles of Git and GitHub, adapted from DevOps.vn question 2. Option 1 is
+correct; the explanation cites GitHub documentation. Synchronized the Pilot
+quiz, Course Companion question labels and assessment introduction, design
+draft, and existing completion-test fixture. Existing question and scene IDs
+are retained; no saved learner answers or completion rules were changed.
+
+Implementation: `implemented`; verification: `pending`. Owner approval covers
+this question replacement. No automated or rendered checks ran under the
+owner's small-edit working agreement, and no checkpoint commit was created
+without verification. Remaining gap and next action: owner review of question
+2 and its answer feedback in Course Companion. Earlier full-app evidence does
+not verify this replacement; overall Module 3 approval and pilot acceptance
+remain unchanged.
 
 ### M3.2 — Implement constrained from-scratch scaffolding
 

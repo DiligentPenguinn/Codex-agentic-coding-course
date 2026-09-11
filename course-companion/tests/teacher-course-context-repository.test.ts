@@ -33,9 +33,9 @@ const activeState: Record<LessonId, Pick<LearnerProgress, 'currentCourseLessonId
     sceneId: 'module-2-why-planning'
   },
   'module-3': {
-    currentCourseLessonId: 'm3-scaffold-baseline',
-    checkpointId: 'm3-scaffold-baseline',
-    sceneId: 'module-3-readiness'
+    currentCourseLessonId: 'm3-complete-first-version',
+    checkpointId: 'm3-complete-first-version',
+    sceneId: 'module-3-debugging-intro'
   },
   'module-4': {
     currentCourseLessonId: 'm4-release-validation',

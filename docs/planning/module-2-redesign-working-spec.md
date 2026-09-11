@@ -34,7 +34,7 @@
 | 1 | Giai đoạn 1 — Mục đích của portfolio này là gì? | Đã duyệt |
 | 2 | Tài liệu 1 — Bản định hướng portfolio | Đã duyệt |
 | 3 | Giai đoạn 2 — Hiện tại bạn đang có những gì? | Đã duyệt |
-| 4 | Tài liệu 2 — Những gì bạn đang có | Đã duyệt |
+| 4 | Tài liệu 2 — Tư liệu cho portfolio | Đã duyệt |
 | 5 | Giai đoạn 3 — Bạn muốn portfolio của mình trông như thế nào? | Đã duyệt |
 | 6 | Tài liệu 3 — Nguồn tham khảo cho portfolio | Đã duyệt |
 | 7 | Giai đoạn 4 — Hoàn thành PRD | Đã duyệt |
@@ -101,7 +101,7 @@ Các trạng thái dành cho người học:
 - **Đang giả định**
 - **Còn thiếu**
 
-## Tài liệu 2 — Những gì bạn đang có
+## Tài liệu 2 — Tư liệu cho portfolio
 
 ### Đường dẫn đầu ra dự kiến
 

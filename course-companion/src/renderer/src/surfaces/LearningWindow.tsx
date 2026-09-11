@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import {
   COURSE_VERSION,
   LEARNER_STATE_SCHEMA_VERSION,
@@ -45,11 +45,14 @@ import m3TerminalLogErrorImage from '../assets/lesson-visuals/m3-terminal-log-er
 import m3RepeatedErrorCodexPromptImage from '../assets/lesson-visuals/m3-repeated-error-codex-prompt.png'
 import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-example.png'
 import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
+import m3GithubPushedCommitsImage from '../assets/lesson-visuals/m3-github-pushed-commits.png'
+import m3GithubBranchesImage from '../assets/lesson-visuals/m3-github-branches.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
 import { PracticeGuide } from '../components/PracticeGuide'
-import { moduleTwoOutlineSections } from '../../../../shared/course/modules/module-2'
+import { HighlightedDialogue } from '../components/HighlightedDialogue'
+import { adjacentOutlinePage, courseOutline, outlineSectionIndex } from '../../../../shared/course/outline'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -123,6 +126,7 @@ type SceneContent = {
   request: string
   evidence: EvidenceItem[]
   dialogue?: string
+  highlightTerms?: readonly string[]
   choices: Choice[]
   copyPrompt?: string
   copyPromptLabel?: string
@@ -1093,21 +1097,6 @@ type LearningPosition = {
   totalPages: number
 }
 
-const moduleTwoOutlinePartByScene: Partial<Record<SceneId, number>> = {
-  'module-2-portfolio-workspace': 0,
-  'module-2-prd-definition': 1,
-  'module-2-prd-review-workflow': 2,
-  'module-2-prd-agent-workflow': 2,
-  'module-2-implementation-plan-intro': 3
-}
-
-function outlinePartIndex(sceneId: SceneId, position: LearningPosition): number {
-  if (sceneId.startsWith('module-2-')) {
-    return moduleTwoOutlinePartByScene[sceneId] ?? moduleTwoOutlineSections.length - 1
-  }
-  return Math.max(0, position.lessonIndex - 1)
-}
-
 const introModule = courseStructure.modules.find((module) => module.id === 'intro')
 const setupModule = courseStructure.modules.find((module) => module.id === 'module-1')
 const planningModule = courseStructure.modules.find((module) => module.id === 'module-2')
@@ -1235,7 +1224,19 @@ const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
   'module-3-git-commit': {
     image: m3CommitHistoryImage,
     alt: 'Danh sách nhiều commit nối tiếp nhau trong lịch sử Git',
-    caption: 'Mỗi dòng trong hình là một commit. Các commit nối tiếp nhau cho thấy dự án đã được lưu lại qua nhiều phiên bản.',
+    caption: 'Trong hình, mỗi dòng đại diện cho một commit — tức một phiên bản của dự án đã được lưu lại.',
+    fit: 'contain'
+  },
+  'module-3-git-merge': {
+    image: m3GithubBranchesImage,
+    alt: 'Danh sách các branch của một dự án trên GitHub',
+    caption: 'ảnh các branches trong một dự án trên github của mình',
+    fit: 'contain'
+  },
+  'module-3-git-push': {
+    image: m3GithubPushedCommitsImage,
+    alt: 'Danh sách commit của dự án trên GitHub sau khi push',
+    caption: 'commit của dự án khi được push lên github',
     fit: 'contain'
   }
 }
@@ -1644,8 +1645,8 @@ function ModelLessonBoard({
         {kind === 'models' ? (
           <div className="pixel-model-board__models">
             <article>
-              <span>SOL</span>
-              <div><h2>GPT-5.6 Sol</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
+              <span>ASTRA</span>
+              <div><h2>GPT-6 Astra</h2><p>Dòng có năng lực cao nhất, phù hợp với công việc chuyên môn phức tạp.</p><small>Thường dùng: thiết kế kiến trúc, nghiên cứu sâu hoặc xử lý yêu cầu còn mơ hồ.</small></div>
             </article>
             <article>
               <span>TERRA</span>
@@ -1664,7 +1665,8 @@ function ModelLessonBoard({
             </figure>
             <div className="pixel-model-board__recommendation">
               <small>CẤU HÌNH MÌNH ĐỀ XUẤT</small>
-              <strong>GPT-5.6 Sol · High · Standard</strong>
+              <strong>GPT-6 Astra · High · Standard</strong>
+              <p>Nếu lo tốn token, bạn có thể dùng GPT-5.6 Sol.</p>
             </div>
           </>
         )}
@@ -1784,14 +1786,12 @@ function GuidanceLessonBoard({
             <article>
               <span>GLOBAL</span>
               <code>~/.codex/AGENTS.md</code>
-              <p>Áp dụng cho mọi repo bạn mở bằng Codex.</p>
-              <small>Triết dùng level này để kiểm tra nguồn trước khi làm, hỏi một quyết định chính mỗi lượt và không đưa thay đổi lên mạng khi chưa được yêu cầu.</small>
+              <p>Áp dụng cho bất kỳ dự án nào mà bạn xây dựng với coding agent sau này.</p>
             </article>
             <article>
               <span>CURRENT REPO</span>
               <code>AGENTS.md</code>
-              <p>Chỉ áp dụng cho repo đang mở.</p>
-              <small>Repo khóa học yêu cầu Codex giữ nguyên những trang chưa được yêu cầu thay đổi và viết nội dung dành cho người học bằng tiếng Việt tự nhiên.</small>
+              <p>Chỉ áp dụng cho dự án hiện tại.</p>
             </article>
           </div>
         ) : kind === 'skills' ? (
@@ -1940,6 +1940,7 @@ function AssessmentControls({
   busy,
   questionOnly,
   continueLabel,
+  backControl,
   onConfirmWritten,
   onSubmit,
   onContinue
@@ -1949,6 +1950,7 @@ function AssessmentControls({
   busy: boolean
   questionOnly?: boolean
   continueLabel: string
+  backControl: ReactNode
   onConfirmWritten: (question: AssessmentQuestion, answer: string) => Promise<boolean>
   onSubmit: (answers: Record<string, string>) => Promise<boolean>
   onContinue: () => void
@@ -2086,6 +2088,7 @@ function AssessmentControls({
       </div>
 
       <footer className="pixel-assessment-actions">
+        {backControl}
         {showFeedback ? (
           <>
             {incorrectChoiceCount > 0 ? (
@@ -2460,6 +2463,8 @@ export function LearningWindow() {
   const [teacherOpen, setTeacherOpen] = useState(false)
   const [practiceBriefOpen, setPracticeBriefOpen] = useState(false)
   const [practiceFullOpen, setPracticeFullOpen] = useState(false)
+  const [outlineSceneId, setOutlineSceneId] = useState<SceneId | null>(null)
+  const outlineRef = useRef<HTMLDetailsElement | null>(null)
   const [reviewHistoryIndex, setReviewHistoryIndex] = useState<number | null>(null)
   const [approvalFocus, setApprovalFocus] = useState<ApprovalFocus | null>(null)
   const [visualExpanded, setVisualExpanded] = useState(false)
@@ -2467,6 +2472,13 @@ export function LearningWindow() {
   const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings)
   const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const practiceAdvanceRef = useRef<Promise<LearnerProgress> | null>(null)
+
+  useEffect(() => {
+    // Each page opened from the outline starts at the top, including after
+    // browsing a long assessment or a short desktop window.
+    document.querySelector('.pixel-learning-shell')?.scrollTo(0, 0)
+    window.scrollTo(0, 0)
+  }, [outlineSceneId, reviewHistoryIndex, progress?.sceneId])
 
   const advanceFromCompletedPractice = async (current: LearnerProgress): Promise<LearnerProgress> => {
     if (current.sceneId !== 'module-2-planning-package' || current.practice.status !== 'completed') return current
@@ -2600,6 +2612,7 @@ export function LearningWindow() {
     try {
       await persist(initialUpdate())
       setRecovered(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
       setTeacherOpen(false)
@@ -2621,6 +2634,7 @@ export function LearningWindow() {
       setDestination('home')
       setPracticeGuide(null)
       setTeacherOpen(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setRecovered(false)
       setView('welcome')
@@ -2651,6 +2665,7 @@ export function LearningWindow() {
     try {
       const completed = await window.courseCompanion.completePortfolioPlanningModule()
       setProgress(completed)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
     } catch {
@@ -2667,6 +2682,7 @@ export function LearningWindow() {
     try {
       const completed = await window.courseCompanion.completePortfolioBuildModule()
       setProgress(completed)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('lesson')
     } catch {
@@ -2837,6 +2853,7 @@ export function LearningWindow() {
     if (!progress || busy) return
     if (choice.action === 'home') {
       setTeacherOpen(false)
+      setOutlineSceneId(null)
       setReviewHistoryIndex(null)
       setDestination('home')
       return
@@ -2852,6 +2869,7 @@ export function LearningWindow() {
         || progress.sceneId === 'module-2-portfolio-practice'
         || progress.sceneId === 'module-3-portfolio-practice') {
         setBusy(true)
+        setOutlineSceneId(null)
         setReviewHistoryIndex(null)
         setError('')
         try {
@@ -2868,6 +2886,7 @@ export function LearningWindow() {
     if (!choice.next) return
 
     setBusy(true)
+    setOutlineSceneId(null)
     setReviewHistoryIndex(null)
     setError('')
     try {
@@ -2902,6 +2921,7 @@ export function LearningWindow() {
         busy={busy}
         onPrimary={() => {
           if (view === 'resume') {
+            setOutlineSceneId(null)
             setReviewHistoryIndex(null)
             setDestination(progress?.currentLessonId === 'intro' ? 'lesson' : 'home')
             setTeacherOpen(false)
@@ -2950,37 +2970,82 @@ export function LearningWindow() {
   const reviewingSceneId = reviewHistoryIndex === null
     ? undefined
     : progress.sceneHistory[reviewHistoryIndex]
-  const isReviewing = reviewingSceneId !== undefined
+  const isReviewing = outlineSceneId !== null || reviewingSceneId !== undefined
   const currentReviewIndex = reviewHistoryIndex ?? progress.sceneHistory.length
-  const displayedSceneId = reviewingSceneId
+  const displayedSceneId = outlineSceneId ?? reviewingSceneId
     ?? (progress.sceneId === 'module-1-setup-checklist'
       ? 'module-1-skills-portfolio'
       : progress.sceneId)
   const scene = scenes[displayedSceneId]
   const activePracticeDefinition = scenes[progress.sceneId].practice
   const learningPosition = learningPositionByScene[displayedSceneId]
-  const outlineItems = scene.lessonId === 'module-2'
-    ? [...moduleTwoOutlineSections]
-    : scene.lessonId === 'intro'
-      ? [learningPosition.lessonTitle]
-      : moduleLessonIds[scene.lessonId].map((lessonId) => courseLessonTitle.get(lessonId) ?? lessonId)
-  const outlineCurrentIndex = outlinePartIndex(displayedSceneId, learningPosition)
+  const modulePages = (scene.lessonId === 'intro' ? ['intro-overview' as const] : moduleLessonIds[scene.lessonId])
+    .flatMap((lessonId) => courseLessonPages[lessonId].flat())
+  const outlineItems = courseOutline[scene.lessonId]
+  const outlineCurrentIndex = outlineSectionIndex(outlineItems, modulePages, displayedSceneId)
   const outlineModuleLabel = scene.lessonId === 'intro'
     ? 'GIỚI THIỆU'
     : `MODULE ${scene.lessonId.slice(-1)}`
-  const isFirstModuleOneSlide = displayedSceneId === 'module-1-codex-orientation'
-  const canOpenPreviousPage = !isFirstModuleOneSlide && (isReviewing
-    ? currentReviewIndex > 0
-    : progress.sceneHistory.length > 0)
-  const openPreviousPage = () => {
-    if (!canOpenPreviousPage) return
+  const clearPageOverlays = () => {
     setApprovalFocus(null)
     setVisualExpanded(false)
     setSecondaryVisualExpanded(false)
+    setPracticeBriefOpen(false)
+    setPracticeFullOpen(false)
+    setTeacherOpen(false)
+    setError('')
+  }
+  const closeOutline = () => {
+    if (outlineRef.current) {
+      outlineRef.current.open = false
+      outlineRef.current.querySelector('summary')?.focus({ preventScroll: true })
+    }
+  }
+  const openOutlinePage = (sceneId: SceneId) => {
+    if (busy || !modulePages.includes(sceneId)) return
+    clearPageOverlays()
+    setReviewHistoryIndex(null)
+    setOutlineSceneId(sceneId)
+    closeOutline()
+  }
+  const returnToLearningPage = () => {
+    clearPageOverlays()
+    setOutlineSceneId(null)
+    setReviewHistoryIndex(null)
+    closeOutline()
+  }
+  const isFirstModuleOneSlide = displayedSceneId === 'module-1-codex-orientation'
+  const canOpenPreviousPage = !isFirstModuleOneSlide && (outlineSceneId !== null
+    ? adjacentOutlinePage(modulePages, displayedSceneId, -1) !== undefined
+    : isReviewing
+      ? currentReviewIndex > 0
+      : progress.sceneHistory.length > 0)
+  const openPreviousPage = () => {
+    if (!canOpenPreviousPage) return
+    clearPageOverlays()
+    if (outlineSceneId !== null) {
+      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, -1) ?? outlineSceneId)
+      return
+    }
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
   }
+  const openNextReviewPage = () => {
+    if (!isReviewing) return
+    clearPageOverlays()
+    if (outlineSceneId !== null) {
+      // Browsing is session-only, including Practice and assessment pages.
+      // Resuming the saved learning page is an explicit action.
+      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, 1) ?? null)
+      return
+    }
+    const nextIndex = currentReviewIndex + 1
+    setReviewHistoryIndex(nextIndex < progress.sceneHistory.length ? nextIndex : null)
+  }
+  const reviewNextLabel = outlineSceneId !== null && !adjacentOutlinePage(modulePages, displayedSceneId, 1)
+    ? 'Về trang đang học'
+    : 'Tiếp tục'
   const lessonContextLabel = scene.lessonId === 'module-2'
-    ? moduleTwoOutlineSections[outlineCurrentIndex]!
+    ? outlineItems[outlineCurrentIndex]!.title
     : scene.lessonId === 'intro'
     ? `GIỚI THIỆU KHÓA HỌC · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
     : `MODULE ${scene.lessonId.slice(-1)} · BÀI ${learningPosition.lessonIndex}/${learningPosition.totalLessons} · TRANG ${learningPosition.page}/${learningPosition.totalPages}`
@@ -3033,10 +3098,7 @@ export function LearningWindow() {
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
-  const usesPairedLessonNavigation = !isReviewing
-    && !assessmentQuestion
-    && !scene.assessmentSummary
-    && scene.choices.length === 1
+  const usesPairedLessonNavigation = isReviewing || (!assessmentQuestion && !scene.assessmentSummary)
   const showsSceneTitle = scene.showTitle !== false
     && !usesLessonBoard
     && !isAssessmentQuestionPage
@@ -3050,9 +3112,6 @@ export function LearningWindow() {
     && Boolean(lessonVisual)
     && !usesLessonBoard
     && (showsSceneTitle || usesModuleTwoVisualGallery)
-  const sceneTitle = showsSceneTitle
-    ? <section className="pixel-scene-title"><small>{lessonContextLabel}</small><strong>{assessmentQuestion && assessmentGroup ? assessmentGroup.title : scene.objective}</strong></section>
-    : null
   const pageBackControl = (
     <button
       className="pixel-page-back"
@@ -3065,7 +3124,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3074,13 +3133,16 @@ export function LearningWindow() {
           setVisualExpanded(false)
           setSecondaryVisualExpanded(false)
           setTeacherOpen(false)
+          setOutlineSceneId(null)
           setReviewHistoryIndex(null)
           setDestination('home')
         }}>
           <span className="pixel-brand__mark" aria-hidden="true">C</span>
           <span><strong>VIBECODING 101</strong><small>VỀ HOME BASE</small></span>
         </button>
-        <details className="pixel-outline">
+        <details className="pixel-outline" ref={outlineRef} onKeyDown={(event) => {
+          if (event.key === 'Escape') closeOutline()
+        }}>
           <summary aria-label={`Mở mục lục ${outlineModuleLabel}`}>
             <span className="pixel-outline__dots" aria-hidden="true">•••</span>
             <span>{scene.lessonId === 'module-2'
@@ -3092,19 +3154,22 @@ export function LearningWindow() {
             <ol>
               {outlineItems.map((item, index) => (
                 <li
-                  className={index < outlineCurrentIndex
-                    ? 'is-complete'
-                    : index === outlineCurrentIndex
-                      ? 'is-active'
-                      : 'is-upcoming'}
+                  className={index === outlineCurrentIndex ? 'is-active' : undefined}
                   aria-current={index === outlineCurrentIndex ? 'step' : undefined}
-                  key={item}
+                  key={item.startSceneId}
                 >
-                  <i aria-hidden="true" />
-                  <span>{item}</span>
+                  <button type="button" disabled={busy} onClick={() => openOutlinePage(item.startSceneId)}>
+                    <i aria-hidden="true" />
+                    <span>{item.title}</span>
+                  </button>
                 </li>
               ))}
             </ol>
+            {isReviewing ? (
+              <button className="pixel-outline-resume" type="button" onClick={returnToLearningPage}>
+                Về trang đang học
+              </button>
+            ) : null}
           </div>
         </details>
         <div className="pixel-hud-actions">
@@ -3115,7 +3180,12 @@ export function LearningWindow() {
         </div>
       </header>
 
-      {sceneTitle}
+      {displayedSceneId === 'module-3-pre-practice-summary' ? (
+        <aside className="pixel-scene-title is-pre-practice-summary">
+          <strong>Túm lại, đây là 4 điều cần nhớ trước khi bạn bắt đầu thực hành</strong>
+        </aside>
+      ) : null}
+
       {scene.copyPrompt && !usesLessonBoard ? (
         <CopyPromptCard
           label={scene.copyPromptLabel}
@@ -3170,6 +3240,9 @@ export function LearningWindow() {
                 isApprovalTour={isApprovalTour}
                 visual={lessonVisual}
               />
+              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge') && lessonVisual.caption ? (
+                <figcaption>{lessonVisual.caption}</figcaption>
+              ) : null}
               {canExpandLessonVisual ? (
                 <button
                   aria-label="Phóng to ảnh minh họa"
@@ -3189,13 +3262,13 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={modelLessonBoardKind}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           visual={lessonVisual}
           onBack={openPreviousPage}
           onExpand={() => setVisualExpanded(true)}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3209,11 +3282,11 @@ export function LearningWindow() {
           busy={busy}
           canOpenPreviousPage={canOpenPreviousPage}
           kind={guidanceLessonBoardKind}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3228,12 +3301,12 @@ export function LearningWindow() {
           canOpenPreviousPage={canOpenPreviousPage}
           dialogue={scene.dialogue ?? ''}
           eyebrow={scene.lessonLabel}
-          nextLabel={isReviewing ? 'Quay lại trang đang học' : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
+          nextLabel={isReviewing ? reviewNextLabel : yellowChoiceLabel(scene.choices[0] ?? { label: 'Tiếp tục', primary: true })}
           title={scene.objective}
           onBack={openPreviousPage}
           onNext={() => {
             if (isReviewing) {
-              setReviewHistoryIndex(null)
+              openNextReviewPage()
               return
             }
             const choice = scene.choices[0]
@@ -3263,7 +3336,7 @@ export function LearningWindow() {
       <section
         aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
         aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''}${sceneTitle ? '' : ' has-no-scene-title'}${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
+        className={`pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
         {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
         {isAssessmentQuestionPage ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
@@ -3279,28 +3352,29 @@ export function LearningWindow() {
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
             : assessmentGroup
               ? 'Bạn có thể xem toàn bộ câu hỏi trước khi nộp.'
-            : displayedSceneId === 'module-3-readiness' && portfolioPlanningHandoff
+            : displayedSceneId === 'module-3-debugging-intro' && portfolioPlanningHandoff
               ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : displayedSceneId === 'module-2-prd-agent-workflow'
                 ? <DesignReferenceDialogue dialogue={scene.dialogue ?? ''} />
+              : scene.highlightTerms
+                ? <HighlightedDialogue dialogue={scene.dialogue ?? ''} highlightTerms={scene.highlightTerms} />
               : scene.dialogue}</p>
         )}
         {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
-          <div className="pixel-review-return">
-            <button className="pixel-choice is-primary" type="button" onClick={() => {
-              setApprovalFocus(null)
-              setVisualExpanded(false)
-              setSecondaryVisualExpanded(false)
-              setReviewHistoryIndex(null)
-            }}>
-              Quay lại trang đang học
-            </button>
+          <div className="pixel-lesson-actions is-paired">
+            {pageBackControl}
+            <div className="pixel-choices">
+              <button className="pixel-choice is-primary" type="button" onClick={openNextReviewPage}>
+                {reviewNextLabel}
+              </button>
+            </div>
           </div>
         ) : assessmentQuestion && assessmentGroup ? (
           <AssessmentControls
+            backControl={pageBackControl}
             busy={busy}
             continueLabel={assessmentContinueLabel}
             group={assessmentGroup}
@@ -3315,6 +3389,8 @@ export function LearningWindow() {
           <div className="pixel-assessment-summary" data-result={isPortfolioMasterySummary ? 'review' : finalPassed ? 'pass' : 'retry'}>
             <strong>{isPortfolioMasterySummary ? 'ĐÃ TRẢ LỜI' : finalPassed ? 'ĐẠT' : 'CHƯA ĐẠT'}</strong>
             <span>{isPortfolioMasterySummary ? finalAnsweredCount : finalCorrectCount}/{finalQuestionCount} câu</span>
+            <div className="pixel-summary-navigation">
+              {pageBackControl}
             {isPortfolioMasterySummary ? (
               <div className="pixel-assessment-review-actions">
                 <button disabled={busy} type="button" onClick={() => void retryFinalAssessment()}>
@@ -3352,6 +3428,7 @@ export function LearningWindow() {
                     : `Làm lại ${finalQuestionCount} câu`}
               </button>
             )}
+            </div>
           </div>
         ) : (
           <div className={`pixel-lesson-actions${usesPairedLessonNavigation ? ' is-paired' : ''}`}>
@@ -3371,7 +3448,6 @@ export function LearningWindow() {
             </div>
           </div>
         )}
-        {usesPairedLessonNavigation ? null : pageBackControl}
       </section>
 
       {practiceBriefOpen ? (
