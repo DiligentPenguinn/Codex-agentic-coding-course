@@ -1,5 +1,9 @@
 # Repository Guidance
 
+## Read this handoff first
+
+- Before reviewing this integration or starting follow-up work, read [Practice and Teacher handoff for triet-v3-planning](docs/planning/practice-teacher-handoff-triet-v3-2026-09-12.md) first. It explains what changed, what to preserve, what was tested, and which decisions remain open. Then follow the scoped instructions below.
+
 ## Instruction routing
 
 - Before changing files under `pilot-workspace/`, read `pilot-workspace/AGENTS.md`, even when the task starts from the repository root.
