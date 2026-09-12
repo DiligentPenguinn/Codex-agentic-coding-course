@@ -42,6 +42,33 @@ and must never be inferred from a passing automated check.
 | Module 3 | `in-progress` — the incoming debugging opening, separate branch and merge pages, Git screenshots and dialogue, highlighted terminology, pre-Practice recap, and updated Git/GitHub mastery question are integrated unchanged; the Practice branch's five stage receipts, four build-slice receipts, and strict completion contract remain authoritative | `passed` for the merged lesson content and preserved Practice contract: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the incoming branch integration and preservation of the Practice/theory ownership boundary were explicitly requested; this does not approve replacement Practice criteria | `pending` | Review the merged lesson content; after the required Module 2 gate, settle the replacement Module 3 build/debugging criteria from the handoff before changing current Practice gates. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present; Practice, artifact templates, completion, and graduation wiring remain deferred | `passed` for the previously integrated content scope; Windows provider runtime remains unverified | `pending` overall; learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
 
+### Practice hint follow-up — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.5 — scaffolded Practice hints | `implemented` | `passed` for typecheck, lint, 478 unit tests (two intentional skips), nine startup tests, production build, full Electron smoke and scoped diff checks | Addition explicitly requested; final experience acceptance remains `pending` | `pending` | Try the new hint action with live learner work and assess grounding and teaching quality; existing module acceptance gates remain in force. |
+
+The Practice Teacher now offers `Cần gợi ý?` in both compact and full windows.
+Each request reads the exact bound task and independently collects the current
+Practice evidence, including partial planning documents. Guidance progresses
+from an orienting cue to a focused suggestion to a partial example; repeated
+clicks cannot unlock a complete solution. Changed evidence returns to lighter
+support, and evidence/run changes during inference reject the stale response.
+Hint history is bounded in main-process memory for the current app session.
+The dedicated no-tools Teacher context distinguishes Executor reports from
+workspace evidence. Hint requests do not save reviews, approvals, checklist
+changes or completion. Existing course copy, page inventory, routes, and direct
+Practice chat exclusion remain intact.
+
+Electron verification covers requests in both surfaces, preserved review and
+checklist state, incremental support across surfaces, hint dismissal, and
+desktop/390-pixel layouts without horizontal overflow. Screenshots were visually
+inspected. An initial smoke attempt clicked behind the first-run guide dialog;
+the corrected journey pauses and resumes that guide through its existing UI.
+All final checks pass. Simulated responses verify plumbing and presentation,
+not live model adherence or learner/pilot acceptance. The prior uncommitted
+live-rehearsal observations are preserved separately from this scoped change.
+
 ## Merge into the Practice branch — 11 September 2026
 
 ### Five-document Practice implementation — 11 September 2026
@@ -100,7 +127,7 @@ task remains in Module 3. Older source handoffs remain unchanged as history.
 | I1 / M2.1 — contract | `implemented` | `passed` for focused tests | Five unique paths, v2 manifest, unchanged v1 definition retained for history; no theory/template rewrite. |
 | I2 — task and migration | `implemented` | `passed` | Active v1, unambiguous replaced/complete v1 archives, retained v2 revision and active Module 3 recovery preserve task/files/history; ambiguous or unavailable task/workspace recovery fails closed. |
 | I3 — evidence | `implemented` | `passed` for 14 filesystem tests | Bounded contents, digests, sections, requirement references, scope, optional validated images; semantic quality remains AI-assessed. |
-| I4 / M2.4–M2.5 — submission | `implemented` | `passed` | Final-package approval/review, fresh-folder validation, busy/error preservation, Teacher chat exclusion and responsive controls are verified. |
+| I4 / M2.4–M2.5 — submission | `implemented` | `passed` | Final-package approval/review, fresh-folder validation, busy/error preservation, Teacher chat exclusion and responsive controls are verified. The 12 September scaffolded hint follow-up is technically verified; live hint quality and overall acceptance remain pending. |
 | I5 / M2.6 — completion/handoff | `implemented` | `passed` | Five current references, original task, archived completion/revision, existing mastery and bounded relevant summaries are verified; Module 3 replacement criteria remain deferred. |
 | I6 — verification | `implemented` | `passed` | Independent review and local checkpoint are complete. Native/live AI and learner/pilot acceptance are not established by simulated checks; seek those acceptance decisions next. |
 

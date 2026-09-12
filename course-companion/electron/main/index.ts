@@ -40,6 +40,7 @@ import {
   LivePracticeReviewEvaluator
 } from './practice-review-evaluator'
 import { PracticeReviewService } from './practice-review-service'
+import { PracticeHintService } from './practice-hint-service'
 import { FixturePracticeAdapter, isPracticeFixtureRequest } from './practice-fixture'
 import {
   isAppSettingsUpdate,
@@ -69,6 +70,8 @@ if (process.env.COURSE_COMPANION_USER_DATA_DIR) {
 
 let mainWindow: BrowserWindow | null = null
 let companionWindow: BrowserWindow | null = null
+let practiceHintPending = false
+let practiceReviewRequests = 0
 
 function broadcastPracticeWorkspaceChanged(): void {
   for (const target of [mainWindow, companionWindow]) {
@@ -340,6 +343,30 @@ mkdirSync(teacherRuntimeDirectory, { recursive: true })
 const realTeacherAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
 const realTeacherSummaryAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
 const realTeacherReviewAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const realTeacherHintAdapter = new RealTeacherAdapter(appServerGateway, teacherRuntimeDirectory)
+const practiceHintService = new PracticeHintService(
+  practiceDefinitionRepository, practiceRunRepository, practiceReviewActivity, evidenceAdapters,
+  {
+    async respond(input, policy) {
+      if (useTestCodexGateway) {
+        const { level } = JSON.parse(input) as { level: number }
+        return level === 1
+          ? 'Gợi ý mô phỏng: Hãy chọn một mục trong Practice mà bạn chưa chắc và đối chiếu với yêu cầu của mục đó.'
+          : level === 2
+            ? 'Gợi ý mô phỏng: Tập trung vào một điểm khác nhau giữa kết quả hiện tại và yêu cầu. Bạn muốn làm rõ điểm nào trong task Codex?'
+            : 'Gợi ý mô phỏng: Thử điền phần còn trống: “Tôi đang ở bước […], tôi thấy […], nhưng chưa hiểu […].” Hãy dùng tình huống của bạn trong task Codex.'
+      }
+      // Each frozen hint has an isolated Teacher context, even after a run switch.
+      await realTeacherHintAdapter.resetTransport(true)
+      return realTeacherHintAdapter.respond(input, policy)
+    }
+  },
+  useTestCodexGateway,
+  async () => {
+    await realTeacherHintAdapter.resetTransport(true)
+    await releaseAppServer()
+  }
+)
 const practiceReviewEvaluator = useTestCodexGateway
   ? new DeterministicPracticeReviewEvaluator()
   : new LivePracticeReviewEvaluator(realTeacherReviewAdapter)
@@ -373,6 +400,7 @@ const removeTeacherConnection = appServerGateway.onConnectionState((state) => {
     void realTeacherAdapter.resetTransport()
     void realTeacherSummaryAdapter.resetTransport()
     void realTeacherReviewAdapter.resetTransport()
+    void realTeacherHintAdapter.resetTransport()
   }
   teacherService.onConnectionState(state)
 })
@@ -855,6 +883,8 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('course:review-practice', async () => {
+    if (practiceHintPending) return { error: { code: 'review-unavailable', message: 'Triết đang chuẩn bị gợi ý. Hãy chờ gợi ý xong rồi kiểm tra tiến độ.' } }
+    practiceReviewRequests += 1
     try {
       const response = await practiceReviewService.review()
       await reconcilePracticeGuide({ surface: 'full' })
@@ -863,10 +893,38 @@ function registerIpcHandlers(): void {
     } catch (error) {
       broadcastPracticeWorkspaceChanged()
       return practiceReviewFailure(error)
+    } finally {
+      practiceReviewRequests -= 1
+    }
+  })
+
+  ipcMain.handle('course:practice-hint', async (_event, request: unknown) => {
+    if (!request || typeof request !== 'object' || !('runId' in request)
+      || typeof request.runId !== 'string' || !/^[A-Za-z0-9_-]{1,500}$/.test(request.runId)
+      || !('generation' in request) || typeof request.generation !== 'number'
+      || !Number.isSafeInteger(request.generation) || request.generation < 1) {
+      return { error: { message: 'Yêu cầu gợi ý không khớp Practice hiện tại.' } }
+    }
+    if (practiceHintPending || practiceReviewRequests > 0 || pendingPracticeReturn) {
+      return { error: { message: 'Triết đang xử lý yêu cầu Practice trước. Hãy chờ xong rồi xin gợi ý.' } }
+    }
+    practiceHintPending = true
+    try {
+      return { hint: await practiceHintService.request({ runId: request.runId, generation: request.generation }) }
+    } catch (error) {
+      // Do not expose transport errors, paths, or credentials to the renderer.
+      const message = error instanceof Error && error.message === 'PRACTICE_SNAPSHOT_BUSY'
+        ? 'Codex đang làm việc. Hãy chờ lượt hiện tại kết thúc rồi xin gợi ý.'
+        : error instanceof Error && /^(Practice đã|Triết |Chưa xác minh|Codex đang|Tiến độ vừa)/.test(error.message)
+          ? error.message : 'Triết tạm thời chưa thể đưa gợi ý. Hãy thử lại.'
+      return { error: { message } }
+    } finally {
+      practiceHintPending = false
     }
   })
 
   ipcMain.handle('course:return-passed-practice', async () => {
+    if (practiceHintPending) throw new Error('Triết đang chuẩn bị gợi ý. Hãy chờ gợi ý xong rồi quay lại khóa học.')
     if (pendingPracticeReturn) return pendingPracticeReturn
     const operation = (async () => {
       const completedRun = (await practiceRunRepository.load()).activeRun
@@ -962,6 +1020,7 @@ app.on('before-quit', () => {
   removeTeacherConnection()
   void teacherService.dispose()
   void realTeacherReviewAdapter.dispose()
+  void realTeacherHintAdapter.dispose()
 })
 
 app.on('activate', () => {

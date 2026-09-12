@@ -2747,6 +2747,44 @@ button:focus-visible {
 .pixel-review-primary:disabled { cursor: wait; opacity: .78; }
 .pixel-review-primary .pixel-review-spinner { position: static; flex: 0 0 auto; }
 
+.practice-hint-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 2px solid var(--pixel-line);
+  background: transparent;
+  color: var(--pixel-white);
+  font: 600 13px/1.4 var(--app-font);
+  cursor: pointer;
+}
+.practice-hint-button:hover:not(:disabled) { border-color: var(--pixel-accent); }
+.practice-hint-button:focus-visible { outline: 3px solid var(--pixel-accent); outline-offset: 2px; }
+.practice-hint-button:disabled { opacity: .65; cursor: wait; }
+.practice-hint {
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 14px;
+  border: 2px solid var(--pixel-line);
+  border-left-color: var(--pixel-accent);
+  color: var(--pixel-white);
+  font: 400 13px/1.6 var(--app-font);
+  overflow-wrap: anywhere;
+}
+.practice-hint-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.practice-hint-heading button {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border: 2px solid var(--pixel-line);
+  background: transparent;
+  color: var(--pixel-white);
+  font: inherit;
+  cursor: pointer;
+}
+.practice-hint-heading button:focus-visible { outline: 2px solid var(--pixel-accent); outline-offset: 2px; }
+.practice-hint p { margin: 8px 0; max-height: 22vh; overflow-y: auto; white-space: pre-wrap; }
+.practice-hint p:focus-visible { outline: 2px solid var(--pixel-accent); outline-offset: 2px; }
+.practice-hint small { display: block; color: var(--pixel-muted); font-size: 11px; }
+
 .pixel-teacher-panel.is-practice-review .pixel-chat-context > span { color: var(--pixel-yellow); }
 .pixel-teacher-panel.is-practice-review .pixel-practice { margin-top: 10px; }
 

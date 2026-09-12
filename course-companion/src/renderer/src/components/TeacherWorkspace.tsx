@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import type {
   CompanionState,
   PracticeScenario,
+  PracticeHint,
   PlanningPracticeActionRequest,
   PracticeState,
   PracticeWorkspaceView,
@@ -117,12 +118,19 @@ export function TeacherWorkspace({
   const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const [practiceBusy, setPracticeBusy] = useState(false)
   const [reviewBusy, setReviewBusy] = useState(false)
+  const [hintBusy, setHintBusy] = useState(false)
+  const [hint, setHint] = useState<PracticeHint | null>(null)
+  const [hintError, setHintError] = useState('')
   const [returnBusy, setReturnBusy] = useState(false)
   const [planningActionBusy, setPlanningActionBusy] = useState(false)
   const [testFixturesEnabled, setTestFixturesEnabled] = useState(false)
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (hint && practiceRef.current) practiceRef.current.scrollTop = 0
+  }, [hint])
 
   const refreshContext = useCallback(async () => {
     const progressResult = await window.courseCompanion?.loadProgress()
@@ -270,7 +278,7 @@ export function TeacherWorkspace({
   }
 
   const reviewProgress = async () => {
-    if (reviewBusy || !window.courseCompanion) return
+    if (reviewBusy || hintBusy || !window.courseCompanion) return
     setReviewBusy(true)
     setError('')
     try {
@@ -292,6 +300,23 @@ export function TeacherWorkspace({
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
     } finally {
       setReviewBusy(false)
+    }
+  }
+
+  const requestHint = async () => {
+    const active = workspace?.activePractice
+    if (!active || hintBusy || reviewBusy || returnBusy || !window.courseCompanion) return
+    setHintBusy(true)
+    setHint(null)
+    setHintError('')
+    try {
+      const response = await window.courseCompanion.requestPracticeHint({ runId: active.runId, generation: active.generation })
+      if ('error' in response) setHintError(response.error.message)
+      else setHint(response.hint)
+    } catch {
+      setHintError('Triết tạm thời chưa thể đưa gợi ý. Hãy thử lại.')
+    } finally {
+      setHintBusy(false)
     }
   }
 
@@ -329,7 +354,7 @@ export function TeacherWorkspace({
   }
 
   const returnToCourse = async () => {
-    if (returnBusy || reviewBusy || !window.courseCompanion) return
+    if (returnBusy || reviewBusy || hintBusy || !window.courseCompanion) return
     setReturnBusy(true)
     setError('')
     try {
@@ -459,7 +484,7 @@ export function TeacherWorkspace({
         <div className="pixel-panel-controls">
           {workspace?.review?.canReturn ? (
             <PracticeReturnAction
-              busy={returnBusy || reviewBusy}
+              busy={returnBusy || reviewBusy || hintBusy}
               quick
               onReturn={() => void returnToCourse()}
             />
@@ -546,16 +571,38 @@ export function TeacherWorkspace({
                 type="button"
                 aria-label="Cập nhật và kiểm tra tiến độ Practice"
                 aria-busy={reviewBusy}
-                disabled={reviewBusy}
+                disabled={reviewBusy || hintBusy || returnBusy}
                 onClick={() => void reviewProgress()}
               >
                 {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
                 {reviewBusy ? 'ĐANG CẬP NHẬT & KIỂM TRA…' : 'Cập nhật và kiểm tra tiến độ'}
               </button>
             ) : null}
+            <button
+              className="practice-hint-button"
+              type="button"
+              aria-label="Cần gợi ý cho Practice?"
+              aria-busy={hintBusy}
+              disabled={hintBusy || reviewBusy || returnBusy || planningActionBusy}
+              onClick={() => void requestHint()}
+            >
+              {hintBusy ? 'Triết đang xem tiến độ…' : 'Cần gợi ý?'}
+            </button>
           </div>
-          {error ? <div className="pixel-chat-warning" role="alert">{error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
           <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+          {hint && hint.runId === workspace?.activePractice?.runId
+            && hint.generation === workspace.activePractice.generation ? (
+            <aside className="practice-hint" aria-label="Gợi ý của Triết" role="status" aria-live="polite">
+              <div className="practice-hint-heading">
+                <strong>{hint.source === 'fixture' ? 'Gợi ý mô phỏng' : 'Gợi ý của Triết'}</strong>
+                <button type="button" aria-label="Đóng gợi ý" onClick={() => setHint(null)}>Đóng</button>
+              </div>
+              <p tabIndex={0}>{hint.content}</p>
+              <small>Dựa trên tiến độ lúc {formatTime(hint.observedAt)}. Thử bước này trong task Codex, rồi xin thêm gợi ý nếu cần.</small>
+            </aside>
+          ) : null}
+          {hintError ? <div className="pixel-chat-warning" role="alert">{hintError}</div> : null}
+          {error ? <div className="pixel-chat-warning" role="alert">{error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
             {workspace ? (
               <PracticeProgress
                 workspace={workspace}
@@ -563,8 +610,8 @@ export function TeacherWorkspace({
                 onWorkspaceChange={setWorkspace}
                 onBusyChange={setReviewBusy}
                 compact={!embedded}
-                returnBusy={returnBusy || reviewBusy}
-                actionBusy={planningActionBusy}
+                returnBusy={returnBusy || reviewBusy || hintBusy}
+                actionBusy={planningActionBusy || hintBusy}
                 onPlanningAction={(action) => void recordPlanningAction(action)}
                 onRefresh={() => void refreshPracticeWorkspace()}
                 onReturn={() => void returnToCourse()}
@@ -702,7 +749,7 @@ export function TeacherWorkspace({
         onUpdate={updatePracticeGuide}
         onReview={() => void reviewProgress()}
         onReturn={() => void returnToCourse()}
-        actionBusy={reviewBusy || returnBusy}
+        actionBusy={reviewBusy || returnBusy || hintBusy}
         actionError={error}
       />
 

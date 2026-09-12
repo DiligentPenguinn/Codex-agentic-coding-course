@@ -13,6 +13,7 @@ import type {
   PortfolioWorkspaceRequest,
   PortfolioWorkspaceView,
   PracticeReviewResponse,
+  PracticeHintResponse,
   PracticeGuideSurfaceContext,
   PracticeGuideUpdateRequest,
   PracticeGuideView,
@@ -69,6 +70,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:select-practice-panel', update) as Promise<PracticeWorkspaceView>,
   reviewPractice: () =>
     ipcRenderer.invoke('course:review-practice') as Promise<PracticeReviewResponse>,
+  requestPracticeHint: (request) =>
+    ipcRenderer.invoke('course:practice-hint', request) as Promise<PracticeHintResponse>,
   loadPracticeGuide: (context: PracticeGuideSurfaceContext) =>
     ipcRenderer.invoke('course:load-practice-guide', context) as Promise<PracticeGuideView | null>,
   updatePracticeGuide: (request: PracticeGuideUpdateRequest, context: PracticeGuideSurfaceContext) =>

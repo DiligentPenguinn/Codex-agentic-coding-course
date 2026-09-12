@@ -12,7 +12,7 @@ import { currentPortfolioPackageApproval, isPortfolioPackage, portfolioPackageIs
 const MAX_TEXT = 1_000
 const MAX_PER_KIND = 12
 
-function redact(value: string): string {
+export function redact(value: string): string {
   return value
     .replace(/-----BEGIN [^-\r\n]*PRIVATE KEY-----[\s\S]*?-----END [^-\r\n]*PRIVATE KEY-----/gi, '[REDACTED PRIVATE KEY]')
     .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, 'Bearer [REDACTED]')

@@ -1295,6 +1295,15 @@ export type PracticeReviewSuccess = {
   workspace: PracticeWorkspaceView
 }
 
+export type PracticeHintRequest = { runId: string; generation: number }
+export type PracticeHint = PracticeHintRequest & {
+  content: string
+  level: 1 | 2 | 3
+  observedAt: string
+  source: 'live' | 'fixture'
+}
+export type PracticeHintResponse = { hint: PracticeHint } | { error: { message: string } }
+
 export type PracticeReviewResponse = PracticeReviewSuccess | {
   error: {
     code: 'task-busy' | 'metadata-unavailable' | 'transport-unavailable' | 'binding-mismatch' | 'evidence-changed' | 'review-unavailable'
@@ -1329,6 +1338,7 @@ export type CourseCompanionApi = {
   approvePortfolioPackage?: (request: PortfolioPackageApprovalRequest) => Promise<PracticeWorkspaceView>
   selectPracticePanel: (update: PracticePanelUpdate) => Promise<PracticeWorkspaceView>
   reviewPractice: () => Promise<PracticeReviewResponse>
+  requestPracticeHint: (request: PracticeHintRequest) => Promise<PracticeHintResponse>
   loadPracticeGuide: (
     context: PracticeGuideSurfaceContext
   ) => Promise<PracticeGuideView | null>
