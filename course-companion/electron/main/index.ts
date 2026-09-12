@@ -879,7 +879,9 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:update-practice-guide', async (_event, request, surface) => {
     if (!isPracticeGuideUpdateRequest(request)) throw new Error('Invalid Practice guide update')
     if (!isPracticeGuideSurfaceContext(surface)) throw new Error('Invalid Practice guide surface')
-    return practiceGuideCoordinator.update(request, await authoritativeGuideContext(surface))
+    const view = await practiceGuideCoordinator.update(request, await authoritativeGuideContext(surface))
+    broadcastPracticeWorkspaceChanged()
+    return view
   })
 
   ipcMain.handle('course:review-practice', async () => {

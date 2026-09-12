@@ -148,7 +148,7 @@ describe('Teacher Practice review controls', () => {
     const teacher = await source('src/renderer/src/components/TeacherWorkspace.tsx')
 
     expect(teacher).toContain('workspaceLoaded && !workspaceUnavailable && !practiceMode ? <div className={`pixel-fixture-notice')
-    expect(teacher).toContain('workspaceLoaded && !workspaceUnavailable && !practiceMode ? <div className="pixel-companion-tabs"')
+    expect(teacher).not.toContain('className="pixel-companion-tabs"')
   })
 
   it('renders structured review criteria and one persisted next action', async () => {

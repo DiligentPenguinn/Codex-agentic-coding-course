@@ -62,8 +62,8 @@ describe('PracticeGuide renderer', () => {
       advancement: 'review-requested',
       primaryLabel: 'Cập nhật và kiểm tra ngay'
     })
-    expect(teacher).toContain('onReview={() => void reviewProgress()}')
-    expect(teacher).toContain('onReturn={() => void returnToCourse()}')
+    expect(teacher).toContain('onReview={reviewProgress}')
+    expect(teacher).toContain('onReturn={returnToCourse}')
     expect(teacher).toContain("practiceGuide?.currentStageId === 'request-review'")
     expect(teacher).toContain("type: 'review-requested' as const")
   })

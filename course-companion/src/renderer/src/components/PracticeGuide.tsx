@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { CSSProperties, KeyboardEvent } from 'react'
 import type { PracticeGuideAnchorId, PracticeGuideUpdateRequest, PracticeGuideView } from '../../../../shared/contracts'
 import { PRACTICE_GUIDE_ANCHOR_ATTRIBUTE } from './practice-guide-anchors'
@@ -10,6 +11,7 @@ type PracticeGuideProps = {
   onReturn?: () => void | Promise<void>
   actionBusy?: boolean
   actionError?: string
+  compact?: boolean
 }
 
 type Placement = { left: number; top: number; fallback: boolean; above: boolean }
@@ -20,22 +22,25 @@ function findPracticeGuideAnchor(id: PracticeGuideAnchorId): HTMLElement | null 
 }
 
 
-export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy = false, actionError = '' }: PracticeGuideProps) {
+export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy = false, actionError = '', compact = false }: PracticeGuideProps) {
   const panelRef = useRef<HTMLElement>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
   const [placement, setPlacement] = useState(initialPlacement)
   const [updating, setUpdating] = useState(false)
+  const updatingRef = useRef(false)
+  const [updateError, setUpdateError] = useState('')
   const visible = Boolean(view?.presentation && view.title && view.body)
 
   useLayoutEffect(() => {
-    if (!visible || view?.presentation !== 'coach-mark' || !view.anchor) {
+    if (compact || !visible || view?.presentation !== 'coach-mark' || !view.anchor) {
       return
     }
     let frame = 0
+    findPracticeGuideAnchor(view.anchor)?.scrollIntoView({ block: 'nearest' })
     const position = () => {
       const target = findPracticeGuideAnchor(view.anchor!)
       const panel = panelRef.current
-      if (!target || !panel) {
+      if (!target || !panel || target.getClientRects().length === 0) {
         setPlacement(initialPlacement)
         return
       }
@@ -48,9 +53,10 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
       )
       const below = targetBounds.bottom + margin
       const above = below + panelBounds.height > window.innerHeight
-      const top = above
+      const preferredTop = above
         ? Math.max(margin, targetBounds.top - panelBounds.height - margin)
         : below
+      const top = Math.max(margin, Math.min(preferredTop, window.innerHeight - panelBounds.height - margin))
       setPlacement({ left, top, fallback: false, above })
     }
     const schedule = () => {
@@ -63,47 +69,61 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
     const observer = new ResizeObserver(schedule)
     const target = findPracticeGuideAnchor(view.anchor)
     if (target) observer.observe(target)
+    if (panelRef.current) observer.observe(panelRef.current)
     return () => {
       cancelAnimationFrame(frame)
       observer.disconnect()
       window.removeEventListener('resize', schedule)
       window.removeEventListener('scroll', schedule, true)
     }
-  }, [visible, view?.anchor, view?.presentation])
+  }, [compact, visible, view?.anchor, view?.presentation, view?.currentStageId])
 
   useEffect(() => {
     if (!visible) return
     restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
     const panel = panelRef.current
-    const initial = panel?.querySelector<HTMLElement>('[data-guide-primary], button')
+    const initial = compact ? panel : panel?.querySelector<HTMLElement>('[data-guide-primary], button')
     initial?.focus({ preventScroll: true })
     return () => restoreFocusRef.current?.focus({ preventScroll: true })
-  }, [visible, view?.currentStageId])
+  }, [compact, visible, view?.currentStageId])
 
   if (!view) return null
 
-  const update = async (type: PracticeGuideUpdateRequest['type']) => {
-    if (updating) return
+  const perform = async (action: () => void | Promise<void>) => {
+    if (updatingRef.current) return
+    updatingRef.current = true
     setUpdating(true)
+    setUpdateError('')
     try {
+      await action()
+    } catch {
+      setUpdateError('Chưa thể chuyển bước hướng dẫn. Hãy thử lại; tiến độ Practice vẫn được giữ nguyên.')
+    } finally {
+      updatingRef.current = false
+      setUpdating(false)
+    }
+  }
+
+  const update = (type: PracticeGuideUpdateRequest['type']) => perform(async () => {
       if (type === 'resume' || type === 'replay' || type === 'dismiss-confirmation' || type === 'start') {
         await onUpdate({ type } as PracticeGuideUpdateRequest)
         return
       }
       await onUpdate({ type, expectedStageId: view.currentStageId! } as PracticeGuideUpdateRequest)
-    } finally {
-      setUpdating(false)
-    }
-  }
+  })
 
   const runPrimaryAction = async () => {
-    if (updating || actionBusy) return
+    if (updatingRef.current || actionBusy || view.primaryDisabled) return
+    if (view.replay) {
+      await update(view.currentStageId === 'practice-loop-confirmation' ? 'dismiss-confirmation' : 'continue')
+      return
+    }
     if (view.currentStageId === 'request-review' && onReview) {
-      await onReview()
+      await perform(onReview)
       return
     }
     if (view.currentStageId === 'return-to-course' && onReturn) {
-      await onReturn()
+      await perform(onReturn)
       return
     }
     await update(nextType)
@@ -114,6 +134,7 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
       <aside className="practice-guide-resume" role="status">
         <span>Hướng dẫn Practice đang tạm dừng.</span>
         <button disabled={updating} type="button" onClick={() => void update('resume')}>Tiếp tục hướng dẫn</button>
+        {updateError || actionError || view.error ? <p role="alert">{updateError || actionError || view.error}</p> : null}
       </aside>
     )
   }
@@ -130,7 +151,7 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
       update('pause')
       return
     }
-    if (event.key !== 'Tab' || view.presentation !== 'intro-dialog') return
+    if (event.key !== 'Tab' || compact || view.presentation !== 'intro-dialog') return
     const controls = [...(panelRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled)') ?? [])]
     if (controls.length < 2) return
     const first = controls[0]
@@ -159,22 +180,24 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
     )
   }
 
-  const isDialog = view.presentation === 'intro-dialog'
-  const style = view.presentation === 'coach-mark'
+  const isDialog = !compact && view.presentation === 'intro-dialog'
+  const style = !compact && view.presentation === 'coach-mark'
     ? ({ '--guide-left': placement.left + 'px', '--guide-top': placement.top + 'px' } as CSSProperties)
     : undefined
 
-  return (
+  const guide = (
     <>
       {isDialog ? <div className="practice-guide-scrim" aria-hidden="true" /> : null}
       <aside
         aria-describedby="practice-guide-body"
         aria-labelledby="practice-guide-title"
         aria-modal={isDialog || undefined}
-        className={`practice-guide is-${view.presentation}${placement.fallback && view.presentation === 'coach-mark' ? ' is-fallback' : ''}${placement.above && view.presentation === 'coach-mark' ? ' is-above' : ''}`}
+        className={`practice-guide is-${view.presentation}${compact ? ' is-docked' : ''}${placement.fallback && view.presentation === 'coach-mark' ? ' is-fallback' : ''}${placement.above && view.presentation === 'coach-mark' ? ' is-above' : ''}`}
         onKeyDown={trapFocus}
         ref={panelRef}
+        tabIndex={-1}
         role={isDialog ? 'dialog' : 'region'}
+        aria-busy={updating || actionBusy}
         style={style}
       >
         <header>
@@ -182,15 +205,17 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
           <h2 id="practice-guide-title">{view.title}</h2>
         </header>
         <p id="practice-guide-body">{view.body}</p>
-        {view.error || actionError ? <div className="practice-guide-warning" role="status">{actionError || view.error}</div> : null}
+        {view.actionNotice ? <div className="practice-guide-warning" role="status">{view.actionNotice}</div> : null}
+        {view.error || actionError || updateError ? <div className="practice-guide-warning" role="alert">{updateError || actionError || view.error}</div> : null}
         <div className="practice-guide-actions">
           {view.primaryLabel ? (
-            <button data-guide-primary disabled={updating || actionBusy} type="button" onClick={() => void runPrimaryAction()}>
+            <button data-guide-primary disabled={updating || actionBusy || view.primaryDisabled} type="button" onClick={() => void runPrimaryAction()}>
               {actionBusy
                 ? view.currentStageId === 'return-to-course' ? 'Đang lưu và quay lại…' : 'Đang cập nhật và kiểm tra…'
                 : view.primaryLabel}
             </button>
           ) : null}
+          <button className="is-secondary" disabled={updating} type="button" onClick={() => void update('pause')}>Tạm dừng</button>
           {view.secondaryLabel ? (
             <button className="is-secondary" disabled={updating} type="button" onClick={() => void update('skip')}>
               {view.secondaryLabel}
@@ -201,4 +226,5 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
       </aside>
     </>
   )
+  return compact ? guide : createPortal(<div className="practice-guide-layer practice-workflow">{guide}</div>, document.body)
 }

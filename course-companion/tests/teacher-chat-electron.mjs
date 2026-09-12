@@ -15,6 +15,7 @@ try {
     env: { ...process.env, COURSE_COMPANION_USER_DATA_DIR: directory,
       COURSE_COMPANION_FAKE_CODEX: live ? '0' : '1',
       COURSE_COMPANION_FAKE_TEACHER_LIVE_MODE: '0',
+      COURSE_COMPANION_FAKE_TEACHER_DELAY_MS: live ? '0' : '4000',
       COURSE_COMPANION_FAKE_TEACHER_FAIL_ONCE: live ? '0' : '1' } })
   let page = app.windows().find((candidate) => candidate.url().includes('#/learning'))
   if (!page) page = await app.waitForEvent('window', { predicate: (candidate) => candidate.url().includes('#/learning') })
@@ -24,22 +25,49 @@ try {
     await globalThis.courseCompanion.saveProgress({ currentLessonId: 'module-2', currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-brief', sceneId: 'module-2-portfolio-workspace', sceneHistory: [],
       completedCheckpointIds: [], decisions: {} })
+    // Simulate a profile that previously selected the removed theory tab.
+    await globalThis.courseCompanion.selectPracticePanel({ surface: 'full', panel: 'progress' })
+    await globalThis.courseCompanion.selectPracticePanel({ surface: 'compact', panel: 'progress' })
   })
   await page.reload()
   await page.getByRole('button', { name: 'Mở Course Companion', exact: true }).click()
   await page.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành', exact: true }).click()
   const panel = page.locator('.pixel-teacher-overlay')
   const composer = panel.getByRole('textbox', { name: 'Nhắn cho Triết' })
+  await composer.waitFor()
+  assert.equal(await panel.getByRole('tablist').count(), 0)
   const prompt = 'Tại sao cần lập kế hoạch trước khi nhờ coding agent xây portfolio? Giải thích ngắn gọn cho người mới.'
   const before = await page.evaluate(() => globalThis.courseCompanion.loadProgress())
   await composer.fill(prompt)
   await composer.press('Enter')
   if (!live) {
+    const thinking = panel.getByRole('status').filter({ hasText: 'Triết đang suy nghĩ…' })
+    await thinking.waitFor()
+    assert.equal(await composer.inputValue(), '')
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner p').innerText(), prompt)
+    assert.equal(await panel.locator('.pixel-chat-empty').count(), 0)
+    assert.equal(await panel.locator('.pixel-chat-message.is-teacher').count(), 0)
+    assert.equal(await panel.getByRole('button', { name: 'ĐANG GỬI…', exact: true }).isDisabled(), true)
+    if (process.env.COURSE_COMPANION_SCREENSHOT_DIR) {
+      await page.screenshot({ path: join(process.env.COURSE_COMPANION_SCREENSHOT_DIR, 'teacher-thinking-desktop.png') })
+    }
     await panel.getByRole('button', { name: 'Thử lại', exact: true }).waitFor()
+    assert.equal(await thinking.count(), 0)
+    await page.setViewportSize({ width: 390, height: 844 })
     await panel.getByRole('button', { name: 'Thử lại', exact: true }).click()
+    await thinking.waitFor()
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 1)
+    assert.equal(await composer.inputValue(), '')
+    assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    assert.equal(await panel.locator('.pixel-chat-thinking-dots i').first().evaluate((element) => globalThis.getComputedStyle(element).animationName), 'none')
+    if (process.env.COURSE_COMPANION_SCREENSHOT_DIR) {
+      await page.screenshot({ path: join(process.env.COURSE_COMPANION_SCREENSHOT_DIR, 'teacher-thinking-narrow.png') })
+    }
   }
   const answer = panel.locator('.pixel-chat-message.is-teacher').last()
   await answer.waitFor()
+  assert.equal(await panel.locator('.pixel-chat-thinking').count(), 0)
   const content = await answer.locator('p').innerText()
   assert.ok(content.trim().length > 20)
   assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 1)
@@ -51,6 +79,7 @@ try {
   await panel.getByRole('button', { name: 'Đóng Triết', exact: true }).click()
   await page.locator('button.pixel-roadmap-stage.is-current').click()
   await page.getByRole('button', { name: 'HỎI TRIẾT', exact: true }).click()
+  assert.equal(await panel.getByRole('tablist').count(), 0)
   assert.equal(await panel.locator('.pixel-chat-message.is-teacher p').last().innerText(), content)
   await page.setViewportSize({ width: 390, height: 844 })
   assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
@@ -64,6 +93,87 @@ try {
   }
   const state = await page.evaluate(() => globalThis.courseCompanion.loadCompanionState())
   assert.equal(state.conversation.messages.at(-1).source, live ? 'live' : 'fixture')
+  if (!live) {
+    // A failure before persistence, followed by an unavailable history reload,
+    // must still leave the learner's message visible and retryable in this view.
+    await app.evaluate(({ ipcMain }) => {
+      ipcMain.removeHandler('course:send-teacher-message')
+      ipcMain.handle('course:send-teacher-message', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 250))
+        throw new Error('Injected failure before message persistence')
+      })
+      ipcMain.removeHandler('course:load-companion-state')
+      ipcMain.handle('course:load-companion-state', () => { throw new Error('Injected history reload failure') })
+    })
+    const unsaved = 'Giữ lại câu hỏi này nếu chưa gửi được.'
+    await composer.fill(unsaved)
+    await composer.press('Enter')
+    await panel.getByRole('button', { name: 'Thử lại', exact: true }).waitFor()
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 2)
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner p').last().innerText(), unsaved)
+    assert.equal(await composer.inputValue(), '')
+    assert.equal(await panel.locator('.pixel-chat-thinking').count(), 0)
+    await panel.getByRole('button', { name: 'Thử lại', exact: true }).click()
+    await panel.locator('.pixel-chat-thinking').waitFor({ state: 'hidden' })
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 2)
+    // A successful reply must survive a separate history refresh failure.
+    await app.evaluate(({ ipcMain }) => {
+      ipcMain.removeHandler('course:send-teacher-message')
+      ipcMain.handle('course:send-teacher-message', async (_event, request) => {
+        await new Promise((resolve) => setTimeout(resolve, 250))
+        const timestamp = new Date().toISOString()
+        return {
+          learnerMessage: { id: 'confirmed-learner', role: 'learner', source: 'learner', content: request.content, timestamp, deliveryStatus: 'delivered' },
+          teacherMessage: { id: 'confirmed-teacher', role: 'teacher', source: 'fixture', content: 'Phản hồi đã nhận dù lịch sử chưa tải lại được.', timestamp }
+        }
+      })
+    })
+    await panel.getByRole('button', { name: 'Thử lại', exact: true }).click()
+    await panel.getByText('Phản hồi đã nhận dù lịch sử chưa tải lại được.', { exact: true }).waitFor()
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 2)
+    assert.equal(await panel.getByRole('button', { name: 'Thử lại', exact: true }).count(), 0)
+    assert.equal(await panel.locator('.pixel-chat-thinking').count(), 0)
+
+    const markdown = [
+      'Hãy tìm phương án cho thấy Codex **thực sự hành động trong dự án và kiểm tra kết quả**.',
+      '', 'Bạn chọn *A, B, C hay D* và giải thích ngắn vì sao?',
+      '', '### Cách kiểm tra', '', '1. Đọc yêu cầu.', '2. Xem bằng chứng.',
+      '   - Kiểm tra tệp.', '   - Chạy `npm test`.',
+      '', '> Chỉ kết luận từ bằng chứng.', '', '[Tài liệu](https://example.com/docs)',
+      '', '```js', `const example = "${'long-code-'.repeat(30)}"`, '```',
+      '', '| Mục | Kết quả |', '| --- | --- |', '| Tệp | **Đạt** |'
+    ].join('\n')
+    await app.evaluate(({ ipcMain }, reply) => {
+      ipcMain.removeHandler('course:send-teacher-message')
+      ipcMain.handle('course:send-teacher-message', (_event, request) => {
+        const timestamp = new Date().toISOString()
+        return {
+          learnerMessage: { id: 'markdown-learner', role: 'learner', source: 'learner', content: request.content, timestamp, deliveryStatus: 'delivered' },
+          teacherMessage: { id: 'markdown-teacher', role: 'teacher', source: 'fixture', content: reply, timestamp }
+        }
+      })
+    }, markdown)
+    await composer.fill('Giữ nguyên **nội dung tôi nhập**.')
+    await composer.press('Enter')
+    const formatted = panel.locator('.teacher-markdown').last()
+    await formatted.locator('table').waitFor()
+    assert.equal(await formatted.locator('strong').first().innerText(), 'thực sự hành động trong dự án và kiểm tra kết quả')
+    assert.equal(await formatted.locator('ol > li').count(), 2)
+    assert.equal(await formatted.locator('ul > li').count(), 2)
+    assert.equal(await formatted.locator('a').getAttribute('target'), '_blank')
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner').last().locator('strong').count(), 1) // Only the speaker label.
+    assert.equal(await panel.locator('.pixel-chat-message.is-learner p').last().innerText(), 'Giữ nguyên **nội dung tôi nhập**.')
+    for (const width of [390, 1180]) {
+      await page.setViewportSize({ width, height: 844 })
+      assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
+      assert.equal(await panel.locator('.pixel-chat-log').evaluate((element) => element.scrollWidth > element.clientWidth), false)
+      assert.equal(await formatted.locator('pre').evaluate((element) => element.scrollWidth > element.clientWidth), true)
+      await formatted.evaluate((element) => element.scrollIntoView({ block: 'start' }))
+      if (process.env.COURSE_COMPANION_SCREENSHOT_DIR) {
+        await page.screenshot({ animations: 'disabled', path: join(process.env.COURSE_COMPANION_SCREENSHOT_DIR, `teacher-markdown-${width}.png`) })
+      }
+    }
+  }
   console.log(JSON.stringify({ mode: live ? 'live' : 'fixture', status: 'passed', answer: content }))
 } finally {
   await app?.close()

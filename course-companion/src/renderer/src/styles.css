@@ -2663,6 +2663,35 @@ button:focus-visible {
 }
 .pixel-chat-message > header time { margin-left: auto; color: var(--pixel-muted); font: 6px/1 var(--pixel-font); }
 .pixel-chat-message p { margin: 7px 0 0; color: #fff; font-size: 12px; line-height: 1.42; white-space: pre-wrap; }
+.pixel-chat-message .teacher-markdown {
+  min-width: 0;
+  margin-top: 7px;
+  color: var(--pixel-white);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.pixel-chat-message .teacher-markdown p { margin: 0 0 0.75em; font: inherit; white-space: normal; }
+.pixel-chat-message .teacher-markdown > :last-child { margin-bottom: 0; }
+.teacher-markdown :is(h1, h2, h3, h4, h5, h6) { margin: 1em 0 0.5em; font: 700 1.05em/1.45 var(--pixel-font); }
+.teacher-markdown > :first-child { margin-top: 0; }
+.teacher-markdown :is(ul, ol) { margin: 0 0 0.75em; padding-left: 1.6em; }
+.teacher-markdown li + li { margin-top: 0.3em; }
+.teacher-markdown li > :is(ul, ol) { margin-top: 0.3em; margin-bottom: 0; }
+.teacher-markdown strong { font-weight: 800; }
+.teacher-markdown a { color: var(--pixel-accent); text-decoration: underline; text-underline-offset: 3px; }
+.teacher-markdown blockquote { margin: 0 0 0.75em; padding-left: 0.85em; border-left: 2px solid var(--pixel-accent); color: var(--pixel-muted); }
+.teacher-markdown code { padding: 0.1em 0.3em; border-radius: 4px; background: var(--obsidian-surface); font: 0.9em/1.5 monospace; }
+.teacher-markdown pre { max-width: 100%; margin: 0 0 0.75em; padding: 12px; overflow-x: auto; border: 1px solid var(--obsidian-line-soft); border-radius: 8px; background: var(--obsidian-surface); white-space: pre; }
+.teacher-markdown pre code { padding: 0; background: transparent; overflow-wrap: normal; }
+.teacher-markdown-table { max-width: 100%; margin-bottom: 0.75em; overflow-x: auto; }
+.teacher-markdown table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+.teacher-markdown :is(th, td) { padding: 8px; border: 1px solid var(--obsidian-line-soft); text-align: left; vertical-align: top; }
+.teacher-markdown th { font-weight: 700; background: var(--obsidian-surface); }
+.teacher-markdown hr { margin: 1em 0; border: 0; border-top: 1px solid var(--obsidian-line-soft); }
+.teacher-markdown .contains-task-list { list-style: none; padding-left: 0; }
+.teacher-markdown input[type="checkbox"] { margin-right: 0.5em; accent-color: var(--pixel-accent); }
+.teacher-markdown :is(a, pre, .teacher-markdown-table):focus-visible { outline: 2px solid var(--pixel-accent); outline-offset: 3px; }
 .pixel-chat-retry {
   margin-top: 7px;
   padding: 5px 7px;
@@ -2673,6 +2702,30 @@ button:focus-visible {
 }
 .pixel-chat-retry:hover:not(:disabled) { color: #000; background: var(--pixel-yellow); }
 .pixel-chat-retry:disabled { cursor: wait; opacity: 0.55; }
+
+.pixel-chat-thinking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 4px;
+  color: var(--pixel-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.pixel-chat-thinking-dots { display: inline-flex; flex: 0 0 auto; gap: 4px; }
+.pixel-chat-thinking-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pixel-accent);
+  animation: teacher-thinking 1.2s ease-in-out infinite;
+}
+.pixel-chat-thinking-dots i:nth-child(2) { animation-delay: 0.15s; }
+.pixel-chat-thinking-dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes teacher-thinking { 0%, 80%, 100% { opacity: 0.35; } 40% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .pixel-chat-thinking-dots i { animation: none; opacity: 1; }
+}
 
 .pixel-chat-warning,
 .pixel-chat-error {
@@ -5100,4 +5153,219 @@ button:focus-visible {
   align-self: flex-start;
   margin: 8px 14px 12px;
   color: var(--pixel-yellow);
+}
+
+/* Practice owns these refinements; course lessons and course chat retain their theme. */
+.practice-brief-overlay.practice-workflow { container-type: inline-size; }
+.practice-brief-overlay.practice-workflow > .practice-progress { margin: 18px auto 0; padding: clamp(18px, 3vw, 30px); }
+.practice-workflow .practice-brief-actions button { min-height: 44px; font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-brief-header small,
+.practice-workflow .practice-brief-card > small { font-size: 11px; line-height: 1.5; }
+.pixel-teacher-panel.practice-workflow {
+  min-width: 0;
+  padding: 16px;
+  --pixel-success: var(--pixel-yellow);
+  --pixel-warning: var(--pixel-yellow);
+  container-type: inline-size;
+}
+.practice-workflow > header { gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--obsidian-line-soft); }
+.practice-workflow .pixel-teacher-identity { min-width: 0; }
+.practice-workflow .pixel-teacher-identity small { font-size: 10px; line-height: 1.5; color: var(--pixel-muted); }
+.practice-workflow .pixel-teacher-identity strong { margin-top: 2px; font-size: 16px; line-height: 1.4; }
+.practice-workflow .pixel-panel-controls { flex: 0 0 auto; }
+.practice-workflow .pixel-panel-control { width: 36px; height: 36px; min-height: 36px; padding: 0; }
+.practice-workflow .pixel-panel-control span { transform: none; }
+.practice-workflow .pixel-chat-context { padding: 12px 0; border: 0; background: transparent; }
+.practice-workflow .pixel-chat-context > span { font-size: 10px; line-height: 1.5; }
+.practice-workflow .pixel-chat-context > strong { font-size: 15px; line-height: 1.5; }
+.practice-workflow .pixel-practice-review__primary {
+  flex-shrink: 0;
+  margin-top: 14px;
+  padding: 0 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--obsidian-line-soft);
+  background: transparent;
+}
+.practice-workflow .pixel-practice-review__primary small { font-size: 10px; line-height: 1.5; color: var(--pixel-muted); }
+.practice-workflow .pixel-practice-review__primary strong { margin-top: 4px; font-size: 16px; line-height: 1.5; }
+.practice-workflow .pixel-practice-review__primary p { font-size: 13px; line-height: 1.6; }
+.practice-workflow .pixel-review-primary,
+.practice-workflow .practice-hint-button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-width: 1px;
+  font: 600 13px/1.5 var(--app-font);
+}
+.practice-workflow .pixel-review-primary:first-child { margin-top: 0; }
+.practice-workflow .practice-hint-button { color: var(--pixel-white); background: var(--obsidian-surface); }
+.practice-workflow .pixel-review-spinner {
+  position: static;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.pixel-teacher-panel.practice-workflow .pixel-practice {
+  margin-top: 14px;
+  padding: 0 4px 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.practice-workflow .practice-progress,
+.practice-workflow .practice-progress.is-compact {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.practice-workflow .practice-compact-progress { gap: 8px; font-size: 13px; line-height: 1.6; }
+.practice-workflow .practice-compact-progress strong { font-size: 15px; font-weight: 600; }
+.practice-workflow .practice-compact-progress small { font-size: 11px; }
+.practice-workflow .practice-compact-progress b { border-radius: 6px; font-size: 11px; font-weight: 500; }
+.practice-workflow .practice-compact-details { margin-top: 16px; }
+.practice-workflow .practice-compact-details > summary {
+  padding: 12px;
+  border-color: var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-control);
+  color: var(--pixel-white);
+  font-size: 13px;
+}
+.practice-workflow .practice-compact-checklist > li { border-radius: var(--obsidian-radius-control); border-color: var(--obsidian-line-soft); }
+.practice-workflow .practice-compact-checklist > li.is-current,
+.practice-workflow .practice-compact-checklist > li.is-stale { border-color: var(--pixel-yellow); }
+.practice-workflow .practice-compact-checklist > li.is-pending,
+.practice-workflow .practice-compact-checklist > li.is-upcoming { opacity: 1; }
+.practice-workflow .practice-compact-checklist button { padding: 10px; gap: 10px; }
+.practice-workflow .practice-compact-step-icon { border-radius: 6px; font-size: 12px; }
+.practice-workflow .practice-compact-step-copy small,
+.practice-workflow .practice-compact-step-state { font-size: 11px; line-height: 1.5; }
+.practice-workflow .practice-compact-step-copy strong { font-size: 13px; line-height: 1.5; font-weight: 600; }
+.practice-workflow .practice-compact-step-disclosure { border-color: var(--obsidian-line-soft); background: transparent; }
+.practice-workflow .practice-compact-step-guide { margin: 0 12px 12px 44px; padding: 10px 12px; }
+.practice-workflow .practice-compact-step-guide small,
+.practice-workflow .practice-compact-next small { font-size: 10px; line-height: 1.5; }
+.practice-workflow .practice-compact-step-guide p,
+.practice-workflow .practice-compact-next strong { font-size: 13px; line-height: 1.6; }
+.practice-workflow .practice-compact-next { margin-top: 16px; padding: 12px; }
+.practice-workflow .practice-hint { padding: 14px; border-width: 1px; border-radius: var(--obsidian-radius-card); background: var(--obsidian-surface-raised); }
+.practice-workflow .practice-hint-heading button { min-width: 36px; min-height: 36px; border-width: 1px; }
+.practice-workflow .practice-hint p { max-height: 28vh; }
+.practice-workflow .practice-progress__summary > small,
+.practice-workflow .practice-destination { display: block; font-size: 11px; line-height: 1.6; }
+.practice-workflow .practice-review-result { align-items: stretch; flex-direction: column; gap: 16px; padding: 16px; }
+.practice-workflow .practice-review-result small { font-size: 10px; line-height: 1.5; }
+.practice-workflow .practice-review-result strong { font-size: 14px; line-height: 1.5; }
+.practice-workflow .practice-review-result p { font-size: 13px; line-height: 1.6; }
+.practice-workflow .practice-review-result time { font-size: 11px; line-height: 1.5; }
+.practice-workflow .practice-review-criteria li { border-radius: 8px; padding: 10px; }
+.practice-workflow .practice-review-criteria li > span { font-size: 12px; border-radius: 5px; }
+.practice-workflow .practice-checklist li strong { font-size: 13px; line-height: 1.5; }
+.practice-workflow .practice-checklist li small,
+.practice-workflow .practice-receipt summary { font-size: 11px; line-height: 1.5; }
+.practice-workflow .practice-planning-evidence { margin-bottom: 20px; font-size: 13px; line-height: 1.6; }
+.practice-workflow .practice-planning-evidence summary { min-height: 44px; padding: 10px 0; cursor: pointer; }
+.practice-workflow .practice-planning-evidence ul { padding-left: 22px; }
+.practice-workflow .practice-planning-evidence li + li { margin-top: 6px; }
+.practice-workflow .practice-planning-evidence label { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0; }
+.practice-workflow .practice-planning-evidence input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--pixel-yellow); }
+.practice-workflow .practice-planning-evidence .practice-brief-actions { margin-top: 12px; gap: 10px; }
+.practice-workflow .practice-planning-evidence button { min-height: 44px; padding: 10px 14px; font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-planning-evidence button:last-child:not(:disabled) { color: var(--obsidian-canvas); background: var(--pixel-yellow); border-color: var(--pixel-yellow); }
+.practice-workflow .pixel-panel-quit { min-height: 36px; border-color: transparent; background: transparent; color: var(--pixel-muted); font: 400 11px/1.5 var(--app-font); }
+.practice-workflow .pixel-panel-quit:hover { color: var(--pixel-white); border-color: var(--obsidian-line-soft); }
+
+/* Explicit component roles prevent review-card text styles leaking into the CTA. */
+.practice-workflow .practice-return-action {
+  width: 100%;
+  min-width: 0;
+  min-height: 68px;
+  padding: 10px 14px;
+  margin-top: 16px;
+  border: 1px solid var(--pixel-yellow);
+  border-radius: var(--obsidian-radius-control);
+  color: var(--obsidian-canvas);
+  background: var(--pixel-yellow);
+  font-family: var(--app-font);
+}
+.practice-workflow .practice-return-action:disabled { opacity: 1; cursor: not-allowed; }
+.practice-workflow .practice-return-action[aria-busy="true"] { cursor: wait; }
+.practice-workflow .practice-return-action:disabled:not([aria-busy="true"]) { opacity: .55; }
+.practice-workflow .practice-return-action.is-quick { width: 36px; min-height: 36px; height: 36px; margin: 0; padding: 0; color: var(--pixel-yellow); background: var(--obsidian-surface-soft); }
+.practice-workflow .practice-return-action__copy { min-width: 0; min-height: 46px; align-content: center; }
+.practice-workflow .practice-return-action__copy strong { margin: 0; color: inherit; font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-return-action__copy small { margin: 0; color: inherit; font: 400 11px/1.5 var(--app-font); }
+.practice-workflow .practice-return-action[aria-busy="true"] .practice-return-action__icon { visibility: hidden; }
+.practice-workflow .practice-return-action__spinner { inset: 1px; width: 18px; height: 18px; border: 2px solid currentColor; border-right-color: transparent; background: transparent; }
+.practice-workflow .practice-review-result .practice-return-action { margin-top: 0; }
+.practice-workflow .practice-guide { border-width: 1px; border-radius: var(--obsidian-radius-panel); box-shadow: var(--obsidian-shadow); font-family: var(--app-font); }
+.practice-workflow .practice-guide header small { font-size: 11px; }
+.practice-workflow .practice-guide header h2 { font-size: 17px; }
+.practice-workflow .practice-guide-actions button { min-height: 44px; border-width: 1px; font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-guide.is-coach-mark::before { width: 12px; height: 12px; top: -7px; border-width: 1px 0 0 1px; }
+.practice-workflow .practice-guide.is-coach-mark.is-above::before { top: auto; bottom: -7px; }
+.practice-workflow .practice-guide-resume {
+  position: static;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-control);
+  background: var(--obsidian-surface-raised);
+  box-shadow: none;
+  font: 400 12px/1.5 var(--app-font);
+}
+.practice-workflow .practice-guide-resume button,
+.practice-workflow .practice-guide-replay { min-height: 36px; border-width: 1px; font: 500 12px/1.5 var(--app-font); }
+.practice-workflow .practice-guide { max-height: calc(100dvh - 32px); overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--obsidian-line) transparent; }
+.practice-guide-layer .practice-guide.is-fallback { position: fixed; top: 50%; left: 50%; right: auto; bottom: auto; margin: 0; transform: translate(-50%, -50%); }
+.practice-workflow .practice-guide.is-docked {
+  position: static;
+  flex: 0 0 auto;
+  width: 100%;
+  max-height: none;
+  margin: 0 0 14px;
+  padding: 16px;
+  transform: none;
+  box-shadow: none;
+  background: var(--obsidian-surface-raised);
+}
+.practice-workflow .practice-guide.is-docked::before { display: none; }
+.practice-workflow .practice-guide.is-docked h2 { font-size: 16px; }
+.practice-workflow .practice-guide.is-docked > p { font-size: 13px; line-height: 1.65; }
+.practice-workflow .practice-guide-actions [data-guide-primary] { flex: 1 0 100%; }
+.practice-workflow .practice-guide-actions button:disabled { cursor: wait; opacity: .65; }
+.practice-workflow .practice-guide-replay { margin: 10px 0 0; align-self: stretch; border-color: var(--obsidian-line-soft); }
+.practice-workflow .practice-guide-resume p { flex-basis: 100%; margin: 0; }
+@container (max-width: 440px) {
+  .practice-workflow .practice-return-action__copy { min-height: 60px; }
+  .practice-workflow .practice-compact-progress { grid-template-columns: minmax(0, 1fr); }
+  .practice-workflow .practice-compact-progress b { justify-self: start; }
+  .practice-workflow .practice-compact-checklist button { grid-template-columns: 24px minmax(0, 1fr) 36px; }
+  .practice-workflow .practice-compact-step-copy { grid-column: 2; }
+  .practice-workflow .practice-compact-step-state { grid-column: 2; grid-row: 2; white-space: normal; }
+  .practice-workflow .practice-compact-step-disclosure { grid-column: 3; grid-row: 1 / 3; }
+  .practice-workflow .practice-planning-evidence .practice-brief-actions { flex-direction: column; }
+  .practice-workflow .practice-planning-evidence button { width: 100%; }
+}
+@container (max-width: 340px) {
+  .practice-workflow .pixel-teacher-portrait-frame { width: 36px; height: 40px; }
+  .practice-workflow .pixel-teacher-identity { gap: 8px; }
+  .practice-workflow .pixel-teacher-identity small { font-size: 9px; }
+  .practice-workflow .pixel-teacher-identity strong { font-size: 14px; }
+  .practice-workflow .pixel-panel-controls { gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practice-workflow .practice-return-action__spinner,
+  .practice-workflow .pixel-review-spinner { animation: none; }
 }

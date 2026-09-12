@@ -100,6 +100,93 @@ async function harness() {
 afterEach(async () => Promise.all(directories.splice(0).map((path) => rm(path, { recursive: true, force: true }))))
 
 describe('PracticeGuideCoordinator', () => {
+  it('shares the current step across compact and full views', async () => {
+    const guide = await coordinator()
+    expect((await guide.load(context({ surface: 'compact' })))?.presentation).toBe('intro-dialog')
+    await guide.update({ type: 'continue', expectedStageId: 'practice-introduction' }, context({ surface: 'compact' }))
+    expect((await guide.load(context()))?.currentStageId).toBe('executor-orientation')
+    await guide.update({ type: 'pause', expectedStageId: 'executor-orientation' }, context())
+    expect((await guide.load(context({ surface: 'compact' })))?.status).toBe('paused')
+  })
+
+  it('keeps an unsuccessful real review visible with a next action', async () => {
+    const guide = await coordinator()
+    for (const stage of definition.stages.slice(0, 4)) {
+      await guide.update({ type: 'continue', expectedStageId: stage.id }, context())
+    }
+    const needsWork = workspace('needs-work')
+    needsWork.review!.result = { summary: 'Sửa Model rồi kiểm tra lại.' } as NonNullable<NonNullable<PracticeWorkspaceView['review']>['result']>
+    const view = await guide.load(context({ workspace: needsWork, surface: 'compact' }))
+    expect(view?.currentStageId).toBe('request-review')
+    expect(view?.presentation).not.toBeNull()
+    expect(view?.primaryDisabled).toBe(false)
+    expect(view?.actionNotice).toBe('Sửa Model rồi kiểm tra lại.')
+    needsWork.review!.canReview = false
+    const waiting = await guide.load(context({ workspace: needsWork }))
+    expect(waiting?.presentation).not.toBeNull()
+    expect(waiting?.primaryDisabled).toBe(true)
+    expect(waiting?.actionNotice).toContain('Chưa thể')
+  })
+
+  it('can finish a replay without submitting or returning, preserving durable progress', async () => {
+    const { guide, states } = await harness()
+    await guide.load(context())
+    await guide.update({ type: 'skip', expectedStageId: 'practice-introduction' }, context())
+    const before = await states.load('course-1', definition.guideId)
+    await guide.update({ type: 'replay' }, context({ surface: 'compact' }))
+    for (const stage of definition.stages.slice(0, -1)) {
+      const shown = await guide.load(context({ surface: 'compact' }))
+      expect(shown?.currentStageId).toBe(stage.id)
+      expect(shown?.presentation).not.toBeNull()
+      await guide.update({ type: 'continue', expectedStageId: stage.id }, context({ surface: 'compact' }))
+    }
+    const end = await guide.load(context({ surface: 'compact' }))
+    expect(end?.title).toBe('Bạn đã xem lại hướng dẫn Practice')
+    expect(end?.presentation).toBe('orientation-card')
+    await guide.update({ type: 'dismiss-confirmation' }, context({ surface: 'compact' }))
+    expect((await guide.load(context()))?.replay).toBe(false)
+    expect(await states.load('course-1', definition.guideId)).toEqual(before)
+  })
+
+  it('pauses a replay, ignores stale Next, and resumes at the same step', async () => {
+    const guide = await coordinator()
+    await guide.update({ type: 'replay' }, context())
+    await guide.update({ type: 'continue', expectedStageId: 'practice-introduction' }, context())
+    const paused = await guide.update({ type: 'pause', expectedStageId: 'executor-orientation' }, context())
+    expect(paused?.status).toBe('paused')
+    expect(paused?.currentStageId).toBe('executor-orientation')
+    await guide.update({ type: 'continue', expectedStageId: 'executor-orientation' }, context())
+    expect((await guide.update({ type: 'resume' }, context()))?.currentStageId).toBe('executor-orientation')
+  })
+
+  it('does not let guide navigation complete a Practice that has not passed', async () => {
+    const { guide, states } = await harness()
+    await guide.load(context())
+    await guide.update({ type: 'course-returned', expectedStageId: 'practice-introduction' }, context())
+    await guide.completeCourseReturn(context())
+    expect((await states.load('course-1', definition.guideId))?.status).toBe('in-progress')
+    const replaced = workspace()
+    replaced.activePractice!.runId = 'different-run'
+    expect(await guide.update({ type: 'continue', expectedStageId: 'practice-introduction' }, context({ workspace: replaced }))).toBeNull()
+    expect((await guide.load(context()))?.currentStageId).toBe('practice-introduction')
+  })
+
+  it('does not reset an unsaved step to an older durable cursor on refresh', async () => {
+    const { states } = await harness()
+    const guide = new PracticeGuideCoordinator(definitions, {
+      load: states.load.bind(states), start: states.start.bind(states),
+      advance: async () => { throw new Error('read-only') },
+      pause: states.pause.bind(states), resume: states.resume.bind(states), skip: states.skip.bind(states),
+      complete: states.complete.bind(states), dismissConfirmation: states.dismissConfirmation.bind(states), reset: states.reset.bind(states)
+    })
+    await guide.load(context())
+    await guide.update({ type: 'continue', expectedStageId: 'practice-introduction' }, context())
+    expect((await guide.load(context()))?.currentStageId).toBe('executor-orientation')
+    const advanced = await guide.update({ type: 'continue', expectedStageId: 'executor-orientation' }, context())
+    expect(advanced?.currentStageId).toBe('review-workspace')
+    expect(advanced?.error).toContain('không thể lưu')
+  })
+
   it('auto-starts and advances only on the stage semantic event', async () => {
     const guide = await coordinator()
     expect((await guide.load(context()))?.currentStageId).toBe('practice-introduction')

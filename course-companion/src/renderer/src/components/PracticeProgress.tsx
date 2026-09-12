@@ -14,6 +14,7 @@ type PracticeProgressProps = {
   api?: import('../../../../shared/contracts').CourseCompanionApi
   compact?: boolean
   returnBusy?: boolean
+  returnDisabled?: boolean
   onReturn?: () => void
   actionBusy?: boolean
   onPlanningAction?: (action: PlanningPracticeActionRequest['action']) => void
@@ -120,6 +121,7 @@ export function PracticeProgress({
   api,
   compact = false,
   returnBusy = false,
+  returnDisabled = false,
   onReturn,
   actionBusy = false,
   onPlanningAction,
@@ -130,7 +132,7 @@ export function PracticeProgress({
 }: PracticeProgressProps) {
   const packageSubmission = workspace.portfolioPackage ? <PortfolioPackageSubmission
     key={[workspace.activePractice?.runId, workspace.activePractice?.generation, workspace.portfolioPackage.sourceDigest].join(':')}
-    workspace={workspace} api={api} disabled={actionBusy || returnBusy} onWorkspaceChange={onWorkspaceChange} onBusyChange={onBusyChange} onRefresh={onRefresh} /> : null
+    workspace={workspace} api={api} disabled={actionBusy || returnBusy || returnDisabled} onWorkspaceChange={onWorkspaceChange} onBusyChange={onBusyChange} onRefresh={onRefresh} /> : null
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
   const [expandedCompactStepId, setExpandedCompactStepId] = useState<string | null>(null)
   const reviewStatus = workspace.review?.status
@@ -218,7 +220,7 @@ export function PracticeProgress({
           </b>
         </div>
         {comparisonSummary ? <p className="practice-compact-change" role="status">{comparisonSummary}</p> : null}
-        <details className="practice-compact-details">
+        <details {...(configurationPractice ? practiceGuideAnchor('configuration-evidence') : {})} className="practice-compact-details">
           <summary>Xem tất cả {workspace.checklist.length} bước</summary>
         <ol className="practice-compact-checklist" aria-label="Tất cả các bước Practice">
           {workspace.checklist.map((step, index) => {
@@ -258,7 +260,7 @@ export function PracticeProgress({
           </div>
         ) : null}
         {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-          <PracticeReturnAction busy={returnBusy} compact onReturn={onReturn} />
+          <PracticeReturnAction busy={returnBusy} disabled={returnDisabled} compact onReturn={onReturn} />
         ) : null}
       </section>
     )
@@ -306,7 +308,7 @@ export function PracticeProgress({
             {reviewResult?.reviewedAt ? <time dateTime={reviewResult.reviewedAt}>Duyệt lúc {new Date(reviewResult.reviewedAt).toLocaleString('vi-VN')}</time> : null}
           </div>
           {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-            <PracticeReturnAction busy={returnBusy} onReturn={onReturn} />
+            <PracticeReturnAction busy={returnBusy} disabled={returnDisabled} onReturn={onReturn} />
           ) : null}
         </section>
       ) : null}

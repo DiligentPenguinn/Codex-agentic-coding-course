@@ -2,12 +2,13 @@ import { practiceGuideAnchor } from './practice-guide-anchors'
 
 type PracticeReturnActionProps = {
   busy: boolean
+  disabled?: boolean
   compact?: boolean
   quick?: boolean
   onReturn: () => void
 }
 
-export function PracticeReturnAction({ busy, compact = false, quick = false, onReturn }: PracticeReturnActionProps) {
+export function PracticeReturnAction({ busy, disabled = false, compact = false, quick = false, onReturn }: PracticeReturnActionProps) {
   return (
     <button
       {...practiceGuideAnchor('return-to-course')}
@@ -18,7 +19,7 @@ export function PracticeReturnAction({ busy, compact = false, quick = false, onR
       aria-label={quick ? 'Quay lại khóa học nhanh' : 'Lưu kết quả và quay lại khóa học'}
       title={quick ? 'Quay lại khóa học nhanh' : undefined}
       aria-busy={busy}
-      disabled={busy}
+      disabled={busy || disabled}
       onClick={onReturn}
     >
       <span className="practice-return-action__visual" aria-hidden="true">

@@ -99,6 +99,24 @@ try {
     'The persisted current submission must pass before return')
   const originalTask = state.activeRun.binding.threadId
   assert.equal(Object.keys(state.activeRun.packageApproval.artifactDigests).length, 5)
+  for (const width of [1180, 390]) {
+    await page.setViewportSize({ width, height: 844 })
+    const returnAction = page.getByRole('button', { name: 'Lưu kết quả và quay lại khóa học', exact: true })
+    await returnAction.scrollIntoViewIfNeeded()
+    const layout = await returnAction.evaluate((button) => {
+      const label = button.querySelector('strong')
+      return { foreground: globalThis.getComputedStyle(label).color, background: globalThis.getComputedStyle(button).backgroundColor,
+        margin: globalThis.getComputedStyle(label).marginTop, fontSize: parseFloat(globalThis.getComputedStyle(label).fontSize),
+        overflow: globalThis.document.documentElement.scrollWidth > globalThis.innerWidth }
+    })
+    assert.equal(layout.foreground, 'rgb(0, 0, 0)')
+    assert.equal(layout.background, 'rgb(255, 214, 102)')
+    assert.equal(layout.margin, '0px')
+    assert.ok(layout.fontSize >= 13)
+    assert.equal(layout.overflow, false)
+    await page.screenshot({ path: join(screenshots, `practice-return-passed-${width}.png`), animations: 'disabled' })
+  }
+  await page.setViewportSize({ width: 1180, height: 780 })
   await page.getByRole('button', { name: 'Lưu kết quả và quay lại khóa học', exact: true }).click()
   const archived = await waitForPracticeState((record) => record.activeRun === null, 'Return must archive the passed submission')
   assert.equal(archived.activeRun, null)

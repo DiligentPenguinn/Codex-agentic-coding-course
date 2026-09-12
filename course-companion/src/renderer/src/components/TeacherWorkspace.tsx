@@ -19,6 +19,7 @@ import { PracticeProgress } from './PracticeProgress'
 import { PracticeGuide } from './PracticeGuide'
 import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
+import { TeacherMarkdown } from './TeacherMarkdown'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
@@ -108,14 +109,21 @@ export function TeacherWorkspace({
   const [context, setContext] = useState<TeacherContext | undefined>()
   const [draft, setDraft] = useState(loadTeacherDraft)
   const [busy, setBusy] = useState(false)
+  const sendingRef = useRef(false)
+  const [pendingMessage, setPendingMessage] = useState<TeacherMessage | null>(null)
   const [recovered, setRecovered] = useState(false)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'teacher' | 'progress'>('teacher')
   const [practice, setPractice] = useState<PracticeState>(emptyPractice)
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
+  const activeTab = workspace?.activePractice
+    ? (embedded ? workspace.presentation.fullPanel : workspace.presentation.compactPanel)
+    : 'teacher'
   const [workspaceLoaded, setWorkspaceLoaded] = useState(false)
   const [workspaceUnavailable, setWorkspaceUnavailable] = useState(false)
   const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
+  const [guideOpen, setGuideOpen] = useState(embedded)
+  const [guideError, setGuideError] = useState('')
+  const guideRevision = useRef(0)
   const [practiceBusy, setPracticeBusy] = useState(false)
   const [reviewBusy, setReviewBusy] = useState(false)
   const [hintBusy, setHintBusy] = useState(false)
@@ -128,9 +136,27 @@ export function TeacherWorkspace({
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
 
+  const refreshPracticeGuide = useCallback(async () => {
+    if (!window.courseCompanion) return
+    const revision = ++guideRevision.current
+    try {
+      const next = await window.courseCompanion.loadPracticeGuide({ surface: embedded ? 'full' : 'compact' })
+      if (revision === guideRevision.current) {
+        setPracticeGuide(next)
+        setGuideError('')
+      }
+    } catch {
+      if (revision === guideRevision.current) setGuideError('Chưa thể tải hướng dẫn. Hãy thử mở lại; tiến độ Practice vẫn được giữ nguyên.')
+    }
+  }, [embedded])
+
   useEffect(() => {
     if (hint && practiceRef.current) practiceRef.current.scrollTop = 0
   }, [hint])
+
+  useEffect(() => {
+    if (!embedded && guideOpen && practiceRef.current) practiceRef.current.scrollTop = 0
+  }, [embedded, guideOpen, practiceGuide?.currentStageId])
 
   const refreshContext = useCallback(async () => {
     const progressResult = await window.courseCompanion?.loadProgress()
@@ -159,16 +185,7 @@ export function TeacherWorkspace({
         setWorkspace(loadedWorkspace ?? null)
         setWorkspaceUnavailable(false)
         setTestFixturesEnabled(runtime?.testFixturesEnabled === true)
-        if (loadedWorkspace) {
-          setActiveTab(embedded ? loadedWorkspace.presentation.fullPanel : loadedWorkspace.presentation.compactPanel)
-        }
-        if (loadedWorkspace && embedded && window.courseCompanion) {
-          const initialTab = loadedWorkspace.presentation.fullPanel
-          setPracticeGuide(await window.courseCompanion.loadPracticeGuide({
-            surface: 'full',
-            activeTab: initialTab
-          }))
-        }
+        if (loadedWorkspace) await refreshPracticeGuide()
         setPractice(
           window.courseCompanion
             ? await window.courseCompanion.loadPracticeState()
@@ -184,7 +201,7 @@ export function TeacherWorkspace({
     }
 
     void load()
-  }, [embedded, refreshContext])
+  }, [embedded, refreshContext, refreshPracticeGuide])
 
   useEffect(() => {
     if (!window.courseCompanion) return
@@ -196,12 +213,19 @@ export function TeacherWorkspace({
             setWorkspace(next)
             setWorkspaceUnavailable(false)
           }
+          await refreshPracticeGuide()
         } catch {
           setError('Không thể đồng bộ tiến độ Practice mới nhất. Kết quả đã lưu vẫn được giữ nguyên.')
         }
       })()
     })
-  }, [])
+  }, [refreshPracticeGuide])
+
+  useEffect(() => {
+    const refresh = () => void refreshPracticeGuide()
+    window.addEventListener('focus', refresh)
+    return () => window.removeEventListener('focus', refresh)
+  }, [refreshPracticeGuide])
 
   useEffect(() => {
     if (activeTab !== 'teacher' || busy) return
@@ -227,27 +251,26 @@ export function TeacherWorkspace({
 
 
   const updatePracticeGuide = async (request: PracticeGuideUpdateRequest) => {
-    if (!window.courseCompanion || !embedded) return
+    if (!window.courseCompanion) return
+    const revision = ++guideRevision.current
+    setGuideError('')
     try {
-      setPracticeGuide(await window.courseCompanion.updatePracticeGuide(request, {
-        surface: 'full',
+      const next = await window.courseCompanion.updatePracticeGuide(request, {
+        surface: embedded ? 'full' : 'compact',
         activeTab
-      }))
+      })
+      if (revision === guideRevision.current) setPracticeGuide(next)
     } catch {
-      // Guidance is optional and must never interrupt Practice.
+      setGuideError('Chưa thể chuyển bước hướng dẫn. Hãy thử lại; tiến độ Practice vẫn được giữ nguyên.')
     }
   }
-  const selectTab = async (next: 'teacher' | 'progress') => {
-    setActiveTab(next)
-    if (!window.courseCompanion) return
-    try {
-      setWorkspace(await window.courseCompanion.selectPracticePanel({
-        surface: embedded ? 'full' : 'compact',
-        panel: next
-      }))
-    } catch {
-      setError('Không thể lưu tab Practice hiện tại.')
-    }
+
+  const openPracticeGuide = async () => {
+    setGuideOpen(true)
+    if (practiceGuide?.status === 'paused') await updatePracticeGuide({ type: 'resume' })
+    else if (practiceGuide?.status === 'skipped' || practiceGuide?.status === 'completed') await updatePracticeGuide({ type: 'replay' })
+    else await refreshPracticeGuide()
+    requestAnimationFrame(() => practiceRef.current?.scrollTo({ top: 0 }))
   }
   useEffect(() => {
     if (activeTab !== 'teacher') return
@@ -258,7 +281,7 @@ export function TeacherWorkspace({
     })
 
     return () => cancelAnimationFrame(frame)
-  }, [activeTab, messages])
+  }, [activeTab, messages, pendingMessage, busy])
 
   const emitPracticeFixture = async (scenario: PracticeScenario) => {
     if (practiceBusy) return
@@ -288,13 +311,11 @@ export function TeacherWorkspace({
         return
       }
       setWorkspace(reviewed.workspace)
-      if (embedded) {
+      {
         const request = practiceGuide?.currentStageId === 'request-review'
           ? { type: 'review-requested' as const, expectedStageId: 'request-review' }
           : { type: 'start' as const }
-        setPracticeGuide(await window.courseCompanion.updatePracticeGuide(
-          request, { surface: 'full', activeTab: 'progress' }
-        ))
+        await updatePracticeGuide(request)
       }
     } catch {
       setError('Kh\u00f4ng th\u1ec3 duy\u1ec7t ti\u1ebfn \u0111\u1ed9 Practice. H\u00e3y th\u1eed l\u1ea1i.')
@@ -371,31 +392,56 @@ export function TeacherWorkspace({
     }
     onMinimizeToBubble?.()
   }
-  const sendMessage = async (contentOverride?: string) => {
-    const content = (contentOverride ?? draft).trim()
-    if (!content || busy) return
+  const sendMessage = async (retryMessage?: TeacherMessage) => {
+    const content = (retryMessage?.content ?? draft).trim()
+    if (!content || sendingRef.current) return
 
+    sendingRef.current = true
+    const optimisticMessage: TeacherMessage = {
+      id: retryMessage?.id ?? `pending-${crypto.randomUUID()}`,
+      role: 'learner',
+      source: 'learner',
+      content,
+      timestamp: new Date().toISOString(),
+      checkpointId: context?.checkpointId,
+      deliveryStatus: 'pending'
+    }
+    const knownIds = new Set(messages.map((message) => message.id))
+    setPendingMessage(optimisticMessage)
+    if (!retryMessage) setDraft('')
     setBusy(true)
     setError('')
+    setTeacherRuntime((current) => ({ ...current, error: undefined }))
     try {
       const request: TeacherSendRequest = { content }
-      if (window.courseCompanion) {
-        await window.courseCompanion.sendTeacherMessage(request)
-        const state = await window.courseCompanion.loadCompanionState()
-        setMessages(state.conversation.messages)
-        setRecovered(state.conversation.recovered)
-        setTeacherRuntime(state.teacher)
-      } else {
-        const result = previewReply(request)
-        setMessages((current) => [...current, result.learnerMessage, result.teacherMessage])
-      }
-      setDraft((current) => current.trim() === content ? '' : current)
-    } catch {
-      let runtimeError = ''
+      const result = window.courseCompanion
+        ? await window.courseCompanion.sendTeacherMessage(request)
+        : previewReply(request)
+      // Show the confirmed reply even if refreshing other companion state fails.
+      setMessages((current) => [
+        ...current.filter((message) => message.id !== optimisticMessage.id
+          && message.id !== result.learnerMessage.id && message.id !== result.teacherMessage.id),
+        result.learnerMessage,
+        result.teacherMessage
+      ])
+      setPendingMessage(null)
       if (window.courseCompanion) {
         try {
           const state = await window.courseCompanion.loadCompanionState()
           setMessages(state.conversation.messages)
+          setRecovered(state.conversation.recovered)
+          setTeacherRuntime(state.teacher)
+        } catch {
+          // The send result already contains both confirmed messages.
+        }
+      }
+    } catch {
+      let runtimeError = ''
+      let recoveredMessages = messages
+      if (window.courseCompanion) {
+        try {
+          const state = await window.courseCompanion.loadCompanionState()
+          recoveredMessages = state.conversation.messages
           setRecovered(state.conversation.recovered)
           setTeacherRuntime(state.teacher)
           runtimeError = state.teacher.error ?? ''
@@ -403,13 +449,26 @@ export function TeacherWorkspace({
           // Keep the existing view if the local state cannot be reloaded.
         }
       }
+      const savedAttempt = recoveredMessages.find((message) => message.role === 'learner'
+        && message.content === content
+        && (message.id === retryMessage?.id || !knownIds.has(message.id)))
+      setMessages(savedAttempt ? recoveredMessages : [
+        ...recoveredMessages.filter((message) => message.id !== optimisticMessage.id),
+        { ...optimisticMessage, deliveryStatus: 'failed' }
+      ])
       if (!runtimeError) {
         setError('Không thể kết nối Triết. Tin nhắn đã được lưu để bạn thử lại.')
       }
     } finally {
+      setPendingMessage(null)
+      sendingRef.current = false
       setBusy(false)
     }
   }
+
+  const visibleMessages = pendingMessage
+    ? [...messages.filter((message) => message.id !== pendingMessage.id), pendingMessage]
+    : messages
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -470,7 +529,7 @@ export function TeacherWorkspace({
   ].filter(Boolean).join(' · ')
 
   return (
-    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}${practiceMode ? ' is-practice-review' : ''}`} aria-label={practiceMode ? 'Duyệt Practice với Triết' : 'Triết, giáo viên đồng hành'}>
+    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}${practiceMode ? ' is-practice-review practice-workflow' : ''}`} aria-label={practiceMode ? 'Duyệt Practice với Triết' : 'Triết, giáo viên đồng hành'}>
       <header>
         <div className="pixel-teacher-identity">
           <span className="pixel-teacher-portrait-frame" aria-hidden="true">
@@ -484,7 +543,8 @@ export function TeacherWorkspace({
         <div className="pixel-panel-controls">
           {workspace?.review?.canReturn ? (
             <PracticeReturnAction
-              busy={returnBusy || reviewBusy || hintBusy}
+              busy={returnBusy}
+              disabled={reviewBusy || hintBusy}
               quick
               onReturn={() => void returnToCourse()}
             />
@@ -497,7 +557,7 @@ export function TeacherWorkspace({
               title="Mở toàn màn hình"
               onClick={onExpand}
             >
-              <span aria-hidden="true">⛶</span>
+              {practiceMode ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" /></svg> : <span aria-hidden="true">⛶</span>}
             </button>
           ) : null}
           {fullScreen && onMinimizeToBubble ? (
@@ -508,7 +568,7 @@ export function TeacherWorkspace({
               title="Thu nhỏ thành bong bóng"
               onClick={() => void minimizeToBubble()}
             >
-              <span aria-hidden="true">—</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
             </button>
           ) : null}
           <button
@@ -518,7 +578,7 @@ export function TeacherWorkspace({
             title={embedded ? 'Đóng Triết' : 'Thu nhỏ thành bong bóng'}
             onClick={onClose}
           >
-            {embedded ? '×' : '—'}
+            {practiceMode ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d={embedded ? 'm6 6 12 12M6 18 18 6' : 'M5 12h14'} /></svg> : embedded ? '×' : '—'}
           </button>
         </div>
       </header>
@@ -535,15 +595,6 @@ export function TeacherWorkspace({
             ? workspace.title
             : context ? 'Bước hiện tại trong khóa học' : 'Chưa bắt đầu bài học'}
         </strong>
-      </div> : null}
-
-      {workspaceLoaded && !workspaceUnavailable && !practiceMode ? <div className="pixel-companion-tabs" role="tablist" aria-label="Chế độ của Triết">
-        <button aria-selected={activeTab === 'teacher'} className={activeTab === 'teacher' ? 'is-active' : ''} onClick={() => void selectTab('teacher')} role="tab" type="button">
-          HỎI TRIẾT
-        </button>
-        <button aria-selected={activeTab === 'progress'} className={activeTab === 'progress' ? 'is-active' : ''} onClick={() => void selectTab('progress')} role="tab" type="button">
-          TIẾN ĐỘ
-        </button>
       </div> : null}
 
       {!workspaceLoaded ? (
@@ -590,6 +641,12 @@ export function TeacherWorkspace({
             </button>
           </div>
           <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+          {!embedded && guideOpen ? (
+            <PracticeGuide view={practiceGuide} compact onUpdate={updatePracticeGuide}
+              onReview={reviewProgress} onReturn={returnToCourse}
+              actionBusy={!practiceGuide?.replay && (reviewBusy || returnBusy || hintBusy)}
+              actionError={guideError || (practiceGuide?.replay ? '' : error)} />
+          ) : null}
           {hint && hint.runId === workspace?.activePractice?.runId
             && hint.generation === workspace.activePractice.generation ? (
             <aside className="practice-hint" aria-label="Gợi ý của Triết" role="status" aria-live="polite">
@@ -610,7 +667,8 @@ export function TeacherWorkspace({
                 onWorkspaceChange={setWorkspace}
                 onBusyChange={setReviewBusy}
                 compact={!embedded}
-                returnBusy={returnBusy || reviewBusy || hintBusy}
+                returnBusy={returnBusy}
+                returnDisabled={reviewBusy || hintBusy}
                 actionBusy={planningActionBusy || hintBusy}
                 onPlanningAction={(action) => void recordPlanningAction(action)}
                 onRefresh={() => void refreshPracticeWorkspace()}
@@ -635,13 +693,13 @@ export function TeacherWorkspace({
             </aside>
           ) : null}
           <div className="pixel-chat-log" role="log" aria-live="polite" aria-label="Lịch sử trò chuyện với Triết">
-            {messages.length === 0 ? (
+            {visibleMessages.length === 0 ? (
               <div className="pixel-chat-empty">
                 <strong>Chưa có tin nhắn</strong>
                 <span>Hỏi Triết điều bạn cần làm rõ ở bước học này.</span>
               </div>
             ) : (
-              messages.map((message) => (
+              visibleMessages.map((message) => (
                 <article className={`pixel-chat-message is-${message.role}`} key={message.id}>
                   <header>
                     <strong>{message.role === 'teacher' ? 'Triết' : 'Bạn'}</strong>
@@ -651,14 +709,20 @@ export function TeacherWorkspace({
                     <time dateTime={message.timestamp}>{formatTime(message.timestamp)}</time>
                   </header>
                   {message.deliveryStatus === 'failed' ? (
-                    <button className="pixel-chat-retry" disabled={busy} onClick={() => void sendMessage(message.content)} type="button">
+                    <button className="pixel-chat-retry" disabled={busy} onClick={() => void sendMessage(message)} type="button">
                       Thử lại
                     </button>
                   ) : null}
-                  <p>{message.content}</p>
+                  {message.role === 'teacher' ? <TeacherMarkdown content={message.content} /> : <p>{message.content}</p>}
                 </article>
               ))
             )}
+            {pendingMessage ? (
+              <div className="pixel-chat-thinking" role="status">
+                <span className="pixel-chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span>
+                <span>Triết đang suy nghĩ…</span>
+              </div>
+            ) : null}
             <div ref={messageEndRef} />
           </div>
 
@@ -735,23 +799,20 @@ export function TeacherWorkspace({
       )}
 
       {workspaceLoaded && !workspaceUnavailable && !practiceMode && error ? <div className="pixel-chat-error" role="alert">{error}</div> : null}
-      {embedded
-        && workspace?.activePractice?.practiceId === 'm1-codex-safe-setup'
-        && practiceGuide
-        && !practiceGuide.replay
-        && (practiceGuide.status === 'skipped' || practiceGuide.status === 'completed') ? (
-        <button className="practice-guide-replay" type="button" onClick={() => void updatePracticeGuide({ type: 'replay' })}>
-          Xem lại hướng dẫn Practice
+      {practiceMode && ((practiceGuide && (!guideOpen || (!practiceGuide.replay
+        && (practiceGuide.status === 'skipped' || practiceGuide.status === 'completed')))) || (!practiceGuide && guideError)) ? (
+        <button className="practice-guide-replay" type="button" onClick={() => void openPracticeGuide()}>
+          {practiceGuide?.status === 'skipped' || practiceGuide?.status === 'completed' ? 'Xem lại hướng dẫn Practice' : 'Hướng dẫn Practice'}
         </button>
       ) : null}
-      <PracticeGuide
+      {embedded ? <PracticeGuide
         view={practiceGuide}
         onUpdate={updatePracticeGuide}
-        onReview={() => void reviewProgress()}
-        onReturn={() => void returnToCourse()}
-        actionBusy={reviewBusy || returnBusy || hintBusy}
-        actionError={error}
-      />
+        onReview={reviewProgress}
+        onReturn={returnToCourse}
+        actionBusy={!practiceGuide?.replay && (reviewBusy || returnBusy || hintBusy)}
+        actionError={guideError || (practiceGuide?.replay ? '' : error)}
+      /> : null}
 
       {!embedded ? <footer>
         <button className="pixel-panel-quit" type="button" onClick={() => void window.courseCompanion?.quitApp()}>Thoát ứng dụng</button>

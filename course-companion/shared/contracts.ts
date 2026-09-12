@@ -1168,6 +1168,8 @@ export type PracticeGuideView = {
   replay: boolean
   masteryConfirmation: 'pending' | 'dismissed' | null
   error?: string
+  actionNotice?: string
+  primaryDisabled?: boolean
 }
 
 export type PracticeGuideSurfaceContext = {

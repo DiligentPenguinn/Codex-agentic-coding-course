@@ -42,6 +42,124 @@ and must never be inferred from a passing automated check.
 | Module 3 | `in-progress` — the incoming debugging opening, separate branch and merge pages, Git screenshots and dialogue, highlighted terminology, pre-Practice recap, and updated Git/GitHub mastery question are integrated unchanged; the Practice branch's five stage receipts, four build-slice receipts, and strict completion contract remain authoritative | `passed` for the merged lesson content and preserved Practice contract: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the incoming branch integration and preservation of the Practice/theory ownership boundary were explicitly requested; this does not approve replacement Practice criteria | `pending` | Review the merged lesson content; after the required Module 2 gate, settle the replacement Module 3 build/debugging criteria from the handoff before changing current Practice gates. |
 | Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present; Practice, artifact templates, completion, and graduation wiring remain deferred | `passed` for the previously integrated content scope; Windows provider runtime remains unverified | `pending` overall; learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
 
+### Theory Teacher navigation — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation — theory chat navigation | `implemented` | `passed` for typecheck, lint, 493 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks and desktop/narrow visual inspection | Removal of the theory progress tab explicitly requested; final experience acceptance remains `pending` | `pending` | Review theory chat in the updated app. |
+
+Theory opens directly to Teacher chat without the redundant tab strip. Outside
+active Practice, saved full/compact progress-panel preferences are ignored, so
+older profiles cannot reopen the unrelated progress view. The actual Practice
+review surface and its guide remain unchanged. The chat walkthrough now starts
+from saved progress-panel preferences and verifies chat access without tabs at
+Home Base and inside a theory lesson. No lesson scene, assessment or course
+navigation target was removed; this removes the exact theory tab requested.
+
+### Teacher Markdown rendering — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation — Teacher reply formatting | `implemented` | `passed` for typecheck, lint, 493 unit tests (two intentional skips), nine startup checks, production build, full Electron smoke/chat/guide checks and scoped diff review | Markdown rendering explicitly requested; final experience acceptance remains `pending` | `pending` | Review formatted replies in the updated app. |
+
+Teacher replies use `react-markdown` and `remark-gfm` to render paragraphs,
+emphasis, headings, nested lists, quotes, code, tables and task lists. Formatting
+is scoped to Teacher messages, including saved replies; learner input and the
+stored conversation remain unchanged. Typography uses the course theme, long
+code and tables scroll within their containers, and external HTTPS links use
+the existing desktop-shell policy. Raw HTML stays escaped and image descriptions
+display without automatically fetching remote media. No course page, lesson
+copy, assessment gate or Practice chat boundary changed.
+
+Four focused tests cover formatting and inert HTML/unsupported destinations.
+The isolated Electron chat walkthrough verifies actual reply markup, preserved
+learner text and bounded layout at 390 and 1180 pixels; screenshots were
+inspected. An unrelated Git fixture timed out during the first concurrent unit
+run; the standalone full rerun passed. Runtime dependency audit reports no
+advisories. These checks establish rendering behavior, not live teaching quality
+or learner acceptance.
+
+### Teacher send feedback — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation — Teacher chat send interaction | `implemented` | `passed` for typecheck, lint, 489 unit tests (two intentional skips), nine startup checks, production build, full Electron smoke/chat/guide checks and scoped diff review | Immediate message display and thinking feedback explicitly requested; final experience acceptance remains `pending` | `pending` | Test the updated Teacher chat with learner-owned questions. |
+
+Sending now immediately displays the learner's message, clears the submitted
+draft and scrolls the conversation to a visible “Triết đang suy nghĩ…” status.
+The dots respect reduced-motion preferences. A synchronous send guard prevents
+duplicate submissions; retry reuses the visible learner message and leaves any
+unsubmitted draft alone. Confirmed replies appear before the separate history
+refresh, so a refresh failure cannot turn a successful response into a failed
+send. If both sending and history recovery fail, the question remains retryable
+in the current view; an unsaved local attempt is not durable across reopening.
+
+The disposable chat walkthrough covers delayed response, failure, retry,
+390-pixel layout, reduced motion and a cleared composer; desktop and narrow
+thinking states were visually inspected. Additional injected failures cover
+unavailable history and a successful reply followed by failed history refresh.
+The initial full regression stopped on an optional screenshot timeout in an
+unchanged Module 1 setup screen; the rerun passed without optional suite screenshots.
+Existing course pages, lesson copy, assessment gates and the active-Practice
+chat exclusion remain unchanged. This is presentation and recovery evidence,
+not a new live Teacher quality or learner-acceptance claim.
+
+### Practice guide access and recovery — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation — windowed Practice guide and progression | `implemented` | `passed` for typecheck, lint, 489 unit tests (two intentional skips), nine startup checks, production build, full Electron smoke/chat and the new guide walkthrough, and scoped diff checks | Windowed access and guide fixes explicitly requested; final experience acceptance remains `pending` | `pending` | Review the guide with learner-owned work; existing module acceptance gates remain unchanged. |
+
+The existing Module 1 guide can be opened from the windowed Practice panel.
+Its inline card uses the course theme, starts each new step at its heading, and
+offers a visible pause action. Full and windowed views refresh the same saved
+cursor. A needs-work review keeps its review step and explanation visible;
+unavailable actions explain the wait instead of making the guide disappear.
+Missing or hidden targets use a bounded fallback card outside the clipped
+Teacher panel. Guide load/update errors remain actionable, and unsaved guide
+steps stay in memory for the current session with a persistence warning.
+
+Replay advances through every guide stage without submitting a review, leaving
+Practice or changing durable guide/Practice results. Its review, return and
+completion explanations distinguish a walkthrough from completed learner work.
+Replay pause/resume and stale-click handling are covered. Existing eligibility,
+course pages, mastery confirmation, assessment gates and surrounding copy are
+preserved; guide-specific explanatory copy was adapted for compact and replay
+contexts. No dependency or persisted-schema migration was added.
+
+`npm run test:electron` now includes `tests/practice-guide-electron.mjs`. Its
+disposable simulated journey verifies compact entry, switching views, pause and
+resume, unsuccessful-review retry, all replay stages, unchanged saved results,
+missing-target fallback and reachable actions without horizontal overflow at
+320×500, 380×500 and 390×640. Compact and full/narrow screenshots were inspected.
+Unit tests separately verify a persisted needs-work result and guide-write
+failure recovery. These Windows checks do not establish live learner or macOS
+acceptance; a guide step held only in memory cannot survive an app restart.
+
+### Practice UI refinement — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.5 — Practice window and return controls | `implemented` | `passed` for typecheck, lint, 483 unit tests (two intentional skips), nine startup checks, production build, full Electron smoke and chat checks, disposable portfolio rehearsal, isolated return-control layout checks and scoped diff checks | UI fixes explicitly requested; final experience acceptance remains `pending` | `pending` | Review the refined Practice workflow with learner-owned work; existing module and native-platform acceptance gates remain outstanding. |
+
+Practice uses the existing course font, black surfaces, gold accent and rounded
+controls. Scoped styling improves window controls, readable text, checklist
+disclosures, hints, package approval and review results. The paused guide sits
+in the panel layout rather than covering scrollable Practice content. Return
+controls distinguish an actual return from temporary disabling during another
+action; review-card styles no longer override their foreground or label margins.
+No approved copy, page, scene, navigation target, review criterion or persistence
+contract was removed or changed. Course chat and theory styling remain outside
+this refinement. Prior uncommitted planning observations are preserved.
+
+Compact, full and 390-pixel Practice screenshots were inspected. The real return
+component was also rendered with production font assets in idle, disabled and
+busy states at 560, 390 and 320 pixels: stable dimensions, centered spinners,
+readable foreground, no horizontal overflow and reduced-motion handling passed
+(`node tests/practice-return-layout.mjs`). The portfolio rehearsal verifies the
+actual approved return and retained task, while its AI review remains simulated.
+Automated Windows evidence does not establish macOS or learner acceptance.
+
 ### Practice hint follow-up — 12 September 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
@@ -139,6 +257,32 @@ owner/runtime acceptance and required learner rehearsal evidence; do not invent 
 infer overall approval/pilot acceptance from the implementation request.
 
 #### Reconciled checkpoint scope
+
+Live rehearsal readiness — 12 September 2026: the owner chose a fictional
+portfolio and explicitly authorized sending course materials, Practice-review
+context, and fictional documents to the signed-in Codex service, excluding
+saved personal progress and chat history. The earlier pre-launch authorization
+block is resolved. Course Companion launched with a fresh isolated profile and
+real Codex mode; no saved learner progress was copied. The owner began navigating
+Module 1 setup in the visible app. Live review verification remains `pending`:
+no live Module 2 AI review, learner approval, or pilot acceptance has yet been
+observed. Existing technical verification remains `passed`; next permitted
+action is to continue the native setup and fictional-portfolio rehearsal, with
+the learner retaining all assessed answers and PRD/plan approval decisions.
+
+Live Module 1 observation — 12 September 2026: the owner reported passing setup
+without changing any settings. The isolated profile records a completed
+`m1-codex-safe-setup` run with two passed reviews, an authoritative `thread-start`
+configuration matching all five required values, and empty learner-prompt and
+Executor-response arrays. The task policy inherits configuration; the adapter
+and review check current values, not learner-performed setup actions. This is
+consistent with the current technical contract but does not demonstrate setup
+competence. The owner also reached the Module 1 completion gate with five of
+six assessment results accepted; the written response is recorded as learner
+self-review, not semantic validation. No runtime or theory changes were made
+for this diagnosis. Keep learner acceptance pending; next permitted action is
+owner discussion of whether setup verification needs a separate learner-owned
+demonstration before changing Practice behavior or any shared assessment/copy.
 
 The 11 September handoff and approved design supersede older per-stage approval
 requirements in M2.4, M2.6, and integration checkpoints I1–I6. The five checklist

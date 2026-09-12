@@ -34,6 +34,7 @@ export function PracticeBrief({
 }: PracticeBriefProps) {
   const [workspace, setWorkspace] = useState<PracticeWorkspaceView | null>(null)
   const [busy, setBusy] = useState(false)
+  const [returnBusy, setReturnBusy] = useState(false)
   const [switchOpen, setSwitchOpen] = useState(false)
   const [error, setError] = useState('')
 
@@ -177,7 +178,7 @@ export function PracticeBrief({
 
   const switching = workspace.phase === 'switching'
   return (
-    <main className="practice-brief-overlay">
+    <main className="practice-brief-overlay practice-workflow">
       <header className="practice-brief-header">
         <button type="button" aria-label="Đóng trang Practice" onClick={onClose}>×</button>
         <div><small>PRACTICE</small><strong>{workspace.title}</strong></div>
@@ -219,13 +220,18 @@ export function PracticeBrief({
         onWorkspaceChange={setWorkspace}
         onBusyChange={setBusy}
         actionBusy={busy}
-        returnBusy={busy}
+        returnBusy={returnBusy}
+        returnDisabled={busy}
         onReturn={() => {
           if (busy || !window.courseCompanion) return
           setBusy(true)
+          setReturnBusy(true)
           void window.courseCompanion.returnPassedPractice().then(() => {
             onClose()
-          }).catch(() => setError('Không thể quay lại khóa học. Hãy làm mới gói và thử lại.')).finally(() => setBusy(false))
+          }).catch(() => setError('Không thể quay lại khóa học. Hãy làm mới gói và thử lại.')).finally(() => {
+            setBusy(false)
+            setReturnBusy(false)
+          })
         }}
         onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
         onRefresh={() => void load()}

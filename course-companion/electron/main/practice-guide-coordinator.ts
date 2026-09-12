@@ -64,7 +64,9 @@ function identity(
 
 export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter {
   private readonly replayStages = new Map<string, number>()
+  private readonly pausedReplays = new Set<string>()
   private readonly volatile = new Map<string, PracticeGuideStateRecord>()
+  private readonly unsaved = new Set<string>()
 
   constructor(
     private readonly definitions: Pick<PracticeGuideDefinitionRepository, 'load'>,
@@ -111,6 +113,8 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
   ): Promise<{ record: PracticeGuideStateRecord; error?: string } | null> {
     if (!context.progress) return null
     const key = this.key(context.progress.courseRunId)
+    const unsaved = this.unsaved.has(key) && this.volatile.get(key)
+    if (unsaved) return { record: unsaved, error: WARNING }
     try {
       let current = await this.states.load(context.progress.courseRunId, definition.guideId)
       if (current && !definition.stages.some((stage) => stage.id === current!.lastStageId)) {
@@ -143,7 +147,10 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
       return { record: current }
     } catch {
       const current = this.volatile.get(key) ?? this.initialRecord(definition, context)
-      if (current) this.volatile.set(key, current)
+      if (current) {
+        this.volatile.set(key, current)
+        this.unsaved.add(key)
+      }
       return current ? { record: current, error: WARNING } : null
     }
   }
@@ -186,7 +193,7 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
   ): PracticeGuideView {
     const confirmationIndex = definition.stages.length - 1
     const replayIndex = this.replayStages.get(this.key(record.courseRunId))
-    const index = record.status === 'completed' && record.masteryConfirmation === 'pending'
+    const index = !replay && record.status === 'completed' && record.masteryConfirmation === 'pending'
       ? confirmationIndex
       : replay && replayIndex !== undefined
         ? replayIndex
@@ -194,33 +201,52 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     const stage = definition.stages[Math.max(0, index)]!
 
     const confirmation = stage.presentation === 'mastery-confirmation'
-    const wrongSurface = confirmation
+    const wrongSurface = confirmation && !replay
       ? context.surface !== 'learning' || context.progress?.sceneId !== 'module-1-mastery'
-      : context.surface !== 'full'
-    const unavailable = (stage.id === 'request-review' && (
-      !context.workspace?.review?.canReview
-      || (context.workspace.review.status === 'needs-work' && Boolean(context.workspace.review.result))
-    ))
-      || (stage.id === 'return-to-course' && !context.workspace?.review?.canReturn)
+      : context.surface === 'learning' && !confirmation
+    const unavailable = !replay && ((stage.id === 'request-review' && !context.workspace?.review?.canReview)
+      || (stage.id === 'return-to-course' && !context.workspace?.review?.canReturn))
     const inactive = !replay && (
       record.status === 'paused'
       || record.status === 'skipped'
       || (record.status === 'completed' && record.masteryConfirmation !== 'pending')
     )
 
-    if (wrongSurface || unavailable || inactive) return this.hidden(definition, record, replay, error)
+    if (wrongSurface || inactive) return this.hidden(definition, record, replay, error)
+    if (replay && this.pausedReplays.has(this.key(record.courseRunId))) {
+      return { ...this.hidden(definition, record, replay, error), status: 'paused', currentStageId: stage.id, step: index + 1 }
+    }
+
+    const replayCopy = replay && stage.id === 'request-review'
+      ? { primaryLabel: 'Tiếp', body: 'Khi thực hành, bạn dùng nút cập nhật và kiểm tra để Triết duyệt bằng chứng. Nếu cần bổ sung, sửa trong task Codex rồi kiểm tra lại. Xem lại hướng dẫn không gửi bài để duyệt.' }
+      : replay && stage.id === 'return-to-course'
+        ? { primaryLabel: 'Tiếp', body: 'Khi Practice đạt yêu cầu, nút lưu kết quả sẽ đưa bạn về phần tiếp theo của khóa học. Xem lại hướng dẫn không thay đổi kết quả hoặc rời Practice.' }
+        : replay && confirmation
+          ? { title: 'Bạn đã xem lại hướng dẫn Practice', body: 'Tiếp tục công việc trong task Codex. Khi sẵn sàng, quay lại đây để kiểm tra bằng chứng và duyệt kết quả.', primaryLabel: 'Đã hiểu' }
+          : {}
+    const actionNotice = unavailable
+      ? 'Chưa thể thực hiện bước này. Hãy chờ thao tác hiện tại kết thúc; bạn có thể tạm dừng hướng dẫn để xem tiến độ.'
+      : !replay && stage.id === 'request-review' && context.workspace?.review?.status === 'needs-work'
+        ? context.workspace.review.result?.summary ?? 'Còn mục cần bổ sung. Sửa trong task Codex rồi kiểm tra lại.'
+        : undefined
 
     return {
       ...this.hidden(definition, record, replay, error),
       status: replay ? 'in-progress' : record.status,
       currentStageId: stage.id,
       step: index + 1,
-      presentation: stage.presentation,
+      presentation: replay && confirmation && context.surface !== 'learning' ? 'orientation-card' : stage.presentation,
       anchor: stage.anchor ?? null,
       title: stage.title,
       body: stage.body,
       primaryLabel: stage.primaryLabel ?? null,
-      secondaryLabel: stage.secondaryLabel ?? null
+      secondaryLabel: stage.secondaryLabel ?? null,
+      primaryDisabled: unavailable,
+      ...(actionNotice ? { actionNotice } : {}),
+      ...(context.surface === 'compact' && stage.id === 'configuration-evidence' ? {
+        body: 'Trong cửa sổ này, mở “Xem tất cả 5 bước” để xem các thiết lập cần làm và trạng thái đã xác minh. Sau khi đổi cấu hình trong task Codex, dùng nút cập nhật và kiểm tra để đọc bằng chứng mới nhất.'
+      } : {}),
+      ...replayCopy
     }
   }
 
@@ -246,6 +272,7 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
       } catch {
         const next = { ...value.record, lastStageId: 'request-review' }
         this.volatile.set(key, next)
+        this.unsaved.add(key)
         return { record: next, error: WARNING }
       }
     }
@@ -261,6 +288,7 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     } catch {
       const next = { ...value.record, lastStageId: 'return-to-course' }
       this.volatile.set(key, next)
+      this.unsaved.add(key)
       return { record: next, error: WARNING }
     }
   }
@@ -296,29 +324,41 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     if (!definition || !context.progress) return null
     const current = await this.state(definition, context)
     if (!current) return null
+    if (context.surface !== 'learning' && (
+      context.workspace?.activePractice?.runId !== current.record.practiceRunId
+      || context.workspace.activePractice.practiceId !== current.record.practiceId
+    )) return null
     const key = this.key(current.record.courseRunId)
     const stateIdentity = identity(definition, context, current.record) as PracticeGuideStateIdentity
     const replayIndex = this.replayStages.get(key)
 
     if (request.type === 'replay') {
       this.replayStages.set(key, 0)
+      this.pausedReplays.delete(key)
       return this.view(definition, current.record, context, true)
     }
 
     if (replayIndex !== undefined) {
-      if (request.type === 'skip') this.replayStages.delete(key)
+      if (request.type === 'pause' && request.expectedStageId === definition.stages[replayIndex]?.id) {
+        this.pausedReplays.add(key)
+      } else if (request.type === 'resume') this.pausedReplays.delete(key)
+      else if (request.type === 'skip' && request.expectedStageId === definition.stages[replayIndex]?.id) {
+        this.replayStages.delete(key)
+        this.pausedReplays.delete(key)
+      }
       else if (request.type === 'dismiss-confirmation'
         && definition.stages[replayIndex]?.presentation === 'mastery-confirmation') {
         this.replayStages.delete(key)
+        this.pausedReplays.delete(key)
       } else if (
         request.type === 'continue'
         || request.type === 'review-requested'
         || request.type === 'course-returned'
       ) {
         const stage = definition.stages[replayIndex]!
-        const reviewPassed = request.type !== 'review-requested'
-          || context.workspace?.review?.status === 'passed'
-        if (request.expectedStageId === stage.id && request.type === stage.advancement && reviewPassed) {
+        const reviewPassed = request.type !== 'review-requested' || context.workspace?.review?.status === 'passed'
+        const eventMatches = request.type === 'continue' || (request.type === stage.advancement && reviewPassed)
+        if (!this.pausedReplays.has(key) && request.expectedStageId === stage.id && eventMatches) {
           if (replayIndex >= definition.stages.length - 1) this.replayStages.delete(key)
           else this.replayStages.set(key, replayIndex + 1)
         }
@@ -327,13 +367,17 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
     }
 
     let record = current.record
+    if (record.status !== 'in-progress' && (request.type === 'continue' || request.type === 'review-requested' || request.type === 'course-returned')) {
+      return this.load(context)
+    }
     try {
+      if (this.unsaved.has(key)) throw new Error('Guide is continuing without persistence')
       if (request.type === 'pause') record = await this.states.pause(stateIdentity, request.expectedStageId)
       else if (request.type === 'resume') record = await this.states.resume(stateIdentity)
       else if (request.type === 'skip') record = await this.states.skip(stateIdentity, request.expectedStageId)
       else if (request.type === 'dismiss-confirmation') record = await this.states.dismissConfirmation(stateIdentity)
       else if (request.type === 'course-returned') {
-        record = await this.states.complete(stateIdentity, request.expectedStageId)
+        if (context.workspace?.review?.canReturn) record = await this.states.complete(stateIdentity, request.expectedStageId)
       } else if (request.type !== 'start') {
         const index = definition.stages.findIndex((stage) => stage.id === record.lastStageId)
         const stage = definition.stages[index]!
@@ -346,6 +390,7 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
       this.volatile.set(key, record)
       return this.load(context)
     } catch {
+      this.unsaved.add(key)
       const timestamp = new Date().toISOString()
       let fallback = record
       if (request.type === 'pause' && record.lastStageId === request.expectedStageId) {
@@ -364,7 +409,7 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
           masteryConfirmation: record.status === 'completed' ? 'dismissed' : record.masteryConfirmation,
           updatedAt: timestamp
         }
-      } else if (request.type === 'course-returned' && record.lastStageId === request.expectedStageId) {
+      } else if (request.type === 'course-returned' && record.lastStageId === request.expectedStageId && context.workspace?.review?.canReturn) {
         fallback = { ...record, status: 'completed', masteryConfirmation: 'pending', updatedAt: timestamp }
       } else if (request.type !== 'start') {
         const index = definition.stages.findIndex((stage) => stage.id === record.lastStageId)
@@ -382,7 +427,9 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
 
   async completeCourseReturn(context: PracticeGuideContext): Promise<void> {
     const definition = await this.definition()
-    if (!definition || !context.progress) return
+    if (!definition || !context.progress || !context.workspace?.review?.canReturn) return
+    this.replayStages.delete(this.key(context.progress.courseRunId))
+    this.pausedReplays.delete(this.key(context.progress.courseRunId))
     const current = await this.state(definition, context)
     if (!current || current.record.status !== 'in-progress') return
     const returnStage = definition.stages.find((stage) => stage.id === 'return-to-course')
@@ -400,7 +447,9 @@ export class PracticeGuideCoordinator implements PracticeGuideCoordinatorAdapter
 
   async reset(): Promise<void> {
     this.replayStages.clear()
+    this.pausedReplays.clear()
     this.volatile.clear()
+    this.unsaved.clear()
     await this.states.reset()
   }
 }

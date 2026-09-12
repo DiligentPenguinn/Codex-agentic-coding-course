@@ -22,6 +22,7 @@
     "src/renderer/src/components/PracticeProgress.tsx",
     "src/renderer/src/components/PortfolioPackageSubmission.tsx",
     "src/renderer/src/components/PracticeReturnAction.tsx",
+    "src/renderer/src/components/TeacherMarkdown.tsx",
     "src/renderer/src/components/practice-guide-anchors.ts",
     "tests/**/*.ts"
   ]

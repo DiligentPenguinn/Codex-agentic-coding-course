@@ -152,6 +152,12 @@ export class TestCodexGateway implements CodexRequestClient {
     }
     if (method === 'thread/unsubscribe' || method === 'turn/interrupt') return {}
     if (method === 'turn/start') {
+      if (thread.serviceName === 'content_builder_academy_teacher') {
+        const delay = Number(process.env.COURSE_COMPANION_FAKE_TEACHER_DELAY_MS ?? 0)
+        if (Number.isFinite(delay) && delay > 0) {
+          await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 10_000)))
+        }
+      }
       const turnId = `turn-${++this.sequence}`
       if (thread.serviceName === 'content_builder_academy_teacher' && this.failTeacherTurn) {
         this.failTeacherTurn = false
