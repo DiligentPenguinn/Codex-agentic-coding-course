@@ -42,6 +42,7 @@ class ScenarioGateway {
   private releaseHeldExecutorRead: (() => void) | null = null
   lastTeacherInput = ''
   lastTeacherDeveloperInstructions = ''
+  beforeTeacherAnswer: (() => Promise<void>) | null = null
   executorTurns = [
     {
       id: 'executor-turn-silent',
@@ -123,7 +124,12 @@ class ScenarioGateway {
         this.holdNextTeacherTurn = false
         return { turn: { id: turnId } }
       }
-      queueMicrotask(() => {
+      queueMicrotask(async () => {
+        if (!isSummary && this.beforeTeacherAnswer) {
+          const beforeAnswer = this.beforeTeacherAnswer
+          this.beforeTeacherAnswer = null
+          await beforeAnswer()
+        }
         if ((isSummary && this.failNextSummaryTurn) || (!isSummary && this.failNextTeacherTurn)) {
           if (isSummary) this.failNextSummaryTurn = false
           else this.failNextTeacherTurn = false
@@ -489,6 +495,18 @@ describe('TeacherService mock scenarios', () => {
     ]).toHaveLength(1)
     expect(JSON.stringify(planningMemory)).not.toContain('PRIVATE PRD CONTENT')
     expect(JSON.stringify(planningMemory)).not.toContain('PRIVATE PLAN CONTENT')
+
+    const beforeChangedLesson = (await chat.loadConversation()).messages.filter((message) => message.role === 'teacher').length
+    gateway.beforeTeacherAnswer = async () => {
+      await progress.save({
+        currentLessonId: 'module-1', currentCourseLessonId: 'm1-assessment',
+        checkpointId: 'm1-mastery', sceneId: 'module-1-final-2',
+        sceneHistory: ['module-1-final-1'], completedCheckpointIds: [], decisions: {}
+      })
+    }
+    await expect(service.sendMessage({ content: 'This answer belongs to the previous lesson.' })).rejects.toThrow('Teacher is unavailable')
+    expect((await chat.loadConversation()).messages.filter((message) => message.role === 'teacher')).toHaveLength(beforeChangedLesson)
+    expect((await service.loadState('expanded')).teacher.error).toContain('Bước học vừa thay đổi')
 
     gateway.holdNextTeacherTurn = true
     const inFlightSend = service.sendMessage({ content: 'This must not survive reset.' })

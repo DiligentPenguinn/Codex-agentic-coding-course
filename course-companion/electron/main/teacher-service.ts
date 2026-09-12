@@ -295,6 +295,13 @@ export class TeacherService {
       if (generation !== this.generation) {
         throw new TeacherInferenceError('adapter', 'TEACHER_RESET', 'Teacher request was cancelled by course reset')
       }
+      const latestProgress = await this.progressRepository.load()
+      const latestPractice = await this.practiceRepository.load()
+      if (latestPractice.activeRun
+        || (latestProgress.status !== 'returning' && latestProgress.status !== 'recovered')
+        || teacherProgressIdentity(latestProgress.progress) !== teacherProgressIdentity(progressResult.progress)) {
+        throw new TeacherInferenceError('adapter', 'TEACHER_CONTEXT_CHANGED', 'Course context changed during Teacher inference')
+      }
       const deliveredLearner = { ...learnerMessage, deliveryStatus: 'delivered' as const }
       const teacherMessage: TeacherMessage = {
         schemaVersion: 1,
@@ -645,6 +652,9 @@ function validateProposal(
 function teacherFailureMessage(error: unknown): string {
   if (!(error instanceof TeacherInferenceError)) {
     return 'Triết gặp lỗi không xác định. Tin nhắn đã được lưu; hãy thử lại.'
+  }
+  if (error.code === 'TEACHER_CONTEXT_CHANGED') {
+    return 'Bước học vừa thay đổi khi Triết đang trả lời. Hãy gửi lại câu hỏi ở bước hiện tại.'
   }
   if (error.code === 'TEACHER_TIMEOUT') {
     return 'Triết phản hồi quá thời gian. Tin nhắn đã được lưu; hãy thử lại.'

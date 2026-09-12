@@ -116,7 +116,8 @@ describe('TeacherCourseContextRepository', () => {
     const open = await repository.load(openProgress)
     const answered = await repository.load({
       ...openProgress,
-      decisions: { ...openProgress.decisions, 'assessment:m1-q1': 'correct:0' }
+      decisions: { ...openProgress.decisions, ...Object.fromEntries(
+        ['m1-q1', 'm1-q2', 'm1-q3', 'm1-q4', 'm1-q5-agents', 'm1-q6-skills'].map((id) => [`assessment:${id}`, 'correct:0'])) }
     })
 
     expect(open.activeAssessment).toMatchObject({
@@ -163,6 +164,21 @@ describe('TeacherCourseContextRepository', () => {
     }
     await expect(new TeacherCourseContextRepository(pilotWorkspace).load(crossModule))
       .rejects.toMatchObject({ code: 'COURSE_CONTEXT_INVALID_PROGRESS' })
+  })
+
+  it('keeps grouped quizzes open until every displayed question has an authoritative result', async () => {
+    const repository = new TeacherCourseContextRepository(pilotWorkspace)
+    const states = [
+      { moduleId: 'module-1' as const, currentCourseLessonId: 'm1-assessment' as const, checkpointId: 'm1-mastery' as const, sceneId: 'module-1-final-1' as const, first: 'm1-q1', second: 'm1-q2' },
+      { moduleId: 'module-2' as const, currentCourseLessonId: 'm2-portfolio-brief' as const, checkpointId: 'm2-portfolio-mastery' as const, sceneId: 'module-2-mastery-scenario-viewer' as const, first: 'mastery-1', second: 'mastery-4' },
+      { moduleId: 'module-3' as const, currentCourseLessonId: 'm3-independent-enhancement' as const, checkpointId: 'm3-mastery' as const, sceneId: 'module-3-mastery-plan' as const, first: 'm3-mastery-plan', second: 'm3-mastery-visible-error' },
+      { moduleId: 'module-4' as const, currentCourseLessonId: 'm4-ownership-transfer' as const, checkpointId: 'm4-mastery' as const, sceneId: 'module-4-mastery-release' as const, first: 'm4-mastery-release', second: 'm4-mastery-security' }
+    ]
+    for (const state of states) {
+      const result = await repository.load({ ...progress(state.moduleId), ...state,
+        decisions: { [`assessment:${state.first}`]: 'correct:0' } })
+      expect(result.activeAssessment).toMatchObject({ questionId: state.second, status: 'open' })
+    }
   })
 
   it('fails closed when a required source is missing', async () => {

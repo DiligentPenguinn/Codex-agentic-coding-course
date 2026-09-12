@@ -132,15 +132,23 @@ function activeAssessment(
   }
 
   let selected: { groupId: string; mode: 'formative' | 'mastery'; question: Record<string, unknown> } | null = null
+  // Companion displays the entire group on each question page. Keep coaching
+  // on an unanswered item even when the first item already has a saved result.
+  const nextQuestion = (values: unknown[]) => {
+    const questions = values.map(record).filter((item): item is Record<string, unknown> => item !== null)
+    return questions.find((item) => typeof item.id === 'string'
+      && progress.decisions[`assessment:${item.id}`] === undefined) ?? questions[0]
+  }
   if (progress.currentLessonId === 'module-1' && Array.isArray(quiz.questions)) {
     const match = /^module-1-final-(\d+)$/.exec(progress.sceneId)
-    const question = match ? record(quiz.questions[Number(match[1]) - 1]) : null
+    const question = match && quiz.questions[Number(match[1]) - 1] ? nextQuestion(quiz.questions) : null
     if (question) selected = { groupId: 'setup-final-assessment', mode: 'mastery', question }
   } else if (Array.isArray(quiz.groups)) {
     for (const candidate of quiz.groups) {
       const group = record(candidate)
       if (!group || !Array.isArray(group.questions)) continue
-      const question = group.questions.map(record).find((item) => item?.sceneId === progress.sceneId)
+      const question = group.questions.some((item) => record(item)?.sceneId === progress.sceneId)
+        ? nextQuestion(group.questions) : null
       if (question && typeof group.id === 'string') {
         selected = {
           groupId: group.id,

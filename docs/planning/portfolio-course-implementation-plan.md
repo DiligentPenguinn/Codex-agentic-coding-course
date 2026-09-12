@@ -69,6 +69,31 @@ All final checks pass. Simulated responses verify plumbing and presentation,
 not live model adherence or learner/pilot acceptance. The prior uncommitted
 live-rehearsal observations are preserved separately from this scoped change.
 
+### Ask Triết reliability follow-up — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / M2.3 / M2.5 — course Teacher chat | `implemented` | `passed` for typecheck, lint, 479 unit tests (two intentional skips), nine startup tests, production build, full Electron smoke, dedicated chat checks and scoped diff checks | Fix and isolated live check explicitly requested; final experience acceptance remains `pending` | `pending` | Try course chat with learner-owned questions; broader teaching-quality and module acceptance gates remain outstanding. |
+
+Teacher context now selects the next unanswered question in the displayed quiz
+group across Modules 1–4, preserving one-at-a-time coaching without treating the
+whole group as answered after its first saved result. Replies are rejected if
+the lesson context changes or Practice starts during inference. Failed learner
+messages remain available for retry; stale Teacher answers are not saved.
+Existing course copy, pages, routes, assessment gates and Practice chat exclusion
+are unchanged.
+
+Dedicated isolated Electron coverage verifies Home Base and lesson-page entry
+points, send/retry without duplicate messages, history after reopening, unchanged
+learner progress, keyboard behavior and desktop/390-pixel layouts. Screenshots
+were visually inspected. The default test uses explicitly simulated responses.
+One separately authorized live check sent course sources and one synthetic
+Module 2 planning question through the signed-in Codex service and received a
+relevant Vietnamese explanation. It used a disposable profile, with no personal
+progress or chat history. This proves the live explanation path, not general
+model adherence or pilot acceptance. Prior uncommitted live-rehearsal notes are
+preserved separately.
+
 ## Merge into the Practice branch — 11 September 2026
 
 ### Five-document Practice implementation — 11 September 2026
