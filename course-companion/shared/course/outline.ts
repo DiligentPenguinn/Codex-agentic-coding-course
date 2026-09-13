@@ -38,6 +38,7 @@ export const courseOutline: Record<LessonId, readonly OutlineSection[]> = {
     { title: 'Tổng kết Module 3', startSceneId: 'module-3-mastery-summary' }
   ],
   'module-4': [
+    { title: 'Hosting là gì?', startSceneId: 'module-4-hosting-intro' },
     { title: 'Kiểm chứng phiên bản phát hành', startSceneId: 'module-4-release-intro' },
     { title: 'Duyệt an toàn và phạm vi công bố', startSceneId: 'module-4-security-intro' },
     { title: 'Tạo và kiểm chứng Preview', startSceneId: 'module-4-preview-intro' },

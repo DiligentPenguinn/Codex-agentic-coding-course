@@ -20,6 +20,8 @@ export const moduleFourDefinition = {
     { id: 'm4-complete', courseLessonId: 'm4-ownership-transfer' }
   ],
   scenes: [
+    { id: 'module-4-hosting-intro', checkpointId: 'm4-release-validation', courseLessonId: 'm4-release-validation', nextSceneId: 'module-4-hosting-roles' },
+    { id: 'module-4-hosting-roles', checkpointId: 'm4-release-validation', courseLessonId: 'm4-release-validation', nextSceneId: 'module-4-release-intro' },
     { id: 'module-4-release-intro', checkpointId: 'm4-release-validation', courseLessonId: 'm4-release-validation', nextSceneId: 'module-4-check-release-evidence' },
     { id: 'module-4-check-release-evidence', checkpointId: 'm4-release-validation', courseLessonId: 'm4-release-validation' },
     { id: 'module-4-security-intro', checkpointId: 'm4-security-publication', courseLessonId: 'm4-security-publication', nextSceneId: 'module-4-check-protection-scope' },

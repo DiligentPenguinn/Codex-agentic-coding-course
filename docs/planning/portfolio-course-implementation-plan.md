@@ -11,7 +11,7 @@
   Module 2 is therefore still `in-progress` and owner acceptance remains
   pending. On the
   `practice-disabled-content-development` branch,
-  Module 4 learner content, five formative checks, and a six-question final
+  Module 4 learner content, the approved two-page hosting opening, five formative checks, and a six-question final
   review are implemented for session-only content review. Temporary review-only
   bypasses are available at every current Practice boundary. Module 4 Practice,
   artifact templates, completion, and graduation wiring remain deferred. The
@@ -40,7 +40,7 @@ and must never be inferred from a passing automated check.
 | Foundation | `implemented` | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, the temporary Module 1 quiz-review bypass, the simplified Module 1 review introduction, question-only assessment layout, and three-page Portfolio positioning were explicitly approved | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The delegated Teacher/Executor, five-document Practice, evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
 | Module 3 | `implemented` — the approved five-section lesson, 12 knowledge scenes, six illustrations, revised visible-error prompt example, repeated-error Codex prompt illustration, Git/GitHub image in place of that scene's standalone title box, non-overlapping commit-history illustration/dialogue layout, owner-supplied pre-Practice recap, final Teacher review, and five-question mastery check are wired into the Pilot and Course Companion. The redundant `module-3-practice-intro` setup scene remains retired; `module-3-git-branch` now opens `module-3-pre-practice-summary`, which then opens `module-3-portfolio-practice` | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, Git/GitHub image replacement with title-box removal, commit-history layout repair, retirement of the redundant Practice-transition slide, and exact owner-supplied pre-Practice recap were explicitly approved | `pending` | Present the passing implemented-content and full-app evidence for owner review. Live pilot acceptance remains pending. |
-| Module 4 | `M4.0 complete`; M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, session-only content-review route, temporary per-Practice review bypasses, and question-only assessment pages implemented on `practice-disabled-content-development`; redundant review banners and the dedicated header exit control removed by owner decision; artifact templates, Practice/evidence adapters, official completion, and graduation wiring deferred | `passed` for the content-first scope on 18 August 2026: typecheck, lint, 294 unit tests, nine startup tests, production build, desktop visual inspection of the question-only Module 4 layout, responsive Electron smoke, and byte-for-byte persisted-progress preservation after entering and exiting review through Home Base; macOS provider rehearsal passed on 16 August 2026; Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Modules 2–4 content and questions end to end; revise content without claiming completion, then wire Practice and graduation gates after content approval. |
+| Module 4 | `in-progress`; M4.0 provider rehearsal and the M4.1 lesson, script, prompt, assessments and session-only review are implemented. Two introductory hosting pages were added on 14 September 2026, with all existing pages preserved. Artifact templates, Practice/evidence adapters, official completion and graduation wiring remain deferred | `passed` for the hosting opening on 14 September 2026: typecheck, 24 focused tests, Electron build, focused Electron desktop inspection at 1440 × 900 and 1180 × 748, Module 4 outline and forward/back navigation, unchanged test progress, and scoped diff checks. Earlier content-first and macOS provider rehearsal evidence remains recorded below; Windows provider runtime remains unverified | `pending` overall; the beginner hosting explanation and the roles of the computer, GitHub and Vercel were explicitly approved. Earlier provider and review-UI approvals remain; full Module 4 content acceptance is pending | `pending` | Review the implemented hosting opening, then agree the next content section. The proposed GitHub publishing exercise, Vercel browser walkthrough and post-publication lessons still need detailed design and implementation. Wire Practice and graduation only after content approval. |
 
 ### Shared page navigation, 8 September 2026
 
@@ -2462,6 +2462,38 @@ screenshot inspection, and Electron smoke. The owner-approved review-UI
 simplification removes the two redundant status banners and dedicated header
 exit control while preserving session-only routing, the Home Base exit, and
 persisted-progress protection. The content itself still requires owner review.
+
+**Hosting opening — 14 September 2026**
+
+- Implementation: `implemented` for this addition; M4.1 overall remains
+  `in-progress` because its artifact and Practice contracts remain deferred.
+- Owner approval: the user approved the beginner explanation of hosting and
+  the roles of the computer, GitHub and Vercel, then requested implementation.
+  This is not approval of the remaining Module 4 content or pilot acceptance.
+- Added `module-4-hosting-intro` and `module-4-hosting-roles` before the existing
+  release-validation page. Both belong to `m4-release-validation`; no lesson,
+  checkpoint, Practice identity or completion gate was added or removed.
+- The Pilot lesson, Teacher script, start prompt, renderer, page registry,
+  outline and content-review entry agree on this opening. Local, Preview,
+  Production and deployment configuration are kept out of the two new pages.
+- Verification: `passed`. `npm run typecheck` and the four focused Vitest files
+  `module-four-content-contract`, `course-registry`, `course-outline` and
+  `content-review-mode` passed all 24 tests. `electron-vite build` supplied the
+  current application for a focused Electron inspection. Both new pages fit
+  1440 × 900 and 1180 × 748 without horizontal overflow, clipped copy or
+  overlapping navigation controls. Module 4 entry, outline destinations,
+  keyboard activation, forward/back navigation and return to Home Base passed;
+  disposable learner progress remained byte-for-byte unchanged.
+- Evidence: `tmp/module-4-hosting-2026-09-14/` contains four screenshots and
+  `measurements.json`. These local inspection artifacts are not checkpointed.
+- The acceptance gate is focused because this is additive content and local
+  page routing. Shared navigation behavior, persistence, Practice and unlock
+  gates were not changed. Full lint, the complete test suite and the full
+  Electron journey were not required or claimed for this addition.
+- Remaining work: review the rendered opening, then agree and implement the
+  next learner section. The GitHub publishing exercise, revised browser-based
+  Vercel flow, annotated screenshots and update/recovery lessons remain proposed
+  work. They are not implemented by this checkpoint.
 
 **Change**
 

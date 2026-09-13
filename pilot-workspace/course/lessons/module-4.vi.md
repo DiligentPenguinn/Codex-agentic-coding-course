@@ -1,5 +1,25 @@
 # Module 4 — Kiểm chứng, phát hành và chứng minh quyền sở hữu
 
+## Hosting là gì?
+
+Bạn đã làm xong portfolio và mở được nó trên máy. Bây giờ, bạn muốn gửi cho một người bạn xem. Nhưng đường dẫn `localhost` bạn đang dùng chỉ trỏ về máy đang mở nó, nên gửi đường dẫn này chưa giúp người kia xem được portfolio.
+
+Bạn cần đặt website ở một nơi có thể truy cập qua Internet. Dịch vụ cung cấp nơi đó được gọi là **hosting**.
+
+Khi website đã được đưa lên đó, người khác có thể mở bằng đường link, kể cả khi bạn đã tắt máy. Trong khóa học này, chúng ta sẽ dùng Vercel để làm việc đó.
+
+## Máy tính, GitHub và Vercel làm gì?
+
+Trong bài thực hành này, mỗi nơi có một vai trò:
+
+| Nơi | Vai trò trong bài thực hành |
+|---|---|
+| Máy tính của bạn | Nơi bạn cùng agent xây và sửa portfolio. |
+| GitHub | Nơi lưu code và lịch sử thay đổi của dự án trên mạng. |
+| Vercel | Lấy code của dự án và đưa website lên để người khác truy cập. |
+
+GitHub lưu code của bạn, còn Vercel giúp người khác mở website.
+
 ## Kết quả của module
 
 Bạn sẽ biến portfolio đã xây thành một phiên bản sẵn sàng phát hành, có thể giải thích và khôi phục. Trước tiên, bạn kiểm chứng lại yêu cầu và duyệt an toàn trước khi đưa dữ liệu ra ngoài máy. Sau đó, bạn tạo một Vercel Preview, quyết định có đưa portfolio lên Production hay không, rồi chứng minh rằng bạn hiểu và làm chủ các quyết định quan trọng.

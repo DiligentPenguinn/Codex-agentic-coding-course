@@ -50,6 +50,28 @@ const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
 })) as Partial<Record<SceneId, RegistrySceneContent>>
 
 const instructionalScenes = {
+  'module-4-hosting-intro': {
+    lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 4 · HOSTING', mission: 'Để người khác xem được portfolio',
+    objective: 'Hiểu vì sao website cần một nơi trên Internet', panelLabel: 'HOSTING LÀ GÌ?',
+    panelStatus: 'TỪ MÁY CỦA BẠN RA INTERNET', tone: 'neutral',
+    request: 'Website cần một nơi để người khác truy cập, kể cả khi bạn tắt máy.',
+    evidence: [],
+    dialogue: 'Bạn đã làm xong portfolio và mở được nó trên máy. Bây giờ, bạn muốn gửi cho một người bạn xem. Nhưng đường dẫn localhost bạn đang dùng chỉ trỏ về máy đang mở nó, nên gửi đường dẫn này chưa giúp người kia xem được portfolio.\n\nBạn cần đặt website ở một nơi có thể truy cập qua Internet. Dịch vụ cung cấp nơi đó được gọi là hosting.\n\nKhi website đã được đưa lên đó, người khác có thể mở bằng đường link, kể cả khi bạn đã tắt máy. Trong khóa học này, chúng ta sẽ dùng Vercel để làm việc đó.',
+    highlightTerms: ['localhost', 'hosting', 'Vercel'],
+    choices: [{ label: 'Máy tính, GitHub và Vercel làm gì?', next: 'module-4-hosting-roles', primary: true }]
+  },
+  'module-4-hosting-roles': {
+    lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 4 · HOSTING', mission: 'Phân biệt nơi sửa code, lưu code và mở website',
+    objective: 'Hiểu vai trò của máy tính, GitHub và Vercel', panelLabel: 'BA NƠI, BA VAI TRÒ',
+    panelStatus: 'MÁY TÍNH · GITHUB · VERCEL', tone: 'neutral',
+    request: 'GitHub lưu code của bạn, còn Vercel giúp người khác mở website.',
+    evidence: [],
+    dialogue: 'Trong bài thực hành này, mỗi nơi có một vai trò:\n\nMáy tính của bạn là nơi bạn cùng agent xây và sửa portfolio.\n\nGitHub là nơi lưu code và lịch sử thay đổi của dự án trên mạng.\n\nVercel lấy code của dự án và đưa website lên để người khác truy cập.',
+    highlightTerms: ['Máy tính của bạn', 'GitHub', 'Vercel'],
+    choices: [{ label: 'Kiểm chứng trước khi đưa website lên mạng', next: 'module-4-release-intro', primary: true }]
+  },
   'module-4-release-intro': {
     lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
     lessonLabel: 'MODULE 4 · PHIÊN BẢN PHÁT HÀNH', mission: 'Kiểm chứng trước khi đưa ra ngoài máy',

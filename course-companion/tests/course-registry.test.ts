@@ -188,6 +188,14 @@ describe('portfolio course registry', () => {
 
   it('registers the complete Module 4 content journey while preserving its deferred Practice identity', () => {
     const moduleFour = portfolioModuleDefinitions[2]
+    expect(moduleFour.scenes.slice(0, 4).map((scene) => scene.id)).toEqual([
+      'module-4-hosting-intro',
+      'module-4-hosting-roles',
+      'module-4-release-intro',
+      'module-4-check-release-evidence'
+    ])
+    expect(moduleFour.scenes[0]?.nextSceneId).toBe('module-4-hosting-roles')
+    expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-release-intro')
     expect(moduleFour.lessons).toHaveLength(5)
     expect(moduleFour.quizGroupIds).toEqual([
       'release-validation-retrieval',

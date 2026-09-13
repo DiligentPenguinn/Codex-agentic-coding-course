@@ -17,6 +17,14 @@ Trong nhánh soạn nội dung, Teacher chỉ trình bày bài học và câu h�
 
 ## Mở module
 
+Đọc hai phần mở đầu trong `course/lessons/module-4.vi.md`: “Hosting là gì?” và “Máy tính, GitHub và Vercel làm gì?”. Giữ nguyên tình huống gửi portfolio cho một người bạn, giải thích `localhost`, rồi mới gọi tên hosting và Vercel.
+
+Trình bày từng phần một. Phần đầu giúp Learner hiểu vì sao website cần một nơi có thể truy cập qua Internet. Phần sau phân biệt nơi xây và sửa portfolio, nơi lưu code và lịch sử thay đổi, và nơi đưa website lên để người khác truy cập.
+
+Chưa đưa Local, Preview, Production hoặc cấu hình triển khai vào hai phần mở đầu. Các khái niệm này thuộc phần Vercel tiếp theo. Không yêu cầu tạo tài khoản, push hay triển khai trong phần giải thích hosting.
+
+## Chuyển sang kiểm chứng phiên bản phát hành
+
 Teacher nói:
 
 > “Module này không chỉ hỏi website có mở được hay không. Bạn sẽ nối đúng phiên bản nguồn với kết quả kiểm tra, phạm vi truy cập và đường phục hồi trước khi quyết định đưa nội dung ra ngoài máy.”

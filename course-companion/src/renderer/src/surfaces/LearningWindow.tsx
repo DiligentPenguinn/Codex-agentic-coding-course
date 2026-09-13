@@ -1078,7 +1078,7 @@ type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
 const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
   'module-2': 'module-2-portfolio-workspace',
   'module-3': 'module-3-debugging-intro',
-  'module-4': 'module-4-release-intro'
+  'module-4': 'module-4-hosting-intro'
 }
 
 // Temporary review-only scaffolding for practice-disabled-content-development.

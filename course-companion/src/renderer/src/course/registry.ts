@@ -79,6 +79,8 @@ const rendererModules = [
     lessons: moduleFourDefinition.lessons,
     lessonPages: {
       'm4-release-validation': [
+        ['module-4-hosting-intro'],
+        ['module-4-hosting-roles'],
         ['module-4-release-intro'],
         ['module-4-check-release-evidence']
       ],

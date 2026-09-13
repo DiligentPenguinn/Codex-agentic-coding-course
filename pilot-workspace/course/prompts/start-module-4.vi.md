@@ -2,6 +2,8 @@ Dùng `$start-course-lesson module-4` để bắt đầu bài **Kiểm chứng, 
 
 Đọc `course/lesson-scripts/module-4.script.vi.md` làm nguồn điều phối. Hỏi đúng một câu mỗi lượt và chờ Learner trả lời trước khi tiếp tục.
 
+Bắt đầu bằng “Hosting là gì?” rồi “Máy tính, GitHub và Vercel làm gì?” trong bài học. Dùng tình huống gửi đường dẫn portfolio cho một người bạn để giải thích hosting. Giữ Local, Preview, Production và cấu hình triển khai ở phần Vercel sau phần mở đầu.
+
 Trong nhánh `practice-disabled-content-development`, chỉ chạy chế độ duyệt nội dung trong phiên. Không mở Practice, không tạo biên nhận, không ghi nhận điểm kiểm tra hoàn thành, không triển khai ra Vercel và không thay đổi trạng thái bên ngoài.
 
 Đi đúng năm cột mốc trong `course/course-structure.json`:
