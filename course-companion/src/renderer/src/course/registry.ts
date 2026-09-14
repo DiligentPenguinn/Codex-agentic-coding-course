@@ -55,6 +55,11 @@ const rendererModules = [
         ['module-3-git-push'],
         ['module-3-git-branch'],
         ['module-3-git-merge'],
+        ['module-3-github-publish'],
+        ['module-3-github-preflight'],
+        ['module-3-github-create'],
+        ['module-3-github-push-practice'],
+        ['module-3-github-verify'],
         ['module-3-pre-practice-summary']
       ],
       'm3-evidence-debugging': [
@@ -81,23 +86,46 @@ const rendererModules = [
       'm4-release-validation': [
         ['module-4-hosting-intro'],
         ['module-4-hosting-roles'],
+        ['module-4-vercel-benefits'],
+        ['module-4-vercel-limits'],
+        ['module-4-environments'],
         ['module-4-release-intro'],
+        ['module-4-release-checklist'],
         ['module-4-check-release-evidence']
       ],
       'm4-security-publication': [
         ['module-4-security-intro'],
+        ['module-4-security-access'],
+        ['module-4-security-setup'],
         ['module-4-check-protection-scope']
       ],
       'm4-preview-deployment': [
         ['module-4-preview-intro'],
+        ['module-4-vercel-import'],
+        ['module-4-vercel-repository'],
+        ['module-4-vercel-prepare'],
+        ['module-4-vercel-config'],
+        ['module-4-vercel-deploy'],
+        ['module-4-vercel-preview'],
+        ['module-4-preview-review'],
         ['module-4-check-preview-evidence']
       ],
       'm4-production-decision': [
         ['module-4-production-intro'],
+        ['module-4-production-publish'],
+        ['module-4-production-checks'],
+        ['module-4-share-details'],
+        ['module-4-update-workflow'],
+        ['module-4-update-verify'],
+        ['module-4-deploy-errors'],
+        ['module-4-rollback'],
+        ['module-4-rollback-resume'],
         ['module-4-check-production-choice']
       ],
       'm4-ownership-transfer': [
         ['module-4-ownership-intro'],
+        ['module-4-handover'],
+        ['module-4-transfer'],
         ['module-4-check-transfer-boundary'],
         ['module-4-portfolio-practice'],
         ['module-4-portfolio-mastery'],
@@ -105,6 +133,8 @@ const rendererModules = [
         ['module-4-mastery-security'],
         ['module-4-mastery-preview'],
         ['module-4-mastery-production'],
+        ['module-4-mastery-update'],
+        ['module-4-mastery-recovery'],
         ['module-4-mastery-owned-release'],
         ['module-4-mastery-owned-transfer'],
         ['module-4-mastery-summary'],

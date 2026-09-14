@@ -1,143 +1,86 @@
-# Teacher Script — Module 4: Kiểm chứng, phát hành và chứng minh quyền sở hữu
+# Kịch bản Teacher — Module 4
 
-## Mục tiêu điều phối
+## Cách dạy và ranh giới hiện tại
 
-Teacher giúp Learner đi từ portfolio chạy được đến một phiên bản sẵn sàng phát hành, một Preview đã kiểm chứng, một quyết định Production có chủ đích và một gói chứng minh quyền sở hữu. Hỏi đúng một câu mỗi lượt. Không gộp phê duyệt tệp, mạng, đăng nhập, triển khai Preview và Production thành một câu hỏi chung.
+Dùng nội dung trong `course/lessons/module-4.vi.md` theo thứ tự bên dưới. Đối tượng là người chỉ biết dùng máy tính, chưa có nền tảng kỹ thuật. Đọc từng trang, cho người học làm một bước hoặc trả lời một câu rồi mới đi tiếp. Không yêu cầu người học đọc code, ghi nhớ lệnh hoặc tự đoán cấu hình.
 
-Trong nhánh soạn nội dung, Teacher chỉ trình bày bài học và câu hỏi. Không mở Practice, không tạo biên nhận, không triển khai và không ghi nhận hoàn thành chính thức.
+Giữ nguyên hai đoạn mở đầu về hosting và ba vai trò. Chỉ giới thiệu Local, Preview, Production sau đó. Trong bài này, agent kiểm tra kỹ thuật và giải thích; người học sở hữu nội dung, tài khoản, việc cấp quyền và quyết định push/deploy/công khai. Người học tự nhập mật khẩu và mã xác nhận trên dịch vụ.
 
-## Ranh giới cố định
+Dùng repo thật đã được đưa lên GitHub ở Module 3. Nếu chỉ có bản Local, quay lại phần thực hành GitHub và đối chiếu repo, branch, commit, Private/Public trước khi import. Nhánh hiện tại chỉ duyệt nội dung trong phiên; không tạo biên nhận Practice hoặc tốt nghiệp, không lấy thao tác bấm tiếp làm bằng chứng.
 
-- Không yêu cầu Learner đọc code hoặc diff để được công nhận.
-- Không coi URL, bản dựng thành công hoặc lời báo của Codex là bằng chứng đầy đủ.
-- Không đưa secret, token hoặc nội dung nhạy cảm vào cuộc trò chuyện, nhật ký hay tài liệu.
-- Không thêm backend, authentication, analytics, payment, database hoặc dịch vụ xử lý dữ liệu vào phiên bản phát hành chuẩn.
-- Preview đã kiểm chứng là bắt buộc; Production là lựa chọn.
-- Mọi hành động mạng, đăng nhập, tạo project, thay đổi chế độ bảo vệ, triển khai, đưa lên Production, quay lại phiên bản trước hoặc xóa đều cần phê duyệt tại đúng thời điểm.
+## Milestone 1 — Hosting, Vercel và bản chuẩn bị phát hành
 
-## Mở module
+Giải thích hosting từ vấn đề gửi link localhost. Dùng cùng portfolio để phân biệt nơi sửa, nơi lưu code và nơi mở website. Nêu lợi ích Vercel, điều kiện Hobby và giới hạn sử dụng trước khi chọn gói. Dạy Local/Preview/Production rồi cho người học kiểm tra yêu cầu, nội dung, thao tác, desktop và mobile của portfolio. `npm run preview` vẫn là bản cục bộ. Dùng câu `release-validation-retrieval` sau toàn bộ phần này.
 
-Đọc hai phần mở đầu trong `course/lessons/module-4.vi.md`: “Hosting là gì?” và “Máy tính, GitHub và Vercel làm gì?”. Giữ nguyên tình huống gửi portfolio cho một người bạn, giải thích `localhost`, rồi mới gọi tên hosting và Vercel.
+Các trang theo thứ tự:
 
-Trình bày từng phần một. Phần đầu giúp Learner hiểu vì sao website cần một nơi có thể truy cập qua Internet. Phần sau phân biệt nơi xây và sửa portfolio, nơi lưu code và lịch sử thay đổi, và nơi đưa website lên để người khác truy cập.
+- Vercel giúp bạn làm gì?
+- Tiện, nhưng cần hiểu giới hạn
+- Một portfolio, ba nơi để xem
+- Trước khi đưa website lên mạng
+- Thử như một người lần đầu ghé xem
 
-Chưa đưa Local, Preview, Production hoặc cấu hình triển khai vào hai phần mở đầu. Các khái niệm này thuộc phần Vercel tiếp theo. Không yêu cầu tạo tài khoản, push hay triển khai trong phần giải thích hosting.
+## Milestone 2 — Nội dung và quyền truy cập
 
-## Chuyển sang kiểm chứng phiên bản phát hành
+Rà tệp có thể truy cập trực tiếp, quyền dùng tư liệu và mã bí mật trong cả lịch sử trước hành động mạng. Dạy Private/Public của repo khác quyền website. Hướng dẫn team Default Protection: Vercel Authentication + All Deployments trước import, kiểm tra lại ở project sau đó. Standard Protection không bảo vệ địa chỉ Production chính. Nếu không xác định được quyền trước Deploy, dừng và xem màn hình hiện tại; không tự hạ bảo vệ. Dùng `security-publication-retrieval`.
 
-Teacher nói:
+Các trang theo thứ tự:
 
-> “Module này không chỉ hỏi website có mở được hay không. Bạn sẽ nối đúng phiên bản nguồn với kết quả kiểm tra, phạm vi truy cập và đường phục hồi trước khi quyết định đưa nội dung ra ngoài máy.”
+- Nội dung nào được phép đưa lên mạng?
+- Repo riêng tư không làm website riêng tư
+- Đặt quyền trước lần triển khai đầu
 
-Teacher hỏi:
+## Milestone 3 — Đưa portfolio lên Vercel và tạo Preview
 
-> “Bạn muốn bắt đầu bằng việc đối chiếu phiên bản sẵn sàng phát hành hiện tại với PRD không?”
+Hướng dẫn bằng trình duyệt: New Project → Import Git Repository → cấp quyền đúng repo → Import → đối chiếu cài đặt → Deploy → đọc kết quả. Lần đầu luôn là Production nhưng phải giữ được bảo vệ. Sau đó tạo một thay đổi nhỏ trên branch khác Production Branch để có Preview thật. Kiểm tra Ready, môi trường, commit, URL, hành vi và quyền truy cập. Cho người học ghi bằng chứng của chính họ. Không bắt buộc CLI `inspect`; dashboard có thể cung cấp thông tin tương đương. Dùng `preview-deployment-retrieval`.
 
-[Chờ Learner. Ở chế độ duyệt nội dung, chuyển sang Milestone 1 mà không đọc workspace hoặc tạo bằng chứng thật.]
+Các trang theo thứ tự:
 
-## Milestone 1 — Kiểm chứng phiên bản phát hành
+- Chuẩn bị lần triển khai đầu
+- Mở trang tạo project
+- Chọn đúng repo
+- Để agent chuẩn bị cài đặt
+- Đối chiếu cài đặt với agent
+- Bấm Deploy và đọc kết quả
+- Tạo một Preview để tập cập nhật
+- Mở đúng bản rồi mới chấp nhận
 
-Teacher giải thích ba lớp bằng chứng:
+## Milestone 4 — Công bố, cập nhật và khôi phục
 
-1. PRD và tiêu chí chấp nhận nói điều cần đạt.
-2. Kiểm tra tự động cho biết ứng dụng có vượt qua các phép kiểm tra kỹ thuật đã cấu hình hay không.
-3. Bằng chứng trình duyệt cho biết người dùng thật sự nhìn thấy và thao tác được điều gì.
+Phân biệt tạo deployment Production với công khai website. Công khai Production là lựa chọn; người học được giữ bảo vệ và ghi việc cần làm tiếp. Nếu đồng ý cập nhật, merge/push branch đã kiểm tra vào Production Branch, kiểm tra deployment mới và địa chỉ chính. Chỉ đổi quyền của đúng project khi có quyết định công khai. Dạy kiểm tra sau công bố, cách chia sẻ, tên miền tùy chọn, cập nhật nhỏ, lỗi build, rollback và Undo Rollback. Sau rollback, push mới không tự thay địa chỉ chính cho đến khi khôi phục cơ chế phát hành. Không yêu cầu gây lỗi trên website thật. Dùng `production-decision-retrieval`.
 
-Trong Practice sau này, Codex phải lập báo cáo kiểm chứng phát hành, chạy `npm run check`, mở `npm run preview` và kiểm tra `1440 × 900` cùng `390 × 844`.
+Các trang theo thứ tự:
 
-Teacher hỏi:
+- Bạn quyết định lúc nào công khai
+- Đưa bản đã duyệt vào website chính
+- Kiểm tra sau khi công bố
+- Để đường link sẵn sàng chia sẻ
+- Muốn chỉnh portfolio thì làm thế nào?
+- Giao một lần sửa có điểm dừng
+- Khi Vercel báo lỗi
+- Khi cần quay lại bản đang hoạt động
+- Tiếp tục phát hành sau khi khôi phục
 
-> “Nếu `npm run check` đạt nhưng thanh điều hướng trong Preview cục bộ không đi tới Contact, điều kiện phát hành nên đạt hay chưa đạt?”
+## Milestone 5 — Làm chủ portfolio và áp dụng cho dự án khác
 
-[Chờ Learner. Sau câu trả lời mới đưa phản hồi và nguồn.]
+Người học tự giải thích một quyết định dựa trên bằng chứng thật, rồi lưu ghi chú quản lý repo, Vercel, phiên bản, cập nhật và khôi phục. Bài chuyển giao chỉ lập kế hoạch cho ứng dụng khác, không mở thêm một lần xây ứng dụng. Dùng `ownership-transfer-retrieval`, rồi Practice khi được nối lại, sau đó tám câu cuối bài từng câu một. Preview đã kiểm chứng là điều kiện bắt buộc của Practice dự kiến; lựa chọn chưa công khai không làm mất kết quả này.
 
-Nếu có lỗi chặn, Teacher quay lại vòng: tái hiện → mong đợi/thực tế → bằng chứng → một giả thuyết → thay đổi nhỏ nhất → kiểm tra gốc và hồi quy.
+Các trang theo thứ tự:
 
-## Milestone 2 — Duyệt an toàn và phạm vi công bố
+- Bạn cần nắm gì về portfolio của mình?
+- Lưu lại để lần sau tiếp tục được
+- Thử áp dụng cho một việc khác
 
-Teacher nói:
+## Ảnh, nguồn và bằng chứng
 
-> “Trước khi đưa dữ liệu ra mạng, chúng ta kiểm tra cả điều có thể lộ và ai có thể xem. ‘Có thật’ và ‘được phép công khai’ vẫn là hai câu hỏi riêng.”
+Ba ảnh tham chiếu được chụp qua trình duyệt ngày 14/09/2026: trang New Project chưa đăng nhập và hai hình giao diện trong tài liệu Vercel. Course Companion đặt các số chú thích trên ảnh gốc và giữ chúng khi phóng to. Các ảnh cài đặt không phải ảnh tài khoản người học và không xác nhận hành động đã thành công. Nếu màn hình khác, đối chiếu tài liệu chính thức trong cuối lesson thay vì đoán vị trí nút.
 
-Teacher đi lần lượt qua secret, `.env`, lịch sử Git, phạm vi truy cập repository, dữ liệu cá nhân, quyền tài sản, metadata, liên kết ngoài, cảnh báo dependency, chế độ bảo vệ và đường phục hồi. Mỗi phát hiện chặn chỉ hỏi một quyết định.
+Luồng CLI dùng trang khởi tạo trung tính đã được thử trước đây chỉ là bằng chứng lịch sử. Nó không còn là luồng bắt buộc của bài trình duyệt này và không chứng minh luồng mới đã được diễn tập với tài khoản thật. Không mô tả Production đầu tiên là bắt buộc công khai.
 
-Nếu xuất hiện dịch vụ xử lý dữ liệu, Teacher khuyến nghị:
+## Đánh giá
 
-> “Mình đề xuất bỏ tính năng này khỏi phiên bản phát hành hiện tại để giữ đúng phạm vi khóa học. Nếu bạn muốn giữ nó, chúng ta cần dừng và mở một phạm vi bảo mật riêng.”
+Năm câu nhanh và tám câu cuối bài nằm trong `course/quizzes/module-4.quiz.json`. Chỉ hiện đáp án, lời giải và nguồn sau câu trả lời hiện tại. Câu tự viết dựa trên bằng chứng hiện tại của người học; thiếu bằng chứng thì hướng dẫn họ bổ sung, không đưa câu trả lời mẫu để chép.
 
-Teacher hỏi:
+Practice và bài kiểm tra là hai điều kiện độc lập. Giữ Practice/evidence adapters, receipt và tốt nghiệp ở trạng thái hoãn trong nhánh soạn nội dung. Không ghi nhận hoàn thành chính thức hoặc suy ra chấp nhận từ việc duyệt hết các trang.
 
-> “Standard Protection đang bật cho Preview nhưng domain Production vẫn công khai. Bạn sẽ ghi phạm vi truy cập của hai môi trường này như thế nào?”
-
-[Chờ Learner. Không chấp nhận câu trả lời suy ra mọi URL đều riêng tư.]
-
-## Milestone 3 — Tạo và kiểm chứng Preview
-
-Teacher trình bày luồng đã duyệt nhưng chưa thực hiện:
-
-1. kiểm tra phát hành và riêng tư trên máy;
-2. phê duyệt tác động bên ngoài;
-3. trang khởi tạo trung tính cho lần tạo project đầu;
-4. kiểm tra Vercel Authentication và Standard Protection;
-5. liên kết đúng portfolio, kiểm tra tệp sinh ra và quy tắc bỏ qua tệp;
-6. triển khai portfolio thật không có `--prod`;
-7. `vercel inspect` xác nhận Preview và `Ready`, rồi đọc nhật ký;
-8. mở URL, kiểm tra trực tiếp và xác nhận phạm vi truy cập.
-
-Teacher nói rõ: lần kiểm chứng cho thấy lần triển khai đầu của project mới có thể trở thành Production dù không dùng `--prod`. Trang khởi tạo phải không có tên, nội dung portfolio, secret hoặc tài sản riêng tư.
-
-Teacher hỏi:
-
-> “Sau khi có URL Preview, bạn cần thêm bằng chứng nào trước khi chấp nhận bản triển khai?”
-
-[Câu trả lời cần nêu phiên bản nguồn, môi trường đích, trạng thái, nhật ký, kiểm tra trực tiếp và phạm vi truy cập đã quan sát.]
-
-Nếu phiên bản nguồn thay đổi, Teacher đánh dấu bằng chứng triển khai là cũ. Sau đó, Teacher hỏi Learner muốn triển khai lại hay quay về phiên bản đã chấp nhận.
-
-## Milestone 4 — Quyết định Production
-
-Teacher tách Preview khỏi Production:
-
-> “Preview đã đạt không cấp quyền đưa portfolio lên Production. Production có thể làm nội dung truy cập được qua domain thật và cần một quyết định mới.”
-
-Teacher hỏi đúng một lựa chọn:
-
-> “Với phiên bản phát hành và phạm vi truy cập hiện tại, bạn chọn chưa đưa lên Production hay muốn bắt đầu danh sách kiểm tra Production mới?”
-
-Nếu Learner chọn chưa đưa lên Production, lưu lý do và việc cần làm sau này. Lựa chọn này không làm mất khả năng đạt điều kiện tốt nghiệp.
-
-Nếu Learner muốn Production, chạy lại danh sách kiểm tra an toàn trên phiên bản hiện tại và trình bày hành động chính xác. Sau khi được phê duyệt, kiểm tra trực tiếp và ghi đường phục hồi. Không tự dùng `--prod`, đưa bản Preview lên Production hoặc quay lại phiên bản trước.
-
-## Milestone 5 — Quyền sở hữu và chuyển giao
-
-Teacher hỏi từng câu, không xếp chồng:
-
-1. “Người xem chính của bạn là ai và quyết định nào trong portfolio phục vụ họ?”
-2. “Bạn đã điều chỉnh tham chiếu thế nào để không sao chép?”
-3. “Lần cải thiện nào bắt đầu từ một điều bạn quan sát được?”
-4. “Trong lần gỡ lỗi, bằng chứng nào làm bạn chọn giả thuyết?”
-5. “Preview nào gắn với phiên bản nguồn nào và bạn đã kiểm tra phạm vi truy cập ra sao?”
-6. “Bạn chọn gì cho Production và vì sao?”
-7. “Giới hạn nào của portfolio vẫn còn?”
-
-Sau mỗi câu, Teacher yêu cầu dẫn chiếu tài liệu hoặc quan sát thật. Nếu Learner chỉ lặp lại bài, dùng gợi ý nhỏ nhất để họ tìm về bằng chứng của mình.
-
-Cuối cùng Teacher hỏi:
-
-> “Bạn muốn áp dụng cùng quy trình cho một ứng dụng nhỏ nào khác portfolio?”
-
-[Ứng dụng chuyển giao phải là dự án khác. Chỉ cần bản mô tả ngắn, yêu cầu ban đầu, cách kiểm chứng và nhiệm vụ đầu tiên có giới hạn; không triển khai.]
-
-## Phần ôn tập
-
-Đọc `course/quizzes/module-4.quiz.json`. Hỏi từng câu và chờ Learner trả lời trước khi hiện giải thích hoặc nguồn. Câu tự viết phải dùng tài liệu và quan sát của Learner; ví dụ trong bài không được tính là bằng chứng đạt.
-
-Trong chế độ duyệt nội dung, cho phép đi hết câu hỏi nhưng không tạo biên nhận làm chủ, biên nhận tốt nghiệp hoặc checkpoint hoàn thành. Khi Practice được nối lại, biên nhận Practice và biên nhận làm chủ vẫn là hai điều kiện riêng.
-
-## Nguồn Teacher phải đối chiếu trước triển khai thật
-
-- `docs/planning/portfolio-course-vercel-rehearsal-2026-08-16.md`
-- [Vercel Environments](https://vercel.com/docs/deployments/environments)
-- [Vercel Deployment Protection](https://vercel.com/docs/deployment-protection)
-- [Vercel CLI](https://vercel.com/docs/cli)
-- [Vercel Rollback](https://vercel.com/docs/cli/rollback)
+Trong Course Companion hiện tại, bản duyệt nội dung hiển thị cả nhóm câu hỏi trên một trang. Quy tắc từng câu một áp dụng khi Teacher dạy trực tiếp; chưa mô tả giao diện duyệt hiện tại là đã thực hiện quy tắc đó.

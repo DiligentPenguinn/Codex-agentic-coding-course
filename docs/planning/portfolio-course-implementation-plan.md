@@ -11,12 +11,17 @@
   Module 2 is therefore still `in-progress` and owner acceptance remains
   pending. On the
   `practice-disabled-content-development` branch,
-  Module 4 learner content, the approved two-page hosting opening, five formative checks, and a six-question final
-  review are implemented for session-only content review. Temporary review-only
+  Module 3 now includes the GitHub publishing exercise and a manual repo check
+  before mastery. Module 4 includes the approved hosting opening, the full
+  browser publication/update/recovery journey, three annotated browser references,
+  five formative checks and an eight-question final review for session-only
+  content review. GPT-5.6 Sol (high) completed the requested content review;
+  its required findings were addressed in the batch. Temporary review-only
   bypasses are available at every current Practice boundary. Module 4 Practice,
   artifact templates, completion, and graduation wiring remain deferred. The
-  M4.0 provider rehearsal is complete, and the Codex-operated CLI flow with a
-  neutral public bootstrap was approved on 16 August 2026. F0.2 was removed by
+  historical M4.0 CLI rehearsal passed on 16 August 2026. The browser flow added
+  on 14 September has current documentation and read-only screenshot evidence;
+  its authenticated end-to-end rehearsal remains pending. F0.2 was removed by
   decision on 14 August 2026.
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
@@ -39,8 +44,8 @@ and must never be inferred from a passing automated check.
 |---|---|---|---|---|---|
 | Foundation | `implemented` | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, the temporary Module 1 quiz-review bypass, the simplified Module 1 review introduction, question-only assessment layout, and three-page Portfolio positioning were explicitly approved | `pending` | Present the Foundation evidence for owner review; do not infer overall approval. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The delegated Teacher/Executor, five-document Practice, evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
-| Module 3 | `implemented` — the approved five-section lesson, 12 knowledge scenes, six illustrations, revised visible-error prompt example, repeated-error Codex prompt illustration, Git/GitHub image in place of that scene's standalone title box, non-overlapping commit-history illustration/dialogue layout, owner-supplied pre-Practice recap, final Teacher review, and five-question mastery check are wired into the Pilot and Course Companion. The redundant `module-3-practice-intro` setup scene remains retired; `module-3-git-branch` now opens `module-3-pre-practice-summary`, which then opens `module-3-portfolio-practice` | `passed` for the implemented content and app scope on 8 September 2026: typecheck, lint, 314 unit tests, nine startup tests, production build, full Electron smoke, desktop navigation alignment, and byte-for-byte saved-progress preservation. The obsolete Module 1 smoke bypass expectation is resolved without adding a bypass to normal learning. Live pilot acceptance remains pending | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, Git/GitHub image replacement with title-box removal, commit-history layout repair, retirement of the redundant Practice-transition slide, and exact owner-supplied pre-Practice recap were explicitly approved | `pending` | Present the passing implemented-content and full-app evidence for owner review. Live pilot acceptance remains pending. |
-| Module 4 | `in-progress`; M4.0 provider rehearsal and the M4.1 lesson, script, prompt, assessments and session-only review are implemented. Two introductory hosting pages were added on 14 September 2026, with all existing pages preserved. Artifact templates, Practice/evidence adapters, official completion and graduation wiring remain deferred | `passed` for the hosting opening on 14 September 2026: typecheck, 24 focused tests, Electron build, focused Electron desktop inspection at 1440 × 900 and 1180 × 748, Module 4 outline and forward/back navigation, unchanged test progress, and scoped diff checks. Earlier content-first and macOS provider rehearsal evidence remains recorded below; Windows provider runtime remains unverified | `pending` overall; the beginner hosting explanation and the roles of the computer, GitHub and Vercel were explicitly approved. Earlier provider and review-UI approvals remain; full Module 4 content acceptance is pending | `pending` | Review the implemented hosting opening, then agree the next content section. The proposed GitHub publishing exercise, Vercel browser walkthrough and post-publication lessons still need detailed design and implementation. Wire Practice and graduation only after content approval. |
+| Module 3 | `implemented` for the existing content/app scope and the five-page GitHub exercise added on 14 September 2026. The existing mastery introduction now requires manual repo, branch, commit and visibility comparison before its five questions. All prior pages and approved recap copy remain | `passed` for the affected content: 40 focused tests, the 323-test unit suite, nine startup tests, typecheck, lint, build and the publication Electron journey. Full-app Electron verification is `failed` at a pre-existing Module 1 title expectation. The GitHub comparison remains a manual teaching step | `pending` overall; the user approved the publishing exercise and requested the complete content batch plus GPT-5.6 Sol high review | `pending` | Present the completed content and scoped verification for owner review. Live GitHub learner evidence and overall pilot acceptance remain pending; do not infer them from page navigation. |
+| Module 4 | `in-progress` overall; expanded M4.1 learner content, browser walkthrough, screenshots, update/recovery lessons and eight-question final review are implemented. Practice, artifact templates, evidence adapters, official completion and graduation remain deferred | `passed` for the affected content, including 37 instructional pages across 74 desktop cases, all annotated image enlargements, five formative and eight final questions, and unchanged saved progress. Typecheck, lint, 323 unit tests, nine startup tests and build passed. Full-app Electron verification is `failed` at a pre-existing Module 1 title expectation; authenticated provider rehearsal remains pending | `pending` overall; the user approved the beginner opening and whole expansion direction, and requested one GPT-5.6 Sol high review. Review findings were addressed; finished content and pilot acceptance have not been inferred | `pending` | Present the completed content for owner review. Rehearse the authenticated browser flow only with explicit external-action authorization; wire Practice only after content approval and prior module acceptance. Resolve the unrelated full Electron blocker before claiming full-app verification. |
 
 ### Shared page navigation, 8 September 2026
 
@@ -1789,6 +1794,25 @@ values.
 
 ### M3.1 — Lock the module manifest, lessons, and artifacts
 
+**GitHub publishing addition — 14 September 2026**
+
+- Implementation: `implemented` for content. Five new pages teach preflight,
+  a learner-owned Private/Public repository, empty-repo creation, approved
+  push, and browser comparison of repository/branch/commit/visibility.
+- Existing Git/debug dialogue and the owner-supplied recap remain verbatim.
+  The mastery introduction adds a manual repo-evidence stop after Practice.
+  Teacher must send a learner with missing/mismatched evidence back to Codex
+  before the five questions or Module 4. Its UI confirmation is explicitly
+  a learner check, not an automated GitHub verification result.
+- The existing Practice receipt and progress schema are unchanged. Automated
+  provider reconciliation is not implemented or claimed by this batch.
+- Verification: `passed` for the affected content in the final combined batch:
+  40 focused tests, 323 unit tests, nine startup tests, typecheck, lint, build
+  and the publication-specific Electron journey. The full Electron run is
+  `failed` at the pre-existing Module 1 title expectation described under M4.1.
+  Owner approval covers implementation direction; live learner acceptance
+  remains `pending`. Next action: present the completed content for owner review.
+
 **Change**
 
 1. Add Module 3 and its four learner-facing sections to
@@ -2417,11 +2441,19 @@ recommended Codex-operated CLI flow with a neutral public bootstrap deployment,
 Vercel Authentication verification before the real portfolio Preview, dashboard
 inspection and recovery, and a separate optional Production decision.
 
-**Provider constraint found:** Vercel assigned the first deployment of each new
-project to Production in both tested creation flows. Subsequent CLI deployments
-without `--prod` were Preview deployments. The approved flow therefore uses a
-learner-approved neutral bootstrap page so that the learner's real portfolio is
-not the unavoidable first public Production deployment.
+**Historical provider observation:** Vercel assigned the first deployment of
+new projects to Production in both August creation flows, and that rehearsal
+used a neutral public bootstrap. Those observations do not establish that the
+first Production deployment must be public.
+
+**Browser authoring update — 14 September 2026:** Current Vercel documentation
+supports team Default Protection with Vercel Authentication + All Deployments
+before creating a project. The new content uses a protected first Production,
+then a branch Preview, then an optional public publication decision. This
+supersedes the bootstrap requirement for the learner browser path. Implementation
+of the browser guide is `implemented`; authenticated provider verification is
+`pending`. The August CLI evidence is preserved but does not certify this path.
+The user approved this content direction, not a live deployment on their account.
 
 **Change**
 
@@ -2440,7 +2472,9 @@ not the unavoidable first public Production deployment.
 - A clean preview deploys and is opened directly.
 - Public/protected status is observable rather than assumed.
 - Build logs can be found and explained.
-- Production is not changed during a preview-only rehearsal.
+- An existing public Production site is not changed during a preview-only
+  rehearsal. A new project's initial protected Production deployment requires
+  explicit rehearsal authorization and verified default protection beforehand.
 - A preview can be removed or access-restricted through the documented recovery
   path.
 
@@ -2448,6 +2482,51 @@ not the unavoidable first public Production deployment.
 deployment path.
 
 ### M4.1 — Lock the manifest, lesson, assessment, and artifact contracts
+
+**Complete publication content batch — 14 September 2026**
+
+- Implementation: `implemented` for the approved content expansion; M4.1 remains
+  `in-progress` overall because artifact/Practice contracts are deferred.
+- Added beginner Vercel benefits/limits, Local/Preview/Production, release and
+  privacy checks, GitHub import/configuration, protected first deployment,
+  branch Preview, optional public publication, post-publication checks,
+  sharing/domain basics, small updates, build failures, rollback, Undo Rollback,
+  ownership notes and transfer to a different small application.
+- Preserved the approved hosting/roles opening verbatim and every baseline
+  scene ID. The five semantic checkpoint IDs, Practice ID/version, progress
+  storage and completion gates are unchanged. The expanded module has five
+  formative questions and eight final questions (six scenarios, two written).
+- Three original browser PNGs are stored with source notes. Two documentation
+  illustrations are displayed through CSS crops of full browser screenshots;
+  all numbered overlays also appear in the enlargement view. They are labeled
+  reference images, not a learner deployment or account configuration.
+- The requested GPT-5.6 Sol, high, read-only review ran once. Required findings
+  were fixed: exact opening preservation, manual GitHub evidence stop, plain
+  review-state copy with the unavailable primary Practice action removed,
+  lighter terminology/configuration pages, balanced answer positions and an
+  explicit transfer prompt. See `module-4-content-review-2026-09-14.md`.
+- Verification: `passed` for the affected content. Typecheck, lint, 40 focused
+  tests, all 323 unit tests, nine startup tests and production build passed.
+  The publication-specific Electron journey passed 37 instructional pages
+  across 74 desktop cases (1440 × 900 and 1180 × 748), five formative and eight
+  final questions, all three annotated image enlargements, outline/keyboard
+  navigation and byte-for-byte unchanged disposable saved progress. Every
+  baseline scene ID and the approved hosting opening were preserved. Evidence:
+  `tmp/publication-content-2026-09-14/measurements.json` and its screenshots.
+- The full gate was attempted because the batch touches cross-module inventories
+  and the shared image renderer. Full-app Electron verification is `failed`:
+  `tests/electron-smoke.mjs:580` waits for `Module 1 đã hoàn thành`, a title
+  already absent from rendered output at baseline `5526b30`. The run stops
+  before Module 3/4. This unrelated obsolete expectation is left for a separate
+  repair; the passing scoped gate is not presented as full-app acceptance.
+- Remaining gaps: authenticated browser deployment/rollback rehearsal, actual
+  GitHub evidence from a learner, provider-backed Practice verification,
+  official completion/graduation, Windows provider verification, owner content
+  acceptance and live pilot acceptance. None is inferred from content review.
+- Next permitted action: present the completed batch and scoped evidence for
+  owner review, then conduct an explicitly authorized provider rehearsal and
+  the separately gated Practice integration. Resolve the unrelated full Electron
+  blocker before full-app verification or release. Do not start another module.
 
 **Content-first implementation note — 17 August 2026:** The manifest, five
 learner content milestones, Teacher script, start prompt, five formative checks,

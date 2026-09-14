@@ -46,6 +46,8 @@ describe('portfolio course registry', () => {
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
       .toBe('module-3-git-merge')
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-merge')?.nextSceneId)
+      .toBe('module-3-github-publish')
+    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-github-verify')?.nextSceneId)
       .toBe('module-3-pre-practice-summary')
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-pre-practice-summary')?.nextSceneId)
       .toBe('module-3-portfolio-practice')
@@ -191,11 +193,11 @@ describe('portfolio course registry', () => {
     expect(moduleFour.scenes.slice(0, 4).map((scene) => scene.id)).toEqual([
       'module-4-hosting-intro',
       'module-4-hosting-roles',
-      'module-4-release-intro',
-      'module-4-check-release-evidence'
+      'module-4-vercel-benefits',
+      'module-4-vercel-limits'
     ])
     expect(moduleFour.scenes[0]?.nextSceneId).toBe('module-4-hosting-roles')
-    expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-release-intro')
+    expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-vercel-benefits')
     expect(moduleFour.lessons).toHaveLength(5)
     expect(moduleFour.quizGroupIds).toEqual([
       'release-validation-retrieval',

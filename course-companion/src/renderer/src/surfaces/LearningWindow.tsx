@@ -45,6 +45,9 @@ import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-exa
 import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import m3GithubPushedCommitsImage from '../assets/lesson-visuals/m3-github-pushed-commits.png'
 import m3GithubBranchesImage from '../assets/lesson-visuals/m3-github-branches.png'
+import m4NewProjectImage from '../assets/lesson-visuals/module-4/vercel-new-project.png'
+import m4BuildSettingsImage from '../assets/lesson-visuals/module-4/vercel-build-settings.png'
+import m4DefaultProtectionImage from '../assets/lesson-visuals/module-4/vercel-default-protection.png'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
@@ -88,6 +91,8 @@ type LessonVisual = {
   alt: string
   caption?: string
   fit?: 'cover' | 'contain'
+  annotations?: ReadonlyArray<{ x: number; y: number; label: string }>
+  crop?: { x: number; y: number; width: number; height: number; sourceWidth: number }
 }
 
 type Choice = {
@@ -1166,6 +1171,40 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
 }
 
 const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
+  'module-4-security-setup': {
+    image: m4DefaultProtectionImage,
+    crop: { x: 312, y: 359, width: 664, height: 217, sourceWidth: 1280 },
+    alt: 'Default Protection trong tài liệu Vercel: Vercel Authentication bật, phạm vi All Deployments và nút Save',
+    caption: 'Ảnh trong tài liệu Vercel · 14/09/2026. ① Bật xác thực ② Bảo vệ mọi địa chỉ ③ Lưu trước khi tạo project.',
+    fit: 'contain',
+    annotations: [
+      { x: 21, y: 29, label: 'Bật Vercel Authentication' },
+      { x: 63, y: 44, label: 'Chọn All Deployments' },
+      { x: 87, y: 89, label: 'Bấm Save' }
+    ]
+  },
+  'module-4-vercel-import': {
+    image: m4NewProjectImage,
+    alt: 'Trang New Project của Vercel chưa đăng nhập, với Import Git Repository và Continue with GitHub ở cột trái',
+    caption: 'Trang Vercel thật, chưa đăng nhập · 14/09/2026. ① Nhập repo có sẵn ② Đăng nhập bằng GitHub.',
+    fit: 'contain',
+    annotations: [
+      { x: 3, y: 47, label: 'Tìm Import Git Repository' },
+      { x: 10, y: 75, label: 'Continue with GitHub khi chưa đăng nhập' }
+    ]
+  },
+  'module-4-vercel-config': {
+    image: m4BuildSettingsImage,
+    crop: { x: 312, y: 263, width: 664, height: 397, sourceWidth: 1280 },
+    alt: 'Framework Settings trong tài liệu Vercel, minh họa Framework Preset, Build Command và Output Directory bằng dự án Next.js',
+    caption: 'Ví dụ Next.js trong tài liệu Vercel · 14/09/2026. ① Loại công cụ ② Lệnh tạo bản dựng ③ Thư mục kết quả. Không chép các giá trị mẫu.',
+    fit: 'contain',
+    annotations: [
+      { x: 2, y: 33, label: 'Framework Preset' },
+      { x: 23, y: 44, label: 'Build Command' },
+      { x: 23, y: 54, label: 'Output Directory' }
+    ]
+  },
   'module-1-codex-examples': {
     image: m1ApprovalMenuImage,
     alt: 'Menu Approval của Codex hiển thị Ask for approval, Approve for me và Full access',
@@ -1446,6 +1485,32 @@ function LessonVisualMedia({
   isApprovalTour: boolean
   visual: LessonVisual
 }) {
+  if (visual.annotations) {
+    return (
+      <div className="pixel-publication-image" style={visual.crop ? { aspectRatio: `${visual.crop.width} / ${visual.crop.height}` } : undefined}>
+        <img
+          src={visual.image} alt={visual.alt} decoding="async" fetchPriority="high"
+          style={visual.crop ? {
+            position: 'absolute', maxWidth: 'none',
+            width: `${visual.crop.sourceWidth / visual.crop.width * 100}%`,
+            left: `${-visual.crop.x / visual.crop.width * 100}%`,
+            top: `${-visual.crop.y / visual.crop.height * 100}%`
+          } : undefined}
+        />
+        {visual.annotations.map((annotation, index) => (
+          <span
+            key={annotation.label}
+            className="pixel-publication-marker"
+            style={{ left: `${annotation.x}%`, top: `${annotation.y}%` }}
+            role="img"
+            aria-label={`${index + 1}. ${annotation.label}`}
+            title={annotation.label}
+          >{index + 1}</span>
+        ))}
+      </div>
+    )
+  }
+
   if (!isApprovalTour) {
     return (
       <img
@@ -1589,6 +1654,7 @@ function LessonVisualLightbox({
             visual={visual}
           />
         </div>
+        {visual.annotations && visual.caption ? <p className="pixel-publication-caption">{visual.caption}</p> : null}
       </section>
     </div>
   )
@@ -3160,7 +3226,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${scene.lessonId === 'module-4' ? ' is-module-four' : ''}${lessonVisual?.annotations ? ' has-publication-walkthrough' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' || lessonVisual?.annotations ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3279,7 +3345,7 @@ export function LearningWindow() {
                 isApprovalTour={isApprovalTour}
                 visual={lessonVisual}
               />
-              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge') && lessonVisual.caption ? (
+              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || lessonVisual.annotations) && lessonVisual.caption ? (
                 <figcaption>{lessonVisual.caption}</figcaption>
               ) : null}
               {canExpandLessonVisual ? (

@@ -157,7 +157,7 @@ describe('Module 3 content and evidence contract', () => {
       'module-3-pre-practice-summary'
     ]
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
-    expect(sceneSource).toContain("choices: [{ label: 'Tóm lại trước khi Practice', next: 'module-3-pre-practice-summary', primary: true }]")
+    expect(sceneSource).toContain("choices: [{ label: 'Đưa repo lên GitHub', next: 'module-3-github-publish', primary: true }]")
     expect(sceneSource).toMatch(/'module-3-pre-practice-summary': \{[\s\S]*?choices: \[\{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true \}\]/)
     expect(lesson).toContain('4 điều cần nhớ trước khi bắt đầu Practice:')
     expect(sceneSource).toContain("objective: 'Điều cần nhớ', panelLabel: '4'")
@@ -167,7 +167,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(learningWindow).toContain('className="pixel-scene-title is-pre-practice-summary"')
     expect(styles).toContain('.pixel-scene-title.is-pre-practice-summary')
     expect(styles).toContain('.pixel-recap-title__count')
-    expect(sceneSource).toContain('Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.')
+    expect(sceneSource).toContain('Khi debug, trong đa số trường hợp, bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.')
     expect(sceneSource).not.toContain('Thực hiện implementation plan theo từng phần. Sau mỗi phần, hãy xem kết quả thực tế')
     expect(sceneSource).not.toContain("'module-3-practice-intro': {")
     expect(rendererRegistry).not.toContain("['module-3-practice-intro']")
@@ -250,7 +250,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(final).toMatchObject({ id: 'm3-final-assessment', mode: 'mastery' })
     expect(final.questions).toHaveLength(5)
     expect(final.questions.every((question) => question.type === 'multiple-choice')).toBe(true)
-    expect(final.questions.map((question) => question.answerIndex)).toEqual([1, 2, 3, 0, 1])
+    expect(final.questions.map((question) => question.answerIndex)).toEqual([1, 0, 3, 0, 1])
     expect(final.questions.every((question) => question.choices.length === 4)).toBe(true)
     for (const question of final.questions) {
       expect(question.source.basis.length).toBeGreaterThan(40)

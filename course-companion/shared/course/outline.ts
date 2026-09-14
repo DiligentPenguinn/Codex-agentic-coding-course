@@ -32,6 +32,7 @@ export const courseOutline: Record<LessonId, readonly OutlineSection[]> = {
   'module-3': [
     { title: 'Debug cùng coding agent', startSceneId: 'module-3-debugging-intro' },
     { title: 'Git và GitHub', startSceneId: 'module-3-git-intro' },
+    { title: 'Thực hành đưa repo lên GitHub', startSceneId: 'module-3-github-publish' },
     { title: 'Tổng hợp trước Practice', startSceneId: 'module-3-pre-practice-summary' },
     { title: 'Practice: Xây portfolio', startSceneId: 'module-3-portfolio-practice' },
     { title: 'Kiểm tra cuối Module 3', startSceneId: 'module-3-portfolio-mastery' },
@@ -39,11 +40,14 @@ export const courseOutline: Record<LessonId, readonly OutlineSection[]> = {
   ],
   'module-4': [
     { title: 'Hosting là gì?', startSceneId: 'module-4-hosting-intro' },
-    { title: 'Kiểm chứng phiên bản phát hành', startSceneId: 'module-4-release-intro' },
-    { title: 'Duyệt an toàn và phạm vi công bố', startSceneId: 'module-4-security-intro' },
-    { title: 'Tạo và kiểm chứng Preview', startSceneId: 'module-4-preview-intro' },
-    { title: 'Quyết định có đưa lên Production hay không', startSceneId: 'module-4-production-intro' },
-    { title: 'Chứng minh quyền sở hữu và chuyển giao kỹ năng', startSceneId: 'module-4-ownership-intro' },
+    { title: 'Vercel và các bản website', startSceneId: 'module-4-vercel-benefits' },
+    { title: 'Hosting và kiểm tra portfolio', startSceneId: 'module-4-release-intro' },
+    { title: 'Nội dung và quyền truy cập', startSceneId: 'module-4-security-intro' },
+    { title: 'Đưa portfolio lên Vercel và xem thử', startSceneId: 'module-4-preview-intro' },
+    { title: 'Công bố, cập nhật và khôi phục', startSceneId: 'module-4-production-intro' },
+    { title: 'Chỉnh sửa portfolio sau khi công bố', startSceneId: 'module-4-update-workflow' },
+    { title: 'Xử lý lỗi và khôi phục', startSceneId: 'module-4-deploy-errors' },
+    { title: 'Quản lý portfolio và áp dụng kỹ năng', startSceneId: 'module-4-ownership-intro' },
     { title: 'Practice: Phát hành portfolio', startSceneId: 'module-4-portfolio-practice' },
     { title: 'Kiểm tra cuối Module 4', startSceneId: 'module-4-portfolio-mastery' },
     { title: 'Tổng kết Module 4', startSceneId: 'module-4-mastery-summary' }

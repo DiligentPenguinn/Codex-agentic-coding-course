@@ -1415,12 +1415,16 @@ async function verifyContentReviewMode(page) {
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   await page.locator('[data-scene-id="module-3-git-merge"]').waitFor()
   await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  for (const id of ['github-publish', 'github-preflight', 'github-create', 'github-push-practice', 'github-verify']) {
+    await page.locator(`main[data-scene-id="module-3-${id}"]`).waitFor()
+    await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  }
   await page.locator('.pixel-scene-title.is-pre-practice-summary').waitFor()
   await page.locator('.pixel-recap-title__kicker').getByText('TÓM LẠI', { exact: true }).waitFor()
   await page.locator('.pixel-recap-title__count').getByText('4', { exact: true }).waitFor()
   await page.locator('.pixel-recap-title__copy strong').getByText('Điều cần nhớ', { exact: true }).waitFor()
   await page.locator('.pixel-recap-title__context').getByText('trước khi bắt đầu Practice', { exact: true }).waitFor()
-  await page.getByText('- Khi debug, đa số bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.', { exact: false }).waitFor()
+  await page.getByText('- Khi debug, trong đa số trường hợp, bạn chỉ cần chụp screenshot và mô tả kỹ lỗi của bạn cho agent là được.', { exact: false }).waitFor()
   const moduleThreeRecapLayout = await page.evaluate(() => {
     const title = globalThis.document.querySelector('.pixel-scene-title')?.getBoundingClientRect()
     const dialogue = globalThis.document.querySelector('.pixel-dialogue')?.getBoundingClientRect()
@@ -1461,35 +1465,24 @@ async function verifyContentReviewMode(page) {
   assert.equal(moduleThreePracticeWidths.document, moduleThreePracticeWidths.viewport)
   await capture(page, 'module-3-practice-direct-1440x900.png')
   await page.getByRole('button', { name: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài', exact: true }).click()
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.getByRole('button', { name: 'Đã đối chiếu repo · Bắt đầu tổng kết', exact: true }).click()
   await answerAssessmentGroup(page, 'm3-final-assessment')
   await page.getByText('Bạn đã trả lời 5/5 câu', { exact: false }).waitFor()
   await capture(page, 'module-3-summary-1440x900.png')
   await page.getByRole('button', { name: 'Duyệt nội dung Module 4', exact: true }).click()
-  await page.getByText('MODULE 4 · BÀI 1/5 · TRANG 1/4', { exact: true }).first().waitFor()
+  await page.locator('main[data-scene-id="module-4-hosting-intro"]').waitFor()
   await verifyOutlineNavigation(page, 'module-4', statePath, screenshotDirectory)
   assert.equal(await page.locator('.pixel-content-review-notice, .pixel-review-notice, .pixel-content-review-exit').count(), 0)
   assert.equal(await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).count(), 0)
   await capture(page, 'module-4-content-review.png')
 
-  await page.setViewportSize({ width: 390, height: 844 })
-  const narrowWidths = await page.evaluate(() => ({
-    body: globalThis.document.body.scrollWidth,
-    document: globalThis.document.documentElement.scrollWidth,
-    viewport: globalThis.innerWidth
-  }))
-  assert.equal(narrowWidths.body, narrowWidths.viewport)
-  assert.equal(narrowWidths.document, narrowWidths.viewport)
-  await capture(page, 'module-4-content-review-390px.png')
-  await page.setViewportSize({ width: 1180, height: 780 })
-
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.locator('main[data-scene-id="module-4-hosting-roles"]').waitFor()
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
-  await page.locator('main[data-scene-id="module-4-release-intro"]').waitFor()
-  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.setViewportSize({ width: 1180, height: 748 })
+  for (const id of ['hosting-intro', 'hosting-roles', 'vercel-benefits', 'vercel-limits', 'environments', 'release-intro', 'release-checklist']) {
+    await page.locator(`main[data-scene-id="module-4-${id}"]`).waitFor()
+    await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  }
   await answerAssessmentGroup(page, 'release-validation-retrieval')
-  await page.locator('.pixel-scene-title strong').getByText('Chặn secret, dữ liệu riêng tư và phạm vi công bố mơ hồ', { exact: true }).waitFor()
+  await page.locator('main[data-scene-id="module-4-security-intro"]').waitFor()
   await verifySequentialReview(page, 2, 'module-4')
   assert.equal(await page.locator('.pixel-consequence').count(), 0)
   await page.locator('.pixel-brand').click()

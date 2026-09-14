@@ -20,7 +20,10 @@
     "requiresPracticeReceipt": true,
     "requiresVerifiedPreview": true,
     "allowsProductionDecline": true,
-    "manualReviewTypes": ["short-answer", "artifact-answer"]
+    "manualReviewTypes": [
+      "short-answer",
+      "artifact-answer"
+    ]
   },
   "groups": [
     {
@@ -33,15 +36,15 @@
           "id": "release-validation-retrieval-1",
           "sceneId": "module-4-check-release-evidence",
           "type": "multiple-choice",
-          "prompt": "`npm run check` đạt nhưng liên kết Contact không hoạt động trong `npm run preview`. Điều kiện phát hành nên xử lý thế nào?",
+          "prompt": "Agent báo các kiểm tra tự động đều đạt, nhưng khi bạn mở bản Local, nút tải CV vẫn trả về lỗi. Bạn nên làm gì?",
           "choices": [
-            "Cho đạt vì kiểm tra tự động đã thành công.",
-            "Giữ điều kiện ở trạng thái chưa đạt, tái hiện lỗi trong Preview cục bộ rồi sửa theo vòng gỡ lỗi và kiểm tra lại.",
-            "Bỏ tiêu chí Contact khỏi PRD mà không xin phép.",
-            "Triển khai lên Vercel để xem lỗi có tự hết không."
+            "Đưa lên Vercel vì kiểm tra tự động đã bao phủ việc tải tệp.",
+            "Gửi agent đúng thao tác và lỗi, sửa rồi kiểm tra lại nút tải CV trước khi triển khai.",
+            "Chỉ kiểm tra giao diện trang chủ vì CV là tệp riêng.",
+            "Giữ kết quả hiện tại và chỉ sửa nếu người xem báo lỗi."
           ],
           "answerIndex": 1,
-          "explanation": "Automated check không chứng minh mọi hành vi runtime. Lỗi chặn phải được điều tra và kiểm tra lại trước hành động triển khai bên ngoài.",
+          "explanation": "Kiểm tra tự động không thay việc thử hành vi người xem cần dùng. Lỗi tải CV phải được sửa và thử lại trên đúng bản trước khi phát hành.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Kế hoạch triển khai M4.2 — Kiểm chứng phát hành",
@@ -61,20 +64,20 @@
           "id": "security-publication-retrieval-1",
           "sceneId": "module-4-check-protection-scope",
           "type": "multiple-choice",
-          "prompt": "Project Hobby bật Vercel Authentication với Standard Protection. Kết luận nào an toàn nhất?",
+          "prompt": "Repo đã để Private và project Vercel dùng Standard Protection. Bạn định chỉ tự xem website. Bước nào phù hợp?",
           "choices": [
-            "Mọi URL, kể cả domain Production, chắc chắn riêng tư.",
-            "Preview và URL triển khai có thể được bảo vệ, nhưng phải kiểm tra riêng domain Production vì nó có thể vẫn công khai.",
-            "Không cần mở URL để kiểm tra phạm vi truy cập.",
-            "Protection tự xóa secret đã commit."
+            "Giữ nguyên vì repo Private đã giới hạn người xem website.",
+            "Chỉ xem biểu tượng ổ khóa trên thanh địa chỉ là đủ.",
+            "Đổi tên đường link để người khác khó đoán.",
+            "Chọn All Deployments với Vercel Authentication rồi kiểm tra cả địa chỉ chính trong cửa sổ riêng tư."
           ],
-          "answerIndex": 1,
-          "explanation": "Standard Protection không đồng nghĩa mọi domain đều được bảo vệ. Phạm vi truy cập phải được quan sát trên đúng URL; chế độ bảo vệ cũng không sửa lịch sử Git hoặc secret đã lộ.",
+          "answerIndex": 3,
+          "explanation": "Quyền repo và website tách biệt. Standard Protection để địa chỉ Production chính không được bảo vệ; khi muốn giới hạn cả địa chỉ đó, cần All Deployments và thử quyền truy cập thực tế.",
           "source": {
             "kind": "authoritative-source",
             "label": "Vercel — Deployment Protection",
             "url": "https://vercel.com/docs/deployment-protection",
-            "basis": "Vercel mô tả Standard Protection bảo vệ URL triển khai nhưng không bảo vệ domain Production hiện tại trên gói Hobby."
+            "basis": "Standard Protection loại trừ địa chỉ Production chính. All Deployments bảo vệ cả các địa chỉ đó và có thể kết hợp Vercel Authentication."
           }
         }
       ]
@@ -89,20 +92,20 @@
           "id": "preview-deployment-retrieval-1",
           "sceneId": "module-4-check-preview-evidence",
           "type": "multiple-choice",
-          "prompt": "Codex gửi một URL Vercel và nói “đã triển khai xong”. Bằng chứng nào còn thiếu trước khi chấp nhận Preview?",
+          "prompt": "Agent gửi link Preview và trang Vercel báo Ready. Bạn cần kiểm tra thêm gì trước khi duyệt bản này?",
           "choices": [
-            "Chỉ cần tên project đẹp hơn.",
-            "Môi trường đích và trạng thái từ `inspect`, nhật ký tạo bản dựng, phiên bản nguồn, kiểm tra trực tiếp và phạm vi truy cập đã quan sát.",
-            "Chỉ cần ảnh chụp trang đầu.",
-            "Không thiếu gì vì URL đã tồn tại."
+            "Môi trường, branch và commit của deployment; sau đó mở đúng link để thử thay đổi và quyền truy cập.",
+            "Chỉ cần kiểm tra ảnh chụp trang chủ do agent gửi.",
+            "Chỉ cần mở bản Local vì code đã giống nhau.",
+            "Chỉ cần tải lại link Production để xem thay đổi."
           ],
-          "answerIndex": 1,
-          "explanation": "URL không chứng minh đúng môi trường, đúng phiên bản, bản dựng đạt, hành vi trực tiếp đúng hoặc phạm vi truy cập phù hợp.",
+          "answerIndex": 0,
+          "explanation": "Ready nói về kết quả triển khai. Bạn vẫn cần xác nhận đúng phiên bản, thử hành vi và xem ai truy cập được đúng đường link.",
           "source": {
             "kind": "authoritative-source",
-            "label": "Vercel CLI — kiểm tra và đọc nhật ký",
-            "url": "https://vercel.com/docs/cli",
-            "basis": "Vercel CLI cung cấp lệnh `inspect` và nhật ký để nhận diện bản triển khai, trạng thái và đầu ra bản dựng trước khi kiểm tra trực tiếp."
+            "label": "Vercel — Environments",
+            "url": "https://vercel.com/docs/deployments/environments",
+            "basis": "Preview và Production có mục đích, branch và URL khác nhau. Bằng chứng cần gắn với đúng deployment của phiên bản đang được xem xét."
           }
         }
       ]
@@ -117,15 +120,15 @@
           "id": "production-decision-retrieval-1",
           "sceneId": "module-4-check-production-choice",
           "type": "multiple-choice",
-          "prompt": "Preview đã được kiểm chứng nhưng bạn chưa muốn portfolio xuất hiện trên domain Production. Điều gì xảy ra với điều kiện tốt nghiệp sau này?",
+          "prompt": "Bạn đã kiểm tra Preview nhưng chưa muốn mọi người xem portfolio. Với project đầu tiên đã có Production được bảo vệ, bạn có thể làm gì?",
           "choices": [
-            "Tự động trượt vì Production luôn bắt buộc.",
-            "Vẫn có thể đạt nếu ghi quyết định chưa công bố và mọi điều kiện bắt buộc khác, gồm Preview, đều đạt.",
-            "Preview tự động trở thành Production.",
-            "Phải xóa toàn bộ project ngay lập tức."
+            "Phải tắt bảo vệ vì project có Production rồi.",
+            "Đổi repo thành Private rồi tắt bảo vệ Vercel.",
+            "Giữ All Deployments, ghi lý do chưa công khai và việc cần làm tiếp.",
+            "Chỉ ngừng gửi link; các quyền truy cập không cần xem lại."
           ],
-          "answerIndex": 1,
-          "explanation": "Production là lựa chọn có chủ đích. Một quyết định chưa công bố được ghi rõ không làm mất bằng chứng Preview hoặc quyền sở hữu.",
+          "answerIndex": 2,
+          "explanation": "Tạo deployment Production khác với công khai website. Bạn có thể giữ quyền bảo vệ và ghi quyết định chưa công khai; Preview đã kiểm chứng vẫn là một kết quả của bài.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Kế hoạch triển khai M4.6 — Quyết định Production",
@@ -148,11 +151,11 @@
           "prompt": "Bài chuyển giao nào chứng minh kỹ năng tốt nhất?",
           "choices": [
             "Thêm một animation nữa vào portfolio.",
-            "Sao chép nguyên portfolio thành project mới.",
             "Lập bản mô tả ngắn, yêu cầu, cách kiểm chứng và nhiệm vụ đầu tiên có giới hạn cho một ứng dụng nhỏ khác.",
+            "Sao chép nguyên portfolio thành project mới.",
             "Nhờ Codex tự chọn và xây toàn bộ ứng dụng khác."
           ],
-          "answerIndex": 2,
+          "answerIndex": 1,
           "explanation": "Chuyển giao kỹ năng yêu cầu áp dụng lại cách xác định phạm vi và bằng chứng vào một vấn đề khác; đó không phải một tính năng portfolio hoặc một lần sao chép.",
           "source": {
             "kind": "curriculum-judgment",
@@ -175,12 +178,12 @@
           "type": "multiple-choice",
           "prompt": "Một tiêu chí chấp nhận được ghi “hoãn” nhưng không có lý do hoặc phê duyệt. Báo cáo kiểm chứng phát hành nên kết luận gì?",
           "choices": [
-            "Đạt vì hoãn không phải thất bại.",
-            "Chưa đạt; phần chủ động hoãn cần lý do, hệ quả và phê duyệt hiện tại.",
-            "Xóa tiêu chí khỏi PRD.",
-            "Triển khai trước rồi bổ sung sau."
+            "Chấp nhận bản này vì tiêu chí đó chưa gây ra lỗi kỹ thuật.",
+            "Chấp nhận bản này rồi ghi lý do hoãn sau khi có người hỏi.",
+            "Chưa chấp nhận; cần ghi lý do, ảnh hưởng và quyết định hoãn của bạn.",
+            "Chỉ cần agent đổi trạng thái từ “hoãn” sang “không áp dụng”."
           ],
-          "answerIndex": 1,
+          "answerIndex": 2,
           "explanation": "Chủ động hoãn không phải đường vòng quanh điều kiện kiểm tra. Quyết định hoãn phải có chủ sở hữu, lý do và ảnh hưởng được chấp nhận.",
           "source": {
             "kind": "curriculum-judgment",
@@ -193,14 +196,14 @@
           "id": "m4-mastery-security",
           "sceneId": "module-4-mastery-security",
           "type": "multiple-choice",
-          "prompt": "Lần kiểm tra an toàn phát hiện `.env` chứa token đã được commit. Bước phù hợp là gì?",
+          "prompt": "Agent phát hiện tệp .env đã được commit và chứa token, tức mã cho phép dùng một dịch vụ của bạn. Bước phù hợp là gì?",
           "choices": [
-            "Chỉ thêm `.env` vào `.gitignore` rồi triển khai.",
-            "Dừng công bố, xử lý token như đã lộ, loại secret khỏi lịch sử và phạm vi phát hành, rồi kiểm chứng lại trước khi tiếp tục.",
-            "Đổi tên file thành `.env.old`.",
-            "Bật Standard Protection là đủ."
+            "Dừng công bố; xử lý mã có thể đã lộ rồi kiểm tra lại tệp và lịch sử.",
+            "Thêm .env vào .gitignore để mã trong những commit cũ không bị đọc.",
+            "Xóa .env ở commit mới nhất rồi giữ nguyên các commit trước đó.",
+            "Giữ repo Private và bật bảo vệ Vercel để tiếp tục dùng mã cũ."
           ],
-          "answerIndex": 1,
+          "answerIndex": 0,
           "explanation": "Quy tắc bỏ qua tệp chỉ ngăn commit mới; nó không thu hồi thông tin xác thực hoặc xóa bản đã có trong lịch sử. Mọi hành động bên ngoài phải dừng cho đến khi rủi ro được xử lý.",
           "source": {
             "kind": "curriculum-judgment",
@@ -215,13 +218,13 @@
           "type": "multiple-choice",
           "prompt": "Preview đã đạt ở commit A. Sau đó, bạn sửa nội dung và tạo commit B nhưng chưa triển khai lại. Bằng chứng nào còn hiện tại?",
           "choices": [
-            "Preview commit A vẫn chứng minh commit B.",
-            "Kiểm tra cục bộ của B có thể còn hiện tại, nhưng bằng chứng triển khai của A đã cũ đối với B.",
-            "Mọi bằng chứng đều tự động cập nhật.",
-            "Bằng chứng Production thay thế Preview."
+            "Preview của A vẫn đủ nếu B chỉ đổi chữ, không đổi bố cục.",
+            "Chỉ cần kiểm tra Local của B rồi dùng link Preview của A.",
+            "Có thể dùng ảnh của A nếu agent báo B đã commit thành công.",
+            "B cần được triển khai và kiểm tra lại; Preview của A chỉ chứng minh A."
           ],
-          "answerIndex": 1,
-          "explanation": "Bằng chứng triển khai gắn với một phiên bản nguồn cụ thể. Khi nguồn thay đổi, bạn phải triển khai và kiểm chứng lại nếu muốn chấp nhận phiên bản mới.",
+          "answerIndex": 3,
+          "explanation": "Mỗi Preview gắn với một phiên bản nguồn. Commit B cần có bản triển khai và kiểm tra của chính nó, kể cả khi thay đổi trông nhỏ.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Kế hoạch triển khai M4.8 — Điều kiện tốt nghiệp",
@@ -233,20 +236,60 @@
           "id": "m4-mastery-production",
           "sceneId": "module-4-mastery-production",
           "type": "multiple-choice",
-          "prompt": "Ai là người quyết định cuối cùng có đưa portfolio lên Production?",
+          "prompt": "Preview đã được duyệt. Agent đề nghị merge và push vào Production Branch để cập nhật website đang công khai. Ai cần quyết định việc này?",
           "choices": [
-            "Codex vì Codex chạy lệnh.",
-            "Vercel vì Vercel tạo bản triển khai.",
-            "Learner sau khi xem hệ quả, bằng chứng, phạm vi công khai và đường phục hồi.",
-            "Teacher vì Teacher chấm bài."
+            "Agent có thể tự quyết vì bạn đã duyệt Preview trước đó.",
+            "Bạn, sau khi xem bản sửa, bằng chứng và cách khôi phục.",
+            "Teacher có thể duyệt thay khi các câu trắc nghiệm đều đúng.",
+            "Vercel có thể quyết định công bố khi bản dựng đạt Ready."
           ],
-          "answerIndex": 2,
+          "answerIndex": 1,
           "explanation": "Codex đề xuất và thực hiện phần kỹ thuật; Learner sở hữu quyết định xuất bản cùng hệ quả của nó.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Kế hoạch triển khai M4.6 — Quyết định Production",
             "url": "docs/planning/portfolio-course-implementation-plan.md#m46--record-the-production-publication-decision",
             "basis": "Production cần lựa chọn rõ của Learner, danh sách kiểm tra mới, phê duyệt hành động, kiểm tra trực tiếp và cách quay lại phiên bản an toàn."
+          }
+        },
+        {
+          "id": "m4-mastery-update",
+          "sceneId": "module-4-mastery-update",
+          "type": "multiple-choice",
+          "prompt": "Bạn chỉ muốn thử một cách viết mới cho phần giới thiệu. Website chính đang được chia sẻ trong CV. Cách giao việc nào phù hợp?",
+          "choices": [
+            "Sửa và push thẳng vào Production Branch để có link xem nhanh.",
+            "Sửa trực tiếp quyền truy cập của website rồi mới kiểm tra nội dung.",
+            "Tạo branch khác, sửa và xem Local; sau khi duyệt thì push để tạo Preview, chưa merge vào Production Branch.",
+            "Tạo một project Vercel mới cho mỗi lần đổi câu chữ."
+          ],
+          "answerIndex": 2,
+          "explanation": "Branch riêng và Preview giúp kiểm tra thay đổi trước khi cập nhật địa chỉ chính. Khi tích hợp GitHub đang hoạt động, push vào Production Branch có thể tự phát hành.",
+          "source": {
+            "kind": "authoritative-source",
+            "label": "Vercel — GitHub deployments",
+            "url": "https://vercel.com/docs/git/vercel-for-github",
+            "basis": "Tích hợp GitHub tạo deployment khi push. Push vào Production Branch có thể cập nhật địa chỉ Production của project."
+          }
+        },
+        {
+          "id": "m4-mastery-recovery",
+          "sceneId": "module-4-mastery-recovery",
+          "type": "multiple-choice",
+          "prompt": "Bạn đã Instant Rollback rồi push commit sửa lỗi. Deployment mới đạt Ready nhưng địa chỉ chính vẫn hiện bản vừa khôi phục. Vì sao và nên làm gì?",
+          "choices": [
+            "Vercel tạm ngừng tự gắn bản mới vào địa chỉ chính; kiểm tra bản đã sửa rồi dùng Undo Rollback để chọn đúng deployment khi sẵn sàng.",
+            "Rollback đã xóa commit mới; cần force-push lại toàn bộ lịch sử.",
+            "Cứ tải lại trang nhiều lần; Ready luôn đồng nghĩa địa chỉ chính đã cập nhật.",
+            "Repo phải đổi thành Public thì rollback mới kết thúc."
+          ],
+          "answerIndex": 0,
+          "explanation": "Sau rollback, Vercel ngừng tự gắn deployment mới vào địa chỉ Production. Undo Rollback với bản đã được duyệt khôi phục cơ chế này. Code trên GitHub vẫn cần chứa phần sửa lỗi.",
+          "source": {
+            "kind": "authoritative-source",
+            "label": "Vercel — Undo a rollback",
+            "url": "https://vercel.com/docs/instant-rollback#undo-a-rollback",
+            "basis": "Sau rollback, Vercel tắt auto-assignment của production domains. Undo Rollback đưa deployment được chọn vào Production và bật lại cơ chế đó."
           }
         },
         {
@@ -271,7 +314,7 @@
           "id": "m4-mastery-owned-transfer",
           "sceneId": "module-4-mastery-owned-transfer",
           "type": "short-answer",
-          "prompt": "Chọn một ứng dụng nhỏ khác portfolio. Nêu người dùng, vấn đề, một yêu cầu có thể kiểm tra và nhiệm vụ đầu tiên có giới hạn mà Codex phải dừng chờ bạn duyệt.",
+          "prompt": "Chọn một ứng dụng nhỏ khác portfolio. Nêu người dùng, vấn đề và một yêu cầu có thể kiểm tra. Viết nhiệm vụ đầu tiên cho Codex: làm phần nào, chưa làm phần nào, kiểm tra bằng cách nào và dừng lúc nào để bạn duyệt.",
           "criteria": [
             "Ứng dụng là dự án khác, không phải một tính năng portfolio.",
             "Nêu người dùng, vấn đề và kết quả có thể quan sát.",

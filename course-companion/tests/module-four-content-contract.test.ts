@@ -70,14 +70,15 @@ describe('Module 4 content-first contract', () => {
     expect(combined).toMatch(/Preview.*bắt buộc/i)
     expect(combined).toMatch(/Production.*lựa chọn/i)
     expect(combined).toContain('Standard Protection')
-    expect(combined).toContain('trang khởi tạo trung tính')
+    expect(combined).toContain('All Deployments')
+    expect(combined).toContain('Undo Rollback')
     expect(combined).toMatch(/không (?:cần|yêu cầu).*đọc code/i)
     expect(combined).toMatch(/không (?:tạo|ghi nhận).*biên nhận/i)
     expect(combined).not.toMatch(/ước tính.*(?:phút|giờ)|hoàn thành trong \d+/i)
     expect(combined).not.toContain('docs/internal/target-learner-definition.md')
   })
 
-  it('provides five formative checks and a sourced six-question ownership assessment', async () => {
+  it('provides five formative checks and a sourced eight-question ownership assessment', async () => {
     const quiz = JSON.parse(await read('quizzes/module-4.quiz.json')) as {
       delivery: Record<string, unknown>
       masteryPolicy: Record<string, unknown>
@@ -96,7 +97,7 @@ describe('Module 4 content-first contract', () => {
     })
     expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(5)
     const final = quiz.groups.find((group) => group.id === 'm4-final-assessment')!
-    expect(final.questions).toHaveLength(6)
+    expect(final.questions).toHaveLength(8)
     expect(final.questions.filter((question) => question.type !== 'multiple-choice').map((question) => question.id)).toEqual([
       'm4-mastery-owned-release',
       'm4-mastery-owned-transfer'
