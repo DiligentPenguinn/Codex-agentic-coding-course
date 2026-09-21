@@ -2488,6 +2488,31 @@ deployment path.
 
 ### M4.1 — Lock the manifest, lesson, assessment, and artifact contracts
 
+**Video URL ending and music — 21 September 2026**
+
+- Owner direction: approved a five-second ending showing the deployed URL and
+  quiet instrumental background music.
+- Implementation: `implemented` for this media edit. The bundled video is now
+  132.9 seconds. The ending uses the owner's screenshot and repeats
+  `portfolio-smu-video-demo.vercel.app` below it. Original footage and approved
+  captions are unchanged. Original synthesized music fades in and out.
+- Verification: `passed` for the focused media gate. FFprobe reports matching
+  132.9-second H.264 video and AAC audio streams at 1920 × 1080. Full-file FFmpeg
+  decoding passed. Packet hashes confirm all 3,837 original video packets are
+  unchanged, followed by exactly 150 new frames at 30 fps. Visual inspection
+  confirmed a readable URL. Audio peaks at -12.5 dBFS without clipping.
+  A disposable Chrome playback check decoded both streams, advanced across the
+  join, and sought to the ending without media errors at 1440 × 900.
+  `git diff --check` passed. Evidence and the render script are in
+  `tmp/vercel-video-update-2026-09-21/`.
+- Scope: only the bundled media and its documentation changed. Application
+  tests, typecheck, a rebuild and full Electron acceptance were unnecessary
+  because no code, layout, routes, dependencies or completion behavior changed.
+  Native Course Companion playback was not rerun.
+- Remaining gaps and next action: owner review of the finished video and music.
+  M4.1 remains `in-progress` overall. Finished-content approval, live provider
+  rehearsal, Practice integration and pilot acceptance remain pending.
+
 **Post-video update exercise — 21 September 2026**
 
 - Owner direction: approved for this revision. Remove the repeated first-deploy

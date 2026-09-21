@@ -11,11 +11,23 @@ dashboard, not evidence of a learner deployment.
 
 `vercel-portfolio-captioned.mp4` was recorded with OBS on 17 September 2026
 and approved by the owner for inclusion in `module-4-vercel-benefits`.
-The 127.9-second, silent 1920 × 1080 video contains the approved Vietnamese
+The 132.9-second, 1920 × 1080 video contains the approved Vietnamese
 captions. It shows a real import, initial deployment and website visit using
 Portfolio-SMU as an example, in the separate `portfolio-smu-video-demo` project.
 It is bundled locally and is not evidence of learner Practice completion.
 Source recording and editing files: `tmp/vercel-video-2026-09-17/`.
+
+On 21 September 2026, the owner approved adding a five-second ending and quiet
+instrumental music. The ending uses the screenshot supplied that day, keeps the
+browser address visible, and repeats `portfolio-smu-video-demo.vercel.app` in
+the caption area. The original 127.9 seconds and Vietnamese captions are
+unchanged. The screenshot is an example supplied by the owner, not a fresh
+verification of the live site.
+
+The background music is an original synthesized instrumental composed for this
+edit, without third-party recordings or samples. It fades in and out and is
+normalized to a target of -26 LUFS. Editing inputs, the original silent backup,
+`render.py`, and playback evidence are in `tmp/vercel-video-update-2026-09-21/`.
 
 ## Browser captures
 
