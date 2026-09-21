@@ -85,30 +85,17 @@ const rendererModules = [
     lessonPages: {
       'm4-release-validation': [
         ['module-4-hosting-intro'],
-        ['module-4-hosting-roles'],
         ['module-4-vercel-benefits'],
-        ['module-4-vercel-limits'],
-        ['module-4-environments'],
-        ['module-4-release-intro'],
-        ['module-4-release-checklist'],
-        ['module-4-check-release-evidence']
+        ['module-4-after-video']
       ],
       'm4-security-publication': [
-        ['module-4-security-intro'],
-        ['module-4-security-access'],
-        ['module-4-security-setup'],
-        ['module-4-check-protection-scope']
+        ['module-4-access-check']
       ],
       'm4-preview-deployment': [
-        ['module-4-preview-intro'],
-        ['module-4-vercel-import'],
-        ['module-4-vercel-repository'],
-        ['module-4-vercel-prepare'],
-        ['module-4-vercel-config'],
-        ['module-4-vercel-deploy'],
         ['module-4-vercel-preview'],
-        ['module-4-preview-review'],
-        ['module-4-check-preview-evidence']
+        ['module-4-update-local'],
+        ['module-4-update-preview'],
+        ['module-4-preview-review']
       ],
       'm4-production-decision': [
         ['module-4-production-intro'],
@@ -119,14 +106,12 @@ const rendererModules = [
         ['module-4-update-verify'],
         ['module-4-deploy-errors'],
         ['module-4-rollback'],
-        ['module-4-rollback-resume'],
-        ['module-4-check-production-choice']
+        ['module-4-rollback-resume']
       ],
       'm4-ownership-transfer': [
         ['module-4-ownership-intro'],
         ['module-4-handover'],
         ['module-4-transfer'],
-        ['module-4-check-transfer-boundary'],
         ['module-4-portfolio-practice'],
         ['module-4-portfolio-mastery'],
         ['module-4-mastery-release'],

@@ -45,9 +45,8 @@ import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-exa
 import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import m3GithubPushedCommitsImage from '../assets/lesson-visuals/m3-github-pushed-commits.png'
 import m3GithubBranchesImage from '../assets/lesson-visuals/m3-github-branches.png'
-import m4NewProjectImage from '../assets/lesson-visuals/module-4/vercel-new-project.png'
-import m4BuildSettingsImage from '../assets/lesson-visuals/module-4/vercel-build-settings.png'
-import m4DefaultProtectionImage from '../assets/lesson-visuals/module-4/vercel-default-protection.png'
+import m4ProjectsOverviewImage from '../assets/lesson-visuals/module-4/vercel-projects-overview.png'
+import m4PortfolioVideo from '../assets/lesson-visuals/module-4/vercel-portfolio-captioned.mp4'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
@@ -1171,39 +1170,11 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
 }
 
 const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
-  'module-4-security-setup': {
-    image: m4DefaultProtectionImage,
-    crop: { x: 312, y: 359, width: 664, height: 217, sourceWidth: 1280 },
-    alt: 'Default Protection trong tài liệu Vercel: Vercel Authentication bật, phạm vi All Deployments và nút Save',
-    caption: 'Ảnh trong tài liệu Vercel · 14/09/2026. ① Bật xác thực ② Bảo vệ mọi địa chỉ ③ Lưu trước khi tạo project.',
-    fit: 'contain',
-    annotations: [
-      { x: 21, y: 29, label: 'Bật Vercel Authentication' },
-      { x: 63, y: 44, label: 'Chọn All Deployments' },
-      { x: 87, y: 89, label: 'Bấm Save' }
-    ]
-  },
-  'module-4-vercel-import': {
-    image: m4NewProjectImage,
-    alt: 'Trang New Project của Vercel chưa đăng nhập, với Import Git Repository và Continue with GitHub ở cột trái',
-    caption: 'Trang Vercel thật, chưa đăng nhập · 14/09/2026. ① Nhập repo có sẵn ② Đăng nhập bằng GitHub.',
-    fit: 'contain',
-    annotations: [
-      { x: 3, y: 47, label: 'Tìm Import Git Repository' },
-      { x: 10, y: 75, label: 'Continue with GitHub khi chưa đăng nhập' }
-    ]
-  },
-  'module-4-vercel-config': {
-    image: m4BuildSettingsImage,
-    crop: { x: 312, y: 263, width: 664, height: 397, sourceWidth: 1280 },
-    alt: 'Framework Settings trong tài liệu Vercel, minh họa Framework Preset, Build Command và Output Directory bằng dự án Next.js',
-    caption: 'Ví dụ Next.js trong tài liệu Vercel · 14/09/2026. ① Loại công cụ ② Lệnh tạo bản dựng ③ Thư mục kết quả. Không chép các giá trị mẫu.',
-    fit: 'contain',
-    annotations: [
-      { x: 2, y: 33, label: 'Framework Preset' },
-      { x: 23, y: 44, label: 'Build Command' },
-      { x: 23, y: 54, label: 'Output Directory' }
-    ]
+  'module-4-hosting-intro': {
+    image: m4ProjectsOverviewImage,
+    alt: 'Trang quản lý dự án trên Vercel hiển thị portfolio-smu và địa chỉ minhtrietportfolio.dev',
+    caption: 'dashboard của Vercel',
+    fit: 'contain'
   },
   'module-1-codex-examples': {
     image: m1ApprovalMenuImage,
@@ -2898,11 +2869,6 @@ export function LearningWindow() {
       'setup-final-assessment': 'module-1-final-summary',
       'final-assessment': 'module-2-portfolio-mastery-summary',
       'm3-final-assessment': 'module-3-mastery-summary',
-      'release-validation-retrieval': 'module-4-security-intro',
-      'security-publication-retrieval': 'module-4-preview-intro',
-      'preview-deployment-retrieval': 'module-4-production-intro',
-      'production-decision-retrieval': 'module-4-ownership-intro',
-      'ownership-transfer-retrieval': contentReviewMode ? 'module-4-portfolio-mastery' : 'module-4-portfolio-practice',
       'm4-final-assessment': 'module-4-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
@@ -3193,6 +3159,7 @@ export function LearningWindow() {
   const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
   const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard || usesImplementationPlanBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
+  const isVercelTutorial = displayedSceneId === 'module-4-vercel-benefits'
   const practiceReviewDestination = contentReviewMode
     ? displayedSceneId === 'module-2-portfolio-practice'
       ? { label: 'Bỏ qua Practice · Duyệt bài ôn tập', sceneId: 'module-2-portfolio-mastery' as SceneId }
@@ -3226,7 +3193,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${scene.lessonId === 'module-4' ? ' is-module-four' : ''}${lessonVisual?.annotations ? ' has-publication-walkthrough' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' || lessonVisual?.annotations ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${scene.lessonId === 'module-4' ? ' is-module-four' : ''}${lessonVisual?.annotations ? ' has-publication-walkthrough' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' || displayedSceneId === 'module-4-hosting-intro' || lessonVisual?.annotations ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3299,7 +3266,7 @@ export function LearningWindow() {
           title={scene.copyPromptTitle}
         />
       ) : null}
-      {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
+      {assessmentQuestion || scene.assessmentSummary || usesLessonBoard || isVercelTutorial
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
@@ -3345,7 +3312,7 @@ export function LearningWindow() {
                 isApprovalTour={isApprovalTour}
                 visual={lessonVisual}
               />
-              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || lessonVisual.annotations) && lessonVisual.caption ? (
+              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-4-hosting-intro' || lessonVisual.annotations) && lessonVisual.caption ? (
                 <figcaption>{lessonVisual.caption}</figcaption>
               ) : null}
               {canExpandLessonVisual ? (
@@ -3361,6 +3328,20 @@ export function LearningWindow() {
             </figure>
           )
           : null}
+
+      {isVercelTutorial ? (
+        <div className="pixel-vercel-tutorial-stage">
+          <p>{scene.dialogue}</p>
+          <video
+            className="pixel-vercel-tutorial"
+            src={m4PortfolioVideo}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label="Video hướng dẫn đưa portfolio lên Vercel, có phụ đề tiếng Việt"
+          />
+        </div>
+      ) : null}
 
       {modelLessonBoardKind && lessonVisual ? (
         <ModelLessonBoard
@@ -3439,12 +3420,12 @@ export function LearningWindow() {
       ) : null}
 
       <section
-        aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
-        aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
+        aria-label={isVercelTutorial ? 'Điều hướng bài học' : isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
+        aria-labelledby={isAssessmentQuestionPage || isVercelTutorial ? undefined : 'teacherName'}
+        className={isVercelTutorial ? 'pixel-vercel-tutorial-navigation' : `pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
-        {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
-        {isAssessmentQuestionPage ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
+        {isAssessmentQuestionPage || isVercelTutorial ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
+        {isAssessmentQuestionPage || isVercelTutorial ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
               ? contentReviewMode

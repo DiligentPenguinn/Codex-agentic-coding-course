@@ -39,7 +39,7 @@ describe('course outline coverage and reading order', () => {
       expect(new Set(sections.map((section) => section.title)).size).toBe(sections.length)
     }
     const pages = ['module-3-git-intro', 'module-3-git-github'] as const
-    expect(adjacentOutlinePage(pages, 'module-4-release-intro', 1)).toBeUndefined()
-    expect(outlineSectionIndex(courseOutline['module-3' satisfies LessonId], pages, 'module-4-release-intro')).toBe(-1)
+    expect(adjacentOutlinePage(pages, 'module-4-after-video', 1)).toBeUndefined()
+    expect(outlineSectionIndex(courseOutline['module-3' satisfies LessonId], pages, 'module-4-after-video')).toBe(-1)
   })
 })

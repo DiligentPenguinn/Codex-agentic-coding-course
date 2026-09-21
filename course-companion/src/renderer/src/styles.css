@@ -533,7 +533,8 @@ button:focus-visible {
 }
 .pixel-lesson-visual img[data-fit="contain"] { object-fit: contain; }
 .pixel-learning-shell[data-scene-id="module-3-git-push"] .pixel-lesson-visual figcaption,
-.pixel-learning-shell[data-scene-id="module-3-git-merge"] .pixel-lesson-visual figcaption {
+.pixel-learning-shell[data-scene-id="module-3-git-merge"] .pixel-lesson-visual figcaption,
+.pixel-learning-shell[data-scene-id="module-4-hosting-intro"] .pixel-lesson-visual figcaption {
   padding: 10px 14px;
   background: #000;
   color: #fff;
@@ -1893,6 +1894,76 @@ button:focus-visible {
     height: max-content;
     margin-top: 4px;
   }
+
+  .pixel-learning-shell.has-stacked-visual-dialogue[data-scene-id="module-4-hosting-intro"] {
+    row-gap: 24px;
+  }
+
+  .pixel-learning-shell[data-scene-id="module-4-hosting-intro"] .pixel-lesson-visual {
+    align-self: start;
+  }
+
+  .pixel-learning-shell.has-stacked-visual-dialogue[data-scene-id="module-4-hosting-intro"] .pixel-dialogue {
+    margin-top: 0;
+  }
+}
+
+.pixel-learning-shell[data-scene-id="module-4-vercel-benefits"] {
+  padding: 100px 5vw 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.pixel-vercel-tutorial-stage {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.pixel-vercel-tutorial-stage > p {
+  margin: 0 0 20px;
+  color: var(--pixel-yellow);
+  font-size: clamp(20px, 1.8vw, 26px);
+  font-weight: 700;
+  line-height: 1.5;
+  text-shadow: 0 2px 6px #000, 0 0 18px #000;
+}
+
+.pixel-vercel-tutorial {
+  display: block;
+  width: min(100%, 1100px, max(560px, calc((100vh - 260px) * 16 / 9)));
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--obsidian-line);
+  border-radius: var(--obsidian-radius-card);
+  background: #000;
+}
+
+.pixel-vercel-tutorial-navigation {
+  position: relative;
+  z-index: 5;
+  width: min(100%, 1100px, max(560px, calc((100vh - 260px) * 16 / 9)));
+  flex: 0 0 auto;
+}
+
+.pixel-vercel-tutorial-navigation .pixel-lesson-actions.is-paired {
+  position: static;
+  margin: 0;
+  align-items: center;
+  flex-direction: row;
+  gap: 24px;
+}
+
+.pixel-vercel-tutorial-navigation .pixel-choice {
+  width: min(240px, 100%);
+  text-align: center;
 }
 
 .pixel-assessment {

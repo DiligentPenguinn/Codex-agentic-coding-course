@@ -16,7 +16,7 @@ describe('session-only content review mode', () => {
     expect(reviewBranch).toBeGreaterThan(-1)
     expect(persistedSave).toBeGreaterThan(reviewBranch)
     expect(learningWindow).toContain("'m3-final-assessment': 'module-3-mastery-summary'")
-    expect(learningWindow).toContain("'ownership-transfer-retrieval': contentReviewMode ? 'module-4-portfolio-mastery'")
+    expect(learningWindow).not.toContain('ownership-transfer-retrieval')
     expect(learningWindow).not.toContain('contentReviewSlideDestinationByScene')
     expect(learningWindow).not.toContain("displayedSceneId === 'module-2-portfolio-folder'")
     expect(learningWindow).not.toContain("progress.sceneId === 'module-2-implementation-plan-intro'")
@@ -41,7 +41,7 @@ describe('session-only content review mode', () => {
     const learningWindow = await source('course-companion/src/renderer/src/surfaces/LearningWindow.tsx')
     expect(learningWindow).toContain('const isAssessmentQuestionPage = Boolean(assessmentQuestion && assessmentGroup)')
     expect(learningWindow).toContain('&& !isAssessmentQuestionPage')
-    expect(learningWindow).toContain('aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}')
+    expect(learningWindow).toContain('isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}')
     expect(learningWindow).toContain('questionOnly={isAssessmentQuestionPage}')
   })
 

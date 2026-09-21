@@ -1477,12 +1477,11 @@ async function verifyContentReviewMode(page) {
   await capture(page, 'module-4-content-review.png')
 
   await page.setViewportSize({ width: 1180, height: 748 })
-  for (const id of ['hosting-intro', 'hosting-roles', 'vercel-benefits', 'vercel-limits', 'environments', 'release-intro', 'release-checklist']) {
+  for (const id of ['hosting-intro', 'vercel-benefits', 'after-video']) {
     await page.locator(`main[data-scene-id="module-4-${id}"]`).waitFor()
     await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
   }
-  await answerAssessmentGroup(page, 'release-validation-retrieval')
-  await page.locator('main[data-scene-id="module-4-security-intro"]').waitFor()
+  await page.locator('main[data-scene-id="module-4-access-check"]').waitFor()
   await verifySequentialReview(page, 2, 'module-4')
   assert.equal(await page.locator('.pixel-consequence').count(), 0)
   await page.locator('.pixel-brand').click()

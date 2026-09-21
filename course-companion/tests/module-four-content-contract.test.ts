@@ -78,7 +78,7 @@ describe('Module 4 content-first contract', () => {
     expect(combined).not.toContain('docs/internal/target-learner-definition.md')
   })
 
-  it('provides five formative checks and a sourced eight-question ownership assessment', async () => {
+  it('provides only a sourced eight-question assessment at the end of the module', async () => {
     const quiz = JSON.parse(await read('quizzes/module-4.quiz.json')) as {
       delivery: Record<string, unknown>
       masteryPolicy: Record<string, unknown>
@@ -87,7 +87,8 @@ describe('Module 4 content-first contract', () => {
     expect(quiz.delivery).toMatchObject({
       mode: 'one-question-at-a-time',
       doNotStackQuestions: true,
-      feedbackTiming: 'after-answer'
+      feedbackTiming: 'after-answer',
+      assessmentPlacement: 'end-of-module-only'
     })
     expect(quiz.masteryPolicy).toMatchObject({
       publishThreshold: false,
@@ -95,7 +96,8 @@ describe('Module 4 content-first contract', () => {
       requiresVerifiedPreview: true,
       allowsProductionDecline: true
     })
-    expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(5)
+    expect(quiz.groups.map((group) => group.id)).toEqual(['m4-final-assessment'])
+    expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(0)
     const final = quiz.groups.find((group) => group.id === 'm4-final-assessment')!
     expect(final.questions).toHaveLength(8)
     expect(final.questions.filter((question) => question.type !== 'multiple-choice').map((question) => question.id)).toEqual([

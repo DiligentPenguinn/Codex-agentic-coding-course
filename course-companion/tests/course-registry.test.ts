@@ -190,30 +190,25 @@ describe('portfolio course registry', () => {
 
   it('registers the complete Module 4 content journey while preserving its deferred Practice identity', () => {
     const moduleFour = portfolioModuleDefinitions[2]
-    expect(moduleFour.scenes.slice(0, 4).map((scene) => scene.id)).toEqual([
+    expect(moduleFour.scenes.slice(0, 3).map((scene) => scene.id)).toEqual([
       'module-4-hosting-intro',
-      'module-4-hosting-roles',
       'module-4-vercel-benefits',
-      'module-4-vercel-limits'
+      'module-4-after-video'
     ])
-    expect(moduleFour.scenes[0]?.nextSceneId).toBe('module-4-hosting-roles')
-    expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-vercel-benefits')
+    expect(moduleFour.scenes[0]?.nextSceneId).toBe('module-4-vercel-benefits')
+    expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-after-video')
     expect(moduleFour.lessons).toHaveLength(5)
     expect(moduleFour.quizGroupIds).toEqual([
-      'release-validation-retrieval',
-      'security-publication-retrieval',
-      'preview-deployment-retrieval',
-      'production-decision-retrieval',
-      'ownership-transfer-retrieval',
       'm4-final-assessment'
     ])
+    expect(moduleFour.scenes.filter((scene) => scene.id.startsWith('module-4-check-'))).toHaveLength(0)
     expect(moduleFour.practice).toEqual({
       id: 'm4-portfolio-release',
       version: '1.0.0',
       evidenceProfile: 'portfolio-release'
     })
     expect(moduleFour.scenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
-      'module-4-release-intro',
+      'module-4-after-video',
       'module-4-portfolio-practice',
       'module-4-portfolio-mastery',
       'module-4-mastery-summary'

@@ -47,19 +47,23 @@ describe('GitHub and Vercel publication content', () => {
     expect(script).toContain('thiếu hoặc không khớp thì quay lại task Codex, chưa bắt đầu tổng kết hoặc Module 4')
   })
 
-  it('preserves all former Module 4 pages and keeps the unavailable Practice action inactive', async () => {
+  it('preserves instructional Module 4 pages without mid-lesson questions and keeps the unavailable Practice action inactive', async () => {
     const ids = moduleFourDefinition.scenes.map((scene) => String(scene.id))
     const preserved = [
-      'hosting-intro', 'hosting-roles', 'release-intro', 'check-release-evidence',
-      'security-intro', 'check-protection-scope', 'preview-intro', 'check-preview-evidence',
-      'production-intro', 'check-production-choice', 'ownership-intro', 'check-transfer-boundary',
+      'hosting-intro', 'after-video',
+      'access-check', 'vercel-preview',
+      'production-intro', 'ownership-intro',
       'portfolio-practice', 'portfolio-mastery', 'mastery-release', 'mastery-security',
       'mastery-preview', 'mastery-production', 'mastery-owned-release', 'mastery-owned-transfer',
       'mastery-summary', 'complete'
     ]
     expect(ids).toEqual(expect.arrayContaining(preserved.map((id) => `module-4-${id}`)))
-    expect(ids.indexOf('module-4-security-setup')).toBeLessThan(ids.indexOf('module-4-vercel-deploy'))
-    expect(ids.indexOf('module-4-vercel-deploy')).toBeLessThan(ids.indexOf('module-4-vercel-preview'))
+    expect(ids.slice(1, 10)).toEqual([
+      'module-4-vercel-benefits', 'module-4-after-video', 'module-4-access-check',
+      'module-4-vercel-preview', 'module-4-update-local', 'module-4-update-preview',
+      'module-4-preview-review', 'module-4-production-intro', 'module-4-production-publish'
+    ])
+    for (const retired of ["module-4-vercel-limits", "module-4-environments", "module-4-release-intro", "module-4-release-checklist", "module-4-security-intro", "module-4-security-access", "module-4-security-setup", "module-4-preview-intro", "module-4-vercel-import", "module-4-vercel-repository", "module-4-vercel-prepare", "module-4-vercel-config", "module-4-vercel-deploy"]) expect(ids).not.toContain(retired)
     expect(ids.indexOf('module-4-update-workflow')).toBeLessThan(ids.indexOf('module-4-rollback-resume'))
     const source = await read(rendererPath(4))
     expect(sceneBlocks(source).find((scene) => scene.id === 'module-4-portfolio-practice')!.body).toContain('choices: []')
@@ -75,9 +79,9 @@ describe('GitHub and Vercel publication content', () => {
           && !scene.id.endsWith('-practice') && !scene.id.endsWith('-complete')
         )
         if (newInstruction) {
-          const quoted = scene.body.match(/dialogue: ("(?:[^"\\]|\\.)*")/)?.[1]
+          const quoted = scene.body.match(/dialogue: ("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/)?.[1]
           expect(quoted, scene.id).toBeDefined()
-          const dialogue = JSON.parse(quoted!) as string
+          const dialogue = quoted!.startsWith('"') ? JSON.parse(quoted!) as string : quoted!.slice(1, -1)
           for (const paragraph of dialogue.split('\n\n')) expect(lesson, scene.id).toContain(paragraph)
         }
       }

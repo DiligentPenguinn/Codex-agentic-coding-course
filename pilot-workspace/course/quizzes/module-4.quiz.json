@@ -9,7 +9,8 @@
     "feedbackPolicy": "Chỉ hiện lời giải, tiêu chí và nguồn sau khi Learner đã gửi câu trả lời cho câu hiện tại.",
     "sourcePolicy": "Mỗi đáp án phải truy ngược đến tài liệu Vercel chính thức, lần kiểm chứng đã lưu hoặc một quyết định chương trình được ghi rõ.",
     "learnerOwnedAnswerPolicy": "Câu tự viết phải dẫn chiếu tài liệu, phiên bản và quan sát của chính Learner; lặp lại ví dụ trong bài không được tính là đạt.",
-    "practiceBoundary": "Practice phát hành và bài kiểm tra làm chủ là hai điều kiện độc lập. Chế độ duyệt nội dung không tạo biên nhận cho bất kỳ điều kiện nào."
+    "practiceBoundary": "Practice phát hành và bài kiểm tra làm chủ là hai điều kiện độc lập. Chế độ duyệt nội dung không tạo biên nhận cho bất kỳ điều kiện nào.",
+    "assessmentPlacement": "end-of-module-only"
   },
   "masteryPolicy": {
     "strategy": "pilot-configured",
@@ -27,146 +28,6 @@
   },
   "groups": [
     {
-      "id": "release-validation-retrieval",
-      "title": "Kiểm tra phiên bản sẵn sàng phát hành",
-      "placement": "after-m4-release-validation",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "release-validation-retrieval-1",
-          "sceneId": "module-4-check-release-evidence",
-          "type": "multiple-choice",
-          "prompt": "Agent báo các kiểm tra tự động đều đạt, nhưng khi bạn mở bản Local, nút tải CV vẫn trả về lỗi. Bạn nên làm gì?",
-          "choices": [
-            "Đưa lên Vercel vì kiểm tra tự động đã bao phủ việc tải tệp.",
-            "Gửi agent đúng thao tác và lỗi, sửa rồi kiểm tra lại nút tải CV trước khi triển khai.",
-            "Chỉ kiểm tra giao diện trang chủ vì CV là tệp riêng.",
-            "Giữ kết quả hiện tại và chỉ sửa nếu người xem báo lỗi."
-          ],
-          "answerIndex": 1,
-          "explanation": "Kiểm tra tự động không thay việc thử hành vi người xem cần dùng. Lỗi tải CV phải được sửa và thử lại trên đúng bản trước khi phát hành.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Kế hoạch triển khai M4.2 — Kiểm chứng phát hành",
-            "url": "docs/planning/portfolio-course-implementation-plan.md#m42--implement-the-release-validation-report",
-            "basis": "Điều kiện này yêu cầu đối chiếu PRD, kiểm tra tự động và bằng chứng trình duyệt; lỗi chặn phải quay lại vòng gỡ lỗi."
-          }
-        }
-      ]
-    },
-    {
-      "id": "security-publication-retrieval",
-      "title": "Kiểm tra an toàn và phạm vi truy cập",
-      "placement": "after-m4-security-publication",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "security-publication-retrieval-1",
-          "sceneId": "module-4-check-protection-scope",
-          "type": "multiple-choice",
-          "prompt": "Repo đã để Private và project Vercel dùng Standard Protection. Bạn định chỉ tự xem website. Bước nào phù hợp?",
-          "choices": [
-            "Giữ nguyên vì repo Private đã giới hạn người xem website.",
-            "Chỉ xem biểu tượng ổ khóa trên thanh địa chỉ là đủ.",
-            "Đổi tên đường link để người khác khó đoán.",
-            "Chọn All Deployments với Vercel Authentication rồi kiểm tra cả địa chỉ chính trong cửa sổ riêng tư."
-          ],
-          "answerIndex": 3,
-          "explanation": "Quyền repo và website tách biệt. Standard Protection để địa chỉ Production chính không được bảo vệ; khi muốn giới hạn cả địa chỉ đó, cần All Deployments và thử quyền truy cập thực tế.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Vercel — Deployment Protection",
-            "url": "https://vercel.com/docs/deployment-protection",
-            "basis": "Standard Protection loại trừ địa chỉ Production chính. All Deployments bảo vệ cả các địa chỉ đó và có thể kết hợp Vercel Authentication."
-          }
-        }
-      ]
-    },
-    {
-      "id": "preview-deployment-retrieval",
-      "title": "Kiểm tra Preview",
-      "placement": "after-m4-preview-deployment",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "preview-deployment-retrieval-1",
-          "sceneId": "module-4-check-preview-evidence",
-          "type": "multiple-choice",
-          "prompt": "Agent gửi link Preview và trang Vercel báo Ready. Bạn cần kiểm tra thêm gì trước khi duyệt bản này?",
-          "choices": [
-            "Môi trường, branch và commit của deployment; sau đó mở đúng link để thử thay đổi và quyền truy cập.",
-            "Chỉ cần kiểm tra ảnh chụp trang chủ do agent gửi.",
-            "Chỉ cần mở bản Local vì code đã giống nhau.",
-            "Chỉ cần tải lại link Production để xem thay đổi."
-          ],
-          "answerIndex": 0,
-          "explanation": "Ready nói về kết quả triển khai. Bạn vẫn cần xác nhận đúng phiên bản, thử hành vi và xem ai truy cập được đúng đường link.",
-          "source": {
-            "kind": "authoritative-source",
-            "label": "Vercel — Environments",
-            "url": "https://vercel.com/docs/deployments/environments",
-            "basis": "Preview và Production có mục đích, branch và URL khác nhau. Bằng chứng cần gắn với đúng deployment của phiên bản đang được xem xét."
-          }
-        }
-      ]
-    },
-    {
-      "id": "production-decision-retrieval",
-      "title": "Kiểm tra quyết định Production",
-      "placement": "after-m4-production-decision",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "production-decision-retrieval-1",
-          "sceneId": "module-4-check-production-choice",
-          "type": "multiple-choice",
-          "prompt": "Bạn đã kiểm tra Preview nhưng chưa muốn mọi người xem portfolio. Với project đầu tiên đã có Production được bảo vệ, bạn có thể làm gì?",
-          "choices": [
-            "Phải tắt bảo vệ vì project có Production rồi.",
-            "Đổi repo thành Private rồi tắt bảo vệ Vercel.",
-            "Giữ All Deployments, ghi lý do chưa công khai và việc cần làm tiếp.",
-            "Chỉ ngừng gửi link; các quyền truy cập không cần xem lại."
-          ],
-          "answerIndex": 2,
-          "explanation": "Tạo deployment Production khác với công khai website. Bạn có thể giữ quyền bảo vệ và ghi quyết định chưa công khai; Preview đã kiểm chứng vẫn là một kết quả của bài.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Kế hoạch triển khai M4.6 — Quyết định Production",
-            "url": "docs/planning/portfolio-course-implementation-plan.md#m46--record-the-production-publication-decision",
-            "basis": "Kế hoạch khóa học cho phép Learner từ chối Production và vẫn đạt khi Preview cùng các điều kiện không thể bỏ qua đã đạt."
-          }
-        }
-      ]
-    },
-    {
-      "id": "ownership-transfer-retrieval",
-      "title": "Kiểm tra quyền sở hữu và chuyển giao",
-      "placement": "after-m4-ownership-transfer",
-      "mode": "formative",
-      "questions": [
-        {
-          "id": "ownership-transfer-retrieval-1",
-          "sceneId": "module-4-check-transfer-boundary",
-          "type": "multiple-choice",
-          "prompt": "Bài chuyển giao nào chứng minh kỹ năng tốt nhất?",
-          "choices": [
-            "Thêm một animation nữa vào portfolio.",
-            "Lập bản mô tả ngắn, yêu cầu, cách kiểm chứng và nhiệm vụ đầu tiên có giới hạn cho một ứng dụng nhỏ khác.",
-            "Sao chép nguyên portfolio thành project mới.",
-            "Nhờ Codex tự chọn và xây toàn bộ ứng dụng khác."
-          ],
-          "answerIndex": 1,
-          "explanation": "Chuyển giao kỹ năng yêu cầu áp dụng lại cách xác định phạm vi và bằng chứng vào một vấn đề khác; đó không phải một tính năng portfolio hoặc một lần sao chép.",
-          "source": {
-            "kind": "curriculum-judgment",
-            "label": "Kế hoạch triển khai M4.7 — Quyền sở hữu và chuyển giao",
-            "url": "docs/planning/portfolio-course-implementation-plan.md#m47--complete-ownership-defense-and-transfer-package",
-            "basis": "Gói chuyển giao dùng một dự án khác và chỉ yêu cầu bản mô tả ngắn, yêu cầu, cách kiểm chứng cùng kế hoạch đầu tiên có giới hạn."
-          }
-        }
-      ]
-    },
-    {
       "id": "m4-final-assessment",
       "title": "Mastery Module 4 và toàn khóa",
       "placement": "after-passed-m4-portfolio-release",
@@ -176,20 +37,20 @@
           "id": "m4-mastery-release",
           "sceneId": "module-4-mastery-release",
           "type": "multiple-choice",
-          "prompt": "Một tiêu chí chấp nhận được ghi “hoãn” nhưng không có lý do hoặc phê duyệt. Báo cáo kiểm chứng phát hành nên kết luận gì?",
+          "prompt": "Bản dựng trên Vercel báo Ready nhưng khi mở đường link, một trang con trả về lỗi 404. Bạn nên làm gì?",
           "choices": [
-            "Chấp nhận bản này vì tiêu chí đó chưa gây ra lỗi kỹ thuật.",
-            "Chấp nhận bản này rồi ghi lý do hoãn sau khi có người hỏi.",
-            "Chưa chấp nhận; cần ghi lý do, ảnh hưởng và quyết định hoãn của bạn.",
-            "Chỉ cần agent đổi trạng thái từ “hoãn” sang “không áp dụng”."
+            "Chia sẻ ngay vì trạng thái Ready đã chứng minh mọi đường dẫn hoạt động.",
+            "Duyệt lại toàn bộ nội dung portfolio trước khi xem lỗi triển khai.",
+            "Gửi agent đúng URL, commit và cách tái hiện; sửa lỗi rồi thử lại bản triển khai trước khi chia sẻ.",
+            "Đổi repo thành Public để mọi đường dẫn tự hoạt động."
           ],
           "answerIndex": 2,
-          "explanation": "Chủ động hoãn không phải đường vòng quanh điều kiện kiểm tra. Quyết định hoãn phải có chủ sở hữu, lý do và ảnh hưởng được chấp nhận.",
+          "explanation": "Ready cho biết bản dựng đã sẵn sàng. Lỗi đường dẫn trên bản online vẫn cần được sửa và thử lại trên đúng deployment trước khi chia sẻ.",
           "source": {
             "kind": "curriculum-judgment",
             "label": "Kế hoạch triển khai M4.2 — Kiểm chứng phát hành",
             "url": "docs/planning/portfolio-course-implementation-plan.md#m42--implement-the-release-validation-report",
-            "basis": "Mỗi yêu cầu phải đạt, thất bại hoặc được hoãn rõ ràng với phê duyệt; phần chủ động không làm không được giả làm phần đã hoàn thành."
+            "basis": "Module 4 kiểm tra bản triển khai của phiên bản đã chốt ở Module 3: trạng thái bản dựng, đúng commit, đường dẫn và hành vi trên website online. Không duyệt lại nội dung portfolio."
           }
         },
         {

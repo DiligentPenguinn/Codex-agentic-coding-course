@@ -1,5 +1,24 @@
 # Module 4 browser references
 
+## User-supplied opening image
+
+`vercel-projects-overview.png` is the unchanged screenshot supplied by the owner
+on 16 September 2026 for `module-4-hosting-intro`. It shows the Vercel Projects
+dashboard with `portfolio-smu` and `minhtrietportfolio.dev`. It is an example
+dashboard, not evidence of a learner deployment.
+
+## Owner-approved deployment video
+
+`vercel-portfolio-captioned.mp4` was recorded with OBS on 17 September 2026
+and approved by the owner for inclusion in `module-4-vercel-benefits`.
+The 127.9-second, silent 1920 × 1080 video contains the approved Vietnamese
+captions. It shows a real import, initial deployment and website visit using
+Portfolio-SMU as an example, in the separate `portfolio-smu-video-demo` project.
+It is bundled locally and is not evidence of learner Practice completion.
+Source recording and editing files: `tmp/vercel-video-2026-09-17/`.
+
+## Browser captures
+
 Captured with the Codex in-app browser on 14 September 2026. No sign-in,
 repository import, deployment, account permission or billing action was performed.
 The PNGs preserve browser output; numbered annotations are HTML/CSS overlays in

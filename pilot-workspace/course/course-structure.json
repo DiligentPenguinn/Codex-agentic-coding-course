@@ -256,12 +256,12 @@
       "lessons": [
         {
           "id": "m4-release-validation",
-          "titleVi": "Hosting và kiểm tra portfolio",
+          "titleVi": "Hosting và chuẩn bị triển khai",
           "checkpoints": ["m4-release-validation"]
         },
         {
           "id": "m4-security-publication",
-          "titleVi": "Nội dung và quyền truy cập",
+          "titleVi": "Bảo mật và quyền truy cập",
           "checkpoints": ["m4-security-publication"]
         },
         {
