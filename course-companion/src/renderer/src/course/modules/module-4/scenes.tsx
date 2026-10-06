@@ -1,168 +1,64 @@
-import type { CheckpointId, CourseLessonId, SceneId } from '../../../../../../shared/contracts'
-import releaseQuiz from '../../../../../../../pilot-workspace/course/quizzes/module-4.quiz.json'
+import type { SceneId } from '../../../../../../shared/contracts'
 import type { RegistrySceneContent } from '../../module-contracts'
 
-type QuizGroup = {
-  id: string
-  title: string
-  mode: 'formative' | 'mastery'
-  questions: Array<{ id: string; sceneId: string; prompt: string; type: string }>
-}
-
-const groupRoute: Record<string, {
-  checkpointId: CheckpointId
-  courseLessonId: CourseLessonId
-  step: number
-}> = {
-  'release-validation-retrieval': { checkpointId: 'm4-release-validation', courseLessonId: 'm4-release-validation', step: 1 },
-  'security-publication-retrieval': { checkpointId: 'm4-security-publication', courseLessonId: 'm4-security-publication', step: 2 },
-  'preview-deployment-retrieval': { checkpointId: 'm4-preview-deployment', courseLessonId: 'm4-preview-deployment', step: 3 },
-  'production-decision-retrieval': { checkpointId: 'm4-production-decision', courseLessonId: 'm4-production-decision', step: 4 },
-  'ownership-transfer-retrieval': { checkpointId: 'm4-ownership-transfer', courseLessonId: 'm4-ownership-transfer', step: 5 },
-  'm4-final-assessment': { checkpointId: 'm4-mastery', courseLessonId: 'm4-ownership-transfer', step: 5 }
-}
-
-const quizGroups = releaseQuiz.groups as QuizGroup[]
-const assessmentScenes = Object.fromEntries(quizGroups.flatMap((group) => {
-  const route = groupRoute[group.id]
-  if (!route) throw new Error(`Nhóm câu hỏi Module 4 chưa có tuyến hiển thị: ${group.id}`)
-  return group.questions.map((question, index) => [question.sceneId, {
-    lessonId: 'module-4',
-    checkpointId: route.checkpointId,
-    step: route.step,
-    totalSteps: 5,
-    lessonLabel: 'MODULE 4 · PHÁT HÀNH VÀ QUYỀN SỞ HỮU',
-    mission: group.title,
-    objective: `Câu ${index + 1}/${group.questions.length}`,
-    panelLabel: group.mode === 'mastery' ? 'KIỂM TRA TỔNG HỢP' : 'KIỂM TRA NHANH',
-    panelStatus: `CÂU ${index + 1}/${group.questions.length}`,
-    tone: 'neutral',
-    request: 'Trả lời trước. Lời giải và nguồn sẽ hiện sau khi bạn trả lời.',
-    evidence: [
-      { label: 'HÌNH THỨC', value: question.type === 'multiple-choice' ? 'Chọn một đáp án' : 'Dùng bằng chứng của bạn' },
-      { label: 'TIẾN ĐỘ', value: `${index + 1}/${group.questions.length}` }
-    ],
-    dialogue: question.prompt,
-    choices: [],
-    assessmentQuestionId: question.id,
-    assessmentGroupId: group.id
-  } satisfies RegistrySceneContent])
-})) as Partial<Record<SceneId, RegistrySceneContent>>
-
 const instructionalScenes = {
-  'module-4-release-intro': {
+  'module-4-hosting-intro': {
     lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · PHIÊN BẢN PHÁT HÀNH', mission: 'Kiểm chứng trước khi đưa ra ngoài máy',
-    objective: 'Nối PRD, kiểm tra tự động và hành vi thật', panelLabel: 'BA LỚP BẰNG CHỨNG',
-    panelStatus: 'PRD · KIỂM TRA · TRÌNH DUYỆT', tone: 'neutral',
-    request: 'Một lớp đạt không thay thế hai lớp còn lại.',
-    evidence: [
-      { label: 'PRD', value: 'Mỗi tiêu chí có trạng thái' },
-      { label: 'LỆNH', value: 'npm run check · npm run preview' },
-      { label: 'TRÌNH DUYỆT', value: '1440 × 900 · 390 × 844' }
-    ],
-    dialogue: 'Phiên bản sẵn sàng phát hành chỉ đạt khi yêu cầu, kiểm tra kỹ thuật và hành vi quan sát được cùng trỏ tới một trạng thái hiện tại. Nếu còn lỗi chặn, bạn phải quay lại vòng gỡ lỗi trước khi triển khai.',
-    choices: [{ label: 'Kiểm tra bằng chứng phát hành', next: 'module-4-check-release-evidence', primary: true }]
+    lessonLabel: 'MODULE 4 · HOSTING', mission: 'Để người khác xem được portfolio',
+    objective: 'Hiểu vì sao website cần một nơi trên Internet', panelLabel: 'HOSTING LÀ GÌ?',
+    panelStatus: 'TỪ MÁY CỦA BẠN RA INTERNET', tone: 'neutral',
+    request: 'Website cần một nơi để người khác truy cập, kể cả khi bạn tắt máy.',
+    evidence: [],
+    dialogue: 'Bạn đã làm xong portfolio và mở được nó trên máy. Bây giờ, bạn muốn gửi cho một người bạn xem. Buồn một nỗi là với tình trạng hiện tại thì không thể nào gửi được, bởi vì portfolio của bạn chỉ đang trỏ đến localhost, IP mà chỉ có máy tính hiện tại của bạn kết nối được. \n\nBạn cần đặt website ở một nơi có thể truy cập qua Internet. Nói cách khác, bạn cần host portfolio của bạn trên một địa chỉ online mà ai cũng truy cập được..\n\nKhi website đã được đưa lên đó, người khác có thể mở bằng đường link, kể cả khi bạn đã tắt máy. Trong khóa học này, chúng ta sẽ dùng Vercel để làm việc đó.',
+    highlightTerms: ['localhost', 'hosting', 'Vercel'],
+    choices: [{ label: 'Máy tính, GitHub và Vercel làm gì?', next: 'module-4-vercel-benefits', primary: true }]
   },
-  'module-4-security-intro': {
-    lessonId: 'module-4', checkpointId: 'm4-security-publication', step: 2, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · AN TOÀN', mission: 'Duyệt điều có thể lộ và ai có thể xem',
-    objective: 'Chặn secret, dữ liệu riêng tư và phạm vi công bố mơ hồ', panelLabel: 'CỬA KIỂM TRA CÔNG BỐ',
-    panelStatus: 'KIỂM TRA TRƯỚC MỌI HÀNH ĐỘNG MẠNG', tone: 'neutral',
-    request: 'Chế độ bảo vệ không sửa secret đã commit hoặc tự cấp quyền dùng tài sản.',
-    evidence: [
-      { label: 'DỮ LIỆU', value: 'Secret · cá nhân · khách hàng' },
-      { label: 'QUYỀN', value: 'Ảnh · tài liệu · metadata' },
-      { label: 'TRUY CẬP', value: 'Đúng URL · đúng môi trường' }
-    ],
-    dialogue: 'Standard Protection có thể bảo vệ Preview, trong khi domain Production vẫn có thể công khai. Vì vậy, bạn phải quan sát phạm vi truy cập trên đúng URL thay vì suy ra từ tên cài đặt.',
-    choices: [{ label: 'Kiểm tra phạm vi bảo vệ', next: 'module-4-check-protection-scope', primary: true }]
+  'module-4-vercel-benefits': {
+    lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 4 · PHÁT HÀNH PORTFOLIO', mission: "Vercel giúp bạn làm gì?",
+    objective: "Vercel giúp bạn làm gì?", panelLabel: 'CÙNG THỰC HÀNH',
+    panelStatus: 'TỪ CODE ĐẾN WEBSITE', tone: 'neutral',
+    request: "Vercel giúp bạn làm gì?", evidence: [],
+    dialogue: 'Hãy xem video để biết cách đưa portfolio lên Vercel.',
+    choices: [{ label: 'Tiếp tục', next: 'module-4-after-video', primary: true }]
   },
-  'module-4-preview-intro': {
+  'module-4-after-video': {
+    lessonId: 'module-4', checkpointId: 'm4-release-validation', step: 1, totalSteps: 5,
+    lessonLabel: 'MODULE 4 · PHÁT HÀNH PORTFOLIO', mission: "Mở portfolio vừa đưa lên mạng",
+    objective: "Mở portfolio vừa đưa lên mạng", panelLabel: 'CÙNG THỰC HÀNH',
+    panelStatus: 'CẬP NHẬT PORTFOLIO', tone: 'neutral',
+    request: "Mở portfolio vừa đưa lên mạng", evidence: [],
+    dialogue: "Bạn đã làm theo video để đưa portfolio lên Vercel. Bây giờ, bạn hãy nhấn vào đường link mà vercel đưa cho bạn.\n\n Sau đó, hãy xem nội dung đã hiện đúng ý bạn chưa, ảnh có tải được không, v.v. Thử cả trên máy tính và điện thoại.\n\n Nếu website chưa mở được hoặc còn lỗi, bạn hãy nhờ agent tìm nguyên nhân và sửa nó. Thường là quá trình này khá đơn giản nên cũng sẽ không có lỗi gì nghiêm trọng xảy ra.",
+    choices: [{ label: 'Tiếp tục', next: 'module-4-vercel-preview', primary: true }]
+  },
+  'module-4-vercel-preview': {
     lessonId: 'module-4', checkpointId: 'm4-preview-deployment', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · PREVIEW', mission: 'Triển khai đúng phiên bản và kiểm chứng trực tiếp',
-    objective: 'Phân biệt một URL với bằng chứng triển khai', panelLabel: 'LUỒNG ĐÃ KIỂM CHỨNG',
-    panelStatus: 'TRANG KHỞI TẠO → BẢO VỆ → PREVIEW', tone: 'good',
-    request: 'Project mới dùng trang khởi tạo trung tính trước khi đưa portfolio thật lên.',
-    evidence: [
-      { label: 'VERCEL INSPECT', value: 'đích Preview · Ready' },
-      { label: 'PHIÊN BẢN', value: 'Nguồn hiện tại' },
-      { label: 'TRỰC TIẾP', value: 'Hành vi · truy cập · nhật ký' }
-    ],
-    dialogue: 'Lần triển khai đầu khi tạo project mới có thể trở thành Production. Trang khởi tạo trung tính giúp portfolio thật không xuất hiện trong lần công khai bắt buộc đó. Sau đó, Preview của portfolio vẫn cần kết quả `inspect`, nhật ký và kiểm tra trực tiếp.',
-    choices: [{ label: 'Kiểm tra bằng chứng Preview', next: 'module-4-check-preview-evidence', primary: true }]
-  },
-  'module-4-production-intro': {
-    lessonId: 'module-4', checkpointId: 'm4-production-decision', step: 4, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · PRODUCTION', mission: 'Ra quyết định xuất bản có chủ đích',
-    objective: 'Không biến phê duyệt Preview thành phê duyệt Production', panelLabel: 'QUYỀN QUYẾT ĐỊNH',
-    panelStatus: 'PRODUCTION LÀ LỰA CHỌN', tone: 'neutral',
-    request: 'Bạn vẫn có thể đạt nếu chọn chưa công bố, miễn là Preview và các điều kiện bắt buộc đều đạt.',
-    evidence: [
-      { label: 'NẾU CHƯA', value: 'Lưu lý do và bước sau' },
-      { label: 'NẾU CÓ', value: 'Danh sách mới · phê duyệt mới' },
-      { label: 'SAU ĐÓ', value: 'Kiểm tra thực tế · phục hồi' }
-    ],
-    dialogue: 'Production có thể thay đổi nội dung người xem truy cập qua domain thật. Bạn sở hữu quyết định này; Codex chỉ đề xuất và thực hiện phần kỹ thuật sau khi được phê duyệt rõ ràng.',
-    choices: [{ label: 'Kiểm tra lựa chọn Production', next: 'module-4-check-production-choice', primary: true }]
-  },
-  'module-4-ownership-intro': {
-    lessonId: 'module-4', checkpointId: 'm4-ownership-transfer', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · QUYỀN SỞ HỮU', mission: 'Giải thích quyết định bằng bằng chứng của bạn',
-    objective: 'Chuyển quy trình sang một ứng dụng khác', panelLabel: 'CHỨNG MINH LÀM CHỦ',
-    panelStatus: 'BẰNG CHỨNG THẬT · DỰ ÁN KHÁC', tone: 'good',
-    request: 'Lặp lại câu chữ của bài không thay thế quyết định và quan sát thật.',
-    evidence: [
-      { label: 'PORTFOLIO', value: 'Phạm vi · phiên bản · gỡ lỗi' },
-      { label: 'PHÁT HÀNH', value: 'Preview · phạm vi truy cập · lựa chọn Production' },
-      { label: 'CHUYỂN GIAO', value: 'Mô tả ngắn · yêu cầu · nhiệm vụ đầu' }
-    ],
-    dialogue: 'Bạn không phải tự viết code. Bạn cần giải thích điều mình đã quyết định, bằng chứng nào làm thay đổi bước tiếp theo và cách bắt đầu một ứng dụng nhỏ khác với ít hướng dẫn hơn.',
-    choices: [{ label: 'Kiểm tra ranh giới transfer', next: 'module-4-check-transfer-boundary', primary: true }]
+    lessonLabel: 'MODULE 4 · PHÁT HÀNH PORTFOLIO', mission: "Chọn một thay đổi nhỏ",
+    objective: "Chọn một thay đổi nhỏ", panelLabel: 'CÙNG THỰC HÀNH',
+    panelStatus: 'CẬP NHẬT PORTFOLIO', tone: 'neutral',
+    request: "Chọn một thay đổi nhỏ", evidence: [],
+    dialogue: "Yayy, vậy là giờ bạn đã có một website để gửi cho người khác xem. Nếu bạn muốn dùng tên miền riêng thay cho địa chỉ có đuôi .vercel.app thì bạn có thể mua ngay trong Vercel.\n\nSau này nếu bạn muốn thay đổi bất kỳ chi tiết gì, bạn có thể sửa và kiểm tra trước ở môi trường local. Sau đó, nếu thấy ưng ý rồi thì hãy commit và push lên branch main. Nếu main là branch Vercel đang dùng để phát hành website, Vercel sẽ tự động cập nhật thay đổi của bạn sau khi triển khai thành công.",
+    choices: [{ label: 'Tiếp tục', next: 'module-4-portfolio-practice', primary: true }]
   },
   'module-4-portfolio-practice': {
     lessonId: 'module-4', checkpointId: 'm4-portfolio-release', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · PRACTICE', mission: 'Phát hành có kiểm chứng trong một nhiệm vụ Codex xuyên suốt',
-    objective: 'Hoàn thành năm cột mốc phát hành và quyền sở hữu', panelLabel: 'BẰNG CHỨNG PHÁT HÀNH',
-    panelStatus: '5 CỘT MỐC · 1 NHIỆM VỤ', tone: 'neutral',
-    request: 'Practice chỉ ghi nhận kết quả khi bằng chứng phát hành khớp với phiên bản hiện tại.',
-    evidence: [
-      { label: 'PHIÊN BẢN', value: 'PRD · kiểm tra · hành vi thật', ready: true },
-      { label: 'PREVIEW', value: 'URL · truy cập · nhật ký' },
-      { label: 'QUYỀN SỞ HỮU', value: 'Production · chuyển giao' }
-    ],
-    dialogue: 'Trong Practice, bạn sẽ dùng một nhiệm vụ Codex xuyên suốt để kiểm tra phiên bản, bảo vệ dữ liệu, tạo Preview, quyết định Production và lưu bằng chứng chuyển giao.',
+    lessonLabel: 'MODULE 4 · THỰC HÀNH', mission: 'Thực hành phát hành portfolio',
+    objective: 'Có portfolio trên mạng để chia sẻ', panelLabel: 'CÙNG THỰC HÀNH',
+    panelStatus: 'BÀI THỰC HÀNH CHƯA HOẠT ĐỘNG', tone: 'neutral',
+    request: 'Dùng portfolio và tài khoản của bạn để thực hành cùng Codex.', evidence: [],
+    dialogue: 'Bây giờ, hãy chuyển sang Codex để đưa portfolio của bạn lên mạng theo hướng dẫn vừa học. Khi bạn có một portfolio mở được bằng đường link để gửi cho người khác xem, bạn đã đạt mục tiêu của Module 4 rồi. Không có bài kiểm tra cuối phần này.',
     choices: [{ label: 'Mở Practice phát hành', action: 'practice', primary: true }]
-  },
-  'module-4-portfolio-mastery': {
-    lessonId: 'module-4', checkpointId: 'm4-mastery', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · LÀM CHỦ', mission: 'Kết nối kỹ năng toàn khóa',
-    objective: 'Đánh giá quyết định phát hành bằng bằng chứng của chính bạn', panelLabel: 'BÀI KIỂM TRA',
-    panelStatus: '4 TÌNH HUỐNG · 2 CÂU TỰ VIẾT', tone: 'good',
-    request: 'Hãy trả lời bằng quyết định và bằng chứng từ phiên bản phát hành của bạn.',
-    evidence: [],
-    dialogue: 'Bốn tình huống kiểm tra việc phát hành, an toàn, Preview và Production. Hai câu tự viết kiểm tra quyền sở hữu phiên bản phát hành cùng khả năng chuyển quy trình sang dự án khác.',
-    choices: [{ label: 'Bắt đầu kiểm tra tổng hợp', next: 'module-4-mastery-release', primary: true }]
-  },
-  'module-4-mastery-summary': {
-    lessonId: 'module-4', checkpointId: 'm4-mastery', step: 5, totalSteps: 5,
-    lessonLabel: 'MODULE 4 · LÀM CHỦ', mission: 'Hoàn tất phần trả lời',
-    objective: 'Đối chiếu kiến thức với bằng chứng phát hành và chuyển giao', panelLabel: 'KẾT QUẢ',
-    panelStatus: 'ĐỐI CHIẾU BẰNG CHỨNG', tone: 'neutral',
-    request: 'Course Companion sẽ đối chiếu phần trả lời với kết quả Practice trước khi ghi nhận hoàn thành.',
-    evidence: [], dialogue: '', choices: [], assessmentGroupId: 'm4-final-assessment', assessmentSummary: true
   },
   'module-4-complete': {
     lessonId: 'module-4', checkpointId: 'm4-complete', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 4 · HOÀN THÀNH', mission: 'Tốt nghiệp bằng bằng chứng hiện tại',
-    objective: 'Xác nhận Practice, bài kiểm tra và bằng chứng phát hành', panelLabel: 'TRẠNG THÁI',
-    panelStatus: 'ĐÃ ĐỦ ĐIỀU KIỆN TỐT NGHIỆP', tone: 'good',
-    request: 'Bạn đã hoàn tất các điều kiện bắt buộc của khóa học.',
-    evidence: [], dialogue: 'Kết quả tốt nghiệp chỉ được cấp sau khi Practice, bài kiểm tra làm chủ, Preview, quyền sở hữu và điều kiện chuyển giao thật được nối rồi kiểm chứng.', choices: []
+    objective: 'Có portfolio trên mạng để chia sẻ', panelLabel: 'TRẠNG THÁI',
+    panelStatus: 'CHƯA ĐƯỢC KÍCH HOẠT', tone: 'neutral',
+    request: 'Màn hình này chưa phải xác nhận bạn đã hoàn thành khóa học.',
+    evidence: [], dialogue: 'Mục tiêu của Module 4 là có portfolio trên mạng để gửi cho người khác xem. Ứng dụng hiện chưa tự ghi nhận kết quả thực hành này.', choices: []
   }
 } as const satisfies Partial<Record<SceneId, RegistrySceneContent>>
 
 export const moduleFourScenes = {
-  ...instructionalScenes,
-  ...assessmentScenes
+  ...instructionalScenes
 } satisfies Partial<Record<SceneId, RegistrySceneContent>>

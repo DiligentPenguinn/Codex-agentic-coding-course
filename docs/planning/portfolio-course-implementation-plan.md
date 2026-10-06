@@ -9,13 +9,14 @@
   are implemented and verified for this scoped content change. The previous seven-artifact
   runtime remains active until the delegated integration plan is implemented;
   Module 2 is therefore still `in-progress` and owner acceptance remains
-  pending. Module 4 learner content, five formative checks, and a six-question
-  final review were brought into `Triet-V2-planning` on 18 August 2026 without
-  the temporary content-review launcher, Practice bypasses, or session-only
-  routing. Module 4 Practice, artifact templates, completion, and graduation
-  wiring remain deferred. The
-  M4.0 provider rehearsal is complete, and the Codex-operated CLI flow with a
-  neutral public bootstrap was approved on 16 August 2026. F0.2 was removed by
+  pending. Module 3 includes a Local preview opening and a short GitHub
+  publishing reminder. Module 4 uses the approved hosting opening and deployment
+  video, then goes straight to Practice with a shareable portfolio as its goal.
+  Module 4 has no assessment. This integration excludes temporary content-review
+  routing and Practice bypasses. Module 4 Practice, artifact templates,
+  completion and graduation wiring remain deferred. The historical M4.0 CLI
+  rehearsal passed on 16 August 2026; the current browser deployment path still
+  needs an authenticated learner rehearsal. F0.2 was removed by
   decision on 14 August 2026.
 - **Scope:** Course migration foundation plus Modules 2–4
 - **Delivery rule:** Complete, verify, and accept one module before beginning the
@@ -38,8 +39,8 @@ and must never be inferred from a passing automated check.
 |---|---|---|---|---|---|
 | Foundation | `implemented` — the current course content is integrated with Duy's Practice Guide lifecycle, authoritative Hỏi Triết context, non-owning Practice review, atomic task handoff, compact progress disclosure, activity snapshots, Standard-speed canonicalization, a two-page Model/Effort/Speed presentation, and a macOS panel window that keeps Duyệt Practice eligible above fullscreen Codex | `passed` for the 11 September 2026 content merge: typecheck, lint, 398 unit tests, nine startup tests, production build, full Electron smoke, source audit excluding temporary Practice bypasses, and `git diff --check`. Isolated renderer fixtures also verify the new Module 3 pages at 1440 × 900 and 1180 × 748. Live Codex and pilot acceptance remain pending | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, first-slide back-navigation boundary, the two-page Model/Effort/Speed split with two redundant labels removed, selective Duy workflow integration, and the macOS fullscreen Companion direction were explicitly approved | `pending` | Present the merged app for owner review; capture the outstanding native Codex fullscreen evidence before pilot acceptance. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The merged Teacher/Practice infrastructure does not replace the still-pending five-document Module 2 redesign; its evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
-| Module 3 | `implemented` — the incoming approved content replaces the opening with debugging, adds the separate Git merge page and pre-Practice recap, updates Git dialogue and screenshots, highlights lesson terms, and replaces mastery question 2 with the Git/GitHub comparison. The target Practice and Teacher flow remains intact. The knowledge route ends with branch → merge → recap → Practice. | `passed` for the 11 September 2026 content merge: typecheck, lint, 398 unit tests, nine startup tests, production build, full Electron smoke, source audit excluding temporary Practice bypasses, and `git diff --check`. Isolated renderer fixtures also verify the new Module 3 pages at 1440 × 900 and 1180 × 748. Live Codex and pilot acceptance remain pending | `pending` overall; the Module 3 wording, five-section sequence, debugging guidance, Git/GitHub explanations, continuous Practice experience, Teacher actions, six illustrations, five final questions, supporting copy with the commit-history authoring note removed, both prompt-image enlargements, merged opening page, Git/GitHub image replacement with title-box removal, commit-history layout repair, and retirement of the redundant Practice-transition slide were explicitly approved | `pending` | Owner review of the merged lesson content and question feedback; overall Module 3 approval and pilot acceptance remain pending. |
-| Module 4 | `in-progress` — M4.0 is complete; the M4.1 learner lesson, Teacher script, start prompt, five formative checks, six-question final review, typed scenes, and question-only assessment pages are present on `Triet-V2-planning`; the temporary content-review launcher, session-only routing, and per-Practice bypasses remain excluded; artifact templates, Practice/evidence adapters, official completion, and graduation wiring remain deferred | `passed` for the integrated content and shared runtime scope on 22 August 2026: 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and a source audit confirming that review-only runtime identifiers are absent; macOS provider rehearsal passed on 16 August 2026 and Windows provider runtime remains unverified | `pending` overall; the M4.0 provider flow, temporary content-first sequencing, review-UI simplification, and question-only assessment layout were approved, but learner-facing Module 4 content has not yet received owner acceptance | `pending` | Review Module 4 content and questions before implementing Practice and graduation gates. |
+| Module 3 | `implemented` — approved Local preview opening, publish reminder and Practice transition integrated; target Practice/Teacher behavior preserved | `passed` for the 6 October 2026 integrated automated gate: typecheck, lint, 400 unit tests, nine startup tests, build and full Electron smoke | `pending` overall; the specific content edits were explicitly approved | `pending` | Owner review of integrated content; live learner acceptance remains separate. |
+| Module 4 | `in-progress` — approved hosting/video content and portfolio Practice outcome integrated; all assessments removed; automatic Practice and graduation deferred | `passed` for the 6 October 2026 integrated automated gate; live deployment and learner acceptance remain pending | `pending` overall; quiz removal, portfolio outcome and exact after-video synchronization explicitly approved | `pending` | Owner review of integrated content; scope Practice integration separately. |
 
 **Current merged-branch verification — 18 August 2026:** After merging
 `origin/Triet-V2-planning` into `feature/course-companion-practice-workflow`,
@@ -1976,6 +1977,170 @@ values.
 
 ### M3.1 — Lock the module manifest, lessons, and artifacts
 
+**Approved Module 3–4 integration — 6 October 2026**
+
+- Owner approved the remaining technical repairs and integration into
+  `triet-v3-planning`, with separate approval for content or security changes.
+  The after-video Module 4 wording was presented verbatim and explicitly
+  approved before synchronizing the Pilot lesson. No security behavior changed.
+- Implementation: `implemented` for the approved content batch, integrated from
+  the authoring branch onto target baseline `4513318` in a separate worktree.
+  Module 3 opens with Local preview, preserves its real Practice action, and ends
+  with the approved publish reminder. Module 4 preserves its four instructional
+  pages, uses the approved video, has no quiz, and proceeds to portfolio Practice.
+  The target's existing Module 4 Practice action is preserved; its integration
+  and automatic graduation remain deferred, as before.
+- Verification: `passed` for the integrated automated gate: typecheck,
+  `npm run lint`, 400 unit tests across 71 files, nine startup tests, production
+  build and full `npm run test:electron`. The Electron journey uses disposable
+  data and mock Codex; this is not live learner or provider acceptance. Logs:
+  `/private/tmp/m34-target-tests.log`, `/private/tmp/m34-target-lint.log`,
+  `/private/tmp/m34-target-electron.log` (includes successful typecheck/build).
+- Resolved the obsolete Module 3 highlight assertion and a JSX-only presentation
+  assertion rather than adding UI-copy tests. Updated Teacher test fixtures for
+  the retained Module 4 scene and verified that its empty quiz creates no active
+  assessment. The target Electron script is preserved unchanged and passes.
+  On the authoring branch, the Module 1 repair passed that stage; its separate
+  content-review smoke still has old Module 2 text expectations. That temporary
+  script is excluded from this integration.
+- Source audit: no content-review launcher, session routing or Practice bypass
+  identifiers in integrated runtime code. Target Practice/Teacher implementations
+  are preserved. The only completion/persistence changes route new Module 2
+  completions to the Local preview page and continue accepting old receipts.
+  Removed pages match the approved removals; no Module 1 or Module 2 page is lost.
+- Next permitted action: owner review of integrated content, followed by the
+  separately scoped Practice work or an explicitly authorized live rehearsal.
+  No push or deployment is included. Module 4 implementation remains
+  `in-progress` overall; owner module acceptance and pilot acceptance are pending.
+
+
+**Remove the visual keyword assertion — 6 October 2026**
+
+- Owner direction: resolve the stale keyword-highlight test and leave simple
+  copy, color and layout checks to direct owner inspection.
+- Implementation: `implemented`. Removed only the Module 3 test that locks
+  the exact highlighted-word lists and yellow CSS declarations. Learner copy
+  and functional/evidence tests are unchanged.
+- Verification: `pending`. No test or build run for this narrow edit, following
+  the small-edit working agreement. This removes the obsolete assertion but
+  does not claim a new full-suite pass.
+- Next permitted action: address the remaining Pilot/renderer paragraph mismatch
+  and Module 1 smoke failure before the previously requested merge. No commit
+  or merge was performed for this edit.
+
+
+**Owner-authored Module 3 closing reminder — 6 October 2026**
+
+- Owner direction: replace the pre-assessment dialogue with the exact supplied
+  reminder to ask the agent to publish the repository to GitHub, then review.
+- Implementation: `implemented` for this narrow revision. Updated the renderer
+  and corresponding Pilot lesson verbatim, including the owner's lowercase
+  `github`; replaced the detailed repo/branch/commit/visibility cross-check.
+  The button now reads "Bắt đầu ôn tập" and retains the existing quiz route.
+  Teacher/start-prompt guidance and existing copy/button expectations now use
+  the same reminder. The five Module 3 questions remain unchanged.
+- Verification: `pending` for this revision. No tests or build were rerun under
+  the small-edit working agreement. Prior review results predate this change.
+- The Module 3 closing-copy finding is addressed in source. The proposed
+  Module 4 assessment reduction and other review fixes are not yet approved or
+  implemented. Merge acceptance remains failed from the recorded audit;
+  no checkpoint commit or merge was performed. Next permitted action: owner
+  decision on the remaining Module 4 proposal, then verification before merge.
+
+
+**Module 3–4 pre-merge review — 5 October 2026**
+
+- Owner request: inspect Modules 3–4 and merge into `triet-v3-planning` only if
+  no issues remain. Reviewed current working-tree content plus branch changes
+  since merge-base `09fd348`; target resolves to `4513318` and current branch
+  HEAD is `3c8b639`. Latest lesson edits remain uncommitted.
+- Verification: `failed` for merge acceptance. Typecheck, lint, production build
+  and `git diff --check` passed. Vitest: 321 passed, 2 failed out of 323; failures
+  concern the obsolete Standard Protection expectation and Module 4 after-video
+  renderer/Pilot wording drift. All 9 startup tests passed separately.
+- The full Electron smoke launched outside the filesystem sandbox but failed
+  at `tests/electron-smoke.mjs:580`, waiting for the old Module 1 completion
+  label, before reaching Modules 3–4. This is not full-app verification.
+- Focused desktop review passed using a disposable runner adapted to the current
+  page inventory at `/private/tmp/course-m34-current-smoke.mjs`: 19 instructional
+  pages, 38 cases at 1440×900 and 1180×748, both module outlines, video loading,
+  eight Module 4 assessment submissions with simulated UI answers, and unchanged
+  temporary saved progress. Screenshots and measurements are under
+  `/private/tmp/course-m34-review`. Local-preview and short post-publication
+  screenshots were visually inspected. These are UI checks, not learner or
+  live-provider evidence. Long pages are allowed to scroll as designed.
+- Content issue: the Module 3 mastery introduction and Teacher stop still demand
+  repo/branch/commit/Private-Public evidence and refer to deleted GitHub steps,
+  while the retained recap presents pushing as optional for collaboration.
+  The five-page removal itself matches the approved scope.
+- Next permitted action: owner decision on a short GitHub handoff or placement
+  of that prerequisite in Module 4, plus the Module 4 reconciliation recorded
+  below. No learner copy was changed during review. No commit, branch switch,
+  merge or push was performed; conditional merge authorization is not satisfied.
+
+
+**Remove the five pictured GitHub publishing pages — 5 October 2026**
+
+- Owner direction: remove exactly the five screenshot pages, from
+  `module-3-github-publish` through `module-3-github-verify`.
+- Implementation: `implemented` for this removal. Merge now continues directly
+  to `module-3-pre-practice-summary`. Removed the five renderer/shared scenes,
+  registry entries, their outline destination, matching Pilot lesson section,
+  and Teacher/start-prompt instructions to teach those pages. Updated existing
+  route expectations and the Electron journey sequence.
+- Preserved Local, Debug, Git concepts, recap, Practice and final assessment,
+  including the separate manual GitHub evidence stop before mastery. No other
+  page was removed and no completion requirements were changed.
+- Verification: `pending`. No tests, typecheck, build, diff check or desktop
+  verification were run for this explicitly scoped edit under the working
+  agreement. No checkpoint commit was created.
+- Remaining gap: the retained mastery introduction still refers to GitHub
+  steps learned earlier; only the general Git/GitHub lessons now precede it.
+  Next permitted action: owner review of the shortened Merge-to-recap flow.
+  Earlier verification does not cover this removal; pilot acceptance is pending.
+
+
+**Local preview opening page — 5 October 2026**
+
+- Owner direction: add the approved three-paragraph local-preview explanation
+  at the beginning of Module 3, immediately before Debug. Omit the rejected
+  sentence defining terminal; preserve all existing lesson pages and dialogue.
+- Implementation: `implemented` for this addition. Added
+  `module-3-local-preview` to the renderer, shared scene inventory, lesson pages,
+  outline, Pilot lesson, Teacher script and start prompt. Content review and new
+  Module 2 completions enter the new page, which continues to the original
+  Debug opening. Existing completion receipts targeting Debug remain accepted;
+  no saved-progress migration was added. Updated affected test expectations.
+- Verification: `pending`. No tests, typecheck, build, diff check or desktop
+  verification were run under the small-edit working agreement. In particular,
+  the new entry route and compatibility with existing completion receipts have
+  not been verified. No checkpoint commit was created.
+- Owner approval covers this text and its position only. Rendered acceptance,
+  completion-route verification and pilot acceptance remain pending. Next
+  permitted action: owner review of the new opening page, followed by requested
+  verification of navigation and receipt compatibility. Prior passing evidence
+  does not verify this addition.
+
+
+**GitHub publishing addition — 14 September 2026**
+
+- Implementation: `implemented` for content. Five new pages teach preflight,
+  a learner-owned Private/Public repository, empty-repo creation, approved
+  push, and browser comparison of repository/branch/commit/visibility.
+- Existing Git/debug dialogue and the owner-supplied recap remain verbatim.
+  The mastery introduction adds a manual repo-evidence stop after Practice.
+  Teacher must send a learner with missing/mismatched evidence back to Codex
+  before the five questions or Module 4. Its UI confirmation is explicitly
+  a learner check, not an automated GitHub verification result.
+- The existing Practice receipt and progress schema are unchanged. Automated
+  provider reconciliation is not implemented or claimed by this batch.
+- Verification: `passed` for the affected content in the final combined batch:
+  40 focused tests, 323 unit tests, nine startup tests, typecheck, lint, build
+  and the publication-specific Electron journey. The full Electron run is
+  `failed` at the pre-existing Module 1 title expectation described under M4.1.
+  Owner approval covers implementation direction; live learner acceptance
+  remains `pending`. Next action: present the completed content for owner review.
+
 **Change**
 
 1. Add Module 3 and its four learner-facing sections to
@@ -2589,9 +2754,11 @@ remain blocked by the required preceding acceptance gates.
 
 ### Module outcome
 
-The learner validates a release candidate, passes the security/publication
-gate, verifies a deployed preview, makes an explicit production decision, and
-proves ownership and transfer.
+The learner deploys the portfolio version finalized in Module 3, checks
+deployment security and operation, verifies a deployed preview, makes an
+explicit production decision, and proves ownership and transfer. Module 4
+does not repeat portfolio content approval. Assessments appear only at the
+end of the module. Existing Module 3 content remains unchanged.
 
 ### M4.0 — Rehearse and lock one supported Vercel path
 
@@ -2605,11 +2772,19 @@ recommended Codex-operated CLI flow with a neutral public bootstrap deployment,
 Vercel Authentication verification before the real portfolio Preview, dashboard
 inspection and recovery, and a separate optional Production decision.
 
-**Provider constraint found:** Vercel assigned the first deployment of each new
-project to Production in both tested creation flows. Subsequent CLI deployments
-without `--prod` were Preview deployments. The approved flow therefore uses a
-learner-approved neutral bootstrap page so that the learner's real portfolio is
-not the unavoidable first public Production deployment.
+**Historical provider observation:** Vercel assigned the first deployment of
+new projects to Production in both August creation flows, and that rehearsal
+used a neutral public bootstrap. Those observations do not establish that the
+first Production deployment must be public.
+
+**Browser authoring update — 14 September 2026:** Current Vercel documentation
+supports team Default Protection with Vercel Authentication + All Deployments
+before creating a project. The new content uses a protected first Production,
+then a branch Preview, then an optional public publication decision. This
+supersedes the bootstrap requirement for the learner browser path. Implementation
+of the browser guide is `implemented`; authenticated provider verification is
+`pending`. The August CLI evidence is preserved but does not certify this path.
+The user approved this content direction, not a live deployment on their account.
 
 **Change**
 
@@ -2628,7 +2803,9 @@ not the unavoidable first public Production deployment.
 - A clean preview deploys and is opened directly.
 - Public/protected status is observable rather than assumed.
 - Build logs can be found and explained.
-- Production is not changed during a preview-only rehearsal.
+- An existing public Production site is not changed during a preview-only
+  rehearsal. A new project's initial protected Production deployment requires
+  explicit rehearsal authorization and verified default protection beforehand.
 - A preview can be removed or access-restricted through the documented recovery
   path.
 
@@ -2637,11 +2814,351 @@ deployment path.
 
 ### M4.1 — Lock the manifest, lesson, assessment, and artifact contracts
 
-**Content-first implementation note — updated 18 August 2026:** The manifest,
-five learner content milestones, Teacher script, start prompt, five formative
-checks, six-question final review, and typed renderer scenes are present on
-`Triet-V2-planning`. The temporary session-only review route and per-Practice
-bypasses were intentionally excluded during integration. Artifact templates, the
+**Approved Module 3–4 integration — 6 October 2026**
+
+- Owner approved the remaining technical repairs and integration into
+  `triet-v3-planning`, with separate approval for content or security changes.
+  The after-video Module 4 wording was presented verbatim and explicitly
+  approved before synchronizing the Pilot lesson. No security behavior changed.
+- Implementation: `implemented` for the approved content batch, integrated from
+  the authoring branch onto target baseline `4513318` in a separate worktree.
+  Module 3 opens with Local preview, preserves its real Practice action, and ends
+  with the approved publish reminder. Module 4 preserves its four instructional
+  pages, uses the approved video, has no quiz, and proceeds to portfolio Practice.
+  The target's existing Module 4 Practice action is preserved; its integration
+  and automatic graduation remain deferred, as before.
+- Verification: `passed` for the integrated automated gate: typecheck,
+  `npm run lint`, 400 unit tests across 71 files, nine startup tests, production
+  build and full `npm run test:electron`. The Electron journey uses disposable
+  data and mock Codex; this is not live learner or provider acceptance. Logs:
+  `/private/tmp/m34-target-tests.log`, `/private/tmp/m34-target-lint.log`,
+  `/private/tmp/m34-target-electron.log` (includes successful typecheck/build).
+- Resolved the obsolete Module 3 highlight assertion and a JSX-only presentation
+  assertion rather than adding UI-copy tests. Updated Teacher test fixtures for
+  the retained Module 4 scene and verified that its empty quiz creates no active
+  assessment. The target Electron script is preserved unchanged and passes.
+  On the authoring branch, the Module 1 repair passed that stage; its separate
+  content-review smoke still has old Module 2 text expectations. That temporary
+  script is excluded from this integration.
+- Source audit: no content-review launcher, session routing or Practice bypass
+  identifiers in integrated runtime code. Target Practice/Teacher implementations
+  are preserved. The only completion/persistence changes route new Module 2
+  completions to the Local preview page and continue accepting old receipts.
+  Removed pages match the approved removals; no Module 1 or Module 2 page is lost.
+- Next permitted action: owner review of integrated content, followed by the
+  separately scoped Practice work or an explicitly authorized live rehearsal.
+  No push or deployment is included. Module 4 implementation remains
+  `in-progress` overall; owner module acceptance and pilot acceptance are pending.
+
+
+**Portfolio outcome without a final quiz — 6 October 2026**
+
+- Owner direction: remove all Module 4 questions and go straight to Practice.
+  Success means having a portfolio; in this publishing module, the outcome is
+  an online portfolio the learner can open and share by URL.
+- Implementation: `implemented` for content and navigation. Removed the eight
+  questions, assessment introduction and results pages, quiz outline entries,
+  and review bypass into the quiz. Preserved all remaining instructional pages,
+  Practice identity and the existing completion-status page.
+- Synchronized the Pilot lesson, Teacher script, start prompt, manifest and quiz
+  source. The quiz source keeps an empty groups array for loader compatibility.
+  This supersedes the proposed five-question replacement and the earlier
+  mandatory Preview, recovery, ownership-answer and transfer requirements for
+  Module 4. Learner control over actual publication remains unchanged.
+- Verification: `passed` for the changed Module 4 route and contracts; `failed`
+  for the full pre-merge gate. Typecheck, lint, build, `git diff --check` and all
+  nine startup tests passed. The full unit run passed 321/323 tests: the remaining
+  failures are the pre-existing Module 3 highlight expectation and after-video
+  Pilot/renderer paragraph mismatch. All changed Module 4, outline, registry and
+  review-mode contracts passed. Full Electron smoke launched with disposable
+  data, then failed at the existing Module 1 completion-title expectation at
+  `tests/electron-smoke.mjs:580`, before Module 4.
+- Desktop evidence: updated `tests/publication-content-smoke.mjs` passed 19
+  instructional pages / 38 cases at 1440×900 and 1180×748, including the Module 4
+  video, normal flow ending at Practice, preserved completion-status page via
+  outline review, no Module 4 quiz or bypass, and unchanged saved progress.
+  Practice screenshot at 1180×748 was also visually inspected. Evidence lives
+  in `/var/folders/7m/ctbntkl14kv5g8gcz0l3ncxc0000gn/T/publication-content-evidence-ro9USl`;
+  gate logs are `/private/tmp/m4-no-quiz-*.log`. These are disposable UI checks,
+  not learner deployment or pilot-acceptance evidence.
+- Remaining gaps: Practice integration and automatic completion recording remain
+  deferred. Browsing still creates no completion receipt. Existing pre-merge
+  findings must be evaluated separately before merging; no merge is implied.
+- Next permitted action: resolve the two remaining content/test mismatches and
+  the Module 1 smoke expectation before repeating the merge gate. No checkpoint
+  commit was made: the full gate remains failed and files contain earlier
+  uncommitted content edits. M4.1 stays `in-progress`; pilot acceptance is pending.
+
+
+**Module 3–4 pre-merge review — 5 October 2026**
+
+- Verification: `failed` for merge acceptance; see the M3.1 audit entry for exact
+  automated and focused desktop results. Existing implementation is preserved.
+- Spec/content findings: the current final assessment still requires branch
+  Preview, Instant Rollback/Undo Rollback and personal Preview evidence after
+  their teaching pages were explicitly removed. `prompts/start-module-4.vi.md`
+  still directs Teacher to teach the deleted sequence; retained Practice
+  requirements in the lesson still mandate a protected initial Production,
+  Preview and recovery evidence. The Teacher script sends learners without a
+  GitHub repo back to removed Module 3 instruction.
+- Standards findings: `module-4-after-video` dialogue differs from the Pilot
+  authority, failing the paragraph-parity test. The older
+  `tests/publication-content-smoke.mjs` still targets deleted GitHub pages and
+  assumes text dialogue on the video page; it is not the current focused runner
+  and is not invoked by `npm run test:electron`.
+- Next permitted action: retain the approved short lesson and obtain an owner
+  decision about matching assessment/evidence scope, then synchronize Teacher
+  instructions, source copy and test fixtures. Re-run affected checks and the
+  full merge gate after resolution. No removed page was restored, no approved
+  copy was rewritten, and no merge was performed. Pilot acceptance is pending.
+
+
+**Short post-publication guidance — 5 October 2026**
+
+- Owner direction: replace the pictured `module-4-vercel-preview` dialogue with
+  two short paragraphs about buying a custom domain and updating from Local,
+  relying on the Git and local-preview material already taught.
+- Implementation: `implemented`. Updated only the requested renderer dialogue
+  and corresponding Pilot lesson body. Retained the owner's informal opening,
+  corrected the default suffix to `.vercel.app`, and specified commit/push to
+  `main` with automatic updating conditional on it being the production branch
+  and deployment succeeding. Existing headings, routes and surrounding copy
+  remain unchanged.
+- Factual references: Vercel domain purchasing and GitHub deployment docs were
+  consulted. Verification: `pending` for repository/runtime behavior; no tests,
+  build, diff check or visual checks were run for this narrow copy edit under
+  the working agreement. No checkpoint commit was created.
+- This replaces the introduction that set up the deleted update sequence.
+  Unchanged Practice/assessment coverage gaps and prior content drift remain.
+  Next permitted action: owner review of the replacement text. M4.1 remains
+  `in-progress`; rendered and pilot acceptance remain pending.
+
+
+**Local-update through transfer page removal — 5 October 2026**
+
+- Owner direction: remove the contiguous range shown in the three screenshots,
+  including both endpoints, from `module-4-update-local` through
+  `module-4-transfer`.
+- Implementation: `implemented` for this 15-page removal. The preserved
+  `module-4-vercel-preview` page now leads to `module-4-portfolio-practice`.
+  Removed corresponding renderer/shared scenes, lesson-page and outline entries,
+  Pilot lesson sections and Teacher instructions. Omitted the now-empty
+  Production renderer lesson while retaining shared lesson/checkpoint contracts.
+  Updated affected existing content and navigation expectations.
+- Verification: `pending`. No tests, typecheck, build, diff check or desktop
+  verification were run for this explicitly scoped edit, following the working
+  agreement. No checkpoint commit was created.
+- Remaining gaps: the preserved introduction still sets up the removed update
+  sequence; the unchanged Practice requirements and final assessment still cover
+  removed teaching topics. Existing renderer/Pilot wording differences and the
+  previously recorded Standard Protection contract mismatch remain unresolved.
+- Next permitted action: owner review of the shortened flow and a separate
+  decision about any replacement teaching or assessment changes. M4.1 remains
+  `in-progress`; finished-content approval and pilot acceptance remain pending.
+
+
+**Access-check page removal — 21 September 2026**
+
+- Owner direction: remove the pictured `module-4-access-check` page.
+- Implementation: `implemented`. The after-video page now leads directly to
+  `module-4-vercel-preview`. Removed the page from the renderer, shared scene
+  inventory, outline, Pilot lesson and Teacher script. Omit its now-empty
+  renderer lesson while preserving the shared lesson/checkpoint identifiers.
+  Updated existing route expectations. Surrounding copy and concurrent video
+  edits are preserved.
+- Verification: `pending`. No tests, build or runtime checks were run for this
+  small, explicitly requested removal, following the working agreement.
+  Earlier passing results predate this deletion.
+- Next permitted action: owner review of the revised navigation. M4.1 remains
+  `in-progress`; finished-content approval and pilot acceptance remain pending.
+
+
+**"Chọn một thay đổi nhỏ" voice rewrite — 21 September 2026**
+
+- Owner direction: rewrite the `module-4-vercel-preview` dialogue so it matches
+  the Module 3 and early Module 4 teacher voice and reads less mechanically.
+- Implementation: `implemented`. Rewrote only that scene's dialogue in
+  `module-4/scenes.tsx` and the matching "Chọn một thay đổi nhỏ" section of
+  `pilot-workspace/course/lessons/module-4.vi.md`, keeping the two in sync.
+  Meaning preserved: pick one sentence, write the new wording, then Local →
+  Internet preview → Production. All surrounding copy, headings, scene ids and
+  routes untouched.
+- Verification: `blocked`. `course-registry.test.ts` passes. Two Module 4
+  contract tests fail for reasons predating and independent of this rewrite:
+  `module-four-content-contract.test.ts` still requires "Standard Protection"
+  in the lesson, which the approved access-check removal deleted; and
+  `publication-content-contract.test.ts` reports `module-4-after-video` drift
+  because the concurrent video edit changed the renderer dialogue without
+  updating the Pilot lesson. The rewritten scene itself passes the paragraph
+  parity check.
+- Next permitted action: owner decides whether to retire the "Standard
+  Protection" expectation and how to resync `module-4-after-video`. No commit
+  was made because the focused gate cannot pass while those two mismatches
+  stand. M4.1 remains `in-progress`.
+
+
+**Video URL ending and music — 21 September 2026**
+
+- Owner direction: approved a five-second ending showing the deployed URL and
+  quiet instrumental background music.
+- Implementation: `implemented` for this media edit. The bundled video is now
+  132.9 seconds. The ending uses the owner's screenshot and the closing caption
+  `thế là portfolio đã được published rồi, yay` below it. Original footage and approved
+  captions are unchanged. Original synthesized music fades in and out.
+- Verification: `pending` for the owner's subsequent exact-caption replacement;
+  no checks were rerun for this small edit, per the working agreement.
+  The preceding version `passed` the focused media gate. FFprobe reported matching
+  132.9-second H.264 video and AAC audio streams at 1920 × 1080. Full-file FFmpeg
+  decoding passed. Packet hashes confirm all 3,837 original video packets are
+  unchanged, followed by exactly 150 new frames at 30 fps. Visual inspection
+  confirmed a readable URL. Audio peaks at -12.5 dBFS without clipping.
+  A disposable Chrome playback check decoded both streams, advanced across the
+  join, and sought to the ending without media errors at 1440 × 900.
+  `git diff --check` passed. Evidence and the render script are in
+  `tmp/vercel-video-update-2026-09-21/`.
+- Scope: only the bundled media and its documentation changed. Application
+  tests, typecheck, a rebuild and full Electron acceptance were unnecessary
+  because no code, layout, routes, dependencies or completion behavior changed.
+  Native Course Companion playback was not rerun.
+- Remaining gaps and next action: owner review of the finished video and music.
+  M4.1 remains `in-progress` overall. Finished-content approval, live provider
+  rehearsal, Practice integration and pilot acceptance remain pending.
+
+**Post-video update exercise — 21 September 2026**
+
+- Owner direction: approved for this revision. Remove the repeated first-deploy
+  pages between `module-4-vercel-limits` and `module-4-vercel-deploy`, inclusive.
+  Preserve the purpose of `module-4-vercel-preview` and split the update exercise
+  into choosing a change, Local review, Preview publication, Preview review,
+  approval, and Production publication.
+- Implementation: `implemented` for the content revision; M4.1 remains
+  `in-progress` overall. Thirteen old pages are replaced by two post-video
+  checks. Two new pages separate Local editing from Preview publication.
+  Lesson, Teacher script, start prompt, typed routes and outline agree.
+  The remaining downstream pages and the eight final questions are preserved.
+- Verification: `passed`. All 28 tests in course-registry, course-outline,
+  publication-content-contract, module-four-content-contract and
+  content-review-mode passed, as did `npm run typecheck`,
+  `npx electron-vite build`, and `git diff --check`. A disposable Electron
+  session traversed all 20 instructional pages at renderer sizes 1440 × 900
+  and 1180 × 748, checked outline destinations and forward/back navigation,
+  reached the eight-question form, and preserved saved progress byte-for-byte.
+  No horizontal overflow or text/navigation overlap appeared. The smaller
+  case also used a native non-fullscreen 1180 × 748 content area. At the larger
+  size macOS constrained native height to 874; the renderer viewport was 900.
+- Evidence: `tmp/m4-after-video-2026-09-21/` contains screenshots and
+  `measurements.json`. The inventory comparison confirms exactly the 13
+  approved retirements, four additions, and unchanged downstream page copy.
+  Shared navigation behavior, persistence, Practice, receipts and unlock gates
+  are unchanged. Full lint, the complete test suite and full-app Electron
+  acceptance were unnecessary for this local content and routing gate.
+- Source check: the environment model and Deployment Protection wording agree
+  with Vercel's official environment and protection documentation. This check
+  does not verify a learner's account configuration or deployment.
+- Local checkpoint scope: approved on 21 September 2026 after the owner
+  reviewed the explanation of a combined local commit. Include the existing
+  Module 4 video, opening image, page cleanup, final-only assessment and this
+  update exercise with their routes, tests and planning records. Exclude the
+  unrelated Module 3 draft, `CLAUDE.md`, generated output and `tmp/`.
+  The earlier turn-only patch could not apply independently against the index;
+  the approved combined scope resolves that boundary. No push or deployment
+  is authorized by this checkpoint approval.
+- Remaining gaps: finished-content owner review, authenticated provider
+  rehearsal, Practice integration and pilot acceptance. Approval covers the
+  implementation direction, not finished-content acceptance. Next permitted
+  action: create the approved local checkpoint, then present the revised pages
+  for content review. Finished-content and pilot acceptance remain pending.
+
+
+**Deployment scope and final-only assessment — 18 September 2026**
+
+- Owner direction: approved. Use the portfolio version finalized in Module 3;
+  do not repeat editorial or asset-permission review in Module 4. Preserve all
+  existing Module 3 content. Ask assessment questions only at the end of
+  Module 4 and remove the five intervening questions.
+- Implementation: `implemented` for this content revision. The quiz bank,
+  typed scene inventory, renderer routes, outline labels, lesson, Teacher
+  script and start prompt agree. All 29 existing instructional pages remain;
+  only the five expressly retired question pages are removed. Eight final
+  questions remain, with the first now assessing a deployed-route failure.
+  M4.2–M4.5 specifications now describe deployment evidence and security rather
+  than repeated content approval. Their deferred runtime is not implemented.
+- Verification: `passed` with 28 focused tests across registry, outline,
+  publication content, Module 4 and review-mode contracts, plus typecheck and
+  build. A disposable Electron session covered all 29 instructional pages at
+  1440 × 900 and 1180 × 748, final-question submission, feedback and summary,
+  and byte-for-byte saved-progress preservation. No horizontal overflow or
+  text/navigation overlap appeared. The existing hosting opening scrolls at
+  the smaller size; its owner-written text and layout remain unchanged.
+- Thirty Module 3 files match their hashes from the start of this revision.
+  The Module 3 sections of shared manifests and the plan are unchanged.
+- Evidence: `tmp/m4-final-only-2026-09-18/` contains screenshots and
+  `measurements.json`. Test answers are synthetic UI fixtures, not learner
+  evidence. The focused gate covers local Module 4 content and navigation;
+  no persistence, Practice, completion service, dependency or shared layout
+  behavior changed, so the full app gate was not required.
+- Local checkpoint: not created. The same renderer, registry and publication
+  tests already contained uncommitted Module 4 page and video changes at turn
+  start. A read-only check of the isolated patch against the index found
+  overlapping test edits; lesson synchronization also depends on that earlier
+  video change. The index remains untouched rather than checkpointing mixed
+  work or claiming the isolated commit was verified.
+- Remaining gaps: finished-content owner acceptance, authenticated provider
+  rehearsal, Practice integration and learner pilot acceptance are pending.
+  Next permitted action: owner content review, then separately authorized
+  provider rehearsal. No deployment or official completion occurred.
+
+
+**Complete publication content batch — 14 September 2026**
+
+- Implementation: `implemented` for the approved content expansion; M4.1 remains
+  `in-progress` overall because artifact/Practice contracts are deferred.
+- Added beginner Vercel benefits/limits, Local/Preview/Production, release and
+  privacy checks, GitHub import/configuration, protected first deployment,
+  branch Preview, optional public publication, post-publication checks,
+  sharing/domain basics, small updates, build failures, rollback, Undo Rollback,
+  ownership notes and transfer to a different small application.
+- Preserved the approved hosting/roles opening verbatim and every baseline
+  scene ID. The five semantic checkpoint IDs, Practice ID/version, progress
+  storage and completion gates are unchanged. The expanded module has five
+  formative questions and eight final questions (six scenarios, two written).
+- Three original browser PNGs are stored with source notes. Two documentation
+  illustrations are displayed through CSS crops of full browser screenshots;
+  all numbered overlays also appear in the enlargement view. They are labeled
+  reference images, not a learner deployment or account configuration.
+- The requested GPT-5.6 Sol, high, read-only review ran once. Required findings
+  were fixed: exact opening preservation, manual GitHub evidence stop, plain
+  review-state copy with the unavailable primary Practice action removed,
+  lighter terminology/configuration pages, balanced answer positions and an
+  explicit transfer prompt. See `module-4-content-review-2026-09-14.md`.
+- Verification: `passed` for the affected content. Typecheck, lint, 40 focused
+  tests, all 323 unit tests, nine startup tests and production build passed.
+  The publication-specific Electron journey passed 37 instructional pages
+  across 74 desktop cases (1440 × 900 and 1180 × 748), five formative and eight
+  final questions, all three annotated image enlargements, outline/keyboard
+  navigation and byte-for-byte unchanged disposable saved progress. Every
+  baseline scene ID and the approved hosting opening were preserved. Evidence:
+  `tmp/publication-content-2026-09-14/measurements.json` and its screenshots.
+- The full gate was attempted because the batch touches cross-module inventories
+  and the shared image renderer. Full-app Electron verification is `failed`:
+  `tests/electron-smoke.mjs:580` waits for `Module 1 đã hoàn thành`, a title
+  already absent from rendered output at baseline `5526b30`. The run stops
+  before Module 3/4. This unrelated obsolete expectation is left for a separate
+  repair; the passing scoped gate is not presented as full-app acceptance.
+- Remaining gaps: authenticated browser deployment/rollback rehearsal, actual
+  GitHub evidence from a learner, provider-backed Practice verification,
+  official completion/graduation, Windows provider verification, owner content
+  acceptance and live pilot acceptance. None is inferred from content review.
+- Next permitted action: present the completed batch and scoped evidence for
+  owner review, then conduct an explicitly authorized provider rehearsal and
+  the separately gated Practice integration. Resolve the unrelated full Electron
+  blocker before full-app verification or release. Do not start another module.
+
+**Content-first implementation note — 17 August 2026:** The manifest, five
+learner content milestones, Teacher script, start prompt, five formative checks,
+six-question final review, typed renderer scenes, session-only review route, and
+temporary per-Practice review bypasses are implemented on
+`practice-disabled-content-development`. Artifact templates, the
 `m4-portfolio-release` Practice definition file, evidence adapters, official
 completion service, and graduation receipt remain deferred. Therefore M4.1 is
 `in-progress`, not complete. Focused verification passed with typecheck, lint,
@@ -2650,6 +3167,97 @@ screenshot inspection, and Electron smoke. The integrated branch subsequently
 passed 287 unit tests, nine startup tests, typecheck, lint, production build,
 Electron smoke, `git diff --check`, and the review-only identifier audit on 18
 August 2026. The content itself still requires owner review.
+
+**Hosting roles page removal — 16 September 2026**
+
+- Implementation: `implemented`. The owner requested removal of the pictured
+  `module-4-hosting-roles` page. Its renderer content and page registrations are
+  removed; `module-4-hosting-intro` now leads to `module-4-vercel-benefits`.
+- Existing route and page-preservation test expectations reflect the removal.
+- Verification: `pending`. Checks were not run under the working agreement for
+  small, explicitly scoped edits. Earlier verification predates this removal.
+- Remaining gap and next action: inspect the revised opening in the app.
+  M4.1 remains `in-progress`; module approval and pilot acceptance remain pending.
+
+**Hosting opening image — 16 September 2026**
+
+- Implementation: `implemented`. Added the owner-supplied Vercel Projects
+  screenshot to `module-4-hosting-intro` using the existing image component
+  with `contain` sizing. Existing copy and navigation remain unchanged.
+- Verification: `pending`. Checks were not run under the working agreement for
+  small, explicitly scoped edits. Earlier visual evidence predates this image.
+- Remaining gap and next action: inspect the image on the opening page in the
+  app. M4.1 remains `in-progress`; module approval and pilot acceptance remain
+  pending.
+
+**Hosting opening image spacing and caption — 17 September 2026**
+
+- Implementation: `implemented`. The opening page now uses the existing stacked
+  image/dialogue layout with a 24px gap and the owner-requested caption
+  “dashboard của Vercel”. The layout can scroll when the window is too short.
+- Verification: `pending`. Checks were not run under the working agreement for
+  small, explicitly scoped edits.
+- Remaining gap and next action: the owner checks image spacing and the caption
+  in a non-fullscreen desktop window. M4.1 remains `in-progress`; module approval
+  and pilot acceptance remain pending.
+
+**Vercel walkthrough video — 17 September 2026**
+
+- Implementation: `implemented`. Bundled the owner-approved, captioned OBS
+  recording on `module-4-vercel-benefits`, with native playback, seeking and
+  fullscreen controls. The video uses a local asset and does not autoplay.
+- Per the owner's follow-up, the page immediately after the hosting opening
+  centers the video, removes the Teacher dialogue box and character, and shows
+  only a short invitation to watch above the player. Back/Next controls remain
+  below it, with scrolling for shorter desktop windows.
+- Owner approval covers the video, its inclusion and this replacement of the
+  explanation on `module-4-vercel-benefits`. Other pages, navigation targets
+  and completion gates remain unchanged.
+- Follow-up layout fix: the video page's navigation now participates in normal
+  layout instead of inheriting the dialogue's absolute positioning. The watch
+  instruction uses bold yellow text at 21–26px on the checked desktop sizes.
+- Verification: `passed` for the focused layout fix. `electron-vite build`,
+  `npm run typecheck` and `git diff --check` passed. Browser renderer checks at
+  1440 × 900 and 1180 × 748 measured a 20px video-to-navigation gap, no horizontal
+  overflow and both controls inside the viewport. A native Electron inspection
+  after restart confirmed the new layout and functioning video playback.
+  The full app suite was unnecessary for this scene-scoped CSS correction.
+- Remaining gap and next action: owner review of this revised page; fullscreen
+  playback and wider module acceptance were not tested in this focused pass.
+  M4.1 remains `in-progress`; module approval and pilot acceptance remain
+  pending. The example deployment is not learner Practice evidence.
+
+**Hosting opening — 14 September 2026**
+
+- Implementation: `implemented` for this addition; M4.1 overall remains
+  `in-progress` because its artifact and Practice contracts remain deferred.
+- Owner approval: the user approved the beginner explanation of hosting and
+  the roles of the computer, GitHub and Vercel, then requested implementation.
+  This is not approval of the remaining Module 4 content or pilot acceptance.
+- Added `module-4-hosting-intro` and `module-4-hosting-roles` before the existing
+  release-validation page. Both belong to `m4-release-validation`; no lesson,
+  checkpoint, Practice identity or completion gate was added or removed.
+- The Pilot lesson, Teacher script, start prompt, renderer, page registry,
+  outline and content-review entry agree on this opening. Local, Preview,
+  Production and deployment configuration are kept out of the two new pages.
+- Verification: `passed`. `npm run typecheck` and the four focused Vitest files
+  `module-four-content-contract`, `course-registry`, `course-outline` and
+  `content-review-mode` passed all 24 tests. `electron-vite build` supplied the
+  current application for a focused Electron inspection. Both new pages fit
+  1440 × 900 and 1180 × 748 without horizontal overflow, clipped copy or
+  overlapping navigation controls. Module 4 entry, outline destinations,
+  keyboard activation, forward/back navigation and return to Home Base passed;
+  disposable learner progress remained byte-for-byte unchanged.
+- Evidence: `tmp/module-4-hosting-2026-09-14/` contains four screenshots and
+  `measurements.json`. These local inspection artifacts are not checkpointed.
+- The acceptance gate is focused because this is additive content and local
+  page routing. Shared navigation behavior, persistence, Practice and unlock
+  gates were not changed. Full lint, the complete test suite and the full
+  Electron journey were not required or claimed for this addition.
+- Remaining work: review the rendered opening, then agree and implement the
+  next learner section. The GitHub publishing exercise, revised browser-based
+  Vercel flow, annotated screenshots and update/recovery lessons remain proposed
+  work. They are not implemented by this checkpoint.
 
 **Change**
 
@@ -2676,20 +3284,23 @@ August 2026. The content itself still requires owner review.
 
 **Change**
 
-1. Trace every PRD acceptance criterion to current evidence.
-2. Run `npm run check` and `npm run preview`.
-3. Repeat critical browser checks at approved desktop/mobile viewports.
-4. Check content, navigation, links, keyboard, focus, image alternatives,
-   readable contrast, and unexplained console errors.
-5. Route blocking failures through the standard debugging loop.
+1. Use the portfolio version finalized in Module 3; record its repo, branch
+   and commit without repeating content or PRD approval.
+2. Run `npm run check` and `npm run preview` to prepare the deployment build.
+3. Record build results, deployment configuration and unresolved technical
+   limits.
+4. Verify deployed behavior against that version after deployment, including
+   routes, assets, downloads and access at the agreed product viewports.
+5. Route blocking deployment failures through the standard debugging loop.
 
 **Verify**
 
-- Every requirement is passed, failed, or explicitly deferred with approval.
-- Automated success never substitutes for browser evidence.
-- Deferred non-goals do not masquerade as failures or completed work.
+- Deployment evidence identifies the source version finalized in Module 3.
+- Build success never substitutes for observing the deployed website.
+- Technical limits are recorded; portfolio copy and asset approval are not
+  reassessed in Module 4.
 
-**Checkpoint output:** PRD-traceable release validation report.
+**Checkpoint output:** Deployment validation report tied to the source version.
 
 ### M4.3 — Enforce the security and publication gate
 
@@ -2700,9 +3311,9 @@ Before any unprotected preview or production action, inspect and record:
 1. secrets, API keys, tokens, `.env` files, client-exposed configuration, and
    suspicious generated files;
 2. repository visibility and committed history risks;
-3. personal details, contact information, project confidentiality, and
-   publication permissions;
-4. asset ownership and downloadable-file metadata;
+3. unintended exposure of private files through deployed URLs;
+4. the files included in the deployment, using existing content approvals
+   rather than asking the learner to approve portfolio material again;
 5. external links and third-party resources;
 6. dependency and build warnings;
 7. preview visibility/protection;
@@ -2715,8 +3326,8 @@ release candidate.
 
 **Verify**
 
-- Test fixtures for exposed secret, committed `.env`, private project copy,
-  unapproved asset, public repository, public preview, and added backend.
+- Test fixtures for exposed secret, committed `.env`, unintended file
+  exposure, public repository, public preview, and added backend.
 - Gate blocks external action until the learner reviews and approves the
   current checklist.
 - Sensitive values never enter Course Companion logs or Teacher context.
@@ -2729,10 +3340,10 @@ the current release candidate.
 **Change**
 
 1. Codex inspects the complete technical change set.
-2. Give the five-part plain-language release summary plus PRD match,
-   unnecessary-change findings, visibility boundary, and sensitive-material
-   findings.
-3. Learner verifies the website and evidence, then accepts or requests revision.
+2. Summarize source version, build results, deployment configuration, access
+   boundary, security findings and recovery route.
+3. Learner reviews the deployment evidence and approves the external action;
+   do not repeat portfolio content acceptance from Module 3.
 4. After acceptance, create a clean local release checkpoint. Do not push or
    deploy as part of checkpoint creation.
 
@@ -2754,8 +3365,9 @@ the current release candidate.
    required, and preview creation as separate consequential actions.
 3. Create the preview using the verified path from M4.0.
 4. Inspect build status and logs.
-5. Open the deployed URL and repeat critical functional, responsive, content,
-   accessibility, and security checks.
+5. Open the deployed URL and check operation, responsive behavior, keyboard
+   access and security against the finalized source version. Do not repeat
+   editorial review of portfolio content.
 6. Record discrepancies and resolve or explicitly bound them.
 
 **Verify**
@@ -2815,6 +3427,14 @@ the current release candidate.
 **Checkpoint output:** Learner ownership and transfer evidence.
 
 ### M4.8 — Implement the Practice and graduation gate
+
+**Scope update — 6 October 2026:** The owner replaced Module 4's final assessment
+and separate Preview/recovery/ownership/transfer requirements with the outcome
+of a shareable online portfolio. The historical implementation list below is
+superseded where it requires those removed learner deliverables. Automatic
+Practice and graduation recording is still `not-started`, verification `pending`.
+Do not activate or claim those mechanisms through this content-only change.
+
 
 **Change**
 

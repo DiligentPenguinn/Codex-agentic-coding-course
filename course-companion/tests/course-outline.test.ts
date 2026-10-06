@@ -24,12 +24,12 @@ describe('course outline coverage and reading order', () => {
     })
   }
 
-  it('provides distinct Practice, assessment and summary destinations in all numbered modules', () => {
+  it('keeps Practice in all modules and assessments only in Modules 1-3', () => {
     for (const moduleId of ['module-1', 'module-2', 'module-3', 'module-4'] as const) {
       const sections = courseOutline[moduleId]
       expect(sections.filter((section) => /^(Thực hành|Practice):/.test(section.title))).toHaveLength(1)
-      expect(sections.filter((section) => section.title.startsWith('Kiểm tra cuối'))).toHaveLength(1)
-      expect(sections.filter((section) => section.title.startsWith('Tổng kết'))).toHaveLength(1)
+      expect(sections.filter((section) => section.title.startsWith('Kiểm tra cuối'))).toHaveLength(moduleId === 'module-4' ? 0 : 1)
+      expect(sections.filter((section) => section.title.startsWith('Tổng kết'))).toHaveLength(moduleId === 'module-4' ? 0 : 1)
     }
   })
 
@@ -39,7 +39,7 @@ describe('course outline coverage and reading order', () => {
       expect(new Set(sections.map((section) => section.title)).size).toBe(sections.length)
     }
     const pages = ['module-3-git-intro', 'module-3-git-github'] as const
-    expect(adjacentOutlinePage(pages, 'module-4-release-intro', 1)).toBeUndefined()
-    expect(outlineSectionIndex(courseOutline['module-3' satisfies LessonId], pages, 'module-4-release-intro')).toBe(-1)
+    expect(adjacentOutlinePage(pages, 'module-4-after-video', 1)).toBeUndefined()
+    expect(outlineSectionIndex(courseOutline['module-3' satisfies LessonId], pages, 'module-4-after-video')).toBe(-1)
   })
 })

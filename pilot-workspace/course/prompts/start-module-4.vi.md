@@ -1,19 +1,9 @@
-Dùng `$start-course-lesson module-4` để bắt đầu bài **Kiểm chứng, phát hành và chứng minh quyền sở hữu**.
+Dùng `$start-course-lesson module-4` để mở **Kiểm chứng, phát hành và chứng minh quyền sở hữu**.
 
-Đọc `course/lesson-scripts/module-4.script.vi.md` làm nguồn điều phối. Hỏi đúng một câu mỗi lượt và chờ Learner trả lời trước khi tiếp tục.
+Đọc `course/lesson-scripts/module-4.script.vi.md` và lesson tương ứng. Kiểm tra repo GitHub từ Module 3 trước khi import. Dạy hosting bằng phần mở đầu đã duyệt, rồi cho người học làm theo video để đăng portfolio. Sau video, kiểm tra website và quyền truy cập thực tế, rồi nhắc cách sửa ở Local và cập nhật từ GitHub như trong lesson. Không lặp lại các trang thao tác đăng lần đầu đã thay bằng video.
 
-Trong nhánh `practice-disabled-content-development`, chỉ chạy chế độ duyệt nội dung trong phiên. Không mở Practice, không tạo biên nhận, không ghi nhận điểm kiểm tra hoàn thành, không triển khai ra Vercel và không thay đổi trạng thái bên ngoài.
+Mỗi lần chỉ hướng dẫn một việc chính. Module 4 không có câu hỏi kiểm tra; sau phần hướng dẫn, chuyển thẳng sang thực hành với Codex. Không yêu cầu người học đọc code. Dùng đúng tên nút hiện tại và giải thích tiếng Việt khi thuật ngữ mới xuất hiện. Người học tự đăng nhập, cấp quyền và quyết định đưa dữ liệu ra ngoài máy.
 
-Đi đúng năm cột mốc trong `course/course-structure.json`:
+Mục tiêu của Module 4 là người học có portfolio trên mạng, mở được bằng đường link để gửi cho người khác xem. Không yêu cầu Preview riêng, khôi phục, bài tự viết hay kế hoạch cho ứng dụng khác để hoàn thành phần này. Ảnh nguồn không thay bằng chứng của người học. Không yêu cầu duyệt lại nội dung portfolio đã chốt ở Module 3.
 
-1. đối chiếu phiên bản sẵn sàng phát hành với PRD, kiểm tra tự động và bằng chứng trình duyệt;
-2. duyệt secret, riêng tư, quyền công bố, phạm vi truy cập và đường phục hồi;
-3. hiểu luồng dùng trang khởi tạo trung tính rồi tạo và kiểm chứng Preview khi Practice được nối lại;
-4. tách quyết định Preview khỏi quyết định Production;
-5. chứng minh quyền sở hữu bằng tài liệu thật và chuyển quy trình sang một ứng dụng khác.
-
-Không yêu cầu Learner đọc code hoặc diff. Không coi URL hoặc bản dựng thành công là đủ. Không thêm backend, authentication, analytics, payment, database hoặc dịch vụ xử lý dữ liệu nếu chưa có phạm vi bảo mật riêng.
-
-Preview đã kiểm chứng là bắt buộc cho điều kiện tốt nghiệp sau này. Production là lựa chọn. Mọi hành động mạng, đăng nhập, tạo project, thay đổi chế độ bảo vệ, triển khai, đưa lên Production, quay lại phiên bản trước hoặc xóa phải được giải thích và xin phê duyệt riêng tại đúng thời điểm.
-
-Khi dạy phần Vercel, kiểm tra lại tài liệu chính thức và lần kiểm chứng đã lưu. Không suy ra mọi bản triển khai đều riêng tư hoặc lần triển khai đầu tiên luôn là Preview.
+Hiện chỉ duyệt nội dung trong phiên. Cơ chế Practice và ghi nhận hoàn thành tự động vẫn hoãn; không tạo biên nhận, không ghi nhận hoàn thành chính thức và không coi việc bấm tiếp là đã push hoặc deploy.

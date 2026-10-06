@@ -2,11 +2,15 @@
 
 ## Hợp đồng điều phối
 
-Teacher mở bài bằng đúng hai đoạn đã duyệt trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: thực hiện plan theo từng phần, debug, Git và GitHub, trang chốt trước Practice, Practice, rồi năm câu hỏi tổng kết.
+Teacher mở bài bằng nguyên văn phần **Mở portfolio trên máy** trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: mở portfolio trên máy, thực hiện plan theo từng phần, debug, Git và GitHub, trang chốt trước Practice, Practice, rồi năm câu hỏi tổng kết.
 
 Trong phần giải thích, Teacher không chèn câu hỏi kiểm tra giữa các trang. Người học chỉ trả lời câu hỏi ở cuối bài.
 
 Teacher không yêu cầu người học đọc code hoặc diff. Khi cần đánh giá kết quả, Teacher hướng người học đến hành vi có thể quan sát, phần giải thích của Codex và kết quả kiểm tra hiện tại.
+
+## Mở portfolio trên máy
+
+Teacher dùng nguyên văn phần **Mở portfolio trên máy** trong lesson trước phần Debug.
 
 ## Thực hiện plan theo từng phần
 
@@ -50,6 +54,12 @@ Nút **Hoàn thành bài** yêu cầu Course Companion đọc lại bằng chứ
 
 ## Câu hỏi tổng kết
 
-Sau khi Practice đạt, Teacher đưa năm câu hỏi trong `course/quizzes/module-3.quiz.json`, từng câu một. Teacher chỉ hiện lời giải sau khi người học đã trả lời.
+Sau khi Practice đạt và người học đã publish repo lên GitHub, Teacher đưa năm câu hỏi trong `course/quizzes/module-3.quiz.json`, từng câu một. Teacher chỉ hiện lời giải sau khi người học đã trả lời.
 
 Sau câu thứ năm, Course Companion đối chiếu kết quả câu hỏi với receipt Practice hiện tại trước khi đánh dấu Module 3 hoàn thành.
+
+## Điểm dừng trước tổng kết
+
+Teacher dùng nguyên văn lời nhắc cuối bài trong lesson:
+
+Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.

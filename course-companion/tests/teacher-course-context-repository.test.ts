@@ -40,7 +40,7 @@ const activeState: Record<LessonId, Pick<LearnerProgress, 'currentCourseLessonId
   'module-4': {
     currentCourseLessonId: 'm4-release-validation',
     checkpointId: 'm4-release-validation',
-    sceneId: 'module-4-release-intro'
+    sceneId: 'module-4-hosting-intro'
   }
 }
 
@@ -92,6 +92,7 @@ describe('TeacherCourseContextRepository', () => {
       expect(result.sources.some((source) => source.path === `course/quizzes/${moduleId}.quiz.json`)).toBe(true)
       expect(result.pedagogyInstructions).toContain('Protect open assessments')
       expect(result.digest).toMatch(/^[a-f0-9]{64}$/)
+      if (moduleId === 'module-4') expect(result.activeAssessment).toBeNull()
     }
   })
 
@@ -131,11 +132,10 @@ describe('TeacherCourseContextRepository', () => {
     expect(answered.activeAssessment).toMatchObject({ status: 'answered', learnerResult: 'correct:0' })
   })
 
-  it('binds grouped Module 2–4 assessment scenes directly from their quiz definitions', async () => {
+  it('binds grouped Module 2–3 assessment scenes directly from their quiz definitions', async () => {
     const states = [
       { moduleId: 'module-2' as const, currentCourseLessonId: 'm2-portfolio-brief' as const, checkpointId: 'm2-portfolio-mastery' as const, sceneId: 'module-2-mastery-scenario-viewer' as const, questionId: 'mastery-1' },
       { moduleId: 'module-3' as const, currentCourseLessonId: 'm3-independent-enhancement' as const, checkpointId: 'm3-mastery' as const, sceneId: 'module-3-mastery-plan' as const, questionId: 'm3-mastery-plan' },
-      { moduleId: 'module-4' as const, currentCourseLessonId: 'm4-release-validation' as const, checkpointId: 'm4-release-validation' as const, sceneId: 'module-4-check-release-evidence' as const, questionId: 'release-validation-retrieval-1' }
     ]
     const repository = new TeacherCourseContextRepository(pilotWorkspace)
 

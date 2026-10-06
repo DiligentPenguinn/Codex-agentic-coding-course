@@ -47,6 +47,8 @@ import m3CommitHistoryImage from '../assets/lesson-visuals/m3-commit-history-exa
 import m3GitGithubImage from '../assets/lesson-visuals/m3-git-github.png'
 import m3GithubPushedCommitsImage from '../assets/lesson-visuals/m3-github-pushed-commits.png'
 import m3GithubBranchesImage from '../assets/lesson-visuals/m3-github-branches.png'
+import m4ProjectsOverviewImage from '../assets/lesson-visuals/module-4/vercel-projects-overview.png'
+import m4PortfolioVideo from '../assets/lesson-visuals/module-4/vercel-portfolio-captioned.mp4'
 import { PracticeBrief } from '../components/PracticeBrief'
 import { TeacherWorkspace } from '../components/TeacherWorkspace'
 import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
@@ -91,6 +93,8 @@ type LessonVisual = {
   alt: string
   caption?: string
   fit?: 'cover' | 'contain'
+  annotations?: ReadonlyArray<{ x: number; y: number; label: string }>
+  crop?: { x: number; y: number; width: number; height: number; sourceWidth: number }
 }
 
 type Choice = {
@@ -1158,6 +1162,12 @@ const lessonVisuals: Partial<Record<CourseLessonId, LessonVisual>> = {
 }
 
 const sceneVisuals: Partial<Record<SceneId, LessonVisual>> = {
+  'module-4-hosting-intro': {
+    image: m4ProjectsOverviewImage,
+    alt: 'Trang quản lý dự án trên Vercel hiển thị portfolio-smu và địa chỉ minhtrietportfolio.dev',
+    caption: 'dashboard của Vercel',
+    fit: 'contain'
+  },
   'module-1-codex-examples': {
     image: m1ApprovalMenuImage,
     alt: 'Menu Approval của Codex hiển thị Ask for approval, Approve for me và Full access',
@@ -1442,6 +1452,32 @@ function LessonVisualMedia({
   isApprovalTour: boolean
   visual: LessonVisual
 }) {
+  if (visual.annotations) {
+    return (
+      <div className="pixel-publication-image" style={visual.crop ? { aspectRatio: `${visual.crop.width} / ${visual.crop.height}` } : undefined}>
+        <img
+          src={visual.image} alt={visual.alt} decoding="async" fetchPriority="high"
+          style={visual.crop ? {
+            position: 'absolute', maxWidth: 'none',
+            width: `${visual.crop.sourceWidth / visual.crop.width * 100}%`,
+            left: `${-visual.crop.x / visual.crop.width * 100}%`,
+            top: `${-visual.crop.y / visual.crop.height * 100}%`
+          } : undefined}
+        />
+        {visual.annotations.map((annotation, index) => (
+          <span
+            key={annotation.label}
+            className="pixel-publication-marker"
+            style={{ left: `${annotation.x}%`, top: `${annotation.y}%` }}
+            role="img"
+            aria-label={`${index + 1}. ${annotation.label}`}
+            title={annotation.label}
+          >{index + 1}</span>
+        ))}
+      </div>
+    )
+  }
+
   if (!isApprovalTour) {
     return (
       <img
@@ -1585,6 +1621,7 @@ function LessonVisualLightbox({
             visual={visual}
           />
         </div>
+        {visual.annotations && visual.caption ? <p className="pixel-publication-caption">{visual.caption}</p> : null}
       </section>
     </div>
   )
@@ -2794,12 +2831,6 @@ export function LearningWindow() {
       'setup-final-assessment': 'module-1-final-summary',
       'final-assessment': 'module-2-portfolio-mastery-summary',
       'm3-final-assessment': 'module-3-mastery-summary',
-      'release-validation-retrieval': 'module-4-security-intro',
-      'security-publication-retrieval': 'module-4-preview-intro',
-      'preview-deployment-retrieval': 'module-4-production-intro',
-      'production-decision-retrieval': 'module-4-ownership-intro',
-      'ownership-transfer-retrieval': 'module-4-portfolio-practice',
-      'm4-final-assessment': 'module-4-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
@@ -3081,7 +3112,6 @@ export function LearningWindow() {
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
     || displayedSceneId === 'module-3-mastery-summary'
-    || displayedSceneId === 'module-4-mastery-summary'
   const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
     && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff
@@ -3096,6 +3126,7 @@ export function LearningWindow() {
   const usesGuidanceLessonBoard = Boolean(guidanceLessonBoardKind)
   const usesLessonBoard = usesModelLessonBoard || usesGuidanceLessonBoard || usesImplementationPlanBoard
   const isApprovalTour = displayedSceneId === 'module-1-codex-examples'
+  const isVercelTutorial = displayedSceneId === 'module-4-vercel-benefits'
   const canExpandLessonVisual = scene.lessonId !== 'intro'
   const canShowSceneMedia = !assessmentQuestion && !scene.assessmentSummary
   const usesPairedLessonNavigation = isReviewing || (!assessmentQuestion && !scene.assessmentSummary)
@@ -3124,7 +3155,7 @@ export function LearningWindow() {
   )
 
   return (
-    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' ? ' has-stacked-visual-dialogue' : ''}`}>
+    <main data-scene-id={displayedSceneId} data-outline-preview={outlineSceneId !== null} className={`pixel-learning-shell${scene.lessonId === 'module-2' ? ' is-module-two' : ''}${scene.lessonId === 'module-3' ? ' is-module-three' : ''}${scene.lessonId === 'module-4' ? ' is-module-four' : ''}${lessonVisual?.annotations ? ' has-publication-walkthrough' : ''}${usesLessonBoard ? ' has-model-lesson-board' : ''}${scene.copyPrompt ? ' has-stacked-copy-prompt' : ''}${usesModuleTwoVisualDialogue ? ' has-module-two-visual-dialogue' : ''}${usesModuleTwoVisualGallery ? ' has-module-two-visual-gallery' : ''}${displayedSceneId === 'module-3-git-commit' || displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-1-setup-checklist' || displayedSceneId === 'module-4-hosting-intro' || lessonVisual?.annotations ? ' has-stacked-visual-dialogue' : ''}`}>
       <div className="pixel-scene-world" style={sceneStyle} aria-hidden="true" />
 
       <header className="pixel-hud">
@@ -3194,7 +3225,7 @@ export function LearningWindow() {
         />
       ) : null}
       <PracticeGuide view={practiceGuide} onUpdate={updatePracticeGuide} />
-      {assessmentQuestion || scene.assessmentSummary || usesLessonBoard
+      {assessmentQuestion || scene.assessmentSummary || usesLessonBoard || isVercelTutorial
         ? null
         : <img className="pixel-teacher-character" src={teacherImage} alt="Triết, giáo viên đồng hành" />}
 
@@ -3240,7 +3271,7 @@ export function LearningWindow() {
                 isApprovalTour={isApprovalTour}
                 visual={lessonVisual}
               />
-              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge') && lessonVisual.caption ? (
+              {(displayedSceneId === 'module-3-git-push' || displayedSceneId === 'module-3-git-merge' || displayedSceneId === 'module-4-hosting-intro' || lessonVisual.annotations) && lessonVisual.caption ? (
                 <figcaption>{lessonVisual.caption}</figcaption>
               ) : null}
               {canExpandLessonVisual ? (
@@ -3256,6 +3287,20 @@ export function LearningWindow() {
             </figure>
           )
           : null}
+
+      {isVercelTutorial ? (
+        <div className="pixel-vercel-tutorial-stage">
+          <p>{scene.dialogue}</p>
+          <video
+            className="pixel-vercel-tutorial"
+            src={m4PortfolioVideo}
+            controls
+            playsInline
+            preload="metadata"
+            aria-label="Video hướng dẫn đưa portfolio lên Vercel, có phụ đề tiếng Việt"
+          />
+        </div>
+      ) : null}
 
       {modelLessonBoardKind && lessonVisual ? (
         <ModelLessonBoard
@@ -3334,12 +3379,12 @@ export function LearningWindow() {
       ) : null}
 
       <section
-        aria-label={isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
-        aria-labelledby={isAssessmentQuestionPage ? undefined : 'teacherName'}
-        className={`pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
+        aria-label={isVercelTutorial ? 'Điều hướng bài học' : isAssessmentQuestionPage ? `Câu hỏi Module ${scene.lessonId.slice(-1)}` : undefined}
+        aria-labelledby={isAssessmentQuestionPage || isVercelTutorial ? undefined : 'teacherName'}
+        className={isVercelTutorial ? 'pixel-vercel-tutorial-navigation' : `pixel-dialogue${displayedSceneId === 'module-3-git-intro' ? ' is-git-intro' : ''}${scene.choices.length === 1 ? ' has-single-choice' : ''}${scene.choices.length > 3 ? ' has-many-choices' : ''}${assessmentQuestion || scene.assessmentSummary ? ' has-assessment' : ''} has-no-scene-title${displayedSceneId === 'module-1-codex-examples' ? ' has-approval-tour' : ''}${approvalFocus ? ' has-manual-approval-focus' : ''}${usesLessonBoard ? ' is-model-board-source' : ''}${scene.practice ? ' has-practice-brief' : ''}${isReviewing && scene.lessonId === 'module-2' ? ' is-module-two-review' : ''}`}
       >
-        {isAssessmentQuestionPage ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
-        {isAssessmentQuestionPage ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
+        {isAssessmentQuestionPage || isVercelTutorial ? null : <div className="pixel-speaker"><img src={teacherImage} alt="" /><span>TEACHER</span><strong id="teacherName">Triết</strong></div>}
+        {isAssessmentQuestionPage || isVercelTutorial ? null : scene.practice ? <LessonPracticeBrief definition={scene.practice} /> : (
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
               ? displayedSceneId === 'module-2-portfolio-mastery-summary'

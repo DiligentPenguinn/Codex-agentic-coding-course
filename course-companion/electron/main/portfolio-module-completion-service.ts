@@ -179,7 +179,7 @@ export class PortfolioModuleCompletionService {
       destination: {
         lessonId: 'module-3',
         checkpointId: 'm3-complete-first-version',
-        sceneId: 'module-3-debugging-intro'
+        sceneId: 'module-3-local-preview'
       },
       portfolioPlanningHandoff: {
         schemaVersion: 1,
