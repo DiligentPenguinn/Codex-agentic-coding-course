@@ -39,8 +39,8 @@ and must never be inferred from a passing automated check.
 |---|---|---|---|---|---|
 | Foundation | `implemented` — the current course content is integrated with Duy's Practice Guide lifecycle, authoritative Hỏi Triết context, non-owning Practice review, atomic task handoff, compact progress disclosure, activity snapshots, Standard-speed canonicalization, a two-page Model/Effort/Speed presentation, and a macOS panel window that keeps Duyệt Practice eligible above fullscreen Codex | `passed` for the 11 September 2026 content merge: typecheck, lint, 398 unit tests, nine startup tests, production build, full Electron smoke, source audit excluding temporary Practice bypasses, and `git diff --check`. Isolated renderer fixtures also verify the new Module 3 pages at 1440 × 900 and 1180 × 748. Live Codex and pilot acceptance remain pending | `pending` overall; the global Course Companion palette, scoped Harness removal, learner-facing Codex terminology correction, Module 1 portfolio quiz scenario, live-Practice routing fix, the `AGENTS.md` and Skills introduction, revised reading order, removed Module 2 reminder, revised Skill opening, two-page Skill split with centered content, two added Module 1 questions, configuration-page removal, simplified Module 1 review introduction, question-only assessment layout, first-slide back-navigation boundary, the two-page Model/Effort/Speed split with two redundant labels removed, selective Duy workflow integration, and the macOS fullscreen Companion direction were explicitly approved | `pending` | Present the merged app for owner review; capture the outstanding native Codex fullscreen evidence before pilot acceptance. |
 | Module 2 | `in-progress` — five Course Companion knowledge slides now route directly to the existing Practice entry; all 23 Teacher-led Practice-setup slides, their five formative quiz groups, folder/`AGENTS.md` review scaffolding, and five stage-shaped renderer lessons are retired. The final five-question mastery assessment, Practice entry prompt, saved-progress redirect to Practice, five Practice checkpoints, and detailed integration handoff remain. The merged Teacher/Practice infrastructure does not replace the still-pending five-document Module 2 redesign; its evidence, completion, and Module 3 handoff runtime still use the old seven-artifact contract | `passed` for the integrated content and shared runtime scope on 22 August 2026 — 388 unit tests, nine startup tests, typecheck, lint, production build, full Electron smoke, `git diff --check`, and the review-only source audit passed | `pending` overall; the retirement of all 23 setup slides, direct knowledge-to-Practice route, and direct-to-summary Module 2 assessment flow were explicitly approved on 21 August 2026. Earlier approval of the now-retired folder/`AGENTS.md` slide flow is superseded. The redesigned Executor runtime and full Module 2 acceptance remain pending | `pending` | Implement Teacher/Executor handoff checkpoints I1–I6 so Executor owns workspace setup, project rules, five-stage artifact guidance, approval, resume, and recovery; do not treat the current old seven-artifact runtime as the redesigned Practice. |
-| Module 3 | `implemented` — approved Local preview opening, publish reminder and Practice transition integrated; target Practice/Teacher behavior preserved; source checkpoint `8115931` merged into target history | `passed` for the fresh 6 October 2026 target full gate: typecheck, lint, 400 unit tests, nine startup tests, build, full desktop Electron journey, source audit and diff checks | `pending` overall; specific content edits and target publication explicitly approved | `pending` | Publish the verified merge as authorized, then owner review; live learner acceptance remains separate. |
-| Module 4 | `in-progress` — approved hosting/video content and portfolio Practice outcome integrated; all assessments removed; automatic Practice and graduation deferred | `passed` for the fresh 6 October 2026 target full gate; live deployment and learner acceptance remain pending | `pending` overall; quiz removal, portfolio outcome, exact after-video synchronization and target publication explicitly approved | `pending` | Publish the verified merge as authorized, then owner review; scope Practice integration separately. |
+| Module 3 | `implemented` — approved Local preview opening, publish reminder and Practice transition integrated; target Practice/Teacher behavior preserved; source checkpoint `8115931` merged into target history | `passed` for the fresh 6 October 2026 target full gate: typecheck, lint, 400 unit tests, nine startup tests, build, full desktop Electron journey, source audit and diff checks | `pending` overall; specific content edits and target publication explicitly approved | `pending` | Owner review of the published merge; live learner acceptance remains separate. |
+| Module 4 | `in-progress` — approved hosting/video content and portfolio Practice outcome integrated; all assessments removed; automatic Practice and graduation deferred | `passed` for the fresh 6 October 2026 target full gate; live deployment and learner acceptance remain pending | `pending` overall; quiz removal, portfolio outcome, exact after-video synchronization and target publication explicitly approved | `pending` | Owner review of the published merge; scope Practice integration separately. |
 
 **Current merged-branch verification — 18 August 2026:** After merging
 `origin/Triet-V2-planning` into `feature/course-companion-practice-workflow`,
@@ -2007,11 +2007,13 @@ values.
   desktop-mode adjustment also passed its focused lint check.
   Logs: `/private/tmp/branch-publish-target-*.log`. Untracked `CLAUDE.md` and
   `tmp/` are preserved outside the commit.
-- Publication is explicitly authorized: commit this verified merge and push
-  `triet-v3-planning` to `origin` without rewriting history. Next permitted
-  action after publication: owner review of the merged content. Overall owner
-  acceptance, pilot acceptance and live provider rehearsal remain pending.
-  Automatic Module 4 Practice/graduation remains deferred.
+- Publication: merge commit `d9ac1cb` was pushed successfully to
+  `origin/triet-v3-planning` on 6 October 2026. The push advanced the remote from
+  `4513318` to `d9ac1cb`; local and remote-tracking refs matched afterward. This
+  checkout remains on `triet-v3-planning`. Next permitted action: owner review
+  of the merged content. Overall owner acceptance, pilot acceptance and live
+  provider rehearsal remain pending. Automatic Module 4 Practice/graduation
+  remains deferred.
 
 
 **Approved Module 3–4 integration — 6 October 2026**
@@ -2853,7 +2855,7 @@ deployment path.
 
 **History merge publication gate — 6 October 2026:** Content integration is
 `implemented`; current merged-target verification is `passed`. See M3.1 for
-source and full target evidence, preservation scope and authorized publication.
+source and full target evidence, preservation scope and confirmed publication.
 Automatic M4.8 Practice/graduation remains `not-started`; pilot acceptance is
 pending.
 
