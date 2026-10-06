@@ -42,6 +42,7 @@ const rendererModules = [
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
       'm3-complete-first-version': [
+        ['module-3-local-preview'],
         ['module-3-debugging-intro'],
         ['module-3-visible-error'],
         ['module-3-visible-error-prompt'],
@@ -55,11 +56,6 @@ const rendererModules = [
         ['module-3-git-push'],
         ['module-3-git-branch'],
         ['module-3-git-merge'],
-        ['module-3-github-publish'],
-        ['module-3-github-preflight'],
-        ['module-3-github-create'],
-        ['module-3-github-push-practice'],
-        ['module-3-github-verify'],
         ['module-3-pre-practice-summary']
       ],
       'm3-evidence-debugging': [
@@ -81,7 +77,9 @@ const rendererModules = [
   {
     id: moduleFourDefinition.id,
     titleVi: moduleFourDefinition.titleVi,
-    lessons: moduleFourDefinition.lessons,
+    // Preserve shared checkpoint contracts for lessons whose teaching pages were retired.
+    lessons: moduleFourDefinition.lessons.filter((lesson) =>
+      lesson.id !== 'm4-security-publication' && lesson.id !== 'm4-production-decision'),
     lessonPages: {
       'm4-release-validation': [
         ['module-4-hosting-intro'],
@@ -89,40 +87,14 @@ const rendererModules = [
         ['module-4-after-video']
       ],
       'm4-security-publication': [
-        ['module-4-access-check']
       ],
       'm4-preview-deployment': [
-        ['module-4-vercel-preview'],
-        ['module-4-update-local'],
-        ['module-4-update-preview'],
-        ['module-4-preview-review']
+        ['module-4-vercel-preview']
       ],
       'm4-production-decision': [
-        ['module-4-production-intro'],
-        ['module-4-production-publish'],
-        ['module-4-production-checks'],
-        ['module-4-share-details'],
-        ['module-4-update-workflow'],
-        ['module-4-update-verify'],
-        ['module-4-deploy-errors'],
-        ['module-4-rollback'],
-        ['module-4-rollback-resume']
       ],
       'm4-ownership-transfer': [
-        ['module-4-ownership-intro'],
-        ['module-4-handover'],
-        ['module-4-transfer'],
         ['module-4-portfolio-practice'],
-        ['module-4-portfolio-mastery'],
-        ['module-4-mastery-release'],
-        ['module-4-mastery-security'],
-        ['module-4-mastery-preview'],
-        ['module-4-mastery-production'],
-        ['module-4-mastery-update'],
-        ['module-4-mastery-recovery'],
-        ['module-4-mastery-owned-release'],
-        ['module-4-mastery-owned-transfer'],
-        ['module-4-mastery-summary'],
         ['module-4-complete']
       ]
     },

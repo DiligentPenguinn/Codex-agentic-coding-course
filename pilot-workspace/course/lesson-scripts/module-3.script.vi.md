@@ -2,11 +2,15 @@
 
 ## Hợp đồng điều phối
 
-Teacher mở bài bằng đúng hai đoạn đã duyệt trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: thực hiện plan theo từng phần, debug, Git và GitHub, trang chốt trước Practice, Practice, rồi năm câu hỏi tổng kết.
+Teacher mở bài bằng nguyên văn phần **Mở portfolio trên máy** trong `course/lessons/module-3.vi.md`. Teacher giới thiệu nội dung theo thứ tự: mở portfolio trên máy, thực hiện plan theo từng phần, debug, Git và GitHub, trang chốt trước Practice, Practice, rồi năm câu hỏi tổng kết.
 
 Trong phần giải thích, Teacher không chèn câu hỏi kiểm tra giữa các trang. Người học chỉ trả lời câu hỏi ở cuối bài.
 
 Teacher không yêu cầu người học đọc code hoặc diff. Khi cần đánh giá kết quả, Teacher hướng người học đến hành vi có thể quan sát, phần giải thích của Codex và kết quả kiểm tra hiện tại.
+
+## Mở portfolio trên máy
+
+Teacher dùng nguyên văn phần **Mở portfolio trên máy** trong lesson trước phần Debug.
 
 ## Thực hiện plan theo từng phần
 
@@ -50,16 +54,12 @@ Nút **Hoàn thành bài** yêu cầu Course Companion đọc lại bằng chứ
 
 ## Câu hỏi tổng kết
 
-Sau khi Practice đạt và repo GitHub thật đã được đối chiếu, Teacher đưa năm câu hỏi trong `course/quizzes/module-3.quiz.json`, từng câu một. Teacher chỉ hiện lời giải sau khi người học đã trả lời.
+Sau khi Practice đạt và người học đã publish repo lên GitHub, Teacher đưa năm câu hỏi trong `course/quizzes/module-3.quiz.json`, từng câu một. Teacher chỉ hiện lời giải sau khi người học đã trả lời.
 
 Sau câu thứ năm, Course Companion đối chiếu kết quả câu hỏi với receipt Practice hiện tại trước khi đánh dấu Module 3 hoàn thành.
 
-## Bổ sung thực hành GitHub
-
-Sau các khái niệm Git và trước trang chốt, dùng năm trang **Thực hành: Đưa repo lên GitHub** trong lesson. Người học thực hiện trên repo thật vào cuối Practice, sau khi website Local đã được kiểm tra. Kết quả người học tự đối chiếu gồm link repo, branch, commit và Private/Public. Kiểm tra tệp và lịch sử trước push; người học tự đăng nhập và duyệt quyền. Giữ nguyên năm câu hỏi cuối bài.
-
-Trong nhánh duyệt nội dung, các trang hướng dẫn không tự chứng minh repo đã được push. Bộ kiểm tra Practice hiện tại chưa đối chiếu GitHub trực tiếp; không dùng thao tác bấm tiếp hoặc ảnh mẫu làm bằng chứng của người học. Khi dạy trực tiếp, xem bằng chứng repo thật trước khi chuyển sang bài import của Module 4.
-
 ## Điểm dừng trước tổng kết
 
-Sau Practice, trước khi mở năm câu hỏi, Teacher yêu cầu người học đưa link repo thật, branch, dãy ký tự nhận diện commit và Private/Public. Teacher đối chiếu trang GitHub với phiên bản trên máy cùng người học; thiếu hoặc không khớp thì quay lại task Codex, chưa bắt đầu tổng kết hoặc Module 4. Đây là bước đối chiếu thủ công của bài học. Nút xác nhận trong Course Companion không tự kiểm tra GitHub và không bổ sung một biên nhận từ dịch vụ.
+Teacher dùng nguyên văn lời nhắc cuối bài trong lesson:
+
+Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.

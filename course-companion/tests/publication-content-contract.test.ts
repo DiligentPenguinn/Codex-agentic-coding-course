@@ -32,39 +32,54 @@ describe('GitHub and Vercel publication content', () => {
     }
   })
 
-  it('teaches real GitHub publishing before Practice and stops for manual evidence before mastery', async () => {
+  it('routes Merge to the recap and reminds learners to publish before mastery', async () => {
     const ids = moduleThreeDefinition.scenes.map((scene) => String(scene.id))
     expect(ids.slice(ids.indexOf('module-3-git-merge'), ids.indexOf('module-3-portfolio-practice') + 1)).toEqual([
-      'module-3-git-merge', 'module-3-github-publish', 'module-3-github-preflight',
-      'module-3-github-create', 'module-3-github-push-practice', 'module-3-github-verify',
+      'module-3-git-merge',
       'module-3-pre-practice-summary', 'module-3-portfolio-practice'
     ])
     const source = await read(rendererPath(3))
     const mastery = sceneBlocks(source).find((scene) => scene.id === 'module-3-portfolio-mastery')!
-    expect(mastery.body).toContain('Trước bài tổng kết, hãy mở repo GitHub thật')
+    expect(mastery.body).toContain("Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.")
     expect(mastery.body).toContain('preservePrimaryLabel: true')
     const script = await read('pilot-workspace/course/lesson-scripts/module-3.script.vi.md')
-    expect(script).toContain('thiếu hoặc không khớp thì quay lại task Codex, chưa bắt đầu tổng kết hoặc Module 4')
+    expect(script).toContain("Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.")
   })
 
   it('preserves instructional Module 4 pages without mid-lesson questions and keeps the unavailable Practice action inactive', async () => {
     const ids = moduleFourDefinition.scenes.map((scene) => String(scene.id))
     const preserved = [
       'hosting-intro', 'after-video',
-      'access-check', 'vercel-preview',
-      'production-intro', 'ownership-intro',
-      'portfolio-practice', 'portfolio-mastery', 'mastery-release', 'mastery-security',
-      'mastery-preview', 'mastery-production', 'mastery-owned-release', 'mastery-owned-transfer',
-      'mastery-summary', 'complete'
+      'vercel-preview',
+      'portfolio-practice', 'complete'
     ]
     expect(ids).toEqual(expect.arrayContaining(preserved.map((id) => `module-4-${id}`)))
-    expect(ids.slice(1, 10)).toEqual([
-      'module-4-vercel-benefits', 'module-4-after-video', 'module-4-access-check',
-      'module-4-vercel-preview', 'module-4-update-local', 'module-4-update-preview',
-      'module-4-preview-review', 'module-4-production-intro', 'module-4-production-publish'
+    expect(ids.slice(1, 5)).toEqual([
+      'module-4-vercel-benefits', 'module-4-after-video',
+      'module-4-vercel-preview', 'module-4-portfolio-practice'
     ])
-    for (const retired of ["module-4-vercel-limits", "module-4-environments", "module-4-release-intro", "module-4-release-checklist", "module-4-security-intro", "module-4-security-access", "module-4-security-setup", "module-4-preview-intro", "module-4-vercel-import", "module-4-vercel-repository", "module-4-vercel-prepare", "module-4-vercel-config", "module-4-vercel-deploy"]) expect(ids).not.toContain(retired)
-    expect(ids.indexOf('module-4-update-workflow')).toBeLessThan(ids.indexOf('module-4-rollback-resume'))
+    for (const retired of ["module-4-access-check", "module-4-vercel-limits", "module-4-environments", "module-4-release-intro", "module-4-release-checklist", "module-4-security-intro", "module-4-security-access", "module-4-security-setup", "module-4-preview-intro", "module-4-vercel-import", "module-4-vercel-repository", "module-4-vercel-prepare", "module-4-vercel-config", "module-4-vercel-deploy"]) expect(ids).not.toContain(retired)
+    for (const retired of [
+      'module-4-update-local',
+      'module-4-update-preview',
+      'module-4-preview-review',
+      'module-4-production-intro',
+      'module-4-production-publish',
+      'module-4-production-checks',
+      'module-4-share-details',
+      'module-4-update-workflow',
+      'module-4-update-verify',
+      'module-4-deploy-errors',
+      'module-4-rollback',
+      'module-4-rollback-resume',
+      'module-4-ownership-intro',
+      'module-4-handover',
+      'module-4-transfer'
+    ]) expect(ids).not.toContain(retired)
+    expect(ids.some((id) => id.includes('mastery'))).toBe(false)
+    expect(moduleFourDefinition.quizGroupIds).toEqual([])
+    const practice = moduleFourDefinition.scenes.find((scene) => scene.id === 'module-4-portfolio-practice')!
+    expect(practice.nextSceneId).toBe('module-4-complete')
     const source = await read(rendererPath(4))
     expect(sceneBlocks(source).find((scene) => scene.id === 'module-4-portfolio-practice')!.body).toContain('choices: []')
   })

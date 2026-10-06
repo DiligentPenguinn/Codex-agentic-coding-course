@@ -19,8 +19,9 @@ Source recording and editing files: `tmp/vercel-video-2026-09-17/`.
 
 On 21 September 2026, the owner approved adding a five-second ending and quiet
 instrumental music. The ending uses the screenshot supplied that day, keeps the
-browser address visible, and repeats `portfolio-smu-video-demo.vercel.app` in
-the caption area. The original 127.9 seconds and Vietnamese captions are
+browser address visible, and shows the owner's closing caption,
+`thế là portfolio đã được published rồi, yay`.
+The original 127.9 seconds and Vietnamese captions are
 unchanged. The screenshot is an example supplied by the owner, not a fresh
 verification of the live site.
 

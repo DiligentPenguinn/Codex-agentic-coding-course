@@ -268,14 +268,14 @@ async function moduleThreeFixture() {
 }
 
 describe('PortfolioModuleCompletionService', () => {
-  it('atomically saves the receipt and opens Module 3 debugging with explicit artifact inputs only', async () => {
+  it('atomically saves the receipt and opens Module 3 local preview with explicit artifact inputs only', async () => {
     const test = await fixture()
 
     const completed = await test.service.completeModuleTwo()
 
     expect(completed).toMatchObject({
       currentLessonId: 'module-3',
-      sceneId: 'module-3-debugging-intro',
+      sceneId: 'module-3-local-preview',
       completedCheckpointIds: expect.arrayContaining([
         'm2-portfolio-planning', 'm2-portfolio-mastery', 'm2-portfolio-complete'
       ])
@@ -291,7 +291,7 @@ describe('PortfolioModuleCompletionService', () => {
       expect.arrayContaining([expect.objectContaining({ stageId: 'implementation-contract' })]))
     expect(JSON.stringify(receipt)).not.toMatch(/thread|chat|transcript/i)
     await expect(new ProgressRepository(join(test.root, 'data')).load()).resolves.toMatchObject({
-      status: 'returning', progress: { sceneId: 'module-3-debugging-intro' }
+      status: 'returning', progress: { sceneId: 'module-3-local-preview' }
     })
   })
 

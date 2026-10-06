@@ -1,5 +1,13 @@
 # Module 3 — Hiện thực hoá sản phẩm cùng coding agent
 
+## Mở portfolio trên máy
+
+Để mở portfolio trên máy, bạn có thể nhắn cho agent: “Hãy chạy portfolio và gửi tôi đường dẫn để xem trên trình duyệt.”
+
+Agent sẽ kiểm tra cách chạy của dự án và khởi động website cho bạn. Bạn có thể thấy agent dùng lệnh `npm run dev`. Hiểu đơn giản, đây là lệnh khởi động website ngay trên máy tính của bạn để bạn kiểm tra thành quả.
+
+Bạn có thể nhờ agent thiết lập một lần và hướng dẫn cách mở terminal tại thư mục dự án. Những lần sau, bạn chỉ cần mở terminal ở thư mục đó, gõ `npm run dev`, rồi mở đường dẫn hiện ra để xem website. Đây là cách xem dự án trong môi trường local, tức là chạy ngay trên máy của bạn.
+
 ## Debug cùng coding agent
 
 Okay, bây giờ bạn đã có một implementation plan và bắt đầu thực hiện nó. Đến giai đoạn này, có một điều mình chắc chắn bạn sẽ không thể tránh khỏi. Đó chính là gặp bug (lỗi phần mềm). Hiện tại coding agent chưa phát triển đến mức làm hoàn hảo mọi yêu cầu của bạn mà không có tí lỗi nào.
@@ -100,52 +108,6 @@ Ngoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vù
 
 Xử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.
 
-## Thực hành: Đưa repo lên GitHub
-
-### Đưa repo portfolio lên GitHub
-
-Cuối phần Practice, sau khi đã có website chạy trên máy, bạn sẽ đưa repo portfolio thật lên GitHub. Bài này chuẩn bị cho bạn từng bước; hãy dùng lại các bước đó khi website đã sẵn sàng.
-
-Repo là kho lưu code và lịch sử của dự án. Chọn đúng repo portfolio, không đưa cả thư mục chứa các dự án khác lên. Kết quả cần có là một đường link GitHub mở được và những commit bạn vừa lưu xuất hiện đúng branch.
-
-Đưa repo lên GitHub chưa tạo ra đường link xem website. Module 4 sẽ dùng repo này để đưa website lên Vercel. Bạn có thể giữ repo Private, tức chỉ tài khoản được cấp quyền mới đọc được code.
-
-### Kiểm tra trước lần push đầu
-
-Nhờ agent kiểm tra đúng thư mục, branch hiện tại, các tệp định commit và nơi repo đang kết nối. Nơi kết nối đó gọi là remote; nếu dự án đã có remote, hãy xác nhận nó thuộc đúng tài khoản và dự án trước khi dùng.
-
-Agent cần rà cả lịch sử Git để tránh đưa mật khẩu, mã truy cập dịch vụ hoặc dữ liệu khách hàng lên mạng. Mã truy cập dịch vụ thường được gọi là token; tệp .env là nơi dự án có thể lưu các cài đặt riêng, bao gồm những mã này. Tệp .gitignore giúp Git bỏ qua một số tệp ở những lần lưu sau; nó không xóa tệp đã commit trước đó. Nếu phát hiện mã bí mật đã lộ, dừng push và nhờ agent hướng dẫn thu hồi hoặc thay mã.
-
-Yêu cầu agent tóm tắt phần sẽ đưa lên. Bạn không phải tự đọc code, nhưng cần hiểu các tệp đó chứa gì và có được phép chia sẻ không.
-
-### Tạo repo trống trên GitHub
-
-Tự đăng nhập GitHub bằng tài khoản của bạn. Mở github.com/new, kiểm tra Owner là đúng tài khoản và đặt Repository name dễ nhận biết, chẳng hạn my-portfolio.
-
-Chọn Private nếu chỉ muốn lưu code cho mình và dịch vụ được cấp quyền. Chọn Public chỉ khi bạn đồng ý cho mọi người xem code và lịch sử. Bạn chưa cần Public để dùng Vercel.
-
-Vì đã có dự án trên máy, hãy để repo mới trống: không bật các lựa chọn thêm tệp sẵn như README (giới thiệu dự án), .gitignore hoặc license (giấy phép sử dụng code) ở bước tạo. Bấm Create repository, rồi sao chép địa chỉ repo. Nếu repo đúng đã tồn tại, dùng repo đó sau khi agent kiểm tra thay vì tạo thêm một bản trùng.
-
-### Nhờ agent nối repo và push
-
-Gửi địa chỉ repo vừa tạo cho agent và nói:
-
-“Hãy đối chiếu thư mục portfolio hiện tại với repo GitHub này. Sau khi kiểm tra các tệp và lịch sử, tóm tắt phần sẽ đưa lên, branch và chế độ Private/Public để tôi duyệt. Khi tôi đồng ý, hãy commit phần đã duyệt nếu cần, nối đúng remote và push branch đó. Không ghi đè lịch sử có sẵn bằng force-push.”
-
-Nếu GitHub yêu cầu đăng nhập hoặc xác nhận quyền, bạn tự làm trên trang của dịch vụ. Không gửi mật khẩu hay mã xác nhận vào chat.
-
-Nếu agent báo bị từ chối, nhờ kiểm tra tài khoản, quyền và remote. Đừng vội tạo repo mới hoặc cho phép ghi đè chỉ để bỏ qua lỗi.
-
-### Tự xác nhận code đã lên GitHub
-
-Mở địa chỉ repo trong trình duyệt sau khi agent báo push xong. Kiểm tra tên chủ sở hữu, tên repo, nhãn Private/Public và chọn đúng branch trong menu branch.
-
-Mở danh sách commit, đối chiếu commit gần nhất bằng dãy ký tự nhận diện commit mà agent báo. Xem các tệp portfolio đã xuất hiện và không có tệp riêng tư ngoài dự kiến. Một commit chỉ nằm trên máy chưa phải đã lên GitHub.
-
-Ghi lại link repo, branch, commit và chế độ truy cập để dùng ở Module 4. Trong Practice, hoàn thành bước này sau khi website trên máy đã được kiểm tra. Bạn có thể quay lại các trang hướng dẫn qua mục lục; phần tóm tắt tiếp theo vẫn nhắc lại các kiến thức Git vừa học.
-
-Tài liệu đối chiếu: [GitHub — tạo repo mới](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository) và [đưa code có sẵn lên GitHub](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github), xem ngày 14/09/2026.
-
 ## Tóm lại
 
 4 điều cần nhớ trước khi bắt đầu Practice:
@@ -165,13 +127,9 @@ Nếu gặp lỗi trong quá trình xây, hãy trao đổi ngay với Codex tron
 
 Khi bạn hài lòng với website hiện tại, hãy bấm **Hoàn thành bài** ngay trên Teacher Triết.
 
-## Đối chiếu repo trước bài tổng kết
+## Publish repo trước bài tổng kết
 
-Trước bài tổng kết, hãy mở repo GitHub thật và ghi lại link repo, branch, dãy ký tự nhận diện commit gần nhất cùng chế độ Private/Public. Đối chiếu với phiên bản portfolio trên máy. Nếu chưa push hoặc không khớp, quay lại task Codex để hoàn thành các bước GitHub đã học.
-
-Khi học cùng Teacher, đưa các thông tin này để Teacher xem trước khi bắt đầu câu hỏi. Nút bên dưới là xác nhận bạn đã tự đối chiếu, không phải kết quả kiểm tra GitHub tự động.
-
-Sau bước này, bạn sẽ trả lời năm câu hỏi về cách thực hiện plan, vai trò của Git và GitHub, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.
+Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.
 
 ## Điều kiện hoàn thành
 

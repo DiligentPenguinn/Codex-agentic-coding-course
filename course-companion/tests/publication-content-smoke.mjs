@@ -11,9 +11,8 @@ const require = createRequire(import.meta.url)
 const cwd = process.cwd()
 const workspace = await createDisposablePracticeWorkspace({ repositoryRoot: resolve(cwd, '..') })
 const userData = await mkdtemp(join(tmpdir(), 'publication-content-review-'))
-const output = resolve(cwd, '../tmp/publication-content-2026-09-14')
+const output = await mkdtemp(join(tmpdir(), 'publication-content-evidence-'))
 await mkdir(output, { recursive: true })
-const quiz = JSON.parse(await readFile(resolve(cwd, '../pilot-workspace/course/quizzes/module-4.quiz.json'), 'utf8'))
 const measurements = []
 const visited = []
 let app
@@ -54,17 +53,27 @@ try {
       })
       assert.ok(layout.width <= viewport.width, `${id}: horizontal overflow`)
       assert.ok(layout.imageLoaded, `${id}: image failed to load`)
+      if (id === 'module-4-vercel-benefits') {
+        const video = page.locator('video')
+        await video.waitFor({ state: 'visible' })
+        await page.waitForFunction(() => {
+          const video = globalThis.document.querySelector('video')
+          return video && video.readyState >= 1 && video.videoWidth > 0
+        })
+        measurements.push({ id, ...layout, videoLoaded: true })
+        await page.screenshot({ path: join(output, `${id}-${viewport.width}.png`) })
+        continue
+      }
       assert.ok(layout.dialogue && layout.copy && layout.actions, `${id}: missing instructional content`)
       assert.ok(layout.copy.bottom <= layout.actions.y, `${id}: copy overlaps navigation ${JSON.stringify(layout)}`)
       assert.ok(layout.copy.y >= layout.dialogue.y && layout.copy.bottom <= layout.dialogue.bottom, `${id}: clipped copy`)
       assert.ok(layout.hud.bottom < layout.dialogue.y, `${id}: HUD overlaps dialogue ${JSON.stringify(layout)}`)
-      if (layout.visual) assert.ok(layout.dialogue.bottom <= viewport.height, `${id}: visual page navigation below viewport`)
+      // Long lesson pages intentionally scroll; verify the next action is reachable.
+      await page.getByRole('button', { name: 'Tiếp tục', exact: true }).or(page.getByRole('button', { name: 'Bắt đầu ôn tập', exact: true })).or(page.getByRole('button', { name: 'Về trang đang học', exact: true })).or(page.getByRole('button', { name: '← Trang trước', exact: true })).first().scrollIntoViewIfNeeded()
       if (layout.visual) assert.ok(layout.visual.bottom + 8 <= layout.dialogue.y, `${id}: image overlaps dialogue ${JSON.stringify(layout)}`)
       if (layout.title) assert.ok(layout.title.bottom + 8 <= layout.dialogue.y, `${id}: title overlaps dialogue ${JSON.stringify(layout)}`)
       measurements.push({ id, ...layout })
-      if (layout.markers.length || /github-create|github-preflight|hosting-intro|security-intro|update-workflow|rollback-resume|portfolio-mastery/.test(id)) {
-        await page.screenshot({ path: join(output, `${id}-${viewport.width}.png`) })
-      }
+      await page.screenshot({ path: join(output, `${id}-${viewport.width}.png`) })
       if (layout.markers.length) {
         await page.getByRole('button', { name: 'Phóng to ảnh minh họa', exact: true }).click()
         const modal = page.getByRole('dialog', { name: 'Ảnh minh họa phóng to' })
@@ -81,11 +90,10 @@ try {
 
   await page.getByRole('button', { name: 'Duyệt nội dung Module 3', exact: true }).click()
   await verifyOutlineNavigation(page, 'module-3', statePath)
-  await page.locator('.pixel-outline summary').click()
-  await page.locator('.pixel-outline').getByRole('button', { name: /Thực hành đưa repo lên GitHub/ }).click()
-  for (const id of ['github-publish', 'github-preflight', 'github-create', 'github-push-practice', 'github-verify']) {
-    await wait(`module-3-${id}`)
-    await inspect(`module-3-${id}`)
+  for (let count = 0; count < 30; count++) {
+    const id = await page.locator('main[data-scene-id]').getAttribute('data-scene-id')
+    if (id === 'module-3-pre-practice-summary') break
+    await inspect(id)
     await next()
   }
   await wait('module-3-pre-practice-summary')
@@ -93,44 +101,37 @@ try {
   await page.locator('.pixel-outline').getByRole('button', { name: /Kiểm tra cuối Module 3/ }).click()
   await wait('module-3-portfolio-mastery')
   await inspect('module-3-portfolio-mastery')
-  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Trước bài tổng kết, hãy mở repo GitHub thật/)
+  assert.match(await page.locator('.pixel-dialogue > p').textContent(), /Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github/)
   await page.locator('.pixel-brand').click()
   await page.getByRole('button', { name: 'Duyệt nội dung Module 4', exact: true }).click()
   await verifyOutlineNavigation(page, 'module-4', statePath)
 
-  for (let count = 0; count < 65; count++) {
-    const id = await page.locator('main[data-scene-id]').getAttribute('data-scene-id')
-    if (id === 'module-4-mastery-summary') break
-    const group = quiz.groups.find((g) => g.questions.some((q) => q.sceneId === id))
-    if (group) {
-      assert.equal(await page.locator('.pixel-assessment-question').count(), group.questions.length)
-      for (const question of group.questions) {
-        const card = page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-        if (question.type === 'multiple-choice') {
-          await card.getByRole('button', { name: question.choices[question.answerIndex], exact: true }).click()
-        } else {
-          await card.getByRole('textbox', { name: 'Câu trả lời của bạn' }).fill('Dữ liệu kiểm thử giao diện trong workspace dùng một lần; không phải bằng chứng triển khai hoặc câu trả lời của người học.')
-        }
-      }
-      await page.getByRole('button', { name: `Nộp ${group.questions.length} câu trả lời`, exact: true }).click()
-      for (const question of group.questions.filter((q) => q.type !== 'multiple-choice')) {
-        await page.locator('.pixel-assessment-question').filter({ hasText: question.prompt })
-          .getByRole('button', { name: 'Câu trả lời đáp ứng đủ tiêu chí', exact: true }).click()
-      }
-      await page.getByRole('button', { name: group.mode === 'mastery' ? `Xem kết quả ${group.questions.length} câu` : 'Tiếp tục bài học', exact: true }).click()
-    } else {
-      await inspect(id)
-      await next()
+  const moduleFourPages = [
+    'module-4-hosting-intro', 'module-4-vercel-benefits',
+    'module-4-after-video', 'module-4-vercel-preview',
+    'module-4-portfolio-practice', 'module-4-complete'
+  ]
+  for (const [index, id] of moduleFourPages.entries()) {
+    await wait(id)
+    await inspect(id)
+    assert.equal(await page.locator('.pixel-assessment-question').count(), 0)
+    assert.equal(await page.getByRole('button', { name: /Bỏ qua Practice.*ôn tập/ }).count(), 0)
+    if (id === 'module-4-portfolio-practice') {
+      assert.match(await page.locator('.pixel-dialogue > p').textContent(), /portfolio mở được bằng đường link/)
+      assert.equal(await page.getByRole('button', { name: 'Tiếp tục', exact: true }).count(), 0)
+      // Normal reading ends at Practice. The existing status page remains
+      // reachable through outline review without recording completion.
+      await page.locator('.pixel-outline summary').click()
+      await page.locator('.pixel-outline').getByRole('button', { name: /Practice: Phát hành portfolio/ }).click()
     }
+    if (index < moduleFourPages.length - 1) await next()
   }
-  await wait('module-4-mastery-summary')
-  await page.getByText('Bạn đã trả lời 8/8 câu', { exact: false }).waitFor()
-  await page.getByRole('button', { name: 'Kết thúc duyệt nội dung', exact: true }).click()
+  await page.locator('.pixel-brand').click()
   await page.getByRole('heading', { name: 'Lộ trình khóa học' }).waitFor()
   assert.equal(await readFile(statePath, 'utf8'), before)
   await writeFile(join(output, 'measurements.json'), JSON.stringify(measurements, null, 2))
   console.log(JSON.stringify({ result: 'passed', instructionalPages: visited.length,
-    desktopCases: measurements.length, assessments: '5 formative + 8 final', savedProgress: 'unchanged', output }))
+    desktopCases: measurements.length, moduleFourAssessments: 'none', savedProgress: 'unchanged', output }))
 } catch (error) {
   const page = app?.windows().find((candidate) => candidate.url().includes('#/learning'))
   if (page) {

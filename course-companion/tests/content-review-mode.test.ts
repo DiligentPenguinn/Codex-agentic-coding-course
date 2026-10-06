@@ -25,12 +25,12 @@ describe('session-only content review mode', () => {
     expect(learningWindow).toContain('savedProgressBeforeContentReview')
   })
 
-  it('offers a session-only bypass at every current Practice boundary', async () => {
+  it('offers quiz bypasses only where a follow-up assessment exists', async () => {
     const learningWindow = await source('course-companion/src/renderer/src/surfaces/LearningWindow.tsx')
     expect(learningWindow).toContain("'module-1-setup-checklist': {\n    label: 'Bỏ qua Practice · Duyệt bài trắc nghiệm',\n    sceneId: 'module-1-mastery'")
     expect(learningWindow).toContain("'module-2-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt Module 3'")
     expect(learningWindow).toContain("'module-3-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài'")
-    expect(learningWindow).toContain("'module-4-portfolio-practice': {\n    label: 'Bỏ qua Practice · Duyệt bài ôn tập'")
+    expect(learningWindow).not.toContain("sceneId: 'module-4-portfolio-mastery'")
     expect(learningWindow).toContain("const practiceReviewDestination = contentReviewMode\n    ? displayedSceneId === 'module-2-portfolio-practice'")
     expect(learningWindow).toContain(': practiceReviewDestinationByScene[displayedSceneId]\n    : undefined')
     expect(learningWindow).toContain('onClick={() => startContentReviewAtScene(practiceReviewDestination.sceneId)}')

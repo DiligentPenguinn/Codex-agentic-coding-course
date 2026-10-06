@@ -33,7 +33,7 @@ describe('portfolio course registry', () => {
     ])
   })
 
-  it('starts Module 3 directly with debugging', () => {
+  it('starts Module 3 with local preview before debugging', () => {
     const moduleThree = portfolioModuleDefinitions[1]
     expect(moduleThree.lessons[0]?.titleVi).toBe('Debug cùng coding agent')
     expect(moduleThree.scenes.map((scene) => String(scene.id))).not.toContain('module-3-readiness')
@@ -46,8 +46,6 @@ describe('portfolio course registry', () => {
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-branch')?.nextSceneId)
       .toBe('module-3-git-merge')
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-git-merge')?.nextSceneId)
-      .toBe('module-3-github-publish')
-    expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-github-verify')?.nextSceneId)
       .toBe('module-3-pre-practice-summary')
     expect(moduleThree.scenes.find((scene) => scene.id === 'module-3-pre-practice-summary')?.nextSceneId)
       .toBe('module-3-portfolio-practice')
@@ -198,9 +196,7 @@ describe('portfolio course registry', () => {
     expect(moduleFour.scenes[0]?.nextSceneId).toBe('module-4-vercel-benefits')
     expect(moduleFour.scenes[1]?.nextSceneId).toBe('module-4-after-video')
     expect(moduleFour.lessons).toHaveLength(5)
-    expect(moduleFour.quizGroupIds).toEqual([
-      'm4-final-assessment'
-    ])
+    expect(moduleFour.quizGroupIds).toEqual([])
     expect(moduleFour.scenes.filter((scene) => scene.id.startsWith('module-4-check-'))).toHaveLength(0)
     expect(moduleFour.practice).toEqual({
       id: 'm4-portfolio-release',
@@ -210,8 +206,7 @@ describe('portfolio course registry', () => {
     expect(moduleFour.scenes.map((scene) => scene.id)).toEqual(expect.arrayContaining([
       'module-4-after-video',
       'module-4-portfolio-practice',
-      'module-4-portfolio-mastery',
-      'module-4-mastery-summary'
+      'module-4-complete'
     ]))
   })
 })

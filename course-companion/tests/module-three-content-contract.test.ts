@@ -77,29 +77,6 @@ describe('Module 3 content and evidence contract', () => {
     expect(styles).toContain('max-width: 1200px;')
   })
 
-  it('highlights the approved Module 3 terminology with yellow text', async () => {
-    const [sceneSource, styles] = await Promise.all([
-      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'course', 'modules', 'module-3', 'scenes.tsx'), 'utf8'),
-      readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
-    ])
-    const declarations = [
-      "highlightTerms: ['implementation plan', 'bug', 'bugs', 'lỗi phần mềm', 'debugging', 'khắc phục lỗi', 'planning']",
-      "highlightTerms: ['prompt', 'screenshot']",
-      "highlightTerms: ['log', 'logs', 'terminal']",
-      "highlightTerms: ['nguyên nhân gốc']",
-      "highlightTerms: ['debugging', 'Git', 'hệ thống quản lý phiên bản', 'phân tán', 'repository', 'kho lưu trữ dự án', 'phiên bản']",
-      "highlightTerms: ['Git', 'GitHub', 'repository']",
-      "highlightTerms: ['Commit', 'lịch sử Git', 'repository trên máy tính của bạn', 'GitHub']",
-      "highlightTerms: ['push', 'commit', 'commits', 'repository', 'GitHub']",
-      "highlightTerms: ['branch', 'repository', 'phiên bản ổn định']",
-      "highlightTerms: ['plan', 'log', 'branch']"
-    ]
-    for (const declaration of declarations) expect(sceneSource).toContain(declaration)
-    expect(styles).toContain('.pixel-keyword-highlight')
-    expect(styles).toContain('color: var(--pixel-yellow);')
-    expect(styles).toContain('background: transparent;')
-  })
-
   it('preserves the approved lesson wording and teaching order', async () => {
     const [lesson, script, prompt, sceneSource] = await Promise.all([
       read('lessons/module-3.vi.md'),
@@ -116,6 +93,7 @@ describe('Module 3 content and evidence contract', () => {
     expect(lesson).toContain('Nếu bạn đã gửi ảnh lỗi mà agent vẫn chưa sửa được, bạn có thể yêu cầu agent thêm log, tức là thông tin ghi lại những hoạt động diễn ra khi ứng dụng đang chạy. Log có thể giúp agent có thêm thông tin về nguyên nhân gây ra lỗi, thay vì chỉ đoán mò')
     expect(lesson).toContain('Nếu lỗi vẫn quay lại sau nhiều lần sửa, hãy yêu cầu AI tạm dừng và liệt kê những nguyên nhân có thể khiến lỗi xảy ra.')
     const headings = [
+      '## Mở portfolio trên máy',
       '## Debug cùng coding agent',
       '## Git và GitHub',
       '### Commit: lưu một phiên bản của dự án',
@@ -143,6 +121,7 @@ describe('Module 3 content and evidence contract', () => {
       readFile(resolve(process.cwd(), 'src', 'renderer', 'src', 'styles.css'), 'utf8')
     ])
     const retainedKnowledgeScenes = [
+      'module-3-local-preview',
       'module-3-debugging-intro',
       'module-3-visible-error',
       'module-3-visible-error-prompt',
@@ -157,7 +136,7 @@ describe('Module 3 content and evidence contract', () => {
       'module-3-pre-practice-summary'
     ]
     for (const sceneId of retainedKnowledgeScenes) expect(sceneSource).toContain(`'${sceneId}': {`)
-    expect(sceneSource).toContain("choices: [{ label: 'Đưa repo lên GitHub', next: 'module-3-github-publish', primary: true }]")
+    expect(sceneSource).toContain("choices: [{ label: 'Tiếp tục', next: 'module-3-pre-practice-summary', primary: true }]")
     expect(sceneSource).toMatch(/'module-3-pre-practice-summary': \{[\s\S]*?choices: \[\{ label: 'Mở Practice', next: 'module-3-portfolio-practice', primary: true \}\]/)
     expect(lesson).toContain('4 điều cần nhớ trước khi bắt đầu Practice:')
     expect(sceneSource).toContain("objective: 'Điều cần nhớ', panelLabel: '4'")

@@ -250,7 +250,6 @@
         "m4-production-decision",
         "m4-ownership-transfer",
         "m4-portfolio-release",
-        "m4-mastery",
         "m4-complete"
       ],
       "lessons": [
@@ -280,7 +279,6 @@
           "checkpoints": [
             "m4-ownership-transfer",
             "m4-portfolio-release",
-            "m4-mastery",
             "m4-complete"
           ]
         }

@@ -1081,7 +1081,7 @@ type ContentReviewModuleId = 'module-2' | 'module-3' | 'module-4'
 
 const contentReviewStartSceneByModule: Record<ContentReviewModuleId, SceneId> = {
   'module-2': 'module-2-portfolio-workspace',
-  'module-3': 'module-3-debugging-intro',
+  'module-3': 'module-3-local-preview',
   'module-4': 'module-4-hosting-intro'
 }
 
@@ -1102,10 +1102,6 @@ const practiceReviewDestinationByScene: Partial<Record<SceneId, {
   'module-3-portfolio-practice': {
     label: 'Bỏ qua Practice · Duyệt câu hỏi cuối bài',
     sceneId: 'module-3-portfolio-mastery'
-  },
-  'module-4-portfolio-practice': {
-    label: 'Bỏ qua Practice · Duyệt bài ôn tập',
-    sceneId: 'module-4-portfolio-mastery'
   }
 }
 
@@ -2869,7 +2865,6 @@ export function LearningWindow() {
       'setup-final-assessment': 'module-1-final-summary',
       'final-assessment': 'module-2-portfolio-mastery-summary',
       'm3-final-assessment': 'module-3-mastery-summary',
-      'm4-final-assessment': 'module-4-mastery-summary',
       'planning-prd-check': 'module-2-prd-interview',
       'prompt-check': 'module-2-implementation-plan',
       'implementation-plan-check': 'module-2-planning-package',
@@ -3144,7 +3139,6 @@ export function LearningWindow() {
   const finalPassed = finalCorrectCount >= finalPassingCount
   const isPortfolioMasterySummary = displayedSceneId === 'module-2-portfolio-mastery-summary'
     || displayedSceneId === 'module-3-mastery-summary'
-    || displayedSceneId === 'module-4-mastery-summary'
   const portfolioPlanningHandoff = progress.practiceCompletions.find((receipt) =>
     receipt.practiceId === 'm2-portfolio-planning'
     && receipt.portfolioPlanningHandoff)?.portfolioPlanningHandoff

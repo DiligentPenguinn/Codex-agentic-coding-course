@@ -1,6 +1,17 @@
 import type { RegistrySceneContent } from '../../module-contracts'
 
 export const moduleThreeScenes = {
+  'module-3-local-preview': {
+    lessonId: 'module-3', checkpointId: 'm3-complete-first-version', step: 2, totalSteps: 5,
+    lessonLabel: 'MODULE 3 · LOCAL', mission: 'Mở portfolio trên máy',
+    objective: 'Mở portfolio trên máy', panelLabel: 'XEM PORTFOLIO',
+    panelStatus: 'CHẠY TRÊN MÁY CỦA BẠN', tone: 'neutral',
+    request: 'Nhờ agent chạy portfolio và gửi đường dẫn để xem.',
+    evidence: [],
+    dialogue: "Để mở portfolio trên máy, bạn có thể nhắn cho agent: “Hãy chạy portfolio và gửi tôi đường dẫn để xem trên trình duyệt.”\n\nAgent sẽ kiểm tra cách chạy của dự án và khởi động website cho bạn. Bạn có thể thấy agent dùng lệnh npm run dev. Hiểu đơn giản, đây là lệnh khởi động website ngay trên máy tính của bạn để bạn kiểm tra thành quả.\n\nBạn có thể nhờ agent thiết lập một lần và hướng dẫn cách mở terminal tại thư mục dự án. Những lần sau, bạn chỉ cần mở terminal ở thư mục đó, gõ npm run dev, rồi mở đường dẫn hiện ra để xem website. Đây là cách xem dự án trong môi trường local, tức là chạy ngay trên máy của bạn.",
+    highlightTerms: ['npm run dev', 'local'],
+    choices: [{ label: 'Debug cùng coding agent', next: 'module-3-debugging-intro', primary: true }]
+  },
   'module-3-debugging-intro': {
     lessonId: 'module-3', checkpointId: 'm3-complete-first-version', step: 2, totalSteps: 5,
     lessonLabel: 'MODULE 3 · DEBUG', mission: 'Chuẩn bị khi gặp bug',
@@ -136,41 +147,6 @@ export const moduleThreeScenes = {
     evidence: [],
     dialogue: "Sau khi đã xem và kiểm tra tính năng, nếu muốn đưa nó vào nhánh chính, bạn có thể bảo:\n\n“Gộp branch hiện tại vào nhánh chính main. Nếu có xung đột, hãy giải thích và đề xuất cách xử lý để tôi quyết định. Sau khi gộp, kiểm tra lại tính năng một lần nữa để chắc không có lỗi gì xảy ra”\n\nThao tác gộp nhánh này được gọi là merge.\n\nNgoài ra, khi merge hai nhánh lại với nhau, đôi khi sẽ có những vùng xung đột xảy ra. Ví dụ, file hiệu ứng 3D của nhanh a quy định khối 3D xoay sang trái, trong khi nhánh b sửa cùng dòng đó để khối 3D xoay sang phải. Git sẽ không biết phải chọn cái nào, khiến xung đột (conflict) xảy ra\n\nXử lý conflict là một chủ đề khá rộng nên mình sẽ không đi sâu trong khóa này. Tạm thời bạn có thể nhờ agent xử lý là sẽ ổn thoả trong 85% trường hợp.",
     highlightTerms: ['branch', 'repository', 'phiên bản ổn định'],
-    choices: [{ label: 'Đưa repo lên GitHub', next: 'module-3-github-publish', primary: true }]
-  },
-  'module-3-github-publish': {
-    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HÀNH GITHUB', mission: "Đưa repo portfolio lên GitHub",
-    objective: "Đưa repo portfolio lên GitHub", panelLabel: 'ĐƯA CODE LÊN GITHUB', panelStatus: 'REPO CỦA BẠN', tone: 'neutral',
-    request: "Đưa repo portfolio lên GitHub", evidence: [], dialogue: "Cuối phần Practice, sau khi đã có website chạy trên máy, bạn sẽ đưa repo portfolio thật lên GitHub. Bài này chuẩn bị cho bạn từng bước; hãy dùng lại các bước đó khi website đã sẵn sàng.\n\nRepo là kho lưu code và lịch sử của dự án. Chọn đúng repo portfolio, không đưa cả thư mục chứa các dự án khác lên. Kết quả cần có là một đường link GitHub mở được và những commit bạn vừa lưu xuất hiện đúng branch.\n\nĐưa repo lên GitHub chưa tạo ra đường link xem website. Module 4 sẽ dùng repo này để đưa website lên Vercel. Bạn có thể giữ repo Private, tức chỉ tài khoản được cấp quyền mới đọc được code.",
-    choices: [{ label: 'Tiếp tục', next: 'module-3-github-preflight', primary: true }]
-  },
-  'module-3-github-preflight': {
-    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HÀNH GITHUB', mission: "Kiểm tra trước lần push đầu",
-    objective: "Kiểm tra trước lần push đầu", panelLabel: 'ĐƯA CODE LÊN GITHUB', panelStatus: 'REPO CỦA BẠN', tone: 'neutral',
-    request: "Kiểm tra trước lần push đầu", evidence: [], dialogue: "Nhờ agent kiểm tra đúng thư mục, branch hiện tại, các tệp định commit và nơi repo đang kết nối. Nơi kết nối đó gọi là remote; nếu dự án đã có remote, hãy xác nhận nó thuộc đúng tài khoản và dự án trước khi dùng.\n\nAgent cần rà cả lịch sử Git để tránh đưa mật khẩu, mã truy cập dịch vụ hoặc dữ liệu khách hàng lên mạng. Mã truy cập dịch vụ thường được gọi là token; tệp .env là nơi dự án có thể lưu các cài đặt riêng, bao gồm những mã này. Tệp .gitignore giúp Git bỏ qua một số tệp ở những lần lưu sau; nó không xóa tệp đã commit trước đó. Nếu phát hiện mã bí mật đã lộ, dừng push và nhờ agent hướng dẫn thu hồi hoặc thay mã.\n\nYêu cầu agent tóm tắt phần sẽ đưa lên. Bạn không phải tự đọc code, nhưng cần hiểu các tệp đó chứa gì và có được phép chia sẻ không.",
-    choices: [{ label: 'Tiếp tục', next: 'module-3-github-create', primary: true }]
-  },
-  'module-3-github-create': {
-    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HÀNH GITHUB', mission: "Tạo repo trống trên GitHub",
-    objective: "Tạo repo trống trên GitHub", panelLabel: 'ĐƯA CODE LÊN GITHUB', panelStatus: 'REPO CỦA BẠN', tone: 'neutral',
-    request: "Tạo repo trống trên GitHub", evidence: [], dialogue: "Tự đăng nhập GitHub bằng tài khoản của bạn. Mở github.com/new, kiểm tra Owner là đúng tài khoản và đặt Repository name dễ nhận biết, chẳng hạn my-portfolio.\n\nChọn Private nếu chỉ muốn lưu code cho mình và dịch vụ được cấp quyền. Chọn Public chỉ khi bạn đồng ý cho mọi người xem code và lịch sử. Bạn chưa cần Public để dùng Vercel.\n\nVì đã có dự án trên máy, hãy để repo mới trống: không bật các lựa chọn thêm tệp sẵn như README (giới thiệu dự án), .gitignore hoặc license (giấy phép sử dụng code) ở bước tạo. Bấm Create repository, rồi sao chép địa chỉ repo. Nếu repo đúng đã tồn tại, dùng repo đó sau khi agent kiểm tra thay vì tạo thêm một bản trùng.",
-    choices: [{ label: 'Tiếp tục', next: 'module-3-github-push-practice', primary: true }]
-  },
-  'module-3-github-push-practice': {
-    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HÀNH GITHUB', mission: "Nhờ agent nối repo và push",
-    objective: "Nhờ agent nối repo và push", panelLabel: 'ĐƯA CODE LÊN GITHUB', panelStatus: 'REPO CỦA BẠN', tone: 'neutral',
-    request: "Nhờ agent nối repo và push", evidence: [], dialogue: "Gửi địa chỉ repo vừa tạo cho agent và nói:\n\n“Hãy đối chiếu thư mục portfolio hiện tại với repo GitHub này. Sau khi kiểm tra các tệp và lịch sử, tóm tắt phần sẽ đưa lên, branch và chế độ Private/Public để tôi duyệt. Khi tôi đồng ý, hãy commit phần đã duyệt nếu cần, nối đúng remote và push branch đó. Không ghi đè lịch sử có sẵn bằng force-push.”\n\nNếu GitHub yêu cầu đăng nhập hoặc xác nhận quyền, bạn tự làm trên trang của dịch vụ. Không gửi mật khẩu hay mã xác nhận vào chat.\n\nNếu agent báo bị từ chối, nhờ kiểm tra tài khoản, quyền và remote. Đừng vội tạo repo mới hoặc cho phép ghi đè chỉ để bỏ qua lỗi.",
-    choices: [{ label: 'Tiếp tục', next: 'module-3-github-verify', primary: true }]
-  },
-  'module-3-github-verify': {
-    lessonId: 'module-3', checkpointId: 'm3-whole-page-revision', step: 3, totalSteps: 5,
-    lessonLabel: 'MODULE 3 · THỰC HÀNH GITHUB', mission: "Tự xác nhận code đã lên GitHub",
-    objective: "Tự xác nhận code đã lên GitHub", panelLabel: 'ĐƯA CODE LÊN GITHUB', panelStatus: 'REPO CỦA BẠN', tone: 'neutral',
-    request: "Tự xác nhận code đã lên GitHub", evidence: [], dialogue: "Mở địa chỉ repo trong trình duyệt sau khi agent báo push xong. Kiểm tra tên chủ sở hữu, tên repo, nhãn Private/Public và chọn đúng branch trong menu branch.\n\nMở danh sách commit, đối chiếu commit gần nhất bằng dãy ký tự nhận diện commit mà agent báo. Xem các tệp portfolio đã xuất hiện và không có tệp riêng tư ngoài dự kiến. Một commit chỉ nằm trên máy chưa phải đã lên GitHub.\n\nGhi lại link repo, branch, commit và chế độ truy cập để dùng ở Module 4. Trong Practice, hoàn thành bước này sau khi website trên máy đã được kiểm tra. Bạn có thể quay lại các trang hướng dẫn qua mục lục; phần tóm tắt tiếp theo vẫn nhắc lại các kiến thức Git vừa học.",
     choices: [{ label: 'Tiếp tục', next: 'module-3-pre-practice-summary', primary: true }]
   },
   'module-3-pre-practice-summary': {
@@ -193,7 +169,7 @@ export const moduleThreeScenes = {
       { label: 'TASK', value: 'Tiếp tục từ Module 2' },
       { label: 'REVIEW', value: 'Bằng chứng hiện tại' }
     ],
-    dialogue: 'Tiếp tục làm việc với Codex cho đến khi bạn hài lòng với website hiện tại. Teacher Triết không mở một cuộc điều tra lỗi song song.',
+    dialogue: 'Bây giờ, hãy chuyển sang Codex để thực hành nha',
     choices: [{ label: 'Mở Practice xây portfolio', action: 'practice', primary: true }]
   },
   'module-3-portfolio-mastery': {
@@ -203,9 +179,9 @@ export const moduleThreeScenes = {
     panelStatus: '5 CÂU', tone: 'good',
     request: 'Các câu hỏi được đặt cùng nhau ở cuối bài.',
     evidence: [],
-    dialogue: 'Trước bài tổng kết, hãy mở repo GitHub thật và ghi lại link repo, branch, dãy ký tự nhận diện commit gần nhất cùng chế độ Private/Public. Đối chiếu với phiên bản portfolio trên máy. Nếu chưa push hoặc không khớp, quay lại task Codex để hoàn thành các bước GitHub đã học.\n\nKhi học cùng Teacher, đưa các thông tin này để Teacher xem trước khi bắt đầu câu hỏi. Nút bên dưới là xác nhận bạn đã tự đối chiếu, không phải kết quả kiểm tra GitHub tự động.\n\nSau bước này, bạn sẽ trả lời năm câu hỏi về cách thực hiện plan, vai trò của Git và GitHub, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.',
-    highlightTerms: ['plan', 'log', 'branch'],
-    choices: [{ label: 'Đã đối chiếu repo · Bắt đầu tổng kết', preservePrimaryLabel: true, next: 'module-3-mastery-plan', primary: true }]
+    dialogue: "Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của bạn lên github. Sau khi hoàn thành, chúng ta sẽ cùng làm một vài câu hỏi để ôn tập nhé.",
+    highlightTerms: ['publish', 'repo', 'github'],
+    choices: [{ label: 'Bắt đầu ôn tập', preservePrimaryLabel: true, next: 'module-3-mastery-plan', primary: true }]
   },
   'module-3-mastery-plan': {
     lessonId: 'module-3', checkpointId: 'm3-mastery', step: 5, totalSteps: 5,

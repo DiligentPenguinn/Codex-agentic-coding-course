@@ -19,6 +19,7 @@ export const moduleThreeDefinition = {
     { id: 'm3-complete', courseLessonId: 'm3-independent-enhancement' }
   ],
   scenes: [
+    { id: 'module-3-local-preview', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-debugging-intro' },
     { id: 'module-3-debugging-intro', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-visible-error' },
     { id: 'module-3-visible-error', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-visible-error-prompt' },
     { id: 'module-3-visible-error-prompt', checkpointId: 'm3-complete-first-version', courseLessonId: 'm3-complete-first-version', nextSceneId: 'module-3-terminal-logs' },
@@ -29,12 +30,7 @@ export const moduleThreeDefinition = {
     { id: 'module-3-git-commit', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-push' },
     { id: 'module-3-git-push', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-branch' },
     { id: 'module-3-git-branch', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-git-merge' },
-    { id: 'module-3-git-merge', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-github-publish' },
-    { id: 'module-3-github-publish', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-github-preflight' },
-    { id: 'module-3-github-preflight', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-github-create' },
-    { id: 'module-3-github-create', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-github-push-practice' },
-    { id: 'module-3-github-push-practice', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-github-verify' },
-    { id: 'module-3-github-verify', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-pre-practice-summary' },
+    { id: 'module-3-git-merge', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-pre-practice-summary' },
     { id: 'module-3-pre-practice-summary', checkpointId: 'm3-whole-page-revision', courseLessonId: 'm3-whole-page-revision', nextSceneId: 'module-3-portfolio-practice' },
     { id: 'module-3-portfolio-practice', checkpointId: 'm3-portfolio-build', courseLessonId: 'm3-evidence-debugging', nextSceneId: 'module-3-portfolio-mastery' },
     { id: 'module-3-portfolio-mastery', checkpointId: 'm3-mastery', courseLessonId: 'm3-independent-enhancement', nextSceneId: 'module-3-mastery-plan' },
