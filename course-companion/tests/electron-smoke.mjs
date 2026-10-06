@@ -1159,7 +1159,7 @@ try {
     .getByRole('button', { name: 'Bắt đầu Module 1', exact: true })
     .click()
   await verifyHomeBase(firstWindows.learningPage)
-  await completeSetupModule(firstWindows.learningPage, firstWindows.companionPage, firstLaunch, true)
+  await completeSetupModule(firstWindows.learningPage, firstWindows.companionPage, firstLaunch)
   assert.equal(await fingerprintTree(practiceWorkspace.canonicalStarter), canonicalStarterFingerprint)
   await verifyHomeBase(firstWindows.learningPage)
   await firstWindows.learningPage
