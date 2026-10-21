@@ -58,6 +58,8 @@ import { CodexConfigurationEvidenceAdapter } from './codex-configuration-evidenc
 import { PlanningPackageEvidenceAdapter } from './planning-package-evidence-adapter'
 import { PortfolioPlanningEvidenceAdapter } from './portfolio-planning-evidence-adapter'
 import { PortfolioBuildEvidenceAdapter } from './portfolio-build-evidence-adapter'
+import { PortfolioReleaseEvidenceAdapter } from './portfolio-release-evidence-adapter'
+import { portfolioPlanningHandoffIsCurrent } from './portfolio-planning-handoff-validation'
 import { PortfolioModuleCompletionService } from './portfolio-module-completion-service'
 import {
   PortfolioWorkspaceError,
@@ -82,6 +84,8 @@ function broadcastPracticeWorkspaceChanged(): void {
 }
 let isQuitting = false
 let companionMode: CompanionMode = 'compact'
+let fullTeacherVisible = false
+let companionAnchor: { right: number; bottom: number } | undefined
 let pendingPracticeReturn: Promise<void> | null = null
 
 function practiceDefinitionsDirectory(): string {
@@ -270,11 +274,41 @@ const practiceReviewActivity = useTestCodexGateway
 const practiceEvidenceActivity = useTestCodexGateway ? activityObserver : persistedPracticeActivity
 const portfolioPlanningEvidenceAdapter = new PortfolioPlanningEvidenceAdapter(practiceEvidenceActivity)
 const portfolioBuildEvidenceAdapter = new PortfolioBuildEvidenceAdapter(practiceEvidenceActivity)
+async function loadPortfolioReleaseContinuation() {
+  const loaded = await progressRepository.load()
+  if (loaded.status !== 'returning' && loaded.status !== 'recovered') return null
+  const receipt = [...loaded.progress.practiceCompletions].reverse().find((item) =>
+    item.courseRunId === loaded.progress.courseRunId && item.practiceId === 'm3-portfolio-build'
+    && item.practiceVersion === '2.0.0' && item.checkpointId === 'm3-complete'
+    && item.portfolioBuildHandoff?.schemaVersion === 2)
+  const handoff = receipt?.portfolioBuildHandoff
+  if (!receipt || handoff?.schemaVersion !== 2) return null
+  const workspace = await portfolioWorkspaceRepository.load({ courseRunId: loaded.progress.courseRunId })
+  if (workspace.status !== 'ready' || !workspace.selectedPath
+    || resolve(workspace.selectedPath) !== resolve(handoff.workspace.canonicalPath)) return null
+  const record = await practiceRunRepository.load()
+  const source = [record.activeRun, ...record.archivedRuns.map((archive) => archive.retainedRun)].find((run) =>
+    run?.runId === receipt.runId && run.generation === handoff.approval.generation
+    && run.practiceId === 'm3-portfolio-build' && run.practiceVersion === '2.0.0')
+  if (!source || source.reviewStatus !== 'passed' || source.completion?.submissionDigest !== handoff.submissionDigest
+    || source.binding.threadId !== handoff.approval.threadId || handoff.approval.courseRunId !== loaded.progress.courseRunId
+    || resolve(source.binding.workspaceRoot) !== resolve(handoff.workspace.canonicalPath)) return null
+  return { task: source.binding, workspace: handoff.workspace, sourceCheckpoint: handoff.sourceCheckpoint }
+}
+const simulatedReleaseUrl = useTestCodexGateway ? process.env.COURSE_COMPANION_TEST_PUBLIC_PORTFOLIO_URL : undefined
+const portfolioReleaseEvidenceAdapter = new PortfolioReleaseEvidenceAdapter(loadPortfolioReleaseContinuation,
+  simulatedReleaseUrl ? { async verify(url) {
+    const matched = url === simulatedReleaseUrl
+    return { url, finalUrl: matched ? url : null, reachable: matched, status: matched ? 200 : null,
+      checkedAt: new Date().toISOString(), textExcerpt: 'Disposable simulated public portfolio observation; not live provider evidence.',
+      ...(matched ? {} : { error: 'Simulated URL mismatch' }) }
+  } } : undefined)
 const evidenceAdapters = new PracticeEvidenceAdapterRegistry([
   new CodexConfigurationEvidenceAdapter(practiceEvidenceActivity),
   new PlanningPackageEvidenceAdapter(practiceEvidenceActivity),
   portfolioPlanningEvidenceAdapter,
-  portfolioBuildEvidenceAdapter
+  portfolioBuildEvidenceAdapter,
+  portfolioReleaseEvidenceAdapter
 ])
 const practiceCoordinator = new PracticeCoordinator(
   practiceRunRepository,
@@ -310,7 +344,7 @@ const practiceCoordinator = new PracticeCoordinator(
     if (!source) return null
     const evidence = await portfolioPlanningEvidenceAdapter.collect({ definition, runId: source.runId, generation: source.generation,
       workspaceRoot: handoff.workspace.canonicalPath, task: handoff.task, allowedLegacyArtifactPaths: source.allowedLegacyArtifactPaths })
-    return evidence.freshness === 'fresh' && evidence.sourceDigest === handoff.submission.sourceDigest ? handoff : null
+    return portfolioPlanningHandoffIsCurrent(handoff, evidence) ? handoff : null
   },
   async () => {
     const loaded = await progressRepository.load()
@@ -323,7 +357,8 @@ const practiceCoordinator = new PracticeCoordinator(
       record: await practiceRunRepository.load(),
       completions: loaded.progress.practiceCompletions
     })
-  }
+  },
+  loadPortfolioReleaseContinuation
 )
 const portfolioModuleCompletionService = new PortfolioModuleCompletionService(
   progressRepository,
@@ -351,10 +386,10 @@ const practiceHintService = new PracticeHintService(
       if (useTestCodexGateway) {
         const { level } = JSON.parse(input) as { level: number }
         return level === 1
-          ? 'Gợi ý mô phỏng: Hãy chọn một mục trong Practice mà bạn chưa chắc và đối chiếu với yêu cầu của mục đó.'
+          ? 'Gợi ý mô phỏng: Mình cùng xem từng bước nhé. Bạn chọn một mục mình còn chưa chắc rồi đối chiếu với yêu cầu của mục đó trong task Codex.'
           : level === 2
-            ? 'Gợi ý mô phỏng: Tập trung vào một điểm khác nhau giữa kết quả hiện tại và yêu cầu. Bạn muốn làm rõ điểm nào trong task Codex?'
-            : 'Gợi ý mô phỏng: Thử điền phần còn trống: “Tôi đang ở bước […], tôi thấy […], nhưng chưa hiểu […].” Hãy dùng tình huống của bạn trong task Codex.'
+            ? 'Gợi ý mô phỏng: Mình khuyên bạn nhìn vào một điểm khác nhau giữa kết quả hiện tại và yêu cầu, để dễ tìm chỗ cần chỉnh. Bạn muốn làm rõ điểm nào trong task Codex?'
+            : 'Gợi ý mô phỏng: Mình gợi ý cách diễn đạt này để bạn nói rõ chỗ còn vướng: “Tôi đang ở bước […], tôi thấy […], nhưng chưa hiểu […].” Bạn thử điền bằng tình huống của bạn trong task Codex nhé.'
       }
       // Each frozen hint has an isolated Teacher context, even after a run switch.
       await realTeacherHintAdapter.resetTransport(true)
@@ -459,6 +494,17 @@ function createMainWindow(): BrowserWindow {
   openNewWindowsInDefaultBrowser(window)
   window.once('ready-to-show', () => window.show())
 
+  window.on('minimize', () => {
+    if (!fullTeacherVisible || isQuitting) return
+    window.hide()
+    companionMode = 'expanded'
+    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
+    positionCompanion(companionMode)
+    void teacherRepository.saveMode(companionMode).catch(() => {
+      console.error('Unable to save Teacher window mode')
+    })
+  })
+
   window.on('close', (event) => {
     if (isQuitting) return
 
@@ -499,6 +545,10 @@ function createCompanionWindow(mode: CompanionMode): BrowserWindow {
   window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
 
   window.on('show', () => applyCompanionTopmost(window))
+  // Native user moves only; programmatic expansion must not overwrite the anchor.
+  window.on('will-move', (_event, bounds) => {
+    companionAnchor = { right: bounds.x + bounds.width, bottom: bounds.y + bounds.height }
+  })
   window.on('close', (event) => {
     if (isQuitting) return
     event.preventDefault()
@@ -522,7 +572,7 @@ function positionCompanion(mode: CompanionMode, show = true): void {
   if (!companionWindow) return
 
   const display = screen.getDisplayMatching(companionWindow.getBounds())
-  companionWindow.setBounds(getCompanionBounds(display.workArea, mode), true)
+  companionWindow.setBounds(getCompanionBounds(display.workArea, mode, companionAnchor), true)
   applyCompanionTopmost()
   if (show) {
     companionWindow.showInactive()
@@ -650,13 +700,14 @@ function isPortfolioStageActionRequest(value: unknown): value is PortfolioStageA
 }
 
 function isPortfolioPackageApprovalRequest(value: unknown): value is PortfolioPackageApprovalRequest {
-  return isRecord(value) && Object.keys(value).length === 8
-    && value.practiceId === 'm2-portfolio-planning' && value.practiceVersion === '2.0.0'
+  return isRecord(value)
+    && ((value.practiceId === 'm2-portfolio-planning' && value.practiceVersion === '2.0.0' && Object.keys(value).length === 8 && value.approvePrd === true && value.approvePlan === true)
+      || (value.practiceId === 'm3-portfolio-build' && value.practiceVersion === '2.0.0' && Object.keys(value).length === 7 && value.approveWebsite === true)
+      || (value.practiceId === 'm4-portfolio-release' && value.practiceVersion === '1.0.0' && Object.keys(value).length === 7 && value.approveWebsite === true))
     && typeof value.runId === 'string' && /^[A-Za-z0-9_-]{1,160}$/.test(value.runId)
     && Number.isSafeInteger(value.generation) && Number(value.generation) > 0
     && typeof value.courseRunId === 'string' && /^[A-Za-z0-9_-]{1,160}$/.test(value.courseRunId)
     && typeof value.sourceDigest === 'string' && /^[a-f0-9]{64}$/.test(value.sourceDigest)
-    && value.approvePrd === true && value.approvePlan === true
 }
 
 function isPracticeGuideSurfaceContext(value: unknown): value is PracticeGuideSurfaceContext {
@@ -823,6 +874,15 @@ function registerIpcHandlers(): void {
     return view
   })
 
+  ipcMain.handle('course:open-practice-task', async (_event, request: unknown) => {
+    if (!isRecord(request) || typeof request.runId !== 'string'
+      || !/^[A-Za-z0-9_-]{1,500}$/.test(request.runId)
+      || typeof request.generation !== 'number' || !Number.isSafeInteger(request.generation)
+      || request.generation < 1) throw new Error('Invalid Practice task open request')
+    await practiceCoordinator.openTask({ runId: request.runId, generation: request.generation })
+    await enterPracticeCompanion()
+  })
+
   ipcMain.handle('course:retry-practice-switch', async () => {
     const previousRun = (await practiceRunRepository.load()).activeRun
     const view = await practiceCoordinator.retry()
@@ -986,6 +1046,7 @@ function registerIpcHandlers(): void {
   ipcMain.handle('course:show-full-teacher', async () => {
     companionMode = 'compact'
     await teacherRepository.saveMode(companionMode)
+    if (mainWindow?.isMinimized()) mainWindow.restore()
     mainWindow?.show()
     mainWindow?.focus()
     mainWindow?.webContents.send('course:full-teacher-requested')
@@ -993,12 +1054,11 @@ function registerIpcHandlers(): void {
     companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
   })
 
-  ipcMain.handle('course:minimize-full-teacher', async () => {
-    companionMode = 'compact'
-    await teacherRepository.saveMode(companionMode)
-    companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
-    positionCompanion(companionMode)
-    mainWindow?.hide()
+  ipcMain.handle('course:set-full-teacher-visible', (event, visible: unknown) => {
+    if (event.sender.id !== mainWindow?.webContents.id || typeof visible !== 'boolean') {
+      throw new Error('Invalid Teacher window state')
+    }
+    fullTeacherVisible = visible
   })
 
   ipcMain.handle('course:set-companion-mode', async (_event, mode: CompanionMode) => {

@@ -11,7 +11,7 @@ import {
 } from './practice-task-policy'
 import type { PracticeWorkspaceResolverPort } from './practice-workspace-resolver'
 import { normalizeCodexTaskConfiguration } from './codex-configuration-normalizer'
-import { portfolioPackageArtifactPaths } from '../../shared/contracts'
+import { portfolioReleaseInstructions } from './portfolio-release-instructions'
 
 export type CodexRequestClient = {
   request: (method: string, params?: Record<string, unknown>) => Promise<unknown>
@@ -96,24 +96,56 @@ export class ExecutorChatCoordinator {
 
   async prepareTarget(
     binding: ExecutorChatBinding,
-    definition: PracticeDefinition
+    definition: PracticeDefinition,
+    approvedConfiguration?: ApprovedCodexConfiguration,
+    releaseSourceCheckpoint?: string
   ): Promise<void> {
     const workspaceRoot = await this.workspaces.resolve(definition.workspaceKind)
     if (!THREAD_ID.test(binding.threadId) || !samePath(binding.workspaceRoot, workspaceRoot)) {
       throw new Error('Invalid Executor chat binding')
     }
     await this.withBootstrap(async () => {
+      const learnerDirected = definition.practiceId === 'm2-portfolio-planning'
       const thread = await this.waitUntilReadable(
         binding.threadId,
         workspaceRoot,
-        definition.taskPolicy === 'safe-workspace-write'
+        definition.taskPolicy === 'safe-workspace-write' && !learnerDirected
       )
+      // Module 2 assesses the learner's ability to direct Codex. Creating,
+      // retrying or reopening the task must leave all work instructions to them.
+      if (learnerDirected) return
       if (definition.taskPolicy === 'safe-workspace-write') {
-        const turns = Array.isArray(thread.turns) ? thread.turns : []
-        const continuesPortfolio = (definition.practiceId === 'm2-portfolio-planning' && definition.version === '2.0.0')
-          || definition.practiceId === 'm3-portfolio-build'
+        const continuesPortfolio = definition.practiceId === 'm3-portfolio-build' || definition.practiceId === 'm4-portfolio-release'
         const marker = 'PRACTICE_CONTRACT:' + binding.runId + ':' + definition.practiceId + ':' + definition.version
-        if (turns.length === 0 || (continuesPortfolio && !JSON.stringify(turns).includes(marker))) {
+        const needsInstruction = (candidate: Record<string, unknown>): boolean => {
+          const turns = Array.isArray(candidate.turns) ? candidate.turns : []
+          return turns.length === 0 || (continuesPortfolio && !JSON.stringify(turns).includes(marker))
+        }
+        if (needsInstruction(thread)) {
+          const plan = buildPracticeTaskStartPlan({
+            runId: binding.runId, definition, workspaceRoot, approvedConfiguration
+          })
+          // createTarget closes its server. Reading persisted history on the next
+          // server does not load the task for turn/start. Empty-task resumes may
+          // also fall back to defaults, so reapply the approved Practice settings.
+          const resumed = await this.client.request('thread/resume', {
+            threadId: binding.threadId,
+            cwd: workspaceRoot,
+            model: plan.startParams.model,
+            serviceTier: plan.startParams.serviceTier,
+            approvalPolicy: plan.startParams.approvalPolicy,
+            sandbox: plan.startParams.sandbox,
+            config: plan.startParams.config
+          })
+          if (!isRecord(resumed) || !isRecord(resumed.thread)
+            || resumed.thread.id !== binding.threadId || !samePath(resumed.thread.cwd, workspaceRoot)) {
+            throw new Error('Invalid Executor chat binding')
+          }
+          validateEffectivePracticeTask({
+            effective: parseEffectivePracticeTask(resumed),
+            plan, workspaceRoot, samePath, approvedConfiguration
+          })
+          if (!needsInstruction(resumed.thread)) return
           await this.client.request('turn/start', {
             threadId: binding.threadId,
             input: [{
@@ -128,20 +160,15 @@ export class ExecutorChatCoordinator {
                 'Mục tiêu: ' + definition.objective,
                 'Kết quả cần đạt: ' + definition.expectedOutcome,
                 'Chỉ làm trong phạm vi Practice và dừng tại mọi điểm cần người học duyệt.',
-                ...(definition.evidenceProfile === 'planning-package'
+                ...(definition.practiceId === 'm4-portfolio-release'
+                  ? [portfolioReleaseInstructions(releaseSourceCheckpoint)]
+                  : definition.practiceId === 'm3-portfolio-build' && definition.version === '2.0.0'
+                  ? [PORTFOLIO_BUILD_INSTRUCTIONS]
+                  : definition.evidenceProfile === 'planning-package'
                   ? [
                       'Chỉ được thay đổi artifacts/PRD.md và artifacts/implementation-plan.md; không viết implementation code.',
                       'Dùng chính task này cho toàn bộ Practice, phỏng vấn từng câu một, và chờ các nút phê duyệt trong Course Companion. Tin nhắn trong chat không thay thế phê duyệt của người học.'
                     ]
-                  : definition.practiceId === 'm2-portfolio-planning' && definition.version === '2.0.0'
-                    ? [
-                        'Dùng chính task này để soạn, sửa và tiếp tục toàn bộ gói planning. Tận dụng các quyết định đã có; chỉ hỏi thông tin còn thiếu hoặc quyết định quan trọng. Không phỏng vấn lại theo bộ câu hỏi bắt buộc và không dừng duyệt từng tài liệu.',
-                        'Chỉ tạo hoặc sửa: ' + portfolioPackageArtifactPaths.join(', ') + '. Mỗi tài liệu có các mục Markdown với nội dung cụ thể, không để mục trống.',
-                        'PRD dùng mã REQ ổn định và tiêu chí chấp nhận kiểm tra được. implementation-plan.md chứa các bước/giai đoạn, phụ thuộc, kết quả quan sát và cách kiểm chứng cho mọi mã REQ của PRD; không thêm yêu cầu ngoài PRD.',
-                        'Tham chiếu ghi nguồn và quyền sử dụng; ảnh chụp là tùy chọn, chỉ lưu ảnh được dẫn trong reference.md dưới planning/reference/screenshots/. Không tạo bản đồ kiểm chứng riêng hoặc tệp tác vụ đầu tiên.',
-                        'Khi gói hoàn chỉnh, người học đọc và duyệt PRD cùng kế hoạch, rồi nộp cả gói trong Course Companion. Văn bản phê duyệt trong tệp hoặc chat không thay thế hành động phê duyệt tại đó.',
-                        'Không tạo ứng dụng, cài dependencies, viết package manifest, chạy build hay deploy trong Module 2. Việc chọn tác vụ triển khai đầu tiên thuộc Module 3.'
-                      ]
                   : definition.stages
                     ? [
                         'Dùng chính task này cho cả năm stage; không tạo task mới cho từng milestone.',
@@ -237,3 +264,4 @@ export class ExecutorChatCoordinator {
     return result as T
   }
 }
+import { PORTFOLIO_BUILD_INSTRUCTIONS } from './portfolio-build-instructions'

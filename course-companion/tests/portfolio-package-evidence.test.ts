@@ -163,6 +163,98 @@ describe('collectPortfolioPackage', () => {
     ]))
   })
 
+  it('ignores regular Finder metadata throughout the allowed workspace without changing the source digest', async () => {
+    const workspace = await temporaryWorkspace()
+    await writeValidDocuments(workspace)
+    const baseline = await collectPortfolioPackage(context(workspace))
+    const metadataPaths = [
+      '.DS_Store',
+      'planning/.DS_Store',
+      'planning/reference/.DS_Store',
+      'planning/reference/screenshots/.DS_Store'
+    ]
+    await Promise.all(metadataPaths.map((path) => writeFile(join(workspace, path), 'Finder metadata')))
+
+    const withMetadata = await collectPortfolioPackage(context(workspace))
+    await Promise.all(metadataPaths.map((path) => writeFile(join(workspace, path), 'Updated Finder metadata')))
+    const withChangedMetadata = await collectPortfolioPackage(context(workspace))
+
+    for (const evidence of [baseline, withMetadata, withChangedMetadata]) {
+      expect(evidence.freshness).toBe('fresh')
+      expect(evidence.portfolioPlanning?.issues).toEqual([])
+      expect(evidence.portfolioPlanning?.unexpectedPaths).toEqual([])
+      expect(evidence.portfolioPlanning?.artifacts).toHaveLength(5)
+      expect(evidence.sourceDigest).toBe(baseline.sourceDigest)
+    }
+  })
+
+  it.each(['.DS_Store', 'planning/reference/.DS_Store'])(
+    'rejects a directory named %s',
+    async (path) => {
+      const workspace = await temporaryWorkspace()
+      await writeValidDocuments(workspace)
+      await mkdir(join(workspace, path))
+
+      const evidence = await collectPortfolioPackage(context(workspace))
+
+      expect(evidence.freshness).toBe('unverifiable')
+      expect(evidence.portfolioPlanning?.unexpectedPaths).toContain(path)
+    }
+  )
+
+  it('does not count regular Finder metadata toward the 500-entry workspace budget', async () => {
+    const workspace = await temporaryWorkspace()
+    // Five documents, three allowed directories, and 492 screenshots fill the budget.
+    const screenshotPaths = Array.from({ length: 492 }, (_, index) =>
+      `planning/reference/screenshots/image-${index}.png`)
+    await writeValidDocuments(workspace, {
+      'planning/reference/reference.md': `${validDocuments['planning/reference/reference.md']}\n\n## Sources\n\n${screenshotPaths.join('\n')}`
+    })
+    await Promise.all(screenshotPaths.map((path) => writeFile(join(workspace, path), tinyPngBytes)))
+    await writeFile(join(workspace, '.DS_Store'), 'Finder metadata')
+    await writeFile(join(workspace, 'planning/reference/screenshots/.DS_Store'), 'Finder metadata')
+
+    const evidence = await collectPortfolioPackage(context(workspace))
+
+    expect(evidence.freshness).toBe('fresh')
+    expect(evidence.portfolioPlanning?.issues).toEqual([])
+    expect(evidence.portfolioPlanning?.unexpectedPaths).toEqual([])
+  }, 15_000)
+
+  for (const path of ['.DS_Store', 'planning/reference/.DS_Store']) {
+    it(`rejects a symbolic link named ${path}`, async ({ skip }) => {
+      const workspace = await temporaryWorkspace()
+      const target = await temporaryWorkspace('portfolio-package-metadata-target-')
+      await writeValidDocuments(workspace)
+      try {
+        await symlink(target, join(workspace, path), process.platform === 'win32' ? 'junction' : 'dir')
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'EPERM') {
+          skip('Windows does not permit symlink creation in this environment.')
+          return
+        }
+        throw error
+      }
+
+      const evidence = await collectPortfolioPackage(context(workspace))
+
+      expect(evidence.freshness).toBe('unverifiable')
+      expect(evidence.portfolioPlanning?.unexpectedPaths).toContain(path)
+    })
+  }
+
+  it('still rejects other dotfiles at the root and inside allowed directories', async () => {
+    const workspace = await temporaryWorkspace()
+    await writeValidDocuments(workspace)
+    await writeFile(join(workspace, '.hidden'), 'Unexpected file')
+    await writeFile(join(workspace, 'planning/.hidden'), 'Unexpected file')
+
+    const evidence = await collectPortfolioPackage(context(workspace))
+
+    expect(evidence.freshness).toBe('unverifiable')
+    expect(evidence.portfolioPlanning?.unexpectedPaths).toEqual(['.hidden', 'planning/.hidden'])
+  })
+
   it('reports both missing and unknown plan requirement IDs', async () => {
     const workspace = await temporaryWorkspace()
     await writeValidDocuments(workspace, {

@@ -1,40 +1,46 @@
-import type { PracticeWorkspaceView } from '../../../../shared/contracts'
+import { useEffect, useRef } from 'react'
 
 type PracticeSwitchDialogProps = {
-  workspace: PracticeWorkspaceView
   busy: boolean
+  continuesTask?: boolean
   onFresh: () => void
   onCancel: () => void
 }
 
 export function PracticeSwitchDialog({
-  workspace,
   busy,
+  continuesTask = false,
   onFresh,
   onCancel
 }: PracticeSwitchDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  useEffect(() => {
+    const previousFocus = document.activeElement
+    const dialog = dialogRef.current
+    dialog?.showModal()
+    return () => {
+      dialog?.close()
+      if (previousFocus instanceof HTMLElement) previousFocus.focus()
+    }
+  }, [])
+
   return (
-    <div className="practice-switch-backdrop">
-      <section className="practice-switch-dialog" role="dialog" aria-modal="true" aria-labelledby="practiceSwitchTitle">
-        <small>PRACTICE ĐANG HOẠT ĐỘNG</small>
-        <h2 id="practiceSwitchTitle">Bắt đầu một Practice mới?</h2>
-        <p>Task Codex hiện tại vẫn được giữ lại. Chỉ có một Practice được đánh dấu đang hoạt động.</p>
+    <dialog ref={dialogRef} className="practice-switch-dialog" aria-labelledby="practiceSwitchTitle"
+      aria-describedby="practiceSwitchDescription" aria-busy={busy}
+      onCancel={(event) => { event.preventDefault(); if (!busy) onCancel() }}>
+      <small>Practice đang hoạt động</small>
+      <h2 id="practiceSwitchTitle">Bắt đầu một Practice mới?</h2>
+      <p id="practiceSwitchDescription">Task Codex hiện tại vẫn được giữ lại. Chỉ có một Practice được đánh dấu đang hoạt động.</p>
 
-        <button className="practice-switch-option" type="button" disabled aria-describedby="selectiveUnavailable">
-          <span aria-hidden="true">↗</span>
-          <strong>Chuyển ngữ cảnh có chọn lọc</strong>
-          <small id="selectiveUnavailable">{workspace.capabilities.selectiveTransferReason}</small>
-        </button>
-        <button className="practice-switch-option is-primary" type="button" disabled={busy} onClick={onFresh}>
-          <span aria-hidden="true">○</span>
-          <strong>Bắt đầu hoàn toàn mới</strong>
-          <small>Tạo task Codex trống cho Practice mới.</small>
-        </button>
-
-        <button className="practice-switch-cancel" type="button" disabled={busy} onClick={onCancel}>
+      <p>{continuesTask ? 'Bắt đầu lượt Practice mới trong task Codex hiện tại; tệp và lịch sử trao đổi được giữ lại.' : 'Tạo task Codex trống cho Practice mới.'}</p>
+      <div className="practice-switch-actions">
+        <button className="practice-switch-cancel" type="button" disabled={busy} onClick={onCancel} autoFocus>
           Hủy
         </button>
-      </section>
-    </div>
+        <button className="practice-switch-confirm" type="button" disabled={busy} onClick={onFresh}>
+          {busy ? 'Đang chuẩn bị…' : continuesTask ? 'Bắt đầu lượt Practice mới' : 'Bắt đầu hoàn toàn mới'}
+        </button>
+      </div>
+    </dialog>
   )
 }

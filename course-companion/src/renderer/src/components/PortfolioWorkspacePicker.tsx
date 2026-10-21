@@ -37,7 +37,7 @@ export function PortfolioWorkspaceStatusPanel({
       <header>
         <span aria-hidden="true">⌂</span>
         <div>
-          <small>KHÔNG GIAN LÀM VIỆC</small>
+          <small>Không gian làm việc</small>
           <h2 id="portfolio-workspace-title">
             {isReady ? 'Thư mục portfolio đã sẵn sàng' : 'Chọn nơi lưu portfolio'}
           </h2>
@@ -48,7 +48,7 @@ export function PortfolioWorkspaceStatusPanel({
 
       {view.selectedPath ? (
         <div className="portfolio-workspace-path">
-          <small>{needsRecovery ? 'ĐƯỜNG DẪN CẦN KHÔI PHỤC' : 'THƯ MỤC ĐÃ CHỌN'}</small>
+          <small>{needsRecovery ? 'Đường dẫn cần khôi phục' : 'Thư mục đã chọn'}</small>
           <strong>{view.folderName}</strong>
           <code>{view.selectedPath}</code>
         </div>

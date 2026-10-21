@@ -637,6 +637,7 @@ async function scanWorkspace(
     const entries = []
     const directory = await opendir(resolve(root, relativeDirectory))
     for await (const entry of directory) {
+      if (entry.name === '.DS_Store' && entry.isFile()) continue
       if (visitedEntries >= maximumWorkspaceEntries) {
         const limitPath = relativeDirectory
           ? `${relativeDirectory}/<workspace-entry-limit>`

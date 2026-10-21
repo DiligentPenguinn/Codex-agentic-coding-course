@@ -11,7 +11,7 @@ import type { PortfolioWorkspaceRepository } from './portfolio-workspace-reposit
 import type { PracticeDefinitionRepository } from './practice-definition-repository'
 import type { PracticeRunRepository } from './practice-run-repository'
 import type { ProgressRepository } from './progress-repository'
-import { currentPortfolioPackageApproval, isPortfolioPackage } from './portfolio-package-state'
+import { currentPortfolioPackageApproval, isPortfolioBuildPackage, isPortfolioPackage } from './portfolio-package-state'
 import { buildPracticeReviewEnvelope } from './practice-review-context'
 
 const masteryQuestionIds = [
@@ -161,7 +161,50 @@ export class PortfolioModuleCompletionService {
     if (workspace.status !== 'ready' || !workspace.selectedPath) throw new Error('The selected portfolio workspace is not ready')
     const canonicalPath = resolve(workspace.selectedPath)
     const record = await this.practiceRunRepository.load()
-    const active = record.activeRun
+    const active = record.activeRun ?? [...record.archivedRuns].reverse().find((archive) =>
+      archive.retainedRun && isPortfolioBuildPackage(archive.retainedRun)
+      && archive.retainedRun.completion?.courseRunId === progress.courseRunId)?.retainedRun
+    if (active && isPortfolioBuildPackage(active)) {
+      if (record.pendingTransition || resolve(active.binding.workspaceRoot) !== canonicalPath
+        || active.reviewStatus !== 'passed' || active.reviewResult?.verdict !== 'passed' || !active.completion) {
+        throw new Error('A current Module 3 website submission review is required')
+      }
+      const definition = await this.definitionRepository.load(active.practiceId, active.practiceVersion)
+      const context = { definition, runId: active.runId, generation: active.generation, workspaceRoot: canonicalPath,
+        task: { threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot } }
+      const evidence = await this.buildEvidenceAdapter.collect(context)
+      const run = { ...active, evidence }
+      const approval = currentPortfolioPackageApproval(run, progress.courseRunId)
+      const envelope = buildPracticeReviewEnvelope({ definition, run, activity: null, generatedAt: this.now().toISOString() })
+      if (!approval || !envelope.portfolioPackage?.ready
+        || active.completion.submissionDigest !== envelope.portfolioPackage.evidenceDigest
+        || !progress.practiceCompletions.some((receipt) => receipt.runId === active.runId
+          && receipt.practiceVersion === active.practiceVersion && receipt.courseRunId === progress.courseRunId
+          && receipt.submissionDigest === active.completion?.submissionDigest)) {
+        throw new Error('The website or its evidence changed; reopen the same Practice task and submit a fresh review')
+      }
+      const mastery = ['m3-mastery-plan', 'm3-mastery-visible-error', 'm3-mastery-logs', 'm3-mastery-repeated-error', 'm3-mastery-branch']
+      if (!mastery.every((id) => progress.decisions[`assessment:${id}`]?.startsWith('correct'))) throw new Error('Module 3 mastery evidence is incomplete')
+      const latest = await this.buildEvidenceAdapter.collect(context)
+      const latestRecord = await this.practiceRunRepository.load()
+      const latestRun = latestRecord.activeRun?.runId === active.runId ? latestRecord.activeRun
+        : [...latestRecord.archivedRuns].reverse().find((archive) => archive.runId === active.runId && archive.generation === active.generation)?.retainedRun
+      if (latest.sourceDigest !== evidence.sourceDigest || latestRecord.pendingTransition
+        || !latestRun || latestRun.generation !== active.generation || latestRun.reviewStatus !== 'passed'
+        || latestRun.completion?.submissionDigest !== active.completion.submissionDigest) throw new Error('Module 3 changed before completion')
+      const sourceCheckpoint = `sha256:${approval.artifactDigests['application/source']}`
+      return this.progressRepository.completePortfolioBuild({
+        schemaVersion: 1, courseRunId: progress.courseRunId, practiceId: active.practiceId, practiceVersion: active.practiceVersion,
+        runId: active.runId, checkpointId: 'm3-complete', status: 'completed', completedAt: this.now().toISOString(),
+        submissionDigest: active.completion.submissionDigest,
+        evidenceSummary: 'Đã duyệt việc xây theo kế hoạch, cải thiện do người học đề xuất, gỡ lỗi và kiểm tra website trên phiên bản hiện tại.',
+        masterySummary: 'Đã lưu năm câu trả lời tổng kết Module 3.',
+        destination: { lessonId: 'module-3', checkpointId: 'm3-complete', sceneId: 'module-3-complete' },
+        portfolioBuildHandoff: { schemaVersion: 2, workspace: { canonicalPath, identityDigest: approval.workspaceIdentityDigest },
+          artifactDigests: approval.artifactDigests, approval, submissionDigest: active.completion.submissionDigest!, sourceCheckpoint,
+          moduleFourInput: { workspacePath: canonicalPath, sourceCheckpoint } }
+      })
+    }
     if (!active || active.practiceId !== 'm3-portfolio-build' || active.practiceVersion !== '1.0.0'
       || resolve(active.binding.workspaceRoot) !== canonicalPath) throw new Error('The active build Practice does not match this portfolio workspace')
     const definition = await this.definitionRepository.load(active.practiceId, active.practiceVersion)

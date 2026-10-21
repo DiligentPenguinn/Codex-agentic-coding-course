@@ -45,12 +45,13 @@ Teacher dùng nguyên văn phần **Tóm lại** trong lesson. Không thêm nộ
 
 ## Practice
 
-Người học tiếp tục trong task Codex đã dùng ở Module 2. Trong lúc Practice đang hoạt động, Teacher Triết không mở chat song song. Teacher chỉ hiển thị hai hành động:
+Người học tiếp tục task Codex từ Module 2 và thực hiện các phần theo kế hoạch đã duyệt. Sau mỗi phần, họ tự xem website, nêu quan sát và chấp nhận hoặc yêu cầu sửa trước khi Codex đi tiếp. Bốn phần xây cũ chỉ là ví dụ, không phải điều kiện hoàn thành.
 
-1. **Hoàn thành bài**
-2. **Xem lại objective của bài**
+Yêu cầu một cải thiện do người học đề xuất và một lần gỡ lỗi có bằng chứng. Công việc xảy ra trong lúc xây được tính, theo bất kỳ thứ tự nào; không yêu cầu thêm tính năng. Nếu chưa có lỗi thật, chỉ dùng lỗi thực hành nhỏ sau khi người học đồng ý và phải khôi phục trước khi nộp.
 
-Nút **Hoàn thành bài** yêu cầu Course Companion đọc lại bằng chứng hiện tại. Nếu còn thiếu, Teacher nêu đúng phần cần hoàn thành và đưa người học trở lại task Codex. Nếu đã đủ, Teacher yêu cầu người học xem lại website và xác nhận chấp nhận phiên bản hiện tại.
+Codex duy trì build-log.md, learning-record.md và browser-validation.md dưới evidence/module-3/. Người học sở hữu quan sát, giải thích và quyết định; Codex ghi phần kỹ thuật. Teacher Triết không mở chat song song, không viết hồ sơ hoặc trả lời thay người học.
+
+Người học xem website rồi chọn **Chấp nhận website và nộp bài**. Course Companion kiểm tra hồ sơ, mã nguồn hiện tại và xác nhận của người học; AI đối chiếu nội dung với kế hoạch và cuộc trò chuyện đúng task. Chỉ mở tổng kết khi review đạt. Nếu thiếu hoặc cũ, chỉ ra phần cần bổ sung và tiếp tục cùng task; không bỏ qua bằng chứng.
 
 ## Câu hỏi tổng kết
 

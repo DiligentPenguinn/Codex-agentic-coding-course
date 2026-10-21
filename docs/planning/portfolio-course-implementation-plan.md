@@ -1,6 +1,6 @@
 # Portfolio Course Implementation Plan
 
-- **Status:** Foundation repair and the selective Triet V2 content integration are verified; Module 3 content is implemented while its overall gate remains in progress. Module 1 now includes
+- **Status:** Foundation repair and the selective Triet V2 content integration are verified; Module 3 content and its approved v2 Practice are implemented and technically verified while its overall acceptance gate remains in progress. Module 1 now includes
   the approved `AGENTS.md` and Skills introduction and routes directly from it
   to setup Practice. Module 2 now keeps five Course Companion knowledge slides,
   passes through one required technical portfolio-folder boundary, and retires
@@ -14,8 +14,10 @@
   publishing reminder. Module 4 uses the approved hosting opening and deployment
   video, then goes straight to Practice with a shareable portfolio as its goal.
   Module 4 has no assessment. This integration excludes temporary content-review
-  routing and Practice bypasses. Module 4 Practice, artifact templates,
-  completion and graduation wiring remain deferred. The historical M4.0 CLI
+  routing and Practice bypasses. The 22 October workflow-only update implements
+  Module 4 Practice, its one deployment record and reviewed completion return.
+  Courseapp entry/completion wiring and course-wide acceptance remain with the
+  courseapp owner. The historical M4.0 CLI
   rehearsal passed on 16 August 2026; the current browser deployment path still
   needs an authenticated learner rehearsal. F0.2 was removed by
   decision on 14 August 2026.
@@ -24,6 +26,10 @@
   next module. The content-first branch has a temporary authoring-only exception:
   content and review questions may be drafted across Modules 2–4, but official
   Practice integration, completion, acceptance, and release gates remain in order.
+  On 22 October 2026 the owner explicitly requested Module 4 Practice development
+  alongside Module 2/3 student reviews, then restricted this work to Practice
+  workflow. This authorizes that scoped implementation; it does not grant any
+  preceding live acceptance, courseapp changes or graduation approval.
 - **Pacing rule:** Mastery-based and resumable; no fixed lesson duration or
   completion-time promise
 - **Practice project:** One learner-owned portfolio workspace shared by Modules
@@ -38,10 +44,66 @@ and must never be inferred from a passing automated check.
 
 | Phase | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
 |---|---|---|---|---|---|
-| Foundation | `in-progress` — automatic settings recovery, review history, regression clarity, cross-window synchronization, guide actions, and compact/full Practice hierarchy are preserved alongside the incoming Model/Effort/Speed split, clickable outlines, shared navigation, desktop layout, and macOS fullscreen panel policy | `passed` for the 11 September 2026 merge into the Practice branch: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the automatic metadata recovery, review-clarity design, guide actions, selective content-integration boundary, and required workspace-selection compatibility boundary were explicitly approved; the current branch merge was explicitly requested | `pending` | Present the merged course and preserved Practice workflow for review; native macOS fullscreen evidence and overall acceptance remain outstanding. |
-| Module 2 | `in-progress` overall — five-document Practice implementation is complete: one explicit final PRD/plan approval, deterministic collection plus actual-content AI review, preserved legacy history, same-task revision, archived completion and v2 handoff. Incoming theory and existing mastery remain unchanged | `passed` for technical checks: 467 unit tests with two intentional skips, nine startup tests, typecheck, lint, build, full Electron smoke and extended disposable portfolio rehearsal; simulated review is not live AI or pilot evidence | `pending` overall; the five-document design and preservation-with-fresh-review migration were explicitly approved, not final runtime acceptance | `pending` | Obtain owner review and required learner/native rehearsal evidence before acceptance; independent review and the local checkpoint are complete. Do not invent replacement Module 3 criteria. |
-| Module 3 | `in-progress` — the incoming debugging opening, separate branch and merge pages, Git screenshots and dialogue, highlighted terminology, pre-Practice recap, and updated Git/GitHub mastery question are integrated unchanged; the Practice branch's five stage receipts, four build-slice receipts, and strict completion contract remain authoritative | `passed` for the merged lesson content and preserved Practice contract: typecheck, lint, 411 tests with two intentional skips, nine startup tests, production build, full Electron smoke, and `git diff --check` | `pending` overall; the incoming branch integration and preservation of the Practice/theory ownership boundary were explicitly requested; this does not approve replacement Practice criteria | `pending` | Review the merged lesson content; after the required Module 2 gate, settle the replacement Module 3 build/debugging criteria from the handoff before changing current Practice gates. |
-| Module 4 | `in-progress` — approved hosting/video content and portfolio Practice outcome integrated; all assessments removed; automatic Practice and graduation deferred | `passed` for the fresh 6 October 2026 target full gate; live deployment and learner acceptance remain pending | `pending` overall; quiz removal, portfolio outcome, exact after-video synchronization and target publication explicitly approved | `pending` | Owner review of the published merge; scope Practice integration separately. |
+| Foundation | `in-progress` — preserved integration and Practice lifecycle repairs; native macOS and overall acceptance remain outstanding | `passed` for the 22 October Windows Practice batch: typecheck, lint, 711 unit tests (three skips), nine startup checks, build, full Electron smoke/chat/guide, disposable Module 2→3→4 rehearsal and preservation/diff audits; the later exact restart-copy edit received narrow verification | `pending` overall; existing scoped approvals and requested merge remain recorded | `pending` | Present the owned workflow and obtain native macOS/overall acceptance evidence. |
+| Module 2 | `in-progress` overall — five-document Practice is implemented, including Finder-metadata handling and original-task continuity; incoming theory/mastery preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | `pending` overall; prior five-document design/migration approvals remain recorded, not final runtime acceptance | `pending` | Obtain live learner/AI evidence and explicit runtime acceptance; hand courseapp student findings to its owner. |
+| Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
+| Module 4 | `in-progress` overall — owned Practice workflow and reviewed return are `implemented`; courseapp entry/completion integration and course-wide acceptance remain separate | `passed` for the 22 October Windows Practice batch and simulated Module 2→3→4 rehearsal; live deployment/AI/native acceptance remains pending | Scoped Practice implementation requested 22 October and boundary clarified; exact continuation restart copy approved; final runtime acceptance `pending` | `pending` | Give the courseapp owner the integration contract, wire the host entry in their scope and rehearse real deployment/AI/learner acceptance. |
+
+### Practice-only Module 4 and Module 2/3 student review — 22 October 2026
+
+The owner requested Module 4 Practice and concurrent picky-student reviews of
+Modules 2/3, then clarified: “we only work on the practice workflow, everything
+in the courseapp is not ours”. This update supersedes the earlier development
+deferral only for that scope. Existing lesson pages, dialogue, quizzes,
+navigation and completion copy remain with the courseapp owner.
+
+Practice implementation is `implemented`; final batch verification is `passed`.
+Typecheck, lint, 711 unit
+tests (three skips), nine startup checks, production build, full Electron
+smoke/Teacher chat/Practice Guide and the disposable
+Module 2→3→4 rehearsal have passed. The 500-entry filesystem test uses a scoped
+15-second timeout after the first full run exceeded its default five seconds
+under concurrent Windows I/O. Two pre-existing intentional skips and one
+Windows file-symlink privilege skip remain; directory-junction checks ran.
+
+| Affected checkpoint | Implementation | Verification | Current output / remaining gap |
+|---|---|---|---|
+| M2 Practice evidence | `implemented` | `passed` | Regular Finder metadata no longer blocks a valid package or consumes the entry budget; links/directories and unrelated dotfiles remain rejected. |
+| M3.8 continuity/review | `implemented` | `passed` | Nested application paths participate in source digests; unchanged archived v2 stays archived, changed evidence reopens the original task without approval, and restart retains the full previous run. Continuation checks approved planning digests without reapplying Module 2's no-application-files constraint. Learner acceptance changes after review require fresh approval/review. |
+| M4.2 / M4.4 release evidence | `implemented` | `passed` | One bounded deployment record binds the Module 3 baseline, actual clean committed application source, deployment revision and reported build/browser checks. Root generated Vercel metadata is excluded; untracked or Git-ignored application source blocks approval. |
+| M4.3 / M4.5 / M4.6 sharing boundary | `implemented` for the current one-package workflow | `passed` for deterministic verification | Public HTTPS lookup/requests are bounded, DNS-pinned and exclude credentials/private destinations. Reachability is independently observed; provider revision, browser behavior and publication consent remain reported and require exact-task review. Starting Practice never commits, pushes, logs in or deploys. Live authenticated provider/learner rehearsal remains pending. |
+| M4.7 removed assessments | `implemented` for the 6 October scope | `passed` | No ownership essay, transfer project, quiz, mandatory separate Preview or rollback exercise is restored. Five internal criteria/checklist entries support one final submission; they are not five learner approval gates. |
+| M4.8 owned Practice lifecycle | `implemented` | `passed` | Same task/folder, explicit final acceptance, fresh source/URL/task review, immutable receipt, ordinary-progress bypass prevention, return and full archived attempt are implemented. Courseapp entry wiring, completion copy and course-wide acceptance remain outside this work. |
+
+The extended Electron rehearsal uses actual disposable local Git commits and
+actual Practice controls with explicitly simulated AI/provider/public-URL
+observations. It proves the workflow, not live deployment or AI review quality.
+The Module 4 host entry is invoked through the existing public Practice API;
+the owner must wire its current courseapp button. Desktop 1024px and narrow
+360/320px screenshots were captured; 1024/320px were visually inspected after
+correcting the new record-path layout, with no horizontal overflow.
+
+The independent preservation audit reconstructs all seven inspected courseapp/
+Pilot files from the incoming merge plus the saved recovery stash. Module 3's
+22 scenes and Module 4's six scenes retain their IDs and order. No new courseapp
+edits from this batch remain. Courseapp student findings and exact integration
+contracts are in [the owner handoff](practice-courseapp-handoff-2026-10-22.md).
+After the full batch passed, the owner approved the exact continuation restart
+paragraph and button. Modules 3–4 now explain that the new attempt keeps the
+current task/files/history; other modules retain their existing copy. This small
+copy edit received a scoped render check for both variants and the busy state,
+TypeScript checking and focused lint; the full runtime suite was not repeated
+for that exact-copy change under the root trivial-edit fast path.
+
+Next permitted action: hand the Practice API
+contract to the courseapp owner, and rehearse with real learner/provider/AI
+evidence. Owner runtime acceptance, pilot acceptance and native macOS evidence
+remain pending. The owner subsequently requested committing and pushing
+everything to `codex/practice-workflow-to-triet-v3-planning`. This authorizes
+including the preserved earlier mixed work in this checkpoint and publishing
+the existing integrated branch history; it does not grant runtime acceptance.
+No implementation changed after the recorded checks except the approved,
+narrowly verified restart copy. Courseapp integration gaps remain as recorded.
 
 ### Incoming content integration — 22 October 2026
 
@@ -54,17 +116,331 @@ workspace picker, current-task review and Practice UI remain authoritative.
 New handoffs open Local preview; reviewed v2 handoffs to the previous debugging
 opening remain readable without relaxing version or evidence requirements.
 
-Merge reconciliation is `implemented`; combined verification is `pending`.
-Typecheck and 50 focused handoff/progress/content/Teacher-context tests passed.
-Focused testing also repaired Windows newline parsing in the incoming content
-audit and removed a stale Module 4 assessment fixture; no lesson copy changed.
-Uncommitted work was preserved in Git stash `f19888e8fa67addf760dded6a0915e00c677da4a`
-before merging and must be restored before final combined verification. That
-work includes the separately approved Module 3 Practice v2 implementation.
-Next permitted action: finish conflict reconciliation, restore the saved work,
-run the required technical checks and reconcile this ledger. Live AI, owner
-acceptance and pilot acceptance remain pending. This merge does not authorize
-starting Module 4 Practice or graduation implementation.
+Integration implementation is `implemented`; combined verification is `passed`.
+Merge commit `59135d9` has parents `eb00973` and `22e8c2b`; both histories are
+retained. All saved uncommitted work, including the approved Module 3 Practice
+v2 runtime, was restored. All 12 previously untracked files match the saved
+snapshot. Stash `f19888e8fa67addf760dded6a0915e00c677da4a` remains as a recovery
+copy. The restored work and follow-up rehearsal/ledger edits remain uncommitted
+in the existing mixed working tree; no checkpoint packages unrelated work.
+
+Combined Windows verification passed: typecheck, lint, 531 unit tests with two
+intentional skips, nine startup checks, production build, full Electron smoke,
+Teacher chat and Practice Guide, and the disposable Module 2-to-3 v2 portfolio
+rehearsal. The rehearsal now explicitly verifies the Local preview destination
+before continuing the same Codex task. Its targeted lint and strengthened
+rehearsal passed after that assertion was added. Desktop/narrow screenshots of
+Local preview (1180/390px) and v2 Practice (1180/360/320px) were captured; desktop,
+390px and 320px screenshots were visually inspected and no-overflow checks pass.
+The source inventory audit preserves all 22 incoming Module 3 scenes and six
+Module 4 scenes in order; theory copy and all five Module 3 questions match the
+incoming branch. The existing approved v2 Practice-entry instructions remain
+on the Practice-owned surface. Windows newline parsing in the incoming content
+audit and a stale Module 4 assessment fixture were repaired. Diff checks pass.
+
+These checks use disposable data and simulated Codex; live AI quality, native
+macOS fullscreen behavior, owner acceptance and pilot acceptance remain pending.
+Next permitted action: rehearse the current Module 2/3 Practice with real
+learner-owned work and record explicit acceptance. Keep Module 4 Practice and
+graduation deferred until the required preceding gates and scoped approval.
+
+### Module 3 Practice v2 — 13 September 2026
+
+The owner approved the recommended student-perspective revision with “let's do
+it”. This is explicit authorization for the scoped Module 3 Practice change,
+not acceptance of Module 2/3 or permission for Module 4 integration. The
+[approved design and implementation plan](module-3-practice-v2-design.md)
+supersedes the former fixed-slice/eight-artifact requirements in M3.2–M3.8.
+Earlier verification entries and v1 checkpoint detail remain historical.
+
+| Checkpoint | Implementation | Verification | Current output / remaining gap |
+|---|---|---|---|
+| M3.1 — Practice entry and authority | `implemented` | `passed` | Practice introduction, lesson/script/prompt, manifest and three records match v2; all 21 scenes, theory wording and five questions are preserved. |
+| M3.2–M3.4 — build from the approved plan | `implemented` | `passed` | Codex continues the original task and requests acceptance of manageable plan-derived parts. Fixed four-part receipts and separate neutral-scaffold approval are historical v1 rules. |
+| M3.5 / M3.7 — learner-directed improvement | `implemented` | `passed` | One learner-directed improvement, including refinement during the build, is required. No separate extra feature is required. Learner authorship is cross-checked with bound-task evidence. |
+| M3.6 — evidence-based debugging | `implemented` | `passed` | Earlier real debugging counts, independently of improvement order. An explicitly approved reversible practice fault is allowed only with honest labeling, removal and rechecks. Live teaching quality remains unverified. |
+| M3.8 — review, continuity and completion | `implemented` | `passed` | Source/evidence digests, explicit website acceptance, review lifecycle, migration and archived completion pass focused tests and the extended Electron journey. Live AI review quality and learner acceptance remain pending. |
+
+Technical checks passed: typecheck, lint, production build, 529 unit tests with
+two intentional skips, nine startup checks, full Electron smoke/chat/guide and
+the extended disposable portfolio rehearsal. The latter continues Module 2's
+original task into Module 3 v2, verifies three records and one website approval,
+submits a simulated content review, returns through archived completion and
+requires all five mastery answers before saving the v2 handoff. The rehearsal
+also caught and fixed a hardcoded v1 Practice-entry identity. Desktop (1180px)
+and narrow (320px/360px) layouts passed no-overflow checks; desktop and 320px
+screenshots were visually inspected. All 21 scene identities remain in order,
+theory text and final questions are unchanged, and diff checks passed.
+
+Simulated review verifies lifecycle behavior, not live AI assessment quality or
+learner acceptance. Those gates remain open. No checkpoint commit was made in
+the mixed working tree; pre-existing changes remain intact.
+
+V1 definitions and templates are retained. A readable legacy attempt is
+archived before conversion to a fresh v2 generation; files and the original
+task remain intact. The final package contains the five planning inputs,
+three supporting records and a bounded source fingerprint. Source/evidence
+changes invalidate approval; source changes after the validation record require
+updated checks. Completion still requires the five existing mastery answers.
+No personal learner progress or linked task was used for testing.
+
+### Portfolio progress availability repair — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I4 / M2.4–M2.5 — readable planning task incorrectly blocked | `implemented` | `passed` for 50 focused tests, 517 unit tests (two intentional skips), nine startup checks, lint, typecheck, build, full Electron smoke/chat/guide, disposable portfolio rehearsal and read-only reproduction against the owner's bound task | Failure investigation and repair requested; live experience acceptance remains `pending` | `pending` | Rehearse a new live hint from the existing task in the rebuilt app; automated and read-only checks do not establish live response quality. |
+
+The owner's connected task used GPT-6 Astra with incomplete normalized model/
+effort labels and a portfolio folder without Git. The settings normalizer marked
+those values `unverifiable`; both hints and portfolio review incorrectly treated
+that as a lost connection when optional Git evidence was unavailable. A read-only
+check of the exact bound task reproduced the old rejection and confirmed the
+new availability check permits this case. All five planning files were absent
+at diagnosis, independently of this connection bug.
+
+Hints, package review and return revalidation now share the same availability
+check: unknown settings do not prevent reading an otherwise verified, connected
+planning task without Git. Hint context describes the freshly read conversation
+as ready while retaining the separate `git-unavailable` evidence limitation;
+the persisted activity record is not rewritten to claim Git verification.
+Stale/disconnected settings, wrong task identities,
+active work and actual reconciliation failures remain blocked. Module 1's model/
+effort assessment and all package content, approval and freshness gates are
+unchanged. Regression cases cover unknown settings through hints, review and
+return, as well as the rejected cases. No learner data or task settings were
+edited by the diagnostic check.
+
+### Practice visual consistency and Triết voice — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.4–M2.5 — document rows, casing and Teacher voice | `implemented` | `passed` for lint, typecheck, 510 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide, disposable portfolio journey and desktop/narrow visual inspection | Changes explicitly requested; final visual and live voice acceptance remains `pending` | `pending` | Review the updated app, request a new live hint and assess the voice; technical checks do not establish live teaching quality. |
+
+The five-document list uses muted outline document icons, aligned file/status
+rows and fine separators. Removing inherited list indentation gives long paths
+more room; the semantic list and all filenames/status messages remain intact.
+The 320/360 px windowed layouts and desktop view were inspected without
+horizontal overflow. Icons describe documents and never imply a passing review.
+
+Practice review loading now reads “Đang cập nhật và kiểm tra…”, matching the
+idle action's sentence case and wording. The sweep covers Practice progress,
+evidence and stage states, guide, restart confirmation, folder selection and
+launcher labels. Acronyms and canonical paths retain their required casing;
+theory lesson wording and navigation remain unchanged.
+
+Shared Teacher voice instructions follow the approved Module 2 theory dialogue
+and the teacher-system-prompt language contract: Triết uses “mình” / “bạn”,
+explains a useful reason, and guides one learner-owned next step. Hints no longer
+infer an unmade decision from missing files. The same voice applies to chat and
+learner-facing review prose; JSON contracts, evidence gates and hint limits are
+unchanged. The hint footer and simulated hints follow that voice too. Automated
+checks verify instruction delivery, not live model quality; owner rehearsal of
+new live hints remains required.
+
+### Movable Teacher launcher — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 — floating Teacher launcher | `implemented` | `passed` for focused layout/control checks, full regression and disposable portfolio journey | Movement and corrected label explicitly requested; final experience acceptance remains `pending` | `pending` | Have the owner drag the portrait and open the panel in the rebuilt app; native dragging remains a manual acceptance check. |
+
+The portrait is an Electron native drag region, separate from the keyboard-
+operable “Mở Triết” button. Dragging the portrait does not activate the panel;
+the button retains single-click opening and double-click full Teacher behavior.
+Its accessible label is “Mở cửa sổ Triết”. Because this is a navigation control,
+the old Practice-dependent label and its presence polling are removed. Teacher
+still resolves the authoritative active Practice when its panel opens.
+
+Native user moves update an in-memory screen anchor on Windows/macOS. Opening,
+collapsing and returning from full Teacher preserve that anchor for the current
+app session; programmatic resizing does not overwrite it. Expanded panels are
+clamped to their current display work area, including negative monitor
+coordinates. No saved learner data or persisted settings schema is changed.
+
+Focused checks cover native drag/no-drag CSS regions, no activation from the
+portrait, keyboard opening, a simulated OS move event and retained position
+after expansion/collapse. Layout tests cover edge clamping and a secondary
+display with negative coordinates. The OS drag event is simulated in the
+Electron test; manual pointer dragging and native macOS behavior still require
+owner/native-platform rehearsal.
+
+### Teacher minimize and windowed density — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.5 — native minimize, compact readability and disabled cursor | `implemented` | `passed` for lint, typecheck, 507 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks, extended portfolio journey, desktop/narrow visual inspection and diff checks | Changes explicitly requested; final experience acceptance remains `pending` | `pending` | Review title-bar minimize and the denser windowed panel in the updated app; broader module acceptance remains outstanding. |
+
+The full Teacher surface no longer adds its own minimize control. While a
+Teacher overlay is mounted, the app's native minimize event hides the main
+window and opens the expanded floating Teacher panel. Returning to full Teacher
+explicitly restores the minimized window. Closing Teacher clears that surface
+state, so minimizing an ordinary course page retains the OS behavior. A narrow,
+main-renderer-only IPC reports overlay visibility; no learner progress or
+Practice evidence is changed by the window transition. The old renderer
+minimize-to-bubble API and callback are removed.
+
+The floating panel now prefers 380 by 640 pixels, while preserving the existing
+display work-area clamp and lower-right positioning. Smaller windowed text,
+tighter row/header/card spacing and a single scroll area for hints show more
+content. Primary controls retain their 44-pixel minimum target. Full Teacher
+and lesson typography are preserved. The package submit/refresh controls now
+use the normal arrow when disabled; actual submission feedback remains inside
+the button. Hovering over an unavailable action no longer implies background
+work.
+
+Focused Electron coverage exercises native minimize and restore twice in
+Practice, ordinary course minimize after closing Teacher, 11.5-pixel document
+text, 44-pixel navigation targets, the disabled submit cursor, and compact
+360/320-pixel overflow. Desktop and compact screenshots were inspected. The
+final batch also passed course chat history across native minimize and restore;
+the 12-pixel windowed chat screenshot was inspected. The extended portfolio
+return completed successfully in both focused and final runs for this batch.
+These checks do not replace owner/native-platform acceptance.
+
+### Practice navigation and interaction cleanup — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I2 / I4 / M2.5 — return to task, restrained motion, duplicate content and fresh restart | `implemented` | `passed` for lint, typecheck, 507 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks, disposable portfolio journey and desktop/narrow visual inspection; transient return-test observation recorded below | Changes explicitly requested; final experience acceptance remains `pending` | `pending` | Review the updated app with the owner's existing Practice, including restart and return; existing module acceptance gates remain in force. |
+
+Both Teacher Practice panels now provide a secondary “Mở lại task Codex”
+control outside the scrolling details. A narrow IPC request identifies the
+displayed run and generation; the coordinator resolves the persisted binding,
+rejects stale or switching runs, releases the app's connection through the
+existing handoff mechanism, and opens that exact Codex task. Navigation does
+not prepare a task, send instructions, refresh evidence or change saved Practice
+progress. Busy/error feedback supports retry without creating a replacement.
+
+The owner identified redundancy in the newly styled document disclosure.
+The final presentation replaces that menu plus status list with one always
+visible five-document list in assignment order. Each path appears once; distinct
+issues remain under their file and identical issues are deduplicated. General
+issues, scope warnings and explicit package approval remain available. The
+Practice sweep also removes the repeated objective/outcome below the brief,
+suppresses next-step text that merely repeats the current step, avoids identical
+step title/reason text, and presents the one-line active-task receipt directly.
+Checklists with additional guidance, review criteria and distinct refresh/review
+actions are retained. No page, route or lesson scene is removed.
+
+Thinking dots now move by two pixels as they fade, and pending hints/submissions
+use the same compact indicator. Practice controls transition for 140 ms;
+hints, review results, step guidance and the restart dialog appear over 160 ms.
+Reduced-motion preferences disable these added transitions and animations.
+
+The restart popup now offers only Cancel and fresh start. The unavailable
+selective-context-transfer option is removed. The native modal traps focus,
+starts on Cancel, supports Escape and restores focus to its trigger. Cancel
+preserves the active run; confirmed replacement uses the existing fresh-start
+operation and retains old task history. Existing same-task module handoff,
+learner-owned Module 2 instructions and approval gates remain unchanged.
+
+Focused coverage checks exact task navigation and connection release, stale
+identity rejection, unchanged saved state, recoverable open failures, unique
+document paths and preservation of distinct issues. The disposable Electron
+portfolio journey exercises compact/full navigation, keyboard activation,
+scroll reachability, modal Cancel/Escape/focus restoration, confirmed
+replacement with retained history, package approval, revision and completion.
+Desktop, 390-pixel modal and 360/320-pixel compact screenshots were inspected.
+The chat check verifies the two-pixel thinking motion and reduced-motion
+fallback; the modal check verifies its reduced-motion fallback. These are
+technical and simulated UI checks, not live teaching quality, native Codex
+dispatch or learner acceptance evidence.
+
+The final extended portfolio run once failed to archive a passed submission
+after displaying its recoverable return error. The same complete journey passed
+on two subsequent runs. Its cause is unconfirmed; bounded Electron stderr
+capture is now retained by the disposable test on failure. This observation
+remains part of the native/owner return rehearsal rather than being claimed as
+a diagnosed or repaired runtime defect.
+
+### Planning document panel styling — 12 September 2026 (earlier presentation)
+
+The navigation and interaction cleanup above supersedes this entry's redundant
+document disclosure. This entry records the earlier styling verification.
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I4 / M2.5 — document list and submission presentation | `implemented` | `passed` for typecheck, lint, 503 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks, extended portfolio journey and desktop/compact visual inspection | Styling repair explicitly requested; final visual acceptance remains `pending` | `pending` | Inspect the updated panel in the owner's current Practice; broader module acceptance remains outstanding. |
+
+The five-document section previously inherited a generic disclosure and bullet
+list. It now uses the existing black/gold theme, rounded borders, a styled
+keyboard-operable disclosure, and separated document/status rows. Long paths
+wrap within the panel, status text is subordinate to filenames, and approval
+controls share the same spacing and surface. All existing wording, punctuation,
+document paths, issues, submission behavior and approval gates are preserved.
+No page, route or lesson content changed. The learner-directed empty Module 2
+task behavior remains intact.
+
+The disposable portfolio journey verifies exact missing-issue text, keyboard
+toggle and no page/row horizontal overflow at 360 and 320 pixels. Compact
+missing-document screenshots and desktop/390-pixel empty and ready states were
+visually inspected. Approval, simulated review, revision, completion and the
+same-task handoff still pass. Screenshots are under
+`.superpowers/sdd/screenshots/portfolio-missing-*.png` and
+`portfolio-package-{desktop,narrow}.png`. These checks establish presentation
+and workflow integrity, not live AI quality or learner acceptance.
+
+### Learner-directed Module 2 start — 12 September 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I2 / M2.5 — learner-owned Codex instructions | `implemented` | `passed` for typecheck, lint, 503 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks, the disposable portfolio-package journey and scoped diff review | Empty Module 2 task and learner-written first instruction explicitly approved; overall module acceptance remains `pending` | `pending` | Open a new Module 2 Practice to rehearse writing the first instruction; existing task history remains available and is not erased. |
+
+After observing the automatic prompt, the owner approved leaving work
+instructions to the learner. Course Companion still presents the assignment,
+creates and names the task in the selected folder with the approved settings,
+and verifies its exact identity and workspace. Module 2 preparation now stops
+after that read-only check. Start, Retry, Resume and legacy-task preparation do
+not resume execution or send a message. The automatic five-document instruction
+was removed from the task coordinator; no replacement hidden prompt, file or
+prewritten learner message was added. Existing conversations, including earlier
+automatic messages, remain untouched. Hints, evidence collection, approval and
+review retain their existing boundaries; this adds no new assessment gate.
+
+The regression composes the real Practice and task coordinators, injects a
+discovery failure after creation, then verifies Retry and Resume open the same
+empty task without an execution request. Both saved Module 2 versions preserve
+their existing conversation. The disposable Electron portfolio journey still
+passes approval, simulated document review, revision, completion and the
+same-task Module 3 handoff. No lesson copy, page, navigation target or persisted
+schema changed. The earlier resume repair below remains applicable to the
+existing Module 3 instruction path; this decision supersedes automatic
+instruction delivery for Module 2 only. Live learner direction, AI quality and
+overall acceptance still require rehearsal evidence.
+
+### Practice task resume repair — 12 September 2026 (earlier behavior)
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I2 / M2.5 — task creation and retry | `implemented` | `passed` for typecheck, lint, 501 unit tests (two intentional skips), nine startup checks, build, full Electron smoke/chat/guide checks, disposable real App Server lifecycle diagnostic and scoped diff review | Repair explicitly requested; overall runtime acceptance remains `pending` | `pending` | Retry the existing pending Module 2 task in the updated app, then continue the live learner rehearsal. |
+
+Historical verification of the initial technical repair. The learner-directed
+Module 2 decision above supersedes its instruction-delivery behavior and next
+action; the underlying resume fix is retained for other instructional paths.
+
+The owner's live Module 2 start reached `target-created`, then failed with
+`thread not found` when sending its initial instructions. Creation closes the
+bootstrap server; reading stored history on the next server does not load the
+task for execution. The coordinator now resumes the exact task before sending
+instructions, reapplies the approved Module 1 settings, validates the returned
+identity, workspace and effective settings, and rechecks resumed history to
+avoid repeating an accepted instruction. Failed preparation retains the pending
+binding and previous Practice. Module 1 preparation and evidence-only reads
+remain read-only. No course copy, page, route, approval gate or stored schema
+changed, and no personal progress was reset.
+
+The regression reproduced the original failure before the repair. Coverage now
+includes server closure, failed-resume retry, lost turn acknowledgement,
+duplicate prevention, and mismatched task/workspace/settings rejection. The
+real diagnostic uses a disposable Codex home and workspace, sends no model
+prompt, and verifies that read leaves the task unloaded while resume loads the
+same task with the same effective settings. This isolated Windows profile
+returns a read-only sandbox even when workspace-write is requested; it proves
+the lifecycle, not the learner's full write-capable handoff or AI response.
+The production coordinator rejects incompatible effective settings. Initial
+diagnostic runs exposed default-setting fallback and a Windows plugin-clone
+cleanup lock; explicit resume settings and disabling unrelated plugins only in
+the disposable diagnostic profile resolved those checks. Live task execution,
+AI review quality, native macOS and learner acceptance remain outstanding.
 
 ### Theory Teacher navigation — 12 September 2026
 
@@ -318,9 +694,9 @@ task remains in Module 3. Older source handoffs remain unchanged as history.
 | Checkpoint | Implementation | Verification | Remaining gap / next permitted action |
 |---|---|---|---|
 | I1 / M2.1 — contract | `implemented` | `passed` for focused tests | Five unique paths, v2 manifest, unchanged v1 definition retained for history; no theory/template rewrite. |
-| I2 — task and migration | `implemented` | `passed` | Active v1, unambiguous replaced/complete v1 archives, retained v2 revision and active Module 3 recovery preserve task/files/history; ambiguous or unavailable task/workspace recovery fails closed. |
+| I2 — task and migration | `implemented` | `passed` | Active v1, unambiguous replaced/complete v1 archives, retained v2 revision and active Module 3 recovery preserve task/files/history; ambiguous or unavailable task/workspace recovery fails closed. The approved learner-directed Module 2 start is technically verified: new tasks are empty and preparation never sends instructions. Rehearse a new task with the learner writing the first instruction; preserve old conversations. |
 | I3 — evidence | `implemented` | `passed` for 14 filesystem tests | Bounded contents, digests, sections, requirement references, scope, optional validated images; semantic quality remains AI-assessed. |
-| I4 / M2.4–M2.5 — submission | `implemented` | `passed` | Final-package approval/review, fresh-folder validation, busy/error preservation, Teacher chat exclusion and responsive controls are verified. The 12 September scaffolded hint follow-up is technically verified; live hint quality and overall acceptance remain pending. |
+| I4 / M2.4–M2.5 — submission | `implemented` | `passed` | Final-package approval/review, fresh-folder validation, busy/error preservation, Teacher chat exclusion and responsive controls are verified. The 12 September navigation, motion, deduplication, fresh-restart confirmation, movable launcher, document icons, sentence-case labels and shared Teacher voice instructions are technically verified. Review the recorded transient return-test observation during owner rehearsal; The false availability failure for a connected planning task with unknown model settings and no Git is repaired and technically verified; owner visual review, live hint quality and overall acceptance remain pending. |
 | I5 / M2.6 — completion/handoff | `implemented` | `passed` | Five current references, original task, archived completion/revision, existing mastery and bounded relevant summaries are verified; Module 3 replacement criteria remain deferred. |
 | I6 — verification | `implemented` | `passed` | Independent review and local checkpoint are complete. Native/live AI and learner/pilot acceptance are not established by simulated checks; seek those acceptance decisions next. |
 
@@ -2354,6 +2730,17 @@ Do not author or implement Module 3 course content before this gate is accepted.
 
 ## Module 3 — Implement and debug in verified slices
 
+**Current Practice authority — 13 September 2026:** The approved
+[Module 3 Practice v2 design](module-3-practice-v2-design.md) and the v2 progress
+table above supersede the fixed-slice and separate revision/enhancement
+requirements below. M3.2–M3.8 retain their v1 detail as historical context.
+Current acceptance requires plan-derived parts with learner acceptance, one
+learner-directed improvement and one evidence-based debugging investigation
+(which may occur during those parts), three supporting records, current website
+acceptance and package review, and all five mastery answers. Same-task recovery,
+honest desktop/mobile evidence, full technical verification, scoped checkpoints
+and live owner/learner acceptance remain required.
+
 ### Module outcome
 
 The learner continues the Codex task used in Module 2 and turns the approved PRD
@@ -3877,6 +4264,14 @@ of a shareable online portfolio. The historical implementation list below is
 superseded where it requires those removed learner deliverables. Automatic
 Practice and graduation recording is still `not-started`, verification `pending`.
 Do not activate or claim those mechanisms through this content-only change.
+
+**Practice-only implementation update — 22 October 2026:** The later explicit
+request authorizes the workflow described in the latest progress-ledger entry
+and `module-4-practice-design-2026-10-22.md`. Its one-record approval/review/return
+mechanism is `implemented`; current verification and integration gaps are
+recorded there. This supersedes the earlier Practice-development deferral,
+without changing historical owner/pilot acceptance or taking ownership of the
+courseapp entry, lesson/completion copy or course-wide graduation decision.
 
 
 **Change**

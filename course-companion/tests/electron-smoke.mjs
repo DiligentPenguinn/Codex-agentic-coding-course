@@ -574,12 +574,13 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
     'Expected Module 1 Practice to leave the lesson and open the Codex companion'
   )
-  await companionPage.getByRole('button', { name: 'Mở Duyệt Practice với Triết', exact: true }).click()
+  await companionPage.getByRole('button', { name: 'Mở cửa sổ Triết', exact: true }).click()
   const compactReview = companionPage.getByRole('region', { name: 'Duyệt Practice với Triết' })
   await compactReview.waitFor()
   await compactReview.getByRole('region', { name: 'Tiến độ Practice', exact: true }).waitFor()
   await compactReview.getByText(/\d+\/\d+ bước đã xác minh/).waitFor()
-  await compactReview.getByText('TIẾP THEO', { exact: true }).waitFor()
+  await compactReview.getByText(/^Hiện tại:/).waitFor()
+  assert.equal(await compactReview.locator('.practice-compact-next').count(), 0)
   const hintBefore = await companionPage.evaluate(() => globalThis.courseCompanion.loadPracticeWorkspace())
   await compactReview.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).click()
   await compactReview.locator('.practice-hint').waitFor()
@@ -601,10 +602,10 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await compactSteps.nth(0).getAttribute('aria-expanded'), 'false')
   assert.equal(await compactSteps.nth(1).getAttribute('aria-expanded'), 'true')
   assert.equal(await compactReview.getByRole('region', { name: 'Hướng dẫn: Chọn Model 5.6 Sol', exact: true }).count(), 0)
-  assert.equal(await compactReview.getByText('MỤC TIÊU', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('Mục tiêu', { exact: true }).count(), 0)
   assert.equal(await compactReview.getByText('Kết quả theo từng tiêu chí', { exact: true }).count(), 0)
   assert.equal(await compactReview.getByText('CẤU HÌNH ĐÃ QUAN SÁT', { exact: true }).count(), 0)
-  assert.equal(await compactReview.getByText('BƯỚC HỌC HIỆN TẠI', { exact: true }).count(), 0)
+  assert.equal(await compactReview.getByText('Bước học hiện tại', { exact: true }).count(), 0)
   await companionPage.getByRole('button', { name: 'Mở Triết toàn màn hình', exact: true }).click()
   await waitForSnapshot(
     electronApp,
@@ -617,7 +618,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await guide.press('Escape')
   await fullTeacher.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).click()
   await fullTeacher.locator('.practice-hint').waitFor()
-  assert.match(await fullTeacher.locator('.practice-hint').innerText(), /Tập trung vào một điểm/)
+  assert.match(await fullTeacher.locator('.practice-hint').innerText(), /Mình khuyên bạn nhìn vào một điểm/)
   await capture(page, 'practice-hint-desktop.png')
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -638,7 +639,7 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await fullTeacher.locator('.pixel-chat-log').count(), 0)
   await guide.getByRole('button', { name: 'Cập nhật và kiểm tra ngay', exact: true }).click()
   const reviewOutcome = await Promise.race([
-    fullTeacher.getByText('ĐÃ ĐẠT', { exact: true }).waitFor().then(() => 'passed'),
+    fullTeacher.getByText('Đã đạt', { exact: true }).waitFor().then(() => 'passed'),
     fullTeacher.locator('.pixel-chat-warning[role="alert"]').waitFor().then(async () =>
       `error: ${await fullTeacher.locator('.pixel-chat-warning[role="alert"]').innerText()}`)
   ])
@@ -1548,7 +1549,7 @@ try {
   )
 
   await companionPage
-    .getByRole('button', { name: 'Mở Triết, giáo viên đồng hành' })
+    .getByRole('button', { name: 'Mở cửa sổ Triết' })
     .click()
   await companionPage.getByRole('button', { name: 'Thoát ứng dụng' }).click()
   await resumedLaunch.waitForEvent('close')
@@ -1600,7 +1601,7 @@ try {
       companionWindow(windows)?.bounds.width === 380,
     'Expected the expanded Teacher chat mode to survive a full restart'
   )
-  assert.equal(companionWindow(restoredChat)?.bounds.height, 520)
+  assert.equal(companionWindow(restoredChat)?.bounds.height, 640)
   await historyWindows.learningPage.evaluate(async () => {
     await globalThis.courseCompanion?.resetProgress()
     await globalThis.courseCompanion?.saveProgress({

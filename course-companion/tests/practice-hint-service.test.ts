@@ -71,6 +71,8 @@ describe('Practice hints', () => {
     expect(h.read).toHaveBeenCalledWith(h.run.binding)
     expect(JSON.parse(h.respond.mock.calls[1]![0]).previousHints).toHaveLength(1)
     expect(h.respond.mock.calls[0]![1]).toBe(PRACTICE_HINT_PEDAGOGY)
+    expect(h.respond.mock.calls[0]![1]).toContain('refer to yourself as "mình"')
+    expect(h.respond.mock.calls[0]![1]).toContain('do not diagnose an unobserved obstacle')
     expect(h.release).toHaveBeenCalledTimes(4)
   })
 
@@ -107,6 +109,38 @@ describe('Practice hints', () => {
     h.activity.workspaceEvidenceStatus = 'git-unavailable'
     expect((await h.service.request(request)).level).toBe(1)
   })
+
+  it('reads portfolio progress with unknown model settings and no Git repository', async () => {
+    const h = await harness(true)
+    h.activity.status = 'stale'
+    h.activity.workspaceEvidenceStatus = 'git-unavailable'
+    h.configuration.freshness = 'unverifiable'
+    h.configuration.model = { protocolValue: 'gpt-6-astra', label: null }
+    h.configuration.reasoningEffort = { protocolValue: null, label: null }
+    h.activity.learnerPrompts = ['I chose students as my audience.']
+    await expect(h.service.request(request)).resolves.toMatchObject({ level: 1 })
+    expect(h.respond.mock.calls[0]![0]).toContain('I chose students as my audience.')
+    expect(JSON.parse(h.respond.mock.calls[0]![0]).snapshot.task).toMatchObject({
+      status: 'ready', workspaceEvidenceStatus: 'git-unavailable'
+    })
+    expect(h.collect).toHaveBeenCalledTimes(2)
+    expect(h.record.activeRun?.reviewStatus).toBe('not-reviewed')
+  })
+
+  it.each(['stale-settings', 'disconnected-settings', 'wrong-task', 'git-failure', 'working'])(
+    'still rejects unreadable portfolio progress: %s', async (failure) => {
+      const h = await harness(true)
+      h.activity.status = 'stale'
+      h.activity.workspaceEvidenceStatus = 'git-unavailable'
+      h.configuration.freshness = 'unverifiable'
+      if (failure === 'stale-settings') h.configuration.freshness = 'stale'
+      if (failure === 'disconnected-settings') h.configuration.connection = 'disconnected'
+      if (failure === 'wrong-task') h.configuration.threadId = 'another-task'
+      if (failure === 'git-failure') h.activity.workspaceEvidenceStatus = 'failed'
+      if (failure === 'working') h.activity.status = 'working'
+      await expect(h.service.request(request)).rejects.toThrow()
+      expect(h.respond).not.toHaveBeenCalled()
+    })
 
   it.each(['stale', 'disconnected', 'working'] as const)('rejects %s snapshots without fabricating a hint', async (status) => {
     const h = await harness()

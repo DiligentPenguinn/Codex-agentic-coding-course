@@ -1,66 +1,15 @@
-# Nhật ký xây phiên bản đầu tiên
+# Quá trình xây portfolio theo kế hoạch
 
-> Ghi từng phần sau khi Codex kiểm tra kỹ thuật và bạn xem kết quả trong trình duyệt.
+> Codex ghi lại bằng chứng thật từ công việc và cuộc trò chuyện. Bạn tự xem website, nêu quan sát và chấp nhận hoặc yêu cầu sửa. Không cần tự điền mã kỹ thuật. Các mục dưới đây là gợi ý; tên và thứ tự các phần theo kế hoạch đã duyệt.
 
-## Hợp đồng đầu vào
+## Kế hoạch đang thực hiện
 
-- Digest PRD:
-- Digest design direction:
-- Desktop: `1440 × 900`
-- Mobile: `390 × 844`
+Ghi các yêu cầu PRD được triển khai, kế hoạch hiện tại và phần đầu tiên đã thống nhất. Nêu thay đổi phạm vi đã được người học duyệt nếu có.
 
-## Phần 1 — Nền trang và Hero
+## Các phần đã thực hiện
 
-- Phạm vi đã duyệt:
-- Tệp dự kiến thay đổi:
-- Điều không làm:
-- Kết quả kiểm tra:
-- Điều người học quan sát:
-- Tóm tắt năm phần:
-- Quyết định: `chưa duyệt`
-- Checkpoint cục bộ:
+Với mỗi phần có kết quả riêng (ít nhất hai phần), Codex ghi phạm vi, kiểm tra đã chạy, kết quả trong website và nguồn lời nhận xét/quyết định thật của người học trước khi chuyển sang phần tiếp theo. Có thể đặt tên phần theo sản phẩm, không bắt buộc bốn phần cố định. Ghi cả lần yêu cầu sửa và kết quả kiểm tra lại.
 
-## Phần 2 — Selected Work
+## Kết quả và giới hạn
 
-- Phạm vi đã duyệt:
-- Bằng chứng thật hoặc concept được ghi nhãn:
-- Kết quả kiểm tra:
-- Điều người học quan sát:
-- Tóm tắt năm phần:
-- Quyết định: `chưa duyệt`
-- Checkpoint cục bộ:
-
-## Phần 3 — About, Contact và footer
-
-- Phạm vi đã duyệt:
-- Phương thức liên hệ đã kiểm chứng:
-- Kết quả kiểm tra:
-- Điều người học quan sát:
-- Tóm tắt năm phần:
-- Quyết định: `chưa duyệt`
-- Checkpoint cục bộ:
-
-## Phần 4 — Tích hợp responsive và accessibility
-
-- Hành vi desktop/mobile:
-- Cấu trúc heading và landmark:
-- Bàn phím và focus:
-- Văn bản thay thế cho ảnh:
-- Link chính và console:
-- Tóm tắt năm phần:
-- Quyết định: `chưa duyệt`
-- Checkpoint cục bộ:
-
-## Kiểm tra tính toàn vẹn
-
-- [ ] Đủ bốn phần theo đúng thứ tự.
-- [ ] Mỗi phần có biên nhận và checkpoint riêng.
-- [ ] Phần sau không tự ý viết lại nội dung đã duyệt.
-- [ ] Portfolio core đã đủ; cải tiến tùy chọn chưa được trộn vào.
-
-## Phê duyệt phiên bản hiện tại
-
-- Quyết định: `chưa duyệt`
-- Người học xác nhận:
-- Thời điểm:
-- Digest artifact hiện tại:
+Đối chiếu những gì đã xây với kế hoạch. Nêu phần chưa đạt hoặc thay đổi còn cần quyết định. Không ghi đạt cho phần chưa có bằng chứng.

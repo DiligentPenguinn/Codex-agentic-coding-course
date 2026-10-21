@@ -49,18 +49,18 @@ describe('Module 3 content and evidence contract', () => {
     })
     expect(module.unlockGate).toMatchObject({
       nextLessonId: 'module-4',
-      requiresStageReceiptCount: 5,
-      requiresNestedBuildSliceReceiptCount: 4,
+      requiresPlanPartAcceptance: true,
+      requiresReviewedBuildPackageVersion: '2.0.0',
       requiresCurrentCheck: true,
       requiresBrowserValidation: true,
       requiresMasteryReceipt: true
     })
   })
 
-  it('keeps all eight technical evidence artifacts available to the final review', async () => {
+  it('uses three supporting records and preserves legacy templates', async () => {
     const module = await moduleThree()
-    expect(module.artifactPaths).toHaveLength(8)
-    expect(new Set(module.artifactPaths).size).toBe(8)
+    expect(module.artifactPaths).toHaveLength(3)
+    expect(new Set(module.artifactPaths).size).toBe(3)
     const templates = await Promise.all(module.artifactPaths.map((path) =>
       readFile(resolve(artifactRoot, path), 'utf8')))
     expect(templates.join('\n')).toContain('1440 × 900')

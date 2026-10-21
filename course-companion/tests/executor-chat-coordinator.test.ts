@@ -114,7 +114,7 @@ describe('ExecutorChatCoordinator', () => {
     const client: CodexRequestClient = {
       async request(method, params = {}) {
         calls.push([method, params])
-        if (method === 'thread/read') return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        if (method === 'thread/read' || method === 'thread/resume') return effective({ thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } })
         return {}
       },
       async close() {}
@@ -132,7 +132,7 @@ describe('ExecutorChatCoordinator', () => {
       async request(method, params = {}) {
         calls.push([method, params])
         if (method === 'thread/start') return effective()
-        if (method === 'thread/read') return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        if (method === 'thread/read' || method === 'thread/resume') return effective({ thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } })
         return {}
       },
       async close() {}
@@ -143,7 +143,7 @@ describe('ExecutorChatCoordinator', () => {
       definition: definition('safe-workspace-write'),
       approvedConfiguration: approved
     })
-    await instance.prepareTarget(target, definition('safe-workspace-write'))
+    await instance.prepareTarget(target, definition('safe-workspace-write'), approved)
 
     expect(calls[0]).toEqual(['thread/start', {
       cwd: 'D:\\course\\pilot-workspace',
@@ -171,6 +171,127 @@ describe('ExecutorChatCoordinator', () => {
       definition: definition('safe-workspace-write')
     })).rejects.toThrow('Approved Module 1 configuration is required')
     expect(calls).toEqual([])
+  })
+
+  it('resumes the persisted Module 3 task after bootstrap closes and retries without duplicating instructions', async () => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    const turns: Array<{ id: string; input: unknown }> = []
+    let loaded = false
+    let failResume = true
+    let closes = 0
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method === 'thread/start') {
+          loaded = true
+          return effective()
+        }
+        if (method === 'thread/resume') {
+          if (failResume) {
+            failResume = false
+            throw new Error('Temporary resume failure')
+          }
+          loaded = true
+        }
+        if (method === 'thread/read' || method === 'thread/resume') {
+          return effective({ thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: structuredClone(turns) } })
+        }
+        if (method === 'turn/start') {
+          if (!loaded) throw new Error('thread not found: thread-target')
+          turns.push({ id: 'instruction-turn', input: params.input })
+          // The server accepted the turn, but the caller lost its acknowledgement.
+          throw new Error('Lost turn acknowledgement')
+        }
+        return {}
+      },
+      async close() { loaded = false; closes += 1 }
+    }
+    const instance = coordinator(client)
+    const portfolio: PracticeDefinition = {
+      ...definition('safe-workspace-write'),
+      practiceId: 'm3-portfolio-build',
+      workspaceKind: 'learner-portfolio',
+      evidenceProfile: 'portfolio-build'
+    }
+    const target = await instance.createTarget({
+      runId: 'run-123456', definition: portfolio, approvedConfiguration: approved
+    })
+    expect(loaded).toBe(false)
+    await expect(instance.prepareTarget(target, portfolio, approved)).rejects.toThrow('Temporary resume failure')
+    expect(turns).toHaveLength(0)
+    await expect(instance.prepareTarget(target, portfolio, approved)).rejects.toThrow('Lost turn acknowledgement')
+    await instance.prepareTarget(target, portfolio, approved)
+    expect(turns).toHaveLength(1)
+    expect(calls.filter(([method]) => method === 'thread/start')).toHaveLength(1)
+    const resumeParams = {
+      threadId: target.threadId,
+      cwd: target.workspaceRoot,
+      model: approved.model,
+      serviceTier: approved.serviceTier,
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
+      config: { model_reasoning_effort: approved.reasoningEffort }
+    }
+    expect(calls.filter(([method]) => method === 'thread/resume')).toEqual([
+      ['thread/resume', resumeParams],
+      ['thread/resume', resumeParams]
+    ])
+    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+    expect(closes).toBe(4)
+  })
+
+  it.each([
+    { id: 'different-task', cwd: 'D:\\course\\pilot-workspace', turns: [] },
+    { id: 'thread-target', cwd: 'D:\\different-workspace', turns: [] }
+  ])('sends no instruction if resume returns a different task or workspace: %j', async (thread) => {
+    const calls: string[] = []
+    const client: CodexRequestClient = {
+      async request(method) {
+        calls.push(method)
+        if (method === 'thread/read') return { thread: { ...thread, id: 'thread-target', cwd: 'D:\\course\\pilot-workspace' } }
+        if (method === 'thread/resume') return { thread }
+        return {}
+      }
+    }
+    await expect(coordinator(client).prepareTarget(binding(), definition('safe-workspace-write'), approved))
+      .rejects.toThrow('Invalid Executor chat binding')
+    expect(calls).not.toContain('turn/start')
+  })
+
+  it('rechecks resumed history before sending an instruction already accepted by another connection', async () => {
+    const calls: string[] = []
+    const client: CodexRequestClient = {
+      async request(method) {
+        calls.push(method)
+        return effective({ thread: {
+          id: 'thread-target', cwd: 'D:\\course\\pilot-workspace',
+          turns: method === 'thread/resume' ? [{ id: 'instruction-turn' }] : []
+        } })
+      }
+    }
+    await coordinator(client).prepareTarget(binding(), definition('safe-workspace-write'), approved)
+    expect(calls).toEqual(['thread/read', 'thread/resume'])
+  })
+
+  it.each([
+    { sandbox: { type: 'dangerFullAccess' } },
+    { sandbox: { type: 'readOnly' } },
+    { reasoningEffort: null },
+    { approvalPolicy: 'never' }
+  ])('blocks instructions if resume does not restore approved settings: %j', async (overrides) => {
+    const calls: string[] = []
+    const client: CodexRequestClient = {
+      async request(method) {
+        calls.push(method)
+        return effective({
+          thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] },
+          ...(method === 'thread/resume' ? overrides : {})
+        })
+      }
+    }
+    await expect(coordinator(client).prepareTarget(binding(), definition('safe-workspace-write'), approved))
+      .rejects.toThrow('incompatible safety settings')
+    expect(calls).not.toContain('turn/start')
   })
 
   it.each([
@@ -216,8 +337,8 @@ describe('ExecutorChatCoordinator', () => {
     const client: CodexRequestClient = {
       async request(method, params = {}) {
         calls.push([method, params])
-        if (method === 'thread/read') {
-          return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        if (method === 'thread/read' || method === 'thread/resume') {
+          return effective({ thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } })
         }
         return {}
       },
@@ -237,7 +358,7 @@ describe('ExecutorChatCoordinator', () => {
       }))
     }
 
-    await coordinator(client).prepareTarget(binding(), staged)
+    await coordinator(client).prepareTarget(binding(), staged, approved)
 
     const turn = calls.find(([method]) => method === 'turn/start')?.[1]
     expect(JSON.stringify(turn)).toContain('cả năm stage')
@@ -246,13 +367,13 @@ describe('ExecutorChatCoordinator', () => {
     expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
   })
 
-  it('limits the portfolio-planning bootstrap to approved artifacts and reference screenshots', async () => {
+  it('leaves the historical portfolio-planning task untouched when preparing it', async () => {
     const calls: Array<[string, Record<string, unknown>]> = []
     const client: CodexRequestClient = {
       async request(method, params = {}) {
         calls.push([method, params])
-        if (method === 'thread/read') {
-          return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } }
+        if (method === 'thread/read' || method === 'thread/resume') {
+          return effective({ thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace', turns: [] } })
         }
         return {}
       },
@@ -281,13 +402,8 @@ describe('ExecutorChatCoordinator', () => {
       }))
     }
 
-    await coordinator(client).prepareTarget(binding(), staged)
+    await coordinator(client).prepareTarget(binding(), staged, approved)
 
-    const instruction = JSON.stringify(calls.find(([method]) => method === 'turn/start')?.[1])
-    for (const path of paths) expect(instruction).toContain(path)
-    expect(instruction).toContain('planning/reference/screenshots/')
-    expect(instruction).toContain('Không tạo application code')
-    expect(instruction).toContain('không tạo task mới')
-    expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
+    expect(calls).toEqual([['thread/read', { threadId: 'thread-target', includeTurns: false }]])
   })
 })

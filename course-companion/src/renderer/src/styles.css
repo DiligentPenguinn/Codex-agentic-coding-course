@@ -2365,7 +2365,7 @@ button:focus-visible {
   background: transparent;
   filter: drop-shadow(7px 9px 0 rgba(0, 0, 0, .55));
 }
-.pixel-teacher-launcher:hover { transform: translateY(-3px); }
+.pixel-teacher-drag-handle { position: absolute; inset: 0; -webkit-app-region: drag; cursor: grab; user-select: none; }
 .pixel-teacher-launcher img {
   width: 100%;
   height: 100%;
@@ -2374,8 +2374,12 @@ button:focus-visible {
   image-rendering: pixelated;
   animation: pixel-teacher-idle 2800ms steps(2, end) infinite;
 }
-.pixel-teacher-launcher span {
+.pixel-teacher-launcher-button {
   position: absolute;
+  -webkit-app-region: no-drag;
+  z-index: 1;
+  min-height: 32px;
+  cursor: pointer;
   right: 1px;
   bottom: 3px;
   padding: 6px 8px;
@@ -2793,7 +2797,7 @@ button:focus-visible {
 }
 .pixel-chat-thinking-dots i:nth-child(2) { animation-delay: 0.15s; }
 .pixel-chat-thinking-dots i:nth-child(3) { animation-delay: 0.3s; }
-@keyframes teacher-thinking { 0%, 80%, 100% { opacity: 0.35; } 40% { opacity: 1; } }
+@keyframes teacher-thinking { 0%, 80%, 100% { opacity: 0.4; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) {
   .pixel-chat-thinking-dots i { animation: none; opacity: 1; }
 }
@@ -4692,7 +4696,7 @@ button:focus-visible {
 
 .pixel-speaker span,
 .pixel-chat-message > header span,
-.pixel-teacher-launcher span {
+.pixel-teacher-launcher-button {
   border-width: 1px;
   border-radius: 999px;
   box-shadow: none;
@@ -5269,6 +5273,30 @@ button:focus-visible {
 }
 .practice-workflow .pixel-review-primary:first-child { margin-top: 0; }
 .practice-workflow .practice-hint-button { color: var(--pixel-white); background: var(--obsidian-surface); }
+.practice-workflow .practice-task-navigation { margin-bottom: 10px; }
+.practice-workflow .practice-task-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-control);
+  color: var(--pixel-white);
+  background: transparent;
+  font: 500 13px/1.5 var(--app-font);
+  text-align: left;
+  cursor: pointer;
+}
+.practice-workflow .practice-task-link svg { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: var(--pixel-yellow); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.practice-workflow .practice-task-link span { min-width: 0; overflow-wrap: anywhere; }
+.practice-workflow .practice-task-link:hover:not(:disabled) { background: var(--obsidian-surface-raised); border-color: var(--pixel-yellow); }
+.practice-workflow .practice-task-link:focus-visible { outline: 2px solid var(--pixel-yellow); outline-offset: 2px; }
+.practice-workflow .practice-task-link:disabled { opacity: .55; cursor: not-allowed; }
+.practice-workflow .practice-task-link[aria-busy="true"] { cursor: wait; }
+.practice-workflow .practice-task-link-error { margin: 8px 0 0; color: var(--pixel-yellow); font: 400 12px/1.6 var(--app-font); }
 .practice-workflow .pixel-review-spinner {
   position: static;
   width: 16px;
@@ -5349,7 +5377,77 @@ button:focus-visible {
 .practice-workflow .practice-planning-evidence input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--pixel-yellow); }
 .practice-workflow .practice-planning-evidence .practice-brief-actions { margin-top: 12px; gap: 10px; }
 .practice-workflow .practice-planning-evidence button { min-height: 44px; padding: 10px 14px; font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-package-submission button:disabled { cursor: default; }
 .practice-workflow .practice-planning-evidence button:last-child:not(:disabled) { color: var(--obsidian-canvas); background: var(--pixel-yellow); border-color: var(--pixel-yellow); }
+.practice-workflow .practice-package-submission {
+  padding: 14px;
+  border: 1px solid var(--obsidian-line-soft);
+  border-radius: var(--obsidian-radius-card);
+  background: var(--obsidian-canvas);
+  font: 400 13px/1.6 var(--app-font);
+}
+.practice-workflow .practice-package-heading { margin: 0; color: var(--pixel-white); font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-planning-evidence .practice-package-issues {
+  min-width: 0;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.practice-workflow .practice-package-issues > li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 0;
+}
+.practice-workflow .practice-package-issues > li + li { margin: 0; border-top: 1px solid var(--obsidian-line-soft); }
+.practice-workflow .practice-package-document-icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  fill: none;
+  stroke: var(--pixel-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.practice-workflow .practice-package-issues > li > div { min-width: 0; overflow-wrap: anywhere; }
+.practice-workflow .practice-package-issues strong { color: var(--pixel-white); font: 600 12px/1.65 var(--app-font); }
+.practice-workflow .practice-package-issues span { display: block; margin-top: 3px; color: var(--pixel-muted); font-size: 12px; }
+.practice-workflow .practice-package-notice { margin: 12px 0; color: var(--pixel-muted); overflow-wrap: anywhere; font-size: 12px; }
+.practice-workflow .practice-package-approval { padding-top: 14px; border-top: 1px solid var(--obsidian-line-soft); color: var(--pixel-muted); font-size: 12px; }
+.practice-workflow .practice-package-approval:has(input:checked) { color: var(--pixel-white); }
+/* The floating panel prioritizes readable content density over large headings. */
+.pixel-companion-surface--expanded .pixel-teacher-panel { padding: 12px; }
+.pixel-companion-surface--expanded .pixel-chat-message { padding: 9px 10px; }
+.pixel-companion-surface--expanded .pixel-chat-message .teacher-markdown { font-size: 12px; line-height: 1.5; }
+.pixel-companion-surface--expanded .pixel-chat-message .teacher-markdown p { margin-bottom: .55em; }
+.pixel-companion-surface--expanded .pixel-chat-composer textarea { font-size: 12px; line-height: 1.5; }
+.pixel-companion-surface--expanded .practice-workflow > header { padding-bottom: 10px; }
+.pixel-companion-surface--expanded .practice-workflow .pixel-teacher-portrait-frame { width: 36px; height: 40px; }
+.pixel-companion-surface--expanded .practice-workflow .pixel-teacher-identity strong { font-size: 14px; }
+.pixel-companion-surface--expanded .practice-workflow .pixel-practice-review__primary { margin-top: 10px; padding-bottom: 10px; }
+.pixel-companion-surface--expanded .practice-workflow .pixel-practice { margin-top: 10px; }
+.pixel-companion-surface--expanded .practice-workflow .pixel-review-primary,
+.pixel-companion-surface--expanded .practice-workflow .practice-hint-button,
+.pixel-companion-surface--expanded .practice-workflow .practice-task-link,
+.pixel-companion-surface--expanded .practice-workflow .practice-planning-evidence button { font-size: 12px; padding: 8px 10px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-submission { padding: 10px; margin-bottom: 14px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-heading { font-size: 12px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-issues { margin-top: 6px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-issues > li { padding: 8px 0; gap: 8px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-issues strong,
+.pixel-companion-surface--expanded .practice-workflow .practice-package-issues span { font-size: 11.5px; line-height: 1.5; }
+.pixel-companion-surface--expanded .practice-workflow .practice-package-approval { font-size: 11.5px; line-height: 1.5; margin: 12px 0; padding-top: 10px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-compact-progress { font-size: 12px; line-height: 1.5; }
+.pixel-companion-surface--expanded .practice-workflow .practice-compact-progress strong { font-size: 13px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-compact-details { margin-top: 12px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-compact-details > summary,
+.pixel-companion-surface--expanded .practice-workflow .practice-compact-step-copy strong { font-size: 12px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-hint { padding: 10px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-hint p { max-height: none; overflow: visible; font-size: 12px; line-height: 1.5; }
+.pixel-companion-surface--expanded .practice-workflow .practice-hint small { font-size: 11px; line-height: 1.5; }
 .practice-workflow .pixel-panel-quit { min-height: 36px; border-color: transparent; background: transparent; color: var(--pixel-muted); font: 400 11px/1.5 var(--app-font); }
 .practice-workflow .pixel-panel-quit:hover { color: var(--pixel-white); border-color: var(--obsidian-line-soft); }
 
@@ -5418,6 +5516,28 @@ button:focus-visible {
 .practice-workflow .practice-guide-actions button:disabled { cursor: wait; opacity: .65; }
 .practice-workflow .practice-guide-replay { margin: 10px 0 0; align-self: stretch; border-color: var(--obsidian-line-soft); }
 .practice-workflow .practice-guide-resume p { flex-basis: 100%; margin: 0; }
+.practice-workflow .practice-receipt > strong { display: block; padding: 9px; color: var(--pixel-muted); font: 500 11px/1.5 var(--app-font); }
+.practice-workflow .practice-switch-dialog { max-height: calc(100dvh - 36px); padding: 24px; font-family: var(--app-font); }
+.practice-switch-dialog::backdrop { background: rgba(0, 0, 0, .78); }
+.practice-workflow .practice-switch-dialog > small { font: 500 11px/1.5 var(--app-font); }
+.practice-workflow .practice-switch-dialog h2 { font: 600 22px/1.4 var(--app-font); }
+.practice-workflow .practice-switch-dialog p { font: 400 13px/1.65 var(--app-font); }
+.practice-workflow .practice-switch-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.practice-workflow .practice-switch-actions button { min-height: 44px; margin: 0; padding: 10px 14px; border: 1px solid var(--obsidian-line); border-radius: var(--obsidian-radius-control); font: 600 13px/1.5 var(--app-font); }
+.practice-workflow .practice-switch-confirm { color: var(--obsidian-canvas); background: var(--pixel-yellow); }
+.practice-workflow .practice-switch-actions button:focus-visible { outline: 2px solid var(--pixel-yellow); outline-offset: 3px; }
+.practice-workflow .practice-switch-actions button:disabled { opacity: .6; cursor: wait; }
+.practice-workflow .practice-hint-button,
+.practice-workflow .practice-package-submission button[aria-busy] { display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
+.practice-workflow button .pixel-chat-thinking-dots i { background: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .practice-workflow button { transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, opacity 140ms ease; }
+  .practice-workflow .practice-hint,
+  .practice-workflow .practice-review-result,
+  .practice-workflow .practice-compact-step-guide,
+  .practice-workflow .practice-switch-dialog[open] { animation: practice-feedback-in 160ms ease-out both; }
+}
+@keyframes practice-feedback-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 @container (max-width: 440px) {
   .practice-workflow .practice-return-action__copy { min-height: 60px; }
   .practice-workflow .practice-compact-progress { grid-template-columns: minmax(0, 1fr); }

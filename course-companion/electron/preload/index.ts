@@ -21,6 +21,7 @@ import type {
   PracticeWorkspaceView,
   PracticeFixtureRequest,
   PracticeIdentity,
+  PracticeTaskOpenRequest,
   PracticeState,
   ProgressLoadResult,
   ProgressUpdate,
@@ -56,6 +57,8 @@ const courseCompanionApi: CourseCompanionApi = {
     ipcRenderer.invoke('course:start-practice', request) as Promise<PracticeWorkspaceView>,
   resumePractice: (identity?: PracticeIdentity) =>
     ipcRenderer.invoke('course:resume-practice', identity) as Promise<PracticeWorkspaceView>,
+  openPracticeTask: (request: PracticeTaskOpenRequest) =>
+    ipcRenderer.invoke('course:open-practice-task', request) as Promise<void>,
   retryPracticeSwitch: () =>
     ipcRenderer.invoke('course:retry-practice-switch') as Promise<PracticeWorkspaceView>,
   cancelPracticeSwitch: () =>
@@ -109,7 +112,7 @@ const courseCompanionApi: CourseCompanionApi = {
   saveAppSettings: (update: AppSettingsUpdate) =>
     ipcRenderer.invoke('course:save-app-settings', update) as Promise<AppSettings>,
   showFullTeacher: () => ipcRenderer.invoke('course:show-full-teacher') as Promise<void>,
-  minimizeFullTeacher: () => ipcRenderer.invoke('course:minimize-full-teacher') as Promise<void>,
+  setFullTeacherVisible: (visible: boolean) => ipcRenderer.invoke('course:set-full-teacher-visible', visible) as Promise<void>,
   setCompanionMode: (mode: CompanionMode) =>
     ipcRenderer.invoke('course:set-companion-mode', mode) as Promise<void>,
   quitApp: () => ipcRenderer.invoke('course:quit') as Promise<void>

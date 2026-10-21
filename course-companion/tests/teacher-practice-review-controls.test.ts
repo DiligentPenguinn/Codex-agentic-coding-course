@@ -34,6 +34,8 @@ describe('Teacher Practice review controls', () => {
     expect(teacher).toContain('pixel-review-primary')
     expect(returnAction).toContain('pixel-panel-control--return')
     expect(teacher).toContain('Cập nhật và kiểm tra tiến độ')
+    expect(teacher).toContain('Đang cập nhật và kiểm tra…')
+    expect(teacher).not.toContain('ĐANG CẬP NHẬT & KIỂM TRA…')
   })
 
   it('gates return on persisted review state rather than Teacher prose', async () => {
@@ -96,19 +98,20 @@ describe('Teacher Practice review controls', () => {
     expect(practiceBranch).not.toContain('sendMessage')
     expect(practiceBranch).not.toContain('Thử lại')
     expect(teacher).toContain("const practiceMode = Boolean(workspace?.activePractice)")
-    expect(companion).toContain("practiceMode === true ? 'DUYỆT PRACTICE' : practiceMode === false ? 'TRIẾT' : 'ĐANG KIỂM TRA'")
-    expect(companion).toContain('window.courseCompanion?.hasActivePractice()')
+    expect(companion).toContain('Mở Triết')
+    expect(companion).not.toContain('DUYỆT PRACTICE')
     expect(companion).not.toContain('loadPracticeWorkspace()')
   })
 
-  it('polls Practice presence without refreshing evidence or reconnecting to the task', async () => {
+  it('keeps the launcher independent of Practice polling and preserves the read-only presence API', async () => {
     const [companion, preload, main] = await Promise.all([
       source('src/renderer/src/surfaces/CompanionWindow.tsx'),
       source('electron/preload/index.ts'),
       source('electron/main/index.ts')
     ])
 
-    expect(companion).toContain('window.courseCompanion?.hasActivePractice()')
+    expect(companion).not.toContain('hasActivePractice()')
+    expect(companion).not.toContain('setInterval')
     expect(companion).not.toContain('loadPracticeWorkspace')
     expect(preload).toContain("ipcRenderer.invoke('course:has-active-practice')")
     expect(main).toContain("ipcMain.handle('course:has-active-practice'")

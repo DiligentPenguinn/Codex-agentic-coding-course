@@ -119,13 +119,11 @@ Xử lý conflict là một chủ đề khá rộng nên mình sẽ không đi s
 
 ## Practice: Xây portfolio
 
-Trong phần Practice này, bạn sẽ tiếp tục làm việc trong task Codex đã dùng ở Module 2. Codex sẽ dựa vào PRD và implementation plan đã được duyệt để bắt đầu xây website.
+Tiếp tục task Codex từ Module 2 và xây từng phần theo PRD và implementation plan đã duyệt. Sau mỗi phần, Codex giải thích kết quả và chạy kiểm tra; bạn mở website, tự nêu nhận xét rồi chấp nhận hoặc yêu cầu sửa trước khi đi tiếp. Tên, số lượng và thứ tự các phần theo kế hoạch, không bắt buộc bốn phần cố định.
 
-Codex sẽ thực hiện từng phần của plan. Sau mỗi phần, Codex giải thích những gì đã thay đổi và kiểm tra kết quả. Bạn sẽ xem website thực tế rồi quyết định tiếp tục hoặc yêu cầu chỉnh sửa.
+Bạn cần một cải thiện do mình đề xuất và một lần gỡ lỗi có bằng chứng. Những việc đã làm trong quá trình xây được tính, theo bất kỳ thứ tự nào; không cần thêm một tính năng mới. Với lỗi, hãy ghi thao tác, mong đợi/thực tế, bằng chứng tìm nguyên nhân và kết quả kiểm tra lại. Nếu chưa gặp lỗi, Codex có thể đề xuất một lỗi thực hành nhỏ có thể khôi phục; chỉ thực hiện khi bạn đồng ý và phải loại bỏ trước khi nộp.
 
-Nếu gặp lỗi trong quá trình xây, hãy trao đổi ngay với Codex trong task đang thực hiện. Codex đã có bối cảnh của website và biết những thay đổi vừa được thực hiện.
-
-Khi bạn hài lòng với website hiện tại, hãy bấm **Hoàn thành bài** ngay trên Teacher Triết.
+Codex ghi lại bằng chứng trong ba hồ sơ: `evidence/module-3/build-log.md`, `evidence/module-3/learning-record.md` và `evidence/module-3/browser-validation.md`. Bạn tự quan sát, giải thích và quyết định; Codex phụ trách phần ghi chép kỹ thuật. Không cần tự điền digest hoặc duyệt lặp lại từng tài liệu.
 
 ## Publish repo trước bài tổng kết
 
@@ -133,9 +131,11 @@ Trước khi kết thúc bài học, bạn hãy nhờ agent publish repo của b
 
 ## Điều kiện hoàn thành
 
-Course Companion kiểm tra các phần bắt buộc của website, kết quả kiểm tra hiện tại và bằng chứng trong workspace. Sau khi các phần này đã đầy đủ, bạn xem lại website lần cuối rồi xác nhận chấp nhận phiên bản hiện tại.
+Website phải được đối chiếu với PRD hiện tại, có kết quả kiểm tra kỹ thuật và quan sát trên desktop/mobile. Người học đã chấp nhận từng phần trước khi Codex tiếp tục, giải thích một cải thiện và một lần gỡ lỗi dựa trên công việc thật của mình.
 
-Cuối cùng, bạn trả lời năm câu hỏi tổng kết về cách thực hiện plan, báo lỗi, dùng log, điều tra lỗi quay lại và thử nghiệm trên branch.
+Khi đã xem website và bằng chứng hiện tại, chọn **Chấp nhận website và nộp bài** trong Practice. Triết kiểm tra tệp và nội dung bằng chứng, rồi trả kết quả đạt hoặc phần cần bổ sung. Nếu chưa đạt, tiếp tục sửa trong cùng task. Thay đổi mã nguồn hoặc hồ sơ sau khi duyệt cần được kiểm tra, xác nhận và nộp lại.
+
+Sau khi Practice đạt, bạn trả lời năm câu tổng kết hiện có. Practice và phần tổng kết là hai điều kiện độc lập.
 
 ## Nguồn phương pháp
 

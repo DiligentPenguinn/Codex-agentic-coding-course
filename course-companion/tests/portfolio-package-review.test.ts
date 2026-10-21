@@ -325,15 +325,15 @@ describe('five-document portfolio package review', () => {
     })
   })
 
-  it('accepts exact readable v2 task activity when only optional Git evidence is unavailable', async () => {
+  it.each(['known', 'unknown'] as const)('accepts exact readable v2 task activity without Git and with %s settings', async (settings) => {
     const test = await harness({ approve: true })
     const configuration = normalizeCodexTaskConfiguration({
       runId: 'run-package',
       threadId: 'thread-package',
       source: 'thread-settings-snapshot',
       payload: {
-        model: 'gpt-5.6-sol',
-        reasoningEffort: 'high',
+        model: settings === 'known' ? 'gpt-5.6-sol' : 'gpt-6-astra',
+        reasoningEffort: settings === 'known' ? 'high' : null,
         serviceTier: 'standard',
         approvalPolicy: 'on-request',
         sandbox: { type: 'workspaceWrite' }

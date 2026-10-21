@@ -2262,14 +2262,13 @@ const decisionValues: Record<string, string> = {
 
 type TeacherOverlayProps = {
   onClose: () => void
-  onMinimizeToBubble?: () => void
   practiceMode?: boolean
 }
 
-function TeacherOverlay({ onClose, onMinimizeToBubble, practiceMode = false }: TeacherOverlayProps) {
+function TeacherOverlay({ onClose, practiceMode = false }: TeacherOverlayProps) {
   return (
     <aside className={'pixel-teacher-overlay' + (practiceMode ? ' is-practice-full' : '')} aria-label="Triết, giáo viên đồng hành">
-      <TeacherWorkspace embedded fullScreen={practiceMode} onClose={onClose} onMinimizeToBubble={onMinimizeToBubble} />
+      <TeacherWorkspace embedded onClose={onClose} />
     </aside>
   )
 }
@@ -3512,7 +3511,7 @@ export function LearningWindow() {
               }
             : progress.sceneId === 'module-2-portfolio-practice'
               ? { practiceId: 'm2-portfolio-planning', practiceVersion: '2.0.0' }
-              : { practiceId: 'm3-portfolio-build', practiceVersion: '1.0.0' }}
+              : { practiceId: 'm3-portfolio-build', practiceVersion: '2.0.0' }}
           courseRunId={progress.sceneId === 'module-2-portfolio-practice'
             || progress.sceneId === 'module-3-portfolio-practice'
             ? progress.courseRunId
@@ -3538,11 +3537,6 @@ export function LearningWindow() {
             setTeacherOpen(false)
             setPracticeFullOpen(false)
             if (returningToLesson) void refreshAfterPractice()
-          }}
-          onMinimizeToBubble={() => {
-            setTeacherOpen(false)
-            setPracticeFullOpen(false)
-            void window.courseCompanion?.minimizeFullTeacher()
           }}
         />
       ) : null}

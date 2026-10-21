@@ -1,104 +1,152 @@
 {
   "schemaVersion": 2,
   "practiceId": "m3-portfolio-build",
-  "title": "Xây portfolio theo từng phần đã kiểm chứng",
-  "version": "1.0.0",
+  "title": "Xây và kiểm chứng portfolio theo kế hoạch",
+  "version": "2.0.0",
   "checkpointId": "m3-portfolio-build",
-  "objective": "Dùng một task Codex để tạo nền ứng dụng, xây bốn phần theo thứ tự, cải thiện toàn trang, gỡ một lỗi và hoàn thành một cải tiến nhỏ trong thư mục portfolio đã chọn.",
-  "expectedOutcome": "Portfolio React, TypeScript và Vite hoàn chỉnh với tám artifact hiện tại, năm biên nhận giai đoạn, bốn biên nhận phần xây dựng, npm run check hiện tại và bằng chứng trình duyệt ở 1440 × 900 cùng 390 × 844.",
+  "objective": "Tiếp tục task Codex từ Module 2, xây từng phần theo kế hoạch đã duyệt, tự xem kết quả và quyết định bước tiếp theo. Một cải thiện do bạn đề xuất và một lần điều tra lỗi có bằng chứng có thể được thực hiện ngay trong quá trình xây.",
+  "expectedOutcome": "Website đáp ứng PRD hiện tại; bạn đã xem và chấp nhận từng phần, giải thích một cải thiện và một lần gỡ lỗi. Codex ghi lại quá trình xây, ví dụ học được và kiểm tra website trong ba tài liệu hỗ trợ. Bạn chấp nhận website rồi nộp một lần để Triết duyệt; năm câu tổng kết vẫn cần hoàn thành.",
   "workspaceKind": "learner-portfolio",
   "taskPolicy": "safe-workspace-write",
   "evidenceProfile": "portfolio-build",
   "stages": [
     {
-      "id": "scaffold-baseline",
+      "id": "plan-led-build",
       "order": 1,
       "dependsOn": [],
-      "requiredArtifactPaths": ["evidence/module-3/scaffold-report.md"]
+      "requiredArtifactPaths": [
+        "evidence/module-3/build-log.md"
+      ]
     },
     {
-      "id": "complete-first-version",
+      "id": "learner-improvement",
       "order": 2,
-      "dependsOn": ["scaffold-baseline"],
+      "dependsOn": [],
       "requiredArtifactPaths": [
-        "evidence/module-3/design-direction.md",
-        "evidence/module-3/build-log.md",
+        "evidence/module-3/learning-record.md"
+      ]
+    },
+    {
+      "id": "evidence-debugging",
+      "order": 3,
+      "dependsOn": [],
+      "requiredArtifactPaths": [
+        "evidence/module-3/learning-record.md"
+      ]
+    },
+    {
+      "id": "final-validation",
+      "order": 4,
+      "dependsOn": [],
+      "requiredArtifactPaths": [
         "evidence/module-3/browser-validation.md"
       ]
     },
     {
-      "id": "whole-page-revision",
-      "order": 3,
-      "dependsOn": ["complete-first-version"],
-      "requiredArtifactPaths": ["evidence/module-3/revision-record.md"]
-    },
-    {
-      "id": "evidence-debugging",
-      "order": 4,
-      "dependsOn": ["whole-page-revision"],
-      "requiredArtifactPaths": ["evidence/module-3/debugging-report.md"]
-    },
-    {
-      "id": "independent-enhancement",
+      "id": "website-acceptance",
       "order": 5,
-      "dependsOn": ["evidence-debugging"],
+      "dependsOn": [],
       "requiredArtifactPaths": [
-        "evidence/module-3/enhancement-plan.md",
-        "evidence/module-3/final-change-summary.md"
+        "evidence/module-3/browser-validation.md"
       ]
     }
   ],
   "checklist": [
-    { "id": "scaffold-baseline", "title": "Duyệt nền ứng dụng trung tính", "dependsOn": [] },
-    { "id": "complete-first-version", "title": "Duyệt thiết kế và bốn phần xây dựng", "dependsOn": ["scaffold-baseline"] },
-    { "id": "whole-page-revision", "title": "Duyệt một lần cải thiện toàn trang", "dependsOn": ["complete-first-version"] },
-    { "id": "evidence-debugging", "title": "Duyệt một vòng gỡ lỗi có bằng chứng", "dependsOn": ["whole-page-revision"] },
-    { "id": "independent-enhancement", "title": "Duyệt một cải tiến độc lập", "dependsOn": ["evidence-debugging"] }
+    {
+      "id": "plan-led-build",
+      "title": "Xây từng phần theo kế hoạch đã duyệt",
+      "dependsOn": []
+    },
+    {
+      "id": "learner-improvement",
+      "title": "Giải thích một cải thiện do bạn đề xuất",
+      "dependsOn": []
+    },
+    {
+      "id": "evidence-debugging",
+      "title": "Điều tra và kiểm tra lại một lỗi",
+      "dependsOn": []
+    },
+    {
+      "id": "final-validation",
+      "title": "Đối chiếu website với PRD hiện tại",
+      "dependsOn": []
+    },
+    {
+      "id": "website-acceptance",
+      "title": "Chấp nhận website và nộp bài",
+      "dependsOn": []
+    }
   ],
   "criteria": [
     {
-      "id": "neutral-scaffold-current",
-      "description": "Scaffold React, TypeScript và Vite đúng đề xuất, có trang trung tính, các lệnh dev, typecheck, lint, build, preview và check, nhưng chưa xây portfolio sớm.",
+      "id": "plan-led-build-current",
+      "description": "Xây từng phần theo kế hoạch đã duyệt",
       "required": true,
-      "checklistStepId": "scaffold-baseline",
-      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
-      "assertion": "The neutral scaffold and its current command evidence match the learner-approved proposal without portfolio features or deployment configuration.",
+      "checklistStepId": "plan-led-build",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "assertion": "Assess the five planning inputs and build log against the actual bound-task evidence. Require at least two bounded, plan-derived parts, observable results, technical checks, and learner-authored acceptance or revision before the next part. Parts may have any names or order justified by the approved plan. Do not require four fixed page sections or a separate neutral scaffold approval.",
       "freshness": "fresh"
     },
     {
-      "id": "four-slices-current",
-      "description": "Thiết kế đã duyệt và đủ bốn phần xây dựng có biên nhận riêng, bằng chứng trình duyệt đúng hai viewport và portfolio core đầy đủ.",
+      "id": "learner-improvement-current",
+      "description": "Giải thích một cải thiện do bạn đề xuất",
       "required": true,
-      "checklistStepId": "complete-first-version",
-      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
-      "assertion": "Four ordered slice receipts, current browser evidence, and the implemented portfolio core corroborate the complete first version.",
+      "checklistStepId": "learner-improvement",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "assertion": "Require one learner-directed improvement grounded in their observation, bounded proposal, before/after result, recheck and learner explanation. Refining an existing feature during any build part counts. Do not require an extra feature, separate enhancement stage or another whole-page revision.",
       "freshness": "fresh"
     },
     {
-      "id": "revision-current",
-      "description": "Một phản hồi quan sát được đã dẫn đến thay đổi có giới hạn, kiểm tra hồi quy và lời chấp nhận hiện tại.",
-      "required": true,
-      "checklistStepId": "whole-page-revision",
-      "acceptedEvidence": ["artifact", "executor-reported-verification", "learner-approval"],
-      "assertion": "The current revision record links before evidence, a bounded approved change, after evidence, regression checks, and learner acceptance.",
-      "freshness": "fresh"
-    },
-    {
-      "id": "debugging-current",
-      "description": "Báo cáo gỡ lỗi ghi tái hiện, mong đợi/thực tế, bằng chứng, một giả thuyết, bản sửa nhỏ nhất và kiểm tra lại.",
+      "id": "evidence-debugging-current",
+      "description": "Điều tra và kiểm tra lại một lỗi",
       "required": true,
       "checklistStepId": "evidence-debugging",
-      "acceptedEvidence": ["artifact", "executor-reported-verification", "learner-approval"],
-      "assertion": "The current debugging report causally connects reproduced evidence to the smallest justified fix and passing original plus regression checks.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "assertion": "Require reproduction, expected versus actual behavior, evidence supporting a hypothesis, bounded fix, original and regression rechecks, and a learner-authored explanation. Earlier debugging during the build counts. A clearly labeled, learner-approved reversible practice fault counts only when removed and rechecked. Never invent a bug or learner evidence.",
       "freshness": "fresh"
     },
     {
-      "id": "enhancement-and-summary-current",
-      "description": "Một cải tiến nhỏ không có backend đã đạt tiêu chí, không phá portfolio core và có bản tóm tắt thay đổi đủ năm phần.",
+      "id": "final-validation-current",
+      "description": "Đối chiếu website với PRD hiện tại",
       "required": true,
-      "checklistStepId": "independent-enhancement",
-      "acceptedEvidence": ["artifact", "workspace-confirmed-change", "executor-reported-verification", "learner-approval"],
-      "assertion": "The bounded browser-only enhancement and five-part summary are current, accepted, and preserve the portfolio core.",
+      "checklistStepId": "final-validation",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "assertion": "Require coverage of every current PRD acceptance criterion, passing npm run check tied to the submitted source, desktop and mobile browser observations including links, keyboard/focus, content and overflow. Viewports may follow the approved plan; 1440x900 and 390x844 are defaults, not exact-string requirements. Require URLs or screenshot references and reproducible observations; a hash, URL, checkbox, template or claimed success alone cannot pass. Distinguish Codex-reported observations from independently read evidence.",
+      "freshness": "fresh"
+    },
+    {
+      "id": "website-acceptance-current",
+      "description": "Chấp nhận website và nộp bài",
+      "required": true,
+      "checklistStepId": "website-acceptance",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "assertion": "Require explicit learner approval of the current website and evidence, current source fingerprint, documented limits, and in-scope browser-only functionality. Cross-check learner observations and decisions with learner-authored bound-task excerpts; generated records cannot impersonate the learner. Missing conversation evidence remains unverifiable. Do not require deployment, fixed filenames beyond the three supporting records, old stage receipts or fixed slice receipts.",
       "freshness": "fresh"
     }
   ],

@@ -169,7 +169,7 @@ export const moduleThreeScenes = {
       { label: 'TASK', value: 'Tiếp tục từ Module 2' },
       { label: 'REVIEW', value: 'Bằng chứng hiện tại' }
     ],
-    dialogue: 'Bây giờ, hãy chuyển sang Codex để thực hành nha',
+    dialogue: 'Tiếp tục task Codex từ Module 2 và xây từng phần theo kế hoạch đã duyệt. Sau mỗi phần, hãy xem website, đọc kết quả kiểm tra rồi chấp nhận hoặc yêu cầu sửa trước khi đi tiếp.\n\nBạn cần một cải thiện do mình đề xuất và một lần gỡ lỗi có bằng chứng; những việc đã làm trong quá trình xây được tính, không cần thêm một tính năng mới. Codex ghi lại quá trình xây, ví dụ học được và kiểm tra website trong ba hồ sơ hỗ trợ.\n\nKhi đã đối chiếu website với PRD, bạn chấp nhận phiên bản hiện tại và nộp bài cho Triết duyệt. Nếu chưa đạt, tiếp tục sửa trong cùng task. Sau khi đạt, bạn làm năm câu tổng kết.',
     choices: [{ label: 'Mở Practice xây portfolio', action: 'practice', primary: true }]
   },
   'module-3-portfolio-mastery': {

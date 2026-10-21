@@ -1,5 +1,5 @@
+import { createHash } from 'node:crypto'
 import type {
-  ExecutorActivitySnapshot,
   PracticeCompletionReceipt,
   PracticeDefinition,
   PracticeReviewResult,
@@ -22,7 +22,8 @@ import type { PracticeReviewEvaluator } from './practice-review-evaluator'
 import { PracticeRunRepository, type PracticeRunRecord } from './practice-run-repository'
 import type { PracticeEvidenceAdapterRegistry } from './practice-evidence-adapter-registry'
 import { reconcilePlanningStepState } from './practice-step-state'
-import { currentPortfolioPackageApproval, isPortfolioPackage } from './portfolio-package-state'
+import { currentPortfolioPackageApproval, isReviewedPortfolioPackage } from './portfolio-package-state'
+import { portfolioActivityUnavailable } from './portfolio-activity-availability'
 
 const configurationChecks = [
   {
@@ -66,18 +67,6 @@ const configurationChecks = [
     action: 'Trong task Codex, tắt Full access.'
   }
 ] as const
-
-function portfolioActivityUnavailable(
-  activity: ExecutorActivitySnapshot,
-  run: PracticeRunRecord
-): boolean {
-  if (activity.runId !== run.runId || activity.threadId !== run.binding.threadId
-    || activity.status === 'disconnected') return true
-  if (activity.status !== 'stale') return false
-  return activity.workspaceEvidenceStatus !== 'git-unavailable'
-    || activity.configuration?.freshness !== 'fresh'
-    || activity.configuration.connection !== 'connected'
-}
 
 function evaluateConfiguration(
   envelope: PracticeReviewEnvelope,
@@ -190,7 +179,7 @@ export class PracticeReviewService {
     const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
     const reviewedAt = this.now().toISOString()
     let reviewRun = active
-    const portfolioPackage = isPortfolioPackage(active)
+    const portfolioPackage = isReviewedPortfolioPackage(active)
     let activity = definition.evidenceProfile === 'planning-package' || portfolioPackage
       ? await this.activity.read(active.binding)
       : null
@@ -287,9 +276,9 @@ export class PracticeReviewService {
       }
       const packageFailure = envelope.portfolioPackage && (!envelope.portfolioPackage.ready || !envelope.portfolioPackage.approved)
         ? JSON.stringify({ schemaVersion: 1, practiceId: definition.practiceId, practiceVersion: definition.version, runId: active.runId,
-            verdict: 'needs-work', summary: 'Gói planning chưa sẵn sàng. Kiểm tra tài liệu và duyệt PRD cùng kế hoạch hiện tại.',
+            verdict: 'needs-work', summary: envelope.portfolioPackage?.kind === 'release' ? 'Bài phát hành portfolio chưa sẵn sàng. Kiểm tra hồ sơ triển khai, đường link và xác nhận website hiện tại.' : envelope.portfolioPackage?.kind === 'build' ? 'Bài xây portfolio chưa sẵn sàng. Kiểm tra bằng chứng và chấp nhận website hiện tại.' : 'Gói planning chưa sẵn sàng. Kiểm tra tài liệu và duyệt PRD cùng kế hoạch hiện tại.',
             criteria: definition.criteria.map((criterion) => ({ criterionId: criterion.id, status: 'unverifiable', evidenceRefs: [],
-              explanation: (envelope.portfolioPackage!.issues.join('; ') || 'Cần đủ năm tài liệu hợp lệ và phê duyệt PRD cùng kế hoạch hiện tại.').slice(0, 1000) })) })
+              explanation: (envelope.portfolioPackage!.issues.join('; ') || (envelope.portfolioPackage?.kind === 'release' ? 'Cần hồ sơ triển khai, đường link chia sẻ được và xác nhận website hiện tại.' : envelope.portfolioPackage?.kind === 'build' ? 'Cần đủ hồ sơ thực hành, tệp ứng dụng và xác nhận website hiện tại.' : 'Cần đủ năm tài liệu hợp lệ và phê duyệt PRD cùng kế hoạch hiện tại.')).slice(0, 1000) })) })
         : undefined
       const result = definition.evidenceProfile === 'codex-task-configuration'
         ? evaluateConfiguration(envelope, definition, active.runId, reviewedAt)
@@ -358,7 +347,7 @@ export class PracticeReviewService {
         })
         const frozenDigest = envelope.planning?.evidenceDigest ?? envelope.portfolioPackage?.evidenceDigest
         const latestDigest = latestEnvelope.planning?.evidenceDigest ?? latestEnvelope.portfolioPackage?.evidenceDigest
-        if (!frozenDigest || latestDigest !== frozenDigest) {
+        if (!frozenDigest || latestDigest !== frozenDigest || ((envelope.portfolioPackage?.kind === 'build' || envelope.portfolioPackage?.kind === 'release') && JSON.stringify(envelope.portfolioPackage.taskEvidence) !== JSON.stringify(latestEnvelope.portfolioPackage?.taskEvidence))) {
           throw new Error('Artifact hoặc quyết định của Practice đã thay đổi trong khi Triết đang duyệt. Kết quả cũ không được lưu.')
         }
         reviewRun = latestRun
@@ -386,13 +375,18 @@ export class PracticeReviewService {
             status: 'completed',
             completedAt: reviewedAt,
             evidenceSummary: result.summary,
-            masterySummary: portfolioPackage
+            masterySummary: envelope.portfolioPackage?.kind === 'release'
+              ? 'Đã duyệt phiên bản portfolio trên mạng, kết quả kiểm tra đường link và xác nhận hiện tại của người học. Module 4 không có bài kiểm tra cuối.' : envelope.portfolioPackage?.kind === 'build'
+              ? 'Đã đối chiếu kế hoạch, việc xây từng phần, cải thiện, gỡ lỗi và xác nhận website hiện tại; phần tổng kết vẫn cần hoàn thành.'
+              : portfolioPackage
               ? 'Năm tài liệu đã được kiểm tra cấu trúc, phạm vi và nội dung; PRD và kế hoạch được người học duyệt trên phiên bản hiện tại.'
               : definition.evidenceProfile === 'planning-package'
               ? 'Triết đã duyệt semantic PRD, implementation plan, alignment, phạm vi và quyền sở hữu của người học trên đúng hai digest hiện tại.'
               : 'Triết đã xác minh đủ năm thiết lập Codex bắt buộc từ metadata hiệu lực của đúng task.',
             destination: structuredClone(definition.completionDestination),
             ...(portfolioPackage ? { submissionDigest: envelope.portfolioPackage!.evidenceDigest } : {}),
+            ...((envelope.portfolioPackage?.kind === 'build' || envelope.portfolioPackage?.kind === 'release')
+              ? { taskEvidenceDigest: createHash('sha256').update(JSON.stringify(envelope.portfolioPackage.taskEvidence ?? null)).digest('hex') } : {}),
             ...(definition.practiceId === 'm1-codex-safe-setup' && envelope.configuration
               ? {
                   approvedConfiguration: {
@@ -412,10 +406,12 @@ export class PracticeReviewService {
         ? learnerProgress.practiceCompletions.find((receipt) => receipt.courseRunId === learnerProgress.courseRunId
             && receipt.practiceId === active.practiceId && receipt.practiceVersion === active.practiceVersion
             && receipt.runId === active.runId && receipt.checkpointId === definition.checkpointId
-            && receipt.submissionDigest === generatedCompletion.submissionDigest) : undefined
+            && receipt.submissionDigest === generatedCompletion.submissionDigest
+            && receipt.taskEvidenceDigest === generatedCompletion.taskEvidenceDigest) : undefined
       const completion = priorPackageCompletion ?? (generatedCompletion
         && reviewRun.completion
         && reviewRun.reviewResult?.sourceDigest === result.sourceDigest
+        && reviewRun.completion.taskEvidenceDigest === generatedCompletion.taskEvidenceDigest
         ? structuredClone(reviewRun.completion)
         : generatedCompletion)
       if (portfolioPackage) {
@@ -483,17 +479,25 @@ export class PracticeReviewService {
       if (this.lastReturnedCompletion) return structuredClone(this.lastReturnedCompletion)
       throw new Error('Practice chưa được Triết xác nhận là đã đạt.')
     }
-    if (isPortfolioPackage(active)) {
+    if (isReviewedPortfolioPackage(active)) {
       if (active.reviewStatus !== 'passed' || !active.completion || !this.evidenceAdapters) throw new Error('Portfolio package has not passed review')
       const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
       const activity = await this.activity.read(active.binding)
       if (['working', 'waiting-for-learner'].includes(activity.status)
         || portfolioActivityUnavailable(activity, active)) throw new Error('PRACTICE_EVIDENCE_UNAVAILABLE')
-      const evidence = await this.evidenceAdapters.resolve('portfolio-planning').collect({ definition, runId: active.runId,
+      const evidence = await this.evidenceAdapters.resolve(definition.evidenceProfile).collect({ definition, runId: active.runId,
         generation: active.generation, workspaceRoot: active.binding.workspaceRoot,
         task: { threadId: active.binding.threadId, workspaceRoot: active.binding.workspaceRoot }, allowedLegacyArtifactPaths: active.allowedLegacyArtifactPaths })
       const saved = await this.runs.saveEvidence({ ...active, evidence, invalidations: evidence.invalidations, updatedAt: evidence.observedAt })
       const run = saved.activeRun
+      const latestEnvelope = run ? buildPracticeReviewEnvelope({ definition, run, activity, generatedAt: evidence.observedAt }) : null
+      if ((latestEnvelope?.portfolioPackage?.kind === 'build' || latestEnvelope?.portfolioPackage?.kind === 'release')
+        && active.completion.taskEvidenceDigest !== createHash('sha256').update(JSON.stringify(latestEnvelope.portfolioPackage.taskEvidence ?? null)).digest('hex')) {
+        await this.runs.invalidatePortfolioTaskReview({ ...active, expectedTaskEvidenceDigest: active.completion.taskEvidenceDigest,
+          updatedAt: this.now().toISOString() })
+        await this.progress.revokePracticeCompletion(active.completion)
+        throw new Error('Task evidence changed after review; submit a fresh review before returning')
+      }
       if (!run || run.runId !== active.runId || run.generation !== active.generation || !run.completion
         || !currentPortfolioPackageApproval(run, active.completion.courseRunId)
         || buildPracticeReviewEnvelope({ definition, run, activity, generatedAt: evidence.observedAt }).portfolioPackage?.evidenceDigest !== active.completion.submissionDigest) {

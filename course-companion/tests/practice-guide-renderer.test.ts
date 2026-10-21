@@ -17,7 +17,7 @@ describe('PracticeGuide renderer', () => {
 
   it('renders visible progress, skip, missing-anchor fallback, and mastery confirmation', async () => {
     const component = await source('src/renderer/src/components/PracticeGuide.tsx')
-    expect(component).toContain('BƯỚC {view.step}/{view.stepCount}')
+    expect(component).toContain('Bước {view.step}/{view.stepCount}')
     expect(component).toContain("update('skip')")
     expect(component).toContain('is-fallback')
     expect(component).toContain('practice-guide-mastery')

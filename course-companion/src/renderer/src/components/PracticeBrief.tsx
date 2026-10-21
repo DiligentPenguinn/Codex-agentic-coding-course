@@ -82,6 +82,7 @@ export function PracticeBrief({
     } catch {
       setError('')
       await load()
+      setSwitchOpen(false)
     } finally {
       setBusy(false)
     }
@@ -181,12 +182,12 @@ export function PracticeBrief({
     <main className="practice-brief-overlay practice-workflow">
       <header className="practice-brief-header">
         <button type="button" aria-label="Đóng trang Practice" onClick={onClose}>×</button>
-        <div><small>PRACTICE</small><strong>{workspace.title}</strong></div>
+        <div><small>Practice</small><strong>{workspace.title}</strong></div>
         <span aria-hidden="true">◆</span>
       </header>
 
       <section className="practice-brief-card" aria-labelledby="practiceObjective">
-        <small>MỤC TIÊU / KẾT QUẢ</small>
+        <small>Mục tiêu / kết quả</small>
         <h1 id="practiceObjective">{workspace.objective}</h1>
         <p>{workspace.expectedOutcome}</p>
 
@@ -216,6 +217,7 @@ export function PracticeBrief({
 
       <PracticeProgress
         workspace={workspace}
+        showObjective={false}
         api={window.courseCompanion}
         onWorkspaceChange={setWorkspace}
         onBusyChange={setBusy}
@@ -239,8 +241,8 @@ export function PracticeBrief({
 
       {switchOpen ? (
         <PracticeSwitchDialog
-          workspace={workspace}
           busy={busy}
+          continuesTask={identity.practiceId === 'm3-portfolio-build' || identity.practiceId === 'm4-portfolio-release'}
           onFresh={() => void start()}
           onCancel={() => setSwitchOpen(false)}
         />

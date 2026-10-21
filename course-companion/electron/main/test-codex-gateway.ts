@@ -198,6 +198,20 @@ export class TestCodexGateway implements CodexRequestClient {
       const item = { id: `message-${turnId}`, type: 'agentMessage', phase: 'final_answer', text: answer }
       const turn = { id: turnId, status: 'completed', items: [userItem, item] }
       thread.turns.push(turn)
+      if (process.env.COURSE_COMPANION_FAKE_BUILD_EVIDENCE === '1' && text.includes('Module 3 v2:')
+        && !thread.turns.some((candidate) => candidate.id === 'build-v2-simulated-evidence')) {
+        thread.turns.push({ id: 'build-v2-simulated-evidence', status: 'completed', items: [
+          { id: 'build-v2-learner', type: 'userMessage', content: [{ type: 'text', text: 'Simulated learner: I inspected project stories and accepted that part before the introduction. I requested the heading improvement, explained the wrong project ID using logs, rechecked both links and accepted the final desktop/mobile website.' }] },
+          { id: 'build-v2-checks', type: 'agentMessage', phase: 'final_answer', text: 'Simulated verification: npm run check passed (typecheck, lint, build). Desktop/mobile browser and keyboard checks passed. This is disposable test evidence, not a live learner run.' }
+        ] })
+      }
+      if (process.env.COURSE_COMPANION_FAKE_RELEASE_EVIDENCE === '1' && text.includes('Module 4: Tiếp tục chính task')
+        && !thread.turns.some((candidate) => candidate.id === 'release-simulated-evidence')) {
+        thread.turns.push({ id: 'release-simulated-evidence', status: 'completed', items: [
+          { id: 'release-learner', type: 'userMessage', content: [{ type: 'text', text: 'Disposable simulated learner: I authorize publishing this fixture portfolio to its test provider. I opened the signed-out shared URL, checked desktop and mobile images and links, and accept the current online result. This is test data, not live consent.' }] },
+          { id: 'release-checks', type: 'agentMessage', phase: 'final_answer', text: 'Disposable simulated deployment: Vercel ready for the fixture source revision. npm run check and reported desktop/mobile public URL observations passed. No live provider action occurred.' }
+        ] })
+      }
       if (thread.name?.includes('m2-planning-package')
         && !thread.turns.some((candidate) => candidate.id === 'planning-interview-1')) {
         await writePlanningArtifacts(thread.cwd)

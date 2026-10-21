@@ -160,14 +160,9 @@
       "promptPath": "course/prompts/start-module-3.vi.md",
       "practicePath": "course/practices/m3-portfolio-build.json",
       "artifactPaths": [
-        "evidence/module-3/scaffold-report.md",
-        "evidence/module-3/design-direction.md",
         "evidence/module-3/build-log.md",
-        "evidence/module-3/browser-validation.md",
-        "evidence/module-3/revision-record.md",
-        "evidence/module-3/debugging-report.md",
-        "evidence/module-3/enhancement-plan.md",
-        "evidence/module-3/final-change-summary.md"
+        "evidence/module-3/learning-record.md",
+        "evidence/module-3/browser-validation.md"
       ],
       "viewportContract": {
         "desktop": { "width": 1440, "height": 900 },
@@ -179,8 +174,10 @@
         "nextLessonId": "module-4",
         "requiresCurrentArtifactDigests": true,
         "requiresLearnerApproval": true,
-        "requiresStageReceiptCount": 5,
-        "requiresNestedBuildSliceReceiptCount": 4,
+        "requiresPlanPartAcceptance": true,
+        "requiresReviewedBuildPackageVersion": "2.0.0",
+        "requiresLearnerImprovement": true,
+        "requiresEvidenceDebugging": true,
         "requiresCurrentCheck": true,
         "requiresBrowserValidation": true,
         "requiresMasteryReceipt": true

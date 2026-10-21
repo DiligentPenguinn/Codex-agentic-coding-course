@@ -135,6 +135,48 @@ function harness(options: { failCreate?: boolean; failPrepare?: string } = {}) {
 }
 
 describe('PracticeCoordinator', () => {
+  it('reopens only the exact active task without preparing it or changing saved Practice state', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-open-task-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(repository, await definitions(), testHarness.executor,
+      undefined, testHarness.createId, undefined, undefined, undefined, undefined, async (open) => {
+        testHarness.calls.push('release-to-codex')
+        await open()
+      })
+    await coordinator.startNew({ ...m1Identity, transfer: false })
+    const before = await repository.load()
+    testHarness.calls.length = 0
+    await coordinator.openTask({ runId: before.activeRun!.runId, generation: before.activeRun!.generation })
+    expect(testHarness.calls).toEqual(['release-to-codex', 'open:thread-1'])
+    expect(await repository.load()).toEqual(before)
+
+    await expect(coordinator.openTask({ runId: 'other-run', generation: before.activeRun!.generation })).rejects.toThrow('no longer matches')
+    await expect(coordinator.openTask({ runId: before.activeRun!.runId, generation: before.activeRun!.generation + 1 })).rejects.toThrow('no longer matches')
+    expect(testHarness.calls).toEqual(['release-to-codex', 'open:thread-1'])
+  })
+
+  it('keeps failed task opens retryable and refuses navigation while switching or without an active run', async () => {
+    const repository = new PracticeRunRepository(await temporaryDirectory('practice-open-retry-'))
+    const testHarness = harness()
+    const coordinator = new PracticeCoordinator(repository, await definitions(), testHarness.executor,
+      undefined, testHarness.createId)
+    await expect(coordinator.openTask({ runId: 'run-1', generation: 1 })).rejects.toThrow('no longer matches')
+    await coordinator.startNew({ ...m1Identity, transfer: false })
+    const before = await repository.load()
+    const target = { runId: before.activeRun!.runId, generation: before.activeRun!.generation }
+    const open = testHarness.executor.openTarget
+    testHarness.executor.openTarget = async () => { throw new Error('OS open failed') }
+    await expect(coordinator.openTask(target)).rejects.toThrow('OS open failed')
+    expect(await repository.load()).toEqual(before)
+    testHarness.executor.openTarget = open
+    await coordinator.openTask(target)
+    await repository.save({ ...before, pendingTransition: {
+      transitionId: 'pending-switch', sourceRunId: target.runId, targetRunId: 'new-run',
+      ...m1Identity, stage: 'creating-target', startedAt: '2026-09-12T00:00:00.000Z'
+    } })
+    await expect(coordinator.openTask(target)).rejects.toThrow('no longer matches')
+  })
+
   it('hands off ownership before every new and resumed Codex open without a pre-open observation', async () => {
     const repository = new PracticeRunRepository(await temporaryDirectory('practice-runs-'))
     const testHarness = harness()

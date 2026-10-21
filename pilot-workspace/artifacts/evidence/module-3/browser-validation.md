@@ -1,38 +1,19 @@
-# Kiểm chứng trong trình duyệt
+# Kiểm tra website trước khi nộp
 
-## Phiên bản được kiểm chứng
+> Codex thực hiện và ghi các kiểm tra kỹ thuật. Bạn mở website, xem kết quả và quyết định chấp nhận. Ghi điều thực sự quan sát được; dấu tích hoặc đường dẫn đơn lẻ không thay thế bằng chứng.
 
-- Checkpoint cục bộ:
-- Digest build log:
-- Thời điểm:
+## Phiên bản và yêu cầu
 
-## Desktop — 1440 × 900
+Ghi phiên bản nguồn được kiểm tra và đối chiếu từng tiêu chí chấp nhận trong PRD với kết quả thực tế. Nêu rõ đạt, chưa đạt hoặc ngoài phạm vi đã được duyệt.
 
-- Kết quả quan sát:
-- Ảnh bằng chứng:
-- Cuộn ngang: `chưa kiểm tra`
+## Kiểm tra kỹ thuật
 
-## Mobile — 390 × 844
+Ghi lần chạy npm run check trên phiên bản hiện tại, kết quả typecheck, lint và build, cùng giới hạn hoặc lỗi còn lại. Nếu mã nguồn đổi, chạy lại kiểm tra phù hợp trước khi nộp.
 
-- Kết quả quan sát:
-- Ảnh bằng chứng:
-- Cuộn ngang: `chưa kiểm tra`
+## Kiểm tra trong trình duyệt
 
-## Kiểm tra trực tiếp
+Ghi URL hoặc ảnh, thao tác, mong đợi và thực tế trên desktop và mobile theo plan. Nếu plan chưa nêu kích thước, dùng 1440 × 900 và 390 × 844. Kiểm tra nội dung, link, bàn phím/focus, cuộn ngang và console. Phân biệt điều Codex báo cáo với điều người học tự xem.
 
-- [ ] Navigation và các link chính hoạt động.
-- [ ] Dùng bàn phím được và luôn thấy focus.
-- [ ] Heading cùng landmark có thứ tự hợp lý.
-- [ ] Ảnh quan trọng có văn bản thay thế phù hợp.
-- [ ] Không có lỗi console chưa được giải thích.
+## Nhận xét của người học và giới hạn
 
-## Giới hạn hoặc bằng chứng còn thiếu
-
-_Nêu điều chưa kiểm tra hoặc kết quả bị giới hạn. Không suy diễn từ lệnh tự động._
-
-## Phê duyệt phiên bản hiện tại
-
-- Quyết định: `chưa duyệt`
-- Người học xác nhận:
-- Thời điểm:
-- Digest artifact hiện tại:
+Ghi quan sát do người học tự nêu và phần còn hạn chế. Người học chấp nhận website hiện tại trong Course Companion khi nộp; không cần lời duyệt lặp lại trong từng tài liệu.

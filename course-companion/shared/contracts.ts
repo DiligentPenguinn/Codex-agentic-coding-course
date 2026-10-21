@@ -697,6 +697,34 @@ export const portfolioPlanningArtifactPaths = [
 export type PortfolioPlanningArtifactPath = (typeof portfolioPlanningArtifactPaths)[number]
 
 export const portfolioPackageVersion = '2.0.0' as const
+export const portfolioBuildVersion = '2.0.0' as const
+export const portfolioReleaseVersion = '1.0.0' as const
+export const portfolioReleaseRecordPath = 'evidence/module-4/deployment-record.json' as const
+
+export type PortfolioPublicUrlObservation = {
+  url: string
+  finalUrl: string | null
+  reachable: boolean
+  status: number | null
+  checkedAt: string
+  title?: string
+  textExcerpt?: string
+  error?: string
+}
+
+export type PortfolioDeploymentRecord = {
+  schemaVersion: 1
+  moduleThreeSourceCheckpoint: string
+  sourceRevision: string
+  deployment: { url: string; provider: 'vercel'; deploymentId: string; sourceRevision: string; buildStatus: 'ready'; deployedAt: string }
+  validation: { checkedAt: string; command: 'npm run check'; passed: true; desktop: { url: string; observations: string }; mobile: { url: string; observations: string }; limitations: string[] }
+  publication: { learnerApproved: true; observedPublicAccess: true }
+}
+export const portfolioBuildRecordPaths = [
+  'evidence/module-3/build-log.md',
+  'evidence/module-3/learning-record.md',
+  'evidence/module-3/browser-validation.md'
+] as const
 export const portfolioPackageArtifactPaths = [
   'planning/portfolio-brief.md',
   'planning/content-evidence-inventory.md',
@@ -849,6 +877,7 @@ export type PracticeAdapterEvidenceState = {
   planningActivity?: PlanningActivityEvidence
   portfolioPlanning?: PortfolioPlanningEvidenceState
   portfolioBuild?: PortfolioPlanningEvidenceState
+  portfolioRelease?: PortfolioPlanningEvidenceState & { deployment?: PortfolioPublicUrlObservation }
 }
 
 export type PracticeCriterionReview = {
@@ -899,13 +928,24 @@ export type PracticeCompletionReceipt = {
   evidenceSummary: string
   masterySummary: string
   submissionDigest?: string
+  taskEvidenceDigest?: string
   destination: PracticeCompletionDestination
   approvedConfiguration?: ApprovedCodexConfiguration
   portfolioPlanningHandoff?: PortfolioPlanningHandoff
   portfolioBuildHandoff?: PortfolioBuildHandoff
 }
 
-export type PortfolioBuildHandoff = {
+export type PortfolioBuildHandoff = LegacyPortfolioBuildHandoff | {
+  schemaVersion: 2
+  workspace: { canonicalPath: string; identityDigest: string }
+  artifactDigests: Record<string, string>
+  approval: PortfolioPackageApproval
+  submissionDigest: string
+  sourceCheckpoint: string
+  moduleFourInput: { workspacePath: string; sourceCheckpoint: string }
+}
+
+export type LegacyPortfolioBuildHandoff = {
   schemaVersion: 1
   workspace: { canonicalPath: string; identityDigest: string }
   artifactDigests: Record<string, string>
@@ -1008,6 +1048,8 @@ export type PracticeWorkspaceView = {
   configuration?: CodexTaskConfigurationSnapshot
   planning?: PracticePlanningWorkspaceView
   portfolioPackage?: {
+    kind?: 'planning' | 'build' | 'release'
+    deployment?: PortfolioPublicUrlObservation
     sourceDigest: string | null
     ready: boolean
     approved: boolean
@@ -1084,6 +1126,8 @@ export type PracticeStartRequest = {
 }
 
 export type PracticeIdentity = Pick<PracticeStartRequest, 'practiceId' | 'practiceVersion'>
+
+export type PracticeTaskOpenRequest = { runId: string; generation: number }
 export const practiceGuidePresentationTypes = [
   'intro-dialog',
   'orientation-card',
@@ -1260,9 +1304,7 @@ export type PortfolioStageActionRequest = PlanningActionIdentity & {
 export type PortfolioPackageApprovalRequest = PlanningActionIdentity & {
   courseRunId: string
   sourceDigest: string
-  approvePrd: true
-  approvePlan: true
-}
+} & ({ approvePrd: true; approvePlan: true } | { approveWebsite: true })
 
 export type PracticePanelUpdate = {
   surface: 'full' | 'compact'
@@ -1333,6 +1375,7 @@ export type CourseCompanionApi = {
   hasActivePractice: () => Promise<boolean>
   startPractice: (request: PracticeStartRequest) => Promise<PracticeWorkspaceView>
   resumePractice: (identity?: PracticeIdentity) => Promise<PracticeWorkspaceView>
+  openPracticeTask: (request: PracticeTaskOpenRequest) => Promise<void>
   retryPracticeSwitch: () => Promise<PracticeWorkspaceView>
   cancelPracticeSwitch: () => Promise<PracticeWorkspaceView>
   recordPlanningAction: (request: PlanningPracticeActionRequest) => Promise<PracticeWorkspaceView>
@@ -1352,7 +1395,7 @@ export type CourseCompanionApi = {
   loadAppSettings: () => Promise<AppSettings>
   saveAppSettings: (update: AppSettingsUpdate) => Promise<AppSettings>
   showFullTeacher: () => Promise<void>
-  minimizeFullTeacher: () => Promise<void>
+  setFullTeacherVisible: (visible: boolean) => Promise<void>
   setCompanionMode: (mode: CompanionMode) => Promise<void>
   quitApp: () => Promise<void>
 }

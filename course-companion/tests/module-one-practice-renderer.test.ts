@@ -122,7 +122,7 @@ describe('Module 1 Practice renderer', () => {
         model: { protocolValue: 'gpt-5.6-terra', label: '5.6 Terra' }
       }))
     }))
-    expect(html).toContain('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN')
+    expect(html).toContain('Cấu hình task được phát hiện')
     expect(html).toContain('5.6 Terra')
     expect(html).toContain('Cần 5.6 Sol')
     expect(html.match(/<dt>/g)).toHaveLength(5)
@@ -135,13 +135,13 @@ describe('Module 1 Practice renderer', () => {
         connection: 'disconnected'
       }))
     }))
-    expect(stale).toContain('CHƯA THỂ XÁC MINH')
+    expect(stale).toContain('Chưa thể xác minh')
     expect(stale).toContain('Chưa đọc được')
 
     const unavailable = renderToStaticMarkup(createElement(PracticeProgress, {
       workspace: workspace(null)
     }))
-    expect(unavailable).toContain('CHƯA CÓ DỮ LIỆU')
+    expect(unavailable).toContain('Chưa có dữ liệu')
     expect(unavailable).toContain('Không xác minh được')
   })
 
@@ -163,7 +163,7 @@ describe('Module 1 Practice renderer', () => {
       compact: true,
       onReturn: () => undefined
     }))
-    expect(full).toContain('ĐÃ ĐẠT')
+    expect(full).toContain('Đã đạt')
     expect(full).toContain('Lưu kết quả và quay lại khóa học')
     expect(compact).toContain('practice-progress is-compact')
   })
@@ -218,7 +218,7 @@ describe('Module 1 Practice renderer', () => {
     expect(compact).not.toContain('Đủ năm giá trị.')
     expect(compact).not.toContain('PRIVATE CRITERION EXPLANATION')
     expect(compact).not.toContain('PRIVATE REVIEW SUMMARY')
-    expect(compact).not.toContain('CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN')
+    expect(compact).not.toContain('Cấu hình task được phát hiện')
     expect(compact).not.toContain(observedAt)
   })
 
@@ -345,12 +345,12 @@ describe('Module 2 Practice renderer', () => {
       onPlanningAction: () => undefined,
       onRefresh: () => undefined
     }))
-    expect(html).toContain('PLANNING PACKAGE')
+    expect(html).toContain('Planning package')
     expect(html).toContain('PRD.md')
     expect(html).toContain('implementation-plan.md')
     expect(html).toContain('Cần đối chiếu lại')
     expect(html).toContain('app/globals.css')
-    expect(html).toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).toContain('Dependency vừa thay đổi')
     expect(html).toContain('Bước cần xem lại: Đối chiếu alignment, Duyệt plan')
     expect(html).not.toContain('reconcile-alignment, approve-plan')
     expect(html).toContain('Tiếp theo: Đối chiếu lại PRD và plan.')
@@ -369,14 +369,14 @@ describe('Module 2 Practice renderer', () => {
     expect(html).toContain('practice-progress is-compact')
     expect(html).toContain('1/3 bước đã xác minh')
     expect(html).toContain('Hiện tại: Đối chiếu alignment')
-    expect(html).toContain('CẦN BỔ SUNG')
-    expect(html).toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')
+    expect(html).toContain('Cần bổ sung')
+    expect(html).not.toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')
     for (const step of planningWorkspace.checklist) expect(html).toContain(step.title)
     expect(html.match(/aria-expanded="false"/g)).toHaveLength(planningWorkspace.checklist.length)
-    expect(html).not.toContain('HƯỚNG DẪN')
-    expect(html).not.toContain('DEPENDENCY VỪA THAY ĐỔI')
+    expect(html).not.toContain('Hướng dẫn')
+    expect(html).not.toContain('Dependency vừa thay đổi')
     expect(html).not.toContain('app/globals.css')
-    expect(html).not.toContain('PLANNING PACKAGE')
+    expect(html).not.toContain('Planning package')
     expect(html).not.toContain('PRD.md')
   })
 })
@@ -425,8 +425,8 @@ describe('Portfolio planning Practice renderer', () => {
       onPortfolioStageAction: () => undefined,
       onRefresh: () => undefined
     }))
-    expect(html).toContain('GÓI LẬP KẾ HOẠCH PORTFOLIO')
-    expect(html).toContain('GIAI ĐOẠN 5/5')
+    expect(html).toContain('Gói lập kế hoạch portfolio')
+    expect(html).toContain('Giai đoạn 5/5')
     expect(html).toContain('package.json')
     expect(html).toContain('Thiếu nguồn hoặc quyền sử dụng')
     expect(html.match(/Chấp nhận phiên bản hiện tại/g)).toHaveLength(1)

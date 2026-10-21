@@ -9,7 +9,7 @@ const roots: string[] = []
 afterEach(async () => Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true }))))
 
 const definition: PracticeDefinition = JSON.parse(await readFile(join(
-  process.cwd(), '..', 'pilot-workspace', 'course', 'practices', 'm3-portfolio-build.json'
+  process.cwd(), '..', 'pilot-workspace', 'course', 'practices', 'm3-portfolio-build.v1.json'
 ), 'utf8')) as PracticeDefinition
 
 const approval = `

@@ -5,6 +5,9 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { PortfolioModuleCompletionService } from '../electron/main/portfolio-module-completion-service'
 import { PortfolioPlanningEvidenceAdapter } from '../electron/main/portfolio-planning-evidence-adapter'
+import { PortfolioBuildEvidenceAdapter } from '../electron/main/portfolio-build-evidence-adapter'
+import { buildActivity, buildRun, writeBuildPackage } from './fixtures/portfolio-build-fixture'
+import { parsePracticeReviewResult } from '../electron/main/practice-review-contracts'
 import { PortfolioWorkspaceRepository } from '../electron/main/portfolio-workspace-repository'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
 import { buildPracticeReviewEnvelope } from '../electron/main/practice-review-context'
@@ -25,6 +28,60 @@ import {
 
 const temporaryDirectories: string[] = []
 const observedAt = portfolioPackageTimestamp
+
+async function moduleThreeV2Fixture() {
+  const base = await fixture()
+  const ready = await base.service.completeModuleTwo()
+  const { practiceRunRepository: runs, definitionRepository: definitions, workspaceRepository } = base.dependencies
+  const definition = await definitions.load('m3-portfolio-build', '2.0.0')
+  await writeBuildPackage(base.workspace)
+  const run = buildRun(definition, base.workspace)
+  const adapter = new PortfolioBuildEvidenceAdapter()
+  const evidence = await adapter.collect({ definition, runId: run.runId, generation: run.generation, workspaceRoot: base.workspace, task: { threadId: run.binding.threadId, workspaceRoot: base.workspace } })
+  await runs.save({ ...(await runs.load()), activeRun: { ...run, evidence } })
+  const approved = await runs.approvePortfolioPackage({ ...run, sourceDigest: evidence.sourceDigest!, courseRunId: ready.courseRunId, updatedAt: observedAt })
+  const envelope = buildPracticeReviewEnvelope({ definition, run: approved.activeRun!, activity: buildActivity(), generatedAt: observedAt })
+  const result = parsePracticeReviewResult({
+    text: JSON.stringify({ schemaVersion: 1, practiceId: definition.practiceId, practiceVersion: definition.version, runId: run.runId,
+      verdict: 'passed', summary: 'Simulated review; real learner acceptance remains pending.', criteria: definition.criteria.map((criterion) => ({ criterionId: criterion.id, status: 'satisfied', evidenceRefs: [envelope.evidence[0]!.id], explanation: 'Disposable fixture.' })) }),
+    definition, runId: run.runId, evidence: envelope.evidence, reviewedAt: observedAt,
+    planningEvidenceDigest: envelope.portfolioPackage!.evidenceDigest, portfolioPackage: envelope.portfolioPackage
+  })
+  const receipt = { schemaVersion: 1 as const, courseRunId: ready.courseRunId, practiceId: definition.practiceId, practiceVersion: definition.version,
+    runId: run.runId, checkpointId: definition.checkpointId, status: 'completed' as const, completedAt: observedAt,
+    submissionDigest: envelope.portfolioPackage!.evidenceDigest, evidenceSummary: result.summary, masterySummary: 'Mastery remains required.', destination: definition.completionDestination }
+  await runs.saveReview({ ...run, result, checklist: definition.checklist.map((step) => ({ ...step, status: 'completed' as const })), completion: receipt, expectedPackageDigest: evidence.sourceDigest!, updatedAt: observedAt })
+  await base.progressRepository.recordPracticeCompletion(receipt)
+  await runs.closeCompletedRun({ ...run, updatedAt: observedAt })
+  const mastery = await base.progressRepository.save({ currentLessonId: 'module-3', currentCourseLessonId: 'm3-independent-enhancement', checkpointId: 'm3-mastery', sceneId: 'module-3-mastery-summary', sceneHistory: ['module-3-portfolio-practice'], completedCheckpointIds: ready.completedCheckpointIds,
+    decisions: { ...ready.decisions, ...Object.fromEntries(['m3-mastery-plan', 'm3-mastery-visible-error', 'm3-mastery-logs', 'm3-mastery-repeated-error', 'm3-mastery-branch'].map((id) => ['assessment:' + id, 'correct:1'])) } })
+  const service = new PortfolioModuleCompletionService(base.progressRepository, workspaceRepository, runs, definitions, base.dependencies.evidenceAdapter, () => new Date(observedAt), adapter)
+  return { ...base, service, runs, mastery, receipt }
+}
+
+describe('Module 3 v2 reviewed completion', () => {
+  it('completes from archived reviewed work with no fixed stage or slice receipts', async () => {
+    const f = await moduleThreeV2Fixture()
+    expect((await f.runs.load()).activeRun).toBeNull()
+    const completed = await f.service.completeModuleThree()
+    expect(completed.sceneId).toBe('module-3-complete')
+    expect(completed.practiceCompletions.at(-1)?.portfolioBuildHandoff).toMatchObject({ schemaVersion: 2, submissionDigest: f.receipt.submissionDigest, sourceCheckpoint: expect.stringMatching(/^sha256:/) })
+    expect(completed.practiceCompletions.at(-1)?.portfolioBuildHandoff).not.toHaveProperty('buildSliceReceiptIds')
+  })
+
+  it('rejects source-only changes after returning to mastery and keeps the original archived task', async () => {
+    const f = await moduleThreeV2Fixture()
+    await writeFile(join(f.workspace, 'src/main.tsx'), 'export const changedAfterReview = true')
+    await expect(f.service.completeModuleThree()).rejects.toThrow('changed')
+    expect((await f.runs.load()).archivedRuns.at(-1)?.retainedRun?.binding.threadId).toBe('thread-original-planning')
+  })
+
+  it('requires the existing five mastery answers independently of the approved website', async () => {
+    const f = await moduleThreeV2Fixture()
+    await f.progressRepository.save({ ...f.mastery, decisions: { ...f.mastery.decisions, 'assessment:m3-mastery-logs': 'incorrect:1' } })
+    await expect(f.service.completeModuleThree()).rejects.toThrow('mastery')
+  })
+})
 
 afterEach(async () => {
   await Promise.all(temporaryDirectories.splice(0).map((directory) =>

@@ -13,6 +13,7 @@ type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
   api?: import('../../../../shared/contracts').CourseCompanionApi
   compact?: boolean
+  showObjective?: boolean
   returnBusy?: boolean
   returnDisabled?: boolean
   onReturn?: () => void
@@ -120,6 +121,7 @@ export function PracticeProgress({
   workspace,
   api,
   compact = false,
+  showObjective = true,
   returnBusy = false,
   returnDisabled = false,
   onReturn,
@@ -209,14 +211,14 @@ export function PracticeProgress({
         {packageSubmission}
         <div className="practice-compact-progress" role="status">
           <div>
-            <small>TIẾN ĐỘ</small>
+            <small>Tiến độ</small>
             <strong>{completedStepCount}/{workspace.checklist.length} bước đã xác minh</strong>
             <span>{compactCurrentStep
               ? `Hiện tại: ${compactCurrentStep.title}`
               : reviewStatus === 'passed' ? 'Đã hoàn thành các bước bắt buộc.' : 'Đang chờ bằng chứng mới.'}</span>
           </div>
           <b className={`is-${reviewStatus ?? 'not-reviewed'}`}>
-            {reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : reviewStatus === 'needs-work' ? 'CẦN BỔ SUNG' : 'CHƯA DUYỆT'}
+            {reviewStatus === 'passed' ? 'Đã đạt' : reviewStatus === 'needs-work' ? 'Cần bổ sung' : 'Chưa duyệt'}
           </b>
         </div>
         {comparisonSummary ? <p className="practice-compact-change" role="status">{comparisonSummary}</p> : null}
@@ -236,7 +238,7 @@ export function PracticeProgress({
                 >
                   <span className="practice-compact-step-icon" aria-hidden="true">{stepIcon[step.status]}</span>
                   <span className="practice-compact-step-copy">
-                    <small>BƯỚC {index + 1}</small>
+                    <small>Bước {index + 1}</small>
                     <strong>{step.title}</strong>
                   </span>
                   <span className="practice-compact-step-state">{compactStepStatus[step.status]}</span>
@@ -244,7 +246,7 @@ export function PracticeProgress({
                 </button>
                 {expanded ? (
                   <div className="practice-compact-step-guide" id={panelId} role="region" aria-label={`Hướng dẫn: ${step.title}`}>
-                    <small>HƯỚNG DẪN</small>
+                    <small>Hướng dẫn</small>
                     <p>{compactGuidance(step)}</p>
                   </div>
                 ) : null}
@@ -253,9 +255,9 @@ export function PracticeProgress({
           })}
         </ol>
         </details>
-        {reviewStatus !== 'passed' ? (
+        {reviewStatus !== 'passed' && (!compactCurrentStep || Boolean(unresolvedCriterion && criterionNextActions[unresolvedCriterion.criterionId])) ? (
           <div className="practice-compact-next" aria-label="Hành động tiếp theo">
-            <small>TIẾP THEO</small>
+            <small>Tiếp theo</small>
             <strong>{compactNextAction}</strong>
           </div>
         ) : null}
@@ -268,22 +270,24 @@ export function PracticeProgress({
   return (
     <section className={'practice-progress' + (compact ? ' is-compact' : '')} aria-label="Tiến độ Practice">
       {packageSubmission}
-      <div className="practice-progress__summary">
-        <small>MỤC TIÊU</small>
-        <strong>{workspace.objective}</strong>
-        {!compact ? <p>{workspace.expectedOutcome}</p> : null}
+      {showObjective || workspace.completionDestination ? <div className="practice-progress__summary">
+        {showObjective ? <>
+          <small>Mục tiêu</small>
+          <strong>{workspace.objective}</strong>
+          {!compact ? <p>{workspace.expectedOutcome}</p> : null}
+        </> : null}
         {workspace.completionDestination ? (
           <small className="practice-destination">
             Sau khi đạt: {workspace.completionDestination.label}
           </small>
         ) : null}
-      </div>
+      </div> : null}
 
       {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
         <section className={`practice-review-result is-${reviewStatus}`} role="status" aria-label="Kết quả duyệt Practice">
           <div>
-            <small>KẾT QUẢ DUYỆT</small>
-            <strong>{reviewStatus === 'passed' ? 'ĐÃ ĐẠT' : 'CẦN BỔ SUNG'}</strong>
+            <small>Kết quả duyệt</small>
+            <strong>{reviewStatus === 'passed' ? 'Đã đạt' : 'Cần bổ sung'}</strong>
             {comparisonSummary ? <p className="practice-review-change">{comparisonSummary}</p> : null}
             <p>{reviewResult?.summary ?? (reviewStatus === 'passed'
               ? 'Bằng chứng đáp ứng các tiêu chí bắt buộc.'
@@ -302,7 +306,7 @@ export function PracticeProgress({
               </ol>
             ) : null}
             <div className="practice-review-next-action">
-              <small>TIẾP THEO</small>
+              <small>Tiếp theo</small>
               <strong>{reviewNextAction}</strong>
             </div>
             {reviewResult?.reviewedAt ? <time dateTime={reviewResult.reviewedAt}>Duyệt lúc {new Date(reviewResult.reviewedAt).toLocaleString('vi-VN')}</time> : null}
@@ -317,11 +321,11 @@ export function PracticeProgress({
         <section {...practiceGuideAnchor('configuration-evidence')} className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
           <header>
             <div>
-              <small>CẤU HÌNH TASK ĐƯỢC PHÁT HIỆN</small>
+              <small>Cấu hình task được phát hiện</small>
               <strong>
                 {!configuration
-                  ? 'CHƯA CÓ DỮ LIỆU'
-                  : configurationFresh ? 'DỮ LIỆU MỚI' : 'CHƯA THỂ XÁC MINH'}
+                  ? 'Chưa có dữ liệu'
+                  : configurationFresh ? 'Dữ liệu mới' : 'Chưa thể xác minh'}
               </strong>
             </div>
             <span className={configurationFresh ? 'is-fresh' : 'is-unavailable'}>
@@ -362,8 +366,8 @@ export function PracticeProgress({
         <section className="practice-planning" aria-label="Bằng chứng planning package" aria-live="polite">
           <header>
             <div>
-              <small>PLANNING PACKAGE</small>
-              <strong>{planning.freshness === 'fresh' ? 'BẰNG CHỨNG HIỆN TẠI' : planning.freshness === 'stale' ? 'CẦN LÀM MỚI' : 'CHƯA THỂ XÁC MINH'}</strong>
+              <small>Planning package</small>
+              <strong>{planning.freshness === 'fresh' ? 'Bằng chứng hiện tại' : planning.freshness === 'stale' ? 'Cần làm mới' : 'Chưa thể xác minh'}</strong>
             </div>
             {onRefresh ? <button type="button" disabled={actionBusy} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
           </header>
@@ -377,7 +381,7 @@ export function PracticeProgress({
               </article>
             ))}
             <article className={`is-alignment-${planning.alignment}`}>
-              <small>ALIGNMENT</small>
+              <small>Alignment</small>
               <strong>{planning.alignment === 'confirmed' ? 'Đã đối chiếu' : planning.alignment === 'stale' ? 'Cần đối chiếu lại' : 'Chưa xác nhận'}</strong>
               <span>Bốn điểm phạm vi và Done When</span>
             </article>
@@ -392,7 +396,7 @@ export function PracticeProgress({
 
           {planning.invalidations.map((item) => (
             <article className="practice-invalidation" key={`${item.changedInput}:${item.affectedStepIds.join(',')}`} role="status">
-              <small>DEPENDENCY VỪA THAY ĐỔI</small>
+              <small>Dependency vừa thay đổi</small>
               <strong>{item.changedInput}</strong>
               <p>{item.reason}</p>
               <span>Bước cần xem lại: {item.affectedStepIds.map(checklistTitle).join(', ')}</span>
@@ -452,12 +456,12 @@ export function PracticeProgress({
         <section className="practice-portfolio-planning" aria-label={workspace.portfolioBuild ? 'Bằng chứng xây dựng portfolio' : 'Bằng chứng lập kế hoạch portfolio'} aria-live="polite">
           <header>
             <div>
-              <small>{workspace.portfolioBuild ? 'XÂY DỰNG PORTFOLIO' : 'GÓI LẬP KẾ HOẠCH PORTFOLIO'}</small>
+              <small>{workspace.portfolioBuild ? 'Xây dựng portfolio' : 'Gói lập kế hoạch portfolio'}</small>
               <strong>{portfolioStages.freshness === 'fresh'
-                ? 'BẰNG CHỨNG HIỆN TẠI'
+                ? 'Bằng chứng hiện tại'
                 : portfolioStages.freshness === 'stale'
-                  ? 'CẦN LÀM MỚI'
-                  : 'CHƯA THỂ XÁC MINH'}</strong>
+                  ? 'Cần làm mới'
+                  : 'Chưa thể xác minh'}</strong>
             </div>
             {onRefresh ? <button type="button" disabled={actionBusy} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
           </header>
@@ -475,18 +479,18 @@ export function PracticeProgress({
                 <header>
                   <span>{stage.stageIndex}</span>
                   <div>
-                    <small>GIAI ĐOẠN {stage.stageIndex}/5</small>
+                    <small>Giai đoạn {stage.stageIndex}/5</small>
                     <strong>{portfolioStageLabels[stage.stageId] ?? stage.stageId}</strong>
                   </div>
                   <em>{stage.status === 'completed'
-                    ? 'ĐÃ DUYỆT'
+                    ? 'Đã duyệt'
                     : stage.status === 'ready'
-                      ? 'SẴN SÀNG DUYỆT'
+                      ? 'Sẵn sàng duyệt'
                       : stage.status === 'stale'
-                        ? 'CẦN DUYỆT LẠI'
+                        ? 'Cần duyệt lại'
                         : stage.status === 'blocked'
-                          ? 'CẦN BỔ SUNG'
-                          : 'CHƯA MỞ'}</em>
+                          ? 'Cần bổ sung'
+                          : 'Chưa mở'}</em>
                 </header>
                 <div className="practice-portfolio-artifacts">
                   {stage.artifactPaths.map((path) => <code key={path}>{path}</code>)}
@@ -497,7 +501,7 @@ export function PracticeProgress({
                       <li className={`is-${slice.status}`} key={slice.sliceId}>
                         <span>{slice.sliceIndex}/4</span>
                         <strong>{buildSliceLabels[slice.sliceId]}</strong>
-                        <em>{slice.status === 'completed' ? 'ĐÃ DUYỆT' : slice.status === 'ready' ? 'SẴN SÀNG' : slice.status === 'stale' ? 'DUYỆT LẠI' : slice.status === 'blocked' ? 'CẦN BỔ SUNG' : 'CHƯA MỞ'}</em>
+                        <em>{slice.status === 'completed' ? 'Đã duyệt' : slice.status === 'ready' ? 'Sẵn sàng' : slice.status === 'stale' ? 'Duyệt lại' : slice.status === 'blocked' ? 'Cần bổ sung' : 'Chưa mở'}</em>
                         {onPortfolioStageAction && slice.status !== 'completed' && slice.status !== 'pending' ? (
                           <div className="practice-portfolio-actions">
                             {slice.status === 'ready' ? <button className="is-primary" disabled={actionBusy} type="button" onClick={() => onPortfolioStageAction(stage.stageId, 'approved', slice.sliceId)}>Chấp nhận phần này</button> : null}
@@ -548,17 +552,17 @@ export function PracticeProgress({
                       ? 'Cần xem lại'
                       : 'Sắp tới'}
               </small>
-              {step.reason ? <p>{step.reason}</p> : null}
+              {step.reason && step.reason !== step.title ? <p>{step.reason}</p> : null}
             </div>
           </li>
         ))}
       </ol>
 
       {workspace.activePractice ? (
-        <details className="practice-receipt">
-          <summary>Task Codex đang hoạt động</summary>
+        <aside className="practice-receipt">
+          <strong>Task Codex đang hoạt động</strong>
           <p>{workspace.activePractice.executorChatName}</p>
-        </details>
+        </aside>
       ) : null}
     </section>
   )

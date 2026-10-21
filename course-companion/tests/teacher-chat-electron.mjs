@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import electronExecutable from 'electron'
 import { _electron as electron } from 'playwright-core'
 
@@ -43,6 +43,11 @@ try {
   if (!live) {
     const thinking = panel.getByRole('status').filter({ hasText: 'Triết đang suy nghĩ…' })
     await thinking.waitFor()
+    const motion = await panel.locator('.pixel-chat-thinking-dots i').first().evaluate((dot) => {
+      const animation = dot.getAnimations()[0]
+      return animation?.effect?.getKeyframes().some((frame) => frame.transform === 'translateY(-2px)')
+    })
+    assert.equal(motion, true, 'Thinking feedback has restrained visible motion')
     assert.equal(await composer.inputValue(), '')
     assert.equal(await panel.locator('.pixel-chat-message.is-learner p').innerText(), prompt)
     assert.equal(await panel.locator('.pixel-chat-empty').count(), 0)
@@ -73,6 +78,18 @@ try {
   assert.equal(await panel.locator('.pixel-chat-message.is-learner').count(), 1)
   assert.equal(await composer.inputValue(), '')
   assert.deepEqual(await page.evaluate(() => globalThis.courseCompanion.loadProgress()), before)
+  await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().find((window) => window.webContents.getURL().includes('#/learning')).minimize())
+  const windowed = app.windows().find((window) => window.url().includes('#/companion'))
+  const windowedTeacher = windowed.locator('.pixel-teacher-panel')
+  await windowedTeacher.locator('.pixel-chat-message.is-teacher').last().waitFor()
+  assert.equal(await windowedTeacher.locator('.pixel-chat-message.is-teacher p').last().innerText(), content)
+  assert.equal(await windowedTeacher.locator('.teacher-markdown').first().evaluate((text) => globalThis.getComputedStyle(text).fontSize), '12px')
+  assert.equal(await windowed.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
+  const compactScreenshots = resolve('../.superpowers/sdd/screenshots')
+  await mkdir(compactScreenshots, { recursive: true })
+  await windowed.screenshot({ path: join(compactScreenshots, 'teacher-windowed-density.png'), animations: 'disabled' })
+  await windowedTeacher.getByRole('button', { name: 'Mở Triết toàn màn hình', exact: true }).click()
+  await composer.waitFor()
   await panel.getByRole('button', { name: 'Đóng Triết', exact: true }).click()
   await page.getByRole('button', { name: 'Mở Triết, giáo viên đồng hành', exact: true }).click()
   assert.equal(await panel.locator('.pixel-chat-message.is-teacher p').last().innerText(), content)

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { portfolioPackageArtifactPaths, type CourseCompanionApi, type PracticeWorkspaceView } from '../../../../shared/contracts'
+import { portfolioBuildRecordPaths, portfolioPackageArtifactPaths, type CourseCompanionApi, type PracticeWorkspaceView } from '../../../../shared/contracts'
+import { PortfolioReleaseSubmission } from './PortfolioReleaseSubmission'
 
-type Props = {
+export type PortfolioPackageSubmissionProps = {
   workspace: PracticeWorkspaceView
   api?: CourseCompanionApi
   disabled?: boolean
@@ -10,16 +11,26 @@ type Props = {
   onRefresh?: () => void
 }
 
-export function PortfolioPackageSubmission({ workspace, api, disabled, onWorkspaceChange, onBusyChange, onRefresh }: Props) {
+export function PortfolioPackageSubmission(props: PortfolioPackageSubmissionProps) {
+  return props.workspace.portfolioPackage?.kind === 'release'
+    ? <PortfolioReleaseSubmission {...props} />
+    : <PortfolioDocumentSubmission {...props} />
+}
+
+function PortfolioDocumentSubmission({ workspace, api, disabled, onWorkspaceChange, onBusyChange, onRefresh }: PortfolioPackageSubmissionProps) {
   const [approved, setApproved] = useState(false)
+  const [approvalDigest, setApprovalDigest] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const packageView = workspace.portfolioPackage
   const active = workspace.activePractice
   if (!packageView || !active) return null
+  const build = packageView.kind === 'build'
+  const artifactPaths = build ? portfolioBuildRecordPaths : portfolioPackageArtifactPaths
+  const accepted = approved && (!build || approvalDigest === packageView.sourceDigest)
 
   const submit = async () => {
-    if (!api?.approvePortfolioPackage || !approved || !packageView.sourceDigest || busy || disabled) return
+    if (!api?.approvePortfolioPackage || !accepted || !packageView.sourceDigest || busy || disabled) return
     setBusy(true)
     onBusyChange?.(true)
     setError('')
@@ -29,14 +40,14 @@ export function PortfolioPackageSubmission({ workspace, api, disabled, onWorkspa
       const confirmed = await api.approvePortfolioPackage({
         runId: active.runId, generation: active.generation, practiceId: active.practiceId,
         practiceVersion: active.practiceVersion, courseRunId: loaded.progress.courseRunId,
-        sourceDigest: packageView.sourceDigest, approvePrd: true, approvePlan: true
+        sourceDigest: packageView.sourceDigest, ...(build ? { approveWebsite: true as const } : { approvePrd: true as const, approvePlan: true as const })
       })
       onWorkspaceChange?.(confirmed)
       const reviewed = await api.reviewPractice()
       if ('error' in reviewed) setError(reviewed.error.message)
       else onWorkspaceChange?.(reviewed.workspace)
     } catch {
-      setError('Chưa thể nộp gói hiện tại. Hãy làm mới tài liệu, kiểm tra lại PRD và kế hoạch rồi thử lại.')
+      setError(build ? 'Chưa thể nộp bài hiện tại. Hãy làm mới bằng chứng, xem lại website rồi thử lại.' : 'Chưa thể nộp gói hiện tại. Hãy làm mới tài liệu, kiểm tra lại PRD và kế hoạch rồi thử lại.')
     } finally {
       setBusy(false)
       onBusyChange?.(false)
@@ -44,25 +55,35 @@ export function PortfolioPackageSubmission({ workspace, api, disabled, onWorkspa
   }
 
   return (
-    <section className="practice-planning-evidence" aria-label="Nộp gói planning">
-      <details>
-        <summary>Năm tài liệu cần nộp</summary>
-        <ul>{portfolioPackageArtifactPaths.map((path) => <li key={path} style={{ overflowWrap: 'anywhere' }}>{path}</li>)}</ul>
-      </details>
-      {packageView.issues.length > 0 ? <ul>{packageView.issues.map((issue, index) => <li key={index} style={{ overflowWrap: 'anywhere' }}>{issue}</li>)}</ul> : null}
-      {packageView.unexpectedPaths.length > 0 ? <p style={{ overflowWrap: 'anywhere' }}>Ngoài phạm vi: {packageView.unexpectedPaths.join(', ')}</p> : null}
-      {!packageView.ready && packageView.issues.length === 0 ? <p>Lưu đủ năm tài liệu rồi làm mới bằng chứng để kiểm tra gói hiện tại.</p> : null}
-      <label>
-        <input type="checkbox" checked={approved} disabled={busy || disabled || !packageView.ready}
-          onChange={() => setApproved(!approved)} />
-        Tôi đã đọc và duyệt PRD cùng kế hoạch triển khai hiện tại.
+    <section className="practice-planning-evidence practice-package-submission" aria-label={build ? 'Nộp bài xây portfolio' : 'Nộp gói planning'}>
+      <h3 className="practice-package-heading">{build ? 'Bằng chứng từ quá trình xây website' : 'Năm tài liệu cần nộp'}</h3>
+      {build ? <p>Tiếp tục từng phần của kế hoạch trong task Codex. Bạn xem kết quả và quyết định; Codex ghi lại ba hồ sơ dưới đây. Cải thiện và lỗi đã xử lý trong lúc xây được tính, không cần thêm một tính năng mới.</p> : null}
+      <ul className="practice-package-issues" role="list">{artifactPaths.map((path) => {
+        const issues = [...new Set(packageView.issues.filter((issue) => issue.startsWith(`${path}: `)))]
+        return <li key={path}>
+          <svg className="practice-package-document-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8l-5-5Z M14 3v5h5 M9 12h6 M9 16h6" />
+          </svg>
+          <div><strong>{path}{issues.length ? ':' : ''}</strong>{issues.map((issue) =>
+            <span key={issue}>{' '}{issue.slice(path.length + 2)}</span>)}</div>
+        </li>
+      })}</ul>
+      {[...new Set(packageView.issues)].filter((issue) =>
+        !artifactPaths.some((path) => issue.startsWith(`${path}: `)))
+        .map((issue) => <p className="practice-package-notice" key={issue}>{issue}</p>)}
+      {packageView.unexpectedPaths.length > 0 ? <p className="practice-package-notice">Ngoài phạm vi: {packageView.unexpectedPaths.join(', ')}</p> : null}
+      {!packageView.ready && packageView.issues.length === 0 ? <p className="practice-package-notice">{build ? 'Ghi lại quá trình xây, ví dụ cải thiện và gỡ lỗi, rồi kiểm tra website hiện tại trước khi nộp.' : 'Lưu đủ năm tài liệu rồi làm mới bằng chứng để kiểm tra gói hiện tại.'}</p> : null}
+      <label className="practice-package-approval">
+        <input type="checkbox" checked={accepted} disabled={busy || disabled || !packageView.ready}
+          onChange={() => { setApproved(!accepted); setApprovalDigest(packageView.sourceDigest) }} />
+        {build ? 'Tôi đã xem website, đối chiếu kết quả kiểm tra và chấp nhận phiên bản hiện tại.' : 'Tôi đã đọc và duyệt PRD cùng kế hoạch triển khai hiện tại.'}
       </label>
       <div className="practice-brief-actions">
         {onRefresh ? <button type="button" disabled={busy || disabled} onClick={onRefresh}>Làm mới bằng chứng</button> : null}
-        <button type="button" disabled={busy || disabled || !approved || !packageView.ready || !onWorkspaceChange || !api?.approvePortfolioPackage}
-          onClick={() => void submit()}>{busy ? 'Đang kiểm tra gói…' : 'Duyệt và nộp gói planning'}</button>
+        <button type="button" aria-busy={busy} disabled={busy || disabled || !accepted || !packageView.ready || !onWorkspaceChange || !api?.approvePortfolioPackage}
+          onClick={() => void submit()}>{busy ? <span className="pixel-chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span> : null}{busy ? 'Đang kiểm tra gói…' : build ? 'Chấp nhận website và nộp bài' : 'Duyệt và nộp gói planning'}</button>
       </div>
-      {error ? <p role="alert">{error}</p> : null}
+      {error ? <p className="practice-package-notice" role="alert">{error}</p> : null}
     </section>
   )
 }

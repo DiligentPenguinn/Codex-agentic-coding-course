@@ -19,14 +19,13 @@ import { PracticeProgress } from './PracticeProgress'
 import { PracticeGuide } from './PracticeGuide'
 import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
+import { PracticeTaskLink } from './PracticeTaskLink'
 import { TeacherMarkdown } from './TeacherMarkdown'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
-  fullScreen?: boolean
   onClose: () => void
   onExpand?: () => void
-  onMinimizeToBubble?: () => void
 }
 
 function previewReply(request: TeacherSendRequest): TeacherSendResult {
@@ -65,13 +64,13 @@ const emptyPractice: PracticeState = {
 }
 
 const practiceLabels: Record<PracticeState['status'], { eyebrow: string; title: string }> = {
-  idle: { eyebrow: 'CHƯA BẮT ĐẦU', title: 'Chờ một lượt thực hành' },
-  active: { eyebrow: 'ĐANG THỰC HIỆN', title: 'Bài luyện tập đang diễn ra' },
-  approval_required: { eyebrow: 'CẦN PHÊ DUYỆT', title: 'Kế hoạch đang chờ bạn' },
-  completed: { eyebrow: 'ĐÃ HOÀN THÀNH', title: 'Có bằng chứng mới để duyệt' },
-  stale: { eyebrow: 'BẰNG CHỨNG CŨ', title: 'Chưa đủ để kết luận' },
-  offline: { eyebrow: 'MẤT KẾT NỐI', title: 'Không có sự kiện mới' },
-  error: { eyebrow: 'LƯỢT CHẠY LỖI', title: 'Chưa tạo được bằng chứng' }
+  idle: { eyebrow: 'Chưa bắt đầu', title: 'Chờ một lượt thực hành' },
+  active: { eyebrow: 'Đang thực hiện', title: 'Bài luyện tập đang diễn ra' },
+  approval_required: { eyebrow: 'Cần phê duyệt', title: 'Kế hoạch đang chờ bạn' },
+  completed: { eyebrow: 'Đã hoàn thành', title: 'Có bằng chứng mới để duyệt' },
+  stale: { eyebrow: 'Bằng chứng cũ', title: 'Chưa đủ để kết luận' },
+  offline: { eyebrow: 'Mất kết nối', title: 'Không có sự kiện mới' },
+  error: { eyebrow: 'Lượt chạy lỗi', title: 'Chưa tạo được bằng chứng' }
 }
 
 const scenarioControls: Array<{ scenario: PracticeScenario; label: string }> = [
@@ -95,10 +94,8 @@ function loadTeacherDraft(): string {
 
 export function TeacherWorkspace({
   embedded = false,
-  fullScreen = false,
   onClose,
-  onExpand,
-  onMinimizeToBubble
+  onExpand
 }: TeacherWorkspaceProps) {
   const [messages, setMessages] = useState<TeacherMessage[]>([])
   const [teacherRuntime, setTeacherRuntime] = useState<TeacherRuntimeView>({
@@ -135,6 +132,12 @@ export function TeacherWorkspace({
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!embedded || !window.courseCompanion) return
+    void window.courseCompanion.setFullTeacherVisible(true)
+    return () => { void window.courseCompanion?.setFullTeacherVisible(false) }
+  }, [embedded])
 
   const refreshPracticeGuide = useCallback(async () => {
     if (!window.courseCompanion) return
@@ -386,12 +389,6 @@ export function TeacherWorkspace({
     }
   }
 
-  const minimizeToBubble = async () => {
-    if (practiceGuide?.currentStageId && practiceGuide.presentation) {
-      await updatePracticeGuide({ type: 'pause', expectedStageId: practiceGuide.currentStageId })
-    }
-    onMinimizeToBubble?.()
-  }
   const sendMessage = async (retryMessage?: TeacherMessage) => {
     const content = (retryMessage?.content ?? draft).trim()
     if (!content || sendingRef.current) return
@@ -536,7 +533,7 @@ export function TeacherWorkspace({
             <img src={teacherImage} alt="" />
           </span>
           <div>
-            <small>{practiceMode ? 'TRIẾT · DUYỆT PRACTICE' : currentTeacherStatus.label}</small>
+            <small>{practiceMode ? 'Triết · Duyệt Practice' : currentTeacherStatus.label}</small>
             <strong>{practiceMode ? 'Duyệt Practice' : 'Triết'}</strong>
           </div>
         </div>
@@ -560,17 +557,6 @@ export function TeacherWorkspace({
               {practiceMode ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4" /></svg> : <span aria-hidden="true">⛶</span>}
             </button>
           ) : null}
-          {fullScreen && onMinimizeToBubble ? (
-            <button
-              className="pixel-panel-control"
-              type="button"
-              aria-label="Thu nhỏ Triết thành bong bóng"
-              title="Thu nhỏ thành bong bóng"
-              onClick={() => void minimizeToBubble()}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
-            </button>
-          ) : null}
           <button
             className="pixel-panel-control"
             type="button"
@@ -589,7 +575,7 @@ export function TeacherWorkspace({
       </div> : null}
 
       {!compactPractice ? <div className="pixel-chat-context">
-        <span>BƯỚC HỌC HIỆN TẠI</span>
+        <span>{practiceMode ? 'Bước học hiện tại' : 'BƯỚC HỌC HIỆN TẠI'}</span>
         <strong>
           {workspace?.activePractice
             ? workspace.title
@@ -601,14 +587,20 @@ export function TeacherWorkspace({
         <div className="pixel-practice-status" role="status">Đang tải không gian của Triết…</div>
       ) : workspaceUnavailable ? (
         <div className="pixel-practice-status is-error" role="alert">
-          <strong>CHƯA THỂ XÁC MINH CHẾ ĐỘ</strong>
+          <strong>Chưa thể xác minh chế độ</strong>
           <p>Triết tạm khóa chat và duyệt tiến độ. Hãy đóng rồi mở lại cửa sổ này.</p>
         </div>
       ) : practiceMode ? (
         <section className="pixel-practice-review" aria-label="Duyệt tiến độ Practice">
           <div {...practiceGuideAnchor('review-progress')} className="pixel-practice-review__primary practice-review-overview">
+            {workspace?.activePractice ? <PracticeTaskLink
+              key={`${workspace.activePractice.runId}:${workspace.activePractice.generation}`}
+              task={{ runId: workspace.activePractice.runId, generation: workspace.activePractice.generation }}
+              api={window.courseCompanion}
+              disabled={workspace.phase === 'switching' || returnBusy}
+            /> : null}
             {!compactPractice ? <div role="status" aria-live="polite">
-              <small>TRẠNG THÁI HIỆN TẠI</small>
+              <small>Trạng thái hiện tại</small>
               <strong>{workspace?.review?.status === 'passed'
                 ? 'Tiến độ đã đạt yêu cầu'
                 : workspace?.review?.status === 'needs-work'
@@ -626,7 +618,7 @@ export function TeacherWorkspace({
                 onClick={() => void reviewProgress()}
               >
                 {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
-                {reviewBusy ? 'ĐANG CẬP NHẬT & KIỂM TRA…' : 'Cập nhật và kiểm tra tiến độ'}
+                {reviewBusy ? 'Đang cập nhật và kiểm tra…' : 'Cập nhật và kiểm tra tiến độ'}
               </button>
             ) : null}
             <button
@@ -637,6 +629,7 @@ export function TeacherWorkspace({
               disabled={hintBusy || reviewBusy || returnBusy || planningActionBusy}
               onClick={() => void requestHint()}
             >
+              {hintBusy ? <span className="pixel-chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span> : null}
               {hintBusy ? 'Triết đang xem tiến độ…' : 'Cần gợi ý?'}
             </button>
           </div>
@@ -655,7 +648,7 @@ export function TeacherWorkspace({
                 <button type="button" aria-label="Đóng gợi ý" onClick={() => setHint(null)}>Đóng</button>
               </div>
               <p tabIndex={0}>{hint.content}</p>
-              <small>Dựa trên tiến độ lúc {formatTime(hint.observedAt)}. Thử bước này trong task Codex, rồi xin thêm gợi ý nếu cần.</small>
+              <small>Mình xem tiến độ của bạn lúc {formatTime(hint.observedAt)}. Bạn thử bước này trong task Codex nhé; nếu còn vướng, mình sẽ gợi ý tiếp.</small>
             </aside>
           ) : null}
           {hintError ? <div className="pixel-chat-warning" role="alert">{hintError}</div> : null}

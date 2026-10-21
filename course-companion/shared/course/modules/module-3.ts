@@ -45,18 +45,13 @@ export const moduleThreeDefinition = {
   quizGroupIds: ['m3-final-assessment'],
   practice: {
     id: 'm3-portfolio-build',
-    version: '1.0.0',
+    version: '2.0.0',
     evidenceProfile: 'portfolio-build'
   },
   artifactPaths: [
-    'evidence/module-3/scaffold-report.md',
-    'evidence/module-3/design-direction.md',
     'evidence/module-3/build-log.md',
-    'evidence/module-3/browser-validation.md',
-    'evidence/module-3/revision-record.md',
-    'evidence/module-3/debugging-report.md',
-    'evidence/module-3/enhancement-plan.md',
-    'evidence/module-3/final-change-summary.md'
+    'evidence/module-3/learning-record.md',
+    'evidence/module-3/browser-validation.md'
   ],
   completionDestination: null
 } as const

@@ -169,7 +169,7 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
     return (
       <aside className="practice-guide-mastery" aria-labelledby="practice-guide-title" role="status">
         <div>
-          <small>VÒNG PRACTICE · HOÀN THÀNH</small>
+          <small>Vòng Practice · Hoàn thành</small>
           <h2 id="practice-guide-title">{view.title}</h2>
           <p>{view.body}</p>
         </div>
@@ -201,7 +201,7 @@ export function PracticeGuide({ view, onUpdate, onReview, onReturn, actionBusy =
         style={style}
       >
         <header>
-          <small>BƯỚC {view.step}/{view.stepCount} · HƯỚNG DẪN PRACTICE</small>
+          <small>Bước {view.step}/{view.stepCount} · Hướng dẫn Practice</small>
           <h2 id="practice-guide-title">{view.title}</h2>
         </header>
         <p id="practice-guide-body">{view.body}</p>

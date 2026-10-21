@@ -14,6 +14,7 @@ import {
 } from '../../shared/contracts'
 import { practiceWorkspaceIdentityDigest } from './practice-run-repository'
 import type { PracticeEvidenceAdapter, PracticeEvidenceAdapterContext } from './practice-evidence-adapter'
+import { collectPortfolioBuildPackage } from './portfolio-build-package-evidence'
 
 type ActivitySource = { current: () => Promise<ExecutorActivitySnapshot | null> }
 type TextArtifact = PortfolioPlanningArtifactSnapshot & { content: string }
@@ -98,6 +99,7 @@ export class PortfolioBuildEvidenceAdapter implements PracticeEvidenceAdapter {
 
   async collect(context: Readonly<PracticeEvidenceAdapterContext>): Promise<PracticeAdapterEvidenceState> {
     const observedAt = this.now().toISOString()
+    if (context.definition.version === '2.0.0') return collectPortfolioBuildPackage(context, observedAt)
     const root = await realpath(resolve(context.workspaceRoot))
     const artifacts = new Map<string, TextArtifact>()
     const issues: PortfolioPlanningIssue[] = []

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { portfolioBuildSliceIds } from '../../shared/contracts'
 import type { PortfolioPackageApprovalRequest, PortfolioPackageHandoff } from '../../shared/contracts'
-import { currentPortfolioPackageApproval, isPortfolioPackage, portfolioPackageIsReady } from './portfolio-package-state'
+import { currentPortfolioPackageApproval, isPortfolioPackage, isPortfolioBuildPackage, isPortfolioReleasePackage, isReviewedPortfolioPackage, portfolioPackageEvidence, portfolioPackageIsReady } from './portfolio-package-state'
 import type {
   ApprovedCodexConfiguration,
   PracticeAdapterEvidenceState,
@@ -9,6 +9,7 @@ import type {
   PracticeDefinition,
   PracticeChecklistStep,
   PracticeIdentity,
+  PracticeTaskOpenRequest,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PortfolioStageActionRequest,
@@ -20,6 +21,7 @@ import type { ExecutorChatCoordinator } from './executor-chat-coordinator'
 import { PracticeDefinitionRepository } from './practice-definition-repository'
 import {
   type PortfolioPackageMigrationRecovery,
+  type ExecutorChatBinding,
   type PracticeRunRecord,
   type PracticeTransitionRecord,
   type PracticeWorkspaceRecord,
@@ -49,6 +51,9 @@ function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
 
 function safeCreationError(error: unknown): string {
   const message = error instanceof Error ? error.message : ''
+  if (message === 'PORTFOLIO_RELEASE_CONTINUATION_UNAVAILABLE') {
+    return 'Chưa thể tiếp tục task portfolio từ Module 3. Hãy kiểm tra bàn giao và kết nối lại đúng task; dữ liệu đã lưu vẫn được giữ.'
+  }
   if (message === 'PORTFOLIO_CONTINUATION_UNAVAILABLE') {
     return 'Chưa thể tiếp tục task portfolio đã bàn giao. Hãy kiểm tra gói planning và kết nối lại đúng task; ứng dụng không tạo task thay thế.'
   }
@@ -274,13 +279,62 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     private readonly revokeCompletion?: (receipt: PracticeCompletionReceipt) => Promise<unknown>,
     private readonly handoffExecutor?: (openTarget: () => Promise<void>) => Promise<void>,
     private readonly loadPortfolioHandoff?: () => Promise<PortfolioPackageHandoff | null>,
-    private readonly loadPortfolioMigrationRecovery?: () => Promise<Omit<PortfolioPackageMigrationRecovery, 'validateTask'> | null>
+    private readonly loadPortfolioMigrationRecovery?: () => Promise<Omit<PortfolioPackageMigrationRecovery, 'validateTask'> | null>,
+    private readonly loadPortfolioReleaseHandoff?: () => Promise<{
+      task: ExecutorChatBinding
+      workspace: { canonicalPath: string }
+      sourceCheckpoint: string
+    } | null>
   ) {}
 
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       const refreshError = 'Chưa thể làm mới bằng chứng từ Codex. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
       let record = await this.repository.load()
+      let verifiedArchive: PracticeRunRecord | undefined
+      let archiveRefreshFailed = false
+      if (identity && isPortfolioBuildPackage(identity) && !record.pendingTransition) {
+        const prior = record.activeRun ?? [...record.archivedRuns].reverse().find((archive) =>
+          archive.practiceId === identity.practiceId && archive.retainedRun)?.retainedRun
+        if (prior?.practiceId === identity.practiceId
+          && (!record.activeRun || prior.practiceVersion !== identity.practiceVersion)) {
+          const definition = await this.definitions.load(identity.practiceId, identity.practiceVersion)
+          if (await this.executor.validateExistingTarget?.(prior.binding, definition).catch(() => false)) {
+            if (!record.activeRun && prior.practiceVersion === identity.practiceVersion) {
+              try {
+                if (!this.evidenceAdapters) throw new Error('Portfolio evidence adapter is unavailable')
+                await this.prepareExecutor?.(prior.binding, false)
+                const evidence = await this.evidenceAdapters.resolve(prior.evidenceProfile).collect({
+                  definition,
+                  runId: prior.runId,
+                  generation: prior.generation,
+                  workspaceRoot: prior.binding.workspaceRoot,
+                  allowedLegacyArtifactPaths: prior.allowedLegacyArtifactPaths,
+                  task: { threadId: prior.binding.threadId, workspaceRoot: prior.binding.workspaceRoot }
+                })
+                if (evidence.sourceDigest !== prior.evidence?.sourceDigest) {
+                  record = await this.repository.migratePortfolioBuild(definition, prior.binding, this.now().toISOString())
+                } else {
+                  const current = { ...prior, evidence }
+                  if (current.reviewStatus === 'passed' && current.reviewResult?.verdict === 'passed'
+                    && current.completion && currentPortfolioPackageApproval(current)) {
+                    verifiedArchive = current
+                    this.lastError = ''
+                  } else {
+                    this.lastError = refreshError
+                    archiveRefreshFailed = true
+                  }
+                }
+              } catch {
+                this.lastError = refreshError
+                archiveRefreshFailed = true
+              }
+            } else {
+              record = await this.repository.migratePortfolioBuild(definition, prior.binding, this.now().toISOString())
+            }
+          } else this.lastError = 'Chưa đọc được task Module 3 cũ. Hãy kết nối lại; tệp và lịch sử vẫn được giữ.'
+        }
+      }
       if (identity && isPortfolioPackage(identity)) {
         const definition = await this.definitions.load(identity.practiceId, identity.practiceVersion)
         const migration = await this.loadPortfolioMigrationRecovery?.().catch(() => null) ?? null
@@ -299,17 +353,17 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       }
       try {
         record = await this.refreshPracticeEvidence(record)
-        if (this.lastError === refreshError) this.lastError = ''
+        if (this.lastError === refreshError && !archiveRefreshFailed) this.lastError = ''
       } catch {
         this.lastError = refreshError
       }
-      return this.toView(record, identity)
+      return this.toView(record, identity, verifiedArchive)
     })
   }
 
   approvePortfolioPackage(request: PortfolioPackageApprovalRequest): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
-      if (request.approvePrd !== true || request.approvePlan !== true || !isPortfolioPackage(request)) {
+      if (!(isPortfolioBuildPackage(request) || isPortfolioReleasePackage(request) ? 'approveWebsite' in request && request.approveWebsite === true : isPortfolioPackage(request) && 'approvePrd' in request && request.approvePrd === true && request.approvePlan === true)) {
         throw new Error('Explicit approval of the current PRD and plan is required')
       }
       await this.refreshPracticeEvidence(await this.repository.load())
@@ -324,7 +378,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       this.lastError = ''
       const record = await this.repository.load()
       if (record.pendingTransition) throw new Error('A Practice switch is already pending')
-      if (record.activeRun && isPortfolioPackage(record.activeRun) && record.activeRun.reviewStatus === 'reviewing') {
+      if (record.activeRun && isReviewedPortfolioPackage(record.activeRun) && record.activeRun.reviewStatus === 'reviewing') {
         throw new Error('Wait for the current portfolio review before switching Practice')
       }
       const definition = await this.definitions.load(request.practiceId, request.practiceVersion)
@@ -379,9 +433,18 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
           || record.activeRun.practiceVersion !== identity.practiceVersion)) {
         throw new Error('Practice đang hoạt động không khớp nội dung được yêu cầu.')
       }
-      if (isPortfolioPackage(record.activeRun) || record.activeRun.evidenceProfile === 'portfolio-build') {
+      if (record.activeRun.practiceId === 'm4-portfolio-release') {
+        try {
+          await this.preparePracticeTarget(record.activeRun.binding,
+            await this.definitions.load(record.activeRun.practiceId, record.activeRun.practiceVersion))
+        } catch (error) {
+          this.lastError = safeCreationError(error)
+          throw new Error(this.lastError, { cause: error })
+        }
+      } else if (isReviewedPortfolioPackage(record.activeRun) || record.activeRun.evidenceProfile === 'portfolio-build') {
         await this.executor.prepareTarget(record.activeRun.binding,
-          await this.definitions.load(record.activeRun.practiceId, record.activeRun.practiceVersion))
+          await this.definitions.load(record.activeRun.practiceId, record.activeRun.practiceVersion),
+          await this.loadApprovedConfiguration?.() ?? undefined)
       }
       await this.openTarget(record.activeRun.binding)
       return this.toView(record)
@@ -455,7 +518,31 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     })
   }
 
+  openTask(request: PracticeTaskOpenRequest): Promise<void> {
+    return this.runExclusive(async () => {
+      const record = await this.repository.load()
+      const active = record.activeRun
+      if (!active || record.pendingTransition || active.runId !== request.runId
+        || active.generation !== request.generation) {
+        throw new Error('Practice task no longer matches the displayed run')
+      }
+      // Navigation only: use the persisted binding without preparing a task,
+      // sending instructions or refreshing/mutating review evidence.
+      const open = () => this.executor.openTarget(active.binding)
+      if (this.handoffExecutor) await this.handoffExecutor(open)
+      else await open()
+    })
+  }
+
   private async createPracticeTarget(input: Parameters<ExecutorChatCoordinator['createTarget']>[0]): Promise<PracticeRunRecord['binding']> {
+    if (input.definition.practiceId === 'm4-portfolio-release') {
+      const handoff = await this.loadPortfolioReleaseHandoff?.()
+      if (!handoff || !/^sha256:[a-f0-9]{64}$/.test(handoff.sourceCheckpoint)
+        || handoff.task.workspaceRoot !== handoff.workspace.canonicalPath) {
+        throw new Error('PORTFOLIO_RELEASE_CONTINUATION_UNAVAILABLE')
+      }
+      return { ...handoff.task, runId: input.runId }
+    }
     if (input.definition.practiceId !== 'm3-portfolio-build') return this.executor.createTarget(input)
     const handoff = await this.loadPortfolioHandoff?.()
     if (!handoff) throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE')
@@ -465,13 +552,30 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   }
 
   private async preparePracticeTarget(binding: PracticeRunRecord['binding'], definition: PracticeDefinition): Promise<void> {
-    if (definition.practiceId !== 'm3-portfolio-build') return this.executor.prepareTarget(binding, definition)
+    const approvedConfiguration = definition.taskPolicy === 'safe-workspace-write'
+      ? await this.loadApprovedConfiguration?.() ?? undefined
+      : undefined
+    if (definition.practiceId === 'm4-portfolio-release') {
+      try {
+        const handoff = await this.loadPortfolioReleaseHandoff?.()
+        if (!handoff || !/^sha256:[a-f0-9]{64}$/.test(handoff.sourceCheckpoint)
+          || handoff.task.workspaceRoot !== handoff.workspace.canonicalPath
+          || binding.threadId !== handoff.task.threadId || binding.workspaceRoot !== handoff.workspace.canonicalPath) {
+          throw new Error('Portfolio handoff changed')
+        }
+        await this.executor.prepareTarget(binding, definition, approvedConfiguration, handoff.sourceCheckpoint)
+        return
+      } catch {
+        throw new Error('PORTFOLIO_RELEASE_CONTINUATION_UNAVAILABLE')
+      }
+    }
+    if (definition.practiceId !== 'm3-portfolio-build') return this.executor.prepareTarget(binding, definition, approvedConfiguration)
     try {
       const handoff = await this.loadPortfolioHandoff?.()
       if (!handoff || binding.threadId !== handoff.task.threadId || binding.workspaceRoot !== handoff.workspace.canonicalPath) {
         throw new Error('Portfolio handoff changed')
       }
-      await this.executor.prepareTarget(binding, definition)
+      await this.executor.prepareTarget(binding, definition, approvedConfiguration)
     } catch {
       throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE')
     }
@@ -537,7 +641,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         || active.practiceId !== request.practiceId
         || active.practiceVersion !== request.practiceVersion
         || (active.evidenceProfile !== 'portfolio-planning' && active.evidenceProfile !== 'portfolio-build')
-        || isPortfolioPackage(active)
+        || isReviewedPortfolioPackage(active)
         || !this.evidenceAdapters) {
         throw new Error('Portfolio stage action does not belong to the active Practice run')
       }
@@ -657,7 +761,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     return this.repository.reset()
   }
 
-  private runExclusive(operation: () => Promise<PracticeWorkspaceView>): Promise<PracticeWorkspaceView> {
+  private runExclusive<T>(operation: () => Promise<T>): Promise<T> {
     const running = this.operationTail.then(operation)
     this.operationTail = running.then(() => undefined, () => undefined)
     return running
@@ -682,7 +786,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       return record
     }
     const definition = await this.definitions.load(active.practiceId, active.practiceVersion)
-    if (active.evidenceProfile === 'portfolio-planning' || active.evidenceProfile === 'portfolio-build') {
+    if (isPortfolioProfile(active.evidenceProfile)) {
       return this.refreshPortfolioEvidence(record, definition)
     }
     if (active.evidenceProfile !== 'planning-package') return record
@@ -706,7 +810,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     definition: PracticeDefinition
   ): Promise<PracticeWorkspaceRecord> {
     const active = record.activeRun
-    if (!active || (active.evidenceProfile !== 'portfolio-planning' && active.evidenceProfile !== 'portfolio-build') || !this.evidenceAdapters) {
+    if (!active || !isPortfolioProfile(active.evidenceProfile) || !this.evidenceAdapters) {
       return record
     }
     await this.prepareExecutor?.(active.binding, false)
@@ -722,13 +826,13 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       }
     })
     let refreshed = await this.saveEvidence(active, evidence)
-    if (isPortfolioPackage(active)) return refreshed
+    if (isReviewedPortfolioPackage(active)) return refreshed
     const current = refreshed.activeRun
     if (!current || current.runId !== active.runId || current.generation !== active.generation) {
       return refreshed
     }
     const currentArtifactDigests = Object.fromEntries(
-      ((evidence.portfolioPlanning ?? evidence.portfolioBuild)?.artifacts ?? []).map((artifact) => [artifact.path, artifact.digest])
+      (portfolioPackageEvidence(evidence)?.artifacts ?? []).map((artifact) => [artifact.path, artifact.digest])
     )
     refreshed = await this.repository.reconcileStageArtifacts({
       runId: current.runId,
@@ -756,7 +860,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       invalidations: evidence.invalidations,
       updatedAt: evidence.observedAt
     })
-    if (!isPortfolioPackage(active) && active.completion && !saved.activeRun?.completion) {
+    if (!isReviewedPortfolioPackage(active) && active.completion && !saved.activeRun?.completion) {
       await this.revokeCompletion?.(active.completion)
     }
     return saved
@@ -807,7 +911,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
             name: record.activeRun.binding.name,
             outcome: 'replaced' as const,
             archivedAt: timestamp,
-            ...(record.activeRun.evidenceProfile === 'portfolio-planning' ? { retainedRun: structuredClone(record.activeRun) } : {}),
+            ...(['portfolio-planning', 'portfolio-build', 'portfolio-release'].includes(record.activeRun.evidenceProfile ?? '')
+              ? { retainedRun: structuredClone(record.activeRun) } : {}),
             reviewHistory: structuredClone(
               record.activeRun.reviewHistory
                 ?? (record.activeRun.reviewResult ? [record.activeRun.reviewResult] : [])
@@ -826,13 +931,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
 
   private async toView(
     record: PracticeWorkspaceRecord,
-    requestedIdentity?: PracticeIdentity
+    requestedIdentity?: PracticeIdentity,
+    verifiedArchive?: PracticeRunRecord
   ): Promise<PracticeWorkspaceView> {
     const transition = record.pendingTransition
     const requestedMatchesActive = !requestedIdentity || Boolean(record.activeRun
       && record.activeRun.practiceId === requestedIdentity.practiceId
       && record.activeRun.practiceVersion === requestedIdentity.practiceVersion)
-    const displayedRun = !transition && requestedMatchesActive ? record.activeRun : null
+    const displayedRun = !transition ? (requestedMatchesActive ? record.activeRun : null) ?? verifiedArchive : null
     const identity = transition
       ?? requestedIdentity
       ?? record.activeRun
@@ -841,14 +947,14 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       : null
     const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
-    const canReview = Boolean(displayedRun && (!isPortfolioProfile(displayedRun.evidenceProfile) || isPortfolioPackage(displayedRun)) && (
+    const canReview = Boolean(record.activeRun && displayedRun && (!isPortfolioProfile(displayedRun.evidenceProfile) || isReviewedPortfolioPackage(displayedRun)) && (
       displayedRun.evidenceProfile !== 'planning-package'
       || (displayedRun.learnerDecisions['scope-decision']
         && (planningReviewStep?.status === 'current' || planningReviewStep?.status === 'completed'))
     ))
     return {
       schemaVersion: 1,
-      phase: transition ? 'switching' : displayedRun ? 'active' : this.lastError ? 'error' : 'brief',
+      phase: transition ? 'switching' : displayedRun && record.activeRun ? 'active' : this.lastError ? 'error' : 'brief',
       title: definition?.title ?? 'Bài thực hành',
       objective: definition?.objective ?? '',
       expectedOutcome: definition?.expectedOutcome ?? '',
@@ -866,7 +972,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       review: {
         status: displayedRun?.reviewStatus ?? 'not-reviewed',
         canReview,
-        canReturn: Boolean(displayedRun?.reviewStatus === 'passed' && displayedRun.completion),
+        canReturn: Boolean(record.activeRun && displayedRun?.reviewStatus === 'passed' && displayedRun.completion),
         ...(displayedRun?.reviewResult && definition
           ? {
               result: structuredClone(displayedRun.reviewResult),
@@ -886,18 +992,21 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       ...(displayedRun?.evidenceProfile === 'planning-package'
         ? { planning: planningWorkspaceView(displayedRun) }
         : {}),
-      ...(displayedRun && isPortfolioPackage(displayedRun) ? { portfolioPackage: {
+      ...(displayedRun && isReviewedPortfolioPackage(displayedRun) ? { portfolioPackage: {
+        kind: isPortfolioReleasePackage(displayedRun) ? 'release' : isPortfolioBuildPackage(displayedRun) ? 'build' : 'planning',
         sourceDigest: displayedRun.evidence?.sourceDigest ?? null,
         ready: portfolioPackageIsReady(displayedRun),
         approved: Boolean(currentPortfolioPackageApproval(displayedRun)),
-        artifactPaths: displayedRun.evidence?.portfolioPlanning?.artifacts.map((artifact) => artifact.path) ?? [],
-        issues: displayedRun.evidence?.portfolioPlanning?.issues.map((issue) => issue.path + ': ' + issue.message) ?? [],
-        unexpectedPaths: displayedRun.evidence?.portfolioPlanning?.unexpectedPaths ?? []
+        artifactPaths: portfolioPackageEvidence(displayedRun.evidence)?.artifacts.map((artifact) => artifact.path) ?? [],
+        issues: portfolioPackageEvidence(displayedRun.evidence)?.issues.map((issue) => issue.path + ': ' + issue.message) ?? [],
+        unexpectedPaths: portfolioPackageEvidence(displayedRun.evidence)?.unexpectedPaths ?? [],
+        ...(displayedRun.evidence?.portfolioRelease?.deployment
+          ? { deployment: structuredClone(displayedRun.evidence.portfolioRelease.deployment) } : {})
       } } : {}),
-      ...(displayedRun?.evidenceProfile === 'portfolio-planning' && !isPortfolioPackage(displayedRun) && definition
+      ...(displayedRun?.evidenceProfile === 'portfolio-planning' && !isReviewedPortfolioPackage(displayedRun) && definition
         ? { portfolioPlanning: portfolioPlanningWorkspaceView(displayedRun, definition) }
         : {}),
-      ...(displayedRun?.evidenceProfile === 'portfolio-build' && definition
+      ...(displayedRun?.evidenceProfile === 'portfolio-build' && !isPortfolioBuildPackage(displayedRun) && definition
         ? { portfolioBuild: portfolioBuildWorkspaceView(displayedRun, definition) }
         : {}),
       ...(record.activeRun
@@ -925,7 +1034,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
       presentation: structuredClone(record.presentation),
       capabilities: {
         canStartNew: !transition,
-        canResume: Boolean(displayedRun),
+        canResume: Boolean(record.activeRun && displayedRun),
         selectiveTransferAvailable: selectiveTransferCapability.available,
         selectiveTransferReason: selectiveTransferCapability.reason
       },

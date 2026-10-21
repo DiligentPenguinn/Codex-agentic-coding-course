@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, join, relative, resolve, sep } from 'node:path'
 import { CodexAppServerClient } from '../electron/main/codex-app-server-client.ts'
@@ -104,6 +104,9 @@ async function main() {
   const codexHome = join(root, 'codex-home')
   const workspace = join(root, 'workspace')
   await Promise.all([mkdir(codexHome), mkdir(workspace)])
+  // This checks task persistence, not plugins. Avoid background marketplace
+  // clones holding temporary-directory handles after the server has exited.
+  await writeFile(join(codexHome, 'config.toml'), '[features]\nplugins = false\n')
   const launch = {
     env: { ...process.env, CODEX_HOME: codexHome },
     clientName: 'content_builder_academy_practice_runtime_diagnostic'
@@ -175,6 +178,27 @@ async function main() {
       || !Array.isArray(thread.turns) || thread.turns.length !== 0) {
       throw new Error('Runtime diagnostic could not reread the exact empty task')
     }
+    const beforeResume = record(await second.request('thread/loaded/list'))
+    if (!Array.isArray(beforeResume?.data) || beforeResume.data.includes(threadId)) {
+      throw new Error('Reading persisted history unexpectedly loaded the task')
+    }
+    const resumed = record(await second.request('thread/resume', {
+      threadId,
+      cwd: workspace,
+      model: 'gpt-5.6-sol',
+      serviceTier: 'standard',
+      approvalPolicy: 'on-request',
+      sandbox: 'workspace-write',
+      config: { model_reasoning_effort: 'high' }
+    }))
+    const resumedSettings = effective(resumed, threadId, workspace)
+    if (JSON.stringify(resumedSettings) !== JSON.stringify(startedSettings)) {
+      throw new Error('Resuming the persisted task changed its effective settings')
+    }
+    const afterResume = record(await second.request('thread/loaded/list'))
+    if (!Array.isArray(afterResume?.data) || !afterResume.data.includes(threadId)) {
+      throw new Error('Resuming the persisted task did not load it in the new server')
+    }
     await second.stop()
     second = null
 
@@ -182,6 +206,7 @@ async function main() {
       status: 'passed',
       emptyTask: true,
       nonOwningRead: true,
+      resumedAfterRestart: true,
       rollout,
       startSettings: startedSettings,
       observedSource: observedSettings.source,

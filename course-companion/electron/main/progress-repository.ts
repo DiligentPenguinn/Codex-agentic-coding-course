@@ -472,6 +472,22 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
     && (value.portfolioPlanningHandoff === undefined
       || isPortfolioPlanningHandoff(value.portfolioPlanningHandoff))
     && (value.submissionDigest === undefined || DIGEST.test(String(value.submissionDigest)))
+    && (value.taskEvidenceDigest === undefined || DIGEST.test(String(value.taskEvidenceDigest)))
+    && (!isRecord(value.portfolioBuildHandoff) || value.portfolioBuildHandoff.schemaVersion !== 2
+      || (value.practiceId === 'm3-portfolio-build' && value.practiceVersion === '2.0.0'
+        && value.submissionDigest === value.portfolioBuildHandoff.submissionDigest
+        && DIGEST.test(String(value.submissionDigest))
+        && isRecord(value.portfolioBuildHandoff.workspace)
+        && isRecord(value.portfolioBuildHandoff.approval)
+        && value.portfolioBuildHandoff.approval.courseRunId === value.courseRunId
+        && value.portfolioBuildHandoff.approval.runId === value.runId
+        && value.portfolioBuildHandoff.approval.workspaceIdentityDigest === value.portfolioBuildHandoff.workspace.identityDigest
+        && isRecord(value.portfolioBuildHandoff.artifactDigests)
+        && DIGEST.test(String(value.portfolioBuildHandoff.artifactDigests['application/source']))
+        && value.portfolioBuildHandoff.sourceCheckpoint === `sha256:${value.portfolioBuildHandoff.artifactDigests['application/source']}`
+        && isRecord(value.portfolioBuildHandoff.moduleFourInput)
+        && value.portfolioBuildHandoff.moduleFourInput.sourceCheckpoint === value.portfolioBuildHandoff.sourceCheckpoint
+        && value.portfolioBuildHandoff.moduleFourInput.workspacePath === value.portfolioBuildHandoff.workspace.canonicalPath))
     && (!isRecord(value.portfolioPlanningHandoff) || value.portfolioPlanningHandoff.schemaVersion !== 2
       || (value.practiceVersion === '2.0.0' && isRecord(value.portfolioPlanningHandoff.approval)
         && value.portfolioPlanningHandoff.approval.courseRunId === value.courseRunId
@@ -480,8 +496,9 @@ export function isPracticeCompletionReceipt(value: unknown): value is PracticeCo
 
 function completionKey(receipt: PracticeCompletionReceipt): string {
   const base = `${receipt.courseRunId}:${receipt.practiceId}:${receipt.practiceVersion}:${receipt.runId}`
-  return receipt.practiceId === 'm2-portfolio-planning' && receipt.practiceVersion === '2.0.0'
-    ? `${base}:${receipt.checkpointId}:${receipt.submissionDigest ?? ''}` : base
+  return ((['m2-portfolio-planning', 'm3-portfolio-build'].includes(receipt.practiceId) && receipt.practiceVersion === '2.0.0')
+    || (receipt.practiceId === 'm4-portfolio-release' && receipt.practiceVersion === '1.0.0'))
+    ? `${base}:${receipt.checkpointId}:${receipt.submissionDigest ?? ''}:${receipt.taskEvidenceDigest ?? ''}` : base
 }
 
 const moduleTwoFinalQuestionIds = Array.from({ length: 15 }, (_, index) => `final-${index + 1}`)
@@ -547,7 +564,7 @@ function hasPortfolioBuildCompletion(progress: LearnerProgress): boolean {
     && receipt.practiceId === 'm3-portfolio-build'
     && receipt.checkpointId === 'm3-complete'
     && receipt.destination.sceneId === 'module-3-complete'
-    && receipt.portfolioBuildHandoff !== undefined)
+    && receipt.practiceVersion === '2.0.0' && receipt.portfolioBuildHandoff?.schemaVersion === 2)
 }
 
 function assertModuleFourUnlockGate(update: ProgressUpdate, current: LearnerProgress | null): void {
@@ -792,6 +809,13 @@ export class ProgressRepository {
     assertPortfolioMasteryGate(update, current.status === 'valid' ? current.progress : null)
     assertModuleThreeUnlockGate(update, current.status === 'valid' ? current.progress : null)
     assertModuleFourUnlockGate(update, current.status === 'valid' ? current.progress : null)
+    if (update.sceneId === 'module-4-complete' && (current.status !== 'valid'
+      || !current.progress.completedCheckpointIds.includes('m4-portfolio-release')
+      || !current.progress.practiceCompletions.some((receipt) => receipt.courseRunId === current.progress.courseRunId
+        && receipt.practiceId === 'm4-portfolio-release' && receipt.practiceVersion === '1.0.0'
+        && receipt.destination.sceneId === 'module-4-complete' && Boolean(receipt.submissionDigest)))) {
+      throw new Error('Module 4 completion requires return from the current reviewed Practice')
+    }
     const timestamp = this.now().toISOString()
     const progress: LearnerProgress = {
       ...update,
