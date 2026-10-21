@@ -520,7 +520,8 @@ function hasPortfolioModuleCompletion(progress: LearnerProgress): boolean {
     && receipt.checkpointId === 'm2-portfolio-complete'
     && receipt.practiceVersion === '2.0.0'
     && receipt.destination.lessonId === 'module-3'
-    && receipt.destination.sceneId === 'module-3-debugging-intro'
+    && (receipt.destination.sceneId === 'module-3-local-preview'
+      || receipt.destination.sceneId === 'module-3-debugging-intro')
     && receipt.portfolioPlanningHandoff?.schemaVersion === 2)
 }
 
@@ -826,7 +827,8 @@ export class ProgressRepository {
       || receipt.checkpointId !== 'm2-portfolio-complete'
       || receipt.destination.lessonId !== 'module-3'
       || receipt.destination.checkpointId !== 'm3-complete-first-version'
-      || receipt.destination.sceneId !== 'module-3-debugging-intro'
+      || (receipt.destination.sceneId !== 'module-3-local-preview'
+        && receipt.destination.sceneId !== 'module-3-debugging-intro')
       || receipt.practiceVersion !== '2.0.0'
       || receipt.portfolioPlanningHandoff?.schemaVersion !== 2) {
       return Promise.reject(new Error('Invalid Module 2 completion receipt'))
@@ -861,7 +863,7 @@ export class ProgressRepository {
         currentLessonId: 'module-3',
         currentCourseLessonId: 'm3-complete-first-version',
         checkpointId: 'm3-complete-first-version',
-        sceneId: 'module-3-debugging-intro',
+        sceneId: receipt.destination.sceneId,
         sceneHistory: [...progress.sceneHistory, progress.sceneId].slice(-200),
         completedCheckpointIds,
         practiceCompletions: [...completions, structuredClone(receipt)],

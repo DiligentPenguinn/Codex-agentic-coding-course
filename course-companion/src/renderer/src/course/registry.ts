@@ -43,6 +43,7 @@ const rendererModules = [
     lessons: moduleThreeDefinition.lessons,
     lessonPages: {
       'm3-complete-first-version': [
+        ['module-3-local-preview'],
         ['module-3-debugging-intro'],
         ['module-3-visible-error'],
         ['module-3-visible-error-prompt'],
@@ -77,36 +78,24 @@ const rendererModules = [
   {
     id: moduleFourDefinition.id,
     titleVi: moduleFourDefinition.titleVi,
-    lessons: moduleFourDefinition.lessons,
+    // Preserve shared checkpoint contracts for lessons whose teaching pages were retired.
+    lessons: moduleFourDefinition.lessons.filter((lesson) =>
+      lesson.id !== 'm4-security-publication' && lesson.id !== 'm4-production-decision'),
     lessonPages: {
       'm4-release-validation': [
-        ['module-4-release-intro'],
-        ['module-4-check-release-evidence']
+        ['module-4-hosting-intro'],
+        ['module-4-vercel-benefits'],
+        ['module-4-after-video']
       ],
       'm4-security-publication': [
-        ['module-4-security-intro'],
-        ['module-4-check-protection-scope']
       ],
       'm4-preview-deployment': [
-        ['module-4-preview-intro'],
-        ['module-4-check-preview-evidence']
+        ['module-4-vercel-preview']
       ],
       'm4-production-decision': [
-        ['module-4-production-intro'],
-        ['module-4-check-production-choice']
       ],
       'm4-ownership-transfer': [
-        ['module-4-ownership-intro'],
-        ['module-4-check-transfer-boundary'],
         ['module-4-portfolio-practice'],
-        ['module-4-portfolio-mastery'],
-        ['module-4-mastery-release'],
-        ['module-4-mastery-security'],
-        ['module-4-mastery-preview'],
-        ['module-4-mastery-production'],
-        ['module-4-mastery-owned-release'],
-        ['module-4-mastery-owned-transfer'],
-        ['module-4-mastery-summary'],
         ['module-4-complete']
       ]
     },

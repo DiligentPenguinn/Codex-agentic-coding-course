@@ -61,52 +61,29 @@ describe('Module 4 content-first contract', () => {
     const combined = `${lesson}\n${script}\n${prompt}`
     for (const content of [lesson, script]) {
       let previous = -1
-      for (const heading of ['Milestone 1 —', 'Milestone 2 —', 'Milestone 3 —', 'Milestone 4 —', 'Milestone 5 —']) {
+      for (const heading of ['Milestone 1 —', 'Milestone 3 —']) {
         const current = content.indexOf(heading)
         expect(current).toBeGreaterThan(previous)
         previous = current
       }
     }
-    expect(combined).toMatch(/Preview.*bắt buộc/i)
-    expect(combined).toMatch(/Production.*lựa chọn/i)
-    expect(combined).toContain('Standard Protection')
-    expect(combined).toContain('trang khởi tạo trung tính')
+    for (const content of [lesson, script, prompt]) {
+      expect(content).toContain('portfolio trên mạng')
+      expect(content).not.toMatch(/tám câu|sáu tình huống|Preview.*bắt buộc|hai điều kiện độc lập/i)
+    }
     expect(combined).toMatch(/không (?:cần|yêu cầu).*đọc code/i)
     expect(combined).toMatch(/không (?:tạo|ghi nhận).*biên nhận/i)
     expect(combined).not.toMatch(/ước tính.*(?:phút|giờ)|hoàn thành trong \d+/i)
     expect(combined).not.toContain('docs/internal/target-learner-definition.md')
   })
 
-  it('provides five formative checks and a sourced six-question ownership assessment', async () => {
+  it('has no Module 4 assessment or mastery requirement', async () => {
     const quiz = JSON.parse(await read('quizzes/module-4.quiz.json')) as {
-      delivery: Record<string, unknown>
-      masteryPolicy: Record<string, unknown>
-      groups: Array<{ id: string; mode: string; questions: Array<Record<string, unknown>> }>
+      groups: unknown[]
+      masteryPolicy?: unknown
     }
-    expect(quiz.delivery).toMatchObject({
-      mode: 'one-question-at-a-time',
-      doNotStackQuestions: true,
-      feedbackTiming: 'after-answer'
-    })
-    expect(quiz.masteryPolicy).toMatchObject({
-      publishThreshold: false,
-      requiresPracticeReceipt: true,
-      requiresVerifiedPreview: true,
-      allowsProductionDecline: true
-    })
-    expect(quiz.groups.filter((group) => group.mode === 'formative')).toHaveLength(5)
-    const final = quiz.groups.find((group) => group.id === 'm4-final-assessment')!
-    expect(final.questions).toHaveLength(6)
-    expect(final.questions.filter((question) => question.type !== 'multiple-choice').map((question) => question.id)).toEqual([
-      'm4-mastery-owned-release',
-      'm4-mastery-owned-transfer'
-    ])
-    for (const question of quiz.groups.flatMap((group) => group.questions)) {
-      const source = question.source as { kind: string; url: string; basis: string }
-      expect(source.basis.length).toBeGreaterThan(40)
-      expect(source.kind === 'authoritative-source'
-        ? new URL(source.url).protocol === 'https:'
-        : source.url.startsWith('docs/planning/')).toBe(true)
-    }
+    expect(quiz.groups).toEqual([])
+    expect(quiz.masteryPolicy).toBeUndefined()
+    expect((await moduleFour()).checkpoints).not.toContain('m4-mastery')
   })
 })

@@ -131,7 +131,11 @@ export class PortfolioModuleCompletionService {
       status: 'completed', completedAt: this.now().toISOString(), submissionDigest: active.completion.submissionDigest,
       evidenceSummary: bounded(active.reviewResult.summary, 1500),
       masterySummary: 'Đã đối chiếu 4 tình huống và lưu 1 câu trả lời do người học tự viết trên planning package hiện tại.',
-      destination: { lessonId: 'module-3', checkpointId: 'm3-complete-first-version', sceneId: 'module-3-debugging-intro' },
+      destination: {
+        lessonId: 'module-3',
+        checkpointId: 'm3-complete-first-version',
+        sceneId: 'module-3-local-preview'
+      },
       portfolioPlanningHandoff: {
         schemaVersion: 2, workspace: { canonicalPath: active.binding.workspaceRoot, identityDigest: approval.workspaceIdentityDigest },
         artifacts, approval, submission: { runId: active.runId, generation: active.generation,

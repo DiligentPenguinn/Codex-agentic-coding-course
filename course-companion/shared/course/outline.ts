@@ -30,6 +30,7 @@ export const courseOutline: Record<LessonId, readonly OutlineSection[]> = {
     'module-2-portfolio-mastery-summary'
   ].map((startSceneId, index) => ({ title: moduleTwoOutlineSections[index]!, startSceneId: startSceneId as SceneId })),
   'module-3': [
+    { title: 'Mở portfolio trên máy', startSceneId: 'module-3-local-preview' },
     { title: 'Debug cùng coding agent', startSceneId: 'module-3-debugging-intro' },
     { title: 'Git và GitHub', startSceneId: 'module-3-git-intro' },
     { title: 'Tổng hợp trước Practice', startSceneId: 'module-3-pre-practice-summary' },
@@ -38,14 +39,11 @@ export const courseOutline: Record<LessonId, readonly OutlineSection[]> = {
     { title: 'Tổng kết Module 3', startSceneId: 'module-3-mastery-summary' }
   ],
   'module-4': [
-    { title: 'Kiểm chứng phiên bản phát hành', startSceneId: 'module-4-release-intro' },
-    { title: 'Duyệt an toàn và phạm vi công bố', startSceneId: 'module-4-security-intro' },
-    { title: 'Tạo và kiểm chứng Preview', startSceneId: 'module-4-preview-intro' },
-    { title: 'Quyết định có đưa lên Production hay không', startSceneId: 'module-4-production-intro' },
-    { title: 'Chứng minh quyền sở hữu và chuyển giao kỹ năng', startSceneId: 'module-4-ownership-intro' },
+    { title: 'Hosting là gì?', startSceneId: 'module-4-hosting-intro' },
+    { title: 'Đưa portfolio lên Vercel', startSceneId: 'module-4-vercel-benefits' },
+    { title: 'Kiểm tra website sau video', startSceneId: 'module-4-after-video' },
+    { title: 'Thử cập nhật một câu', startSceneId: 'module-4-vercel-preview' },
     { title: 'Practice: Phát hành portfolio', startSceneId: 'module-4-portfolio-practice' },
-    { title: 'Kiểm tra cuối Module 4', startSceneId: 'module-4-portfolio-mastery' },
-    { title: 'Tổng kết Module 4', startSceneId: 'module-4-mastery-summary' }
   ]
 }
 

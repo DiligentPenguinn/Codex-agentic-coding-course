@@ -281,7 +281,7 @@ describe('PortfolioModuleCompletionService', () => {
 
     expect(completed).toMatchObject({
       currentLessonId: 'module-3',
-      sceneId: 'module-3-debugging-intro',
+      sceneId: 'module-3-local-preview',
       completedCheckpointIds: expect.arrayContaining([
         'm2-portfolio-planning', 'm2-portfolio-mastery', 'm2-portfolio-complete'
       ])
@@ -303,7 +303,7 @@ describe('PortfolioModuleCompletionService', () => {
     expect(receipt.portfolioPlanningHandoff).not.toHaveProperty('stageReceipts')
     expect(receipt.submissionDigest).toBe(test.active.completion?.submissionDigest)
     await expect(new ProgressRepository(join(test.root, 'data')).load()).resolves.toMatchObject({
-      status: 'returning', progress: { sceneId: 'module-3-debugging-intro' }
+      status: 'returning', progress: { sceneId: 'module-3-local-preview' }
     })
   })
 
@@ -367,7 +367,7 @@ describe('PortfolioModuleCompletionService', () => {
     )
 
     await expect(relaunched.completeModuleTwo()).resolves.toMatchObject({
-      sceneId: 'module-3-debugging-intro'
+      sceneId: 'module-3-local-preview'
     })
   })
 

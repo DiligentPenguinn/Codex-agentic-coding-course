@@ -248,37 +248,35 @@
         "m4-production-decision",
         "m4-ownership-transfer",
         "m4-portfolio-release",
-        "m4-mastery",
         "m4-complete"
       ],
       "lessons": [
         {
           "id": "m4-release-validation",
-          "titleVi": "Kiểm chứng phiên bản phát hành",
+          "titleVi": "Hosting và chuẩn bị triển khai",
           "checkpoints": ["m4-release-validation"]
         },
         {
           "id": "m4-security-publication",
-          "titleVi": "Duyệt an toàn và phạm vi công bố",
+          "titleVi": "Bảo mật và quyền truy cập",
           "checkpoints": ["m4-security-publication"]
         },
         {
           "id": "m4-preview-deployment",
-          "titleVi": "Tạo và kiểm chứng Preview",
+          "titleVi": "Đưa portfolio lên Vercel và xem thử",
           "checkpoints": ["m4-preview-deployment"]
         },
         {
           "id": "m4-production-decision",
-          "titleVi": "Quyết định có đưa lên Production hay không",
+          "titleVi": "Công bố, cập nhật và khôi phục",
           "checkpoints": ["m4-production-decision"]
         },
         {
           "id": "m4-ownership-transfer",
-          "titleVi": "Chứng minh quyền sở hữu và chuyển giao kỹ năng",
+          "titleVi": "Quản lý portfolio và áp dụng kỹ năng",
           "checkpoints": [
             "m4-ownership-transfer",
             "m4-portfolio-release",
-            "m4-mastery",
             "m4-complete"
           ]
         }
