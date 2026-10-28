@@ -126,6 +126,10 @@ describe('Module 1 Practice renderer', () => {
     expect(html).toContain('5.6 Terra')
     expect(html).toContain('Cần 5.6 Sol')
     expect(html.match(/<dt>/g)).toHaveLength(5)
+    expect(html).toContain('Cần kiểm tra: Model.')
+    expect(html.indexOf('Cần kiểm tra: Model.')).toBeLessThan(html.indexOf('<details'))
+    expect(html).toContain('data-practice-guide-anchor="configuration-evidence"')
+    expect(html).not.toContain('<details open')
   })
 
   it('discloses stale, disconnected, and unavailable metadata', () => {
@@ -143,6 +147,7 @@ describe('Module 1 Practice renderer', () => {
     }))
     expect(unavailable).toContain('Chưa có dữ liệu')
     expect(unavailable).toContain('Không xác minh được')
+    expect(unavailable).toContain('Mở đúng task Codex, sau đó nhờ Triết kiểm tra lại.')
   })
 
   it('renders pass and native keyboard-operable return controls in full and compact modes', () => {
@@ -180,6 +185,35 @@ describe('Module 1 Practice renderer', () => {
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
   })
 
+  it.each(['m1-codex-safe-setup', 'm2-portfolio-planning', 'm3-portfolio-build', 'm4-portfolio-release'])(
+    'celebrates a current passed review for %s with one return action', (practiceId) => {
+      const passed = workspace()
+      passed.activePractice!.practiceId = practiceId
+      passed.review = { status: 'passed', canReview: true, canReturn: true }
+      for (const compact of [false, true]) {
+        const html = renderToStaticMarkup(createElement(PracticeProgress, {
+          workspace: passed, compact, onReturn: () => undefined
+        }))
+        expect(html).toContain('Làm tốt lắm!')
+        expect(html).toContain('aria-label="Practice hoàn thành"')
+        expect(html.match(/aria-label="Lưu kết quả và quay lại khóa học"/g)).toHaveLength(1)
+        expect(html.indexOf('practice-success')).toBeLessThan(html.indexOf('<details'))
+      }
+    })
+
+  it('does not celebrate checklist completion or a passed result that cannot return', () => {
+    for (const review of [
+      { status: 'not-reviewed' as const, canReview: true, canReturn: false },
+      { status: 'passed' as const, canReview: true, canReturn: false }
+    ]) {
+      const view = workspace()
+      view.checklist[0]!.status = 'completed'
+      view.review = review
+      const html = renderToStaticMarkup(createElement(PracticeProgress, { workspace: view, compact: true }))
+      expect(html).not.toContain('Làm tốt lắm!')
+    }
+  })
+
   it('keeps objectives, criteria, configuration, and timestamps out of compact mode', () => {
     const compact = renderToStaticMarkup(createElement(PracticeProgress, {
       workspace: {
@@ -210,7 +244,9 @@ describe('Module 1 Practice renderer', () => {
     }))
 
     expect(compact).toContain('0/1 bước đã xác minh')
-    expect(compact).toContain('Hiện tại: Chọn Model 5.6 Sol')
+    expect(compact).toContain('Hoàn thành bước hiện tại: Chọn Model 5.6 Sol.')
+    expect(compact.indexOf('aria-label="Hành động tiếp theo"')).toBeLessThan(compact.indexOf('practice-compact-progress'))
+    expect(compact.indexOf('practice-compact-progress')).toBeLessThan(compact.indexOf('<details'))
     expect(compact).toContain('Tất cả các bước Practice')
     expect(compact).toContain('aria-expanded="false"')
     expect(compact).not.toContain('Mở bộ chọn Model trong task Codex')
@@ -368,9 +404,8 @@ describe('Module 2 Practice renderer', () => {
     }))
     expect(html).toContain('practice-progress is-compact')
     expect(html).toContain('1/3 bước đã xác minh')
-    expect(html).toContain('Hiện tại: Đối chiếu alignment')
+    expect(html).toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')
     expect(html).toContain('Cần bổ sung')
-    expect(html).not.toContain('Hoàn thành bước hiện tại: Đối chiếu alignment.')
     for (const step of planningWorkspace.checklist) expect(html).toContain(step.title)
     expect(html.match(/aria-expanded="false"/g)).toHaveLength(planningWorkspace.checklist.length)
     expect(html).not.toContain('Hướng dẫn')

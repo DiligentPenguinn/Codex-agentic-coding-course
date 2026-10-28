@@ -45,7 +45,13 @@ describe('five-document Practice submission surface', () => {
     expect(html).toContain('Cần làm mới bằng chứng.')
     expect(html).not.toContain('practice-package-documents')
     expect(html).not.toContain('>Năm tài liệu</strong>')
-    expect(html).not.toContain('Hoàn thành bước hiện tại: Bản mô tả.')
+    if (!compact) {
+      expect(html).toContain('<details class="practice-package-progress">')
+      expect(html).toContain('Xem tiến độ chi tiết')
+      expect(html).not.toContain('<details class="practice-package-progress" open')
+    }
+    if (compact) expect(html).toContain('Hoàn thành bước hiện tại: Bản mô tả.')
+    else expect(html).not.toContain('Hoàn thành bước hiện tại: Bản mô tả.')
   })
   it.each([false, true])('shows one explicit, initially unchecked approval in compact=%s', (compact) => {
     const html = renderToStaticMarkup(createElement(PracticeProgress, { workspace: workspace(), compact }))

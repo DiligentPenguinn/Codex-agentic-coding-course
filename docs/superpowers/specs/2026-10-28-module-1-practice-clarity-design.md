@@ -2,9 +2,36 @@
 
 Date: 28 October 2026
 
-Status: The owner approved the proposed direction and rewriting this Practice
-page in chat. This document records the concrete design for written review
-before implementation.
+Status: The owner approved this direction, then explicitly requested immediate
+implementation without further approval questions. The owner subsequently
+extended the scope to the other modules, clarified the post-review hierarchy
+with a screenshot, and requested a visual success celebration.
+
+## Approved scope extensions
+
+Use the same compact introduction in the current Module 2–4 Practices: one
+learning goal, three instructions, one primary start/resume action and a native
+disclosure for the five planning documents, three build records or single
+deployment record. Preserve each module's exact task, evidence and completion
+requirements. Existing theory and assessment pages remain outside this change.
+
+After review in the compact panel, show the next action first, then a subdued
+progress count, then expandable checklist/history. Remove the duplicate current
+step line and move routine review history inside the disclosure; first-review
+metadata does not need a visible announcement. Keep failed criteria actionable
+and return the progress scroll position to the top after a successful refresh.
+
+When the current review is passed and returning is permitted, show a gold
+completion card with a check medallion, decorative stars, “Làm tốt lắm!”, a
+module-specific outcome and one main save/return button. Do not celebrate a
+checklist or an unreturnable stale result as passed. Use finite, local animation
+and honor reduced motion. Keep full review evidence and all checklist items
+available in disclosures. The upper refresh button becomes secondary after a
+pass; all existing review/return and guide controls remain available.
+
+These later owner instructions supersede Module 1-only statements below where
+they concern Practice presentation. They do not authorize curriculum, courseapp
+host integration, settings, assessment, evidence or persistence changes.
 
 ## Problem and outcome
 
@@ -124,5 +151,5 @@ from automated checks.
 The design is limited to the approved Practice page and Module 1-specific
 progress disclosure. It defines the initial, active, unavailable and passed
 states without changing completion rules. There are no unresolved product
-choices, new services or migrations. Implementation starts after written-spec
-review under the brainstorming workflow.
+choices, new services or migrations. The owner's immediate-implementation
+instruction and subsequent scope extensions are recorded above.

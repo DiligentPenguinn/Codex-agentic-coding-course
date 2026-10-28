@@ -314,6 +314,7 @@ export function TeacherWorkspace({
         return
       }
       setWorkspace(reviewed.workspace)
+      practiceRef.current?.scrollTo({ top: 0 })
       {
         const request = practiceGuide?.currentStageId === 'request-review'
           ? { type: 'review-requested' as const, expectedStageId: 'request-review' }
@@ -514,6 +515,7 @@ export function TeacherWorkspace({
   const currentTeacherStatus = teacherStatus[teacherRuntime.connection]
   const practiceMode = Boolean(workspace?.activePractice)
   const compactPractice = practiceMode && !embedded
+  const practicePassed = workspace?.review?.status === 'passed' && workspace.review.canReturn
   const contextFreshnessNote = teacherRuntime.contextFreshness === 'stale'
     ? 'Ngữ cảnh Codex đã cũ.'
     : teacherRuntime.contextFreshness === 'disconnected'
@@ -592,7 +594,7 @@ export function TeacherWorkspace({
         </div>
       ) : practiceMode ? (
         <section className="pixel-practice-review" aria-label="Duyệt tiến độ Practice">
-          <div {...practiceGuideAnchor('review-progress')} className="pixel-practice-review__primary practice-review-overview">
+          <div {...practiceGuideAnchor('review-progress')} className={'pixel-practice-review__primary practice-review-overview' + (practicePassed ? ' is-complete' : '')}>
             {workspace?.activePractice ? <PracticeTaskLink
               key={`${workspace.activePractice.runId}:${workspace.activePractice.generation}`}
               task={{ runId: workspace.activePractice.runId, generation: workspace.activePractice.generation }}

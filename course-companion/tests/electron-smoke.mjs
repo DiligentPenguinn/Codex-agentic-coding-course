@@ -535,16 +535,29 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   assert.equal(await page.getByText('Dùng cấu hình đã chọn', { exact: true }).count(), 0)
   const practiceBrief = page.locator('.practice-brief-overlay')
   await practiceBrief.getByRole('heading', {
-    name: 'Thiết lập task Codex của Practice theo cấu hình khuyến nghị và để Triết duyệt trực tiếp từ metadata hiệu lực của đúng task đó.',
+    name: 'Làm quen với cài đặt Codex',
     exact: true
   }).waitFor()
-  const practiceBriefText = await practiceBrief.textContent()
-  assert.match(practiceBriefText, /Model 5\.6 Sol/)
-  assert.match(practiceBriefText, /Effort High/)
-  assert.match(practiceBriefText, /Speed Standard/)
-  assert.match(practiceBriefText, /Approval: Approve for me/)
-  assert.match(practiceBriefText, /Full access ở trạng thái tắt/)
+  assert.equal(await practiceBrief.locator('.practice-setup-instructions > li').count(), 3)
+  assert.equal(await practiceBrief.locator('.practice-progress').count(), 0)
+  assert.equal(await practiceBrief.getByText('Không xác minh được', { exact: true }).count(), 0)
+  const setupReference = practiceBrief.locator('.practice-setup-reference')
+  assert.equal(await setupReference.getAttribute('open'), null)
+  const startPractice = practiceBrief.getByRole('button', { name: 'Bắt đầu thực hành', exact: true })
+  const desktopStartBounds = await startPractice.boundingBox()
+  assert.ok(desktopStartBounds && desktopStartBounds.y >= 0
+    && desktopStartBounds.y + desktopStartBounds.height <= await page.evaluate(() => globalThis.innerHeight))
   await capture(page, 'module-1-codex-setup-practice.png')
+  await setupReference.locator('summary').focus()
+  await page.keyboard.press('Enter')
+  assert.equal(await setupReference.getAttribute('open'), '')
+  assert.equal(await setupReference.locator('dt').count(), 5)
+  for (const value of ['5.6 Sol', 'High', 'Standard', 'Approve for me', 'Tắt']) {
+    await setupReference.getByText(value, { exact: true }).waitFor()
+  }
+  await capture(page, 'module-1-codex-settings-expanded.png')
+  await setupReference.locator('summary').press('Enter')
+  assert.equal(await setupReference.getAttribute('open'), null)
 
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
@@ -559,16 +572,21 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
     assert.equal(narrowWidths.body, narrowWidths.viewport)
     assert.equal(narrowWidths.document, narrowWidths.viewport)
     await capture(page, 'module-1-codex-setup-390px.png')
-    const narrowPracticeAction = page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
+    const narrowPracticeAction = startPractice
     await narrowPracticeAction.scrollIntoViewIfNeeded()
     const narrowPracticeActionBounds = await narrowPracticeAction.boundingBox()
     assert.ok(narrowPracticeActionBounds)
     assert.ok(narrowPracticeActionBounds.y >= 0)
     assert.ok(narrowPracticeActionBounds.y + narrowPracticeActionBounds.height <= 844)
+    await page.setViewportSize({ width: 320, height: 780 })
+    await setupReference.locator('summary').click()
+    assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
+    await capture(page, 'module-1-codex-settings-320px.png')
+    await setupReference.locator('summary').click()
     await page.setViewportSize({ width: 1180, height: 780 })
   }
 
-  await page.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).click()
+  await startPractice.click()
   await waitForSnapshot(
     electronApp,
     (windows) => learningWindow(windows)?.visible === false && companionWindow(windows)?.visible === true,
@@ -579,8 +597,8 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await compactReview.waitFor()
   await compactReview.getByRole('region', { name: 'Tiến độ Practice', exact: true }).waitFor()
   await compactReview.getByText(/\d+\/\d+ bước đã xác minh/).waitFor()
-  await compactReview.getByText(/^Hiện tại:/).waitFor()
-  assert.equal(await compactReview.locator('.practice-compact-next').count(), 0)
+  await compactReview.locator('.practice-compact-next').waitFor()
+  assert.equal(await compactReview.locator('.practice-compact-next').count(), 1)
   const hintBefore = await companionPage.evaluate(() => globalThis.courseCompanion.loadPracticeWorkspace())
   await compactReview.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).click()
   await compactReview.locator('.practice-hint').waitFor()
@@ -1463,8 +1481,8 @@ try {
     .getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true })
     .click()
   await learningPage.locator('.practice-brief-overlay').waitFor()
-  await learningPage.getByRole('heading', { name: /Dùng một task Codex duy nhất/ }).waitFor()
-  await learningPage.getByRole('button', { name: 'Bắt đầu Practice mới', exact: true }).waitFor()
+  await learningPage.getByRole('heading', { name: 'Lập kế hoạch cho portfolio', exact: true }).waitFor()
+  await learningPage.getByRole('button', { name: 'Bắt đầu thực hành', exact: true }).waitFor()
   await capture(learningPage, 'module-2-portfolio-practice-brief.png')
   await learningPage.getByRole('button', { name: 'Đóng trang Practice', exact: true }).click()
 

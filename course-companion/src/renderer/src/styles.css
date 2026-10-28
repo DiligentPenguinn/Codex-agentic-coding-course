@@ -5231,6 +5231,146 @@ button:focus-visible {
 }
 
 /* Practice owns these refinements; course lessons and course chat retain their theme. */
+.has-clear-introduction .practice-brief-header,
+.has-clear-introduction .practice-brief-card { max-width: 880px; }
+.has-clear-introduction .practice-brief-card { padding: clamp(20px, 4vw, 36px); }
+.has-clear-introduction .practice-brief-card h1 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+.has-clear-introduction .practice-brief-card > .practice-setup-purpose {
+  max-width: 620px;
+  margin-top: 14px;
+  color: var(--pixel-white);
+  font-size: 16px;
+  line-height: 1.65;
+}
+.has-clear-introduction .practice-brief-card > .practice-setup-definition {
+  margin-top: 8px;
+  color: var(--pixel-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.practice-setup-instructions {
+  margin: 24px 0 0;
+  padding-left: 24px;
+  font: 400 14px/1.7 var(--app-font);
+}
+.practice-setup-instructions li { padding-left: 6px; }
+.practice-setup-instructions li + li { margin-top: 8px; }
+.practice-setup-instructions li::marker { color: var(--pixel-yellow); font-weight: 600; }
+.has-clear-introduction .practice-brief-actions { margin-top: 24px; }
+.practice-setup-reference {
+  margin-top: 24px;
+  padding-top: 10px;
+  border-top: 1px solid var(--obsidian-line-soft);
+}
+.practice-setup-reference > summary,
+.practice-package-progress > summary,
+.practice-success-details > summary,
+.practice-configuration-disclosure details > summary {
+  min-height: 44px;
+  padding: 12px 0;
+  color: var(--pixel-white);
+  font: 500 13px/1.6 var(--app-font);
+  cursor: pointer;
+}
+.practice-setup-reference > summary::marker,
+.practice-package-progress > summary::marker,
+.practice-success-details > summary::marker,
+.practice-configuration-disclosure details > summary::marker { color: var(--pixel-yellow); }
+.practice-setup-reference > summary:focus-visible,
+.practice-package-progress > summary:focus-visible,
+.practice-success-details > summary:focus-visible,
+.practice-configuration-disclosure details > summary:focus-visible {
+  outline: 2px solid var(--pixel-yellow);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.practice-setup-reference dl { margin: 0; }
+.practice-package-progress { margin-top: 16px; border-top: 1px solid var(--obsidian-line-soft); }
+.practice-success-details { margin: 16px 0; font: 400 13px/1.65 var(--app-font); }
+.practice-success-details > div { padding: 12px 0; }
+.practice-success-details time { color: var(--pixel-muted); font-size: 11px; }
+.practice-success {
+  position: relative;
+  isolation: isolate;
+  padding: 24px 18px 18px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 214, 102, .6);
+  border-radius: var(--obsidian-radius-card);
+  background: linear-gradient(160deg, rgba(255, 214, 102, .12), rgba(255, 214, 102, .025) 72%);
+  text-align: center;
+}
+.practice-success-badge { position: relative; width: 104px; height: 82px; margin: 0 auto 8px; }
+.practice-success-badge svg { width: 72px; height: 72px; animation: practice-success-arrive 500ms cubic-bezier(.2, 1.4, .5, 1) both; }
+.practice-success-seal { fill: var(--pixel-yellow); }
+.practice-success-check { fill: none; stroke: #000; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.practice-success-spark { position: absolute; color: var(--pixel-yellow); animation: practice-success-spark 850ms ease-out both; }
+.practice-success-spark:nth-child(1) { top: 3px; left: 0; font-size: 19px; }
+.practice-success-spark:nth-child(2) { top: 38px; right: 0; font-size: 16px; animation-delay: 90ms; }
+.practice-success-spark:nth-child(3) { bottom: 4px; left: 10px; font-size: 14px; animation-delay: 160ms; }
+.practice-success-spark:nth-child(4) { top: 0; right: 7px; font-size: 13px; animation-delay: 220ms; }
+.practice-success > small { color: var(--pixel-yellow); font: 600 12px/1.5 var(--app-font); }
+.practice-success h3 { margin: 6px 0 10px; color: var(--pixel-white); font: 600 clamp(22px, 3vw, 28px)/1.3 var(--app-font); letter-spacing: -.02em; }
+.practice-success p { margin: 0; color: var(--pixel-white); font: 400 14px/1.6 var(--app-font); }
+.practice-success > .practice-success-next { margin-top: 6px; color: var(--pixel-muted); font-size: 12px; }
+.practice-success > .practice-return-action { width: 100%; margin-top: 20px; }
+.practice-workflow .practice-progress.is-compact > .practice-compact-next {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 214, 102, .5);
+  border-left: 3px solid var(--pixel-yellow);
+  border-radius: var(--obsidian-radius-control);
+  background: rgba(255, 214, 102, .055);
+}
+.practice-workflow .practice-progress.is-compact > .practice-compact-next strong { margin-top: 8px; font-size: 15px; line-height: 1.65; font-weight: 600; }
+.practice-workflow .practice-progress.is-compact > .practice-compact-progress { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 0 2px; }
+.practice-workflow .practice-progress.is-compact .practice-compact-progress small { display: none; }
+.practice-workflow .practice-progress.is-compact .practice-compact-progress strong { font-size: 12px; font-weight: 400; color: var(--pixel-muted); }
+.practice-workflow .practice-progress.is-compact .practice-compact-progress b { padding: 0; border: 0; font-size: 11px; }
+.practice-workflow .practice-review-overview.is-complete .pixel-review-primary { color: var(--pixel-muted); background: transparent; border-color: var(--obsidian-line-soft); }
+@keyframes practice-success-arrive { from { opacity: 0; transform: scale(.65) rotate(-14deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes practice-success-spark { 0% { opacity: 0; transform: scale(.2); } 60% { opacity: 1; transform: scale(1.2); } 100% { opacity: .8; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .practice-success-badge svg,
+  .practice-success-spark { animation: none; }
+}
+.practice-setup-reference > p { color: var(--pixel-muted); font: 400 13px/1.6 var(--app-font); }
+.practice-setup-reference dl > div {
+  display: grid;
+  grid-template-columns: minmax(80px, 110px) minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--obsidian-line-soft);
+  font: 400 13px/1.6 var(--app-font);
+}
+.practice-setup-reference dt { color: var(--pixel-muted); }
+.practice-setup-reference dd { margin: 0; overflow-wrap: anywhere; }
+.practice-setup-reference dd strong { display: block; font-weight: 600; overflow-wrap: anywhere; }
+.practice-setup-reference dd span { display: block; margin-top: 4px; color: var(--pixel-muted); }
+.practice-workflow .practice-configuration-disclosure header small { font: 400 11px/1.5 var(--app-font); }
+.practice-workflow .practice-configuration-disclosure header strong { font: 600 14px/1.5 var(--app-font); }
+.practice-workflow .practice-configuration-disclosure header > span { font: 400 11px/1.5 var(--app-font); }
+.practice-workflow .practice-configuration-disclosure > .practice-configuration-next {
+  font: 400 13px/1.65 var(--app-font);
+  color: var(--pixel-white);
+}
+.practice-configuration-disclosure details { margin-top: 8px; }
+.practice-configuration-disclosure details > p {
+  margin: 4px 0 12px;
+  color: var(--pixel-muted);
+  font: 400 12px/1.6 var(--app-font);
+}
+.practice-configuration-disclosure details > time {
+  display: block;
+  margin-top: 12px;
+  color: var(--pixel-muted);
+  font-size: 11px;
+}
 .practice-brief-overlay.practice-workflow { container-type: inline-size; }
 .practice-brief-overlay.practice-workflow > .practice-progress { margin: 18px auto 0; padding: clamp(18px, 3vw, 30px); }
 .practice-workflow .practice-brief-actions button { min-height: 44px; font: 600 13px/1.5 var(--app-font); }

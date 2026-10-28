@@ -8,6 +8,7 @@ import type {
 import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
 import { PortfolioPackageSubmission } from './PortfolioPackageSubmission'
+import { PracticeSuccess } from './PracticeSuccess'
 
 type PracticeProgressProps = {
   workspace: PracticeWorkspaceView
@@ -138,6 +139,7 @@ export function PracticeProgress({
   const [scopeDraft, setScopeDraft] = useState({ runId: '', value: '' })
   const [expandedCompactStepId, setExpandedCompactStepId] = useState<string | null>(null)
   const reviewStatus = workspace.review?.status
+  const practicePassed = reviewStatus === 'passed' && workspace.review?.canReturn
   const reviewResult = workspace.review?.result
   const unresolvedCriterion = reviewResult?.criteria.find((criterion) => criterion.status !== 'satisfied')
   const nextChecklistStep = workspace.checklist.find((step) =>
@@ -153,6 +155,15 @@ export function PracticeProgress({
   const configuration = workspace.configuration
   const configurationFresh = configuration?.freshness === 'fresh'
     && configuration.connection === 'connected'
+  const configurationMismatches = configurationRows.filter((row) =>
+    configuration?.[row.key]?.protocolValue !== row.expected)
+  const configurationNextAction = !configurationFresh
+    ? 'Mở đúng task Codex, sau đó nhờ Triết kiểm tra lại.'
+    : configurationMismatches.length
+      ? `Cần kiểm tra: ${configurationMismatches.map((row) => row.label).join(', ')}.`
+      : reviewStatus === 'passed'
+        ? 'Năm cài đặt đang khớp.'
+        : 'Năm cài đặt đang khớp. Nhờ Triết duyệt để ghi nhận kết quả.'
   const planning = workspace.planning
   const portfolioStages = workspace.portfolioPlanning ?? workspace.portfolioBuild
   const currentPlanningStep = workspace.checklist.find((step) =>
@@ -205,25 +216,37 @@ export function PracticeProgress({
   const planningAction = (action: PlanningPracticeActionRequest['action']) => {
     if (!actionBusy) onPlanningAction?.(action)
   }
+  const showSummaryObjective = showObjective && !configurationPractice && !packageSubmission
+  const ChecklistContainer = packageSubmission ? 'details' : 'div'
+  const ReviewContainer = practicePassed ? 'details' : 'section'
+  const success = practicePassed ? (
+    <PracticeSuccess practiceId={workspace.activePractice?.practiceId}>
+      {onReturn ? <PracticeReturnAction busy={returnBusy} disabled={returnDisabled} compact={compact} onReturn={onReturn} /> : null}
+    </PracticeSuccess>
+  ) : null
   if (compact) {
     return (
       <section className="practice-progress is-compact" aria-label="Tiến độ Practice">
-        {packageSubmission}
+        {success}
+        {reviewStatus !== 'passed' ? (
+          <div className="practice-compact-next" aria-label="Hành động tiếp theo">
+            <small>Tiếp theo</small>
+            <strong>{compactNextAction}</strong>
+          </div>
+        ) : null}
         <div className="practice-compact-progress" role="status">
           <div>
             <small>Tiến độ</small>
             <strong>{completedStepCount}/{workspace.checklist.length} bước đã xác minh</strong>
-            <span>{compactCurrentStep
-              ? `Hiện tại: ${compactCurrentStep.title}`
-              : reviewStatus === 'passed' ? 'Đã hoàn thành các bước bắt buộc.' : 'Đang chờ bằng chứng mới.'}</span>
           </div>
-          <b className={`is-${reviewStatus ?? 'not-reviewed'}`}>
-            {reviewStatus === 'passed' ? 'Đã đạt' : reviewStatus === 'needs-work' ? 'Cần bổ sung' : 'Chưa duyệt'}
-          </b>
+          {!practicePassed ? <b className={`is-${reviewStatus ?? 'not-reviewed'}`}>
+            {reviewStatus === 'needs-work' ? 'Cần bổ sung' : 'Chưa duyệt'}
+          </b> : null}
         </div>
-        {comparisonSummary ? <p className="practice-compact-change" role="status">{comparisonSummary}</p> : null}
+        {!practicePassed ? packageSubmission : null}
         <details {...(configurationPractice ? practiceGuideAnchor('configuration-evidence') : {})} className="practice-compact-details">
           <summary>Xem tất cả {workspace.checklist.length} bước</summary>
+          {comparisonSummary && comparison?.kind !== 'first-review' ? <p className="practice-compact-change" role="status">{comparisonSummary}</p> : null}
         <ol className="practice-compact-checklist" aria-label="Tất cả các bước Practice">
           {workspace.checklist.map((step, index) => {
             const expanded = expandedCompactStepId === step.id
@@ -255,23 +278,15 @@ export function PracticeProgress({
           })}
         </ol>
         </details>
-        {reviewStatus !== 'passed' && (!compactCurrentStep || Boolean(unresolvedCriterion && criterionNextActions[unresolvedCriterion.criterionId])) ? (
-          <div className="practice-compact-next" aria-label="Hành động tiếp theo">
-            <small>Tiếp theo</small>
-            <strong>{compactNextAction}</strong>
-          </div>
-        ) : null}
-        {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-          <PracticeReturnAction busy={returnBusy} disabled={returnDisabled} compact onReturn={onReturn} />
-        ) : null}
       </section>
     )
   }
   return (
     <section className={'practice-progress' + (compact ? ' is-compact' : '')} aria-label="Tiến độ Practice">
-      {packageSubmission}
-      {showObjective || workspace.completionDestination ? <div className="practice-progress__summary">
-        {showObjective ? <>
+      {success}
+      {!practicePassed ? packageSubmission : null}
+      {showSummaryObjective || workspace.completionDestination ? <div className="practice-progress__summary">
+        {showSummaryObjective ? <>
           <small>Mục tiêu</small>
           <strong>{workspace.objective}</strong>
           {!compact ? <p>{workspace.expectedOutcome}</p> : null}
@@ -284,10 +299,15 @@ export function PracticeProgress({
       </div> : null}
 
       {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
-        <section className={`practice-review-result is-${reviewStatus}`} role="status" aria-label="Kết quả duyệt Practice">
+        <ReviewContainer className={practicePassed ? 'practice-success-details' : `practice-review-result is-${reviewStatus}`} role={practicePassed ? undefined : 'status'} aria-label="Kết quả duyệt Practice">
+          {practicePassed ? <summary>Xem kết quả kiểm tra</summary> : null}
           <div>
+            {!practicePassed ? <div className="practice-review-next-action">
+              <small>Tiếp theo</small>
+              <strong>{reviewNextAction}</strong>
+            </div> : null}
             <small>Kết quả duyệt</small>
-            <strong>{reviewStatus === 'passed' ? 'Đã đạt' : 'Cần bổ sung'}</strong>
+            <strong>{practicePassed ? 'Các tiêu chí đã đáp ứng' : reviewStatus === 'passed' ? 'Đã đạt' : 'Cần bổ sung'}</strong>
             {comparisonSummary ? <p className="practice-review-change">{comparisonSummary}</p> : null}
             <p>{reviewResult?.summary ?? (reviewStatus === 'passed'
               ? 'Bằng chứng đáp ứng các tiêu chí bắt buộc.'
@@ -305,20 +325,13 @@ export function PracticeProgress({
                 ))}
               </ol>
             ) : null}
-            <div className="practice-review-next-action">
-              <small>Tiếp theo</small>
-              <strong>{reviewNextAction}</strong>
-            </div>
             {reviewResult?.reviewedAt ? <time dateTime={reviewResult.reviewedAt}>Duyệt lúc {new Date(reviewResult.reviewedAt).toLocaleString('vi-VN')}</time> : null}
           </div>
-          {reviewStatus === 'passed' && workspace.review?.canReturn && onReturn ? (
-            <PracticeReturnAction busy={returnBusy} disabled={returnDisabled} onReturn={onReturn} />
-          ) : null}
-        </section>
+        </ReviewContainer>
       ) : null}
 
       {configurationPractice ? (
-        <section {...practiceGuideAnchor('configuration-evidence')} className="practice-configuration" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
+        <section {...practiceGuideAnchor('configuration-evidence')} className="practice-configuration practice-configuration-disclosure" aria-label="Cấu hình Codex được phát hiện" aria-live="polite">
           <header>
             <div>
               <small>Cấu hình task được phát hiện</small>
@@ -337,6 +350,9 @@ export function PracticeProgress({
                   : configuration.freshness === 'stale' ? 'Đã cũ' : 'Không khả dụng'}
             </span>
           </header>
+          <p className="practice-configuration-next">{configurationNextAction}</p>
+          <details>
+          <summary>Xem chi tiết cài đặt</summary>
           <p>
             Course Companion chỉ đọc metadata hiệu lực của task Codex đang liên kết;
             ứng dụng không tự thay đổi cài đặt của bạn.
@@ -359,6 +375,7 @@ export function PracticeProgress({
               Ghi nhận: {new Date(configuration.observedAt).toLocaleString('vi-VN')}
             </time>
           ) : null}
+          </details>
         </section>
       ) : null}
 
@@ -537,6 +554,8 @@ export function PracticeProgress({
         </section>
       ) : null}
 
+      <ChecklistContainer className={packageSubmission ? 'practice-package-progress' : undefined}>
+      {packageSubmission ? <summary>Xem tiến độ chi tiết</summary> : null}
       <ol className="practice-checklist">
         {workspace.checklist.map((step) => (
           <li className={'is-' + step.status} key={step.id}>
@@ -564,6 +583,7 @@ export function PracticeProgress({
           <p>{workspace.activePractice.executorChatName}</p>
         </aside>
       ) : null}
+      </ChecklistContainer>
     </section>
   )
 }

@@ -49,6 +49,61 @@ and must never be inferred from a passing automated check.
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
 | Module 4 | `in-progress` overall — owned Practice workflow and reviewed return are `implemented`; courseapp entry/completion integration and course-wide acceptance remain separate | `passed` for the 22 October Windows Practice batch and simulated Module 2→3→4 rehearsal; live deployment/AI/native acceptance remains pending | Scoped Practice implementation requested 22 October and boundary clarified; exact continuation restart copy approved; final runtime acceptance `pending` | `pending` | Give the courseapp owner the integration contract, wire the host entry in their scope and rehearse real deployment/AI/learner acceptance. |
 
+### Beginner Practice clarity and completion feedback — 28 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.5 / M3.8 / M4.8 — Practice presentation only | `implemented` | `passed` for the Windows checks below | Design and exact-page copy changes approved; owner then requested the corresponding Module 2–4 changes, clearer post-review hierarchy and visual congratulations. Final visual/runtime acceptance remains `pending`. | `pending` | Review the refreshed app with learner-owned work; keep live AI, provider, native macOS and overall module acceptance gates open. |
+
+All four current Practice introductions now use a short learning goal, three
+instructions and one primary start/resume action. The required settings or file
+reference stays available in a native disclosure. Before the requested task
+exists, empty telemetry and pending progress no longer compete with the brief.
+Existing switching, retry, restart history and unrelated Practice rendering are
+preserved. Approved Vietnamese presentation copy lives in
+`practice-introduction-copy.ts`; lesson and assessment sources are unchanged.
+
+The compact review panel now puts the next action first, followed by subdued
+progress and the expandable checklist/history. It no longer repeats the current
+step or announces routine first-review metadata. Refreshing a review returns the
+progress scroll to the top. Full Module 1 raw configuration and portfolio
+checklists remain available in disclosures with actionable blockers preserved.
+
+A current passed review with permission to return displays a gold check
+medallion, finite decorative-star animation, “Làm tốt lắm!”, the module's actual
+Practice outcome and one primary save/return action. All four modules share
+this presentation; it does not declare the module or course complete. Reduced
+motion disables the animation. Review/return, explicit approval, task binding,
+evidence freshness and the existing guide anchors remain authoritative.
+
+Verification passed: TypeScript, lint without warnings, 723 unit tests (three
+existing/environment skips), nine startup checks, production build, full
+Electron smoke, Teacher chat, Practice guide and the disposable Module 2→3→4
+portfolio rehearsal. The first full run caught an out-of-palette icon color and
+a changed compact-renderer expectation, both repaired. Its existing 500-entry
+filesystem test also timed out under concurrent build/test I/O; the focused
+rerun and subsequent full run passed without changing the test or its timeout.
+The smoke fixture's old Module 2 heading was updated after its first run stopped
+at that expectation. The final three Electron scripts passed against the final
+build. An extra npm worker flag reached the startup command rather than Vitest;
+the final full unit pass used the normal worker configuration.
+
+Isolated rendering of the actual introduction/progress components and production
+CSS passed desktop, 390px and 320px no-overflow checks, desktop start visibility,
+native keyboard disclosure, next-action ordering, visible success return action
+and reduced motion. Desktop Module 1, narrow Module 3, the needs-work state and
+the 320px success state were visually inspected. Artifacts are under
+`.superpowers/sdd/screenshots/practice-introductions/`. The isolated visual
+harness initially needed a visible window for reliable Windows capture and a
+complete comparison fixture; those test-harness issues were corrected.
+
+The scoped diff changes no lesson scenes, route registries, theory, assessments,
+Practice definitions, backend/IPC, dependencies or persisted-data formats. All
+automated journeys use disposable data and explicitly simulated AI/provider
+responses. No personal progress was reset and no learner review or acceptance
+was fabricated. The existing Module 4 courseapp entry integration gap remains
+with its owner.
+
 ### Practice-only Module 4 and Module 2/3 student review — 22 October 2026
 
 The owner requested Module 4 Practice and concurrent picky-student reviews of

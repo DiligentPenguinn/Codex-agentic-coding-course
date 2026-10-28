@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { PracticeIdentity, PracticeWorkspaceView } from '../../../../shared/contracts'
 import { PracticeProgress } from './PracticeProgress'
 import { PracticeSwitchDialog } from './PracticeSwitchDialog'
+import { PracticeIntroduction } from './PracticeIntroduction'
+import { getPracticeIntroduction } from './practice-introduction-copy'
 
 type PracticeBriefProps = {
   identity: PracticeIdentity
@@ -178,8 +180,38 @@ export function PracticeBrief({
   }
 
   const switching = workspace.phase === 'switching'
+  const introduction = getPracticeIntroduction(identity.practiceId)
+  const hasRequestedPractice = workspace.activePractice?.practiceId === identity.practiceId
+    && workspace.activePractice.practiceVersion === identity.practiceVersion
+  const preferResume = Boolean(introduction && hasRequestedPractice && workspace.capabilities.canResume)
+  const resumeButton = workspace.capabilities.canResume ? (
+    <button className={preferResume ? 'is-primary' : undefined} type="button" disabled={busy || switching} onClick={() => void resume()}>
+      Tiếp tục Practice
+    </button>
+  ) : null
+  const controls = <>
+    <div className="practice-brief-actions">
+      {preferResume ? resumeButton : null}
+      <button className={preferResume ? undefined : 'is-primary'} type="button" disabled={busy || switching} onClick={() => void start()}>
+        {busy ? 'Đang chuẩn bị…' : introduction && !hasRequestedPractice ? 'Bắt đầu thực hành' : 'Bắt đầu Practice mới'}
+      </button>
+      {!preferResume ? resumeButton : null}
+    </div>
+
+    {switching && workspace.transition ? (
+      <div className="practice-transition" aria-live="polite">
+        <span className="practice-loading-orbit" aria-hidden="true" />
+        <strong>{workspace.transition.label}</strong>
+        {workspace.transition.canRetry ? <button type="button" disabled={busy} onClick={() => void retry()}>Thử lại</button> : null}
+        {workspace.transition.canCancel ? (
+          <button type="button" disabled={busy} onClick={() => void cancelTransition()}>Hủy</button>
+        ) : null}
+      </div>
+    ) : null}
+    {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
+  </>
   return (
-    <main className="practice-brief-overlay practice-workflow">
+    <main className={'practice-brief-overlay practice-workflow' + (introduction ? ' has-clear-introduction' : '')}>
       <header className="practice-brief-header">
         <button type="button" aria-label="Đóng trang Practice" onClick={onClose}>×</button>
         <div><small>Practice</small><strong>{workspace.title}</strong></div>
@@ -187,35 +219,19 @@ export function PracticeBrief({
       </header>
 
       <section className="practice-brief-card" aria-labelledby="practiceObjective">
+        {introduction ? (
+          <PracticeIntroduction introduction={introduction} showReference={!hasRequestedPractice}>
+            {controls}
+          </PracticeIntroduction>
+        ) : <>
         <small>Mục tiêu / kết quả</small>
         <h1 id="practiceObjective">{workspace.objective}</h1>
         <p>{workspace.expectedOutcome}</p>
-
-        <div className="practice-brief-actions">
-          <button className="is-primary" type="button" disabled={busy || switching} onClick={() => void start()}>
-            {busy ? 'Đang chuẩn bị…' : 'Bắt đầu Practice mới'}
-          </button>
-          {workspace.capabilities.canResume ? (
-            <button type="button" disabled={busy || switching} onClick={() => void resume()}>
-              Tiếp tục Practice
-            </button>
-          ) : null}
-        </div>
-
-        {switching && workspace.transition ? (
-          <div className="practice-transition" aria-live="polite">
-            <span className="practice-loading-orbit" aria-hidden="true" />
-            <strong>{workspace.transition.label}</strong>
-            {workspace.transition.canRetry ? <button type="button" disabled={busy} onClick={() => void retry()}>Thử lại</button> : null}
-            {workspace.transition.canCancel ? (
-              <button type="button" disabled={busy} onClick={() => void cancelTransition()}>Hủy</button>
-            ) : null}
-          </div>
-        ) : null}
-        {error || workspace.error ? <p className="practice-brief-error" role="alert">{error || workspace.error}</p> : null}
+        {controls}
+        </>}
       </section>
 
-      <PracticeProgress
+      {!introduction || hasRequestedPractice ? <PracticeProgress
         workspace={workspace}
         showObjective={false}
         api={window.courseCompanion}
@@ -237,7 +253,7 @@ export function PracticeBrief({
         }}
         onPortfolioStageAction={courseRunId ? (stageId, decision, sliceId) => void recordPortfolioStage(stageId, decision, sliceId) : undefined}
         onRefresh={() => void load()}
-      />
+      /> : null}
 
       {switchOpen ? (
         <PracticeSwitchDialog
