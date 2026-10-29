@@ -1,0 +1,220 @@
+# Practice and course app merge handoff
+
+29 October 2026. Prepared for the collaborator integrating the Practice branch
+with the course app. The implementation is committed and pushed through
+`fbd56acd85515ce94e8aba56cb52350e834be1da`. This handoff adds documentation only.
+
+The batch repairs the actual learner route through Modules 2–4, makes Practice
+instructions repeatable, fixes task reopening and progress refresh, improves
+Practice presentation, and makes portfolio review appropriate for beginners.
+Windows automated checks passed and the owner-authorized QA route reached all
+19 checkpoints. QA completion used isolated assessment waivers; it is not a
+passed learner assessment or pilot acceptance.
+
+## Branch and merge scope
+
+- Source: `codex/practice-workflow-to-triet-v3-planning` on `origin`.
+- Intended integration target from the existing handoff: `triet-v3-planning`.
+  Confirm your team's destination before merging; this work does not merge to
+  `main` or create a new pull request.
+- A fresh fetch on 29 October found target
+  `22e8c2b6f6f20909189086c063e9ea008fe3a048` to be an ancestor of implementation
+  HEAD, with zero target-only and 19 source-only commits. A fast-forward was
+  possible at that point. The documentation commit containing this file adds
+  another commit; fetch again before integration.
+- Merge the whole branch. Cherry-picking only the final fix omits earlier
+  contracts, Practice lifecycle work and the Module 1 introduction UI.
+
+Recent commits worth reviewing in order:
+
+| Commit | Purpose |
+|---|---|
+| `59135d9` | Incorporate incoming course content while preserving Practice runtime |
+| `9898f9d` | Portfolio Practice workflows and Module 4 release review |
+| `3773ac4` | Approved beginner-friendly Module 1 Practice design |
+| `231241d` | Practice introductions, clearer workflow and success presentation |
+| `fbd56ac` | Live walkthrough repairs, reusable prompts, compatibility checks, beginner review and UI polish |
+
+Read root `AGENTS.md`, the closest scoped instructions, and the current
+[implementation ledger](portfolio-course-implementation-plan.md). The
+[September handoff](practice-teacher-handoff-triet-v3-2026-09-12.md) remains useful
+background. The [22 October handoff](practice-courseapp-handoff-2026-10-22.md)
+describes the previous ownership boundary: later explicit owner requests
+authorized the course-entry, lesson-restoration, completion and exact-copy
+repairs below. Its statements that Module 4 entry is unwired and no live
+publication has occurred are historical, not outstanding implementation tasks.
+
+## What changed for learners
+
+| Area | Current behavior |
+|---|---|
+| Practice introduction | A short title, readable objective and three steps explain the workflow. The full instruction is body text rather than an oversized heading. Existing approved reference copy stays available. |
+| Folder confirmation | The Continue action aligns with the portfolio content panel. The original empty-folder complaint was withdrawn by the owner; do not treat it as an unresolved reproduced bug. |
+| Modules 2–4 prompts | Instructions can be copied again from the transition, Practice and Teacher surfaces. Module 2 identifies the selected portfolio root and required paths. Modules 3–4 continue the same task through explicit learner copy/paste. |
+| Reopen task | The app resolves a compatible installed Codex runtime and opens the exact bound task. A desktop-owned continuation no longer starts a second writer. |
+| Progress refresh | Repeated matching resume metadata is accepted; wrong task or workspace identities still fail. Failed refresh visibly blocks new acceptance instead of presenting stale evidence as ready. |
+| Module 3 debugging lesson | Original lesson dialogue is restored, with the five-file handoff reference in a subordinate collapsed section. |
+| Module 4 | The normal course button enters release Practice. Reviewed return reaches the completion scene and records `m4-complete`. No final quiz was added. |
+| Return to course | Authoritative return is saved and displayed before background Teacher memory summarization; a slow summary no longer holds navigation open. |
+| Home progress | Counts the 19 current checkpoints, excludes retired IDs from the numerator, and preserves their saved history. |
+| Practice appearance | Course-compatible black/obsidian, gold/yellow, white and muted text; clearer current/completed states, button feedback, spacing and reduced-motion handling. No XP, achievements or new game mechanics. |
+| Windowed Teacher | One usable scrolling area keeps review content and actions reachable at narrow widths. |
+
+Module 2 still submits one package with these five files:
+
+1. `planning/portfolio-brief.md`
+2. `planning/content-evidence-inventory.md`
+3. `planning/reference/reference.md`
+4. `planning/PRD.md`
+5. `planning/implementation-plan.md`
+
+The existing legacy `planning/portfolio-plan.md` may remain as background; it
+does not replace these five documents or enter their acceptance digest.
+
+## Beginner review policy and retained checks
+
+The portfolio reviewer now accepts the stated minimum rather than professional
+polish. Minor visual, wording or implementation imperfections are optional
+improvements unless they prevent a required outcome. Clearly labelled concepts,
+sample identities and placeholders are acceptable when approved planning allows
+them. If planning explicitly requires real material, feedback must identify that
+specific conflict. Concrete mobile viewport observations do not require a
+physical phone or extra browser proof unless the definition actually says so.
+
+Needs-work feedback should acknowledge sufficient work and give the single
+smallest blocking next action. Already satisfied work should not be repeated.
+This changes the portfolio review prompt, not Module 1 criteria or a numerical
+passing threshold. Actual beginner-pilot review quality remains to be tested.
+
+Keep exact task/workspace binding, required criteria, current approval,
+freshness, functional outcomes, honest evidence attribution and prior publishing
+consent. Missing evidence remains unverifiable. Executor-reported checks are
+not independently verified results. Teacher cannot edit learner files, send
+Executor instructions, approve on the learner's behalf or grant completion.
+
+## Technical changes to preserve during integration
+
+Paths below are relative to `course-companion/`.
+
+| Concern | Main files and integration rule |
+|---|---|
+| Codex compatibility | `electron/main/codex-runtime.ts`, `codex-app-server-client.ts`, `executor-chat-coordinator.ts`: resolve the current desktop CLI afresh on connection/reopen, prefer its bundled runtime, require CLI 0.164 or newer. The local standalone CLI was updated during QA; that machine update is not shipped by Git. There is no scheduled updater, automatic download or installation. |
+| Resume metadata | `electron/main/codex-task-metadata-reader.ts`: validate every `session_meta` against the exact task and folder; matching repeated headers are normal after resume. |
+| Continuation ownership | `electron/main/portfolio-continuation-instructions.ts`, `executor-chat-coordinator.ts`: preserve read-only Module 3 v2/Module 4 continuation and the original task. Preserve legacy Module 3 v1 handling separately. |
+| Repeatable instructions | `shared/module-two-start-prompt.ts`, `src/renderer/src/components/PracticeStartPrompt.tsx`, `PracticeBrief.tsx`, `PracticeProgress.tsx`, `TeacherWorkspace.tsx`, `surfaces/LearningWindow.tsx` and module scene files: retain copy access and selected-folder guidance together. Do not restore one-time-only instructions. |
+| Evidence and review | `electron/main/portfolio-package-evidence.ts`, `portfolio-release-evidence-adapter.ts`, `practice-coordinator.ts`, `practice-review-context.ts`, `executor-activity-observer.ts`: refreshed errors block acceptance; independently checked clean Git HEAD and Module 3 handoff facts reach review context. Vietnamese check reports remain attributed reports. |
+| Windows Git reads | `electron/main/portfolio-release-git.ts`: read-only `--no-optional-locks` with bounded retries only for the observed index permission error; preserve other failures. |
+| Completion and progress | `electron/main/index.ts`, `progress-repository.ts`, `shared/contracts.ts`, `shared/course/outline.ts`, `shared/course/modules/module-3.ts`, `LearningWindow.tsx`: preserve receipt-driven return, Module 4 checkpoint and current-checkpoint counting together. Ordinary outline navigation cannot earn completion. |
+| Presentation | `PracticeIntroduction.tsx`, `practice-introduction-copy.ts`, `PracticeSuccess.tsx`, Practice components and `styles.css`: preserve the shared introduction and success hierarchy, narrow layouts, keyboard controls and reduced motion. |
+
+The only two newly approved pre-Practice Module 4 sentence corrections are
+synchronized in renderer scenes and
+`pilot-workspace/course/lessons/module-4.vi.md`:
+
+- “Khi thực hành đưa portfolio lên Vercel, bạn hãy mở đường link mà Vercel cung cấp.”
+- “Sau khi phát hành portfolio trong Practice, bạn sẽ có một website để gửi cho người khác xem.”
+
+Earlier exact status and continuation-copy approvals are recorded in the
+ledger. Preserve surrounding approved copy. The latest batch retained every
+affected renderer scene ID: 11 Module 2 source IDs, 22 Module 3 IDs and six
+Module 4 IDs. Do not use a whole-file conflict resolution that discards incoming
+lessons or restores old Practice identities.
+
+## What the live QA run proves
+
+The owner explicitly authorized a QA walkthrough, labelled placeholder content,
+administrative assessment waivers for this test, and public sample publishing
+on the free tier. The real course path included lessons, Module 3 quiz and
+summary, the complete Module 4 video, Practice entry, prompt copy/paste,
+publication, refresh, submission and return.
+
+Live review exposed metadata and review-context defects that were repaired.
+The genuine Module 3 and Module 4 needs-work reviews were retained. Separate
+one-use QA receipts then allowed route testing in a copied profile. Production
+gates were never disabled; no waiver helper or QA progress is committed. All
+seven original learner-profile JSON hashes matched before and after QA. The
+isolated walkthrough app was closed after reaching Home Base at 19/19.
+
+The publicly released sample is separate from this course repository:
+
+- [Live QA portfolio](https://course-companion-qa-portfolio.vercel.app/)
+- [Sample application source](https://github.com/DiligentPenguinn/course-companion-qa-portfolio)
+- Source commit: `d107f736b780af7330520e617069e30b37a33e18`.
+- Vercel deployment: `dpl_DyDMaszWeNtFZuc39vrBb4paYQC7`, observed READY on the
+  existing active Hobby plan. No paid upgrade, domain or add-on was purchased.
+
+Only 12 reviewed application files were published. Vercel fetched that GitHub
+commit; local planning, evidence, backups and private course data were excluded.
+The sample identity and contact/profile placeholders are labelled. Desktop,
+mobile viewport, 320/390/768/1440px overflow, image loading, links, keyboard
+anchors and captured console checks passed. Mobile emulation does not prove
+physical-device or cross-browser coverage. Do not copy this deployment record,
+sample identity or administrative receipt into a learner submission.
+
+## Verification and remaining acceptance work
+
+The final implementation at `fbd56ac` passed:
+
+- Typecheck, lint, build, 775 unit tests with three existing skips, and all nine
+  startup checks.
+- Full Electron smoke, Teacher chat and Practice guide suites.
+- Expanded disposable Module 2→3→4 portfolio journey, including delayed Teacher
+  summary, stale acceptance, exact-task continuity, earned completion, retired
+  progress history and narrow controls.
+- Desktop and narrow visual inspection of the current Practice styling.
+
+Reproduce from `course-companion/` after installing locked dependencies with
+`npm ci`:
+
+```powershell
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npm run test:electron
+node tests/portfolio-package-electron.mjs
+```
+
+Electron fixtures deliberately simulate Codex, review and deployment responses
+in disposable profiles. They are regression coverage, not live learner proof.
+Local final logs are under `.superpowers/qa/release-done-*.log`; QA screenshots
+and waiver audits also remain ignored and are not available from a fresh clone.
+Committed tests and the ledger provide the portable verification record.
+
+Still open: real first-time beginner rehearsal and live review acceptance,
+native macOS behavior, and overall owner/pilot acceptance. The historical
+Module 1 distinction between inherited correct settings and demonstrating the
+ability to configure them remains an owner decision. Technical verification or
+the QA-only 100% counter must not close those gates.
+
+## Merge procedure and smoke checks
+
+Fetch again and inspect your local work before switching branches. If the
+intended target is still `triet-v3-planning`, has no additional commits, and your
+checkout is clean, a fast-forward preserves the already integrated history:
+
+```powershell
+git fetch origin
+git switch triet-v3-planning
+git merge --ff-only origin/triet-v3-planning
+git merge --ff-only origin/codex/practice-workflow-to-triet-v3-planning
+```
+
+If either fast-forward fails, review divergence and reconcile on an integration
+branch under your normal merge process. Do not reset, force-push or overwrite a
+collaborator's edits. Run the checks above on the merged result before publishing
+the target branch.
+
+For manual smoke testing, use disposable learner data and a dedicated portfolio
+folder. Check introduction readability, repeated prompt copy, exact-task reopen,
+refresh failures, current acceptance and review feedback. Continue a real
+accepted Module 2 package into Module 3, inspect the restored debugging lesson,
+then check Module 4 entry and reviewed return. Verify completion cannot be
+earned merely by browsing the outline. Inspect full and windowed Teacher views
+at desktop and 320/390px widths. Keep simulated evidence visibly labelled and
+never reset a personal profile to make a smoke test pass.
+
+No dependency or schema migration was added in the final repair commit. Preserve
+older progress/history and let the existing application migrations run. Do not
+ship `.superpowers/`, temporary profiles, `node_modules/`, build output, local
+credentials or sample-portfolio evidence as course source.

@@ -2,6 +2,11 @@
 
 12 September 2026. Read this before reviewing the PR or changing the merged app.
 
+For the current merge, also read the
+[29 October merge handoff](practice-courseapp-merge-handoff-2026-10-29.md).
+It records the later owner-authorized course-flow repairs, live QA publication,
+beginner review policy, final verification and remaining acceptance gates.
+
 This PR brings the Practice branch into `triet-v3-planning`. It includes the
 earlier review and five-document portfolio work, plus the latest Practice UI,
 guide and Teacher chat fixes. The latest app changes are in commit `d4fc9d4`.
