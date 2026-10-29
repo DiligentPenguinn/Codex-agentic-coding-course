@@ -3410,7 +3410,9 @@ export function LearningWindow() {
           <p>{scene.assessmentSummary
             ? isPortfolioMasterySummary
               ? displayedSceneId === 'module-2-portfolio-mastery-summary'
-                ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với năm tài liệu hiện tại trước khi mở Module 3.`
+                ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. ${finalCorrectCount !== finalQuestionCount
+                  ? `Còn ${finalQuestionCount - finalCorrectCount} câu chưa đúng. Hãy chọn “Làm lại ${finalQuestionCount} câu” để sửa trước khi hoàn thành Module 2 và tiếp tục sang Module 3.`
+                  : 'Course Companion sẽ đối chiếu câu trả lời với năm tài liệu hiện tại trước khi mở Module 3.'}`
                 : displayedSceneId === 'module-3-mastery-summary'
                   ? `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Course Companion sẽ đối chiếu câu trả lời với tám tài liệu và bằng chứng tạo bản dựng hiện tại.`
                   : `Bạn đã trả lời ${finalAnsweredCount}/${finalQuestionCount} câu. Kết quả tốt nghiệp chỉ được ghi nhận sau khi Practice và các bằng chứng phát hành đều đạt.`

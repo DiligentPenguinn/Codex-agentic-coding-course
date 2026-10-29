@@ -2,11 +2,12 @@
 
 29 October 2026. Prepared for the collaborator integrating the Practice branch
 with the course app. Previously pushed implementation includes
-`fbd56acd85515ce94e8aba56cb52350e834be1da` and the windowed Teacher continuity
-repair at `1ba1c11e927904394288568df546b214bddbd752`. This follow-up commit adds
-the owner's requested cleaner Practice surfaces and subtle interaction motion,
-with the verification record below. The owner explicitly requested committing
-and pushing this UI change and the updated handoff on the existing branch.
+`fbd56acd85515ce94e8aba56cb52350e834be1da`, the windowed Teacher continuity
+repair at `1ba1c11e927904394288568df546b214bddbd752`, and cleaner Practice surfaces
+and subtle motion at `0860453102c54eda7f0889864b19f3e44687ee92`. This follow-up
+adds the requested task-continuation banner and Module 2 quiz-blocker feedback
+fixes. The owner explicitly requested committing and pushing all current fixes
+and the updated handoff on the existing branch.
 
 The batch repairs the actual learner route through Modules 2–4, makes Practice
 instructions repeatable, fixes task reopening and progress refresh, improves
@@ -21,11 +22,11 @@ passed learner assessment or pilot acceptance.
 - Intended integration target from the existing handoff: `triet-v3-planning`.
   Confirm your team's destination before merging; this work does not merge to
   `main` or create a new pull request.
-- A fresh fetch before this presentation follow-up on 29 October found target
+- A fresh fetch before this feedback follow-up on 29 October found target
   `22e8c2b6f6f20909189086c063e9ea008fe3a048` to be an ancestor of implementation
-  HEAD `1ba1c11`, with zero target-only and 21 source-only commits. The source
+  HEAD `0860453`, with zero target-only and 22 source-only commits. The source
   branch matched its remote before this follow-up. A fast-forward was possible
-  at that point; this UI/handoff commit adds another commit. Fetch again before
+  at that point; this feedback/handoff commit adds another commit. Fetch again before
   integration.
 - Merge the whole branch. Cherry-picking only the final fix omits earlier
   contracts, Practice lifecycle work and the Module 1 introduction UI.
@@ -40,8 +41,10 @@ Recent commits worth reviewing in order:
 | `231241d` | Practice introductions, clearer workflow and success presentation |
 | `fbd56ac` | Live walkthrough repairs, reusable prompts, compatibility checks, beginner review and UI polish |
 | `1ba1c11` | Retain windowed Teacher state across minimize and reopen, with current-evidence refresh |
+| `0860453` | Remove heavy Practice framing and add subtle motion with reduced-motion support |
 
-The current UI/handoff commit follows `1ba1c11`; preserve both when integrating.
+The current feedback/handoff commit follows `0860453`; preserve the full history
+when integrating.
 
 Read root `AGENTS.md`, the closest scoped instructions, and the current
 [implementation ledger](portfolio-course-implementation-plan.md). The
@@ -54,7 +57,19 @@ publication has occurred are historical, not outstanding implementation tasks.
 
 ## What changed for learners
 
-The latest presentation pass removes nested outlines around Practice prompt,
+The latest feedback fixes address two issues found during the owner's manual
+test. Module 3/4 transitions now describe checking or reconnecting the handed-off
+Codex task, rather than creating a new task. A failed continuation says
+“Chưa thể tiếp tục task Codex đã bàn giao.”; the loading spinner stops while an
+error is displayed and no retry is running. Retry/cancel controls and the
+existing task, approval and current-evidence checks remain unchanged.
+
+The Module 2 mastery summary still reports how many questions were answered,
+but now also reports how many answers are not correct and directs the learner
+to “Làm lại 5 câu” when completion is disabled for that reason. The existing
+successful-summary wording and completion requirements remain unchanged.
+
+The earlier presentation pass removes nested outlines around Practice prompt,
 next-action, submission and review content. Spacing, typography and quiet
 separators group the content; secondary controls use subdued fills and the
 primary gold action no longer has a raised rim. The Teacher panel has an opaque
@@ -193,7 +208,30 @@ sample identity or administrative receipt into a learner submission.
 
 ## Verification and remaining acceptance work
 
-The latest CSS and handoff delivery passed Windows typecheck/build, lint, all
+The latest banner and quiz-summary feedback changes passed typecheck,
+production builds and scoped diff review. They followed the repository's
+trivial-edit fast path: full lint/unit/startup/Electron suites and screenshot
+checks were not rerun for these small feedback edits. Local build logs are
+`.superpowers/qa/course-fresh-start-build.log` and
+`.superpowers/qa/module-two-summary-feedback-build.log`. The previous broad
+verification below belongs to `0860453`, not to these later edits.
+
+The owner requested and received a normal-profile reset for a fresh end-to-end
+test. Prior local state was backed up under ignored `.superpowers/qa/`; portfolio
+files and Codex chats were preserved. This manual run is ongoing and does not
+close learner, live-review or overall acceptance gates. The continuation-banner
+fix was loaded for the reset. The later Module 2 summary fix was built while
+the owner continued testing; the existing session was left running and needs
+an app restart to load that newest renderer. Do not reset the profile again or
+replace the saved learning position without a new owner request.
+
+One observed presentation gap remains open: browsing assessment question pages
+through the outline can show navigation without the questions because the
+read-only review branch suppresses the assessment renderer. The actual learning
+flow uses the assessment renderer. Do not use outline preview as a substitute
+for an end-to-end learner run; no preview-rendering repair is included here.
+
+The earlier CSS and handoff delivery at `0860453` passed Windows typecheck/build, lint, all
 775 unit tests (three existing skips), nine startup checks, the full Electron
 smoke/Teacher chat/Practice guide suites, and the disposable Module 2→3→4
 portfolio journey. The app regressions cover Modules 1–4; the earlier live QA

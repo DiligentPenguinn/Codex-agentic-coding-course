@@ -49,6 +49,31 @@ and must never be inferred from a passing automated check.
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
 | Module 4 | `in-progress` overall — Practice, course-page entry, reviewed return and terminal completion recording are `implemented`; course-wide acceptance remains separate | `passed` for the 29 October Windows delivery batch, disposable journey, live publication and QA-only completion described below; real beginner/AI/native acceptance is separate | Scoped implementation and subsequent end-user QA/repairs authorized; public sample release, two exact wording corrections, beginner review policy and current-branch commit/push explicitly approved; final learner/runtime acceptance `pending` | `pending` | Commit and push the verified current branch; retain real beginner-pilot, native macOS and overall acceptance gates. |
 
+### Continuation banner and Module 2 quiz-blocker feedback — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.3 / M2.6 / M3.8 / M4.8 — feedback only | `implemented` | `passed` for scoped typecheck/build and diff review; runtime acceptance remains separate | Both feedback corrections and commit/push with handoff update explicitly requested | `pending` | Deliver the verified feedback changes on the current branch; continue the owner's manual run without resetting it and retain the separate acceptance gates. |
+
+Module 3/4 transition labels now describe checking/reconnecting the original
+handed-off task and show a failed-continuation label after an error. The brief
+stops its spinner while an error is displayed and no retry is running. The
+Module 2 summary explains the count of answers not correct and points to the
+existing retry action when the completion button is disabled. Completion,
+approval, evidence freshness, task continuity, pages and assessment rules are
+unchanged. The existing successful-summary copy is preserved.
+
+These small feedback edits used the trivial-edit fast path. Typecheck,
+production builds and scoped diff review passed; full lint/unit/startup/Electron
+and screenshot checks were not repeated. Local build logs are
+`.superpowers/qa/course-fresh-start-build.log` and
+`.superpowers/qa/module-two-summary-feedback-build.log`. The owner's fresh
+manual run is ongoing, with prior app state backed up locally and external
+portfolio files/Codex chats preserved. The summary fix needs the next app
+restart; the current testing session was left intact. An observed blank
+assessment page in outline preview remains an open presentation issue, not a
+passed acceptance check or an included repair. The merge handoff records it.
+
 ### Cleaner Practice surfaces and subtle motion — 29 October 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |

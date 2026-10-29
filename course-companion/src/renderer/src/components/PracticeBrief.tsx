@@ -201,7 +201,7 @@ export function PracticeBrief({
 
     {switching && workspace.transition ? (
       <div className="practice-transition" aria-live="polite">
-        <span className="practice-loading-orbit" aria-hidden="true" />
+        {busy || !(error || workspace.error) ? <span className="practice-loading-orbit" aria-hidden="true" /> : null}
         <strong>{workspace.transition.label}</strong>
         {workspace.transition.canRetry ? <button type="button" disabled={busy} onClick={() => void retry()}>Thử lại</button> : null}
         {workspace.transition.canCancel ? (

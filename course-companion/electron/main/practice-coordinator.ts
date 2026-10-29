@@ -44,8 +44,14 @@ function initialChecklist(definition: PracticeDefinition): PracticeChecklistStep
   }))
 }
 
-function transitionLabel(stage: PracticeTransitionRecord['stage']): string {
-  return stage === 'creating-target'
+function transitionLabel(transition: PracticeTransitionRecord, failed: boolean): string {
+  if (transition.practiceId === 'm3-portfolio-build' || transition.practiceId === 'm4-portfolio-release') {
+    if (failed) return 'Chưa thể tiếp tục task Codex đã bàn giao.'
+    return transition.stage === 'creating-target'
+      ? 'Đang kiểm tra task Codex đã bàn giao…'
+      : 'Đang kết nối lại task Codex đã bàn giao…'
+  }
+  return transition.stage === 'creating-target'
     ? 'Đang tạo task Codex mới…'
     : 'Đang xác nhận task Codex mới…'
 }
@@ -1042,7 +1048,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         ? {
             transition: {
               stage: transition.stage,
-              label: transitionLabel(transition.stage),
+              label: transitionLabel(transition, Boolean(this.lastError)),
               canCancel: true,
               canRetry: true
             }
