@@ -1,9 +1,12 @@
 # Practice and course app merge handoff
 
 29 October 2026. Prepared for the collaborator integrating the Practice branch
-with the course app. The implementation is committed and pushed through
-`fbd56acd85515ce94e8aba56cb52350e834be1da`. The branch also includes the later
-windowed Teacher continuity repair described below.
+with the course app. Previously pushed implementation includes
+`fbd56acd85515ce94e8aba56cb52350e834be1da` and the windowed Teacher continuity
+repair at `1ba1c11e927904394288568df546b214bddbd752`. This follow-up commit adds
+the owner's requested cleaner Practice surfaces and subtle interaction motion,
+with the verification record below. The owner explicitly requested committing
+and pushing this UI change and the updated handoff on the existing branch.
 
 The batch repairs the actual learner route through Modules 2–4, makes Practice
 instructions repeatable, fixes task reopening and progress refresh, improves
@@ -18,11 +21,12 @@ passed learner assessment or pilot acceptance.
 - Intended integration target from the existing handoff: `triet-v3-planning`.
   Confirm your team's destination before merging; this work does not merge to
   `main` or create a new pull request.
-- A fresh fetch on 29 October found target
+- A fresh fetch before this presentation follow-up on 29 October found target
   `22e8c2b6f6f20909189086c063e9ea008fe3a048` to be an ancestor of implementation
-  HEAD, with zero target-only and 19 source-only commits. A fast-forward was
-  possible at that point. The documentation commit containing this file adds
-  another commit; fetch again before integration.
+  HEAD `1ba1c11`, with zero target-only and 21 source-only commits. The source
+  branch matched its remote before this follow-up. A fast-forward was possible
+  at that point; this UI/handoff commit adds another commit. Fetch again before
+  integration.
 - Merge the whole branch. Cherry-picking only the final fix omits earlier
   contracts, Practice lifecycle work and the Module 1 introduction UI.
 
@@ -35,6 +39,9 @@ Recent commits worth reviewing in order:
 | `3773ac4` | Approved beginner-friendly Module 1 Practice design |
 | `231241d` | Practice introductions, clearer workflow and success presentation |
 | `fbd56ac` | Live walkthrough repairs, reusable prompts, compatibility checks, beginner review and UI polish |
+| `1ba1c11` | Retain windowed Teacher state across minimize and reopen, with current-evidence refresh |
+
+The current UI/handoff commit follows `1ba1c11`; preserve both when integrating.
 
 Read root `AGENTS.md`, the closest scoped instructions, and the current
 [implementation ledger](portfolio-course-implementation-plan.md). The
@@ -46,6 +53,22 @@ repairs below. Its statements that Module 4 entry is unwired and no live
 publication has occurred are historical, not outstanding implementation tasks.
 
 ## What changed for learners
+
+The latest presentation pass removes nested outlines around Practice prompt,
+next-action, submission and review content. Spacing, typography and quiet
+separators group the content; secondary controls use subdued fills and the
+primary gold action no longer has a raised rim. The Teacher panel has an opaque
+neutral background and a faint outer edge, keeping the application behind it
+from competing with the text. Checklist, hints, approval, introduction and
+success surfaces follow the same quieter treatment.
+
+Buttons use short color/depth transitions, a one-pixel hover lift on primary
+actions and gentle press feedback. Panel entry, feedback and disclosure content
+have subtle reveals; supported renderers animate disclosure height in both
+directions. Reduced-motion preferences disable these additions. This pass
+changes only Practice CSS, with no copy, page, route, review, task-binding,
+learner-approval or persistence changes. Restart an already running Course
+Companion to load the rebuilt assets.
 
 The follow-up minimize/reopen repair retains the windowed Teacher after its
 first open. Compact mode hides the existing panel instead of destroying it;
@@ -74,7 +97,7 @@ replay checks preserved. Local follow-up logs use `teacher-keepalive-*.log`.
 | Module 4 | The normal course button enters release Practice. Reviewed return reaches the completion scene and records `m4-complete`. No final quiz was added. |
 | Return to course | Authoritative return is saved and displayed before background Teacher memory summarization; a slow summary no longer holds navigation open. |
 | Home progress | Counts the 19 current checkpoints, excludes retired IDs from the numerator, and preserves their saved history. |
-| Practice appearance | Course-compatible black/obsidian, gold/yellow, white and muted text; clearer current/completed states, button feedback, spacing and reduced-motion handling. No XP, achievements or new game mechanics. |
+| Practice appearance | Unframed content groups, quiet separators, opaque neutral panel, softer secondary controls and one primary gold action. Subtle hover, press, panel and disclosure transitions respect reduced motion. Existing current/completed states and course palette remain. |
 | Windowed Teacher | One usable scrolling area keeps review content and actions reachable at narrow widths. |
 
 Module 2 still submits one package with these five files:
@@ -169,6 +192,24 @@ physical-device or cross-browser coverage. Do not copy this deployment record,
 sample identity or administrative receipt into a learner submission.
 
 ## Verification and remaining acceptance work
+
+The latest CSS and handoff delivery passed Windows typecheck/build, lint, all
+775 unit tests (three existing skips), nine startup checks, the full Electron
+smoke/Teacher chat/Practice guide suites, and the disposable Module 2→3→4
+portfolio journey. The app regressions cover Modules 1–4; the earlier live QA
+walkthrough reached all 19 checkpoints with the authorized assessment waivers
+described above. Neither result establishes a beginner passing every assessment.
+
+Desktop and narrow UI screenshots were visually inspected. The isolated
+simulated Electron check passed body/document no-overflow assertions at
+320/380/1024px, unframed prompt sides, hover and press transforms, disclosure
+opening and zero transitions/animations under reduced motion. Logs and local
+visual artifacts use `.superpowers/qa/practice-clean-*`; journey screenshots
+remain under `.superpowers/sdd/screenshots/`. These ignored artifacts are local
+evidence, not files shipped by Git. The first unit attempt encountered sandbox
+temporary-file rename restrictions; the full two-worker rerun passed with the
+required filesystem access. The one-off visual harness needed a corrected
+Practice-startup wait. No product assertion or acceptance gate was weakened.
 
 The final implementation at `fbd56ac` passed:
 

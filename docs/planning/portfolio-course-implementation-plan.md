@@ -49,6 +49,51 @@ and must never be inferred from a passing automated check.
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
 | Module 4 | `in-progress` overall — Practice, course-page entry, reviewed return and terminal completion recording are `implemented`; course-wide acceptance remains separate | `passed` for the 29 October Windows delivery batch, disposable journey, live publication and QA-only completion described below; real beginner/AI/native acceptance is separate | Scoped implementation and subsequent end-user QA/repairs authorized; public sample release, two exact wording corrections, beginner review policy and current-branch commit/push explicitly approved; final learner/runtime acceptance `pending` | `pending` | Commit and push the verified current branch; retain real beginner-pilot, native macOS and overall acceptance gates. |
 
+### Cleaner Practice surfaces and subtle motion — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.5 / M3.8 / M4.8 — Practice presentation only | `implemented` | `passed` for Windows build/typecheck, lint, unit/startup, Electron and visual checks below | Cleaner boundaries and subtle interaction motion explicitly requested; commit, push and updated handoff authorized 29 October; final visual acceptance remains `pending` | `pending` | Deliver this verified UI/handoff batch on the existing branch, then review it with learner-owned work; retain live learner, AI review, native macOS and overall module acceptance gates. |
+
+Practice prompt, next-action, submission and review sections now use spacing,
+typography and quiet separators instead of nested outlined cards. Secondary
+controls use subdued fills, and the primary gold action loses its raised rim.
+The Teacher panel has an opaque neutral background and a faint outer edge so
+the application behind it does not interfere with reading. Checklist, hint,
+approval, introduction and success styling follow the same quieter treatment.
+Only Practice CSS changed; existing copy, pages, routes, review requirements,
+task binding, persistence and learner approvals remain unchanged.
+
+Buttons receive 180ms color/depth transitions and gentle press feedback;
+primary actions lift one pixel on hover. Panel entry, feedback and disclosure
+content use short reveals, with smooth disclosure height changes where
+supported. All added motion respects the existing reduced-motion preference.
+
+Verification passed: production build including typecheck, lint, 775 unit tests
+(three existing skips), nine startup checks, full Electron smoke/Teacher chat/
+Practice guide suites, and the disposable Module 2→3→4 portfolio journey.
+Desktop and narrow screenshots were visually inspected; 320/380/1024px checks
+found no body or document horizontal overflow. An isolated simulated Electron
+check confirmed unframed prompt sides, hover/press transforms, disclosure
+opening, and zero transitions/animations under reduced motion. The first unit
+attempt encountered sandbox temporary-file rename restrictions; the full
+two-worker rerun passed with the required filesystem access. The one-off visual
+harness initially opened Teacher before Practice startup settled; its corrected
+startup wait passed. No product assertion or gate was weakened.
+
+Local logs and visual artifacts are `.superpowers/qa/practice-clean-*`;
+the broader journey screenshots remain under `.superpowers/sdd/screenshots/`.
+All automated sessions used disposable simulated profiles. These results do
+not establish final owner visual approval, learner acceptance or native macOS
+behavior.
+
+The owner subsequently requested commit/push and a refreshed merge handoff.
+`practice-courseapp-merge-handoff-2026-10-29.md` now records the presentation
+changes, full Modules 1–4 regression coverage, the QA-waiver distinction and
+remaining acceptance work. No additional runtime change was made for delivery;
+the existing passing checks above remain applicable. The final scoped diff and
+page/scene inventory are unchanged outside Practice CSS and these planning docs.
+
 ### Windowed Teacher minimize and reopen continuity — 29 October 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
