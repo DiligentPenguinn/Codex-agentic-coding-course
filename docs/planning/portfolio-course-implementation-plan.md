@@ -47,7 +47,530 @@ and must never be inferred from a passing automated check.
 | Foundation | `in-progress` — preserved integration and Practice lifecycle repairs; native macOS and overall acceptance remain outstanding | `passed` for the 22 October Windows Practice batch: typecheck, lint, 711 unit tests (three skips), nine startup checks, build, full Electron smoke/chat/guide, disposable Module 2→3→4 rehearsal and preservation/diff audits; the later exact restart-copy edit received narrow verification | `pending` overall; existing scoped approvals and requested merge remain recorded | `pending` | Present the owned workflow and obtain native macOS/overall acceptance evidence. |
 | Module 2 | `in-progress` overall — five-document Practice is implemented, including Finder-metadata handling and original-task continuity; incoming theory/mastery preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | `pending` overall; prior five-document design/migration approvals remain recorded, not final runtime acceptance | `pending` | Obtain live learner/AI evidence and explicit runtime acceptance; hand courseapp student findings to its owner. |
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
-| Module 4 | `in-progress` overall — owned Practice workflow and reviewed return are `implemented`; courseapp entry/completion integration and course-wide acceptance remain separate | `passed` for the 22 October Windows Practice batch and simulated Module 2→3→4 rehearsal; live deployment/AI/native acceptance remains pending | Scoped Practice implementation requested 22 October and boundary clarified; exact continuation restart copy approved; final runtime acceptance `pending` | `pending` | Give the courseapp owner the integration contract, wire the host entry in their scope and rehearse real deployment/AI/learner acceptance. |
+| Module 4 | `in-progress` overall — Practice, course-page entry, reviewed return and terminal completion recording are `implemented`; course-wide acceptance remains separate | `passed` for the 29 October Windows delivery batch, disposable journey, live publication and QA-only completion described below; real beginner/AI/native acceptance is separate | Scoped implementation and subsequent end-user QA/repairs authorized; public sample release, two exact wording corrections, beginner review policy and current-branch commit/push explicitly approved; final learner/runtime acceptance `pending` | `pending` | Commit and push the verified current branch; retain real beginner-pilot, native macOS and overall acceptance gates. |
+
+### Live Module 4 QA release and beginner review repair — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / M2.5 / M3.8 / M4.8 — current learner route and review reliability | `implemented` | `passed` for the final Windows delivery batch and observed QA route below | Owner explicitly authorized public sample GitHub/Vercel on the free tier, exact two-sentence copy repairs, more lenient beginner review and commit/push of this branch | `pending` | Commit and push the reviewed batch; retain learner-pilot and native macOS acceptance work. |
+
+The bound original portfolio task published only the twelve reviewed sample
+application files and its labelled sample screenshot. The public repository is
+`DiligentPenguinn/course-companion-qa-portfolio`; Vercel's active, non-trial Hobby
+scope deployed commit `d107f736b780af7330520e617069e30b37a33e18` as
+`dpl_DyDMaszWeNtFZuc39vrBb4paYQC7`, available at
+`https://course-companion-qa-portfolio.vercel.app/`. Vercel fetched that GitHub
+commit; no local directory upload exposed planning, evidence, backups or course
+files. No paid service or domain was purchased. The accepted applicationSnapshot
+remains `9930023f2825a7a2519bac7244337d85e1d8dbe8d0fa3fd56ba6d8415bbaa32e`.
+
+The parent independently opened the deployed site and checked desktop
+1440×900, mobile viewport 390×844, 320px/768px overflow, the actual image,
+placeholder labels, eight hrefs, keyboard anchor focus and captured console.
+CTA bounds remained 818.28–866.28px desktop and 738.67–786.67px mobile at
+root scrollY=0. All tested widths had equal client/scroll width; captured
+warnings/errors were empty. Mobile emulation is not physical-device coverage.
+
+The real course refresh then exposed a new blocker: a normal task reopen had
+appended a second matching `session_meta` header. The metadata reader rejected
+any repetition, leaving cached ready evidence while actual submission failed.
+It now verifies every header's exact task/workspace and accepts matching
+reopens; wrong identities remain blocking. A failed refresh also blocks new
+acceptance and exposes the existing connection warning without deleting saved
+evidence. Focused regression and the actual repaired live refresh passed.
+
+A genuine Module 4 AI review was submitted and retained as needs-work. Besides
+QA-versus-learner attribution, it requested verified Git/handoff facts that the
+collector had checked but omitted from the review context. Source context now
+includes the independently read clean committed HEAD and verified Module 3 v2
+binding/checkpoint. Vietnamese command outcomes such as “npm run check đạt” are
+preserved as executor reports, never promoted to independent verification.
+
+The owner requested a more lenient Teacher for complete beginners. Portfolio
+reviews now use the stated minimum rather than professional polish, accept
+honestly labelled concepts/placeholders when the approved scope permits them,
+allow transparent mobile emulation, avoid additional proof formats and give one
+small blocking next action. Required freshness, working outcomes, authenticity,
+current acceptance and prior publishing consent remain unchanged. Module 1 and
+the Practice definitions/required criteria are unchanged. This is a reviewer
+policy repair, not a lower numerical threshold or a claim that agent QA proves
+learner mastery.
+
+Under the owner's explicit administrative QA authorization, a separate one-use
+Module 4 waiver retained the genuine review and refreshed actual task/source/
+public-URL evidence before creating a clearly labelled QA-only receipt. It did
+not disable production gates. Normal course controls then saved and archived
+the attempt, reached `module-4-complete`, recorded `m4-complete`, and displayed
+19/19 checkpoints (100%) at Home Base. The counter now excludes retired
+checkpoints while preserving their saved history. The disposable journey's
+initial new expected count was corrected from 14 to 12 because that fixture
+deliberately skips seven teaching checkpoints; the full live QA route reaches
+all nineteen.
+
+The original learner profile hashes remain separate from this copied QA run.
+QA completion is not a passed live AI assessment or beginner-pilot acceptance.
+Both original Module 3 reviews and the real Module 4 needs-work review remain
+preserved. QA proof, audit and disposable logs stay in ignored `.superpowers/`.
+
+Final delivery verification passed: typecheck, lint, 775 unit tests (three
+existing skips), all nine startup checks, build, Electron smoke, Teacher chat,
+Practice guide and the expanded disposable Module 2→3→4 journey. That journey
+also covers delayed Teacher-summary return, retired-checkpoint history and
+current Home progress. Logs are `.superpowers/qa/release-done-{lint,unit,
+electron,portfolio-electron}.log`. The first exact-copy sync check correctly
+failed until the two owner-approved sentences were synchronized into the Pilot
+lesson; the final complete batch passed. All affected renderer scene IDs remain
+present. Independent GitHub inspection confirms the public sample's exact
+twelve-file tree and source SHA. All seven original learner-profile JSON hashes
+still match the pre-QA audit. The isolated QA app was closed after completion;
+no administrative waiver code or test state enters the production commit.
+
+### Practice prompt access, layout and Codex compatibility — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / F0.4 / I2 / M2.5 — folder-button alignment, Practice heading, repeatable prompt access and runtime compatibility | `implemented` | `passed` in the later 29 October progress-refresh batch below; earlier intermittent Module 4 fixture failures remain recorded and undiagnosed | Repairs, CLI update and recurring compatibility checks explicitly requested; final runtime acceptance remains `pending` | `pending` | Continue the existing learner-owned Module 2 task and obtain live runtime acceptance; retain the intermittent fixture issue for investigation. |
+
+The portfolio Continue button now uses block layout so its automatic margins
+align it with the folder panel. The generic Practice brief uses its existing
+title as the heading, preserves the full objective as body text and caps the
+heading at 28px. The exact existing Module 2 prompt is shared by the course
+transition, Practice start/resume page and active Teacher help panel. Its copy
+action stays available while the prompt disclosure is collapsed; no prompt is
+sent automatically and no new guide or assessment gate is introduced.
+
+The owner's standalone CLI was 0.147.0 while the desktop runtime was
+0.164.0-alpha.11.1. The standalone installation was updated from the matching,
+hash-verified desktop binaries with a backup retained outside the repository.
+Every App Server connection and task reopen now resolves and verifies the
+desktop runtime, preferring the currently installed app over PATH or a stale
+inherited runtime path. Standalone fallback requires CLI 0.164 or newer. The
+check neither installs software nor writes learner task instructions.
+
+The rebuilt app was restarted with existing application data. A live click on
+the Teacher task link opened the original empty Module 2 task;
+its title and empty composer were visually
+confirmed without sending a message or replacing the task. Disposable diagnostic
+tasks remained separate from learner evidence. Empty diagnostic tasks were not
+included in discovery with either runtime, so discovery absence alone is not
+proof of failed navigation or a sufficient regression assertion.
+
+Desktop, 390px and 320px browser checks passed for the actual components and
+production CSS: no horizontal overflow, exact folder-panel/button alignment,
+short heading, persistent prompt copy, clipboard failure/retry and exact prompt
+text. Screenshots are under `.superpowers/qa/prompt-copy-browser/`. Course scene
+IDs and order and existing prompt text are preserved. No portfolio files,
+personal completion state or approval/acceptance gates were changed.
+
+Final typecheck, lint, production build, all nine startup checks and the complete
+Electron smoke, Teacher-chat and Practice-guide scripts passed. The changed
+runtime checks and prompt checks passed their focused runs. A full two-worker
+unit run passed 739 tests with three existing skips before the last resolver
+freshness refinement. Later full runs against the finished source intermittently
+failed the unchanged Module 4 approval fixture; the final one-worker run passed
+738 tests, skipped three and failed one release-package test. Its initial
+approval was rejected as changed/not ready before the test's intended source
+mutation. Other attempts also exposed existing five-second filesystem-test
+timeouts under load. Restricted-runner junction/Git permission failures were
+rerun with normal local filesystem access.
+
+The isolated release suite passed 44 tests with one existing skip, and a bounded
+diagnostic passed 80 unchanged disposable release approvals. Those results do
+not clear the intermittent full-suite failure. Temporary diagnostics were
+removed and both the release adapter and its fixture restored exactly; this
+batch makes no release-approval changes. The final full unit gate remains
+`failed`, and native macOS, live AI quality and owner/pilot acceptance remain
+pending. No checkpoint commit or release was made.
+
+**Follow-up prompt correction — 29 October:** The owner found that the copied
+prompt could produce one combined plan while the checker required five separate
+documents, and requested correcting the prompt and its folder instructions.
+The shared prompt now explicitly anchors every relative path to the selected
+portfolio folder in the existing task, names all five documents and their
+existing content requirements, and explains the current PRD/plan approval and
+submission step. It reuses confirmed work and requires permission before
+renaming, moving, deleting or overwriting an existing plan. All three copy
+surfaces use this corrected text; learner files and assessment rules are
+unchanged. This supersedes the earlier preservation of the original prompt
+text above. Fourteen focused prompt/introduction tests, typecheck, scoped lint,
+the production build and the Electron smoke journey passed. The smoke fixture
+now normalizes native Windows clipboard CRLF to LF before comparing the exact
+prompt. The full backend suite and separate chat/guide suites were not repeated
+for this copy-only follow-up; the previously recorded intermittent full-unit
+failure and owner/pilot acceptance gates remain open.
+
+**Follow-up progress refresh repair — 29 October:** After creating all five
+documents, the owner's refresh still failed because the original combined
+`planning/portfolio-plan.md` was rejected as an unexpected workspace change.
+The collector now preserves that exact legacy note as background material. It
+does not count it as one of the five documents or include it in the reviewed
+digest. Other unexpected paths, directories and linked paths remain rejected.
+Read-only collection against the owner's actual workspace found five fresh
+artifacts, no issues and no unexpected paths; the original note's hash was
+unchanged.
+
+Module 2's Teacher refresh now reloads actual evidence before requesting a
+review. When the package is ready but still awaits learner approval, it focuses
+the existing unchecked PRD/plan approval box instead of recording another
+failed review. Both progress layouts point to the existing submission action.
+The user must still approve and submit the current package; the repair grants
+no approval, review pass or module completion.
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I4 / M2.5 — combined-plan compatibility and refresh-to-approval flow | `implemented` | `passed` for typecheck, lint, 747 unit tests (three existing skips), nine startup checks, build, full Electron smoke/chat/guide and disposable Module 2→3→4 rehearsal | Repair requested; live runtime acceptance remains `pending` | `pending` | Learner confirms the current PRD/plan and submits the package in the rebuilt app; retain live AI and native macOS gates. |
+
+Forty-three focused evidence, renderer and continuity tests passed. The extended
+Electron journey verifies that refresh focuses the enabled, unchecked approval
+box, leaves approval absent and review-history length unchanged, clears the
+old-note blocker and preserves the note. Desktop/narrow overflow checks and
+the original same-task approval/review/return journey passed. Its first run
+stopped earlier at an existing companion-mode settings temporary-file rename
+race; the subsequent full journey passed. The complete unit run also passed
+the previously intermittent Module 4 cases, without any release-adapter or
+fixture changes; this does not establish their prior cause or repair.
+
+The personal app was restarted with the final build and existing data. A final
+live UI click could not be performed because both native automation connections
+reported `Computer Use helper already has an active request`, including after
+session recovery. Automated click verification and read-only learner evidence
+are recorded separately from that unverified live click. No learner documents,
+approval or completion were edited, no pages were removed and no checkpoint
+commit or release was made.
+
+**Live submission and hidden assessment feedback — 29 October:** The owner
+requested that the agent operate the actual window and submit on their behalf.
+The initially disabled panel recovered after reloading the renderer without
+resetting saved data. The agent then operated the real checkbox and submission
+button in the bound Module 2 window. The real AI review completed and persisted
+five satisfied criteria and two unsatisfied criteria: the brief's intended
+viewer decision/success signal and the reference's concrete original direction.
+This is a genuine `needs-work` review, not a transport failure or a passed
+Practice. Three of five checklist stages are verified; no completion was granted.
+
+The compact panel had hidden the review summary and explanations, falling back
+to generic step instructions for these criterion IDs. It now displays the
+existing summary and unmet explanations verbatim and uses the actual explanation
+as its next action. This repair is scoped to Module 2; Module 1's frozen compact
+presentation is preserved. No assessment wording or criteria were weakened.
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I4 / M2.5 — visible compact review feedback | `implemented` | `passed` for typecheck, lint, 748 unit tests (three existing skips), nine startup checks, build, full Electron smoke/chat/guide and live narrow feedback inspection | Repair and live submission requested; document-edit approval remains pending; final runtime acceptance `pending` | `pending` | Obtain explicit approval for the two prepared personal-document clarifications, then submit the changed package through the real review. |
+
+The initial full unit run caught an overly broad compact fallback; it was
+restricted to Module 2 and 29 focused renderer tests plus the final full suite
+passed. Restricted-runner startup Git writes failed and passed when rerun with
+normal local filesystem access. The rebuilt renderer was loaded in the actual
+Teacher window and its accessibility tree and narrow screenshot show both
+previously hidden explanations. The initial stuck UI's underlying cause is not
+established; renderer recovery is recorded separately from the feedback repair.
+
+Automatic approval review rejected editing the personal brief and reference
+because of the learner-owned assessment boundary. No workaround was attempted
+and those files remain unchanged. A concrete draft is saved outside the learner
+workspace at `.superpowers/qa/module-2-review-clarifications.md`; an explicit
+approval request is pending. The original task, document content and assessment
+rules remain intact. This live needs-work result does not grant module, owner,
+pilot or course acceptance. No checkpoint commit or release was made.
+
+### Actual learner-path continuation audit — 29 October 2026
+
+The owner explicitly approved the two prepared personal-document clarifications.
+They were applied with backups, preserving the original combined plan and the
+other three submitted documents. The agent resubmitted through the actual
+Teacher checkbox and button. The real AI review passed all seven criteria and
+the normal return action archived the original Practice. The agent completed
+the five-question Module 2 group through its visible controls using decisions
+already documented in the approved brief. The genuine completion gate saved
+the five-file handoff and opened Module 3. This is an owner-authorized agent
+walkthrough, not evidence of unaided learner mastery or beginner-pilot acceptance.
+This supersedes the pending document-edit approval and needs-work status above.
+
+The agent traversed all six debugging/local-preview pages and all seven Git
+pages in their normal sequence, exercised image zoom/back/continue, opened the
+Module 3 Practice transition, and read the three-record disclosure. Starting
+Practice and retrying through the actual buttons failed: the retained original
+Codex task already has an active writer in desktop, so a second App Server
+`thread/resume` is rejected. Independent read-only collection confirms the
+handoff is current, all five approved hashes match, and no workspace issues
+exist. The pending transition and original task are preserved. No Module 3
+Practice pass, Module 4 traversal, public deployment or graduation is claimed.
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| I4 / M3.8 / M4.8 — actual learner-path audit and continuation repairs | `in-progress` | `passed` for 767 unit tests (three existing skips), nine startup checks, typecheck, lint, build, full Electron smoke/chat/guide, desktop/narrow embedded review and the final disposable portfolio journey; second real Module 3 review satisfies sample PRD/current-source validation but leaves four authorship criteria unverifiable; actual Module 4 traversal `blocked` | Actual end-user traversal and repairs requested; four exact Module 4 status corrections, debugging lesson restoration and copy/paste continuation approved; placeholders reiterated after the real review | `pending` | Preserve both genuine reviews and the sample revision. Continuing the live path requires actual learner evidence or an explicitly approved change to how a delegated QA rehearsal is assessed; adding sample content alone cannot satisfy the remaining authorship gate. |
+
+The current batch extends visible needs-work feedback and refresh-to-approval
+behavior to all portfolio packages, connects Module 4's Practice entry and Home
+resume, restores Module 3's missing onward completion action, and applies the
+four approved Module 4 status corrections. Assessment option text is readable
+at desktop scale and save errors are placed within the assessment controls.
+No question, assessment threshold, source freshness check or review requirement
+was weakened. The attempted oversized text inserted by UI automation exceeded
+the existing native textarea limit; it was corrected without changing that limit.
+
+A separate observed Module 3 debugging page replaces its approved lesson with
+raw truncated planning excerpts. A concrete proposal to restore the existing
+lesson verbatim and retain the five-file reference in a disclosure is pending
+owner approval. Neither that copy change nor the proposed copy/paste continuation
+has been applied. Native macOS, provider rehearsal, owner acceptance and human
+pilot gates remain open. No checkpoint commit, push or release was made.
+
+Final regression details: the first full unit run caught a route assertion that
+assumed every renderer destination stayed within its module. The assertion now
+checks the explicit cross-module completion destination and valid Module 4
+scene, and the final complete suite passed. That first run also reproduced the
+previously intermittent release-approval rejection; fixture failure diagnostics
+were added, but the next full run passed and no cause or repair is claimed.
+The expanded disposable Electron journey now uses the Module 3 completion button,
+Module 4 Home resume, all four pre-Practice lesson transitions and the real
+Practice entry controls. Its initial final-return wait timed out after progress
+reached the completion scene; the repeat passed with archived-attempt diagnostics
+enabled. That observation remains undiagnosed rather than being labelled fixed.
+Desktop and 320px release approval screenshots were inspected without horizontal
+overflow. These simulated checks do not stand in for the owner's actual path.
+
+A separate disposable two-process runtime probe reproduced the active-writer
+error and confirmed that the experimental queue cannot start a message from the
+second process without resuming the chat. Its disposable chat was archived; no
+message was queued in the personal task. Temporary main-process diagnostic
+writes were removed, and the personal app was restarted in the verified build
+with its original pending Module 3 transition and task intact.
+
+**Approved continuation and lesson repair follow-up — 29 October:** The owner
+explicitly approved both prepared proposals. Current Module 3 v2 and Module 4
+continuation now verifies the persisted task and workspace by read-only
+`thread/read`, opens that exact desktop-owned task, and leaves work instructions
+to the learner. Historical Module 3 v1 behavior is preserved. The existing
+instructions remain copyable in Practice and Teacher progress; the Module 4
+prompt is produced only with a verified Module 3 source checkpoint. Review,
+approval, source freshness and completion requirements are unchanged.
+
+The real retained Module 3 retry succeeded through the course button and opened
+the original task. The agent copied the instructions using the visible button,
+opened the linked task, pasted and sent them through its normal composer, then
+accepted only the proposed first bounded part. The restored debugging lesson
+was also verified through the real outline: original dialogue remains the main
+content, with a collapsed reference that expands to all five planning paths.
+The outline return action preserved the saved Practice checkpoint.
+
+The agent independently opened the provided first-part preview, inspected
+1440×900 and 390×844, observed no horizontal overflow, activated the keyboard
+skip link and verified focus on the introduction. Part 1 was accepted, and
+the agent proposed a View the project link for the next bounded part. A real
+preview connection timeout and its successful same-URL recheck are recorded as
+environment debugging evidence, not invented application bugs. The owner then
+explicitly requested placeholders for missing personal fields. They must stay
+clearly labelled and never be described as real contact, profile or repository
+evidence. No publication consent, independent learner mastery, passed Module 3
+or Module 4 completion is inferred.
+
+A coordination-tool follow-up was correctly treated by the Practice task as
+another chat's report rather than direct learner approval; the next part's scope
+approval was therefore entered through the normal chat composer. The records
+distinguish this delegated QA walkthrough from an unaided learner pilot.
+
+Current focused continuation/prompt checks and build passed. The final full unit
+run with four workers passed 759 tests (three skips), followed by all nine
+startup checks. Earlier runs reproduced a release source-inspection failure
+between an initially ready view and approval; the collector's safety rejection
+is preserved, and the lower-level cause remains under investigation. The new
+Electron regression and final UI checks for this approved batch remain pending.
+
+**Actual submission and additional repairs — 29 October, 04:25:** The agent
+completed two bounded implementation parts in the original personal task and
+independently inspected the actual local portfolio at desktop/mobile sizes.
+The agent proposed the project CTA, reproduced its below-fold desktop position,
+requested a CSS-only revision, and verified that its 818.28–866.28px bounds fit
+the first 900px viewport. Mobile focus and overflow checks remained successful.
+The three records preserve delegated QA attribution and clearly labelled
+placeholders; no missing identity, repository, media or contact fact was invented.
+
+Through the actual Course Companion buttons, the agent refreshed evidence,
+checked acceptance and submitted the personal Module 3 package. The real review
+completed at 04:25:35 and returned needs-work: REQ-002/003/005/006/007 remain
+unmet, and delegated-agent observations do not establish the learner's own
+mastery or acceptance. It also requested source-fingerprint linkage and fuller
+conversation excerpts. No assessment or personal progress was bypassed. The
+owner was asked whether to provide those inputs or authorize a separate,
+clearly labelled Module 4 QA rehearsal. Personal Module 4 remains untraversed.
+
+The intermittent release-source failure was reproduced in a fresh disposable
+repository: concurrent Git inspection sometimes returns code 128 with
+`.git/index: index file open failed: Permission denied`. Release Git reads now
+use `--no-optional-locks` and retry only that exact transient index-read failure
+at 50/100ms, at most three attempts. Persistent failures and unrelated errors
+remain blocking. Seven narrow regression tests cover the boundary; a repeat
+of 40 fresh repositories at concurrency two had zero failures, versus one
+reproduced failure before the repair.
+
+A separate regression reproduced a passed Module 4 return that failed to mark
+`m4-complete`. The authoritative return now records that terminal checkpoint;
+other modules' mastery destinations are not automatically completed. Outline
+review cannot show the Module 4 success scene before the same course's reviewed
+release return. The scene remains in the inventory and becomes reviewable once
+earned. No page or approved lesson copy was removed.
+
+The real embedded Teacher panel also left only a few lines for evidence below
+its fixed controls. Its embedded review now scrolls as one area; standalone
+Teacher behavior is preserved. Final desktop/narrow verification is pending.
+The first final disposable portfolio run failed at Module 3 submission with a
+generic review error; diagnostics and a focused rerun are in progress. This
+failure is not treated as a pass or as personal learner evidence. No commit,
+push, publication, owner acceptance or beginner-pilot acceptance is claimed.
+
+**Final verification follow-up:** The disposable submission failure was traced
+to its fixture: simulated learner/check conversation turns had been attached
+to the automatic continuation message, which the approved read-only workflow
+correctly no longer sends. The test-only gateway now attaches those explicitly
+labelled simulated turns when its matching disposable supporting records exist
+and the corresponding test flag is enabled. No production evidence check was
+weakened, no personal conversation was injected, and the temporary diagnostic
+logging was removed.
+
+The final coherent batch passed typecheck, lint, 767 unit tests (three existing
+skips), all nine startup checks, build, Electron smoke, Teacher chat, Practice
+guide and the expanded disposable portfolio journey. Embedded Teacher controls
+were verified at 1168×746 and 360×640 with a useful scrolling viewport, fully
+reachable submit action and no horizontal overflow. The release journey also
+asserts that unearned completion cannot be reached through outline browsing
+and that a passed return records `m4-complete`. Desktop/narrow screenshots were
+visually inspected. The scene inventories remain unchanged.
+
+The personal app was safely restarted in this verified build only after its
+review ended. Normal resume, roadmap and Teacher buttons reopened the same
+Module 3 checkpoint and real needs-work feedback; the repaired panel scrolls
+to the full review result. The bound task and all personal records are intact.
+Evidence is saved at `.superpowers/qa/actual-module-3-review.png`; final check
+logs are `.superpowers/qa/final-batch-{unit,lint,electron,portfolio-electron}.log`.
+These automated checks do not establish a live Module 4 deployment, personal
+completion, native macOS acceptance or beginner-pilot acceptance. The separate
+QA-versus-personal-path question remains pending owner input.
+
+**Owner direction, later 29 October:** The owner answered the pending question
+by reiterating “just supply some placeholder” and requested no further pause
+for those inputs. The walkthrough continues with an explicitly labelled sample
+portfolio/concept and authorized QA proxy observations. Through the bound task's
+normal composer, the agent supplied a concrete sample persona/contact/profile
+brief and approved one bounded revision: back up the five current planning
+documents, reconcile their sample-versus-real scope, keep the original combined
+plan/history, add only truthful current-demo content and an actual screenshot,
+run current-source checks, update the three records and stop for browser review.
+No human-authored mastery, passed review or publication consent is inferred.
+This supersedes the pending-question status above; the real prior needs-work
+review remains intact while the revised QA package is prepared.
+
+The bounded revision produced planning revision 0.2 and a labelled Alex Nguyen
+sample concept using the actual portfolio frontend as its demo. It preserves
+real-data/publication requirements as a separate gate, includes a real local
+screenshot and keeps five original-document backups outside planning/public.
+The agent read the revised documents, independently checked the actual dev UI
+at 1440×900, 390×844, 320px and 768px, and verified the media, placeholders,
+overflow, anchor focus and empty warning/error console. Desktop CTA remained
+818.28–866.28px; mobile became 738.67–786.67px. The agent independently invoked
+the actual applicationSnapshot function: digest
+`9930023f2825a7a2519bac7244337d85e1d8dbe8d0fa3fd56ba6d8415bbaa32e`,
+12 files/142103 bytes, matching the new records. Production-preview checks were
+reported by the bound task; the parent could not independently reopen port
+4173 after its temporary server stopped, so does not claim that independent
+check. The live dev URL remained available.
+
+Through the normal bound-task composer, the agent accepted the revised sample
+documents/site and gave a concise explanation of the actual CTA improvement
+and debugging evidence. Attribution remains authorized QA, not unaided human
+mastery. After the task finished recording these decisions, the agent used
+Teacher refresh, the current acceptance checkbox and actual submit button for
+a second genuine Module 3 review. Its outcome is pending; no passed result,
+assessment answer, personal Module 4 completion or publication is inferred.
+
+**Second real review outcome — 04:56:55:** Teacher now marks current PRD
+validation satisfied: all REQ-001–012 of the sample revision, command/browser
+checks and source fingerprint match the submitted package. The four remaining
+criteria are unverifiable solely because taskEvidence explicitly identifies
+the observations, decisions and explanations as delegated agent QA rather
+than the learner's own demonstration. The repeated placeholder instruction has
+been fulfilled; it does not provide those human observations or authorize
+inventing them. Both reviews and the original bound task remain preserved.
+Screenshot: `.superpowers/qa/actual-module-3-sample-review.png`.
+
+The actual learner path therefore remains at Module 3. No assessed answer was
+filled, reviewer decision overridden, passed state injected, or personal
+Module 4 route unlocked. Module 4 verification in this batch is the explicitly
+disposable simulated UI journey, not a live learner/provider completion.
+Normal gates remain intact as requested in the approved continuation proposal.
+No further personal-data question is pending; the remaining limitation is
+assessment attribution, not missing placeholder fields.
+
+**Owner-authorized QA bypass — subsequent 29 October:** The owner explicitly
+identified this as QA, authorized an administrative one-time gate bypass and
+asked that normal checks be re-enabled afterward. A one-use maintenance script
+copied the exact saved attempt into
+`.superpowers/qa/admin-walkthrough-20261029/data`, retained the two genuine
+needs-work reviews, and recorded an explicitly labelled QA-only bypass receipt.
+It verified the exact course/run/generation/task and current source/approval
+before the write, then verified original-profile file digests were unchanged.
+No production gate code was disabled; normal live mode was used immediately
+after the maintenance operation. The window title visibly labels QA ONLY.
+The script cannot silently run twice because its target directory must be new.
+
+The normal quick-return control exposed a separate defect: the backend saved
+the mastery destination and archived Practice, but the screen kept spinning
+while it awaited an AI Teacher memory summary. The return notification now
+follows authoritative persistence and local context cleanup; summarization runs
+in the background afterward. Focused Teacher/typecheck checks passed. A delayed
+summary regression requires the Module 3 mastery screen within five seconds
+despite a ten-second simulated summary. Full verification is pending the final
+coherent batch. This repair does not waive review, source freshness or approval.
+
+The owner also requested a delegated Practice aesthetic/interaction polish
+without new features and specified the existing course palette. The assigned
+worker preserved copy/features/gates, used existing obsidian/gold/neutral tokens
+and reduced-motion-aware styling, and passed 25 focused checks. The owner
+authorized committing and pushing the completed, verified batch to the current
+branch; that authorization does not assert learner or pilot acceptance.
+
+**QA route and release preflight — 29 October, 05:42:** In the clearly labelled
+copied QA profile, normal saved-progress resume reached Module 3 mastery. The
+agent traversed the five questions, feedback, summary, completion and Module 4
+entry using the visible course controls. This is QA routing coverage under the
+owner's bypass authorization, not independent learner mastery. The original
+profile and both genuine needs-work reviews remain unchanged.
+
+The agent read all four Module 4 lesson pages in sequence, expanded the hosting
+image, watched the complete 2:12 deployment video, opened the actual release
+Practice, copied its repeatable prompt and used “Mở lại task Codex” to reopen
+the original bound task successfully. The copied prompt was pasted and sent
+through the normal task composer. Release preflight is running against the
+unchanged accepted source; no repository creation, push or deployment has been
+authorized or performed. Existing GitHub/Vercel sign-in was inspected without
+exposing credentials. The two premature pre-Practice publication-status
+sentences have a prepared exact-copy proposal awaiting owner approval; all
+pages and current copy are preserved meanwhile.
+
+The latest coherent polish/return batch again passed lint, 767 unit tests
+(three existing skips), nine startup checks, typecheck and build. Electron
+smoke, Teacher chat and Practice guide passed; the expanded portfolio journey
+with the delayed-summary regression is still running. Logs are
+`.superpowers/qa/qa-polish-final-{lint,unit,electron,portfolio-electron}.log`.
+The expanded portfolio journey subsequently passed, including arrival at
+Module 3 mastery within five seconds while Teacher summarization was delayed
+ten seconds. All seven original-profile JSON hashes still match the bypass
+audit. No production QA-bypass switch or assessment exception was introduced.
+
+The actual bound task prepared source-only local commit
+`d107f736b780af7330520e617069e30b37a33e18`; independent Git inspection confirms
+exactly the twelve accepted application files, a clean worktree and unchanged
+Module 3 applicationSnapshot. Planning/evidence/backups are locally excluded
+and preserved. A concrete public sample GitHub/Vercel proposal is awaiting
+owner consent; no remote repository, push or deployment exists. Module 4 live
+deployment/review and final delivery remain pending. No pilot acceptance is
+inferred.
+
+| Current QA batch scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| M3/M4 continuation, return responsiveness, repeatable prompts, Practice visual polish and normal learner gate regressions | `implemented` | `passed` for Windows typecheck/lint/unit/startup/build/Electron/disposable portfolio checks | Workflow repair, QA-only administrative bypass, existing palette and eventual current-branch commit/push explicitly authorized; exact two-sentence status proposal and public sample publication remain pending | `pending` | Continue actual Module 4 publication only with the prepared explicit consent; preserve the original learner profile and normal checks. |
 
 ### Beginner Practice clarity and completion feedback — 28 October 2026
 

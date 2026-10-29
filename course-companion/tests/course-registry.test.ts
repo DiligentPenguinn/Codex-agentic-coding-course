@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { CourseModuleDefinition } from '../shared/course/module-contracts'
+import { checkpointIds, runnableCheckpointIds } from '../shared/contracts'
 import {
   portfolioModuleDefinitions,
   validateCourseModuleDefinitions
@@ -12,6 +13,19 @@ function mutableDefinitions(): CourseModuleDefinition[] {
 }
 
 describe('portfolio course registry', () => {
+  it('counts current course checkpoints without requiring retired stages or losing their history', () => {
+    expect(runnableCheckpointIds).toHaveLength(19)
+    expect(new Set(runnableCheckpointIds).size).toBe(runnableCheckpointIds.length)
+    for (const retired of ['m2-content-evidence-inventory', 'm3-scaffold-baseline', 'm4-security-publication', 'm4-production-decision']) {
+      expect(checkpointIds).toContain(retired)
+      expect(runnableCheckpointIds).not.toContain(retired)
+    }
+    for (const module of portfolioModuleDefinitions) {
+      for (const scene of module.scenes) expect(runnableCheckpointIds).toContain(scene.checkpointId)
+    }
+    expect(runnableCheckpointIds).toContain('m4-complete')
+  })
+
   it('exposes ordered typed definitions for Modules 2-4', () => {
     expect(portfolioModuleDefinitions.map((module) => module.id)).toEqual([
       'module-2',

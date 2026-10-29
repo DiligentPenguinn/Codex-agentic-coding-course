@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -128,6 +128,66 @@ async function writeValidDocuments(workspace: string, overrides: Record<string, 
 }
 
 describe('collectPortfolioPackage', () => {
+  it('preserves the original combined plan without counting it as a required or reviewed document', async () => {
+    const workspace = await temporaryWorkspace()
+    await writeValidDocuments(workspace)
+    const baseline = await collectPortfolioPackage(context(workspace))
+    const note = join(workspace, 'planning/portfolio-plan.md')
+    await writeFile(note, '# Original learner planning notes\n\nKeep the confirmed interview decisions.')
+
+    const evidence = await collectPortfolioPackage(context(workspace))
+
+    expect(evidence.freshness).toBe('fresh')
+    expect(evidence.portfolioPlanning?.issues).toEqual([])
+    expect(evidence.portfolioPlanning?.unexpectedPaths).toEqual([])
+    expect(evidence.portfolioPlanning?.artifacts).toHaveLength(5)
+    expect(evidence.portfolioPlanning?.artifacts.some(({ path }) => path === 'planning/portfolio-plan.md')).toBe(false)
+    expect(evidence.sourceDigest).toBe(baseline.sourceDigest)
+    expect(await readFile(note, 'utf8')).toContain('Keep the confirmed interview decisions.')
+  })
+
+  it('still requires all five documents when only the original combined plan exists', async () => {
+    const workspace = await temporaryWorkspace()
+    await writeFile(join(workspace, 'planning/portfolio-plan.md'), '# One combined plan')
+
+    const evidence = await collectPortfolioPackage(context(workspace))
+
+    expect(evidence.freshness).toBe('unverifiable')
+    expect(evidence.portfolioPlanning?.artifacts).toHaveLength(0)
+    expect(evidence.portfolioPlanning?.issues.filter(({ code }) => code === 'missing')).toHaveLength(5)
+  })
+
+  it.each(['directory', 'junction'])(
+    'rejects an original-plan path that is a %s', async (kind) => {
+      const workspace = await temporaryWorkspace()
+      await writeValidDocuments(workspace)
+      const note = join(workspace, 'planning/portfolio-plan.md')
+      if (kind === 'directory') await mkdir(note)
+      else {
+        const outside = await temporaryWorkspace('portfolio-original-plan-target-')
+        await symlink(outside, note, process.platform === 'win32' ? 'junction' : 'dir')
+      }
+
+      const evidence = await collectPortfolioPackage(context(workspace))
+
+      expect(evidence.freshness).toBe('unverifiable')
+      expect(evidence.portfolioPlanning?.unexpectedPaths).toContain('planning/portfolio-plan.md')
+    }
+  )
+
+  it('does not exempt other unrequested files beside the original combined plan', async () => {
+    const workspace = await temporaryWorkspace()
+    await writeValidDocuments(workspace)
+    await writeFile(join(workspace, 'planning/portfolio-plan.md'), '# Original notes')
+    await writeFile(join(workspace, 'planning/other.md'), '# Unrequested document')
+    await writeFile(join(workspace, 'package.json'), '{}')
+
+    const evidence = await collectPortfolioPackage(context(workspace))
+
+    expect(evidence.freshness).toBe('unverifiable')
+    expect(evidence.portfolioPlanning?.unexpectedPaths).toEqual(['package.json', 'planning/other.md'])
+  })
+
   it('collects exactly five approval-free documents with equivalent Markdown headings', async () => {
     const workspace = await temporaryWorkspace()
     await writeValidDocuments(workspace)

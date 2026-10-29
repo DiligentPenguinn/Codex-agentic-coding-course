@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { portfolioContinuationInstructions } from './portfolio-continuation-instructions'
 import { portfolioBuildSliceIds } from '../../shared/contracts'
 import type { PortfolioPackageApprovalRequest, PortfolioPackageHandoff } from '../../shared/contracts'
 import { currentPortfolioPackageApproval, isPortfolioPackage, isPortfolioBuildPackage, isPortfolioReleasePackage, isReviewedPortfolioPackage, portfolioPackageEvidence, portfolioPackageIsReady } from './portfolio-package-state'
@@ -290,6 +291,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
   async loadWorkspace(identity?: PracticeIdentity): Promise<PracticeWorkspaceView> {
     return this.runExclusive(async () => {
       const refreshError = 'Chưa thể làm mới bằng chứng từ Codex. Trạng thái đã lưu vẫn được giữ để bạn kết nối lại.'
+      let refreshFailed = false
       let record = await this.repository.load()
       let verifiedArchive: PracticeRunRecord | undefined
       let archiveRefreshFailed = false
@@ -356,8 +358,13 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         if (this.lastError === refreshError && !archiveRefreshFailed) this.lastError = ''
       } catch {
         this.lastError = refreshError
+        refreshFailed = true
       }
-      return this.toView(record, identity, verifiedArchive)
+      const view = await this.toView(record, identity, verifiedArchive)
+      // Keep the saved result visible, but do not offer fresh acceptance when
+      // its current task/evidence could not actually be read.
+      if (refreshFailed && view.portfolioPackage) view.portfolioPackage.ready = false
+      return view
     })
   }
 
@@ -565,8 +572,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         }
         await this.executor.prepareTarget(binding, definition, approvedConfiguration, handoff.sourceCheckpoint)
         return
-      } catch {
-        throw new Error('PORTFOLIO_RELEASE_CONTINUATION_UNAVAILABLE')
+      } catch (error) {
+        throw new Error('PORTFOLIO_RELEASE_CONTINUATION_UNAVAILABLE', { cause: error })
       }
     }
     if (definition.practiceId !== 'm3-portfolio-build') return this.executor.prepareTarget(binding, definition, approvedConfiguration)
@@ -576,8 +583,8 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
         throw new Error('Portfolio handoff changed')
       }
       await this.executor.prepareTarget(binding, definition, approvedConfiguration)
-    } catch {
-      throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE')
+    } catch (error) {
+      throw new Error('PORTFOLIO_CONTINUATION_UNAVAILABLE', { cause: error })
     }
   }
 
@@ -945,6 +952,15 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     const definition = identity
       ? await this.definitions.load(identity.practiceId, identity.practiceVersion)
       : null
+    let startPrompt: string | undefined
+    if (definition?.practiceId === 'm3-portfolio-build' && definition.version === '2.0.0') {
+      startPrompt = portfolioContinuationInstructions(definition)
+    } else if (definition?.practiceId === 'm4-portfolio-release') {
+      const handoff = await this.loadPortfolioReleaseHandoff?.().catch(() => null)
+      if (handoff && /^sha256:[a-f0-9]{64}$/.test(handoff.sourceCheckpoint)) {
+        startPrompt = portfolioContinuationInstructions(definition, handoff.sourceCheckpoint)
+      }
+    }
     const planningReviewStep = displayedRun?.checklist.find((step) =>
       step.id === 'explain-scope-and-review')
     const canReview = Boolean(record.activeRun && displayedRun && (!isPortfolioProfile(displayedRun.evidenceProfile) || isReviewedPortfolioPackage(displayedRun)) && (
@@ -954,6 +970,7 @@ export class PracticeCoordinator implements PracticeWorkspaceAdapter {
     ))
     return {
       schemaVersion: 1,
+      ...(startPrompt ? { startPrompt } : {}),
       phase: transition ? 'switching' : displayedRun && record.activeRun ? 'active' : this.lastError ? 'error' : 'brief',
       title: definition?.title ?? 'Bài thực hành',
       objective: definition?.objective ?? '',

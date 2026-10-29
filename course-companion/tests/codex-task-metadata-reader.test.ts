@@ -20,6 +20,8 @@ async function fixture(overrides: {
   serviceTier?: unknown
   settingsTimestamp?: string
   duplicateSession?: boolean
+  duplicateSessionThreadId?: string
+  duplicateSessionWorkspace?: string
   wrongFilename?: boolean
   rolloutOutsideSessions?: boolean
   incompatibleSchema?: boolean
@@ -43,7 +45,7 @@ async function fixture(overrides: {
     ...(overrides.duplicateSession ? [{
       timestamp: '2026-08-19T12:00:30.000Z',
       type: 'session_meta',
-      payload: { id: THREAD_ID, cwd: WORKSPACE }
+      payload: { id: overrides.duplicateSessionThreadId ?? THREAD_ID, cwd: overrides.duplicateSessionWorkspace ?? WORKSPACE }
     }] : []),
     ...(!overrides.omitSettings ? [{
       timestamp: overrides.settingsTimestamp ?? '2026-08-19T12:01:00.000Z',
@@ -138,6 +140,15 @@ describe('CodexTaskMetadataReader', () => {
     expect(snapshot.freshness).toBe('unverifiable')
   })
 
+  it('reads settings after the same task is reopened with another matching session header', async () => {
+    const { reader, binding } = await fixture({ duplicateSession: true, serviceTier: 'priority' })
+    const snapshot = await reader.read(binding)
+    expect(snapshot.threadId).toBe(THREAD_ID)
+    expect(snapshot.source).toBe('thread-settings-snapshot')
+    expect(snapshot.freshness).toBe('fresh')
+    expect(snapshot.serviceTier.protocolValue).toBe('priority')
+  })
+
   it('uses the exact saved thread-start snapshot when the empty task has no update event', async () => {
     const { reader, binding } = await fixture({ omitSettings: true })
     const snapshot = await reader.read(binding)
@@ -176,7 +187,8 @@ describe('CodexTaskMetadataReader', () => {
     [{ settingsWorkspace: 'D:\\wrong' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ omitSettings: true, omitBaseline: true }, 'PRACTICE_METADATA_UNAVAILABLE'],
     [{ settingsTimestamp: 'not-a-timestamp' }, 'PRACTICE_METADATA_ROLLOUT_INVALID'],
-    [{ duplicateSession: true }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
+    [{ duplicateSession: true, duplicateSessionThreadId: 'other-task' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
+    [{ duplicateSession: true, duplicateSessionWorkspace: 'D:\\other-portfolio' }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ wrongFilename: true }, 'PRACTICE_METADATA_BINDING_MISMATCH'],
     [{ rolloutOutsideSessions: true }, 'PRACTICE_METADATA_PATH_INVALID'],
     [{ incompatibleSchema: true }, 'PRACTICE_METADATA_SCHEMA_INCOMPATIBLE']

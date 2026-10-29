@@ -17,6 +17,17 @@ const binding: ExecutorChatBinding = {
 const now = () => new Date('2026-08-08T00:00:01.000Z')
 
 describe('Executor activity projection', () => {
+  it('preserves Vietnamese check outcomes as executor reports, not independent verification', () => {
+    const reports = ['npm run check đạt; desktop/mobile không tràn ngang.', 'npm run build thất bại; cần sửa lỗi.']
+    const result = reduceExecutorActivity(initialActivity(binding, now), {
+      method: 'item/completed', params: { threadId: binding.threadId, turnId: 'turn-vietnamese-check',
+        item: { type: 'agentMessage', phase: 'final_answer', text: reports.join('\n') } }
+    }, binding, now)
+    expect(result.reportedVerificationEvidence).toEqual(reports)
+    expect(result.verificationEvidence).toEqual([])
+    expect(result.workspaceConfirmedChangedFiles).toEqual([])
+  })
+
   it('captures every row under a 390px viewport audit heading as structured evidence', () => {
     const report = [
       '### 390px viewport audit',

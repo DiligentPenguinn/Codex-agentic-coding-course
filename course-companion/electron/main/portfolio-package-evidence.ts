@@ -736,8 +736,12 @@ export async function collectPortfolioPackage(
     else imageArtifacts.push(inspected.artifact)
   }
 
-  const allowedLegacy = new Set((context.allowedLegacyArtifactPaths ?? [])
-    .filter((path) => legacyArtifactPaths.has(path)))
+  // The earlier interview prompt produced this combined plan. Preserve it as
+  // background notes; it never substitutes for or enters the five-file review.
+  const allowedLegacy = new Set([
+    'planning/portfolio-plan.md',
+    ...(context.allowedLegacyArtifactPaths ?? []).filter((path) => legacyArtifactPaths.has(path))
+  ])
   await validateAllowedLegacyArtifacts(canonicalRoot, allowedLegacy, issues)
   const unexpectedPaths = await scanWorkspace(canonicalRoot, referencedImagePaths, allowedLegacy, issues)
   for (const path of unexpectedPaths) {

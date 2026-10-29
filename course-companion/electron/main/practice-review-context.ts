@@ -407,6 +407,14 @@ export function buildPracticeReviewPrompt(envelope: PracticeReviewEnvelope): str
     'Use only evidence refs whose kind the criterion accepts.',
     'If fresh evidence is required, stale evidence is unverifiable.',
     'Do not invent evidence or omit required criteria.',
+    ...(envelope.portfolioPackage ? [
+      'Use a beginner completion standard, not professional polish. Mark a required criterion satisfied when the current supplied evidence meets its stated minimum. Minor visual, wording or implementation imperfections that do not block that minimum are optional improvements, not reasons to reject.',
+      'An honestly labelled concept, sample persona or placeholder is acceptable when the current approved planning scope permits it. Do not demand real clients, achievements, identity or contact details for such a concept. If the plan explicitly requires real evidence, identify that exact conflict rather than rejecting placeholders in general.',
+      'Accept transparently labelled mobile viewport emulation with concrete observations; do not invent a physical-phone or additional-browser requirement. Do not request extra artifacts, raw logs, screenshots, features or repeated actions beyond what the supplied definition actually requires.',
+      'Use the supplied independently verified handoff, clean Git revision and source facts instead of asking the learner to reproduce them. Keep executor-reported checks and browser observations distinct from independent corroboration; neither professional polish nor an extra proof format is required.',
+      'Preserve every required freshness, functionality, authenticity, current acceptance and pre-publication consent check. Missing evidence is unverifiable; it does not prove the learner did poor work. Never pass fabricated evidence, stale source, a broken required outcome or missing publishing permission.',
+      'Give supportive, plain Vietnamese feedback. A needs-work summary should acknowledge what is already sufficient and name the single smallest blocking next action. Keep optional improvements separate and do not make the learner redo already satisfied work.'
+    ] : []),
     ...(envelope.portfolioPackage?.kind === 'release' ? [
       'Evaluate the one deployment record, independently read local source fingerprint, independently observed public URL and exact bound-task evidence. Confirm the committed release and reported deployment revision match, the learner actually checked the online portfolio on desktop and mobile, and the URL is shareable while signed out.',
       'A public HTTP response proves reachability only; it does not independently prove the correct website, source revision, successful JavaScript, images or mobile behavior. Provider/build/browser observations remain reported unless corroborated. Require concrete actual observations and identify limitations.',

@@ -109,6 +109,13 @@ plan and waits for permission before installing anything. Both fresh and
 returning launches open `course-companion/`; the historical Windows prototype
 is no longer a learner-facing launcher target.
 
+Each App Server connection and Practice task reopen also resolves and verifies
+the Codex runtime. The current desktop installation is preferred over PATH or
+an inherited runtime path that may survive a desktop update. Standalone
+fallbacks require Codex CLI 0.164 or newer; missing, unrecognized, or older
+runtimes fail the check before task creation or navigation. This check does not
+download software or change the learner's system installation.
+
 ## Start on macOS
 
 From the repository root, double-click `start-course.command` in Finder or run:

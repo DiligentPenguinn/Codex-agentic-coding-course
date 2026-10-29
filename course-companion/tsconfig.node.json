@@ -21,6 +21,7 @@
     "shared/**/*.ts",
     "src/renderer/src/components/PracticeProgress.tsx",
     "src/renderer/src/components/PracticeIntroduction.tsx",
+    "src/renderer/src/components/PracticeStartPrompt.tsx",
     "src/renderer/src/components/practice-introduction-copy.ts",
     "src/renderer/src/components/PracticeSuccess.tsx",
     "src/renderer/src/components/PortfolioPackageSubmission.tsx",

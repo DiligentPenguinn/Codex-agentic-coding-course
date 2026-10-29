@@ -1,4 +1,4 @@
-import type { LessonId, SceneId } from '../contracts'
+import type { LearnerProgress, LessonId, SceneId } from '../contracts'
 import { moduleTwoOutlineSections } from './modules/module-2'
 
 export type OutlineSection = { title: string; startSceneId: SceneId }
@@ -60,4 +60,15 @@ export function outlineSectionIndex(sections: readonly OutlineSection[], pages: 
 export function adjacentOutlinePage(pages: readonly SceneId[], sceneId: SceneId, direction: -1 | 1): SceneId | undefined {
   const index = pages.indexOf(sceneId)
   return index < 0 ? undefined : pages[index + direction]
+}
+
+// The release success page remains available after the authoritative return.
+// Reading lessons through the outline must not announce an unearned result.
+export function reviewableOutlinePages(pages: readonly SceneId[], progress: Pick<LearnerProgress,
+  'courseRunId' | 'completedCheckpointIds' | 'practiceCompletions'>): SceneId[] {
+  const releaseCompleted = progress.completedCheckpointIds.includes('m4-portfolio-release')
+    && progress.practiceCompletions.some((receipt) => receipt.courseRunId === progress.courseRunId
+      && receipt.practiceId === 'm4-portfolio-release' && receipt.practiceVersion === '1.0.0'
+      && receipt.destination.sceneId === 'module-4-complete' && Boolean(receipt.submissionDigest))
+  return pages.filter((page) => page !== 'module-4-complete' || releaseCompleted)
 }

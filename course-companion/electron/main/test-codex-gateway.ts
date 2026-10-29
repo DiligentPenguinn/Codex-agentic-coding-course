@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { access, mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import type {
   CodexConnectionListener,
@@ -144,6 +144,17 @@ export class TestCodexGateway implements CodexRequestClient {
       return {}
     }
     if (method === 'thread/read') {
+      // The learner-directed continuation no longer sends an automatic turn.
+      // Disposable package files explicitly enable the matching simulated
+      // conversation, without changing the production continuation workflow.
+      if (process.env.COURSE_COMPANION_FAKE_BUILD_EVIDENCE === '1'
+        && await access(join(thread.cwd, 'evidence/module-3/build-log.md')).then(() => true, () => false)) {
+        this.appendPortfolioEvidence(thread, 'Module 3 v2:')
+      }
+      if (process.env.COURSE_COMPANION_FAKE_RELEASE_EVIDENCE === '1'
+        && await access(join(thread.cwd, 'evidence/module-4/deployment-record.json')).then(() => true, () => false)) {
+        this.appendPortfolioEvidence(thread, 'Module 4: Tiếp tục chính task')
+      }
       return { thread }
     }
     if (method === 'thread/resume') {
@@ -152,8 +163,9 @@ export class TestCodexGateway implements CodexRequestClient {
     }
     if (method === 'thread/unsubscribe' || method === 'turn/interrupt') return {}
     if (method === 'turn/start') {
-      if (thread.serviceName === 'content_builder_academy_teacher') {
-        const delay = Number(process.env.COURSE_COMPANION_FAKE_TEACHER_DELAY_MS ?? 0)
+      if (thread.serviceName === 'content_builder_academy_teacher' || thread.serviceName === 'content_builder_academy_teacher_memory') {
+        const delay = Number(process.env[thread.serviceName === 'content_builder_academy_teacher_memory'
+          ? 'COURSE_COMPANION_FAKE_TEACHER_SUMMARY_DELAY_MS' : 'COURSE_COMPANION_FAKE_TEACHER_DELAY_MS'] ?? 0)
         if (Number.isFinite(delay) && delay > 0) {
           await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 10_000)))
         }
@@ -198,6 +210,23 @@ export class TestCodexGateway implements CodexRequestClient {
       const item = { id: `message-${turnId}`, type: 'agentMessage', phase: 'final_answer', text: answer }
       const turn = { id: turnId, status: 'completed', items: [userItem, item] }
       thread.turns.push(turn)
+      this.appendPortfolioEvidence(thread, text)
+      if (thread.name?.includes('m2-planning-package')
+        && !thread.turns.some((candidate) => candidate.id === 'planning-interview-1')) {
+        await writePlanningArtifacts(thread.cwd)
+        thread.turns.push(...planningInterviewTurns())
+      }
+      queueMicrotask(() => {
+        this.emit({ method: 'item/completed', params: { threadId, turnId, item } })
+        this.emit({ method: 'turn/completed', params: { threadId, turn } })
+      })
+      return { turn: { id: turnId } }
+    }
+
+    throw new Error(`Unsupported smoke-test Codex method: ${method}`)
+  }
+
+  private appendPortfolioEvidence(thread: TestThread, text: string): void {
       if (process.env.COURSE_COMPANION_FAKE_BUILD_EVIDENCE === '1' && text.includes('Module 3 v2:')
         && !thread.turns.some((candidate) => candidate.id === 'build-v2-simulated-evidence')) {
         thread.turns.push({ id: 'build-v2-simulated-evidence', status: 'completed', items: [
@@ -212,19 +241,6 @@ export class TestCodexGateway implements CodexRequestClient {
           { id: 'release-checks', type: 'agentMessage', phase: 'final_answer', text: 'Disposable simulated deployment: Vercel ready for the fixture source revision. npm run check and reported desktop/mobile public URL observations passed. No live provider action occurred.' }
         ] })
       }
-      if (thread.name?.includes('m2-planning-package')
-        && !thread.turns.some((candidate) => candidate.id === 'planning-interview-1')) {
-        await writePlanningArtifacts(thread.cwd)
-        thread.turns.push(...planningInterviewTurns())
-      }
-      queueMicrotask(() => {
-        this.emit({ method: 'item/completed', params: { threadId, turnId, item } })
-        this.emit({ method: 'turn/completed', params: { threadId, turn } })
-      })
-      return { turn: { id: turnId } }
-    }
-
-    throw new Error(`Unsupported smoke-test Codex method: ${method}`)
   }
 
   emitExecutorActivity(threadId: string, item: Record<string, unknown>): void {

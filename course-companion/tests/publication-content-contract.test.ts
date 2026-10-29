@@ -27,6 +27,11 @@ describe('GitHub and Vercel publication content', () => {
         const next = block.body.match(/next: '([^']+)'/)?.[1]
         if (!next) continue
         const definition = module.scenes.find((scene) => scene.id === block.id)!
+        if (block.id === module.scenes.at(-1)!.id && module.completionDestination) {
+          expect(module.completionDestination.sceneId, block.id).toBe(next)
+          expect(moduleFourDefinition.scenes.some((scene) => scene.id === next)).toBe(true)
+          continue
+        }
         expect('nextSceneId' in definition && definition.nextSceneId, block.id).toBe(next)
       }
     }

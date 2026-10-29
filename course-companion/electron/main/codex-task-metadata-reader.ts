@@ -171,7 +171,7 @@ export class CodexTaskMetadataReader {
     rolloutPath: string,
     binding: ExecutorChatBinding
   ): Promise<{ settings: Record<string, unknown>; eventTimestampMs: number } | null> {
-    let sessionCount = 0
+    let sessionVerified = false
     let latest: { settings: Record<string, unknown>; eventTimestampMs: number } | null = null
     const lines = readline.createInterface({
       input: createReadStream(rolloutPath, { encoding: 'utf8' }),
@@ -193,11 +193,13 @@ export class CodexTaskMetadataReader {
             !samePath(payload.cwd, binding.workspaceRoot)) {
             throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
           }
-          sessionCount += 1
-          if (sessionCount > 1) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
+          // Desktop can append another session header when the same task is
+          // reopened. Verify every header against the binding; repetition alone
+          // does not mean the task or workspace changed.
+          sessionVerified = true
         }
         if (item?.type !== 'event_msg' || payload?.type !== 'thread_settings_applied') continue
-        if (sessionCount !== 1) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
+        if (!sessionVerified) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
         const source = record(payload.thread_settings)
         if (!source || typeof source.cwd !== 'string' || !samePath(source.cwd, binding.workspaceRoot)) {
           throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
@@ -221,7 +223,7 @@ export class CodexTaskMetadataReader {
     } finally {
       lines.close()
     }
-    if (sessionCount !== 1) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
+    if (!sessionVerified) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
     return latest
   }
 }

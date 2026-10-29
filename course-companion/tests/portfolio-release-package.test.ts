@@ -23,6 +23,11 @@ describe('Module 4 deployment evidence', () => {
     expect(evidence).toMatchObject({ practiceId: f.run.practiceId, practiceVersion: '1.0.0', runId: f.run.runId,
       evidenceProfile: 'portfolio-release', freshness: 'fresh' })
     expect(evidence.portfolioRelease?.issues).toEqual([])
+    const source = evidence.portfolioRelease?.artifacts.find((artifact) => artifact.path === 'application/source')
+    expect(source?.content).toContain(`Independently verified Git HEAD: ${f.revision}`)
+    expect(source?.content).toContain('committed, tracked and clean')
+    expect(source?.content).toContain(f.sourceCheckpoint)
+    expect(source?.content).toContain(f.run.binding.threadId)
     expect(evidence.portfolioRelease?.artifacts.map((artifact) => artifact.path)).toEqual([
       portfolioReleaseRecordPath, 'application/source', 'deployment/public-url'
     ])
@@ -247,6 +252,22 @@ describe('Module 4 deployment evidence', () => {
 // Each lifecycle performs repeated real Git checks before and after simulated
 // network/review work; allow Windows process startup overhead for those checks.
 describe('Module 4 approval and simulated review lifecycle', { timeout: 15_000 }, () => {
+  it('preserves saved evidence but blocks acceptance while the bound task cannot be refreshed', async () => {
+    const f = await fixture()
+    const ready = await f.coordinator.loadWorkspace(f.run)
+    expect(ready.portfolioPackage?.ready).toBe(true)
+    const before = await f.runs.load()
+    f.setTaskReadable(false)
+    const unavailable = await f.coordinator.loadWorkspace(f.run)
+    expect(unavailable.error).toContain('Chưa thể làm mới bằng chứng từ Codex')
+    expect(unavailable.portfolioPackage?.ready).toBe(false)
+    expect(await f.runs.load()).toEqual(before)
+    f.setTaskReadable(true)
+    const recovered = await f.coordinator.loadWorkspace(f.run)
+    expect(recovered.error).toBeUndefined()
+    expect(recovered.portfolioPackage?.ready).toBe(true)
+  })
+
   it('requires explicit website approval independently of reported publication booleans', async () => {
     const f = await fixture()
     expect((await f.service.review()).workspace.review?.status).toBe('needs-work')
@@ -345,6 +366,7 @@ describe('Module 4 approval and simulated review lifecycle', { timeout: 15_000 }
     if (progress.status !== 'returning') throw new Error('Disposable learner progress must remain readable')
     expect(progress.progress.sceneId).toBe('module-4-complete')
     expect(progress.progress.completedCheckpointIds).toContain('m4-portfolio-release')
+    expect(progress.progress.completedCheckpointIds).toContain('m4-complete')
     expect(receipt.destination.sceneId).toBe('module-4-complete')
     expect(await f.service.returnPassedPractice()).toEqual(receipt)
   })

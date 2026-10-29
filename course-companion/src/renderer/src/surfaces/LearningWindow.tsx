@@ -55,7 +55,7 @@ import { DesignReferenceDialogue } from '../components/DesignReferenceDialogue'
 import { PracticeGuide } from '../components/PracticeGuide'
 import { PortfolioWorkspacePicker } from '../components/PortfolioWorkspacePicker'
 import { HighlightedDialogue } from '../components/HighlightedDialogue'
-import { adjacentOutlinePage, courseOutline, outlineSectionIndex } from '../../../../shared/course/outline'
+import { adjacentOutlinePage, courseOutline, outlineSectionIndex, reviewableOutlinePages } from '../../../../shared/course/outline'
 import {
   registryLessonDefinitions,
   registryLessonPages,
@@ -1976,6 +1976,7 @@ function AssessmentControls({
   group,
   results,
   busy,
+  error,
   questionOnly,
   continueLabel,
   backControl,
@@ -1986,6 +1987,7 @@ function AssessmentControls({
   group: AssessmentGroup
   results: Record<string, string | undefined>
   busy: boolean
+  error?: string
   questionOnly?: boolean
   continueLabel: string
   backControl: ReactNode
@@ -1998,6 +2000,10 @@ function AssessmentControls({
   ))
   const hasSubmittedResults = group.questions.every((question) => Boolean(results[question.id]))
   const [editing, setEditing] = useState(!hasSubmittedResults)
+  const submissionErrorRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (error) submissionErrorRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [error])
   const showFeedback = hasSubmittedResults && !editing
   const allAnswered = group.questions.every((question) => {
     const answer = answers[question.id]?.trim() ?? ''
@@ -2125,6 +2131,7 @@ function AssessmentControls({
         })}
       </div>
 
+      {error ? <div className="pixel-save-error" role="alert" ref={submissionErrorRef}>{error}</div> : null}
       <footer className="pixel-assessment-actions">
         {backControl}
         {showFeedback ? (
@@ -2307,11 +2314,13 @@ function PixelAppShell({
   if (progress.sceneId === 'module-1-complete' || progress.sceneId === 'module-2-complete') {
     completed.add(progress.checkpointId)
   }
-  const progressPercent = Math.round((completed.size / runnableCheckpointIds.length) * 100)
+  const completedCheckpointCount = runnableCheckpointIds.filter((id) => completed.has(id)).length
+  const progressPercent = Math.round((completedCheckpointCount / runnableCheckpointIds.length) * 100)
   const currentModuleId = progress.currentLessonId === 'intro' ? 'module-1' : progress.currentLessonId
   const moduleOneComplete = completed.has('m1-complete')
   const moduleOneMigrated = progress.decisions.setupModuleMigration === 'continued-existing-planning-progress'
   const moduleTwoComplete = completed.has('m2-portfolio-complete')
+  const moduleThreeComplete = completed.has('m3-complete')
   const moduleOneLessonCount = setupModule?.lessons?.length ?? 5
   const moduleTwoLessonCount = planningModule?.lessons?.length ?? 6
   const practice = progress.practice
@@ -2363,7 +2372,7 @@ function PixelAppShell({
               </div>
               <div className="pixel-course-progress">
                 <small>TIẾN ĐỘ TOÀN KHÓA</small>
-                <strong>{completed.size}/{runnableCheckpointIds.length} checkpoint · {progressPercent}%</strong>
+                <strong>{completedCheckpointCount}/{runnableCheckpointIds.length} checkpoint · {progressPercent}%</strong>
               </div>
             </div>
 
@@ -2387,15 +2396,19 @@ function PixelAppShell({
                 </article>
               )}
               {currentModuleId === 'module-3' ? (
-                <button className="pixel-roadmap-stage is-current" type="button" onClick={() => onNavigate('lesson')}>
-                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Năm tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></em>
+                <button className={`pixel-roadmap-stage is-current${moduleThreeComplete ? ' is-complete' : ''}`} type="button" onClick={() => onNavigate('lesson')}>
+                  <span>03</span><div><small>MODULE 3 · ĐIỂM SẴN SÀNG</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Năm tệp planning hiện tại đã được bàn giao; nội dung chat cũ không được dùng làm đầu vào.</p></div><em>{moduleThreeComplete ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
                 </button>
               ) : (
-                <article className="is-locked">
-                  <span>03</span><div><small>MODULE 3</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>Hoàn thành gate bằng chứng và mastery của Module 2 để mở.</p></div><em>SẮP TỚI</em>
+                <article className={moduleThreeComplete ? 'is-complete' : 'is-locked'}>
+                  <span>03</span><div><small>MODULE 3</small><strong>Xây dựng và gỡ lỗi theo từng phần đã kiểm chứng</strong><p>{moduleThreeComplete ? scenes['module-3-complete'].objective : 'Hoàn thành gate bằng chứng và mastery của Module 2 để mở.'}</p></div><em>{moduleThreeComplete ? 'HOÀN THÀNH' : 'SẮP TỚI'}</em>
                 </article>
               )}
-              {futureModules.map((title, index) => (
+              {futureModules.map((title, index) => currentModuleId === `module-${index + 4}` ? (
+                <button className={`pixel-roadmap-stage is-current${completed.has('m4-complete') ? ' is-complete' : ''}`} type="button" key={title} onClick={() => onNavigate('lesson')}>
+                  <span>{String(index + 4).padStart(2, '0')}</span><div><small>MODULE {index + 4}</small><strong>{title}</strong><p>{scene.mission}</p></div><em>{completed.has('m4-complete') ? 'HOÀN THÀNH' : <><span>BẠN ĐANG Ở ĐÂY</span><b>MỞ BÀI HỌC →</b></>}</em>
+                </button>
+              ) : (
                 <article className="is-locked" key={title}>
                   <span>{String(index + 4).padStart(2, '0')}</span><div><small>MODULE {index + 4}</small><strong>{title}</strong><p>Sẽ mở trong phần học tiếp theo</p></div><em>SẮP TỚI</em>
                 </article>
@@ -2422,7 +2435,7 @@ function PixelAppShell({
           {destination === 'progress' ? (
             <div className="pixel-progress-surface">
               <section className="pixel-progress-summary">
-                <div><small>CHECKPOINT</small><strong>{completed.size}/{runnableCheckpointIds.length}</strong><span>Đã ghi nhận</span></div>
+                <div><small>CHECKPOINT</small><strong>{completedCheckpointCount}/{runnableCheckpointIds.length}</strong><span>Đã ghi nhận</span></div>
                 <div><small>BÀI HIỆN TẠI</small><strong>{learningPosition.lessonIndex}/{learningPosition.totalLessons}</strong><span>{learningPosition.lessonTitle}</span></div>
                 <div><small>THỰC HÀNH</small><strong>{practice.status === 'idle' ? 'Chưa bắt đầu' : practice.status}</strong><span>{practice.latestEvent ? 'Bài luyện tập đã lưu' : 'Chưa có kết quả'}</span></div>
               </section>
@@ -2898,7 +2911,8 @@ export function LearningWindow() {
       const practiceScene = scenes[progress.sceneId]
       if (practiceScene.practice
         || progress.sceneId === 'module-2-portfolio-practice'
-        || progress.sceneId === 'module-3-portfolio-practice') {
+        || progress.sceneId === 'module-3-portfolio-practice'
+        || progress.sceneId === 'module-4-portfolio-practice') {
         setBusy(true)
         setOutlineSceneId(null)
         setReviewHistoryIndex(null)
@@ -3013,6 +3027,7 @@ export function LearningWindow() {
   const modulePages = (scene.lessonId === 'intro' ? ['intro-overview' as const] : moduleLessonIds[scene.lessonId])
     .flatMap((lessonId) => courseLessonPages[lessonId].flat())
   const outlineItems = courseOutline[scene.lessonId]
+  const reviewPages = reviewableOutlinePages(modulePages, progress)
   const outlineCurrentIndex = outlineSectionIndex(outlineItems, modulePages, displayedSceneId)
   const outlineModuleLabel = scene.lessonId === 'intro'
     ? 'GIỚI THIỆU'
@@ -3033,7 +3048,7 @@ export function LearningWindow() {
     }
   }
   const openOutlinePage = (sceneId: SceneId) => {
-    if (busy || !modulePages.includes(sceneId)) return
+    if (busy || !reviewPages.includes(sceneId)) return
     clearPageOverlays()
     setReviewHistoryIndex(null)
     setOutlineSceneId(sceneId)
@@ -3047,7 +3062,7 @@ export function LearningWindow() {
   }
   const isFirstModuleOneSlide = displayedSceneId === 'module-1-codex-orientation'
   const canOpenPreviousPage = !isFirstModuleOneSlide && (outlineSceneId !== null
-    ? adjacentOutlinePage(modulePages, displayedSceneId, -1) !== undefined
+    ? adjacentOutlinePage(reviewPages, displayedSceneId, -1) !== undefined
     : isReviewing
       ? currentReviewIndex > 0
       : progress.sceneHistory.length > 0)
@@ -3055,7 +3070,7 @@ export function LearningWindow() {
     if (!canOpenPreviousPage) return
     clearPageOverlays()
     if (outlineSceneId !== null) {
-      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, -1) ?? outlineSceneId)
+      setOutlineSceneId(adjacentOutlinePage(reviewPages, displayedSceneId, -1) ?? outlineSceneId)
       return
     }
     setReviewHistoryIndex(isReviewing ? currentReviewIndex - 1 : progress.sceneHistory.length - 1)
@@ -3066,13 +3081,13 @@ export function LearningWindow() {
     if (outlineSceneId !== null) {
       // Browsing is session-only, including Practice and assessment pages.
       // Resuming the saved learning page is an explicit action.
-      setOutlineSceneId(adjacentOutlinePage(modulePages, displayedSceneId, 1) ?? null)
+      setOutlineSceneId(adjacentOutlinePage(reviewPages, displayedSceneId, 1) ?? null)
       return
     }
     const nextIndex = currentReviewIndex + 1
     setReviewHistoryIndex(nextIndex < progress.sceneHistory.length ? nextIndex : null)
   }
-  const reviewNextLabel = outlineSceneId !== null && !adjacentOutlinePage(modulePages, displayedSceneId, 1)
+  const reviewNextLabel = outlineSceneId !== null && !adjacentOutlinePage(reviewPages, displayedSceneId, 1)
     ? 'Về trang đang học'
     : 'Tiếp tục'
   const lessonContextLabel = scene.lessonId === 'module-2'
@@ -3404,8 +3419,6 @@ export function LearningWindow() {
               : `Bạn đạt ${finalCorrectCount}/${finalQuestionCount} câu. Hãy làm lại phần kiểm tra để đạt ít nhất ${finalPassingCount}/${finalQuestionCount}.`
             : assessmentGroup
               ? 'Bạn có thể xem toàn bộ câu hỏi trước khi nộp.'
-            : displayedSceneId === 'module-3-debugging-intro' && portfolioPlanningHandoff
-              ? `Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}. ${portfolioPlanningHandoff.summary.firstBuild} Ngoài phạm vi: ${portfolioPlanningHandoff.summary.deliberatelyOutOfScope}`
             : displayedSceneId === 'module-1-codex-examples'
               ? <ApprovalTourDialogue activeFocus={approvalFocus} onSelect={setApprovalFocus} />
               : displayedSceneId === 'module-2-prd-agent-workflow'
@@ -3414,7 +3427,13 @@ export function LearningWindow() {
                 ? <HighlightedDialogue dialogue={scene.dialogue ?? ''} highlightTerms={scene.highlightTerms} />
               : scene.dialogue}</p>
         )}
-        {error ? <div className="pixel-save-error" role="alert">{error}</div> : null}
+        {displayedSceneId === 'module-3-debugging-intro' && portfolioPlanningHandoff ? (
+          <details className="pixel-planning-handoff">
+            <summary>{`Module 2 đã bàn giao ${portfolioPlanningHandoff.moduleThreeInput.artifactReferences.length} artifact hiện tại trong workspace ${portfolioPlanningHandoff.moduleThreeInput.workspacePath}.`}</summary>
+            <ul>{portfolioPlanningHandoff.moduleThreeInput.artifactReferences.map(({ path }) => <li key={path}><code>{path}</code></li>)}</ul>
+          </details>
+        ) : null}
+        {error && !(assessmentQuestion && assessmentGroup) ? <div className="pixel-save-error" role="alert">{error}</div> : null}
         {isReviewing ? (
           <div className="pixel-lesson-actions is-paired">
             {pageBackControl}
@@ -3428,6 +3447,7 @@ export function LearningWindow() {
           <AssessmentControls
             backControl={pageBackControl}
             busy={busy}
+            error={error}
             continueLabel={assessmentContinueLabel}
             group={assessmentGroup}
             key={assessmentGroup.id}
@@ -3511,9 +3531,12 @@ export function LearningWindow() {
               }
             : progress.sceneId === 'module-2-portfolio-practice'
               ? { practiceId: 'm2-portfolio-planning', practiceVersion: '2.0.0' }
+              : progress.sceneId === 'module-4-portfolio-practice'
+                ? { practiceId: 'm4-portfolio-release', practiceVersion: '1.0.0' }
               : { practiceId: 'm3-portfolio-build', practiceVersion: '2.0.0' }}
           courseRunId={progress.sceneId === 'module-2-portfolio-practice'
             || progress.sceneId === 'module-3-portfolio-practice'
+            || progress.sceneId === 'module-4-portfolio-practice'
             ? progress.courseRunId
             : undefined}
           onClose={() => setPracticeBriefOpen(false)}

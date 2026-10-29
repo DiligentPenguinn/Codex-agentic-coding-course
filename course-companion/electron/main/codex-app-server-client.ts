@@ -1,5 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import readline from 'node:readline'
+import { resolveCodexRuntimeCommand } from './codex-runtime.ts'
 
 type PendingRequest = {
   resolve: (value: unknown) => void
@@ -94,8 +95,9 @@ export class CodexAppServerClient {
 
   async start(): Promise<void> {
     if (this.process) throw typedError('APP_SERVER_ALREADY_STARTED', 'Codex App Server is already running')
+    const command = this.launch.command ?? await resolveCodexRuntimeCommand()
     this.setConnectionState('connecting')
-    const child = spawn(this.launch.command ?? 'codex', ['app-server'], {
+    const child = spawn(command, ['app-server'], {
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
       env: this.launch.env ?? process.env

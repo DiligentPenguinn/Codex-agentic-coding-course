@@ -1054,7 +1054,10 @@ export class ProgressRepository {
       }
       const completedCheckpointIds = [...new Set([
         ...current.progress.completedCheckpointIds,
-        receipt.checkpointId
+        receipt.checkpointId,
+        ...(receipt.practiceId === 'm4-portfolio-release'
+          && receipt.destination.sceneId === 'module-4-complete'
+          ? ['m4-complete' as const] : [])
       ])]
       const progress: LearnerProgress = {
         ...current.progress,

@@ -173,7 +173,7 @@ describe('ExecutorChatCoordinator', () => {
     expect(calls).toEqual([])
   })
 
-  it('resumes the persisted Module 3 task after bootstrap closes and retries without duplicating instructions', async () => {
+  it('preserves historical Module 3 v1 bootstrap retry without duplicating instructions', async () => {
     const calls: Array<[string, Record<string, unknown>]> = []
     const turns: Array<{ id: string; input: unknown }> = []
     let loaded = false
@@ -210,6 +210,7 @@ describe('ExecutorChatCoordinator', () => {
     const portfolio: PracticeDefinition = {
       ...definition('safe-workspace-write'),
       practiceId: 'm3-portfolio-build',
+      version: '1.0.0',
       workspaceKind: 'learner-portfolio',
       evidenceProfile: 'portfolio-build'
     }
@@ -238,6 +239,37 @@ describe('ExecutorChatCoordinator', () => {
     ])
     expect(calls.filter(([method]) => method === 'turn/start')).toHaveLength(1)
     expect(closes).toBe(4)
+  })
+
+  it.each(['m3-portfolio-build', 'm4-portfolio-release'])('only reads a desktop-owned %s task on preparation and retry', async (practiceId) => {
+    const calls: Array<[string, Record<string, unknown>]> = []
+    let closes = 0
+    const client: CodexRequestClient = {
+      async request(method, params = {}) {
+        calls.push([method, params])
+        if (method !== 'thread/read') throw new Error('already has an active writer')
+        return { thread: { id: 'thread-target', cwd: 'D:\\course\\pilot-workspace' } }
+      },
+      async close() { closes += 1 }
+    }
+    const practice = { ...definition('safe-workspace-write'), practiceId,
+      version: practiceId === 'm3-portfolio-build' ? '2.0.0' : '1.0.0' }
+    const instance = coordinator(client)
+    await instance.prepareTarget(binding(), practice, approved)
+    await instance.prepareTarget(binding(), practice, approved)
+    expect(calls).toEqual(Array.from({ length: 2 }, () => ['thread/read', { threadId: 'thread-target', includeTurns: false }]))
+    expect(closes).toBe(2)
+  })
+
+  it.each([
+    { id: 'other-thread', cwd: 'D:\\course\\pilot-workspace' },
+    { id: 'thread-target', cwd: 'D:\\other' }
+  ])('rejects a mismatched desktop-owned task without sending work: %j', async (thread) => {
+    const calls: string[] = []
+    const instance = coordinator({ async request(method) { calls.push(method); return { thread } } })
+    await expect(instance.prepareTarget(binding(), { ...definition('safe-workspace-write'), practiceId: 'm3-portfolio-build' }, approved))
+      .rejects.toThrow('could not read')
+    expect(calls.every((method) => method === 'thread/read')).toBe(true)
   })
 
   it.each([

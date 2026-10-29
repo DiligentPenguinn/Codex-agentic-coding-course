@@ -225,6 +225,6 @@ export const moduleThreeScenes = {
     panelLabel: 'BÀN GIAO MODULE 4', panelStatus: 'WEBSITE ĐÃ ĐƯỢC CHẤP NHẬN', tone: 'good',
     request: 'Module 4 tiếp tục từ workspace và bằng chứng hiện tại.', evidence: [],
     dialogue: 'Bạn đã hiện thực hoá implementation plan, xử lý lỗi cùng coding agent và dùng Git để làm việc an toàn hơn.',
-    highlightTerms: ['implementation plan', 'Git'], choices: []
+    highlightTerms: ['implementation plan', 'Git'], choices: [{ label: 'Tiếp tục', next: 'module-4-hosting-intro', primary: true }]
   }
 } as const satisfies Record<string, RegistrySceneContent>

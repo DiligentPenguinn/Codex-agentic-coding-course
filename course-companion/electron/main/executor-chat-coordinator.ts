@@ -106,13 +106,15 @@ export class ExecutorChatCoordinator {
     }
     await this.withBootstrap(async () => {
       const learnerDirected = definition.practiceId === 'm2-portfolio-planning'
+        || (definition.practiceId === 'm3-portfolio-build' && definition.version === '2.0.0')
+        || definition.practiceId === 'm4-portfolio-release'
       const thread = await this.waitUntilReadable(
         binding.threadId,
         workspaceRoot,
         definition.taskPolicy === 'safe-workspace-write' && !learnerDirected
       )
-      // Module 2 assesses the learner's ability to direct Codex. Creating,
-      // retrying or reopening the task must leave all work instructions to them.
+      // Portfolio work is directed in desktop by the learner. A second server
+      // must only verify the saved binding, never acquire its writer or send work.
       if (learnerDirected) return
       if (definition.taskPolicy === 'safe-workspace-write') {
         const continuesPortfolio = definition.practiceId === 'm3-portfolio-build' || definition.practiceId === 'm4-portfolio-release'

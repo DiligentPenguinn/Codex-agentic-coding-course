@@ -16,6 +16,60 @@ function workspace(): PracticeWorkspaceView {
 }
 
 describe('five-document Practice submission surface', () => {
+  it.each(['m2-portfolio-planning', 'm3-portfolio-build', 'm4-portfolio-release'])(
+    'shows actual unmet review criteria in the compact panel for %s', (practiceId) => {
+    const view = workspace()
+    view.activePractice!.practiceId = practiceId
+    view.portfolioPackage!.kind = practiceId === 'm4-portfolio-release' ? 'release' : practiceId === 'm3-portfolio-build' ? 'build' : 'planning'
+    view.review!.status = 'needs-work'
+    view.review!.result = {
+      schemaVersion: 1, practiceId: 'm2-portfolio-planning', practiceVersion: '2.0.0', runId: 'run-1',
+      verdict: 'needs-work', summary: 'Làm rõ hai quyết định còn thiếu.',
+      reviewedAt: '2026-10-29T00:00:00.000Z', sourceDigest: 'a'.repeat(64),
+      criteria: [
+        { criterionId: 'brief-current-and-approved', status: 'unsatisfied', evidenceRefs: [], explanation: 'Ghi hành động mong muốn của người xem.' },
+        { criterionId: 'reference-sourced-and-bounded', status: 'unverifiable', evidenceRefs: [], explanation: 'Chốt hướng trình bày từ nguồn đã chọn.' },
+        { criterionId: 'prd-semantic-contract', status: 'satisfied', evidenceRefs: [], explanation: 'PRD đã đáp ứng.' }
+      ]
+    }
+    const html = renderToStaticMarkup(createElement(PracticeProgress, { workspace: view, compact: true }))
+    expect(html).toContain('aria-label="Kết quả duyệt Practice"')
+    expect(html).toContain('Làm rõ hai quyết định còn thiếu.')
+    expect(html).toContain('Ghi hành động mong muốn của người xem.')
+    expect(html).toContain('Chốt hướng trình bày từ nguồn đã chọn.')
+    expect(html).not.toContain('Hoàn thành bước hiện tại:')
+    expect(html).not.toContain('PRD đã đáp ứng.')
+  })
+
+  it.each([
+    ['m3-portfolio-build', 'build', 'Chấp nhận website và nộp bài'],
+    ['m4-portfolio-release', 'release', 'Chấp nhận portfolio trên mạng và nộp bài']
+  ] as const)('points a ready, unapproved %s package to its own submission action', (practiceId, kind, label) => {
+    const view = workspace()
+    view.activePractice!.practiceId = practiceId
+    view.portfolioPackage!.kind = kind
+    view.portfolioPackage!.approved = false
+    view.review!.status = 'needs-work'
+    for (const compact of [false, true]) {
+      const html = renderToStaticMarkup(createElement(PracticeProgress, { workspace: view, compact }))
+      expect(html).toContain(`<strong>${label}</strong>`)
+      expect(html).not.toContain('Hoàn thành bước hiện tại:')
+      expect(html).not.toContain('checked=""')
+    }
+  })
+
+  it.each([false, true])('points ready but unapproved planning work to submission in compact=%s', (compact) => {
+    const view = workspace()
+    view.portfolioPackage!.approved = false
+    view.review!.status = 'needs-work'
+    const html = renderToStaticMarkup(createElement(PracticeProgress, { workspace: view, compact }))
+    expect(html).toMatch(/<strong>Duyệt và nộp gói planning<\/strong>/)
+    expect(html).not.toContain('Hoàn thành bước hiện tại: Bản mô tả.')
+    expect(html).not.toContain('checked=""')
+    if (compact) expect(html).toContain('0/1 bước đã xác minh')
+    else expect(html).toContain('<li class="is-current">')
+  })
+
   it.each([false, true])('uses website acceptance and three supporting records for build v2 in compact=%s', (compact) => {
     const view = workspace()
     view.activePractice!.practiceId = 'm3-portfolio-build'

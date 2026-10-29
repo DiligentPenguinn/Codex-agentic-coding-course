@@ -103,10 +103,13 @@ export async function portfolioReleaseFixture(registerRoot: (root: string) => vo
   await progress.recordPracticeCompletion(simulatedPrerequisite)
   await progress.save({ currentLessonId: 'module-4', currentCourseLessonId: 'm4-ownership-transfer', checkpointId: 'm4-portfolio-release',
     sceneId: 'module-4-portfolio-practice', sceneHistory: [], completedCheckpointIds: [], decisions: {} })
+  let taskReadable = true
   const coordinator = new PracticeCoordinator(runs, definitions, {
     async createTarget() { throw new Error('Tests must keep the original task') },
     async prepareTarget() {}, async openTarget() {}, async validateExistingTarget() { return true }
-  }, () => new Date(releaseObservedAt), undefined, undefined, undefined, registry)
+  }, () => new Date(releaseObservedAt), undefined, async () => {
+    if (!taskReadable) throw new Error('PRACTICE_METADATA_BINDING_MISMATCH')
+  }, undefined, registry)
   const activity = portfolioPackageActivity({ runId: run.runId, threadId: run.binding.threadId,
     learnerAuthoredPrompts: ['SIMULATED learner: I approve pushing this reviewed source and publishing it to Vercel.',
       'SIMULATED learner: I opened the shared URL on desktop and mobile; Alpha project and contact work. I accept this website.'],
@@ -132,10 +135,21 @@ export async function portfolioReleaseFixture(registerRoot: (root: string) => vo
   const collect = () => adapter.collect(context)
   const approve = async () => {
     const view = await coordinator.loadWorkspace(run)
-    return coordinator.approvePortfolioPackage({ ...run, courseRunId: learner.courseRunId,
-      sourceDigest: view.portfolioPackage!.sourceDigest!, approveWebsite: true })
+    const requestedEvidence = (await runs.load()).activeRun?.evidence
+    try {
+      return await coordinator.approvePortfolioPackage({ ...run, courseRunId: learner.courseRunId,
+        sourceDigest: view.portfolioPackage!.sourceDigest!, approveWebsite: true })
+    } catch (error) {
+      const current = (await runs.load()).activeRun?.evidence
+      throw new Error(JSON.stringify({ requestedDigest: view.portfolioPackage?.sourceDigest,
+        requestedReady: view.portfolioPackage?.ready, requestedIssues: requestedEvidence?.portfolioRelease?.issues,
+        requestedArtifacts: requestedEvidence?.portfolioRelease?.artifacts.map(({ path, digest }) => ({ path, digest })),
+        collectedDigest: current?.sourceDigest, issues: current?.portfolioRelease?.issues,
+        artifacts: current?.portfolioRelease?.artifacts.map(({ path, digest }) => ({ path, digest })) }), { cause: error })
+    }
   }
   return { root, workspace, definitions, definition, runs, run, adapter, coordinator, registry, progress, learner, service,
+    setTaskReadable: (readable: boolean) => { taskReadable = readable },
     context, collect, approve, record, recordPath, writeRecord, git, revision, sourceCheckpoint, activity, envelopes, verificationCalls,
     getContinuation: () => continuation!, setContinuation: (next: PortfolioReleaseContinuation | null) => { continuation = next },
     setVerifier: (next: Verify) => { verify = next }, setVerdict: (next: typeof verdict) => { verdict = next },

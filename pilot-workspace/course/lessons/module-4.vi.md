@@ -30,7 +30,7 @@ Hãy xem video để biết cách đưa portfolio lên Vercel.
 
 ### Mở portfolio vừa đưa lên mạng
 
-Bạn đã làm theo video để đưa portfolio lên Vercel. Bây giờ, bạn hãy nhấn vào đường link mà vercel đưa cho bạn.
+Khi thực hành đưa portfolio lên Vercel, bạn hãy mở đường link mà Vercel cung cấp.
 
  Sau đó, hãy xem nội dung đã hiện đúng ý bạn chưa, ảnh có tải được không, v.v. Thử cả trên máy tính và điện thoại.
 
@@ -40,7 +40,7 @@ Bạn đã làm theo video để đưa portfolio lên Vercel. Bây giờ, bạn 
 
 ### Chọn một thay đổi nhỏ
 
-Yayy, vậy là giờ bạn đã có một website để gửi cho người khác xem. Nếu bạn muốn dùng tên miền riêng thay cho địa chỉ có đuôi .vercel.app thì bạn có thể mua ngay trong Vercel.
+Sau khi phát hành portfolio trong Practice, bạn sẽ có một website để gửi cho người khác xem. Nếu bạn muốn dùng tên miền riêng thay cho địa chỉ có đuôi .vercel.app thì bạn có thể mua ngay trong Vercel.
 
 Sau này nếu bạn muốn thay đổi bất kỳ chi tiết gì, bạn có thể sửa và kiểm tra trước ở môi trường local. Sau đó, nếu thấy ưng ý rồi thì hãy commit và push lên branch main. Nếu main là branch Vercel đang dùng để phát hành website, Vercel sẽ tự động cập nhật thay đổi của bạn sau khi triển khai thành công.
 

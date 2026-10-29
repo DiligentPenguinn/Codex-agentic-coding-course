@@ -47,7 +47,6 @@ async function fixture() {
   let handoffReads = 0
   let afterFirstHandoff: (() => void) | undefined
   let readable = true
-  let loseAcknowledgement = false
   const calls: Array<{ method: string; params: Record<string, unknown> }> = []
   const turns: Array<{ id: string; input: unknown }> = [{ id: 'module-three-history', input: 'Earlier portfolio work' }]
   const opened: string[] = []
@@ -55,20 +54,14 @@ async function fixture() {
     async request(method, params = {}) {
       calls.push({ method, params })
       if (method === 'thread/start') throw new Error('A replacement task must never be created')
-      if (method === 'thread/read' || method === 'thread/resume') {
+      if (method === 'thread/resume' || method === 'turn/start') throw new Error('already has an active writer')
+      if (method === 'thread/read') {
         if (!readable) throw new Error('Original task is temporarily unreadable')
         return {
           thread: { id: prior.binding.threadId, cwd: workspace, turns: structuredClone(turns) },
           cwd: workspace, model: approved.model, reasoningEffort: approved.reasoningEffort,
           serviceTier: approved.serviceTier, approvalPolicy: 'on-request',
           sandbox: { type: 'workspaceWrite', writableRoots: [workspace] }
-        }
-      }
-      if (method === 'turn/start') {
-        turns.push({ id: 'release-contract', input: params.input })
-        if (loseAcknowledgement) {
-          loseAcknowledgement = false
-          throw new Error('Lost instruction acknowledgement')
         }
       }
       return {}
@@ -87,13 +80,12 @@ async function fixture() {
     workspace, prior, runs, coordinator, calls, turns, opened,
     getHandoff: () => handoff!, setHandoff: (next: Handoff | null) => { handoff = next },
     setReadable: (next: boolean) => { readable = next },
-    setLoseAcknowledgement: () => { loseAcknowledgement = true },
     afterFirstHandoff: (callback: () => void) => { afterFirstHandoff = callback }
   }
 }
 
 describe('Module 4 continuation in the approved portfolio task', () => {
-  it('reuses the original task, approved settings and source checkpoint without duplicating instructions on resume', async () => {
+  it('opens the desktop-owned task and exposes verified release instructions without sending a message', async () => {
     const f = await fixture()
     const view = await f.coordinator.startNew({ ...identity, transfer: false })
     const saved = await f.runs.load()
@@ -104,10 +96,8 @@ describe('Module 4 continuation in the approved portfolio task', () => {
     expect(saved.activeRun?.runId).not.toBe(f.prior.runId)
     expect(saved.archivedRuns.at(-1)?.retainedRun).toEqual(f.prior)
     expect(f.calls.filter(({ method }) => method === 'thread/start')).toHaveLength(0)
-    expect(f.calls.find(({ method }) => method === 'thread/resume')?.params).toMatchObject({
-      model: approved.model, serviceTier: approved.serviceTier, approvalPolicy: 'on-request', sandbox: 'workspace-write'
-    })
-    const prompt = JSON.stringify(f.turns.at(-1)?.input)
+    expect(f.calls.every(({ method }) => method === 'thread/read')).toBe(true)
+    const prompt = view.startPrompt!
     expect(prompt).toContain(sourceCheckpoint)
     expect(prompt).toContain('evidence/module-4/deployment-record.json')
     expect(prompt).toContain('git rev-parse HEAD')
@@ -115,7 +105,8 @@ describe('Module 4 continuation in the approved portfolio task', () => {
     expect(prompt).not.toContain('Dừng sau mỗi stage')
     await f.coordinator.resume(identity)
     await f.coordinator.resume(identity)
-    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(1)
+    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(0)
+    expect(f.turns).toHaveLength(1)
     expect(f.opened).toEqual(Array(3).fill(`codex://threads/${f.prior.binding.threadId}`))
   })
 
@@ -152,19 +143,16 @@ describe('Module 4 continuation in the approved portfolio task', () => {
     expect(retried.activePractice?.runId).toBe(pending.pendingTransition?.targetRunId)
     expect((await f.runs.load()).activeRun?.binding.threadId).toBe(f.prior.binding.threadId)
     expect(f.calls.filter(({ method }) => method === 'thread/start')).toHaveLength(0)
-    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(1)
+    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(0)
+    expect(retried.startPrompt).toContain(sourceCheckpoint)
   })
 
-  it('recovers a lost preparation acknowledgement using the persisted contract marker', async () => {
+  it('keeps the same copyable contract available on repeated desktop-owned task opens', async () => {
     const f = await fixture()
-    f.setLoseAcknowledgement()
-    await expect(f.coordinator.startNew({ ...identity, transfer: false })).rejects.toThrow()
-    expect((await f.runs.load()).activeRun).toEqual(f.prior)
-
-    await f.coordinator.retry()
-    await f.coordinator.resume(identity)
-
-    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(1)
+    const started = await f.coordinator.startNew({ ...identity, transfer: false })
+    const resumed = await f.coordinator.resume(identity)
+    expect(resumed.startPrompt).toBe(started.startPrompt)
+    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(0)
     expect(f.calls.filter(({ method }) => method === 'thread/start')).toHaveLength(0)
   })
 
@@ -177,7 +165,7 @@ describe('Module 4 continuation in the approved portfolio task', () => {
     await expect(f.coordinator.resume(identity)).rejects.toThrow('Chưa thể tiếp tục task portfolio từ Module 3')
 
     expect(await f.runs.load()).toEqual(saved)
-    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(1)
+    expect(f.calls.filter(({ method }) => method === 'turn/start')).toHaveLength(0)
     expect(f.opened).toHaveLength(1)
   })
 

@@ -60,11 +60,11 @@ const introAndModuleOneCheckpointIds = [
 ] as const
 
 // Introduction and Module 1 stay on the legacy renderer. Modules 2–4 use the
-// typed registry; retired Module 2 IDs remain readable but no longer count as
-// runnable progress in the portfolio course.
+// typed registry. Retired checkpoints remain readable, but only checkpoints
+// with current teaching/Practice scenes count toward runnable course progress.
 export const runnableCheckpointIds = [
   ...introAndModuleOneCheckpointIds,
-  ...portfolioCheckpointIds
+  ...new Set(portfolioModuleDefinitions.flatMap((module) => module.scenes.map((scene) => scene.checkpointId)))
 ] as const
 
 export const checkpointIds = [
@@ -1031,6 +1031,7 @@ export type PracticePlanningWorkspaceView = {
 }
 
 export type PracticeWorkspaceView = {
+  startPrompt?: string
   schemaVersion: 1
   phase: 'brief' | 'switching' | 'active' | 'error'
   title: string

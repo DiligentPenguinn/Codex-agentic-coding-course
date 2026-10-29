@@ -4,6 +4,7 @@ import { PracticeProgress } from './PracticeProgress'
 import { PracticeSwitchDialog } from './PracticeSwitchDialog'
 import { PracticeIntroduction } from './PracticeIntroduction'
 import { getPracticeIntroduction } from './practice-introduction-copy'
+import { PracticeStartPrompt } from './PracticeStartPrompt'
 
 type PracticeBriefProps = {
   identity: PracticeIdentity
@@ -225,10 +226,12 @@ export function PracticeBrief({
           </PracticeIntroduction>
         ) : <>
         <small>Mục tiêu / kết quả</small>
-        <h1 id="practiceObjective">{workspace.objective}</h1>
+        <h1 id="practiceObjective">{workspace.title}</h1>
+        <p>{workspace.objective}</p>
         <p>{workspace.expectedOutcome}</p>
         {controls}
         </>}
+        <PracticeStartPrompt practiceId={identity.practiceId} prompt={workspace.startPrompt} title={workspace.title} />
       </section>
 
       {!introduction || hasRequestedPractice ? <PracticeProgress

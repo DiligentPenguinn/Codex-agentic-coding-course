@@ -144,8 +144,13 @@ export function PracticeProgress({
   const unresolvedCriterion = reviewResult?.criteria.find((criterion) => criterion.status !== 'satisfied')
   const nextChecklistStep = workspace.checklist.find((step) =>
     step.status === 'current' || step.status === 'stale' || step.status === 'pending')
+  const needsPackageSubmission = workspace.portfolioPackage?.ready && !workspace.portfolioPackage.approved
+  const packageSubmissionLabel = workspace.portfolioPackage?.kind === 'release'
+    ? 'Chấp nhận portfolio trên mạng và nộp bài'
+    : workspace.portfolioPackage?.kind === 'build' ? 'Chấp nhận website và nộp bài' : 'Duyệt và nộp gói planning'
   const reviewNextAction = reviewStatus === 'passed'
     ? 'Quay lại khóa học để tiếp tục.'
+    : needsPackageSubmission ? packageSubmissionLabel
     : unresolvedCriterion
       ? criterionNextActions[unresolvedCriterion.criterionId] ?? unresolvedCriterion.explanation
       : nextChecklistStep?.reason
@@ -178,8 +183,11 @@ export function PracticeProgress({
     step.status === 'current' || step.status === 'stale' || step.status === 'pending')
   const compactNextAction = reviewStatus === 'passed'
     ? 'Quay lại khóa học để tiếp tục.'
+    : needsPackageSubmission ? packageSubmissionLabel
     : unresolvedCriterion && criterionNextActions[unresolvedCriterion.criterionId]
       ? criterionNextActions[unresolvedCriterion.criterionId]
+      : workspace.portfolioPackage && unresolvedCriterion
+        ? unresolvedCriterion.explanation
       : compactCurrentStep
         ? `Hoàn thành bước hiện tại: ${compactCurrentStep.title}.`
         : 'Bổ sung bằng chứng rồi duyệt lại.'
@@ -243,6 +251,22 @@ export function PracticeProgress({
             {reviewStatus === 'needs-work' ? 'Cần bổ sung' : 'Chưa duyệt'}
           </b> : null}
         </div>
+        {workspace.portfolioPackage && reviewStatus === 'needs-work' && reviewResult ? (
+          <section className="practice-review-result is-needs-work" aria-label="Kết quả duyệt Practice">
+            <p>{reviewResult.summary}</p>
+            <ol className="practice-review-criteria" aria-label="Kết quả theo từng tiêu chí">
+              {reviewResult.criteria.filter((criterion) => criterion.status !== 'satisfied').map((criterion) => (
+                <li className={`is-${criterion.status}`} key={criterion.criterionId}>
+                  <span aria-hidden="true">{criterion.status === 'unsatisfied' ? '!' : '?'}</span>
+                  <div>
+                    <strong>{criterion.status === 'unsatisfied' ? 'Cần chỉnh sửa' : 'Chưa thể xác minh'}</strong>
+                    <p>{criterion.explanation}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
         {!practicePassed ? packageSubmission : null}
         <details {...(configurationPractice ? practiceGuideAnchor('configuration-evidence') : {})} className="practice-compact-details">
           <summary>Xem tất cả {workspace.checklist.length} bước</summary>

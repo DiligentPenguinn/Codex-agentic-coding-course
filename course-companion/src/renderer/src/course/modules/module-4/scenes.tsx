@@ -28,7 +28,7 @@ const instructionalScenes = {
     objective: "Mở portfolio vừa đưa lên mạng", panelLabel: 'CÙNG THỰC HÀNH',
     panelStatus: 'CẬP NHẬT PORTFOLIO', tone: 'neutral',
     request: "Mở portfolio vừa đưa lên mạng", evidence: [],
-    dialogue: "Bạn đã làm theo video để đưa portfolio lên Vercel. Bây giờ, bạn hãy nhấn vào đường link mà vercel đưa cho bạn.\n\n Sau đó, hãy xem nội dung đã hiện đúng ý bạn chưa, ảnh có tải được không, v.v. Thử cả trên máy tính và điện thoại.\n\n Nếu website chưa mở được hoặc còn lỗi, bạn hãy nhờ agent tìm nguyên nhân và sửa nó. Thường là quá trình này khá đơn giản nên cũng sẽ không có lỗi gì nghiêm trọng xảy ra.",
+    dialogue: "Khi thực hành đưa portfolio lên Vercel, bạn hãy mở đường link mà Vercel cung cấp.\n\n Sau đó, hãy xem nội dung đã hiện đúng ý bạn chưa, ảnh có tải được không, v.v. Thử cả trên máy tính và điện thoại.\n\n Nếu website chưa mở được hoặc còn lỗi, bạn hãy nhờ agent tìm nguyên nhân và sửa nó. Thường là quá trình này khá đơn giản nên cũng sẽ không có lỗi gì nghiêm trọng xảy ra.",
     choices: [{ label: 'Tiếp tục', next: 'module-4-vercel-preview', primary: true }]
   },
   'module-4-vercel-preview': {
@@ -37,14 +37,14 @@ const instructionalScenes = {
     objective: "Chọn một thay đổi nhỏ", panelLabel: 'CÙNG THỰC HÀNH',
     panelStatus: 'CẬP NHẬT PORTFOLIO', tone: 'neutral',
     request: "Chọn một thay đổi nhỏ", evidence: [],
-    dialogue: "Yayy, vậy là giờ bạn đã có một website để gửi cho người khác xem. Nếu bạn muốn dùng tên miền riêng thay cho địa chỉ có đuôi .vercel.app thì bạn có thể mua ngay trong Vercel.\n\nSau này nếu bạn muốn thay đổi bất kỳ chi tiết gì, bạn có thể sửa và kiểm tra trước ở môi trường local. Sau đó, nếu thấy ưng ý rồi thì hãy commit và push lên branch main. Nếu main là branch Vercel đang dùng để phát hành website, Vercel sẽ tự động cập nhật thay đổi của bạn sau khi triển khai thành công.",
+    dialogue: "Sau khi phát hành portfolio trong Practice, bạn sẽ có một website để gửi cho người khác xem. Nếu bạn muốn dùng tên miền riêng thay cho địa chỉ có đuôi .vercel.app thì bạn có thể mua ngay trong Vercel.\n\nSau này nếu bạn muốn thay đổi bất kỳ chi tiết gì, bạn có thể sửa và kiểm tra trước ở môi trường local. Sau đó, nếu thấy ưng ý rồi thì hãy commit và push lên branch main. Nếu main là branch Vercel đang dùng để phát hành website, Vercel sẽ tự động cập nhật thay đổi của bạn sau khi triển khai thành công.",
     choices: [{ label: 'Tiếp tục', next: 'module-4-portfolio-practice', primary: true }]
   },
   'module-4-portfolio-practice': {
     lessonId: 'module-4', checkpointId: 'm4-portfolio-release', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 4 · THỰC HÀNH', mission: 'Thực hành phát hành portfolio',
     objective: 'Có portfolio trên mạng để chia sẻ', panelLabel: 'CÙNG THỰC HÀNH',
-    panelStatus: 'BÀI THỰC HÀNH CHƯA HOẠT ĐỘNG', tone: 'neutral',
+    panelStatus: 'SẴN SÀNG THỰC HÀNH', tone: 'neutral',
     request: 'Dùng portfolio và tài khoản của bạn để thực hành cùng Codex.', evidence: [],
     dialogue: 'Bây giờ, hãy chuyển sang Codex để đưa portfolio của bạn lên mạng theo hướng dẫn vừa học. Khi bạn có một portfolio mở được bằng đường link để gửi cho người khác xem, bạn đã đạt mục tiêu của Module 4 rồi. Không có bài kiểm tra cuối phần này.',
     choices: [{ label: 'Mở Practice phát hành', action: 'practice', primary: true }]
@@ -53,9 +53,9 @@ const instructionalScenes = {
     lessonId: 'module-4', checkpointId: 'm4-complete', step: 5, totalSteps: 5,
     lessonLabel: 'MODULE 4 · HOÀN THÀNH', mission: 'Tốt nghiệp bằng bằng chứng hiện tại',
     objective: 'Có portfolio trên mạng để chia sẻ', panelLabel: 'TRẠNG THÁI',
-    panelStatus: 'CHƯA ĐƯỢC KÍCH HOẠT', tone: 'neutral',
-    request: 'Màn hình này chưa phải xác nhận bạn đã hoàn thành khóa học.',
-    evidence: [], dialogue: 'Mục tiêu của Module 4 là có portfolio trên mạng để gửi cho người khác xem. Ứng dụng hiện chưa tự ghi nhận kết quả thực hành này.', choices: []
+    panelStatus: 'ĐÃ HOÀN THÀNH', tone: 'neutral',
+    request: 'Kết quả thực hành Module 4 đã được kiểm tra và lưu.',
+    evidence: [], dialogue: 'Bạn đã có portfolio trên mạng để chia sẻ. Triết đã kiểm tra bài thực hành và ứng dụng đã lưu kết quả Module 4.', choices: []
   }
 } as const satisfies Partial<Record<SceneId, RegistrySceneContent>>
 

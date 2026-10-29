@@ -22,6 +22,7 @@ import type {
 } from '../../shared/contracts'
 import { isProgressUpdate, ProgressRepository } from './progress-repository'
 import { CodexAppServerClient } from './codex-app-server-client'
+import { resolveCodexRuntimeCommand } from './codex-runtime'
 import { AppServerLifecycle } from './app-server-lifecycle'
 import { ExecutorActivityObserver } from './executor-activity-observer'
 import { ExecutorActivityRepository } from './executor-activity-repository'
@@ -220,7 +221,10 @@ const executorBootstrapGateway = useTestCodexGateway
     }
 const openExecutorChat = useTestCodexGateway
   ? async (): Promise<void> => undefined
-  : (url: string): Promise<void> => shell.openExternal(url)
+  : async (url: string): Promise<void> => {
+      await resolveCodexRuntimeCommand()
+      await shell.openExternal(url)
+    }
 const executorChatCoordinator = new ExecutorChatCoordinator(
   executorBootstrapGateway,
   practiceWorkspaceResolver,
@@ -998,7 +1002,6 @@ function registerIpcHandlers(): void {
         || completedRun.practiceVersion !== receipt.practiceVersion) {
         throw new Error('Passed Practice changed before its completion summary could be saved.')
       }
-      await teacherService.summarizeCompletedRun(completedRun)
       await teacherService.leavePracticeRun(completedRun.runId)
       await practiceGuideCoordinator.completeCourseReturn(guideContextBeforeReturn).catch(() => null)
       const authoritative = await progressRepository.load()
@@ -1009,6 +1012,9 @@ function registerIpcHandlers(): void {
       mainWindow?.focus()
       companionWindow?.hide()
       mainWindow?.webContents.send('course:practice-returned')
+      // Progress and the return are already committed. A slow or unavailable
+      // memory summary must not hold the learner on the completed Practice.
+      void teacherService.summarizeCompletedRun(completedRun).catch(() => undefined)
     })().finally(() => {
       if (pendingPracticeReturn === operation) pendingPracticeReturn = null
     })

@@ -5,7 +5,7 @@ import type {
   ExecutorActivitySnapshot
 } from '../shared/contracts'
 import { PracticeDefinitionRepository } from '../electron/main/practice-definition-repository'
-import { buildPracticeReviewEnvelope } from '../electron/main/practice-review-context'
+import { buildPracticeReviewEnvelope, buildPracticeReviewPrompt, type PracticeReviewEnvelope } from '../electron/main/practice-review-context'
 import type { PracticeRunRecord } from '../electron/main/practice-run-repository'
 
 const timestamp = '2026-08-10T00:00:00.000Z'
@@ -132,5 +132,28 @@ describe('Module 1 Practice review context', () => {
     })
 
     expect(envelope.evidence.every((item) => item.freshness === 'stale')).toBe(true)
+  })
+})
+
+describe('beginner portfolio review policy', () => {
+  it.each([
+    ['m2-portfolio-planning', '2.0.0', 'planning'],
+    ['m3-portfolio-build', '2.0.0', 'build'],
+    ['m4-portfolio-release', '1.0.0', 'release']
+  ] as const)('accepts the stated minimum for %s without dropping required gates', async (practiceId, version, kind) => {
+    const definition = await new PracticeDefinitionRepository(join(process.cwd(), '../pilot-workspace/course/practices')).load(practiceId, version)
+    const envelope: PracticeReviewEnvelope = { schemaVersion: 1, definition,
+      run: { runId: 'beginner', generation: 1, threadId: 'bound', startedAt: timestamp },
+      evidence: [], generatedAt: timestamp,
+      portfolioPackage: { kind, evidenceDigest: 'a'.repeat(64), sourceDigest: null,
+        ready: false, approved: false, artifacts: [], issues: [], unexpectedPaths: [] } }
+    const prompt = buildPracticeReviewPrompt(envelope)
+    expect(prompt).toContain('beginner completion standard, not professional polish')
+    expect(prompt).toContain('when the current approved planning scope permits it')
+    expect(prompt).toContain('mobile viewport emulation with concrete observations')
+    expect(prompt).toContain('single smallest blocking next action')
+    expect(prompt).toContain('Never pass fabricated evidence, stale source, a broken required outcome or missing publishing permission')
+    for (const criterion of definition.criteria) expect(prompt).toContain(criterion.assertion)
+    expect(envelope.portfolioPackage?.approved).toBe(false)
   })
 })

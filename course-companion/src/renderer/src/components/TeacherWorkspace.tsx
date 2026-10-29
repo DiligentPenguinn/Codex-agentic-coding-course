@@ -20,6 +20,7 @@ import { PracticeGuide } from './PracticeGuide'
 import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
 import { PracticeTaskLink } from './PracticeTaskLink'
+import { PracticeStartPrompt } from './PracticeStartPrompt'
 import { TeacherMarkdown } from './TeacherMarkdown'
 
 type TeacherWorkspaceProps = {
@@ -308,6 +309,22 @@ export function TeacherWorkspace({
     setReviewBusy(true)
     setError('')
     try {
+      if (workspace?.portfolioPackage && workspace.activePractice) {
+        const refreshed = await window.courseCompanion.loadPracticeWorkspace()
+        setWorkspace(refreshed)
+        if (refreshed.error) {
+          setError(refreshed.error)
+          return
+        }
+        if (refreshed.activePractice?.runId !== workspace.activePractice.runId
+          || refreshed.activePractice.generation !== workspace.activePractice.generation) return
+        if (refreshed.portfolioPackage?.ready && !refreshed.portfolioPackage.approved) {
+          requestAnimationFrame(() => {
+            practiceRef.current?.querySelector<HTMLInputElement>('.practice-package-approval input')?.focus()
+          })
+          return
+        }
+      }
       const reviewed = await window.courseCompanion.reviewPractice()
       if ('error' in reviewed) {
         setError(reviewed.error.message)
@@ -636,6 +653,12 @@ export function TeacherWorkspace({
             </button>
           </div>
           <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+          {workspace?.activePractice ? <PracticeStartPrompt
+            key={`${workspace.activePractice.runId}:${workspace.activePractice.generation}`}
+            practiceId={workspace.activePractice.practiceId}
+            prompt={workspace.startPrompt}
+            title={workspace.title}
+          /> : null}
           {!embedded && guideOpen ? (
             <PracticeGuide view={practiceGuide} compact onUpdate={updatePracticeGuide}
               onReview={reviewProgress} onReturn={returnToCourse}
@@ -654,7 +677,7 @@ export function TeacherWorkspace({
             </aside>
           ) : null}
           {hintError ? <div className="pixel-chat-warning" role="alert">{hintError}</div> : null}
-          {error ? <div className="pixel-chat-warning" role="alert">{error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
+          {error || workspace?.error ? <div className="pixel-chat-warning" role="alert">{error || workspace?.error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
             {workspace ? (
               <PracticeProgress
                 workspace={workspace}

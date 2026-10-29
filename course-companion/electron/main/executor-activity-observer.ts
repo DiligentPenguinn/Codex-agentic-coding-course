@@ -121,7 +121,8 @@ function reportFacts(text: string, workspaceRoot: string): { changedFiles: strin
     if (
       section === 'verification'
       || (/\b(?:npm|pnpm|yarn|test|lint|build|typecheck|viewport|overflow|scrollWidth|innerWidth)\b/i.test(line)
-        && /\b(?:pass(?:ed)?|fail(?:ed)?|false|true|\d+px|\d+\s+tests?)\b/i.test(line))
+        && (/\b(?:pass(?:ed)?|fail(?:ed)?|false|true|\d+px|\d+\s+tests?)\b/i.test(line)
+          || /(?:đạt|thành công|thất bại|không tràn|rỗng)/iu.test(line.normalize('NFC'))))
     ) {
       const value = bounded(line.replace(/^[-*]\s*/, ''), 500)
       if (value) evidence.push(value)

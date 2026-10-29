@@ -53,5 +53,5 @@ export const moduleThreeDefinition = {
     'evidence/module-3/learning-record.md',
     'evidence/module-3/browser-validation.md'
   ],
-  completionDestination: null
+  completionDestination: { moduleId: 'module-4', sceneId: 'module-4-hosting-intro' }
 } as const

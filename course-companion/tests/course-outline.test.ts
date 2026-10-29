@@ -1,9 +1,25 @@
 import { describe, expect, it } from 'vitest'
-import type { LessonId, SceneId } from '../shared/contracts'
-import { adjacentOutlinePage, courseOutline, outlineSectionIndex } from '../shared/course/outline'
+import type { LessonId, PracticeCompletionReceipt, SceneId } from '../shared/contracts'
+import { adjacentOutlinePage, courseOutline, outlineSectionIndex, reviewableOutlinePages } from '../shared/course/outline'
 import { portfolioModuleDefinitions } from '../shared/course/registry'
 
 describe('course outline coverage and reading order', () => {
+  it('exposes release completion for review only after the same course earned its reviewed return', () => {
+    const pages: SceneId[] = ['module-4-portfolio-practice', 'module-4-complete']
+    const receipt: PracticeCompletionReceipt = {
+      schemaVersion: 1, courseRunId: 'current', practiceId: 'm4-portfolio-release', practiceVersion: '1.0.0',
+      runId: 'release', checkpointId: 'm4-portfolio-release', status: 'completed', completedAt: '2026-10-29T00:00:00Z',
+      evidenceSummary: '', masterySummary: '', submissionDigest: 'a'.repeat(64),
+      destination: { lessonId: 'module-4', checkpointId: 'm4-complete', sceneId: 'module-4-complete' }
+    }
+    const progress = { courseRunId: 'current', completedCheckpointIds: ['m4-portfolio-release' as const], practiceCompletions: [receipt] }
+    expect(reviewableOutlinePages(pages, progress)).toEqual(pages)
+    expect(reviewableOutlinePages(pages, { ...progress, practiceCompletions: [] })).toEqual([pages[0]])
+    expect(reviewableOutlinePages(pages, { ...progress, courseRunId: 'another' })).toEqual([pages[0]])
+    expect(reviewableOutlinePages(pages, { ...progress, completedCheckpointIds: [] })).toEqual([pages[0]])
+    expect(reviewableOutlinePages(pages, { ...progress, practiceCompletions: [{ ...receipt, submissionDigest: undefined }] })).toEqual([pages[0]])
+    expect(pages).toEqual(['module-4-portfolio-practice', 'module-4-complete'])
+  })
   for (const module of portfolioModuleDefinitions) {
     it(`covers every ${module.id} page with ordered, unique section starts`, () => {
       const pages = module.scenes.map((scene) => scene.id) as SceneId[]

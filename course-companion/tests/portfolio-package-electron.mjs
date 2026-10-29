@@ -34,7 +34,10 @@ async function waitForPracticeState(predicate, description) {
     if (predicate(state)) return state
     await delay(250)
   }
-  assert.fail(description)
+  assert.fail(`${description}: ${JSON.stringify({ active: state?.activeRun && {
+    practiceId: state.activeRun.practiceId, runId: state.activeRun.runId, generation: state.activeRun.generation,
+    reviewStatus: state.activeRun.reviewStatus, completion: Boolean(state.activeRun.completion)
+  }, pending: state?.pendingTransition?.stage, archived: state?.archivedRuns?.map(({ practiceId, outcome }) => ({ practiceId, outcome })) })}`)
 }
 try {
   app = await electron.launch({ executablePath: electronExecutable, args: [resolve('out/main/index.js')], env: {
@@ -43,6 +46,7 @@ try {
     COURSE_COMPANION_FAKE_RELEASE_EVIDENCE: '1',
     COURSE_COMPANION_TEST_PUBLIC_PORTFOLIO_URL: 'https://disposable-portfolio.vercel.app/',
     COURSE_COMPANION_FAKE_BUILD_EVIDENCE: '1',
+    COURSE_COMPANION_FAKE_TEACHER_SUMMARY_DELAY_MS: '10000',
     COURSE_COMPANION_TEST_PORTFOLIO_WORKSPACE: portfolio
   } })
   app.process().stderr?.on('data', (chunk) => { runtimeErrors = (runtimeErrors + chunk.toString()).slice(-12000) })
@@ -59,7 +63,7 @@ try {
     await api.returnPassedPractice()
     await api.saveProgress({ currentLessonId: 'module-2', currentCourseLessonId: 'm2-portfolio-brief',
       checkpointId: 'm2-portfolio-planning', sceneId: 'module-2-portfolio-practice', sceneHistory: [],
-      completedCheckpointIds: ['m1-setup-checklist', 'm1-complete'], decisions: {} })
+      completedCheckpointIds: ['m1-setup-checklist', 'm1-complete', 'm2-why-planning'], decisions: {} })
     const loaded = await api.loadProgress()
     const request = { courseRunId: loaded.progress.courseRunId }
     await api.choosePortfolioWorkspace(request)
@@ -227,6 +231,24 @@ try {
     await mkdir(dirname(join(portfolio, path)), { recursive: true })
     await writeFile(join(portfolio, path), content, 'utf8')
   }
+  const originalPlanningNote = '# Original combined planning notes\n\nPreserve the learner interview.'
+  await writeFile(join(portfolio, 'planning/portfolio-plan.md'), originalPlanningNote, 'utf8')
+  const beforeRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  await compact.evaluate(() => globalThis.courseCompanion.setCompanionMode('expanded'))
+  await compact.setViewportSize({ width: 380, height: 640 })
+  await compact.getByRole('button', { name: 'Cập nhật và kiểm tra tiến độ Practice', exact: true }).click()
+  const pendingApproval = compact.getByRole('checkbox', { name: 'Tôi đã đọc và duyệt PRD cùng kế hoạch triển khai hiện tại.' })
+  await compact.waitForFunction(() => {
+    const checkbox = globalThis.document.querySelector('.practice-package-approval input')
+    return checkbox && !checkbox.disabled && checkbox === globalThis.document.activeElement
+  })
+  assert.equal(await pendingApproval.isChecked(), false, 'Refresh must not grant learner approval')
+  const afterRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  assert.equal(afterRefresh.packageApproval, undefined)
+  assert.equal(afterRefresh.reviewHistory.length, beforeRefresh.reviewHistory.length, 'Pending approval is not another failed review')
+  assert.equal(afterRefresh.evidence.portfolioPlanning.issues.length, 0)
+  assert.equal(await readFile(join(portfolio, 'planning/portfolio-plan.md'), 'utf8'), originalPlanningNote)
+  await compact.evaluate(() => globalThis.courseCompanion.setCompanionMode('compact'))
   await submit.scrollIntoViewIfNeeded()
   await page.getByRole('button', { name: 'Làm mới bằng chứng', exact: true }).click()
   const approval = page.getByRole('checkbox', { name: 'Tôi đã đọc và duyệt PRD cùng kế hoạch triển khai hiện tại.' })
@@ -324,6 +346,14 @@ try {
     await page.screenshot({ path: join(screenshots, `module-3-local-preview-${width}.png`), animations: 'disabled' })
   }
   await page.setViewportSize({ width: 1180, height: 780 })
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.locator('main[data-scene-id="module-3-debugging-intro"]').waitFor()
+  await page.getByText('Okay, bây giờ bạn đã có một implementation plan', { exact: false }).waitFor()
+  const handoffReference = page.locator('.pixel-planning-handoff')
+  assert.equal(await handoffReference.getAttribute('open'), null)
+  await handoffReference.locator('summary').click()
+  assert.equal(await handoffReference.locator('li').count(), 5)
+  assert.equal((await page.locator('.pixel-dialogue > p').innerText()).includes(handoff.summary.firstBuild), false)
   await page.evaluate(() => globalThis.courseCompanion.startPractice({ practiceId: 'm3-portfolio-build', practiceVersion: '2.0.0', transfer: false }))
   const continued = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8'))
   assert.equal(continued.activeRun.binding.threadId, originalTask)
@@ -340,6 +370,32 @@ try {
   await page.reload()
   await page.getByRole('button', { name: 'Mở Course Companion', exact: true }).click()
   await page.getByRole('button', { name: /MODULE 3.*MỞ BÀI HỌC/ }).click()
+  await app.evaluate(({ BrowserWindow }) => {
+    const learning = BrowserWindow.getAllWindows().find((window) => window.webContents.getURL().includes('#/learning'))
+    learning?.restore()
+    learning?.show()
+    learning?.focus()
+  })
+  await page.bringToFront()
+  await page.getByRole('button', { name: 'HỎI TRIẾT', exact: true }).click()
+  const embeddedReview = page.locator('.pixel-teacher-panel.is-embedded.is-practice-review .pixel-practice-review')
+  await embeddedReview.waitFor()
+  for (const viewport of [{ width: 1168, height: 746 }, { width: 360, height: 640 }]) {
+    await page.setViewportSize(viewport)
+    assert.equal(await embeddedReview.evaluate((element) => globalThis.getComputedStyle(element).overflowY), 'auto')
+    assert.ok(await embeddedReview.evaluate((element) => element.clientHeight) >= 200, 'Embedded review has a useful scrolling viewport')
+    const submit = embeddedReview.getByRole('button', { name: 'Chấp nhận website và nộp bài', exact: true })
+    await submit.scrollIntoViewIfNeeded()
+    assert.equal(await submit.evaluate((element) => {
+      const button = element.getBoundingClientRect()
+      const viewport = element.closest('.pixel-practice-review').getBoundingClientRect()
+      return button.top >= viewport.top && button.bottom <= viewport.bottom
+    }), true, 'The submission action can be fully reached')
+    assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
+    await page.screenshot({ path: join(screenshots, `embedded-review-${viewport.width}.png`), animations: 'disabled' })
+  }
+  await page.getByRole('button', { name: 'Đóng Triết', exact: true }).click()
+  await page.setViewportSize({ width: 1180, height: 780 })
   await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
   const buildSubmit = page.getByRole('button', { name: 'Chấp nhận website và nộp bài', exact: true })
   await buildSubmit.waitFor()
@@ -358,6 +414,18 @@ try {
     await page.screenshot({ path: join(screenshots, `module-3-build-v2-${width}.png`), animations: 'disabled' })
   }
   await page.setViewportSize({ width: 1180, height: 780 })
+  const beforeBuildRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  await compact.evaluate(() => globalThis.courseCompanion.setCompanionMode('expanded'))
+  await compact.setViewportSize({ width: 380, height: 640 })
+  await compact.getByRole('button', { name: 'Cập nhật và kiểm tra tiến độ Practice', exact: true }).click()
+  await compact.waitForFunction(() => {
+    const checkbox = globalThis.document.querySelector('.practice-package-approval input')
+    return checkbox && !checkbox.disabled && checkbox === globalThis.document.activeElement
+  })
+  const afterBuildRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  assert.equal(afterBuildRefresh.packageApproval, undefined)
+  assert.equal(afterBuildRefresh.reviewHistory.length, beforeBuildRefresh.reviewHistory.length)
+  await compact.evaluate(() => globalThis.courseCompanion.setCompanionMode('compact'))
   await page.getByRole('checkbox', { name: 'Tôi đã xem website, đối chiếu kết quả kiểm tra và chấp nhận phiên bản hiện tại.' }).check()
   await buildSubmit.click()
   await page.getByRole('button', { name: 'Lưu kết quả và quay lại khóa học', exact: true }).waitFor()
@@ -365,6 +433,7 @@ try {
   assert.equal(passedBuild.activeRun.stageReceipts.length, 0)
   assert.equal(passedBuild.activeRun.buildSliceReceipts.length, 0)
   await page.getByRole('button', { name: 'Lưu kết quả và quay lại khóa học', exact: true }).click()
+  await page.locator('main[data-scene-id="module-3-portfolio-mastery"]').waitFor({ timeout: 5000 })
   await waitForPracticeState((record) => record.activeRun === null, 'Build review must archive with its original task')
   const completedBuild = await page.evaluate(async () => {
     const api = globalThis.courseCompanion
@@ -375,8 +444,8 @@ try {
   })
   assert.equal(completedBuild.sceneId, 'module-3-complete')
   assert.equal(completedBuild.practiceCompletions.at(-1).portfolioBuildHandoff.schemaVersion, 2)
-  // The courseapp owner wires its entry page separately. Exercise the public
-  // Practice API and actual companion controls without editing that host page.
+  // Enter Module 4 through the learner's actual course page, not a direct
+  // startPractice call that could hide a disconnected entry button.
   const releaseUrl = 'https://disposable-portfolio.vercel.app/'
   const git = (...args) => execFileSync('git', args, { cwd: portfolio, encoding: 'utf8', windowsHide: true }).trim()
   git('init', '-b', 'main')
@@ -384,16 +453,34 @@ try {
   git('add', '--', '.')
   git('-c', 'user.name=Disposable Practice', '-c', 'user.email=practice@example.invalid', 'commit', '-m', 'Disposable release candidate')
   const releaseRevision = git('rev-parse', 'HEAD')
-  await page.evaluate(async () => {
-    const api = globalThis.courseCompanion
-    const { progress } = await api.loadProgress()
-    await api.saveProgress({ ...progress, currentLessonId: 'module-4', currentCourseLessonId: 'm4-ownership-transfer', checkpointId: 'm4-portfolio-release', sceneId: 'module-4-portfolio-practice' })
-  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Mở Course Companion', exact: true }).click()
+  await page.getByRole('button', { name: /MODULE 3.*HOÀN THÀNH/ }).click()
+  await page.locator('main[data-scene-id="module-3-complete"]').waitFor()
+  await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  await page.locator('main[data-scene-id="module-4-hosting-intro"]').waitFor()
+  await page.getByRole('button', { name: 'VIBECODING 101 VỀ HOME BASE', exact: true }).click()
+  await page.getByRole('button', { name: /MODULE 4.*MỞ BÀI HỌC/ }).click()
+  for (const sceneId of ['module-4-hosting-intro', 'module-4-vercel-benefits', 'module-4-after-video', 'module-4-vercel-preview']) {
+    await page.locator(`main[data-scene-id="${sceneId}"]`).waitFor()
+    await page.getByRole('button', { name: 'Tiếp tục', exact: true }).click()
+  }
+  await page.locator('main[data-scene-id="module-4-portfolio-practice"]').waitFor()
+  await page.getByLabel('Mở mục lục MODULE 4', { exact: true }).click()
+  await page.getByRole('button', { name: 'Practice: Phát hành portfolio', exact: true }).click()
+  await page.locator('main[data-scene-id="module-4-portfolio-practice"][data-outline-preview="true"]').waitFor()
+  await page.locator('.pixel-lesson-actions').getByRole('button', { name: 'Về trang đang học', exact: true }).click()
+  assert.equal(await page.locator('main[data-scene-id="module-4-complete"]').count(), 0)
   await assert.rejects(page.evaluate(async () => {
     const { progress } = await globalThis.courseCompanion.loadProgress()
     return globalThis.courseCompanion.saveProgress({ ...progress, checkpointId: 'm4-complete', sceneId: 'module-4-complete' })
   }), /reviewed Practice/)
-  await page.evaluate(() => globalThis.courseCompanion.startPractice({ practiceId: 'm4-portfolio-release', practiceVersion: '1.0.0', transfer: false }))
+  await page.reload()
+  await page.getByRole('button', { name: 'Mở Course Companion', exact: true }).click()
+  await page.getByRole('button', { name: /MODULE 4.*MỞ BÀI HỌC/ }).click()
+  await page.getByRole('button', { name: 'Chuyển sang Codex để thực hành', exact: true }).click()
+  await page.getByRole('heading', { name: 'Đưa portfolio lên mạng', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Bắt đầu thực hành', exact: true }).click()
   const releaseState = await waitForPracticeState((record) => record.activeRun?.practiceId === 'm4-portfolio-release', 'Release must continue the original task')
   assert.equal(releaseState.activeRun.binding.threadId, originalTask)
   const deployedAt = new Date(Date.now() - 1000).toISOString()
@@ -421,6 +508,15 @@ try {
     await compact.screenshot({ path: join(screenshots, `module-4-release-${width}.png`), animations: 'disabled' })
   }
   await compact.setViewportSize({ width: 1024, height: 780 })
+  const beforeReleaseRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  await compact.getByRole('button', { name: 'Cập nhật và kiểm tra tiến độ Practice', exact: true }).click()
+  await compact.waitForFunction(() => {
+    const checkbox = globalThis.document.querySelector('.practice-package-approval input')
+    return checkbox && !checkbox.disabled && checkbox === globalThis.document.activeElement
+  })
+  const afterReleaseRefresh = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  assert.equal(afterReleaseRefresh.packageApproval, undefined)
+  assert.equal(afterReleaseRefresh.reviewHistory.length, beforeReleaseRefresh.reviewHistory.length)
   await onlineApproval.check()
   await compact.getByRole('button', { name: 'Chấp nhận portfolio trên mạng và nộp bài', exact: true }).click()
   await compact.getByRole('button', { name: 'Lưu kết quả và quay lại khóa học', exact: true }).waitFor()
@@ -429,12 +525,19 @@ try {
   assert.equal(released.archivedRuns.at(-1).retainedRun.binding.threadId, originalTask)
   const finalReleaseProgress = await page.evaluate(() => globalThis.courseCompanion.loadProgress())
   assert.equal(finalReleaseProgress.progress.sceneId, 'module-4-complete')
+  assert.ok(finalReleaseProgress.progress.completedCheckpointIds.includes('m4-complete'))
   assert.equal(finalReleaseProgress.progress.practiceCompletions.at(-1).practiceId, 'm4-portfolio-release')
-  console.log('Module 4 Practice rehearsal: same task, real local Git revision, one record, simulated public URL/review, explicit approval, atomic return and desktop/narrow controls passed; courseapp host wiring remains separate')
+  assert.ok(finalReleaseProgress.progress.completedCheckpointIds.includes('m2-why-planning'), 'Retired checkpoint history remains intact')
+  await page.locator('main[data-scene-id="module-4-complete"]').waitFor()
+  await page.getByRole('button', { name: 'VIBECODING 101 VỀ HOME BASE', exact: true }).click()
+  assert.equal(await page.locator('.pixel-course-progress strong').innerText(), '12/19 checkpoint · 63%', 'Home counts only current checkpoints; this fixture skips four early setup checkpoints, the planning introduction and the two Module 3 teaching checkpoints')
+  console.log('Module 4 Practice rehearsal: course-page entry, same task, real local Git revision, one record, simulated public URL/review, explicit approval, atomic return and desktop/narrow controls passed')
   console.log('Module 3 v2 rehearsal: three records, one website approval, simulated content review, original task, archived completion, five mastery answers and desktop/narrow layouts passed')
   console.log('Portfolio rehearsal: explicit approval, five-document simulated review, desktop/narrow no-overflow, archived same-task revision, completion, and same-task Module 3 handoff passed')
 } catch (error) {
   console.error(runtimeErrors)
+  const diagnosticRun = JSON.parse(await readFile(join(userData, 'practice-runs.json'), 'utf8')).activeRun
+  console.error('Disposable Practice failure state:', JSON.stringify(diagnosticRun).slice(-14000))
   for (const [index, page] of (app?.windows() ?? []).entries()) {
     console.error(page.url(), await page.locator('body').innerText().catch(() => 'unavailable'))
     await page.screenshot({ path: join(screenshots, `portfolio-package-failure-${index}.png`), timeout: 3000 }).catch(() => {})

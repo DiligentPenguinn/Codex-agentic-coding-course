@@ -1,14 +1,12 @@
 import { createHash } from 'node:crypto'
-import { execFile } from 'node:child_process'
 import { lstat, readFile, realpath } from 'node:fs/promises'
 import { basename, resolve } from 'node:path'
-import { promisify } from 'node:util'
 import { portfolioReleaseRecordPath, type PortfolioDeploymentRecord, type PortfolioPlanningArtifactSnapshot, type PortfolioPlanningIssue, type PracticeAdapterEvidenceState } from '../../shared/contracts'
 import { applicationSnapshot, containedFile } from './portfolio-build-package-evidence'
 import type { PracticeEvidenceAdapter, PracticeEvidenceAdapterContext } from './practice-evidence-adapter'
 import { PublicPortfolioUrlVerifier } from './public-portfolio-url'
+import { readPortfolioReleaseGit } from './portfolio-release-git'
 
-const execute = promisify(execFile)
 const hash = (value: string | Uint8Array) => createHash('sha256').update(value).digest('hex')
 const iso = (value: unknown): value is string => typeof value === 'string' && Number.isFinite(Date.parse(value))
 const object = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
@@ -51,7 +49,7 @@ const sourcePath = (path: string) => basename(path) !== '.DS_Store'
   && !/^(?:planning|evidence|node_modules|dist|out|coverage|\.codex|\.agents|\.openai|\.vercel)(?:\/|$)/.test(path)
 
 async function committedReleaseSnapshot(root: string, expectedRevision?: string) {
-  const git = async (args: string[]) => (await execute('git', args, { cwd: root, encoding: 'utf8', timeout: 5000, maxBuffer: 1024 * 1024, windowsHide: true })).stdout
+  const git = (args: string[]) => readPortfolioReleaseGit(root, args)
   const [repository, revisionOutput, status, trackedPaths] = await Promise.all([
     git(['rev-parse', '--show-toplevel']), git(['rev-parse', 'HEAD']),
     git(['status', '--porcelain=v1', '-z', '--untracked-files=all']), git(['ls-files', '--cached', '-z'])
@@ -66,9 +64,10 @@ async function committedReleaseSnapshot(root: string, expectedRevision?: string)
   }
   if (expectedRevision && revision !== expectedRevision) throw new Error('Wrong source revision')
   const tracked = new Set(trackedPaths.split('\0').filter(Boolean))
-  return applicationSnapshot(root, async (files) => {
+  const snapshot = await applicationSnapshot(root, async (files) => {
     if (files.some(({ path }) => !tracked.has(path))) throw new Error('Application files missing from release commit')
   })
+  return { ...snapshot, content: `${snapshot.content}\nIndependently verified Git HEAD: ${revision}. Application source is committed, tracked and clean; this does not verify provider or browser results.` }
 }
 
 export class PortfolioReleaseEvidenceAdapter implements PracticeEvidenceAdapter {
@@ -88,6 +87,7 @@ export class PortfolioReleaseEvidenceAdapter implements PracticeEvidenceAdapter 
     let deployment: Awaited<ReturnType<PublicPortfolioUrlVerifier['verify']>> | undefined
     const problem = (path: string, message: string) => issues.push({ stageId: 'release-source', path, code: 'missing', message })
     let record: PortfolioDeploymentRecord | undefined
+    let verifiedContinuation: PortfolioReleaseContinuation | undefined
     try {
       await containedFile(root, resolve(root, portfolioReleaseRecordPath))
       const info = await lstat(resolve(root, portfolioReleaseRecordPath))
@@ -105,12 +105,15 @@ export class PortfolioReleaseEvidenceAdapter implements PracticeEvidenceAdapter 
         || resolve(context.task.workspaceRoot) !== root
         || resolve(continuation.task.workspaceRoot) !== root || resolve(continuation.workspace.canonicalPath) !== root
         || (record && record.moduleThreeSourceCheckpoint !== continuation.sourceCheckpoint)) throw new Error('Wrong Module 3 handoff')
+      verifiedContinuation = continuation
     } catch {
       problem('module-3/handoff', 'Chưa xác nhận được portfolio và task đã hoàn thành Module 3. Hãy kết nối lại đúng task; lịch sử vẫn được giữ.')
     }
     try {
       const source = await committedReleaseSnapshot(root, record?.sourceRevision)
-      artifacts.push({ ...source, observedAt })
+      artifacts.push({ ...source, content: source.content + (verifiedContinuation
+        ? `\nIndependently verified Module 3 v2 handoff for bound task ${verifiedContinuation.task.threadId}; accepted starting source checkpoint: ${verifiedContinuation.sourceCheckpoint}.`
+        : ''), observedAt })
     } catch {
       problem('application/source', 'Codex cần lưu phiên bản mã nguồn phát hành bằng commit, kiểm tra lại và đối chiếu đúng mã phiên bản đã triển khai.')
     }
