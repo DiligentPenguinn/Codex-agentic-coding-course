@@ -1010,7 +1010,11 @@ function registerIpcHandlers(): void {
       }
       mainWindow?.show()
       mainWindow?.focus()
+      companionMode = 'compact'
+      companionWindow?.webContents.send('course:companion-mode-changed', companionMode)
+      positionCompanion(companionMode, false)
       companionWindow?.hide()
+      await teacherRepository.saveMode(companionMode)
       mainWindow?.webContents.send('course:practice-returned')
       // Progress and the return are already committed. A slow or unavailable
       // memory summary must not hold the learner on the completed Practice.

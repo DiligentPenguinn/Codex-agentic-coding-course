@@ -2,7 +2,8 @@
 
 29 October 2026. Prepared for the collaborator integrating the Practice branch
 with the course app. The implementation is committed and pushed through
-`fbd56acd85515ce94e8aba56cb52350e834be1da`. This handoff adds documentation only.
+`fbd56acd85515ce94e8aba56cb52350e834be1da`. The branch also includes the later
+windowed Teacher continuity repair described below.
 
 The batch repairs the actual learner route through Modules 2–4, makes Practice
 instructions repeatable, fixes task reopening and progress refresh, improves
@@ -45,6 +46,22 @@ repairs below. Its statements that Module 4 entry is unwired and no live
 publication has occurred are historical, not outstanding implementation tasks.
 
 ## What changed for learners
+
+The follow-up minimize/reopen repair retains the windowed Teacher after its
+first open. Compact mode hides the existing panel instead of destroying it;
+reopening refreshes data without a loading reset. Sensitive Practice actions
+wait for that refresh, and source changes still invalidate stale acceptance.
+Completed Practice return quietly restores launcher mode; the hidden panel
+stops workspace/focus subscriptions until reopened. A different run clears
+run-specific hints, guide presentation and return state.
+Verification passed: 775 unit tests (three existing skips), nine startup checks,
+typecheck, lint, build, Electron smoke/chat/guide and the expanded portfolio
+journey. The new checks retain draft, prompt disclosure and exact scroll
+position over repeated minimize/reopen cycles, while a PRD edit clears stale
+acceptance. The full unit run used `vitest run --maxWorkers=2` after Windows I/O
+timeouts with default concurrency; no timeout or assertion was weakened. The
+guide test now resumes its retained paused view, with its existing retry and
+replay checks preserved. Local follow-up logs use `teacher-keepalive-*.log`.
 
 | Area | Current behavior |
 |---|---|

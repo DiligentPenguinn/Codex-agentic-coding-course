@@ -88,6 +88,25 @@ try {
   const compactScreenshots = resolve('../.superpowers/sdd/screenshots')
   await mkdir(compactScreenshots, { recursive: true })
   await windowed.screenshot({ path: join(compactScreenshots, 'teacher-windowed-density.png'), animations: 'disabled' })
+  const windowedComposer = windowedTeacher.getByRole('textbox', { name: 'Nhắn cho Triết' })
+  await windowedComposer.fill('Giữ câu hỏi đang viết khi thu nhỏ Triết.')
+  const retainedComposer = await windowedComposer.elementHandle()
+  for (let cycle = 0; cycle < 2; cycle += 1) {
+    await windowedTeacher.getByRole('button', { name: 'Thu nhỏ Triết', exact: true }).click()
+    const launcher = windowed.getByRole('button', { name: 'Mở cửa sổ Triết', exact: true })
+    await launcher.waitFor()
+    assert.equal(await retainedComposer.evaluate((element) => element.isConnected), true,
+      'Minimizing keeps the existing Teacher view instead of destroying it')
+    assert.equal(await windowedTeacher.isVisible(), false, 'Hidden Teacher controls are not interactive in launcher mode')
+    await launcher.click()
+    await windowedComposer.waitFor()
+    assert.equal(await windowedComposer.inputValue(), 'Giữ câu hỏi đang viết khi thu nhỏ Triết.')
+    assert.equal(await retainedComposer.evaluate((element) => element === globalThis.document.querySelector('.pixel-chat-composer textarea')), true)
+    assert.equal(await windowedTeacher.getByText('Đang tải không gian của Triết…', { exact: true }).count(), 0,
+      'Reopening shows the existing conversation without a loading reset')
+    assert.equal(await windowedTeacher.locator('.pixel-chat-message.is-teacher p').last().innerText(), content)
+  }
+  await windowedComposer.fill('')
   await windowedTeacher.getByRole('button', { name: 'Mở Triết toàn màn hình', exact: true }).click()
   await composer.waitFor()
   await panel.getByRole('button', { name: 'Đóng Triết', exact: true }).click()

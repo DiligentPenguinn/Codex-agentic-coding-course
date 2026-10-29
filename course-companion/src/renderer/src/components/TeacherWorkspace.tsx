@@ -25,6 +25,7 @@ import { TeacherMarkdown } from './TeacherMarkdown'
 
 type TeacherWorkspaceProps = {
   embedded?: boolean
+  visible?: boolean
   onClose: () => void
   onExpand?: () => void
 }
@@ -95,6 +96,7 @@ function loadTeacherDraft(): string {
 
 export function TeacherWorkspace({
   embedded = false,
+  visible = true,
   onClose,
   onExpand
 }: TeacherWorkspaceProps) {
@@ -117,6 +119,7 @@ export function TeacherWorkspace({
     ? (embedded ? workspace.presentation.fullPanel : workspace.presentation.compactPanel)
     : 'teacher'
   const [workspaceLoaded, setWorkspaceLoaded] = useState(false)
+  const [workspaceRefreshing, setWorkspaceRefreshing] = useState(false)
   const [workspaceUnavailable, setWorkspaceUnavailable] = useState(false)
   const [practiceGuide, setPracticeGuide] = useState<PracticeGuideView | null>(null)
   const [guideOpen, setGuideOpen] = useState(embedded)
@@ -133,6 +136,20 @@ export function TeacherWorkspace({
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
+  const displayedChat = useRef<{ messages: TeacherMessage[]; pendingMessage: TeacherMessage | null; busy: boolean } | null>(null)
+  const workspaceIdentity = useRef<string | null>(null)
+  const applyWorkspace = useCallback((next: PracticeWorkspaceView | null) => {
+    const identity = next?.activePractice
+      ? `${next.activePractice.runId}:${next.activePractice.generation}` : null
+    if (workspaceIdentity.current !== identity) {
+      setHint(null)
+      setHintError('')
+      setGuideOpen(embedded)
+      setReturnBusy(false)
+      workspaceIdentity.current = identity
+    }
+    setWorkspace(next)
+  }, [embedded])
 
   useEffect(() => {
     if (!embedded || !window.courseCompanion) return
@@ -176,17 +193,24 @@ export function TeacherWorkspace({
   }, [])
 
   useEffect(() => {
+    if (!visible) return
+    let cancelled = false
     const load = async () => {
+      setWorkspaceRefreshing(true)
       try {
         const state: CompanionState = window.courseCompanion
           ? await window.courseCompanion.loadCompanionState()
           : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
+        if (cancelled) return
         const loadedWorkspace = await window.courseCompanion?.loadPracticeWorkspace()
+        if (cancelled) return
         const runtime = await window.courseCompanion?.getRuntimeInfo()
-        setMessages(state.conversation.messages)
+        if (cancelled) return
+        setMessages((current) => JSON.stringify(current) === JSON.stringify(state.conversation.messages)
+          ? current : state.conversation.messages)
         setRecovered(state.conversation.recovered)
         setTeacherRuntime(state.teacher)
-        setWorkspace(loadedWorkspace ?? null)
+        applyWorkspace(loadedWorkspace ?? null)
         setWorkspaceUnavailable(false)
         setTestFixturesEnabled(runtime?.testFixturesEnabled === true)
         if (loadedWorkspace) await refreshPracticeGuide()
@@ -196,25 +220,29 @@ export function TeacherWorkspace({
             : emptyPractice
         )
         await refreshContext()
-        setWorkspaceLoaded(true)
+        if (!cancelled) setWorkspaceLoaded(true)
       } catch {
+        if (cancelled) return
         setWorkspaceUnavailable(true)
         setWorkspaceLoaded(true)
         setError('Không thể xác minh trạng thái Practice. Triết tạm khóa tương tác để tránh dùng sai chế độ.')
+      } finally {
+        if (!cancelled) setWorkspaceRefreshing(false)
       }
     }
 
     void load()
-  }, [embedded, refreshContext, refreshPracticeGuide])
+    return () => { cancelled = true }
+  }, [embedded, visible, applyWorkspace, refreshContext, refreshPracticeGuide])
 
   useEffect(() => {
-    if (!window.courseCompanion) return
+    if (!visible || returnBusy || !window.courseCompanion) return
     return window.courseCompanion.onPracticeWorkspaceChanged(() => {
       void (async () => {
         try {
           const next = await window.courseCompanion?.loadPracticeWorkspace()
           if (next) {
-            setWorkspace(next)
+            applyWorkspace(next)
             setWorkspaceUnavailable(false)
           }
           await refreshPracticeGuide()
@@ -223,19 +251,20 @@ export function TeacherWorkspace({
         }
       })()
     })
-  }, [refreshPracticeGuide])
+  }, [visible, returnBusy, applyWorkspace, refreshPracticeGuide])
 
   useEffect(() => {
+    if (!visible || returnBusy) return
     const refresh = () => void refreshPracticeGuide()
     window.addEventListener('focus', refresh)
     return () => window.removeEventListener('focus', refresh)
-  }, [refreshPracticeGuide])
+  }, [visible, returnBusy, refreshPracticeGuide])
 
   useEffect(() => {
-    if (activeTab !== 'teacher' || busy) return
+    if (!visible || activeTab !== 'teacher' || busy) return
     const frame = requestAnimationFrame(() => composerRef.current?.focus({ preventScroll: true }))
     return () => cancelAnimationFrame(frame)
-  }, [activeTab, busy])
+  }, [activeTab, busy, visible])
 
   useEffect(() => {
     try {
@@ -277,7 +306,10 @@ export function TeacherWorkspace({
     requestAnimationFrame(() => practiceRef.current?.scrollTo({ top: 0 }))
   }
   useEffect(() => {
-    if (activeTab !== 'teacher') return
+    if (!visible || activeTab !== 'teacher') return
+    const previous = displayedChat.current
+    if (previous?.messages === messages && previous.pendingMessage === pendingMessage && previous.busy === busy) return
+    displayedChat.current = { messages, pendingMessage, busy }
 
     const frame = requestAnimationFrame(() => {
       const chatLog = messageEndRef.current?.parentElement
@@ -285,7 +317,7 @@ export function TeacherWorkspace({
     })
 
     return () => cancelAnimationFrame(frame)
-  }, [activeTab, messages, pendingMessage, busy])
+  }, [visible, activeTab, messages, pendingMessage, busy])
 
   const emitPracticeFixture = async (scenario: PracticeScenario) => {
     if (practiceBusy) return
@@ -305,13 +337,13 @@ export function TeacherWorkspace({
   }
 
   const reviewProgress = async () => {
-    if (reviewBusy || hintBusy || !window.courseCompanion) return
+    if (workspaceRefreshing || reviewBusy || hintBusy || !window.courseCompanion) return
     setReviewBusy(true)
     setError('')
     try {
       if (workspace?.portfolioPackage && workspace.activePractice) {
         const refreshed = await window.courseCompanion.loadPracticeWorkspace()
-        setWorkspace(refreshed)
+        applyWorkspace(refreshed)
         if (refreshed.error) {
           setError(refreshed.error)
           return
@@ -330,7 +362,7 @@ export function TeacherWorkspace({
         setError(reviewed.error.message)
         return
       }
-      setWorkspace(reviewed.workspace)
+      applyWorkspace(reviewed.workspace)
       practiceRef.current?.scrollTo({ top: 0 })
       {
         const request = practiceGuide?.currentStageId === 'request-review'
@@ -347,7 +379,7 @@ export function TeacherWorkspace({
 
   const requestHint = async () => {
     const active = workspace?.activePractice
-    if (!active || hintBusy || reviewBusy || returnBusy || !window.courseCompanion) return
+    if (!active || workspaceRefreshing || hintBusy || reviewBusy || returnBusy || !window.courseCompanion) return
     setHintBusy(true)
     setHint(null)
     setHintError('')
@@ -367,7 +399,7 @@ export function TeacherWorkspace({
     setPlanningActionBusy(true)
     setError('')
     try {
-      setWorkspace(await window.courseCompanion.loadPracticeWorkspace())
+      applyWorkspace(await window.courseCompanion.loadPracticeWorkspace())
     } catch {
       setError('Không thể làm mới bằng chứng Practice. Hãy thử lại.')
     } finally {
@@ -381,7 +413,7 @@ export function TeacherWorkspace({
     setPlanningActionBusy(true)
     setError('')
     try {
-      setWorkspace(await window.courseCompanion.recordPlanningAction({
+      applyWorkspace(await window.courseCompanion.recordPlanningAction({
         practiceId: active.practiceId,
         practiceVersion: active.practiceVersion,
         runId: active.runId,
@@ -396,7 +428,7 @@ export function TeacherWorkspace({
   }
 
   const returnToCourse = async () => {
-    if (returnBusy || reviewBusy || hintBusy || !window.courseCompanion) return
+    if (workspaceRefreshing || returnBusy || reviewBusy || hintBusy || !window.courseCompanion) return
     setReturnBusy(true)
     setError('')
     try {
@@ -545,7 +577,7 @@ export function TeacherWorkspace({
   ].filter(Boolean).join(' · ')
 
   return (
-    <section className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}${practiceMode ? ' is-practice-review practice-workflow' : ''}`} aria-label={practiceMode ? 'Duyệt Practice với Triết' : 'Triết, giáo viên đồng hành'}>
+    <section hidden={!visible} className={`pixel-teacher-panel${embedded ? ' is-embedded' : ''}${practiceMode ? ' is-practice-review practice-workflow' : ''}`} aria-label={practiceMode ? 'Duyệt Practice với Triết' : 'Triết, giáo viên đồng hành'}>
       <header>
         <div className="pixel-teacher-identity">
           <span className="pixel-teacher-portrait-frame" aria-hidden="true">
@@ -560,7 +592,7 @@ export function TeacherWorkspace({
           {workspace?.review?.canReturn ? (
             <PracticeReturnAction
               busy={returnBusy}
-              disabled={reviewBusy || hintBusy}
+              disabled={workspaceRefreshing || reviewBusy || hintBusy}
               quick
               onReturn={() => void returnToCourse()}
             />
@@ -633,7 +665,7 @@ export function TeacherWorkspace({
                 type="button"
                 aria-label="Cập nhật và kiểm tra tiến độ Practice"
                 aria-busy={reviewBusy}
-                disabled={reviewBusy || hintBusy || returnBusy}
+                disabled={workspaceRefreshing || reviewBusy || hintBusy || returnBusy}
                 onClick={() => void reviewProgress()}
               >
                 {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
@@ -645,7 +677,7 @@ export function TeacherWorkspace({
               type="button"
               aria-label="Cần gợi ý cho Practice?"
               aria-busy={hintBusy}
-              disabled={hintBusy || reviewBusy || returnBusy || planningActionBusy}
+              disabled={workspaceRefreshing || hintBusy || reviewBusy || returnBusy || planningActionBusy}
               onClick={() => void requestHint()}
             >
               {hintBusy ? <span className="pixel-chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span> : null}
@@ -662,7 +694,7 @@ export function TeacherWorkspace({
           {!embedded && guideOpen ? (
             <PracticeGuide view={practiceGuide} compact onUpdate={updatePracticeGuide}
               onReview={reviewProgress} onReturn={returnToCourse}
-              actionBusy={!practiceGuide?.replay && (reviewBusy || returnBusy || hintBusy)}
+              actionBusy={!practiceGuide?.replay && (workspaceRefreshing || reviewBusy || returnBusy || hintBusy)}
               actionError={guideError || (practiceGuide?.replay ? '' : error)} />
           ) : null}
           {hint && hint.runId === workspace?.activePractice?.runId
@@ -682,12 +714,12 @@ export function TeacherWorkspace({
               <PracticeProgress
                 workspace={workspace}
                 api={window.courseCompanion}
-                onWorkspaceChange={setWorkspace}
+                onWorkspaceChange={applyWorkspace}
                 onBusyChange={setReviewBusy}
                 compact={!embedded}
                 returnBusy={returnBusy}
-                returnDisabled={reviewBusy || hintBusy}
-                actionBusy={planningActionBusy || hintBusy}
+                returnDisabled={workspaceRefreshing || reviewBusy || hintBusy}
+                actionBusy={workspaceRefreshing || planningActionBusy || hintBusy}
                 onPlanningAction={(action) => void recordPlanningAction(action)}
                 onRefresh={() => void refreshPracticeWorkspace()}
                 onReturn={() => void returnToCourse()}
@@ -773,11 +805,11 @@ export function TeacherWorkspace({
             <PracticeProgress
               workspace={workspace}
               api={window.courseCompanion}
-              onWorkspaceChange={setWorkspace}
+              onWorkspaceChange={applyWorkspace}
               onBusyChange={setReviewBusy}
               compact={!embedded}
               returnBusy={returnBusy}
-              actionBusy={planningActionBusy}
+              actionBusy={workspaceRefreshing || planningActionBusy}
               onPlanningAction={(action) => void recordPlanningAction(action)}
               onRefresh={() => void refreshPracticeWorkspace()}
               onReturn={() => void returnToCourse()}
@@ -828,7 +860,7 @@ export function TeacherWorkspace({
         onUpdate={updatePracticeGuide}
         onReview={reviewProgress}
         onReturn={returnToCourse}
-        actionBusy={!practiceGuide?.replay && (reviewBusy || returnBusy || hintBusy)}
+        actionBusy={!practiceGuide?.replay && (workspaceRefreshing || reviewBusy || returnBusy || hintBusy)}
         actionError={guideError || (practiceGuide?.replay ? '' : error)}
       /> : null}
 

@@ -5,6 +5,7 @@ import { TeacherWorkspace } from '../components/TeacherWorkspace'
 
 export function CompanionWindow() {
   const [mode, setMode] = useState<CompanionMode | null>(null)
+  const [teacherOpened, setTeacherOpened] = useState(false)
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -14,12 +15,14 @@ export function CompanionWindow() {
           ? await window.courseCompanion.loadCompanionState()
           : { mode: 'compact', conversation: { messages: [], recovered: false }, teacher: { connection: 'simulated', memory: 'ready' } }
         setMode(state.mode)
+        if (state.mode === 'expanded') setTeacherOpened(true)
       } catch {
         setMode('compact')
       }
     }
     const unsubscribeMode = window.courseCompanion?.onCompanionModeChanged((nextMode) => {
       setMode(nextMode)
+      if (nextMode === 'expanded') setTeacherOpened(true)
     })
 
     void load()
@@ -33,6 +36,7 @@ export function CompanionWindow() {
     try {
       await window.courseCompanion?.setCompanionMode(nextMode)
       setMode(nextMode)
+      if (nextMode === 'expanded') setTeacherOpened(true)
     } catch {
       setMode('compact')
     }
@@ -65,9 +69,9 @@ export function CompanionWindow() {
     return <main className="pixel-companion-surface" aria-label="Đang tải Triết" />
   }
 
-  if (mode === 'compact') {
-    return (
-      <main className="pixel-companion-surface pixel-companion-surface--compact">
+  return (
+    <main className={`pixel-companion-surface pixel-companion-surface--${mode}`}>
+      {mode === 'compact' ? (
         <div className="pixel-teacher-launcher">
           <div className="pixel-teacher-drag-handle" title="Kéo để di chuyển Triết" aria-hidden="true">
             <img src={teacherImage} alt="" draggable={false} />
@@ -84,16 +88,12 @@ export function CompanionWindow() {
             Mở Triết
           </button>
         </div>
-      </main>
-    )
-  }
-
-  return (
-    <main className="pixel-companion-surface pixel-companion-surface--expanded">
-      <TeacherWorkspace
+      ) : null}
+      {teacherOpened || mode === 'expanded' ? <TeacherWorkspace
+        visible={mode === 'expanded'}
         onClose={() => void changeMode('compact')}
         onExpand={() => void showFullTeacher()}
-      />
+      /> : null}
     </main>
   )
 }

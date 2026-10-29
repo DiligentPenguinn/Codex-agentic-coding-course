@@ -49,6 +49,59 @@ and must never be inferred from a passing automated check.
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
 | Module 4 | `in-progress` overall — Practice, course-page entry, reviewed return and terminal completion recording are `implemented`; course-wide acceptance remains separate | `passed` for the 29 October Windows delivery batch, disposable journey, live publication and QA-only completion described below; real beginner/AI/native acceptance is separate | Scoped implementation and subsequent end-user QA/repairs authorized; public sample release, two exact wording corrections, beginner review policy and current-branch commit/push explicitly approved; final learner/runtime acceptance `pending` | `pending` | Commit and push the verified current branch; retain real beginner-pilot, native macOS and overall acceptance gates. |
 
+### Windowed Teacher minimize and reopen continuity — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 — windowed Teacher continuity | `implemented` | `passed` Windows regression batch described below | Owner reported repeated reloads during the authorized Practice UX repair; no course copy, requirements or passing gates changed | `pending` | Commit and push the verified repair and handoff update; retain overall owner, learner-pilot and native macOS acceptance gates. |
+
+Minimizing the windowed Teacher previously unmounted `TeacherWorkspace` and
+discarded its view state. Reopening mounted it again and repeated initial
+chat, Practice and context loading. The panel now mounts lazily on first open
+and stays mounted, hidden from display and interaction while the launcher is
+shown. Reopening refreshes current data without resetting the visible panel;
+unchanged chat does not trigger an automatic jump to the newest message.
+Sensitive Practice actions wait for that refresh, and changed source still
+invalidates an unsubmitted acceptance draft. Hints and guide presentation are
+reset when the actual Practice run/generation changes. No new persisted data,
+copy, curriculum, page, dependency or assessment rule is introduced.
+Completed Practice return quietly restores and saves compact presentation;
+the hidden panel stops workspace/focus subscriptions. A changed run clears its
+old return-busy state. These lifecycle boundaries prevent a retained view from
+starting old workspace reconciliation after a reviewed return.
+
+The new disposable chat regression first failed against the original build at
+the assertion that minimizing retains the existing view. The repaired chat
+cycle passed. Initial focused portfolio verification exposed a race between
+reopening a replaced run and the refresh button's focus handoff; sensitive
+actions now wait for the background refresh rather than act on the previous
+run. A subsequent full journey caught hidden-view reconciliation after Module
+4 return; the visibility/return subscription boundaries and compact return
+state above resolved it. The expanded Module 2→3→4 journey now passes, including
+two minimize/reopen cycles with retained acceptance draft, prompt disclosure
+and exact scroll position, plus automatic stale-acceptance invalidation after
+editing the PRD while minimized.
+
+Final typecheck, lint, build, all 775 unit tests (three existing skips), all nine
+startup checks, Electron smoke, Teacher chat, Practice guide and expanded
+portfolio journey passed. The guide regression was updated to resume its
+retained paused view rather than look for the old remount-only opener; its
+cross-window resume, retry and replay checks passed on the final build. The
+first unit attempt could not transform files inside the filesystem sandbox;
+an unrestricted default-worker run then hit existing I/O-heavy test timeouts.
+All unit assertions passed with `vitest run --maxWorkers=2`, followed by the
+unchanged startup suite. No timeout, test requirement or product gate was
+relaxed. Logs are `.superpowers/qa/teacher-keepalive-{build,lint,unit,electron,
+chat,guide,portfolio}.log`. These fixtures use disposable profiles and do not
+change personal learner progress or establish learner acceptance.
+
+The actual normal-profile course was closed cleanly and reopened on the new
+build. Through its native controls, the windowed Teacher's prompt was expanded
+and scrolled, minimized to the launcher, then reopened. The same disclosure and
+scroll position remained visible. Local before/after screenshots are
+`.superpowers/qa/teacher-keepalive-{before,after}.png`. No acceptance checkbox,
+review submission or assessment gate was changed during this live check.
+
 ### Live Module 4 QA release and beginner review repair — 29 October 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |

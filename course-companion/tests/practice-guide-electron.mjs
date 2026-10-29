@@ -67,7 +67,8 @@ try {
   await fullGuide.getByRole('button', { name: 'Tạm dừng', exact: true }).click()
   await page.getByRole('button', { name: 'Đóng Triết', exact: true }).click()
   await compact.evaluate(() => globalThis.courseCompanion.setCompanionMode('expanded'))
-  await compact.getByRole('button', { name: 'Hướng dẫn Practice', exact: true }).click()
+  // The windowed panel retains its open guide; a pause in full view syncs back.
+  await compact.getByRole('button', { name: 'Tiếp tục hướng dẫn', exact: true }).click()
   await guide.getByText('Triết duyệt tiến độ Practice', { exact: true }).waitFor()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
   await guide.getByText('Bằng chứng cập nhật từ đúng task', { exact: true }).waitFor()

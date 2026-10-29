@@ -2397,6 +2397,7 @@ button:focus-visible {
 }
 
 .pixel-companion-surface--expanded { padding: 7px; }
+.pixel-companion-surface > .pixel-teacher-panel[hidden] { display: none; }
 .pixel-companion-surface--expanded .pixel-teacher-panel {
   animation: pixel-panel-in 180ms steps(3, end) both;
 }
