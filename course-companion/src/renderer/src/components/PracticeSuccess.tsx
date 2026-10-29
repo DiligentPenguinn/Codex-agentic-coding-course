@@ -9,7 +9,7 @@ const outcomes: Record<string, string> = {
 
 export function PracticeSuccess({ practiceId, children }: { practiceId?: string; children?: ReactNode }) {
   return (
-    <section className="practice-success" role="status" aria-label="Practice hoàn thành">
+    <section className="practice-success" tabIndex={-1} role="status" aria-label="Practice hoàn thành">
       <div className="practice-success-badge" aria-hidden="true">
         <span className="practice-success-spark">✦</span><span className="practice-success-spark">✦</span>
         <span className="practice-success-spark">✧</span><span className="practice-success-spark">✧</span>

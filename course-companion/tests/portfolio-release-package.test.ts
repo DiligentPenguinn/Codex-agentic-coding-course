@@ -14,6 +14,33 @@ afterEach(async () => { await Promise.all(roots.splice(0).map((root) =>
   rm(root, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }))) })
 
 describe('Module 4 deployment evidence', () => {
+  it('accepts equivalent revision/checkpoint letter case and URL spelling without editing the record', async () => {
+    const f = await fixture()
+    const record = structuredClone(f.record)
+    record.moduleThreeSourceCheckpoint = record.moduleThreeSourceCheckpoint.toUpperCase()
+    record.sourceRevision = record.sourceRevision.toUpperCase()
+    record.deployment.sourceRevision = record.deployment.sourceRevision.toLowerCase()
+    record.deployment.url = 'https://PORTFOLIO-FIXTURE.vercel.app:443'
+    const before = structuredClone(record)
+    const parsed = parsePortfolioDeploymentRecord(record)
+    expect(parsed.sourceRevision).toBe(f.revision)
+    expect(parsed.moduleThreeSourceCheckpoint).toBe(f.sourceCheckpoint)
+    expect(parsed.deployment.url).toBe(f.record.deployment.url)
+    expect(record).toEqual(before)
+    await f.writeRecord(record)
+    expect((await f.collect()).portfolioRelease!.issues).toEqual([])
+  })
+
+  it('still rejects a different release revision or browser URL path', async () => {
+    const f = await fixture()
+    const wrongRevision = structuredClone(f.record)
+    wrongRevision.deployment.sourceRevision = 'f'.repeat(40)
+    expect(() => parsePortfolioDeploymentRecord(wrongRevision)).toThrow('Invalid deployment evidence')
+    const wrongUrl = structuredClone(f.record)
+    wrongUrl.validation.desktop.url += 'other-website'
+    expect(() => parsePortfolioDeploymentRecord(wrongUrl)).toThrow('Missing concrete browser observations')
+  })
+
   it('collects the actual committed local revision and three independent package artifacts', async () => {
     const f = await fixture()
     const evidence = await f.collect()

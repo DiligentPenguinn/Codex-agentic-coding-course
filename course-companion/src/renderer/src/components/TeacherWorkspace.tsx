@@ -21,6 +21,7 @@ import { practiceGuideAnchor } from './practice-guide-anchors'
 import { PracticeReturnAction } from './PracticeReturnAction'
 import { PracticeTaskLink } from './PracticeTaskLink'
 import { PracticeStartPrompt } from './PracticeStartPrompt'
+import { PracticeReviewElapsed } from './PracticeReviewElapsed'
 import { TeacherMarkdown } from './TeacherMarkdown'
 
 type TeacherWorkspaceProps = {
@@ -136,6 +137,10 @@ export function TeacherWorkspace({
   const composerRef = useRef<HTMLTextAreaElement>(null)
   const messageEndRef = useRef<HTMLDivElement>(null)
   const practiceRef = useRef<HTMLElement>(null)
+  const hintResultRef = useRef<HTMLElement>(null)
+  const hintErrorRef = useRef<HTMLDivElement>(null)
+  const hintButtonRef = useRef<HTMLButtonElement>(null)
+  const presentedReview = useRef<string | null>(null)
   const displayedChat = useRef<{ messages: TeacherMessage[]; pendingMessage: TeacherMessage | null; busy: boolean } | null>(null)
   const workspaceIdentity = useRef<string | null>(null)
   const applyWorkspace = useCallback((next: PracticeWorkspaceView | null) => {
@@ -150,6 +155,32 @@ export function TeacherWorkspace({
     }
     setWorkspace(next)
   }, [embedded])
+
+  useEffect(() => {
+    if (!visible || (!hint && !hintError)) return
+    const result = hint ? hintResultRef.current : hintErrorRef.current
+    if (!result) return
+    result.focus({ preventScroll: true })
+    result.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }, [hint, hintError, visible])
+
+  const reviewResult = workspace?.review?.result
+  const reviewPresentationKey = workspace?.activePractice && reviewResult
+    ? `${workspace.activePractice.runId}:${workspace.activePractice.generation}:${reviewResult.reviewedAt}:${reviewResult.sourceDigest}`
+    : null
+  useEffect(() => {
+    if (!visible || reviewBusy || !workspaceLoaded) return
+    if (presentedReview.current === reviewPresentationKey) return
+    if (!reviewPresentationKey) {
+      presentedReview.current = null
+      return
+    }
+    const result = practiceRef.current?.querySelector<HTMLElement>('.practice-success, .practice-review-result')
+    if (!result) return
+    presentedReview.current = reviewPresentationKey
+    result.focus({ preventScroll: true })
+    result.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }, [reviewPresentationKey, reviewBusy, visible, workspaceLoaded])
 
   useEffect(() => {
     if (!embedded || !window.courseCompanion) return
@@ -670,10 +701,12 @@ export function TeacherWorkspace({
               >
                 {reviewBusy ? <span className="pixel-review-spinner" aria-hidden="true" /> : null}
                 {reviewBusy ? 'Đang cập nhật và kiểm tra…' : 'Cập nhật và kiểm tra tiến độ'}
+                {reviewBusy ? <PracticeReviewElapsed /> : null}
               </button>
             ) : null}
             <button
               className="practice-hint-button"
+              ref={hintButtonRef}
               type="button"
               aria-label="Cần gợi ý cho Practice?"
               aria-busy={hintBusy}
@@ -685,6 +718,21 @@ export function TeacherWorkspace({
             </button>
           </div>
           <section className="pixel-practice" aria-live="polite" ref={practiceRef}>
+          {hint && hint.runId === workspace?.activePractice?.runId
+            && hint.generation === workspace.activePractice.generation ? (
+            <aside className="practice-hint" ref={hintResultRef} tabIndex={-1} aria-label="Gợi ý của Triết" role="status" aria-live="polite">
+              <div className="practice-hint-heading">
+                <strong>{hint.source === 'fixture' ? 'Gợi ý mô phỏng' : 'Gợi ý của Triết'}</strong>
+                <button type="button" aria-label="Đóng gợi ý" onClick={() => {
+                  setHint(null)
+                  hintButtonRef.current?.focus({ preventScroll: true })
+                }}>Đóng</button>
+              </div>
+              <p>{hint.content}</p>
+              <small>Mình xem tiến độ của bạn lúc {formatTime(hint.observedAt)}. Bạn thử bước này trong task Codex nhé; nếu còn vướng, mình sẽ gợi ý tiếp.</small>
+            </aside>
+          ) : null}
+          {hintError ? <div className="pixel-chat-warning practice-hint-error" ref={hintErrorRef} tabIndex={-1} role="alert">{hintError}</div> : null}
           {workspace?.activePractice ? <PracticeStartPrompt
             key={`${workspace.activePractice.runId}:${workspace.activePractice.generation}`}
             practiceId={workspace.activePractice.practiceId}
@@ -697,18 +745,6 @@ export function TeacherWorkspace({
               actionBusy={!practiceGuide?.replay && (workspaceRefreshing || reviewBusy || returnBusy || hintBusy)}
               actionError={guideError || (practiceGuide?.replay ? '' : error)} />
           ) : null}
-          {hint && hint.runId === workspace?.activePractice?.runId
-            && hint.generation === workspace.activePractice.generation ? (
-            <aside className="practice-hint" aria-label="Gợi ý của Triết" role="status" aria-live="polite">
-              <div className="practice-hint-heading">
-                <strong>{hint.source === 'fixture' ? 'Gợi ý mô phỏng' : 'Gợi ý của Triết'}</strong>
-                <button type="button" aria-label="Đóng gợi ý" onClick={() => setHint(null)}>Đóng</button>
-              </div>
-              <p tabIndex={0}>{hint.content}</p>
-              <small>Mình xem tiến độ của bạn lúc {formatTime(hint.observedAt)}. Bạn thử bước này trong task Codex nhé; nếu còn vướng, mình sẽ gợi ý tiếp.</small>
-            </aside>
-          ) : null}
-          {hintError ? <div className="pixel-chat-warning" role="alert">{hintError}</div> : null}
           {error || workspace?.error ? <div className="pixel-chat-warning" role="alert">{error || workspace?.error} Kết quả gần nhất vẫn được giữ nguyên.</div> : null}
             {workspace ? (
               <PracticeProgress

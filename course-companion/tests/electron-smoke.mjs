@@ -607,9 +607,11 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await compactReview.locator('.practice-compact-next').waitFor()
   assert.equal(await compactReview.locator('.practice-compact-next').count(), 1)
   const hintBefore = await companionPage.evaluate(() => globalThis.courseCompanion.loadPracticeWorkspace())
+  await compactReview.locator('.pixel-practice').evaluate((element) => { element.scrollTop = element.scrollHeight })
   await compactReview.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).click()
   await compactReview.locator('.practice-hint').waitFor()
   assert.match(await compactReview.locator('.practice-hint').innerText(), /Gợi ý mô phỏng/)
+  await assertHintPresented(compactReview)
   const hintAfter = await companionPage.evaluate(() => globalThis.courseCompanion.loadPracticeWorkspace())
   assert.deepEqual(hintAfter.review, hintBefore.review)
   assert.deepEqual(hintAfter.checklist, hintBefore.checklist)
@@ -644,15 +646,18 @@ async function completeSetupModule(page, companionPage, electronApp, verifyRespo
   await fullTeacher.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).click()
   await fullTeacher.locator('.practice-hint').waitFor()
   assert.match(await fullTeacher.locator('.practice-hint').innerText(), /Mình khuyên bạn nhìn vào một điểm/)
+  await assertHintPresented(fullTeacher)
   await capture(page, 'practice-hint-desktop.png')
   if (verifyResponsiveLayout) {
     await page.setViewportSize({ width: 390, height: 844 })
     assert.equal(await page.evaluate(() => globalThis.document.documentElement.scrollWidth > globalThis.innerWidth), false)
-    await fullTeacher.locator('.practice-hint').scrollIntoViewIfNeeded()
+    await assertHintPresented(fullTeacher)
     await capture(page, 'practice-hint-narrow.png')
     await page.setViewportSize({ width: 1180, height: 780 })
   }
   await fullTeacher.getByRole('button', { name: 'Đóng gợi ý', exact: true }).click()
+  assert.equal(await fullTeacher.getByRole('button', { name: 'Cần gợi ý cho Practice?', exact: true }).evaluate(
+    (element) => globalThis.document.activeElement === element), true)
   await page.getByRole('button', { name: 'Tiếp tục hướng dẫn', exact: true }).click()
   await guide.getByRole('button', { name: 'Bắt đầu hướng dẫn', exact: true }).click()
   await guide.getByRole('button', { name: 'Tiếp', exact: true }).click()
@@ -777,6 +782,32 @@ async function waitForImageDecode(image) {
     }
     if (typeof element.decode === 'function') await element.decode()
   })
+}
+
+async function assertHintPresented(teacher) {
+  const hint = teacher.getByRole('status', { name: 'Gợi ý của Triết', exact: true })
+  const layout = await hint.evaluate((element) => {
+    const paragraph = element.querySelector('p')
+    const scrollArea = element.closest('.pixel-practice')
+    const nextContent = element.nextElementSibling
+    const bounds = element.getBoundingClientRect()
+    const viewport = scrollArea.getBoundingClientRect()
+    return {
+      focused: globalThis.document.activeElement === element,
+      visibleStart: bounds.top >= Math.max(0, viewport.top) - 1
+        && paragraph.getBoundingClientRect().top < Math.min(globalThis.innerHeight, viewport.bottom),
+      beforeContent: !nextContent || bounds.bottom <= nextContent.getBoundingClientRect().top,
+      nestedScroll: paragraph.scrollHeight > paragraph.clientHeight,
+      overflow: element.scrollWidth > element.clientWidth,
+      fontSize: Number.parseFloat(globalThis.getComputedStyle(paragraph).fontSize)
+    }
+  })
+  assert.equal(layout.focused, true, 'A returned hint must receive focus automatically')
+  assert.equal(layout.visibleStart, true, 'The hint heading and start of its text must be in view without manual scrolling')
+  assert.equal(layout.beforeContent, true, 'Hint feedback must precede the prompt and guide')
+  assert.equal(layout.nestedScroll, false, 'Read the hint using the Practice scrollbar, without an inner text scrollbar')
+  assert.equal(layout.overflow, false)
+  assert.ok(layout.fontSize >= 13)
 }
 
 async function capture(page, filename) {

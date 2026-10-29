@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { portfolioBuildRecordPaths, portfolioPackageArtifactPaths, type CourseCompanionApi, type PracticeWorkspaceView } from '../../../../shared/contracts'
 import { PortfolioReleaseSubmission } from './PortfolioReleaseSubmission'
 
@@ -22,6 +22,12 @@ function PortfolioDocumentSubmission({ workspace, api, disabled, onWorkspaceChan
   const [approvalDigest, setApprovalDigest] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const errorRef = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    if (!error) return
+    errorRef.current?.focus({ preventScroll: true })
+    errorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' })
+  }, [error])
   const packageView = workspace.portfolioPackage
   const active = workspace.activePractice
   if (!packageView || !active) return null
@@ -83,7 +89,7 @@ function PortfolioDocumentSubmission({ workspace, api, disabled, onWorkspaceChan
         <button type="button" aria-busy={busy} disabled={busy || disabled || !accepted || !packageView.ready || !onWorkspaceChange || !api?.approvePortfolioPackage}
           onClick={() => void submit()}>{busy ? <span className="pixel-chat-thinking-dots" aria-hidden="true"><i /><i /><i /></span> : null}{busy ? 'Đang kiểm tra gói…' : build ? 'Chấp nhận website và nộp bài' : 'Duyệt và nộp gói planning'}</button>
       </div>
-      {error ? <p className="practice-package-notice" role="alert">{error}</p> : null}
+      {error ? <p className="practice-package-notice" ref={errorRef} tabIndex={-1} role="alert">{error}</p> : null}
     </section>
   )
 }

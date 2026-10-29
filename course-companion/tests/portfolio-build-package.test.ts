@@ -1,4 +1,5 @@
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, symlink, utimes, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -72,6 +73,40 @@ async function archivedPassedFixture() {
 }
 
 describe('Module 3 plan-led build package', () => {
+  it('supplies independently reconciled source evidence without changing canonical approval identities', async () => {
+    const f = await fixture()
+    await writeFile(join(f.workspace, '.gitignore'), 'node_modules\ndist\n')
+    const paths = ['package.json', 'index.html', 'src/main.tsx']
+    const hash = (value: string | Uint8Array) => createHash('sha256').update(value).digest('hex')
+    const lines = await Promise.all(paths.map(async (path) => path + ' ' + hash(await readFile(join(f.workspace, path))).toUpperCase()))
+    const digest = hash(lines.join('\n')).toUpperCase()
+    const validation = `# Current validation\n\n## Source and check\nFiles: ${paths.join(', ')}. SHA256: ${digest}. npm run check passed.\n\n## Browser\nDesktop and mobile links, keyboard and layout observed; this is a simulated fixture.`
+    await writeFile(join(f.workspace, 'evidence/module-3/browser-validation.md'), validation)
+    const collected = await f.collect()
+    const source = collected.portfolioBuild!.artifacts.find((artifact) => artifact.path === 'application/source')!
+    expect(source.content).toContain('"status":"matched"')
+    expect(source.content).toContain('"excludedPaths":[".gitignore"]')
+    expect(collected.portfolioBuild!.issues).toEqual([])
+    // Copying/touching an unchanged file cannot invalidate independently
+    // recomputed content identity. A later real byte change still must block.
+    const later = new Date(Date.now() + 5000)
+    await utimes(join(f.workspace, 'src/main.tsx'), later, later)
+    expect((await f.collect()).portfolioBuild!.issues).toEqual([])
+    await f.approve()
+    await f.service.review()
+    const prompt = buildPracticeReviewPrompt(f.envelopes.at(-1)!)
+    expect(f.envelopes.at(-1)!.portfolioPackage!.artifacts.find((artifact) => artifact.path === 'application/source')!.content)
+      .toContain('"status":"matched"')
+    expect(prompt).toContain('Do not reject that match or demand a second fingerprint explanation')
+    expect((await f.runs.load()).activeRun?.reviewStatus).toBe('passed')
+    await writeFile(join(f.workspace, 'src/main.tsx'), 'Changed website after validation')
+    await utimes(join(f.workspace, 'src/main.tsx'), later, later)
+    const changed = await f.collect()
+    expect(changed.portfolioBuild!.issues.some((issue) => issue.message.includes('Mã nguồn đã đổi'))).toBe(true)
+    expect(changed.portfolioBuild!.artifacts.find((artifact) => artifact.path === 'application/source')!.content)
+      .toContain('"status":"not-correlated"')
+  })
+
   it('requires a fresh review if the learner withdraws acceptance after the passed review', async () => {
     const f = await fixture()
     const evidence = await f.collect()

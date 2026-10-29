@@ -3,6 +3,7 @@ import { lstat, readFile, readdir, realpath } from 'node:fs/promises'
 import { relative, resolve, sep } from 'node:path'
 import { portfolioBuildRecordPaths, portfolioPackageArtifactPaths, type PortfolioPlanningArtifactSnapshot, type PortfolioPlanningIssue, type PracticeAdapterEvidenceState } from '../../shared/contracts'
 import type { PracticeEvidenceAdapterContext } from './practice-evidence-adapter'
+import { correlateValidationSource } from './validation-source-correlation'
 
 const hash = (value: string | Uint8Array) => createHash('sha256').update(value).digest('hex')
 const documents = [...portfolioPackageArtifactPaths, ...portfolioBuildRecordPaths]
@@ -10,7 +11,7 @@ const ignoredDirectories = new Set(['node_modules', '.git', 'dist', 'out', 'cove
 
 // The digest covers application files, including assets and configuration. It never
 // sends application source to the reviewer. Evidence documents are hashed separately.
-export async function applicationSnapshot(root: string, verifyInventory?: (files: readonly { path: string; digest: string }[]) => Promise<void>): Promise<PortfolioPlanningArtifactSnapshot> {
+export async function applicationSnapshot(root: string, verifyInventory?: (files: readonly { path: string; digest: string }[]) => Promise<void>, validationRecord?: string): Promise<PortfolioPlanningArtifactSnapshot> {
   const files: Array<{ path: string; digest: string }> = []
   let totalBytes = 0
   let visitedEntries = 0
@@ -39,7 +40,9 @@ export async function applicationSnapshot(root: string, verifyInventory?: (files
     throw new Error('Chưa tìm thấy mã ứng dụng trong src/ và trang index.html.')
   }
   await verifyInventory?.(files)
-  const content = `Application source fingerprint: ${hash(JSON.stringify(files))}; ${files.length} files independently read. Browser and command results remain Codex-reported until corroborated.`
+  const correlation = validationRecord === undefined ? ''
+    : '\nValidation source correlation independently recomputed by Course Companion: ' + JSON.stringify(correlateValidationSource(files, validationRecord))
+  const content = `Application source fingerprint: ${hash(JSON.stringify(files))}; ${files.length} files independently read. Browser and command results remain Codex-reported until corroborated.${correlation}`
   return { path: 'application/source', digest: hash(JSON.stringify(files)), content, byteLength: totalBytes, modifiedAt: new Date(latestSourceChange).toISOString(), observedAt: '' }
 }
 
@@ -89,10 +92,14 @@ export async function collectPortfolioBuildPackage(context: Readonly<PracticeEvi
     const dependencies = { ...pkg.dependencies, ...pkg.devDependencies }
     if (!['react', 'typescript', 'vite'].every((name) => dependencies[name])) problem('package.json', 'Ứng dụng cần giữ nền React, TypeScript và Vite của bài thực hành.')
     if (Object.keys(dependencies).some((name) => /firebase|supabase|prisma|mongoose|stripe|auth0|analytics/i.test(name))) problem('package.json', 'Có dịch vụ xử lý dữ liệu ngoài phạm vi bài thực hành.', 'invalid-plan-boundary')
-    const source = await applicationSnapshot(root)
-    artifacts.push({ ...source, observedAt })
     const validation = artifacts.find((artifact) => artifact.path === 'evidence/module-3/browser-validation.md')
-    if (validation && Date.parse(validation.modifiedAt) < Date.parse(source.modifiedAt)) {
+    let validatedSourceMatches = false
+    const source = await applicationSnapshot(root, async (files) => {
+      validatedSourceMatches = validation?.content !== undefined
+        && correlateValidationSource(files, validation.content).status === 'matched'
+    }, validation?.content)
+    artifacts.push({ ...source, observedAt })
+    if (validation && !validatedSourceMatches && Date.parse(validation.modifiedAt) < Date.parse(source.modifiedAt)) {
       problem(validation.path, 'Mã nguồn đã đổi sau hồ sơ kiểm tra. Hãy kiểm tra lại website và cập nhật kết quả hiện tại trước khi nộp.')
     }
   } catch {

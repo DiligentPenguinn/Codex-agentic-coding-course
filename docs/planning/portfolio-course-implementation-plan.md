@@ -1261,6 +1261,169 @@ readable foreground, no horizontal overflow and reduced-motion handling passed
 actual approved return and retained task, while its AI review remains simulated.
 Automated Windows evidence does not establish macOS or learner acceptance.
 
+### Beginner verification repair across Modules 1–4 — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / Modules 1–4 — internal verification must not become learner homework | `implemented` | `passed` for typecheck, lint, 794 unit tests (three existing skips), nine startup checks, build, full Electron suites, disposable Module 2–4 journey, independent read-only reproduction and a fresh live Module 3 review | Repair, cross-module audit and delivery by commit/push explicitly requested; overall experience acceptance remains `pending` | `pending` | Deliver on the current branch. Let the learner save the legitimately passed Module 3 Practice result and complete their own mastery responses. Keep other live module, native macOS and overall acceptance gates separate. |
+
+The Module 3 collector now independently recomputes supported validation-record
+identities from the actual application inventory. It recognizes the canonical
+app identity and ordered path/per-file SHA256 line aggregates, including letter
+case and LF/CRLF variants. The entire website-file scope must be covered; only
+`.gitignore` may be absent from that browser-validation scope, and it remains
+bound into the authoritative application/approval identity. No source digest,
+approval schema, course criterion or learner document is rewritten. Unknown
+methods are unresolved identity information, not proof that source changed.
+
+The independently collected source artifact supplies the correlation to the
+reviewer. A verified content match takes precedence over a timestamp-only
+change; genuine changed bytes, added application files, unavailable evidence
+and stale approval remain protected. Tests cover formatting equivalence,
+sentence-ending paths, incomplete scope, malicious/outside path text, changed
+code, added code/assets/configuration and unchanged content with a later mtime.
+This is source identity corroboration, not independent execution of reported
+commands or browser checks.
+
+The shared portfolio review and all Practice hint policies now keep internal
+hashes, digests, raw metadata and identity reconciliation out of learner-facing
+requests. Feedback should state an observable limitation and one action the
+learner can ask Codex to perform. Document, package, source, Git and handoff
+identities have distinct roles and must not be compared as interchangeable
+strings. Already satisfied learner work must not be repeated.
+
+Cross-module audit findings:
+
+- Module 1 uses direct configuration checks, not portfolio fingerprint review.
+  Unreadable-settings errors now describe the current settings/task in plain
+  language. Required settings and freshness checks are unchanged.
+- Module 2 already binds approval to app-generated current document identities;
+  no analogous cross-method comparator was found. Shared review/hint guidance
+  now prevents internal identity details becoming new learner requirements.
+- Module 3's independent source correlation resolves the reported false blocker
+  without modifying the portfolio or requiring another learner confirmation.
+- Module 4 now normalizes equivalent hexadecimal revision/checkpoint case and
+  HTTPS URL spelling (host case, default port and root slash). Different Git
+  revisions, URL paths, dirty source, handoff mismatches, private URLs and absent
+  publishing consent still fail. Parsing preserves the supplied record unchanged.
+
+The read-only reproduction confirmed current source correspondence with zero
+issues and the same valid saved approval. After restarting the real app on its
+existing profile, a normal review of the exact bound Module 3 task returned
+`passed` with all five criteria satisfied. Learner-facing feedback contained no
+fingerprint-reconciliation request. Review history grew from one entry to two,
+preserving the earlier needs-work review; no manual pass, waiver, portfolio edit
+or course reset was used. The app is left displaying the earned result; return
+and mastery responses remain learner-owned. Local evidence is under
+`.superpowers/qa/beginner-review/` and is not shipped as course source.
+
+### Module 3 review completion feedback — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / Module 3 — review delay and hidden completion | `implemented` | `passed` for lint, typecheck/build, 775 unit tests (three existing skips), nine startup checks, full Electron smoke/chat/guide/deferred-review suites, disposable portfolio journey and actual saved-result presentation | Investigation and responsiveness repair requested; final experience acceptance remains `pending` | `pending` | Resume the learner-owned workflow from the displayed saved feedback; live grading quality, fingerprint interpretation and owner/pilot acceptance remain separate. |
+
+The reported run had completed with a saved needs-work result. Its recorded
+review-start and following evidence-refresh timestamps spanned approximately
+68 seconds; these are not per-stage latency measurements. The reviewer accepted
+four criteria and left final validation unverifiable because its reported
+13-file fingerprint was not reconciled with the independently collected 14-file
+fingerprint. This investigation preserves that verdict and does not establish
+whether the two fingerprint methods should match.
+
+The owner's subsequent grading challenge was audited by independently reading
+the current portfolio files. The validation record's ordered 13-file list,
+uppercase per-file SHA256 values and LF-separated aggregation reproduced its
+recorded `7F757546267F782619EF1D883775A3F1DDB85968B052A511AD4B507CFE86AA5D`
+exactly. The app's sorted JSON aggregation reproduced
+`2d48d439bbbcb30fbac1fd0d805b300d8ae6205c2acc471b47d1070ec38d6de8`;
+its only additional file was `.gitignore`. Thus these differing aggregate hashes
+do not establish changed tested source. The submitted 13-file validation source
+is unchanged. The app/reviewer integration lacks the comparison needed to
+reconcile different declared fingerprint methods; at that audit stage the
+correction was `not-started`, with read-only diagnosis `passed`. This is not a new learner task
+or a reason to repeat satisfied work. The saved needs-work verdict remains
+unchanged at that audit stage. The subsequent cross-module repair and fresh
+live review above supersede that status; no pilot acceptance is inferred.
+
+Package submission did not bring its returned feedback into view. New saved
+results now receive focus and scroll into view on completion and when reopening
+Teacher; repeated refreshes of the same result preserve the reader's place.
+Presentation waits until the initial workspace loader has finished. Submission
+errors also receive visible focus. An elapsed-seconds indicator remains usable
+with reduced motion, where the spinner intentionally does not animate.
+
+The review IPC now returns its saved result without awaiting guide housekeeping.
+That background guide reconciliation reuses the returned workspace instead of
+requesting another evidence refresh. Existing inference/transport timeouts,
+current-source checks, approvals, assessment criteria, copy, pages and routes
+remain unchanged; no shorter AI response time is promised.
+
+The new disposable Electron regression covers deferred needs-work/passed/error
+responses, released busy controls, elapsed time under reduced motion, delayed
+startup with an existing result, and stable focus across background refreshes
+in compact/full views. Screenshots use the production fonts and styles. The
+normal app was reopened with its existing profile, and the saved Module 3
+needs-work result was verified focused and visible without horizontal overflow.
+No review was resubmitted, no learner files were edited, and no progress reset
+or assessment waiver was used. Local artifacts remain under
+`.superpowers/qa/review-feedback/`.
+
+The final full unit/Electron runs passed after the saved-review startup timing
+correction. The disposable Module 2–4 journey passed before that final focus-only
+correction; its approval, freshness, continuity and completion checks remain
+unchanged. The initial isolated screenshot harness timed out with a hidden
+window; its final run uses a visible disposable window and the production fonts.
+No product assertion, timeout or acceptance gate was weakened.
+
+### Practice hint discoverability — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / Practice Teacher — visible hint feedback | `implemented` | `passed` for typecheck, lint, 775 unit tests (three existing skips), nine startup checks, build, full Electron smoke/chat/guide suites, compact/desktop visual inspection and current-app error visibility | Hint discoverability repair requested; final experience acceptance remains `pending` | `pending` | Review the updated hint presentation with a successful live request; retain the separate unresolved reliability investigation below. |
+
+Hint results and errors now appear first in the Practice content, directly
+below the hint action and ahead of the prompt and guide. New feedback receives
+focus and scrolls into view automatically. Hints have a gold heading/accent,
+larger body text and no inner paragraph scrollbar; dismissing a hint returns
+focus to its action. Existing wording, pages, guide content, task binding,
+evidence/freshness rules and assessment gates are preserved.
+
+Electron regression checks start from scrolled compact content and require the
+returned hint to be focused, visible without manual scrolling, ahead of other
+content and free of inner text scrolling or horizontal overflow. Both compact
+and full Teacher views pass, including focus returning after dismissal. Their
+screenshots were visually inspected. The updated renderer was reloaded in the
+owner's existing companion without resetting progress or editing portfolio
+files. A live request through its actual button returned the progress-changed
+freshness error, now focused and visible at the top with no horizontal overflow.
+That request did not produce a hint and does not close live reliability or
+owner/pilot acceptance. Local screenshots are under
+`.superpowers/qa/hint-visible/` and are not shipped as course source.
+
+### Live hint failure investigation — 29 October 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / Module 3 — Practice hint reliability | `implemented` — no runtime change in this investigation | `pending` for the reported generic failure; 24 focused hint/Teacher adapter tests passed, and one isolated live hint succeeded | Investigation and transmission of bound-task/portfolio context for the isolated live test explicitly authorized; final experience acceptance remains `pending` | `pending` | Retain the unresolved generic failure; capture safe failure stage/code on reproduction and verify the running-app hint once its source is stable. |
+
+The owner reported the generic hint failure in the running app. Existing unit
+tests mock inference, and Electron hint checks use simulated responses. The
+focused rerun passed all 24 tests after sandbox temporary-file rename failures
+required normal filesystem access. An explicitly authorized isolated test used
+the current Module 3 binding, refreshed task data, current portfolio evidence
+and the real Teacher adapter; it returned a grounded Vietnamese hint. Activity
+and Practice state for that isolated test were kept in memory.
+
+A subsequent request through the running application's actual hint IPC rejected
+the response because its source digest changed during inference. That is a
+different, explicit freshness message from the owner's screenshot and does not
+establish the screenshot's cause. The generic catch retains no failure-stage or
+code diagnostic, so the original underlying error remains unknown. No runtime
+or learner-facing copy changed, and no progress reset or assessment waiver was
+used. These checks do not establish sustained reliability or owner/pilot
+acceptance; full build/Electron suites were not rerun for this investigation.
+
 ### Practice hint follow-up — 12 September 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |

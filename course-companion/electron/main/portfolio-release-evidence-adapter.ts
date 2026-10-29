@@ -13,6 +13,13 @@ const object = (value: unknown): value is Record<string, unknown> => Boolean(val
 const keys = (value: Record<string, unknown>, expected: string[]) => Object.keys(value).length === expected.length && expected.every((key) => key in value)
 const text = (value: unknown, minimum = 1, maximum = 4000): value is string => typeof value === 'string' && value.trim().length >= minimum && value.length <= maximum
 
+function sharingUrl(value: unknown): string {
+  if (!text(value, 1, 2048)) throw new Error('Invalid sharing URL')
+  const url = new URL(value)
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || (url.port && url.port !== '443')) throw new Error('Invalid sharing URL')
+  return url.href
+}
+
 export type PortfolioReleaseContinuation = {
   task: { threadId: string; workspaceRoot: string }
   workspace: { canonicalPath: string }
@@ -21,28 +28,36 @@ export type PortfolioReleaseContinuation = {
 
 export function parsePortfolioDeploymentRecord(value: unknown): PortfolioDeploymentRecord {
   if (!object(value) || !keys(value, ['schemaVersion', 'moduleThreeSourceCheckpoint', 'sourceRevision', 'deployment', 'validation', 'publication'])
-    || value.schemaVersion !== 1 || !/^sha256:[a-f0-9]{64}$/.test(String(value.moduleThreeSourceCheckpoint))
-    || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(String(value.sourceRevision))) throw new Error('Invalid release identity')
+    || value.schemaVersion !== 1 || !/^sha256:[a-f0-9]{64}$/i.test(String(value.moduleThreeSourceCheckpoint))
+    || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/i.test(String(value.sourceRevision))) throw new Error('Invalid release identity')
   const deployment = value.deployment
   const validation = value.validation
   const publication = value.publication
   if (!object(deployment) || !keys(deployment, ['url', 'provider', 'deploymentId', 'sourceRevision', 'buildStatus', 'deployedAt'])
     || !text(deployment.url, 1, 2048) || deployment.provider !== 'vercel' || !text(deployment.deploymentId, 1, 200)
-    || !/^[a-zA-Z0-9_./:-]+$/.test(deployment.deploymentId) || deployment.sourceRevision !== value.sourceRevision
+    || !/^[a-zA-Z0-9_./:-]+$/.test(deployment.deploymentId)
+    || typeof deployment.sourceRevision !== 'string' || deployment.sourceRevision.toLowerCase() !== String(value.sourceRevision).toLowerCase()
     || deployment.buildStatus !== 'ready' || !iso(deployment.deployedAt)) throw new Error('Invalid deployment evidence')
-  const url = new URL(deployment.url)
-  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || (url.port && url.port !== '443')) throw new Error('Invalid sharing URL')
+  const url = sharingUrl(deployment.url)
   if (!object(validation) || !keys(validation, ['checkedAt', 'command', 'passed', 'desktop', 'mobile', 'limitations'])
     || !iso(validation.checkedAt) || Date.parse(validation.checkedAt) < Date.parse(deployment.deployedAt)
     || validation.command !== 'npm run check' || validation.passed !== true
     || !Array.isArray(validation.limitations) || validation.limitations.length > 20 || !validation.limitations.every((item) => text(item, 1, 500))) throw new Error('Invalid validation evidence')
   for (const viewport of [validation.desktop, validation.mobile]) {
-    if (!object(viewport) || !keys(viewport, ['url', 'observations']) || viewport.url !== deployment.url
+    if (!object(viewport) || !keys(viewport, ['url', 'observations']) || sharingUrl(viewport.url) !== url
       || !text(viewport.observations, 20)) throw new Error('Missing concrete browser observations')
   }
   if (!object(publication) || !keys(publication, ['learnerApproved', 'observedPublicAccess'])
     || publication.learnerApproved !== true || publication.observedPublicAccess !== true) throw new Error('Missing reported publication decision')
-  return value as unknown as PortfolioDeploymentRecord
+  // Normalize equivalent identities without mutating the supplied evidence.
+  return { ...value,
+    moduleThreeSourceCheckpoint: String(value.moduleThreeSourceCheckpoint).toLowerCase(),
+    sourceRevision: String(value.sourceRevision).toLowerCase(),
+    deployment: { ...deployment, url, sourceRevision: deployment.sourceRevision.toLowerCase() },
+    validation: { ...validation,
+      desktop: { ...(validation.desktop as object), url },
+      mobile: { ...(validation.mobile as object), url } }
+  } as unknown as PortfolioDeploymentRecord
 }
 
 const sourcePath = (path: string) => basename(path) !== '.DS_Store'

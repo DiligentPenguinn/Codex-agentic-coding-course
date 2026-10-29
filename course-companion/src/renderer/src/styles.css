@@ -5568,9 +5568,15 @@ button:focus-visible {
 .practice-workflow .practice-compact-step-guide p,
 .practice-workflow .practice-compact-next strong { font-size: 13px; line-height: 1.6; }
 .practice-workflow .practice-compact-next { margin-top: 16px; padding: 12px; }
-.practice-workflow .practice-hint { padding: 14px; border: 0; border-radius: var(--obsidian-radius-card); background: var(--obsidian-surface-raised); }
+.practice-workflow .practice-hint { flex: 0 0 auto; padding: 16px; border: 0; border-left: 3px solid var(--pixel-yellow); border-radius: var(--obsidian-radius-card); background: var(--obsidian-surface-raised); scroll-margin-top: 12px; }
+.practice-workflow .practice-hint-heading > strong { color: var(--pixel-yellow); font: 600 14px/1.5 var(--app-font); }
+.practice-workflow .practice-hint:focus,
+.practice-workflow .practice-hint-error:focus { outline: 2px solid var(--pixel-yellow); outline-offset: -2px; }
+.practice-workflow .practice-hint-error { flex: 0 0 auto; margin: 0 0 12px; padding: 14px; font: 400 13px/1.6 var(--app-font); scroll-margin-top: 12px; }
+.practice-workflow .practice-review-elapsed { margin-left: 8px; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.practice-workflow :is(.practice-review-result, .practice-success, .practice-package-notice):focus { outline: 2px solid var(--pixel-yellow); outline-offset: -2px; scroll-margin-top: 12px; }
 .practice-workflow .practice-hint-heading button { min-width: 36px; min-height: 36px; border-width: 1px; }
-.practice-workflow .practice-hint p { max-height: 28vh; }
+.practice-workflow .practice-hint p { max-height: none; overflow: visible; font-size: 14px; line-height: 1.7; }
 .practice-workflow .practice-progress__summary > small,
 .practice-workflow .practice-destination { display: block; font-size: 11px; line-height: 1.6; }
 .practice-workflow .practice-review-result { align-items: stretch; flex-direction: column; gap: 16px; padding: 16px 0; border: 0; border-radius: 0; background: transparent; }
@@ -5659,8 +5665,8 @@ button:focus-visible {
 .pixel-companion-surface--expanded .practice-workflow .practice-compact-details { margin-top: 12px; }
 .pixel-companion-surface--expanded .practice-workflow .practice-compact-details > summary,
 .pixel-companion-surface--expanded .practice-workflow .practice-compact-step-copy strong { font-size: 12px; }
-.pixel-companion-surface--expanded .practice-workflow .practice-hint { padding: 10px; }
-.pixel-companion-surface--expanded .practice-workflow .practice-hint p { max-height: none; overflow: visible; font-size: 12px; line-height: 1.5; }
+.pixel-companion-surface--expanded .practice-workflow .practice-hint { padding: 14px; }
+.pixel-companion-surface--expanded .practice-workflow .practice-hint p { font-size: 13px; line-height: 1.65; }
 .pixel-companion-surface--expanded .practice-workflow .practice-hint small { font-size: 11px; line-height: 1.5; }
 .practice-workflow .pixel-panel-quit { min-height: 36px; border-color: transparent; background: transparent; color: var(--pixel-muted); font: 400 11px/1.5 var(--app-font); }
 .practice-workflow .pixel-panel-quit:hover { color: var(--pixel-white); border-color: var(--obsidian-line-soft); }

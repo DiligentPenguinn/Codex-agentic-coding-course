@@ -92,7 +92,7 @@ function evaluateConfiguration(
         : status === 'unsatisfied'
           ? check.label + ' hiện là ' + (value?.label ?? value?.protocolValue ?? 'không rõ')
             + '; cần ' + check.expectedLabel + '.'
-          : check.label + ' chưa có metadata mới và xác minh được.'
+          : 'Triết chưa đọc được ' + check.label + ' hiện tại. Mở đúng task Codex rồi thử kiểm tra lại.'
     }
   })
   const passed = criteria.every((criterion) => criterion.status === 'satisfied')

@@ -9,6 +9,7 @@ import type {
   PracticeGuideSurfaceContext,
   PracticeGuideUpdateRequest,
   PracticeReviewResponse,
+  PracticeWorkspaceView,
   PracticePanelUpdate,
   PlanningPracticeActionRequest,
   PortfolioStageActionRequest,
@@ -600,7 +601,7 @@ function practiceReviewFailure(error: unknown): Extract<PracticeReviewResponse, 
     return { error: { code: 'binding-mismatch', message: 'Không thể xác minh đúng task Codex của Practice này. Hãy quay lại đúng task rồi thử lại.' } }
   }
   if (detail.includes('PRACTICE_METADATA')) {
-    return { error: { code: 'metadata-unavailable', message: 'Chưa đọc được metadata mới của task Codex. Tiến độ cũ vẫn được giữ; hãy thử lại.' } }
+    return { error: { code: 'metadata-unavailable', message: 'Triết chưa đọc được cài đặt hiện tại của task Codex. Tiến độ cũ vẫn được giữ; hãy mở đúng task rồi thử lại.' } }
   }
   if (detail.includes('APP_SERVER') || detail.toLowerCase().includes('disconnected')) {
     return { error: { code: 'transport-unavailable', message: 'Chưa kết nối được để đọc bằng chứng Practice. Hãy thử lại sau ít phút.' } }
@@ -734,21 +735,22 @@ function isPracticeGuideUpdateRequest(value: unknown): value is PracticeGuideUpd
 }
 
 async function authoritativeGuideContext(
-  surface: PracticeGuideSurfaceContext
+  surface: PracticeGuideSurfaceContext,
+  knownWorkspace?: PracticeWorkspaceView
 ): Promise<PracticeGuideContext> {
   const result = await progressRepository.load()
   const progress = result.status === 'returning' || result.status === 'recovered'
     ? result.progress
     : null
-  let workspace = null
+  let workspace = knownWorkspace ?? null
   if (surface.surface !== 'learning') {
-    workspace = await practiceCoordinator.loadWorkspace().catch(() => null)
+    workspace ??= await practiceCoordinator.loadWorkspace().catch(() => null)
   }
   return { progress, workspace, ...surface }
 }
 
-async function reconcilePracticeGuide(surface: PracticeGuideSurfaceContext): Promise<void> {
-  const context = await authoritativeGuideContext(surface)
+async function reconcilePracticeGuide(surface: PracticeGuideSurfaceContext, workspace?: PracticeWorkspaceView): Promise<void> {
+  const context = await authoritativeGuideContext(surface, workspace)
   await practiceGuideCoordinator.load(context).catch(() => null)
 }
 
@@ -953,8 +955,9 @@ function registerIpcHandlers(): void {
     practiceReviewRequests += 1
     try {
       const response = await practiceReviewService.review()
-      await reconcilePracticeGuide({ surface: 'full' })
       broadcastPracticeWorkspaceChanged()
+      // Guide housekeeping must not hold an already-saved review response open.
+      void reconcilePracticeGuide({ surface: 'full' }, response.workspace).catch(() => undefined)
       return response
     } catch (error) {
       broadcastPracticeWorkspaceChanged()

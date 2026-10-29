@@ -252,7 +252,7 @@ export function PracticeProgress({
           </b> : null}
         </div>
         {workspace.portfolioPackage && reviewStatus === 'needs-work' && reviewResult ? (
-          <section className="practice-review-result is-needs-work" aria-label="Kết quả duyệt Practice">
+          <section className="practice-review-result is-needs-work" tabIndex={-1} aria-label="Kết quả duyệt Practice">
             <p>{reviewResult.summary}</p>
             <ol className="practice-review-criteria" aria-label="Kết quả theo từng tiêu chí">
               {reviewResult.criteria.filter((criterion) => criterion.status !== 'satisfied').map((criterion) => (
@@ -323,7 +323,7 @@ export function PracticeProgress({
       </div> : null}
 
       {reviewStatus === 'passed' || reviewStatus === 'needs-work' ? (
-        <ReviewContainer className={practicePassed ? 'practice-success-details' : `practice-review-result is-${reviewStatus}`} role={practicePassed ? undefined : 'status'} aria-label="Kết quả duyệt Practice">
+        <ReviewContainer className={practicePassed ? 'practice-success-details' : `practice-review-result is-${reviewStatus}`} tabIndex={-1} role={practicePassed ? undefined : 'status'} aria-label="Kết quả duyệt Practice">
           {practicePassed ? <summary>Xem kết quả kiểm tra</summary> : null}
           <div>
             {!practicePassed ? <div className="practice-review-next-action">
