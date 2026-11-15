@@ -114,7 +114,13 @@ thiết và giải thích phần còn thiếu trước khi thực hiện thay đ
 Đến phần phát hành, bạn sẽ cần tài khoản GitHub và Vercel. Bạn chưa cần chuẩn
 bị hai tài khoản này để bắt đầu phần giới thiệu.
 
-## Bắt đầu trên Windows
+## Thiết lập và bắt đầu học
+
+### Bước 1 — Tải và khởi động khóa học
+
+Chọn hướng dẫn phù hợp với máy của bạn, rồi chạy lần lượt các lệnh bên dưới.
+
+#### Windows
 
 Mở **Command Prompt** hoặc **PowerShell** trong thư mục bạn muốn lưu khóa học.
 Chạy lần lượt:
@@ -125,7 +131,7 @@ cd codex-content-creator-course
 .\start-course.cmd
 ```
 
-## Bắt đầu trên macOS
+#### macOS
 
 Mở **Terminal** trong thư mục bạn muốn lưu khóa học. Chạy lần lượt:
 
@@ -138,18 +144,28 @@ cd codex-content-creator-course
 Sau khi tải repository, bạn cũng có thể nhấp đúp `start-course.command` trong
 Finder.
 
-## Sau đó sẽ diễn ra như thế nào?
+### Bước 2 — Xem và xác nhận phần chuẩn bị
 
-1. Bạn nhận lời chào và phần giải thích ngắn về quá trình chuẩn bị.
-2. Trình khởi động kiểm tra các công cụ cần thiết.
-3. Nếu cần cài gói phụ thuộc, bạn sẽ thấy lệnh và mục đích trước khi chạy.
-4. **Không có gì được cài nếu bạn chưa đồng ý.**
-5. Course Companion mở và khôi phục tiến độ đã lưu trên máy nếu có.
-6. Nếu học lần đầu, bạn vào phần giới thiệu. Nếu quay lại, bạn tiếp tục từ
-   bước đang học.
+Sau khi chạy lệnh, bạn sẽ nhận lời chào và phần giải thích ngắn về quá trình
+chuẩn bị. Trình khởi động kiểm tra các công cụ cần thiết và cho biết phần nào
+còn thiếu.
+
+Nếu cần cài thêm, hãy đọc lệnh và mục đích được hiển thị. Khi thấy phù hợp,
+bạn xác nhận để trình khởi động thực hiện. **Không có gì được cài nếu bạn
+chưa đồng ý.** Nếu mọi thứ đã sẵn sàng, trình khởi động sẽ mở Course Companion
+để bạn tiếp tục.
 
 Bạn có thể từ chối cài đặt. Trình khởi động sẽ dừng và giải thích bước tiếp theo
 bạn có thể tự thực hiện.
+
+### Bước 3 — Bắt đầu học trong Course Companion
+
+Khi Course Companion mở, bạn bắt đầu từ phần giới thiệu nếu đây là lần đầu
+học. Nếu đã học trước đó, ứng dụng khôi phục tiến độ đã lưu trên máy và đưa
+bạn về đúng bước đang học.
+
+Bạn chỉ cần làm theo hướng dẫn trong bài. Khi đến phần Practice, khóa học sẽ
+hướng dẫn bạn chuyển sang Codex để thực hành.
 
 ## Tài khoản và tiến độ
 
