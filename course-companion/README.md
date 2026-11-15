@@ -113,6 +113,18 @@ khi bạn giao việc.
 
 ## Khi đến phần Practice
 
+Bạn sẽ đi qua một vòng học và thực hành như thế này:
+
+```mermaid
+flowchart TD
+    accTitle: Từ bài học đến thực hành và review
+    accDescr: Học trong Course Companion, thực hành cùng Codex rồi nộp để Teacher xem xét bằng chứng. Nếu cần bổ sung, quay lại đúng task Codex để sửa và nộp lại. Khi đạt, lưu kết quả và quay lại khóa học để tiếp tục.
+    A("Bài học<br/>Course Companion") -->|Bắt đầu Practice| B("Practice<br/>Cùng Codex trong task của bài")
+    B -->|Bạn nộp kết quả| C("Teacher review<br/>Xem xét bằng chứng")
+    C -->|Cần bổ sung| B
+    C -->|Đạt| D("Bạn lưu kết quả<br/>và quay lại khóa học để học tiếp")
+```
+
 1. **Đọc mục tiêu.** Xem bạn cần làm gì và kết quả cần đạt trước khi chuyển
    sang Codex.
 2. **Mở bài thực hành theo hướng dẫn.** Dùng lựa chọn bắt đầu hoặc tiếp tục
