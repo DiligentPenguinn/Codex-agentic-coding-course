@@ -21,53 +21,73 @@ const scratch = join(repository, '.superpowers/qa/readme-media')
 const viewport = { width: 1180, height: 748 }
 
 export async function recordReadmeClip(page, name, actions, electronApp) {
-  const frames = join(scratch, name)
+  const frames = join(scratch, `${name}-video`)
   await mkdir(frames, { recursive: true })
-  let stop = false
-  let index = 0
+  await electronApp.evaluate(({ BrowserWindow }, url) => {
+    const window = BrowserWindow.getAllWindows().find(candidate => candidate.webContents.getURL() === url)
+    if (!window) throw new Error('Capture window disappeared')
+    window.webContents.setBackgroundThrottling(false)
+    window.restore()
+    window.show()
+  }, page.url())
+  const session = await page.context().newCDPSession(page)
   const timeline = []
-  const recorder = (async () => {
-    while (!stop) {
-      const start = Date.now()
-      const file = `${String(index++).padStart(4, '0')}.png`
-      const png = await electronApp.evaluate(async ({ BrowserWindow }, url) => {
-        const window = BrowserWindow.getAllWindows().find(candidate => candidate.webContents.getURL() === url)
-        if (!window) throw new Error('Capture window disappeared')
-        const snapshot = await window.webContents.capturePage(undefined, { stayHidden: true })
-        return snapshot.toPNG().toString('base64')
-      }, page.url())
-      await writeFile(join(frames, file), Buffer.from(png, 'base64'))
-      timeline.push({ file, at: start })
-      await delay(Math.max(0, 200 - (Date.now() - start)))
-    }
-  })()
+  const writes = []
+  const errors = []
+  session.on('Page.screencastFrame', frame => {
+    const file = `${String(timeline.length).padStart(5, '0')}.jpg`
+    timeline.push({ file, at: frame.metadata.timestamp * 1000 })
+    writes.push(writeFile(join(frames, file), Buffer.from(frame.data, 'base64'))
+      .catch(error => { errors.push(error) }))
+    // Acknowledge immediately so disk I/O cannot throttle the video stream.
+    void session.send('Page.screencastFrameAck', { sessionId: frame.sessionId })
+      .catch(error => { errors.push(error) })
+  })
+  await session.send('Page.startScreencast', {
+    format: 'jpeg', quality: 95, maxWidth: 960, maxHeight: 609, everyNthFrame: 1
+  })
+  const startedAt = Date.now()
+  let stoppedAt
   try {
     await delay(1800)
     await actions()
     await delay(2400)
   } finally {
-    stop = true
-    await recorder
+    stoppedAt = Date.now()
+    await session.send('Page.stopScreencast')
+    await session.detach()
+    await Promise.all(writes)
   }
-  assert.ok(index > 10, `Not enough frames for ${name}`)
-  const endedAt = Date.now()
-  const sequence = timeline.flatMap((frame, i) => [`file '${frame.file}'`,
-    `duration ${((timeline[i + 1]?.at ?? endedAt) - frame.at) / 1000}`])
-  sequence.push(`file '${timeline.at(-1).file}'`)
+  assert.equal(errors.length, 0, `Video stream failed for ${name}: ${errors[0]}`)
+  // Chromium emits changed frames only; reading pauses do not need redraws.
+  assert.ok(timeline.length >= 3, `Video stream did not capture the walkthrough for ${name}`)
+  assert.ok(timeline.every(frame => Number.isFinite(frame.at)), `Missing frame timestamps for ${name}`)
+  const durationSeconds = (stoppedAt - startedAt) / 1000
+  const endedAt = timeline[0].at + durationSeconds * 1000
+  const sequence = timeline.flatMap((frame, i) => [`file '${frame.file}'`, 'option framerate 1000',
+    `duration ${Math.max(0.001, ((timeline[i + 1]?.at ?? endedAt) - frame.at) / 1000)}`])
+  sequence.push(`file '${timeline.at(-1).file}'`, 'option framerate 1000')
   await writeFile(join(frames, 'frames.txt'), sequence.join('\n') + '\n')
+  const video = join(frames, 'recording.mp4')
+  await execute('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0',
+    '-i', join(frames, 'frames.txt'), '-vf', 'fps=30,scale=960:608:flags=lanczos',
+    '-t', String(durationSeconds), '-c:v', 'libx264', '-preset', 'fast', '-crf', '16', '-pix_fmt', 'yuv420p', video],
+    { windowsHide: true, maxBuffer: 1024 * 1024 })
   const path = join(output, `${name}.gif`)
   // Palette and rectangle differencing keep text clear and repository files small.
-  await execute('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0',
-    '-i', join(frames, 'frames.txt'), '-filter_complex',
-    '[0:v]fps=5,scale=960:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:reserve_transparent=1[p];[b][p]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle',
+  await execute('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', video, '-filter_complex',
+    '[0:v]fps=15,split[a][b];[a]palettegen=stats_mode=diff:reserve_transparent=1[p];[b][p]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle',
     '-loop', '0', path], { windowsHide: true, maxBuffer: 1024 * 1024 })
   await execute('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', path,
     '-vf', 'reverse', '-frames:v', '1', join(output, `${name}.png`)],
     { windowsHide: true, maxBuffer: 1024 * 1024 })
-  const entry = { name, capturedFrames: index, fps: 5, durationSeconds: (endedAt - timeline[0].at) / 1000,
+  const entry = { name, capturedFrames: timeline.length, videoFps: 30, gifFps: 15, durationSeconds,
+    receivedFramesPerSecond: timeline.length / durationSeconds,
+    motionFrameIntervalsMs: timeline.slice(1).map((frame, index) => frame.at - timeline[index].at)
+      .filter(interval => interval > 0 && interval < 100),
     sourceScenes: await page.locator('main[data-scene-id]').getAttribute('data-scene-id') }
   await writeFile(join(scratch, `${name}.json`), JSON.stringify(entry, null, 2) + '\n')
-  console.log(`Captured ${name}: ${index} source frames, ${entry.durationSeconds.toFixed(1)} seconds`)
+  console.log(`Captured ${name}: ${timeline.length} streamed frames over ${durationSeconds.toFixed(1)}s, 30 fps video / 15 fps GIF`)
   return entry
 }
 
@@ -235,4 +255,7 @@ async function captureLaterModules() {
   console.log(stdout.trim())
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) await main()
+if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+  if (process.argv.includes('--later-only')) await captureLaterModules()
+  else await main()
+}

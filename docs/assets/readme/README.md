@@ -23,9 +23,11 @@ and regression evidence, not beginner-pilot or live AI acceptance.
 | `teacher-companion` | Typing a synthetic question and receiving a simulated Teacher reply. |
 | `practice-review` | Module 1 Practice guidance, checklist and simulated review feedback. |
 
-Every clip has an animated `.gif` and a static `.png`. GIFs are 960px wide,
-loop at five frames per second and retain the captured timing. Static images
-show the final displayed frame as a readable alternative to animation.
+Every clip is captured as a continuous Chromium screencast and encoded as
+30 fps video, then exported as a looping 15 fps GIF at 960px width. Capture
+timestamps preserve reading pauses and the timing of real UI transitions.
+Static `.png` files are retained as capture references; the main README embeds
+only the GIFs.
 
 ## Reproduce
 

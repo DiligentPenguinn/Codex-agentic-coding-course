@@ -41,8 +41,7 @@ vừa học.
 
 Các GIF bên dưới được ghi trực tiếp từ Course Companion trong một hồ sơ
 minh họa riêng. Phản hồi hỏi đáp và kết quả review được mô phỏng để giới
-thiệu cách dùng, không phải bài nộp của người học thật. Bạn có thể mở ảnh
-tĩnh dưới mỗi GIF để xem kỹ nội dung.
+thiệu cách dùng, không phải bài nộp của người học thật.
 
 ### Module 1 — Làm quen với Codex
 
@@ -52,8 +51,6 @@ Khi Codex đề xuất một thao tác, bạn biết mình cần xem gì trướ
 
 ![Các trang bài học Module 1 giới thiệu Codex, quyền hành động và cách chọn model](docs/assets/readme/module-1-codex.gif)
 
-[Xem ảnh tĩnh Module 1](docs/assets/readme/module-1-codex.png)
-
 ### Module 2 — Lên kế hoạch portfolio
 
 Bạn chọn người xem, sắp xếp tư liệu, tìm hướng thiết kế và cùng Codex viết
@@ -61,8 +58,6 @@ tài liệu yêu cầu sản phẩm (PRD) cùng kế hoạch triển khai. Bạn
 trước khi xây, để cả hai cùng hiểu portfolio cần làm được những gì.
 
 ![Các trang Module 2 giải thích vì sao cần planning, PRD và cách duyệt yêu cầu cùng coding agent](docs/assets/readme/module-2-planning.gif)
-
-[Xem ảnh tĩnh Module 2](docs/assets/readme/module-2-planning.png)
 
 ### Module 3 — Xây và kiểm chứng
 
@@ -73,8 +68,6 @@ Codex tìm nguyên nhân rồi kiểm tra lại. Bạn cũng làm quen với Git
 
 ![Bài học Module 3 chuyển từ cách debug sang ví dụ lỗi hiển thị và cách trao đổi với Codex](docs/assets/readme/module-3-debugging.gif)
 
-[Xem ảnh tĩnh Module 3](docs/assets/readme/module-3-debugging.png)
-
 ### Module 4 — Đưa portfolio lên mạng
 
 Bạn cùng Codex phát hành lên Vercel, kiểm tra website ở kích thước máy tính
@@ -82,8 +75,6 @@ và điện thoại, rồi xác nhận đường link sẵn sàng để chia s�
 về hosting và video hướng dẫn giúp bạn hình dung bước này trước khi tự làm.
 
 ![Module 4 giới thiệu hosting và video hướng dẫn đưa portfolio lên Vercel](docs/assets/readme/module-4-publishing.gif)
-
-[Xem ảnh tĩnh Module 4](docs/assets/readme/module-4-publishing.png)
 
 Riêng Module 2, bạn sẽ hoàn thiện một gói gồm **năm tài liệu**: bản mô tả
 portfolio, danh sách tư liệu và bằng chứng, định hướng tham chiếu, PRD và kế
@@ -104,16 +95,12 @@ tục hoặc xem lại.
 
 ![Hỏi Teacher một câu về việc duyệt kế hoạch và theo dõi phản hồi mô phỏng trong cửa sổ đồng hành](docs/assets/readme/teacher-companion.gif)
 
-[Xem ảnh tĩnh phần hỏi đáp Teacher](docs/assets/readme/teacher-companion.png)
-
 Khi sẵn sàng, bạn nộp kết quả để Teacher xem xét bằng chứng. Nếu còn thiếu,
 bạn sẽ nhận phản hồi về phần cần bổ sung và có thể sửa rồi nộp lại. Nếu đạt,
 bạn quay về bài học để tiếp tục. Bạn vẫn là người duyệt kế hoạch, chấp nhận
 website và quyết định nội dung nào được đưa lên mạng.
 
 ![Màn hình Practice hiển thị hướng dẫn, checklist và kết quả review mô phỏng của bài thực hành Module 1](docs/assets/readme/practice-review.gif)
-
-[Xem ảnh tĩnh phần review Practice](docs/assets/readme/practice-review.png)
 
 Bạn có thể dừng giữa chừng và quay lại sau. Course Companion lưu tiến độ trên
 máy để bạn tiếp tục từ bước đang học.
