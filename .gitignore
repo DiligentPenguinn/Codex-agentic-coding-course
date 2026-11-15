@@ -21,7 +21,13 @@ node_modules/
 # Local visual-brainstorming sessions.
 .superpowers/
 
+# Local isolated implementation worktrees.
+.worktrees/
+
 # Course Companion local dependencies and generated output.
 course-companion/node_modules/
 course-companion/out/
 course-companion/*.tsbuildinfo
+
+# Optional retained artifacts from developer-only Practice rehearsals.
+.practice-test-artifacts/

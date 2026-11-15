@@ -111,7 +111,7 @@ test("keeps saved progress visible when the account check is unavailable", () =>
     responses: { "sample-goal": "Saved locally" },
   });
 
-  assert.equal(state.screen, "landing");
+  assert.equal(state.screen, "destination");
   assert.equal(state.connection, "disconnected");
   assert.equal(state.entryTarget, "destination");
   assert.equal(state.responses["sample-goal"], "Saved locally");
@@ -176,18 +176,16 @@ test("preserves entered responses when moving backward and reopening", () => {
   assert.equal(state.responses["sample-goal"], "Keep this");
 });
 
-test("loads completed setup and leaves unknown events unchanged", () => {
-  let state = reduceOnboarding(createInitialOnboardingState(), {
+test("loads completed setup directly into Course and leaves unknown events unchanged", () => {
+  const state = reduceOnboarding(createInitialOnboardingState(), {
     type: "STATUS_LOADED",
     connected: true,
     setupCompleted: true,
     account,
     responses: { "sample-goal": "Saved" },
   });
-  assert.equal(state.screen, "landing");
-  assert.equal(state.entryTarget, "destination");
-  state = reduceOnboarding(state, { type: "LANDING_CONTINUE" });
   assert.equal(state.screen, "destination");
+  assert.equal(state.entryTarget, "destination");
   assert.equal(
     reduceOnboarding(state, { type: "UNKNOWN_WITH_RAW_PAYLOAD", raw: "secret" }),
     state,
@@ -202,7 +200,9 @@ test("renderer shell and orchestration preserve the accessible narrow boundary",
     readFile(new URL("styles.css", rendererRoot), "utf8"),
   ]);
 
-  assert.match(html, /<main id="app" aria-live="polite">/);
+  assert.match(html, /<main id="app">/);
+  assert.doesNotMatch(html, /<main id="app"[^>]*aria-live/);
+  assert.match(html, /id="landing-status"[^>]*role="status"/);
   assert.match(html, /Welcome to Content Builder Academy/);
   assert.match(html, /data-action="enter"/);
   assert.match(html, /Connect Codex/);

@@ -3,21 +3,93 @@ import { EventEmitter } from "node:events";
 import test from "node:test";
 
 import {
+  createBubbleWindowOptions,
+  createMainWindowOptions,
+  createQuickChatWindowOptions,
   createWindowOptions,
   installWindowPolicy,
 } from "../src/main/window-policy.mjs";
 
-test("uses an isolated, sandboxed renderer", () => {
+const isolatedPreferences = (preload) => ({
+  preload,
+  nodeIntegration: false,
+  contextIsolation: true,
+  sandbox: true,
+});
+
+test("builds the secure full Practice window options and retains the startup alias", () => {
+  const expected = {
+    width: 1180,
+    height: 800,
+    minWidth: 760,
+    minHeight: 600,
+    show: false,
+    webPreferences: isolatedPreferences("C:\\mock\\main-preload.cjs"),
+  };
+
   assert.deepEqual(
-    createWindowOptions({ preloadPath: "C:\\mock\\preload.mjs" }).webPreferences,
+    createMainWindowOptions({ preloadPath: "C:\\mock\\main-preload.cjs" }),
+    expected,
+  );
+  assert.equal(createWindowOptions, createMainWindowOptions);
+});
+
+test("builds the secure compact Teacher bubble options", () => {
+  assert.deepEqual(
+    createBubbleWindowOptions({ preloadPath: "C:\\mock\\bubble-preload.cjs" }),
     {
-      preload: "C:\\mock\\preload.mjs",
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: true,
+      width: 72,
+      height: 72,
+      show: false,
+      frame: false,
+      transparent: true,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      hasShadow: false,
+      webPreferences: isolatedPreferences("C:\\mock\\bubble-preload.cjs"),
     },
   );
-  assert.equal(createWindowOptions({ preloadPath: "x" }).show, false);
+});
+
+test("builds the secure Teacher quick-chat options", () => {
+  assert.deepEqual(
+    createQuickChatWindowOptions({ preloadPath: "C:\\mock\\quick-preload.cjs" }),
+    {
+      width: 360,
+      height: 520,
+      show: false,
+      frame: false,
+      transparent: false,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      webPreferences: isolatedPreferences("C:\\mock\\quick-preload.cjs"),
+    },
+  );
+});
+
+test("applies only explicit rectangle fields to presentation options", () => {
+  assert.deepEqual(
+    createMainWindowOptions({
+      preloadPath: "main.cjs",
+      bounds: { x: 12, y: 34, width: 900, height: 700 },
+    }),
+    {
+      x: 12,
+      y: 34,
+      width: 900,
+      height: 700,
+      minWidth: 760,
+      minHeight: 600,
+      show: false,
+      webPreferences: isolatedPreferences("main.cjs"),
+    },
+  );
 });
 
 test("blocks navigation and denies all renderer-created windows", async () => {

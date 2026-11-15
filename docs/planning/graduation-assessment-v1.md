@@ -1,5 +1,10 @@
 # Agentic Coding Graduation Assessment v1 — ContentPilot Evidence Project
 
+> **Superseded for the runnable course.** This ContentPilot assessment remains
+> historical planning evidence. The current curriculum authority is
+> [Portfolio Course v1](./portfolio-course-v1/README.md); its portfolio
+> graduation contract will be implemented through Module 4.
+
 **Status:** Locked assessment contract  
 **Decision:** Evidence-gated portfolio defense  
 **Applies to:** Version A Module 6 and the graduation application  

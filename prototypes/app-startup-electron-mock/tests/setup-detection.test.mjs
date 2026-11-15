@@ -14,15 +14,15 @@ function fakeDeps(overrides = {}) {
   return {
     platform: "win32",
     nodeVersion: "24.13.0",
-    mockRoot: "C:\\repo\\mock",
-    lockPath: "C:\\repo\\mock\\package-lock.json",
-    stampPath: "C:\\repo\\mock\\node_modules\\.course-lock.sha256",
+    appRoot: "C:\\repo with spaces\\course-companion",
+    lockPath: "C:\\repo with spaces\\course-companion\\package-lock.json",
+    stampPath: "C:\\repo with spaces\\course-companion\\node_modules\\.course-lock.sha256",
     commandExists: async (command) => available.has(command),
     commandSucceeds: async (command, args) => (
       command === "codex" && args.join(" ") === "app-server --help"
     ),
     fileExists: async () => overrides.electronRuntimeAvailable ?? true,
-    electronRuntimePath: "C:\\repo\\mock\\node_modules\\electron\\dist\\electron.exe",
+    electronRuntimePath: "C:\\repo with spaces\\course-companion\\node_modules\\electron\\dist\\electron.exe",
     readFile: async (path) => {
       if (path.endsWith("package-lock.json")) return "lock contents";
       if (path.endsWith(".course-lock.sha256")) {
@@ -48,17 +48,16 @@ test("plans Codex and project installs without executing them", async () => {
     ["codex-cli", "project-packages", "electron-runtime"],
   );
   assert.deepEqual(plan[0].args, ["install", "-g", "@openai/codex@latest"]);
-  assert.equal(plan[1].cwd, "C:\\repo\\mock");
+  assert.equal(plan[1].cwd, "C:\\repo with spaces\\course-companion");
+  assert.equal(plan[2].command, "node");
   assert.deepEqual(plan[2].args, [
-    "--no-install",
-    "install-electron",
-    "--no",
+    "node_modules/electron/install.js",
   ]);
 });
 
 test("detects compatible prerequisites and a matching lock stamp", async () => {
   const fingerprint = await packageLockFingerprint(
-    "C:\\repo\\mock\\package-lock.json",
+    "C:\\repo with spaces\\course-companion\\package-lock.json",
     { readFile: async () => "lock contents" },
   );
   const report = await detectSetup(fakeDeps({
@@ -77,7 +76,7 @@ test("detects compatible prerequisites and a matching lock stamp", async () => {
 
 test("reinstalls project packages and runtime when the native binary is missing", async () => {
   const fingerprint = await packageLockFingerprint(
-    "C:\\repo\\mock\\package-lock.json",
+    "C:\\repo with spaces\\course-companion\\package-lock.json",
     { readFile: async () => "lock contents" },
   );
   const report = await detectSetup(fakeDeps({

@@ -1,5 +1,9 @@
 # Agentic Coding Course — ContentPilot Planning Handoff
 
+> **Historical handoff.** This document no longer defines the runnable-course
+> direction. Use [Portfolio Course v1](./portfolio-course-v1/README.md) and the
+> [portfolio implementation plan](./portfolio-course-implementation-plan.md).
+
 **Snapshot date:** 27 July 2026  
 **Branch:** `triet-content=planning`  
 **Status:** The agentic-coding learning direction, ContentPilot practice

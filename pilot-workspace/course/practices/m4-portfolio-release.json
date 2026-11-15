@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 2,
+  "practiceId": "m4-portfolio-release",
+  "title": "Đưa portfolio lên mạng để chia sẻ",
+  "version": "1.0.0",
+  "checkpointId": "m4-portfolio-release",
+  "objective": "Tiếp tục portfolio và task Codex từ Module 3, đưa website lên Vercel và kiểm tra đường link để gửi cho người khác xem.",
+  "expectedOutcome": "Portfolio mở được bằng đường link công khai, đã được kiểm tra trên máy tính và điện thoại. Codex ghi một hồ sơ triển khai; bạn chấp nhận website hiện tại rồi nộp để Triết duyệt. Không có bài kiểm tra cuối phần này.",
+  "workspaceKind": "learner-portfolio",
+  "taskPolicy": "safe-workspace-write",
+  "evidenceProfile": "portfolio-release",
+  "stages": [
+    {
+      "requiredArtifactPaths": [
+        "evidence/module-4/deployment-record.json"
+      ],
+      "id": "release-source",
+      "order": 1,
+      "dependsOn": []
+    },
+    {
+      "requiredArtifactPaths": [
+        "evidence/module-4/deployment-record.json"
+      ],
+      "id": "deployment-ready",
+      "order": 2,
+      "dependsOn": []
+    },
+    {
+      "requiredArtifactPaths": [
+        "evidence/module-4/deployment-record.json"
+      ],
+      "id": "desktop-mobile",
+      "order": 3,
+      "dependsOn": []
+    },
+    {
+      "requiredArtifactPaths": [
+        "evidence/module-4/deployment-record.json"
+      ],
+      "id": "shareable-url",
+      "order": 4,
+      "dependsOn": []
+    },
+    {
+      "requiredArtifactPaths": [
+        "evidence/module-4/deployment-record.json"
+      ],
+      "id": "release-acceptance",
+      "order": 5,
+      "dependsOn": []
+    }
+  ],
+  "checklist": [
+    {
+      "id": "release-source",
+      "title": "Đối chiếu phiên bản portfolio đã phát hành",
+      "dependsOn": []
+    },
+    {
+      "id": "deployment-ready",
+      "title": "Đưa portfolio lên Vercel",
+      "dependsOn": []
+    },
+    {
+      "id": "desktop-mobile",
+      "title": "Kiểm tra website trên máy tính và điện thoại",
+      "dependsOn": []
+    },
+    {
+      "id": "shareable-url",
+      "title": "Kiểm tra đường link để gửi cho người khác",
+      "dependsOn": []
+    },
+    {
+      "id": "release-acceptance",
+      "title": "Chấp nhận portfolio trên mạng và nộp bài",
+      "dependsOn": []
+    }
+  ],
+  "criteria": [
+    {
+      "freshness": "fresh",
+      "assertion": "Require the actual Module 3 v2 handoff and original portfolio task, matching committed clean release source and independently read current application fingerprint. Deployment fixes may advance the release beyond the accepted Module 3 starting version without repeating content assessment.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "checklistStepId": "release-source",
+      "description": "Đối chiếu phiên bản portfolio đã phát hành",
+      "id": "release-source-current",
+      "required": true
+    },
+    {
+      "freshness": "fresh",
+      "assertion": "Require a successful Vercel deployment identity, timestamp and source revision matching the committed release, passing local check and actual provider results from the bound task. A copied URL or claimed success alone is insufficient.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "checklistStepId": "deployment-ready",
+      "description": "Đưa portfolio lên Vercel",
+      "id": "deployment-ready-current",
+      "required": true
+    },
+    {
+      "freshness": "fresh",
+      "assertion": "Require concrete desktop and mobile observations against the exact submitted online URL, including visible content, images, links and any limits. Cross-check authentic learner observations with the bound task; generated records must not impersonate the learner.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "checklistStepId": "desktop-mobile",
+      "description": "Kiểm tra website trên máy tính và điện thoại",
+      "id": "desktop-mobile-current",
+      "required": true
+    },
+    {
+      "freshness": "fresh",
+      "assertion": "Require the independently observed public HTTPS link to load without authentication, and corroborate the actual portfolio content with reported browser checks. HTTP 200 alone does not establish correct content or deployed source. Do not demand a separate Preview environment or custom domain.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "checklistStepId": "shareable-url",
+      "description": "Kiểm tra đường link để gửi cho người khác",
+      "id": "shareable-url-current",
+      "required": true
+    },
+    {
+      "freshness": "fresh",
+      "assertion": "Require authenticated in-app approval of the current online portfolio and evidence plus learner-authored task consent before external publication actions. Record booleans are reported claims, never authorization. No quiz, essay, ownership defense, rollback exercise, transfer project or additional feature is required.",
+      "acceptedEvidence": [
+        "artifact",
+        "executor-reported-verification",
+        "learner-decision",
+        "learner-approval"
+      ],
+      "checklistStepId": "release-acceptance",
+      "description": "Chấp nhận portfolio trên mạng và nộp bài",
+      "id": "release-acceptance-current",
+      "required": true
+    }
+  ],
+  "completionDestination": {
+    "checkpointId": "m4-complete",
+    "label": "Xem kết quả Module 4",
+    "sceneId": "module-4-complete",
+    "lessonId": "module-4"
+  }
+}

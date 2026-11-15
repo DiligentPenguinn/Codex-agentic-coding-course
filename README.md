@@ -1,43 +1,101 @@
 # Vibecoding 101
 
-> Học cách làm việc cùng coding agent để biến ý tưởng thành phần mềm có thể chạy
-> và kiểm chứng.
+> Cùng Codex xây một portfolio của riêng bạn — và học cách biến ý tưởng thành
+> phần mềm có thể chạy, kiểm tra và chia sẻ.
 
-Chào mừng bạn đến với khóa học agentic coding dành cho người chưa có nền tảng
-lập trình. Bạn sẽ học cách hiểu một codebase, giao việc rõ ràng, kiểm soát phạm
-vi, duyệt kế hoạch và kiểm chứng kết quả khi làm việc cùng Codex.
+Chào mừng bạn đến với Vibecoding 101. Nếu bạn muốn tự làm một website nhưng
+chưa biết bắt đầu từ đâu, mình sẽ cùng bạn đi từng bước: từ ý tưởng ban đầu,
+lên kế hoạch, xây thử trên máy cho đến khi có một đường link để gửi cho người
+khác xem. Bạn không cần biết lập trình trước khi bắt đầu.
 
-ContentPilot là dự án thực hành xuyên suốt. Bạn sẽ xây ứng dụng này từng phần
-để tạo bằng chứng cho kỹ năng, nhưng mục tiêu khóa học là giúp bạn áp dụng cùng
-quy trình cho những sản phẩm khác.
+Trong khóa học, bạn sẽ làm việc cùng **Codex**, một coding agent có thể đọc
+dự án, viết code và chạy các bước kiểm tra theo yêu cầu của bạn. Bạn mang đến
+câu chuyện, trải nghiệm và ý tưởng cho portfolio; Codex giúp thực hiện phần
+kỹ thuật. Bạn sẽ học cách giao việc rõ ràng, xem kết quả và quyết định bước
+tiếp theo.
+
+Portfolio là nơi để bắt đầu. Điều bạn mang theo sau khóa học còn là một cách
+làm việc có thể áp dụng khi muốn xây một công cụ hay ứng dụng nhỏ khác.
 
 > [!NOTE]
-> **Về chế độ luyện tập:** Course Companion hiện dùng kịch bản lưu trên máy cho
-> phản hồi của Teacher và các tình huống thực hành. Ứng dụng sẽ nói rõ khi dữ
-> liệu chưa đến trực tiếp từ Codex.
+> **Khóa học đang trong giai đoạn hoàn thiện.** Hiện có phần giới thiệu và bốn
+> module, cùng trình khởi động cho Windows và macOS. Luồng học trên Windows đã
+> được kiểm tra tự động; trải nghiệm trên máy Mac thật và với người mới học
+> vẫn cần được kiểm chứng thêm.
+
+## Từ ý tưởng đến portfolio của bạn
+
+```mermaid
+flowchart LR
+    accTitle: Hành trình học Vibecoding 101
+    accDescr: Làm quen với Codex, lên kế hoạch portfolio, xây và kiểm tra trên máy, rồi phát hành website để chia sẻ.
+    A("01 · Làm quen<br/>Bạn và Codex") --> B("02 · Lên kế hoạch<br/>Portfolio của bạn")
+    B --> C("03 · Xây và kiểm tra<br/>Từng phần trên máy")
+    C --> D("04 · Phát hành<br/>Một link để chia sẻ")
+```
+
+Mỗi module có phần giải thích, ví dụ và bài thực hành để bạn thử ngay điều
+vừa học.
+
+| Chặng học | Bạn sẽ làm gì? |
+| --- | --- |
+| **Module 1 — Làm quen với Codex** | Hiểu cách giao việc, chọn model, nhận biết quyền hành động, dùng `AGENTS.md` và Skills; kiểm tra thiết lập Codex trước khi thực hành tiếp. |
+| **Module 2 — Lên kế hoạch portfolio** | Chọn người xem, sắp xếp tư liệu, tìm hướng thiết kế và cùng Codex viết tài liệu yêu cầu sản phẩm (PRD) cùng kế hoạch triển khai. Bạn duyệt kế hoạch trước khi xây. |
+| **Module 3 — Xây và kiểm chứng** | Tiếp tục từ kế hoạch đã duyệt, xây từng phần, mở website trên máy để xem, đề xuất cải thiện và luyện cách tìm, sửa rồi kiểm tra lại một lỗi. Bạn cũng làm quen với Git và GitHub để lưu lại các phiên bản. |
+| **Module 4 — Đưa portfolio lên mạng** | Cùng Codex phát hành lên Vercel, kiểm tra website ở kích thước máy tính và điện thoại, rồi xác nhận đường link sẵn sàng để chia sẻ. |
+
+Riêng Module 2, bạn sẽ hoàn thiện một gói gồm **năm tài liệu**: bản mô tả
+portfolio, danh sách tư liệu và bằng chứng, định hướng tham chiếu, PRD và kế
+hoạch triển khai. Bạn chưa cần xây hay xuất bản website ở bước này. Từ Module
+2 đến Module 4, bạn tiếp tục dùng cùng thư mục portfolio và cùng cuộc trò
+chuyện công việc (task) trong Codex để giữ liền mạch kế hoạch và quá trình làm.
+
+## Bạn sẽ học như thế nào?
+
+**Course Companion** là ứng dụng đồng hành, nơi bạn đọc bài học, xem ví dụ và
+theo dõi tiến độ. Khi đến phần **Practice** (thực hành), bạn chuyển sang task
+Codex được liên kết với bài để làm việc trên dự án của mình.
+
+Bạn có thể hỏi Teacher khi học lý thuyết. Trong Practice, hãy làm việc trực
+tiếp với Codex; bảng hướng dẫn, checklist và nút **Cần gợi ý?** giúp bạn tìm
+bước tiếp theo khi cần. Hướng dẫn Practice ở Module 1 có thể tạm dừng, tiếp
+tục hoặc xem lại.
+
+Khi sẵn sàng, bạn nộp kết quả để Teacher xem xét bằng chứng. Nếu còn thiếu,
+bạn sẽ nhận phản hồi về phần cần bổ sung và có thể sửa rồi nộp lại. Nếu đạt,
+bạn quay về bài học để tiếp tục. Bạn vẫn là người duyệt kế hoạch, chấp nhận
+website và quyết định nội dung nào được đưa lên mạng.
+
+Bạn có thể dừng giữa chừng và quay lại sau. Course Companion lưu tiến độ trên
+máy để bạn tiếp tục từ bước đang học.
 
 ## Bạn sẽ học được gì?
 
-- **Hiểu trước khi sửa.** Đọc dự án và kiểm tra giả định trước khi yêu cầu thay
-  đổi.
+- **Hiểu trước khi sửa.** Nhờ Codex giải thích dự án, thuật ngữ và đề xuất theo
+  cách bạn hiểu được trước khi yêu cầu thay đổi.
 - **Giao việc có thể kiểm chứng.** Nêu mục tiêu, bối cảnh, phạm vi, ràng buộc và
   dấu hiệu hoàn thành.
 - **Giữ quyền quyết định.** Xem kế hoạch, nhận diện rủi ro và chỉ cho phép hành
   động khi đã hiểu tác động.
-- **Đọc bằng chứng.** Kiểm tra file, phần thay đổi, log, test và giao diện thay
-  vì chỉ tin câu “đã xong”.
+- **Kiểm tra bằng chứng.** Tự xem website, đối chiếu với yêu cầu và nhờ Codex
+  giải thích kết quả kiểm tra để biết phần nào đã đạt, phần nào còn thiếu.
 - **Sửa sai có kiểm soát.** Chẩn đoán từ bằng chứng và chạy lại đúng phần bị lỗi
   mà không làm mất công việc đã đạt.
-- **Chuyển giao kỹ năng.** Dùng cùng quy trình cho một dự án khác ngoài
-  ContentPilot.
+- **Dùng lại cách làm.** Mang quy trình từ portfolio sang một dự án nhỏ khác
+  của bạn.
 
 ## Khóa học này phù hợp với ai?
 
-Khóa học được thiết kế cho marketer, creator, product builder và những người
-muốn tự tạo công cụ hữu ích cùng AI, kể cả khi chưa từng viết code.
+Khóa học dành cho bạn nếu muốn có một nơi giới thiệu bản thân, dự án hoặc
+công việc của mình, nhưng chưa có nền tảng kỹ thuật. Bạn có thể đang đi học,
+đi làm, làm freelance, sáng tạo nội dung hoặc chuẩn bị cho một hướng đi mới.
 
-Bạn sẽ phù hợp nếu thích học qua từng bước nhỏ, muốn hiểu mình đang giao gì cho
-coding agent và muốn kết thúc với một ứng dụng thật có thể tự kiểm tra.
+Bạn chưa cần có một bộ dự án thật đầy đủ. Bài tập cá nhân hoặc ý tưởng thử
+nghiệm cũng có thể là điểm bắt đầu, miễn là bạn mô tả rõ đâu là trải nghiệm
+thật, đâu là concept đang khám phá.
+
+Chỉ cần sẵn lòng thử từng bước nhỏ, đặt câu hỏi khi chưa hiểu và tự xem lại
+kết quả cùng Codex.
 
 ## Trước khi bắt đầu
 
@@ -45,12 +103,16 @@ Bạn cần:
 
 - máy tính Windows hoặc macOS;
 - [Git](https://git-scm.com/downloads);
-- tài khoản ChatGPT có quyền dùng Codex;
+- tài khoản ChatGPT có quyền dùng Codex và ứng dụng Codex để làm Practice;
 - kết nối internet; và
 - Node.js 22 trở lên nếu dùng macOS.
 
-**Bạn không cần có kinh nghiệm lập trình.** Trình khởi động sẽ kiểm tra công cụ
-cần thiết và giải thích phần còn thiếu trước khi thực hiện thay đổi.
+**Bạn không cần biết lập trình, Git hay dòng lệnh trước khi học.** Các lệnh
+bên dưới giúp tải và mở khóa học. Trình khởi động sẽ kiểm tra công cụ cần
+thiết và giải thích phần còn thiếu trước khi thực hiện thay đổi.
+
+Đến phần phát hành, bạn sẽ cần tài khoản GitHub và Vercel. Bạn chưa cần chuẩn
+bị hai tài khoản này để bắt đầu phần giới thiệu.
 
 ## Bắt đầu trên Windows
 
@@ -83,7 +145,8 @@ Finder.
 3. Nếu cần cài gói phụ thuộc, bạn sẽ thấy lệnh và mục đích trước khi chạy.
 4. **Không có gì được cài nếu bạn chưa đồng ý.**
 5. Course Companion mở và khôi phục tiến độ đã lưu trên máy nếu có.
-6. Bạn bắt đầu bài học và dự án thực hành tại đúng bước đang học.
+6. Nếu học lần đầu, bạn vào phần giới thiệu. Nếu quay lại, bạn tiếp tục từ
+   bước đang học.
 
 Bạn có thể từ chối cài đặt. Trình khởi động sẽ dừng và giải thích bước tiếp theo
 bạn có thể tự thực hiện.
@@ -92,15 +155,16 @@ bạn có thể tự thực hiện.
 
 - Luồng thiết lập Windows dùng trang đăng nhập ChatGPT chính thức của Codex và
   không đọc hoặc lưu mật khẩu hay token đăng nhập của bạn.
-- Course Companion trên macOS hiện dùng chế độ luyện tập và chưa quan sát trực
-  tiếp task Codex; ứng dụng ghi rõ nguồn của phản hồi.
+- Course Companion đọc bằng chứng có giới hạn từ đúng task Practice đã liên
+  kết và các file liên quan trong thư mục thực hành. Teacher hướng dẫn và
+  nhận xét; bạn làm việc với Codex để thay đổi dự án.
 - Cấu hình không chứa bí mật và tiến độ học được lưu trên máy của bạn.
 - Khi mở lại, ứng dụng kiểm tra bản lưu và đưa bạn về đúng bước đang học.
 
 ## Khi cần trợ giúp
 
-- Với Windows, xem [hướng dẫn khởi động và xử lý lỗi](prototypes/app-startup-electron-mock/README.md).
-- Với macOS, xem [hướng dẫn Course Companion](course-companion/README.md).
+Với hướng dẫn khởi động, kiểm chứng Practice và các giới hạn hiện tại trên
+Windows và macOS, xem [hướng dẫn Course Companion](course-companion/README.md).
 
 ## For contributors
 
@@ -112,14 +176,23 @@ need to read them to begin.
 
 ### Current authority
 
-- [Pilot 0.1 workspace](pilot-workspace/START_HERE.md) is the runnable
-  Codex-native course authority for `intro`, `module-1`, and `resume`.
+- [Pilot workspace](pilot-workspace/START_HERE.md) is the runnable private-course
+  authority. Root course skills delegate to the skills inside this workspace.
 - [Course Companion](course-companion/README.md) is the implemented desktop-app
-  package; its Teacher and practice adapters are currently fixture-backed.
+  package shared by Windows and macOS. Normal operation uses the local Codex App
+  Server; simulated responses and evidence belong to explicitly labelled tests.
+- [Portfolio curriculum](docs/planning/portfolio-course-v1/README.md) and the
+  [implementation ledger](docs/planning/portfolio-course-implementation-plan.md)
+  record the current public-course direction, implementation evidence and open
+  acceptance gates. Automated checks do not establish beginner-pilot acceptance.
+- [Practice and Teacher handoff](docs/planning/practice-teacher-handoff-triet-v3-2026-09-12.md)
+  and the [later merge handoff](docs/planning/practice-courseapp-merge-handoff-2026-10-29.md)
+  explain the integration boundaries and the Modules 2–4 portfolio journey.
 - [ContentPilot learner starter](starters/contentpilot/README.md) is the
-  validated application baseline that learners extend.
-- [Planning handoff](docs/planning/content-automation-course-handoff.md) and its
-  linked contracts define the approved public-course direction.
+  preserved application baseline for ContentPilot work; the current learner-facing
+  project in Course Companion is a portfolio built in a separate learner folder.
+- [ContentPilot planning handoff](docs/planning/content-automation-course-handoff.md)
+  preserves the earlier content-automation direction for reference.
 - [UI, UX, and interaction review](docs/planning/ui-ux-interaction-review-index.md)
   maps current behavior, planned behavior, and historical references.
 - [Interactive team workload map](docs/planning/team-workload-map.html) records
@@ -131,6 +204,7 @@ prototype curricula.
 
 ### Historical references
 
+- [Windows startup prototype](prototypes/app-startup-electron-mock/README.md)
 - [Windows startup mock technical design](docs/superpowers/specs/2026-07-30-electron-startup-mock-design.md)
 - [MVP 0.5 pedagogy kernel](prototypes/mvp-0.5-pedagogy-kernel/README.vi.md)
 - [MVP 1 course repository prototype](prototypes/mvp-1-course-repo/README.vi.md)

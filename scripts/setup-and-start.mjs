@@ -15,10 +15,11 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-const mockRoot = path.join(
+const appRoot = path.join(repositoryRoot, "course-companion");
+const firstRunPresentationPath = path.join(
   repositoryRoot,
-  "prototypes",
-  "app-startup-electron-mock",
+  "scripts",
+  "startup-first-run.txt",
 );
 
 export function resolveNodeToolCommand(
@@ -98,30 +99,46 @@ async function confirmInstall(formattedPlan) {
 }
 
 export async function launchElectron({
-  root = mockRoot,
-  disconnected = false,
+  root = appRoot,
   run = runProcess,
 } = {}) {
   const result = await run("npm", ["start"], {
     cwd: root,
     stdio: "inherit",
-    env: {
-      ...process.env,
-      COURSE_MOCK_START_DISCONNECTED: disconnected ? "1" : "0",
-    },
   });
   return result.exitCode;
 }
 
-export async function main() {
-  const lockPath = path.join(mockRoot, "package-lock.json");
+export function selectStartupPresentation(report, installPlan) {
+  const ready = Array.isArray(installPlan)
+    && installPlan.length === 0
+    && report?.platformSupported === true
+    && report.nodeCompatible === true
+    && report.npmAvailable === true
+    && report.codexAvailable === true
+    && report.appServerAvailable === true
+    && report.lockMatches === true
+    && report.electronRuntimeAvailable === true;
+  return ready ? "returning" : "first-run";
+}
+
+export async function main({
+  detect = detectSetup,
+  buildPlan = buildInstallPlan,
+  execute = executeInstallPlan,
+  launch = launchElectron,
+  output = process.stdout,
+  readFirstRun = () => readFile(firstRunPresentationPath, "utf8"),
+  dependencyOverrides = {},
+} = {}) {
+  const lockPath = path.join(appRoot, "package-lock.json");
   const stampPath = path.join(
-    mockRoot,
+    appRoot,
     "node_modules",
     ".course-lock.sha256",
   );
   const electronRuntimePath = path.join(
-    mockRoot,
+    appRoot,
     "node_modules",
     "electron",
     "dist",
@@ -133,7 +150,7 @@ export async function main() {
     commandExists,
     commandSucceeds,
     fileExists,
-    mockRoot,
+    appRoot,
     lockPath,
     stampPath,
     electronRuntimePath,
@@ -141,9 +158,10 @@ export async function main() {
     confirm: confirmInstall,
     run: runProcess,
     writeFile,
+    ...dependencyOverrides,
   };
 
-  const report = await detectSetup(deps);
+  const report = await detect(deps);
   if (!report.platformSupported) {
     throw Object.assign(new Error("This prototype currently supports Windows."), {
       code: "UNSUPPORTED_PLATFORM",
@@ -157,18 +175,36 @@ export async function main() {
     });
   }
 
-  const plan = buildInstallPlan(report);
-  if (plan.length > 0) await executeInstallPlan(plan, deps);
+  const plan = buildPlan(report);
+  if (selectStartupPresentation(report, plan) === "first-run") {
+    const presentation = await readFirstRun();
+    output.write(presentation.endsWith("\n") ? presentation : `${presentation}\n`);
+  }
+  if (plan.length > 0) await execute(plan, deps);
 
-  const finalReport = await detectSetup(deps);
-  process.stdout.write(
-    "Everything is ready. Opening the course setup app...\n\n",
-  );
-  const exitCode = await launchElectron({
-    root: mockRoot,
-    disconnected: (
-      !finalReport.codexAvailable || !finalReport.appServerAvailable
-    ),
+  const finalReport = await detect(deps);
+  if (!finalReport.codexAvailable || !finalReport.appServerAvailable) {
+    throw Object.assign(new Error("Codex App Server is still unavailable."), {
+      code: "INSTALL_FAILED",
+      actionId: "codex-cli",
+    });
+  }
+  if (!finalReport.lockMatches) {
+    throw Object.assign(new Error("Course Companion packages do not match the lockfile."), {
+      code: "INSTALL_FAILED",
+      actionId: "project-packages",
+    });
+  }
+  if (!finalReport.electronRuntimeAvailable) {
+    throw Object.assign(new Error("The Electron runtime is still unavailable."), {
+      code: "INSTALL_FAILED",
+      actionId: "electron-runtime",
+    });
+  }
+
+  output.write("Setup complete — opening Course Companion.\n");
+  const exitCode = await launch({
+    root: appRoot,
   });
   if (exitCode !== 0) {
     throw Object.assign(new Error("Electron exited unexpectedly."), {

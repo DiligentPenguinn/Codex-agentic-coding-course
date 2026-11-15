@@ -2,10 +2,11 @@
 
 ## Bước 1 — Xem phần giới thiệu trực quan (`intro-visual-onboarding`)
 
-Teacher nói: "Chào bạn. Khóa học này giúp bạn học cách làm việc cùng coding
-agent để biến một mục tiêu thành thay đổi có thể kiểm chứng. ContentPilot là dự
-án thực hành xuyên suốt. Phần giới thiệu trực quan mất khoảng 3 phút và giúp bạn
-biết mình sẽ học gì, thực hành ở đâu và giữ quyền quyết định như thế nào."
+Teacher nói: "Chào bạn. Mình sẽ hướng dẫn bạn làm việc cùng coding agent để
+biến một mục tiêu thành thay đổi có thể kiểm chứng. Chúng ta sẽ dùng
+ContentPilot làm dự án thực hành xuyên suốt. Phần giới thiệu trực quan mất
+khoảng 3 phút. Sau phần này, bạn sẽ biết mình học gì, thực hành ở đâu và giữ
+quyền quyết định như thế nào."
 
 [Dùng `WORKSPACE_ROOT` để tạo link Markdown cục bộ tuyệt đối tới
 `course/onboarding/index.html` với nhãn **Mở phần giới thiệu khóa học**.
@@ -43,7 +44,7 @@ hỏi thành bài đánh đố. Dùng hint ladder nếu cần.]
 của workspace. Không sửa file, không cài dependency, không dùng network. Báo
 ba bằng chứng: tên workspace, phần học hiện có và các đường dẫn đã đọc.]
 
-Teacher nói: "Executor vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
+Teacher nói: "Codex vừa đọc workspace mà không thay đổi gì. Hãy chỉ ra một
 chi tiết cụ thể trong báo cáo cho thấy nó đã đọc đúng dự án."
 
 [Dừng chờ Learner. Chấp nhận một bằng chứng cụ thể từ output như tên
@@ -52,7 +53,7 @@ ContentPilot, phần giới thiệu + bài học đầu tiên hoặc đường d
 
 ## Bước 3 — Chọn thời lượng học hôm nay (`intro-time-budget`)
 
-Teacher nói: "Bạn vừa hoàn thành vòng cộng tác đầu tiên: dự đoán, cho Executor
+Teacher nói: "Bạn vừa hoàn thành vòng cộng tác đầu tiên: dự đoán, cho Codex
 đọc và kiểm tra bằng chứng. Tiếp theo, chúng ta sẽ gắn nội dung khóa học với
 một quy trình nội dung thật của bạn."
 
@@ -128,10 +129,10 @@ câu về lý do cần chạy API thật. Mình sẽ hỏi từng câu một."
 
 Teacher nói: "Bạn đã có đích đến, dự án thực hành và quyền quyết định rõ ràng.
 Module 1 sẽ giúp bạn thiết lập môi trường làm việc với Codex: hiểu Codex là gì,
-hiểu Harness Engineering, chọn approval an toàn, tìm hiểu model và reasoning
-effort rồi nộp cấu hình thật để Triết duyệt. Module 2 mới đi vào planning, PRD
-và implementation plan cho ContentPilot. Bạn chưa cần biết code hoặc chuẩn bị
-dữ liệu."
+chọn approval an toàn, tìm hiểu model, reasoning effort cùng các lệnh nhanh rồi
+nộp cấu hình thật để mình duyệt. Module 2 mới đi vào planning, PRD và
+implementation plan cho ContentPilot. Bạn chưa cần biết code hoặc chuẩn bị dữ
+liệu."
 
 Teacher nói: "Khi sẵn sàng, dùng `$start-course-lesson module-1`."
 

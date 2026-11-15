@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "3.0.0",
+  "moduleId": "module-3",
+  "title": "Tổng kết Module 3",
+  "delivery": {
+    "mode": "one-question-at-a-time",
+    "doNotStackQuestions": true,
+    "feedbackTiming": "after-answer",
+    "feedbackPolicy": "Chỉ hiện lời giải và nguồn sau khi người học đã gửi câu trả lời cho câu hiện tại.",
+    "sourcePolicy": "Mỗi đáp án phải truy ngược đến nội dung đã được duyệt hoặc một nguồn chính thức.",
+    "learnerOwnedAnswerPolicy": "Tất cả câu hỏi trong bài tổng kết này dùng lựa chọn trắc nghiệm.",
+    "practiceBoundary": "Practice receipt và kết quả tổng kết là hai điều kiện độc lập; không điều kiện nào thay thế điều kiện còn lại."
+  },
+  "masteryPolicy": {
+    "strategy": "pilot-configured",
+    "configurationKey": "course.module-3.mastery.minimum",
+    "publishThreshold": false,
+    "fallback": "manual-review-required",
+    "requiresCurrentArtifactDigests": true,
+    "requiresPracticeReceipt": true,
+    "manualReviewTypes": []
+  },
+  "groups": [
+    {
+      "id": "m3-final-assessment",
+      "title": "Tổng kết Module 3",
+      "placement": "after-passed-m3-portfolio-build",
+      "mode": "mastery",
+      "questions": [
+        {
+          "id": "m3-mastery-plan",
+          "sceneId": "module-3-mastery-plan",
+          "type": "multiple-choice",
+          "prompt": "Coding agent vừa hoàn thành một phần của implementation plan. Bạn nên làm gì trước khi cho agent chuyển sang phần tiếp theo?",
+          "choices": [
+            "Chuyển ngay vì implementation plan đã được duyệt từ trước.",
+            "Xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra của agent, rồi chấp nhận hoặc yêu cầu chỉnh sửa.",
+            "Yêu cầu agent hoàn thành luôn toàn bộ phần còn lại để tiết kiệm thời gian.",
+            "Chỉ tạo một commit mà không cần mở website."
+          ],
+          "answerIndex": 1,
+          "explanation": "Implementation plan định hướng công việc, nhưng mỗi phần vẫn cần được kiểm tra. Bạn chỉ nên chuyển sang phần tiếp theo sau khi đã xem kết quả thực tế và xác nhận phần hiện tại đi đúng hướng.",
+          "source": {
+            "kind": "curriculum-judgment",
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-1--thực-hiện-plan-theo-từng-phần",
+            "basis": "Người học xem kết quả thực tế, đọc phần giải thích và kết quả kiểm tra trước khi quyết định cho coding agent tiếp tục."
+          }
+        },
+        {
+          "id": "m3-mastery-visible-error",
+          "sceneId": "module-3-mastery-visible-error",
+          "type": "multiple-choice",
+          "prompt": "Phát biểu nào mô tả đúng vai trò của Git và GitHub?",
+          "choices": [
+            "Git giúp quản lý các phiên bản của dự án; GitHub cung cấp nơi lưu repository Git trực tuyến.",
+            "Khi chạy trên máy tính thì gọi là Git, còn phiên bản chạy trên đám mây là GitHub.",
+            "Git và GitHub là hai tên gọi của cùng một công cụ.",
+            "Git dành cho người làm việc một mình, còn GitHub dành cho nhóm."
+          ],
+          "answerIndex": 0,
+          "explanation": "Git là hệ thống quản lý phiên bản, giúp lưu lịch sử thay đổi của dự án. GitHub là nền tảng trực tuyến để lưu repository Git, chia sẻ và cộng tác. Bạn có thể dùng Git mà không cần GitHub. Cả Git và GitHub đều hỗ trợ làm việc cá nhân lẫn làm việc nhóm.",
+          "source": {
+            "kind": "authoritative-source",
+            "label": "GitHub — What is GitHub?",
+            "url": "https://docs.github.com/en/get-started/start-your-journey/what-is-github",
+            "basis": "Git quản lý lịch sử thay đổi; GitHub lưu repository Git trực tuyến và bổ sung các công cụ cộng tác. Câu hỏi tham khảo câu 2 tại https://devops.vn/posts/50-cau-hoi-phong-van-git-co-ban-den-nang-cao/, với cách hỏi và các lựa chọn đã được điều chỉnh theo nội dung chủ sở hữu duyệt."
+          }
+        },
+        {
+          "id": "m3-mastery-logs",
+          "sceneId": "module-3-mastery-logs",
+          "type": "multiple-choice",
+          "prompt": "Bạn đã gửi ảnh lỗi nhưng coding agent vẫn chưa xác định được nguyên nhân. Bước tiếp theo phù hợp nhất là gì?",
+          "choices": [
+            "Yêu cầu agent xem lại ảnh, chọn nguyên nhân có khả năng nhất rồi sửa thử để kiểm tra.",
+            "Yêu cầu agent thêm log, tái hiện lỗi rồi sửa phần code nằm gần dòng log xuất hiện cuối cùng.",
+            "Yêu cầu agent liệt kê các nguyên nhân có thể xảy ra, chọn một nguyên nhân rồi sửa trước.",
+            "Yêu cầu agent thêm log cần thiết, tái hiện lỗi và dùng thông tin trong terminal để xác định nguyên nhân trước khi sửa."
+          ],
+          "answerIndex": 3,
+          "explanation": "Lựa chọn 2 cũng sử dụng log, nhưng dòng code nằm gần một thông báo chưa chắc là nguyên nhân gây lỗi. Coding agent cần tái hiện lỗi và dùng thông tin trong terminal làm bằng chứng trước khi sửa. Sau khi lỗi đã được khắc phục, bạn có thể yêu cầu agent xoá những đoạn log không còn cần thiết.",
+          "source": {
+            "kind": "curriculum-judgment",
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-3--dùng-log-để-tìm-nguyên-nhân",
+            "basis": "Log trong terminal được dùng làm bằng chứng để coding agent xác định nguyên nhân trước khi sửa, thay vì chọn phần code gần nhất."
+          }
+        },
+        {
+          "id": "m3-mastery-repeated-error",
+          "sceneId": "module-3-mastery-repeated-error",
+          "type": "multiple-choice",
+          "prompt": "Coding agent đã sửa cùng một lỗi nhiều lần nhưng lỗi vẫn quay lại. Bạn nên yêu cầu agent làm gì?",
+          "choices": [
+            "Tạm dừng sửa, nêu các nguyên nhân có thể rồi dùng log và việc tái hiện lỗi để kiểm tra nguyên nhân nào có bằng chứng.",
+            "Tạm dừng sửa, chọn nguyên nhân có vẻ hợp lý nhất rồi sửa thử; nếu chưa được thì chuyển sang nguyên nhân khác.",
+            "Khôi phục commit ổn định gần nhất và bỏ qua tính năng đang gây lỗi.",
+            "Tiếp tục chỉnh phần đang hiển thị sai cho đến khi lỗi không còn xuất hiện."
+          ],
+          "answerIndex": 0,
+          "explanation": "Cả lựa chọn 1 và 2 đều bắt đầu từ những nguyên nhân có thể xảy ra. Điểm khác biệt là lựa chọn 1 kiểm tra bằng chứng trước khi sửa, còn lựa chọn 2 tiếp tục sửa theo phỏng đoán. Kiểm tra log và tái hiện lỗi giúp agent xác định nguyên nhân thực sự, thay vì chỉ thử lần lượt nhiều cách sửa.",
+          "source": {
+            "kind": "curriculum-judgment",
+            "label": "Thiết kế nội dung Module 3 đã duyệt",
+            "url": "docs/planning/module-3-content-design-draft.md#câu-4--khi-lỗi-liên-tục-quay-lại",
+            "basis": "Khi lỗi quay lại, coding agent cần tạm dừng, nêu các nguyên nhân và kiểm tra bằng chứng trước khi tiếp tục sửa."
+          }
+        },
+        {
+          "id": "m3-mastery-branch",
+          "sceneId": "module-3-mastery-branch",
+          "type": "multiple-choice",
+          "prompt": "Website đang hoạt động ổn định, nhưng những thay đổi mới nhất chưa được lưu thành commit. Bạn muốn thử một bố cục mới và chưa chắc sẽ giữ lại. Bạn nên yêu cầu coding agent làm gì?",
+          "choices": [
+            "Tạo branch mới ngay, thử bố cục rồi tạo một commit chứa cả phiên bản ổn định và phần thử nghiệm.",
+            "Tạo commit cho phiên bản ổn định, sau đó tạo một branch riêng để thử bố cục mới.",
+            "Tạo commit cho phiên bản ổn định, sau đó thử bố cục mới trên branch hiện tại và quay lại commit cũ nếu không thích.",
+            "Push các tệp hiện tại lên GitHub, sau đó thử bố cục mới vì GitHub sẽ tự lưu phiên bản cũ."
+          ],
+          "answerIndex": 1,
+          "explanation": "Lựa chọn 2 và 3 đều lưu phiên bản ổn định bằng commit. Điểm khác biệt là branch riêng giữ phần thử nghiệm tách khỏi phiên bản đang hoạt động tốt. Nếu không muốn giữ bố cục mới, bạn vẫn có thể quay lại branch ổn định mà không phải gỡ các thay đổi thử nghiệm khỏi đó.",
+          "source": {
+            "kind": "authoritative-source",
+            "label": "Git — Branches in a Nutshell",
+            "url": "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell",
+            "basis": "Commit lưu trạng thái hiện tại trong lịch sử, còn branch tạo một hướng phát triển riêng để phần thử nghiệm không làm thay đổi hướng ổn định."
+          }
+        }
+      ]
+    }
+  ]
+}

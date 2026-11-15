@@ -135,6 +135,7 @@ p {
 }
 
 .welcome-copy {
+  min-width: 0;
   max-width: 810px;
 }
 
@@ -194,6 +195,7 @@ p {
 
 .welcome-note {
   display: grid;
+  min-width: 0;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 18px;
   align-self: end;
@@ -224,6 +226,7 @@ p {
 
 .empty-state {
   position: relative;
+  min-width: 0;
   width: min(720px, 100%);
   padding: 56px;
   overflow: hidden;
@@ -317,6 +320,7 @@ p {
     margin-top: 16px;
     font-size: clamp(46px, 14vw, 64px);
     letter-spacing: -0.06em;
+    overflow-wrap: anywhere;
   }
 
   .lede {
@@ -340,6 +344,7 @@ p {
 
   .empty-state h1 {
     font-size: clamp(38px, 12vw, 52px);
+    overflow-wrap: anywhere;
   }
 }
 

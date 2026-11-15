@@ -4,48 +4,6 @@ setlocal EnableExtensions
 set "COURSE_ROOT=%~dp0"
 set "COURSE_NODE=node"
 
-echo.
-echo                          .        *
-echo                  *            .                 +
-echo                           ___/^|\___
-echo                     _____/   / \   \_____
-echo               _____/  [ I D E A S ]      \_____
-echo              /      o=================o         \
-echo             /_______^|  CONTENT BUILDER ^|_________\
-echo                     ^|      ACADEMY     ^|
-echo                _____^|__________________^|_____
-echo               /      \   \  \^|/  /   /      \
-echo              /  o  o  \   \  V  /   /  o  o  \
-echo             '==========\===\===/===/=========='
-echo                          \  BUILD  /
-echo                           \_______/
-echo                             \ ^| /
-echo                            .-\^|/-.
-echo                          .:  SHIP  :.
-echo.
-echo                  THE WORKSHOP IS YOURS.
-echo             Idea in. Working product out. Let's begin.
-echo.
-echo   ------------------------------------------------------------------
-echo    SETUP  [..........]   TOOLS  pending    TEACHER  waiting
-echo   ------------------------------------------------------------------
-
-echo.
-echo Welcome to Content Builder Academy!
-echo.
-echo Thanks for trying our course. We'll help you get everything ready.
-echo.
-echo Here's what we'll do:
-echo   1. Check that the required tools are available.
-echo   2. Show you anything that needs to be installed.
-echo   3. Ask for your permission before installing anything.
-echo   4. Open the course setup app.
-echo.
-echo Nothing will be installed without your approval.
-echo.
-echo Checking your computer now...
-echo.
-
 if "%COURSE_MOCK_BOOTSTRAP_TEST%"=="1" if "%COURSE_MOCK_FORCE_NODE_MISSING%"=="1" goto :node_missing
 
 where node >nul 2>&1
@@ -57,6 +15,7 @@ if %COURSE_NODE_MAJOR% LSS 22 goto :node_missing
 goto :run_setup
 
 :node_missing
+type "%COURSE_ROOT%scripts\startup-first-run.txt"
 echo.
 echo Required: Node.js 22 or newer
 echo Command: winget install --id OpenJS.NodeJS.LTS

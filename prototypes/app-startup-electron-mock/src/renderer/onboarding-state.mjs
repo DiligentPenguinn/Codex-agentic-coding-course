@@ -47,7 +47,7 @@ export function reduceOnboarding(state, event) {
     case "STATUS_LOADED":
       return frozenState({
         ...state,
-        screen: state.screen,
+        screen: event.setupCompleted ? "destination" : state.screen,
         connection: event.connectionUnavailable
           ? "disconnected"
           : event.connected

@@ -7,16 +7,14 @@ const progressBar = document.querySelector("#progressBar");
 const stepHint = document.querySelector("#stepHint");
 const copyLine = document.querySelector("#copyLine");
 const copyStatus = document.querySelector("#copyStatus");
+const storageKey = "codex-setup-step-v4";
 
 const hints = [
   "Hiểu Codex trước khi đi vào thiết lập.",
-  "Nhận biết model và harness giữ hai vai trò khác nhau.",
-  "Nhìn toàn bộ môi trường làm việc quanh model.",
-  "Giữ Full access tắt khi bạn còn mới.",
   "Chọn model theo loại công việc.",
   "Dùng mức reasoning vừa đủ cho nhiệm vụ.",
   "Chốt cấu hình dành riêng cho ContentPilot.",
-  "Nộp bằng chứng thật để Triết duyệt."
+  "Nộp bằng chứng thật để mình duyệt."
 ];
 
 let currentStep = 0;
@@ -40,10 +38,14 @@ function showStep(nextStep) {
   progressBar.style.width = `${((currentStep + 1) / panels.length) * 100}%`;
   stepHint.textContent = hints[currentStep];
   backButton.disabled = currentStep === 0;
-  nextButton.textContent = currentStep === panels.length - 1 ? "Đã xem xong" : "Tiếp tục";
+  nextButton.textContent = currentStep === panels.length - 1
+    ? "Đã xem xong"
+    : currentStep === panels.length - 2
+      ? "Chuyển sang Codex để thực hành"
+      : "Tiếp tục";
 
   try {
-    localStorage.setItem("codex-setup-step", String(currentStep));
+    localStorage.setItem(storageKey, String(currentStep));
   } catch {
     // The guide remains usable when browser storage is unavailable.
   }
@@ -58,19 +60,28 @@ nextButton.addEventListener("click", () => {
   if (currentStep < panels.length - 1) showStep(currentStep + 1);
 });
 
-copyLine.addEventListener("click", async () => {
-  const message = "Hãy kiểm tra cấu hình trong hai ảnh. Chỉ quan sát, không thay đổi cài đặt. Báo cáo dưới tiêu đề Verification, gồm Model, Effort, Speed, Approval và trạng thái Full access.";
-  try {
-    await navigator.clipboard.writeText(message);
-    copyStatus.textContent = "Đã sao chép";
-  } catch {
-    copyStatus.textContent = "Hãy chọn và sao chép";
-  }
-});
-
 let savedStep = 0;
 try {
-  savedStep = Number(localStorage.getItem("codex-setup-step") ?? 0);
+  const currentSavedStep = localStorage.getItem(storageKey);
+  if (currentSavedStep !== null) {
+    savedStep = Number(currentSavedStep);
+  } else {
+    const previousSavedStep = localStorage.getItem("codex-setup-step-v3");
+    if (previousSavedStep !== null) {
+      const migratedPreviousSteps = [0, 1, 2, 3, 3, 4];
+      savedStep = migratedPreviousSteps[Number(previousSavedStep)] ?? 0;
+    } else {
+      const versionTwoStep = localStorage.getItem("codex-setup-step-v2");
+      if (versionTwoStep !== null) {
+        const migratedVersionTwoSteps = [0, 1, 1, 2, 3, 3, 4];
+        savedStep = migratedVersionTwoSteps[Number(versionTwoStep)] ?? 0;
+      } else {
+        const legacyStep = Number(localStorage.getItem("codex-setup-step") ?? 0);
+        const migratedLegacySteps = [0, 3, 3, 1, 1, 2, 3, 4];
+        savedStep = migratedLegacySteps[legacyStep] ?? 0;
+      }
+    }
+  }
 } catch {
   savedStep = 0;
 }

@@ -10,7 +10,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
     >
-    <title>Content Builder Academy — Setup Mock</title>
+    <title>Content Builder Academy — Course App Mock</title>
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
@@ -31,7 +31,7 @@
         </ol>
       </nav>
 
-      <main id="app" aria-live="polite">
+      <main id="app">
         <section class="panel landing-panel" data-screen="landing">
           <p class="section-number">Welcome</p>
           <h2>Welcome to Content Builder Academy</h2>
@@ -73,31 +73,16 @@
           <div class="device-card" id="device-card" hidden>
             <span class="field-label">One-time code</span>
             <strong id="device-code"></strong>
-            <a
-              id="device-link"
-              href="#"
-              target="_blank"
-              rel="noreferrer"
-            >Open verification page</a>
+            <a id="device-link" href="#" target="_blank" rel="noreferrer">Open verification page</a>
           </div>
           <p class="error-message" id="connection-error" role="alert"></p>
           <p id="account-summary" class="notice" hidden></p>
           <div class="actions">
-            <button id="connect-button" class="button primary" type="button" data-action="connect">
-              Connect Codex
-            </button>
-            <button id="device-button" class="button secondary" type="button" data-action="device">
-              Use device code
-            </button>
-            <button id="cancel-button" class="button secondary" type="button" data-action="cancel" hidden>
-              Cancel login
-            </button>
-            <button id="retry-button" class="button secondary" type="button" data-action="retry" hidden>
-              Retry connection
-            </button>
-            <button id="connected-continue" class="button primary" type="button" data-action="forward" hidden>
-              Continue setup
-            </button>
+            <button id="connect-button" class="button primary" type="button" data-action="connect">Connect Codex</button>
+            <button id="device-button" class="button secondary" type="button" data-action="device">Use device code</button>
+            <button id="cancel-button" class="button secondary" type="button" data-action="cancel" hidden>Cancel login</button>
+            <button id="retry-button" class="button secondary" type="button" data-action="retry" hidden>Retry connection</button>
+            <button id="connected-continue" class="button primary" type="button" data-action="forward" hidden>Continue setup</button>
           </div>
         </section>
 
@@ -113,12 +98,8 @@
           <form id="fixture-form" novalidate></form>
           <p class="error-message" id="form-error" role="alert"></p>
           <div class="actions">
-            <button class="button secondary" type="button" data-action="back">
-              Back
-            </button>
-            <button id="form-continue" class="button primary" type="button" data-action="continue">
-              Continue
-            </button>
+            <button class="button secondary" type="button" data-action="back">Back</button>
+            <button id="form-continue" class="button primary" type="button" data-action="continue">Continue</button>
           </div>
         </section>
 
@@ -138,34 +119,213 @@
             Mock destination reached. No course content is implemented here.
           </p>
           <div class="actions">
-            <button class="button secondary" type="button" data-action="reopen">
-              Reopen setup
-            </button>
-            <button class="button primary" type="button" data-action="mock-app">
-              Continue to mock app
-            </button>
+            <button class="button secondary" type="button" data-action="reopen">Reopen setup</button>
+            <button class="button primary" type="button" data-action="mock-app">Continue to mock app</button>
           </div>
         </section>
 
-        <section class="panel" data-screen="destination" hidden>
-          <p class="section-number">Course destination</p>
-          <h2>Course mock</h2>
-          <p>
-            You reached the mock course destination. Course content is not
-            implemented in this startup prototype.
-          </p>
+        <section class="panel course-panel practice-brief-panel" data-screen="destination" hidden>
+          <div class="brief-topline">
+            <p class="section-number">Practice · Module 0</p>
+            <button class="icon-button" type="button" data-action="reopen" aria-label="Xem lại thiết lập" title="Xem lại thiết lập">⚙</button>
+          </div>
+          <p class="brief-overline">Mục tiêu ngắn gọn</p>
+          <h2 id="practice-brief-title" tabindex="-1">Sẵn sàng cho một lượt thực hành tập trung?</h2>
+          <div class="brief-summary-grid">
+            <article>
+              <span aria-hidden="true">◎</span>
+              <div><h3>Mục tiêu</h3><p id="practice-objective">Đang tải mục tiêu…</p></div>
+            </article>
+            <article>
+              <span aria-hidden="true">✓</span>
+              <div><h3>Kết quả mong đợi</h3><p id="practice-expected-outcome">Đang tải kết quả…</p></div>
+            </article>
+          </div>
+          <p id="practice-run-status" class="run-status" role="status">Đang kiểm tra Practice đã lưu…</p>
+          <p id="course-practice-error" class="error-message" role="alert" tabindex="-1"></p>
           <div class="actions">
-            <button class="button secondary" type="button" data-action="reopen">
-              Review setup
-            </button>
+            <button id="retry-practice-switch" class="button secondary" type="button" data-workspace-action="retry-switch" hidden>Tiếp tục chuyển đổi</button>
+            <button id="cancel-practice-switch" class="text-button" type="button" data-workspace-action="cancel-switch" hidden>Hủy chuyển đổi</button>
+            <button id="resume-practice" class="button secondary" type="button" data-workspace-action="resume" hidden>Tiếp tục Practice</button>
+            <button id="start-new-practice" class="button primary" type="button" data-workspace-action="start-new">Bắt đầu Practice mới</button>
+          </div>
+          <details class="brief-disclosure">
+            <summary>Practice này hoạt động như thế nào?</summary>
+            <p>Mỗi lượt Practice dùng đúng một Executor chat. Bạn có thể theo dõi bước tiếp theo trong bảng Tiến độ mà không rời Codex.</p>
+          </details>
+        </section>
+
+        <section id="practice-shell" class="practice-shell" data-screen="practice" hidden>
+          <header class="practice-header">
+            <div class="mission-heading">
+              <p id="practice-kicker" class="eyebrow">Practice fixture · Focused workshop</p>
+              <h2 id="practice-title" tabindex="-1">Preparing your mission…</h2>
+              <p id="practice-description" class="practice-deck"></p>
+            </div>
+            <div class="practice-controls">
+              <div id="executor-status" class="executor-status" role="status">
+                <span class="executor-symbol" aria-hidden="true">–</span>
+                <span><small>Executor chat</small><strong>Chưa kết nối</strong></span>
+              </div>
+              <button class="icon-button" type="button" data-practice-tab="exercise" aria-label="Mở tiến độ" title="Mở tiến độ">☷</button>
+              <button class="icon-button" type="button" data-practice-action="compact" aria-label="Thu nhỏ thành bong bóng Teacher" title="Thu nhỏ thành bong bóng Teacher">—</button>
+            </div>
+          </header>
+
+          <div class="practice-tabs" role="tablist" aria-label="Teacher và tiến độ Practice">
+            <button id="teacher-tab" type="button" role="tab" aria-controls="teacher-panel" aria-selected="true" tabindex="0" data-practice-tab="teacher">Teacher</button>
+            <button id="exercise-tab" type="button" role="tab" aria-controls="exercise-panel" aria-selected="false" tabindex="-1" data-practice-tab="exercise">Tiến độ</button>
+          </div>
+
+          <section id="exercise-panel" class="practice-panel exercise-panel" role="tabpanel" aria-labelledby="exercise-tab" tabindex="0">
+            <div class="progress-overview">
+              <div class="progress-heading">
+                <div><p class="workshop-label">Tiến độ Practice</p><h3>Bước tiếp theo của bạn</h3></div>
+                <span id="progress-count" class="progress-count">0 / 0</span>
+              </div>
+              <div class="progress-brief">
+                <p><strong>Mục tiêu</strong><span id="progress-objective">Đang tải…</span></p>
+                <p><strong>Kết quả</strong><span id="progress-outcome">Đang tải…</span></p>
+              </div>
+              <ol id="practice-checklist" class="practice-checklist" aria-label="Các bước Practice"></ol>
+            </div>
+            <details class="legacy-practice-details">
+              <summary>Xem hướng dẫn và phạm vi chi tiết</summary>
+            <div class="exercise-layout">
+              <article class="exercise-brief" aria-labelledby="brief-heading">
+                <p class="workshop-label">01 · Mission brief</p>
+                <h3 id="brief-heading">Understand the work before you begin</h3>
+                <p id="exercise-description" class="readable-copy"></p>
+                <section class="brief-section" aria-labelledby="outcomes-heading">
+                  <h4 id="outcomes-heading">Lesson outcome</h4>
+                  <ul id="exercise-outcomes" class="outcome-list"></ul>
+                </section>
+                <section class="brief-section" aria-labelledby="instructions-heading">
+                  <h4 id="instructions-heading">Instructions</h4>
+                  <ol id="exercise-instructions" class="instruction-list"></ol>
+                </section>
+              </article>
+
+              <aside class="exercise-sidebar" aria-label="Exercise guardrails and task handoff">
+                <section class="guardrail-block" aria-labelledby="guardrails-heading">
+                  <p class="workshop-label">02 · Operating boundary</p>
+                  <h3 id="guardrails-heading">Guardrails</h3>
+                  <div class="action-ledger">
+                    <div class="action-card allowed-card">
+                      <span class="action-icon" aria-hidden="true">✓</span>
+                      <div><h4>Allowed</h4><ul id="allowed-actions"></ul></div>
+                    </div>
+                    <div class="action-card prohibited-card">
+                      <span class="action-icon" aria-hidden="true">×</span>
+                      <div><h4>Prohibited</h4><ul id="prohibited-actions"></ul></div>
+                    </div>
+                  </div>
+                </section>
+                <section class="evidence-block" aria-labelledby="evidence-heading">
+                  <p class="workshop-label">03 · Bring back</p>
+                  <h3 id="evidence-heading">Expected evidence</h3>
+                  <ul id="expected-evidence"></ul>
+                </section>
+                <section class="task-handoff" aria-labelledby="handoff-heading">
+                  <p class="workshop-label">04 · Executor handoff</p>
+                  <h3 id="handoff-heading">Dedicated Codex task</h3>
+                  <p class="task-name-label">Bound task</p>
+                  <p id="bound-task-name" class="bound-task-name">Preparing a clean task…</p>
+                  <p id="handoff-notice" class="handoff-notice" role="status" hidden></p>
+                  <div class="task-actions">
+                    <button class="button primary" type="button" data-practice-action="open-task">Open in Codex</button>
+                    <button class="text-button" type="button" data-practice-action="create-task">Create a dedicated task</button>
+                    <button class="text-button" type="button" data-practice-action="open-picker">Choose an existing task</button>
+                  </div>
+                </section>
+              </aside>
+            </div>
+            </details>
+          </section>
+
+          <section id="teacher-panel" class="practice-panel teacher-panel" role="tabpanel" aria-labelledby="teacher-tab" tabindex="0" hidden>
+            <div class="teacher-intro">
+              <div>
+                <p class="workshop-label">Teacher desk</p>
+                <h3>Reflect on the bound task</h3>
+                <p id="teacher-mission" class="readable-copy">The Teacher can discuss this mission using bound-task context only.</p>
+              </div>
+              <aside id="context-receipt" class="context-receipt" aria-labelledby="context-heading">
+                <p class="receipt-stamp">Scoped context</p>
+                <h4 id="context-heading">What the Teacher can see</h4>
+                <dl>
+                  <div><dt>Mission</dt><dd id="receipt-mission">Not available</dd></div>
+                  <div><dt>Task</dt><dd id="receipt-task">No task bound</dd></div>
+                  <div><dt>Scope</dt><dd id="receipt-scope">Bound task only</dd></div>
+                </dl>
+                <p id="freshness-disclosure" class="freshness-disclosure" role="status">Disconnected · Observation time unavailable</p>
+              </aside>
+            </div>
+            <div id="teacher-messages" class="teacher-messages" role="log" aria-label="Teacher conversation" aria-live="polite" aria-relevant="additions text"></div>
+            <p id="teacher-empty" class="teacher-empty">Ask what the Executor inspected, which constraints it followed, or what it reported.</p>
+            <form id="teacher-form" class="teacher-composer">
+              <label for="teacher-message">Message Teacher</label>
+              <div class="composer-row">
+                <textarea id="teacher-message" name="teacher-message" rows="3" maxlength="4000" placeholder="Ask about activity in the bound task…"></textarea>
+                <button id="teacher-send" class="button primary" type="submit">Send</button>
+              </div>
+              <p class="composer-note">Teacher context is limited to the verified task shown above.</p>
+            </form>
+          </section>
+
+          <div class="practice-recovery" aria-label="Practice recovery">
+            <p id="practice-error" class="error-message" role="alert"></p>
+            <div id="recovery-actions" class="recovery-actions" hidden>
+              <button class="button secondary" type="button" data-practice-action="retry">Retry observation</button>
+              <button class="button secondary" type="button" data-practice-action="rebind">Rebind task</button>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer>
-        Experimental setup preview · Your progress stays on this computer.
-      </footer>
+      <div id="practice-loading" class="practice-loading" role="status" aria-live="polite" hidden>
+        <span class="loading-orbit" aria-hidden="true"></span>
+        <p id="practice-loading-label">Đang chuẩn bị Practice mới…</p>
+        <button class="text-button" type="button" data-workspace-action="cancel-switch" hidden>Hủy chuyển đổi</button>
+      </div>
+
+      <footer>Experimental setup preview · Your progress stays on this computer.</footer>
     </div>
+
+    <dialog id="task-picker" aria-labelledby="task-picker-title">
+      <div class="dialog-heading">
+        <p class="workshop-label">Eligible tasks · Current workspace</p>
+        <h3 id="task-picker-title" tabindex="-1">Choose an existing Codex task</h3>
+        <p>Only recent, verified tasks from this exercise workspace appear here.</p>
+      </div>
+      <p id="picker-status" class="picker-status" role="status"></p>
+      <div id="picker-error-panel" class="picker-error-panel" hidden>
+        <p id="picker-error" role="alert" tabindex="-1"></p>
+        <button class="button secondary" type="button" data-practice-action="retry-picker">Refresh eligible tasks</button>
+      </div>
+      <div id="eligible-task-list" class="eligible-task-list"></div>
+      <div class="dialog-actions">
+        <button id="close-picker" class="button secondary" type="button" data-practice-action="close-picker">Cancel</button>
+      </div>
+    </dialog>
+    <dialog id="transfer-dialog" aria-labelledby="transfer-dialog-title">
+      <div class="dialog-heading">
+        <p class="workshop-label">Bắt đầu Practice mới</p>
+        <h3 id="transfer-dialog-title" tabindex="-1">Bạn muốn mang theo điều gì?</h3>
+        <p>Practice hiện tại sẽ được lưu lại. Chọn cách khởi tạo Executor chat mới.</p>
+      </div>
+      <div class="transfer-choices">
+        <button class="transfer-choice" type="button" data-workspace-action="transfer-selective" aria-describedby="selective-transfer-status">
+          <span aria-hidden="true">↗</span><strong>Chuyển ngữ cảnh có chọn lọc</strong><small id="selective-transfer-status">Tạm thời không khả dụng: Codex hiện chỉ nhận phần chuyển này trong ngữ cảnh ẩn, không hiển thị trong chat.</small>
+        </button>
+        <button class="transfer-choice" type="button" data-workspace-action="transfer-fresh">
+          <span aria-hidden="true">○</span><strong>Bắt đầu hoàn toàn mới</strong><small>Tạo Executor chat trống, không mang nội dung từ Practice trước.</small>
+        </button>
+      </div>
+      <div class="dialog-actions">
+        <button class="button secondary" type="button" data-workspace-action="close-transfer">Hủy</button>
+      </div>
+    </dialog>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

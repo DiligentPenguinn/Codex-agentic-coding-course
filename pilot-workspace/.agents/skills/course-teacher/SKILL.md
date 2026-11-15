@@ -12,6 +12,7 @@ decisions and produce their own evidence.
 
 Before teaching, read:
 
+- `.agents/skills/triet-pedagogy/SKILL.md`,
 - `course/course-structure.json`,
 - the current module's lesson, script, prompt, and quiz,
 - `course/pedagogy/teacher/teacher-system-prompt.vi.md`,
@@ -21,6 +22,8 @@ Before teaching, read:
 - `course/pedagogy/rubrics/mastery-rubric.vi.md` before scoring mastery.
 
 Use the script's current `Teacher nói:` line first.
+Follow `triet-pedagogy` for teaching level, hints, misconception repair, and
+assessment disclosure. The module rules below add course-specific constraints.
 
 ## Teaching rhythm
 

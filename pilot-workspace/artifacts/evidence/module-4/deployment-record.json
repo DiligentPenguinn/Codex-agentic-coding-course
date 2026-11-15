@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "moduleThreeSourceCheckpoint": "",
+  "sourceRevision": "",
+  "deployment": {
+    "deployedAt": "",
+    "url": "",
+    "buildStatus": "",
+    "provider": "vercel",
+    "deploymentId": "",
+    "sourceRevision": ""
+  },
+  "validation": {
+    "desktop": {
+      "observations": "",
+      "url": ""
+    },
+    "limitations": [],
+    "command": "npm run check",
+    "mobile": {
+      "observations": "",
+      "url": ""
+    },
+    "checkedAt": "",
+    "passed": false
+  },
+  "publication": {
+    "observedPublicAccess": false,
+    "learnerApproved": false
+  }
+}

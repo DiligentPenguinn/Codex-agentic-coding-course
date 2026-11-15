@@ -62,14 +62,26 @@ function isTeacherContext(value: unknown): value is TeacherContext {
 
 function isTeacherMessage(value: unknown): value is TeacherMessage {
   if (!isRecord(value)) return false
+  if (value.schemaVersion !== undefined && value.schemaVersion !== 1) return false
   if (typeof value.id !== 'string' || value.id.length < 1 || value.id.length > 100) return false
   if (value.role !== 'learner' && value.role !== 'teacher') return false
-  if (value.source !== 'learner' && value.source !== 'fixture') return false
+  if (value.source !== 'learner' && value.source !== 'fixture' && value.source !== 'live') return false
   if (value.role === 'learner' && value.source !== 'learner') return false
-  if (value.role === 'teacher' && value.source !== 'fixture') return false
+  if (value.role === 'teacher' && value.source !== 'fixture' && value.source !== 'live') return false
   if (typeof value.content !== 'string' || value.content.length < 1 || value.content.length > MAX_MESSAGE_LENGTH) return false
   if (typeof value.timestamp !== 'string' || Number.isNaN(Date.parse(value.timestamp))) return false
-  return value.checkpointId === undefined || isCheckpointId(value.checkpointId)
+  if (value.checkpointId !== undefined && !isCheckpointId(value.checkpointId)) return false
+  if (
+    value.practiceRunId !== undefined &&
+    (typeof value.practiceRunId !== 'string' || value.practiceRunId.length < 1 || value.practiceRunId.length > 100)
+  ) return false
+  if (
+    value.deliveryStatus !== undefined &&
+    value.deliveryStatus !== 'pending' &&
+    value.deliveryStatus !== 'delivered' &&
+    value.deliveryStatus !== 'failed'
+  ) return false
+  return true
 }
 
 export function isTeacherSendRequest(value: unknown): value is TeacherSendRequest {
@@ -89,16 +101,10 @@ function replyFor(context?: TeacherContext): string {
     return 'Codex là coding agent của OpenAI. Nó có thể đọc tệp, dùng công cụ, chạy lệnh và kiểm tra kết quả trong phạm vi bạn cho phép.'
   }
   if (context.checkpointId === 'm1-model-choice') {
-    return 'Cấu hình khóa học đề xuất cho ContentPilot là 5.6 Sol, High và Standard. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
-  }
-  if (context.checkpointId === 'm1-permissions') {
-    return 'Người mới nên dùng Approve for me và không bật Full access. Bạn sẽ cài thật rồi nộp ảnh trong Practice.'
-  }
-  if (context.checkpointId === 'm1-agents-guidance' || context.checkpointId === 'm1-skills') {
-    return 'Hãy hình dung model là bộ não. Harness là workspace, công cụ, chỉ dẫn, ranh giới an toàn và vòng phản hồi giúp bộ não đó làm việc.'
+    return 'Mình đề xuất 5.6 Sol, High và Standard cho ContentPilot. Đây là lựa chọn cho dự án này, không phải mặc định của mọi tài khoản Codex.'
   }
   if (context.checkpointId === 'm1-setup-checklist') {
-    return 'Hãy nộp hai ảnh trong đúng task Executor: một ảnh Model, Effort và Speed; một ảnh Approval cùng trạng thái Full access.'
+    return 'Hãy sửa từng giá trị trong đúng task Codex. Triết sẽ đối chiếu trực tiếp Model, Effort, Speed, Approval và Full access; nội dung chat không thể tự đánh dấu đạt.'
   }
 
   if (context.checkpointId === 'm2-prd-interview') {
@@ -114,7 +120,7 @@ function replyFor(context?: TeacherContext): string {
     context.checkpointId === 'm2-alignment-review' ||
     context.checkpointId === 'm2-planning-package'
   ) {
-    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra.'
+    return 'Hãy đối chiếu bốn điểm: đủ yêu cầu trong phạm vi, không có scope creep, mỗi bước truy ngược về PRD và mỗi Done When có cách kiểm tra. Nếu PRD hoặc plan đổi, hãy làm lại đúng các bước bị đánh dấu cũ.'
   }
   if (context.lessonId === 'module-2') {
     return 'Ở Module 2, hãy giữ planning trước code: làm rõ quyết định sản phẩm, review PRD rồi mới chuyển sang implementation plan.'
@@ -152,7 +158,9 @@ export class TeacherChatRepository {
         }
       }
 
-      return { messages: messages.slice(-MAX_LOADED_MESSAGES), recovered }
+      const latestById = new Map(messages.map((message) => [message.id, message]))
+      const deduplicated = [...latestById.values()].sort((left, right) => left.timestamp.localeCompare(right.timestamp))
+      return { messages: deduplicated.slice(-MAX_LOADED_MESSAGES), recovered }
     } catch (error) {
       if (isRecord(error) && error.code === 'ENOENT') {
         return { messages: [], recovered: false }

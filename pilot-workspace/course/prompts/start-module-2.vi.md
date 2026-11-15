@@ -1,19 +1,25 @@
 Dùng `$start-course-lesson module-2` để bắt đầu bài
-**Giao tiếp hiệu quả với coding agent: Planning, PRD và prompt**.
+**Planning và PRD trước khi code với AI**.
 
-Teacher phải bắt đầu bằng lý do planning quan trọng, sau đó mới đưa ý tưởng
-ContentPilot một câu. Learner sẽ dùng coding agent để làm rõ ý tưởng theo hình
-thức phỏng vấn từng câu một, duyệt PRD một trang, rồi duyệt implementation plan
-khớp với PRD.
+Đọc `course/lesson-scripts/module-2.script.vi.md` làm nguồn điều phối và dạy đúng
+bốn phần kiến thức tổng quát:
 
-Teacher không được kiểm tra ngay sau một câu giải thích. Hãy dạy trọn cụm
-Planning và PRD rồi hỏi 3 câu; dạy trọn Prompt engineering rồi hỏi 3 câu; dạy
-trọn Implementation plan rồi hỏi 2 câu. Sau planning package, Teacher mới mở
-15 câu kiểm tra tổng hợp. Mỗi câu phải lấy căn cứ từ nguồn ghi trong
-`course/quizzes/module-2.quiz.json`. Chỉ hiện lời giải và nguồn sau khi Learner
-đã trả lời.
+1. giải thích vì sao cần planning trước khi code với AI;
+2. giới thiệu PRD và mục đích của tài liệu này;
+3. hướng dẫn dùng coding agent để tạo, review và duyệt PRD;
+4. giải thích implementation plan.
 
-Module dừng trước khi viết code. Không yêu cầu Learner chuẩn bị dữ liệu, đọc
-codebase, chọn công nghệ, cài dependency hoặc sửa ứng dụng. Chỉ đánh dấu hoàn
-thành khi cả `artifacts/PRD.md` và `artifacts/implementation-plan.md` tồn tại,
-đã được Learner duyệt, vượt qua alignment review và Learner đạt mastery gate.
+Dùng nguyên văn lời dẫn và giọng kể đã được duyệt trong bài học. Không rút gọn,
+viết lại hoặc xen các bước thiết lập Practice vào giữa phần kiến thức.
+
+Sau phần implementation plan, chuyển thẳng Learner sang Practice trong Course
+Companion. Teacher không hướng dẫn chọn workspace, tạo `AGENTS.md`, tạo artifact
+hoặc review từng giai đoạn. Executor sẽ hướng dẫn các bước đó sau khi Learner
+mở Practice.
+
+Khi Learner quay lại với Practice receipt hợp lệ, tiếp tục phần kiểm tra cuối
+bài. Hỏi đúng một câu mỗi lượt, chỉ đưa feedback sau khi Learner trả lời và
+không dùng ví dụ trong bài làm đáp án thay Learner.
+
+Không yêu cầu Learner đọc code, chọn công nghệ hoặc gói phụ thuộc, cài đặt hay
+tạo ứng dụng trong Module 2. Không hứa thời lượng hoặc tốc độ hoàn thành.
