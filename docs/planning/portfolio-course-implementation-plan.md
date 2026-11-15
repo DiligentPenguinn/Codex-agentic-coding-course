@@ -49,6 +49,42 @@ and must never be inferred from a passing automated check.
 | Module 3 | `implemented` — approved v2 Practice, current archive/restart recovery, complete source fingerprints and task-acceptance freshness; all incoming course scenes/questions preserved | `passed` for the 22 October Windows Practice batch and Module 2→3→4 rehearsal described below | v2 design/implementation approved 13 September; student-review repairs requested 22 October; exact continuation restart copy approved; runtime acceptance `pending` | `pending` | Obtain real learner/AI and owner runtime acceptance; preserve the mixed working tree. |
 | Module 4 | `in-progress` overall — Practice, course-page entry, reviewed return and terminal completion recording are `implemented`; course-wide acceptance remains separate | `passed` for the 29 October Windows delivery batch, disposable journey, live publication and QA-only completion described below; real beginner/AI/native acceptance is separate | Scoped implementation and subsequent end-user QA/repairs authorized; public sample release, two exact wording corrections, beginner review policy and current-branch commit/push explicitly approved; final learner/runtime acceptance `pending` | `pending` | Commit and push the verified current branch; retain real beginner-pilot, native macOS and overall acceptance gates. |
 
+### Main integration verification — 15 November 2026
+
+| Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
+|---|---|---|---|---|---|
+| Foundation / I4 / M2.6 / M3.8 / M4.8 — whole-branch integration | `implemented` for the existing integration; overall module states above remain unchanged | `passed` for the fresh Windows integration batch below | PR and merge of the whole current branch into `main` explicitly requested; runtime and overall course acceptance remain separate | `pending` | Deliver the verified integration through PR #7; retain beginner-pilot, native macOS and overall acceptance work. |
+
+The owner requested integrating the complete
+`codex/practice-workflow-to-triet-v3-planning` branch into `main`, including the
+updated course-introduction README and its portfolio journey diagram. The
+README now describes the current four-module portfolio course, five-document
+planning package, continuous task, Practice review and startup flow. No runtime,
+lesson, assessment, learner file or saved progress changed during this delivery.
+
+Fresh checks at `b5cbcd9` passed:
+
+- `npm run lint`.
+- `npm exec -- vitest run --maxWorkers=2`: 93 test files, 794 tests passed and
+  three existing skips. The established two-worker setting was retained.
+- `npm run test:startup`: all nine startup checks passed.
+- `npm run test:electron`: typecheck, production build, Electron smoke, Teacher
+  chat, Practice guide and deferred review-feedback suites passed.
+- `node tests/portfolio-package-electron.mjs`: the disposable Modules 2–4
+  journey passed, including five-document review, original-task continuity,
+  current approval, archived revision, mastery, reviewed release return and
+  desktop/narrow controls.
+- Root README local links, balanced Markdown code fences and scoped
+  `git diff --check` passed. The diagram was checked in source; no rendered
+  Mermaid preview was inspected.
+
+Local logs are `.superpowers/qa/main-merge-{lint,unit,startup,electron,portfolio}.log`
+and remain ignored. Electron and portfolio journeys used disposable simulated
+profiles, not the learner's normal profile or a live deployment. These checks
+do not grant beginner-pilot, native macOS, runtime or overall course acceptance.
+The previously recorded assessment outline-preview presentation gap remains
+open. The ledger-only delivery record does not change verified runtime code.
+
 ### Continuation banner and Module 2 quiz-blocker feedback — 29 October 2026
 
 | Scope | Implementation | Verification | Owner approval | Pilot acceptance | Next permitted action |
