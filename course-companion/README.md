@@ -1,10 +1,202 @@
-# Course Companion
+# Course Companion — Hướng dẫn bắt đầu
 
-Đây là ứng dụng desktop Course Companion dành cho người học. Ứng dụng được
-phát triển riêng với các bản mẫu HTML trước đây và ContentPilot, ứng dụng
-thực hành dùng để luyện kỹ năng làm việc cùng coding agent trong khóa học.
+Chào bạn! Course Companion là nơi bạn học Vibecoding 101, xem ví dụ và theo
+dõi hành trình xây portfolio của mình. Khi đến phần thực hành, bạn sẽ làm
+việc cùng Codex, rồi quay về đây để xem lại kết quả và học tiếp.
 
-## Các chức năng đã triển khai
+Bạn không cần hiểu hết các thuật ngữ kỹ thuật ngay từ đầu. Mình sẽ cùng bạn
+đi qua phần chuẩn bị trước; sau đó, hãy làm theo từng hướng dẫn trong bài.
+
+## Trước khi bắt đầu
+
+Bạn cần:
+
+- máy tính Windows hoặc macOS có kết nối internet;
+- Git để tải khóa học về máy;
+- tài khoản ChatGPT có quyền dùng Codex và ứng dụng Codex để làm thực hành;
+- Node.js 22 trở lên nếu dùng macOS.
+
+Trên Windows, nếu thiếu Node.js, trình khởi động sẽ đề xuất cách cài và hỏi
+bạn trước khi thực hiện. Trên macOS, bạn cần cài Node.js trước khi chạy khóa
+học.
+
+Nếu chưa có Git hoặc chưa biết tải khóa học ở đâu, bạn có thể bắt đầu từ
+[README giới thiệu khóa học](../README.md). Bạn chưa cần tài khoản GitHub
+hay Vercel để vào phần giới thiệu; khóa học sẽ dùng đến chúng khi bạn chuẩn
+bị phát hành portfolio.
+
+## Thiết lập khóa học
+
+### Bước 1 — Tải khóa học hoặc mở thư mục đã có
+
+**Nếu bạn đã tải khóa học theo README chính**, hãy mở thư mục
+`codex-content-creator-course` trên máy. Bạn không cần tải thêm một bản nữa.
+
+**Nếu chưa tải**, mở **Command Prompt** hoặc **PowerShell** trên Windows,
+hoặc **Terminal** trên macOS, trong thư mục bạn muốn lưu khóa học. Chạy lần
+lượt:
+
+```text
+git clone https://github.com/DiligentPenguinn/codex-content-creator-course.git
+cd codex-content-creator-course
+```
+
+Thư mục dùng để khởi động là thư mục có hai file `start-course.cmd` và
+`start-course.command`. Nếu đang ở trong thư mục con `course-companion`,
+hãy quay ra thư mục bên ngoài một cấp trước khi làm bước tiếp theo.
+
+### Bước 2 — Chạy lệnh khởi động phù hợp với máy
+
+Mở cửa sổ dòng lệnh tại thư mục khóa học ở bước 1. Nếu vừa chạy hai lệnh
+tải khóa học ở trên, bạn đã ở đúng chỗ và có thể dùng luôn cửa sổ đó.
+
+#### Windows
+
+Trong **Command Prompt** hoặc **PowerShell**, chạy:
+
+```bat
+.\start-course.cmd
+```
+
+#### macOS
+
+Trong **Terminal**, chạy:
+
+```bash
+./start-course.command
+```
+
+Bạn cũng có thể nhấp đúp `start-course.command` trong Finder.
+
+### Bước 3 — Đọc và xác nhận phần chuẩn bị
+
+Trình khởi động sẽ kiểm tra các công cụ cần thiết. Nếu thiếu phần nào, bạn
+sẽ thấy lệnh dự kiến chạy và phần giải thích trước khi được hỏi có muốn
+tiếp tục hay không.
+
+Khi thấy câu hỏi có dạng `[y/N]`:
+
+- nếu đồng ý với phần chuẩn bị vừa hiển thị, nhập `y` rồi nhấn **Enter**;
+- nếu chưa muốn cài, nhập `n` hoặc chỉ nhấn **Enter** để từ chối.
+
+**Không có gì được cài nếu bạn chưa đồng ý.** Nếu từ chối, trình khởi động
+sẽ dừng và cho biết bước bạn có thể tự thực hiện. Bạn có thể chạy lại lệnh
+khởi động khi đã sẵn sàng.
+
+Sau khi xác nhận, hãy chờ quá trình chuẩn bị hoàn tất. Course Companion sẽ
+tự mở; nếu mọi thứ đã có sẵn, ứng dụng sẽ mở mà không cần cài thêm.
+
+### Bước 4 — Bắt đầu bài học
+
+Nếu đây là lần đầu, bạn sẽ vào phần giới thiệu. Nếu đã học trước đó, ứng
+dụng sẽ khôi phục tiến độ trên máy và đưa bạn về bước đang học.
+
+Hãy đọc phần hướng dẫn và tiếp tục theo các nút trong bài. Khi gặp một từ
+chưa quen, bạn có thể hỏi Teacher giải thích lại bằng ví dụ gần với mình.
+
+## Course Companion và Codex: mình dùng bên nào?
+
+| Bạn muốn làm gì? | Mở ở đâu? |
+| --- | --- |
+| Đọc bài học, xem ví dụ và trả lời câu hỏi | Cửa sổ học Course Companion |
+| Hỏi về nội dung lý thuyết đang học | Teacher trong bài học |
+| Lên kế hoạch, xây hoặc sửa portfolio | Đúng task Codex được liên kết với bài Practice |
+| Xem checklist, xin gợi ý hoặc nộp kết quả thực hành | Bảng Practice của Teacher |
+
+Ở đây, **Practice** là bài thực hành; **task Codex** là cuộc trò chuyện công
+việc dành cho bài đó. Hãy làm theo hướng dẫn mở hoặc tiếp tục task trong bài
+để giữ đúng cuộc trò chuyện đang dùng.
+
+Bạn là người quyết định mục tiêu, duyệt kế hoạch và chấp nhận kết quả.
+Teacher giúp giải thích, gợi ý và nhận xét; Codex thực hiện phần kỹ thuật
+khi bạn giao việc.
+
+## Khi đến phần Practice
+
+1. **Đọc mục tiêu.** Xem bạn cần làm gì và kết quả cần đạt trước khi chuyển
+   sang Codex.
+2. **Mở bài thực hành theo hướng dẫn.** Dùng lựa chọn bắt đầu hoặc tiếp tục
+   trong ứng dụng để mở đúng task Codex đã liên kết.
+3. **Làm từng phần cùng Codex.** Đọc hướng dẫn và sao chép vào task khi bài
+   yêu cầu. Từ Module 2 đến Module 4, giữ cùng thư mục portfolio và cùng task
+   để kế hoạch, quá trình xây và phần phát hành nối tiếp nhau.
+4. **Xin gợi ý khi cần.** Trong Practice, bạn làm việc trực tiếp với Codex.
+   Bảng checklist và nút **Cần gợi ý?** giúp bạn xác định bước tiếp theo.
+5. **Nộp kết quả khi sẵn sàng.** Teacher xem xét bằng chứng của bài thực
+   hành. Nếu còn thiếu, hãy đọc phản hồi, bổ sung cùng Codex trong task cũ,
+   rồi nộp lại.
+6. **Lưu kết quả và học tiếp.** Khi Practice được duyệt đạt, chọn
+   **Lưu kết quả và quay lại khóa học**. Sau đó, tiếp tục các câu hỏi hoặc
+   phần tổng kết mà bài học yêu cầu.
+
+Bạn không cần tự giải quyết mọi vấn đề kỹ thuật. Khi chưa hiểu một đề xuất,
+hãy nhờ Codex giải thích bằng lời dễ hiểu và cho biết bạn có thể tự xem kết
+quả ở đâu trước khi quyết định.
+
+### Lần đầu thực hành Module 1
+
+Ứng dụng sẽ mở một hướng dẫn để bạn làm quen với vòng thực hành. Bạn có thể
+nhấn **Esc** để tạm dừng, chọn **Bỏ qua**, tiếp tục từ thông báo tạm dừng,
+hoặc dùng **Xem lại hướng dẫn Practice** để xem lại.
+
+Xem lại hướng dẫn không làm mất bài đang làm hay tiến độ. Hướng dẫn giúp
+bạn làm quen; bạn vẫn tự thao tác và nộp kết quả của mình.
+
+### Nếu Teacher thu nhỏ thành một bong bóng
+
+Đó là chế độ đồng hành để bạn có thêm chỗ làm việc trong Codex. Nhấp một lần
+để mở cửa sổ xem nhanh, hoặc nhấp đúp để mở Teacher đầy đủ. Bạn cũng có thể
+dùng biểu tượng mở rộng trong cửa sổ xem nhanh.
+
+## Dừng và quay lại học sau
+
+Bạn có thể đóng ứng dụng và mở lại bằng lệnh khởi động ở bước 2. Không cần
+chạy lại `git clone` hay tạo thư mục khóa học mới.
+
+Course Companion lưu tiến độ trên máy để bạn tiếp tục từ chỗ đang học. Khi
+quay lại Practice, hãy dùng lựa chọn tiếp tục để mở đúng task cũ.
+
+Tiến độ này được lưu trong thư mục dữ liệu ứng dụng của hệ điều hành, nên
+nếu đổi sang máy khác, bạn không nên mặc định rằng tiến độ sẽ tự xuất hiện.
+Nếu ứng dụng đề nghị đặt lại tiến độ, hãy đọc kỹ trước khi xác nhận.
+
+## Nếu bạn gặp vướng mắc
+
+| Bạn đang thấy gì? | Bạn có thể thử gì? |
+| --- | --- |
+| Lệnh `git` không được nhận diện | Kiểm tra Git đã được cài, rồi mở lại cửa sổ dòng lệnh và thử lại bước tải khóa học. |
+| Không tìm thấy `start-course.cmd` hoặc `start-course.command` | Kiểm tra bạn đang ở thư mục `codex-content-creator-course`, nơi có hai file khởi động, thay vì thư mục con `course-companion`. |
+| Thông báo thiếu Node.js hoặc npm | Trên Windows, đọc đề xuất cài đặt của trình khởi động. Trên macOS, chuẩn bị Node.js 22 trở lên cùng npm, rồi chạy lại lệnh khởi động. |
+| Quá trình chuẩn bị dừng sau khi bạn từ chối cài | Đây là hành vi bình thường. Khi sẵn sàng, chạy lại lệnh khởi động và xem lại phần chuẩn bị. |
+| Thông báo Codex chưa tương thích | Cập nhật Codex theo thông báo, rồi đóng và mở lại Course Companion. |
+| Không mở được task hoặc chưa kết nối được với Codex | Kiểm tra Codex đã mở, bạn đã đăng nhập và có kết nối internet, rồi dùng nút thử lại nếu ứng dụng hiển thị. |
+| Practice chưa được duyệt đạt | Đọc phần còn thiếu trong phản hồi, bổ sung trong đúng task đang làm rồi nộp lại. |
+
+Nếu vẫn chưa xử lý được, hãy giữ lại **nguyên văn thông báo lỗi**, cho biết
+bạn dùng Windows hay macOS và đang ở bước nào trong hướng dẫn. Một ảnh chụp
+màn hình lúc gặp lỗi cũng giúp người hỗ trợ hiểu tình huống nhanh hơn.
+
+## Tiến độ, dữ liệu và giới hạn hiện tại
+
+- Tiến độ và lịch sử Teacher được lưu trên máy của bạn.
+- Course Companion chỉ đọc bằng chứng có giới hạn từ đúng task Practice và
+  các file liên quan. Teacher không tự sửa dự án hay phê duyệt thay bạn.
+- Kết quả do Codex báo cáo được phân biệt với phần ứng dụng đã tự đối chiếu.
+  Nhãn **MÔ PHỎNG** chỉ dữ liệu dùng để kiểm thử, không phải kết quả thực
+  hành thật.
+- Hiện có trình khởi động cho Windows và macOS. Luồng Windows đã được kiểm
+  tra tự động; trải nghiệm trên máy Mac thật và với người mới học vẫn cần
+  được kiểm chứng thêm.
+
+## Dành cho người phát triển và kiểm thử
+
+Bạn không cần đọc phần này để bắt đầu học. Các chi tiết về lưu dữ liệu,
+kết nối Codex và lệnh kiểm thử được giữ bên dưới để tiện tra cứu.
+
+<details>
+<summary>Mở thông tin kỹ thuật và hướng dẫn kiểm thử</summary>
+
+### Các chức năng đã triển khai
 
 Ứng dụng hiện có:
 
@@ -90,7 +282,7 @@ trò chuyện Codex thật. Chỉ trong kiểm thử phát triển,
 hồi cố định, không được đóng gói vào bản phát hành, để bộ kiểm thử không tạo
 task trong tài khoản của người dùng.
 
-## Hướng dẫn Practice ở Module 1
+### Hướng dẫn Practice ở Module 1
 
 Khi một lần thực hành Module 1 mới mở đến giao diện Teacher đầy đủ và ổn định,
 Course Companion tự mở hướng dẫn lần đầu. Bạn chủ động từng bước: nhấn **Esc**
@@ -110,7 +302,7 @@ phát triển và khi đóng gói giống với cách tìm định nghĩa Practi
 `COURSE_COMPANION_PRACTICE_GUIDES_DIR` thành đường dẫn thư mục tuyệt đối khi
 cần kiểm thử một bộ hướng dẫn khác trên máy.
 
-## Khởi động trên Windows
+### Khởi động trên Windows
 
 Từ thư mục gốc của repository, chạy:
 
@@ -133,7 +325,7 @@ Nếu không tìm thấy, không nhận diện được hoặc phiên bản quá
 ở bước kiểm tra trước khi tạo hay mở task. Bước kiểm tra này không tải phần
 mềm hoặc thay đổi bản cài đặt trên máy của bạn.
 
-## Khởi động trên macOS
+### Khởi động trên macOS
 
 Từ thư mục gốc của repository, nhấp đúp `start-course.command` trong Finder
 hoặc chạy:
@@ -149,7 +341,7 @@ và được hỏi trước khi ứng dụng chạy `npm ci` rồi xác minh mô
 ứng dụng Electron này. Trình khởi động không cài Codex toàn cục và không trình
 bày phản hồi Teacher hay bằng chứng mô phỏng như dữ liệu thật.
 
-## Chạy ứng dụng để phát triển
+### Chạy ứng dụng để phát triển
 
 Trong thư mục `course-companion/`, chạy:
 
@@ -161,7 +353,7 @@ npm run dev
 Không đưa `node_modules` vào repository. Lệnh `npm install` tạo thư mục này
 trên máy dựa trên `package-lock.json`.
 
-## Kiểm tra ứng dụng
+### Kiểm tra ứng dụng
 
 Trong thư mục `course-companion/`, chạy:
 
@@ -176,7 +368,7 @@ npm run test:electron
 Để kiểm tra cả trình khởi động macOS và toàn bộ hành trình Electron, chạy
 `./start-course.command --smoke` từ thư mục gốc của repository.
 
-## Kiểm tra luồng Practice
+### Kiểm tra luồng Practice
 
 1. Mở Module 1 và đi đến bước **Sang Codex để thực hành**.
 2. Đọc mục tiêu và kết quả cần đạt, rồi chọn **Bắt đầu Practice mới** hoặc
@@ -208,3 +400,5 @@ Lệnh khởi động, đường dẫn môi trường Electron, cách đặt v�
 từng nền tảng. Windows đã vượt qua luồng kiểm thử Electron tự động trong
 repository này. Sau khi thay đổi các phần phụ thuộc nền tảng, vẫn cần kiểm
 tra trực tiếp trên máy Mac thật.
+
+</details>
